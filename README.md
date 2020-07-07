@@ -1,4 +1,4 @@
 # Razix
-A light weight game engine built on top of OpenGL ES, Box2D and PhysX
+The Next Generation Open Source Game Engine.
 
-# To be updated....
+# To Be Updated Soon....
