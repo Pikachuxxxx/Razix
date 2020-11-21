@@ -1,0 +1,3 @@
+[submodule "Razix/vendor/spdlog"]
+	path = Razix/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
