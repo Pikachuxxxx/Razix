@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 	/// Logging System
 	Razix::Log::InitLogger();
 
-	RZX_CORE_WARN("Initialized Core Engine Logger");
+	RZX_CORE_INFO("Initialized Core Engine Logger");
 	RZX_INFO("Initialized Engine Application Logger");
 
 	/// Application auto Initialization by the Engine

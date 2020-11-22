@@ -8,4 +8,6 @@
 	#endif
 #elif RZX_PLATFORM_MACOS
 	#error Does not support MacOS yet!
-#endif
+#endif 
+
+#define BIT(x) (1 << x) 
