@@ -1,3 +1,6 @@
 [submodule "Razix/vendor/spdlog"]
 	path = Razix/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Razix/vendor/GLFW"]
+	path = Razix/vendor/GLFW
+	url = https://github.com/Pikachuxxxx/glfw
