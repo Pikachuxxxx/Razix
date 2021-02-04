@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-#include <sstream>
-
 namespace Razix {
 
 	class RAZIX_API MouseMovedEvent : public Event

@@ -1,107 +1,131 @@
 workspace "Razix"
-	architecture "x64"
+    architecture "x64"
 
-	configurations
-	{
-		"Debug",
-		"Release",
-		"Dist"
-	}
+    configurations
+    {
+        "Debug",
+        "Release",
+        "Dist"
+    }
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- Include directories relative to root folder (solution directory)
+IncludeDir = {}
+IncludeDir["GLFW"] = "%{wks.location}/Razix/vendor/GLFW/include"
+
+-- premake includes of Dependencies
+include "Razix/vendor/GLFW"
+
 project "Razix"
-	location "Razix"
-	kind "SharedLib"
-	language "C++"
+    location "Razix"
+    kind "SharedLib"
+    language "C++"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
-	}
+    pchheader "rzxpch.h"
+    pchsource "Razix/src/rzxpch.cpp"
 
-	includedirs
-	{
-		"%{prj.name}/vendor/spdlog/include"
-	}
+    files
+    {
+        "%{prj.name}/src/**.h",
+        "%{prj.name}/src/**.cpp"
+    }
 
-	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
-		systemversion "latest"
+    includedirs
+    {
+        "%{prj.name}/src",
+        "%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.GLFW}"
+    }
 
-		defines
-		{
-			"RZX_PLATFORM_WINDOWS",
-			"RZX_BUILD_DLL"
-		}
+    links
+    {
+        "GLFW",
+        "opengl32.lib"
+    }
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-		}
+    filter "system:windows"
+        cppdialect "C++17"
+        staticruntime "On"
+        systemversion "latest"
 
-		filter "configurations:Debug"
-			defines "RZX_DEBUG"
-			symbols "On"
+        defines
+        {
+            "RZX_PLATFORM_WINDOWS",
+            "RZX_BUILD_DLL"
+        }
 
-		filter "configurations:Release"
-			defines "RZX_RELEASE"
-			optimize "On"
+        postbuildcommands
+        {
+            ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+        }
 
-		filter "configurations:Dist"
-			defines "RZX_DIST"
-			symbols "Off"
-			optimize "Full"
+        filter "configurations:Debug"
+            defines "RZX_DEBUG"
+            symbols "On"
+        
+        -- Defines specific to debu mode
+        defines
+        {
+            "RZX_ENABLE_ASSERTS"
+        }
+
+        filter "configurations:Release"
+            defines "RZX_RELEASE"
+            optimize "On"
+
+        filter "configurations:Dist"
+            defines "RZX_DIST"
+            symbols "Off"
+            optimize "Full"
 
 project "Sandbox"
-	location "Sandbox"
-	kind "ConsoleApp"
-	language "C++"
+    location "Sandbox"
+    kind "ConsoleApp"
+    language "C++"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
-	}
+    files
+    {
+        "%{prj.name}/src/**.h",
+        "%{prj.name}/src/**.cpp"
+    }
 
-	includedirs
-	{
-		"Razix/vendor/spdlog/include",
-		"Razix/src"
-	}
+    includedirs
+    {
+        "Razix/vendor/spdlog/include",
+        "Razix/src"
+    }
 
-	links
-	{
-		"Razix"
-	}
+    links
+    {
+        "Razix"
+    }
 
-	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
-		systemversion "latest"
+    filter "system:windows"
+        cppdialect "C++17"
+        staticruntime "On"
+        systemversion "latest"
 
-		defines
-		{
-			"RZX_PLATFORM_WINDOWS"
-		}
+        defines
+        {
+            "RZX_PLATFORM_WINDOWS"
+        }
 
-		filter "configurations:Debug"
-			defines "RZX_DEBUG"
-			symbols "On"
+        filter "configurations:Debug"
+            defines "RZX_DEBUG"
+            symbols "On"
 
-		filter "configurations:Release"
-			defines "RZX_RELEASE"
-			optimize "On"
+        filter "configurations:Release"
+            defines "RZX_RELEASE"
+            optimize "On"
 
-		filter "configurations:Dist"
-			defines "RZX_DIST"
-			symbols "Off"
-			optimize "Full"
+        filter "configurations:Dist"
+            defines "RZX_DIST"
+            symbols "Off"
+            optimize "Full"
