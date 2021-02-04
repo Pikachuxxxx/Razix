@@ -1,13 +1,23 @@
 #pragma once
 
+// DLL Export and Import settings for Windows OS
 #ifdef RZX_PLATFORM_WINDOWS
-	#ifdef RZX_BUILD_DLL
-		#define RAZIX_API __declspec(dllexport)
-	#else
-		#define RAZIX_API __declspec(dllimport)
-	#endif
+    #ifdef RZX_BUILD_DLL
+        #define RAZIX_API __declspec(dllexport)
+    #else
+        #define RAZIX_API __declspec(dllimport)
+    #endif
+
 #elif RZX_PLATFORM_MACOS
-	#error Does not support MacOS yet!
+    #error Does not support MacOS yet!
 #endif 
+
+#if RZX_ENABLE_ASSERTS
+    #define RZX_CORE_ASSERT(x, ...) {if(!(x)) { RZX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FUNCTION__); __debugbreak();}}
+    #define RZX_ASSERT(x, ...) {if(!(x)) { RZX_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FUNCTION__); __debugbreak();}}
+#else 
+    #define RZX_CORE_ASSERT(x, ...)
+    #define RZX_ASSERT(x, ...)
+#endif
 
 #define BIT(x) (1 << x) 

@@ -3,18 +3,18 @@
 class Sandbox : public Razix::Application
 {
 public:
-	Sandbox()
-	{
+    Sandbox()
+    {
 
-	}
+    }
 
-	~Sandbox()
-	{
+    ~Sandbox()
+    {
 
-	}
+    }
 };
 
 Razix::Application* Razix::CreateApplication()
 {
-	return new Sandbox();
+    return new Sandbox();
 }
