@@ -12,9 +12,9 @@
     #error Does not support MacOS yet!
 #endif 
 
-#if RZX_ENABLE_ASSERTS
-    #define RZX_CORE_ASSERT(x, ...) {if(!(x)) { RZX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FUNCTION__); __debugbreak();}}
-    #define RZX_ASSERT(x, ...) {if(!(x)) { RZX_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FUNCTION__); __debugbreak();}}
+#if RZX_ENABLE_ASSERTS // Only available in Debug Builds
+    #define RZX_CORE_ASSERT(x, ...) {if(!(x)) { RZX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); __debugbreak();}}
+    #define RZX_ASSERT(x, ...) {if(!(x)) { RZX_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); __debugbreak();}}
 #else 
     #define RZX_CORE_ASSERT(x, ...)
     #define RZX_ASSERT(x, ...)

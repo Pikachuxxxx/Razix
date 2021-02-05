@@ -65,6 +65,7 @@ project "Razix"
 
         filter "configurations:Debug"
             defines "RZX_DEBUG"
+            buildoptions "/MDd"
             symbols "On"
         
         -- Defines specific to debu mode
@@ -75,10 +76,12 @@ project "Razix"
 
         filter "configurations:Release"
             defines "RZX_RELEASE"
+            buildoptions "/MD"
             optimize "On"
 
         filter "configurations:Dist"
             defines "RZX_DIST"
+            buildoptions "/MD"
             symbols "Off"
             optimize "Full"
 
@@ -119,13 +122,16 @@ project "Sandbox"
 
         filter "configurations:Debug"
             defines "RZX_DEBUG"
+            buildoptions "/MDd"
             symbols "On"
 
         filter "configurations:Release"
             defines "RZX_RELEASE"
+            buildoptions "/MD"
             optimize "On"
 
         filter "configurations:Dist"
             defines "RZX_DIST"
+            buildoptions "/MD"
             symbols "Off"
             optimize "Full"

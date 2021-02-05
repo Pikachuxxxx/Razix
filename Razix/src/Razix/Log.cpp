@@ -17,7 +17,7 @@ namespace Razix
         s_CoreLogger->set_level(spdlog::level::trace);
 
         s_ApplicationLogger = spdlog::stdout_color_mt("Razix Application");
-        s_ApplicationLogger->set_level(spdlog::level::info);
+        s_ApplicationLogger->set_level(spdlog::level::trace);
     }
 
 }
