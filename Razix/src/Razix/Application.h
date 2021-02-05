@@ -2,7 +2,7 @@
 
 #include "Core.h"
 #include "Window.h"
-
+#include "Razix/LayerStack.h"
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/KeyEvent.h"
 #include "Razix/Events/MouseEvent.h"
@@ -19,11 +19,15 @@ namespace Razix
         void Run();
 
         void OnEvent(Event& event);
+
+        void PushLayer(Layer* layer);
+        void PushOverlay(Layer* overlay);
     private:
         bool OnWindowClose(WindowCloseEvent& e);
 
         std::unique_ptr<Window> m_Window;
         bool m_Running = true;
+        LayerStack m_LayerStack;
     };
 
     // To be defined on CLIENT side to create the application
