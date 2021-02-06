@@ -14,10 +14,12 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "%{wks.location}/Razix/vendor/GLFW/include"
 IncludeDir["Glad"] = "%{wks.location}/Razix/vendor/glad/include"
+IncludeDir["ImGui"] = "%{wks.location}/Razix/vendor/ImGui"
 
 -- premake includes of Dependencies
 include "Razix/vendor/GLFW"
 include "Razix/vendor/glad"
+include "Razix/vendor/ImGui"
 
 project "Razix"
     location "Razix"
@@ -41,13 +43,15 @@ project "Razix"
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}"
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.ImGui}"
     }
 
     links
     {
         "GLFW",
         "Glad",
+        "ImGui",
         "opengl32.lib"
     }
 

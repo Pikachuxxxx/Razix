@@ -5,9 +5,15 @@
 
 namespace Razix
 {
-    #define BIND_CB_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+#define BIND_CB_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+
+    static Application* Application::sInstance = nullptr;
+
     Application::Application()
     {
+        RZX_CORE_ASSERT(!sInstance, "Application already exists!");
+        sInstance = this;
+
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(BIND_CB_EVENT_FN(OnEvent));
     }
@@ -22,6 +28,7 @@ namespace Razix
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<WindowCloseEvent>(BIND_CB_EVENT_FN(OnWindowClose));
 
+        // Core Event tracing
         RZX_CORE_TRACE("Event: {0}", event);
 
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
@@ -35,11 +42,13 @@ namespace Razix
     void Application::PushLayer(Layer* layer)
     {
         m_LayerStack.PushLayer(layer);
+        layer->OnAttach();
     }
 
     void Application::PushOverlay(Layer* overlay)
     {
         m_LayerStack.PushOverlay(overlay);
+        overlay->OnAttach();
     }
 
     bool Application::OnWindowClose(WindowCloseEvent& e)

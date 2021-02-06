@@ -35,9 +35,7 @@ namespace Razix
             bool Vsync;
 
             EventCallbackFn EventCallback;
-        };
-
-        WindowData m_Data;
+        } m_Data; // Call me old fashioned, Bitch!!!
     };
 
 }
