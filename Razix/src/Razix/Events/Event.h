@@ -4,8 +4,9 @@
 
 namespace Razix {
 
-    /// Events in Razix are currently blocking
-
+    // Events in Razix are currently blocking
+    //
+    // This means that they are handled/dispatched as given and not queued
     enum class EventType
     {
         None = 0,

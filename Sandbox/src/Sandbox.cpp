@@ -9,15 +9,9 @@ public:
 
     }
 
-    void OnUpdate() override
-    {
-        RZX_TRACE("Test Layer OnUpdate");
-    }
+    void OnUpdate() override { }
 
-    void OnEvent(Razix::Event& event) override
-    {
-        RZX_TRACE("{0}", event);
-    }
+    void OnEvent(Razix::Event& event) override { }
 };
 
 class Sandbox : public Razix::Application

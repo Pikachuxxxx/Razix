@@ -22,12 +22,17 @@ namespace Razix
 
         void PushLayer(Layer* layer);
         void PushOverlay(Layer* overlay);
+
+        inline Window& GetWindow() { return *m_Window; }
+        inline static Application& GetApplication() { return sInstance; }
     private:
         bool OnWindowClose(WindowCloseEvent& e);
 
         std::unique_ptr<Window> m_Window;
         bool m_Running = true;
         LayerStack m_LayerStack;
+    private:
+        Application* sInstance;
     };
 
     // To be defined on CLIENT side to create the application
