@@ -13,9 +13,11 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "%{wks.location}/Razix/vendor/GLFW/include"
+IncludeDir["Glad"] = "%{wks.location}/Razix/vendor/glad/include"
 
 -- premake includes of Dependencies
 include "Razix/vendor/GLFW"
+include "Razix/vendor/glad"
 
 project "Razix"
     location "Razix"
@@ -38,13 +40,21 @@ project "Razix"
     {
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
-        "%{IncludeDir.GLFW}"
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}"
     }
 
     links
     {
         "GLFW",
+        "Glad",
         "opengl32.lib"
+    }
+
+    defines
+    {
+        "RZX_BUILD_DLL",
+        "GLFW_INCLUDE_NONE"
     }
 
     filter "system:windows"
@@ -54,8 +64,7 @@ project "Razix"
 
         defines
         {
-            "RZX_PLATFORM_WINDOWS",
-            "RZX_BUILD_DLL"
+            "RZX_PLATFORM_WINDOWS"
         }
 
         postbuildcommands
@@ -64,15 +73,13 @@ project "Razix"
         }
 
         filter "configurations:Debug"
-            defines "RZX_DEBUG"
+            defines 
+            {
+                "RZX_DEBUG",
+                "RZX_ENABLE_ASSERTS"
+            }
             buildoptions "/MDd"
             symbols "On"
-        
-        -- Defines specific to debu mode
-        defines
-        {
-            "RZX_ENABLE_ASSERTS"
-        }
 
         filter "configurations:Release"
             defines "RZX_RELEASE"

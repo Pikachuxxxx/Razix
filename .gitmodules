@@ -4,3 +4,6 @@
 [submodule "Razix/vendor/GLFW"]
 	path = Razix/vendor/GLFW
 	url = https://github.com/Pikachuxxxx/glfw
+[submodule "Razix/vendor/ImGui"]
+	path = Razix/vendor/ImGui
+	url = https://github.com/Pikachuxxxx/imgui.git
