@@ -10,7 +10,6 @@ namespace Razix
     {
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(BIND_CB_EVENT_FN(OnEvent));
-
     }
 
     Application::~Application()
