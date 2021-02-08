@@ -24,7 +24,7 @@ namespace Razix
         void PushOverlay(Layer* overlay);
 
         inline Window& GetWindow() { return *m_Window; }
-        inline static Application& GetApplication() { return sInstance; }
+        inline static Application& GetApplication() { return *sInstance; }
     private:
         bool OnWindowClose(WindowCloseEvent& e);
 
@@ -32,7 +32,7 @@ namespace Razix
         bool m_Running = true;
         LayerStack m_LayerStack;
     private:
-        Application* sInstance;
+        static Application* sInstance;
     };
 
     // To be defined on CLIENT side to create the application

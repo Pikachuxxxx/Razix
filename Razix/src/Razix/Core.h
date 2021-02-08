@@ -28,4 +28,6 @@
     #define RZX_ASSERT(x, ...)
 #endif
 
+#define RZX_BIND_CB_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+
 #define BIT(x) (1 << x) 

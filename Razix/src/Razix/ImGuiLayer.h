@@ -12,8 +12,8 @@ namespace Razix
         ImGuiLayer();
         ~ImGuiLayer();
 
-        void OnUpdate() override;
-        void OnEvent(Event& event) override;
+        virtual void OnUpdate() override;
+        virtual void OnEvent(Event& event) override;
     private:
             
     };

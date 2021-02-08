@@ -9,7 +9,10 @@ public:
 
     }
 
-    void OnUpdate() override { }
+    void OnUpdate() override
+    {
+        RZX_TRACE("Mouse Position : {0}, {1}", Razix::Input::GetMouseX(), Razix::Input::GetMouseY());
+    }
 
     void OnEvent(Razix::Event& event) override { }
 };
