@@ -5,9 +5,7 @@
 
 namespace Razix
 {
-#define BIND_CB_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
-
-    static Application* Application::sInstance = nullptr;
+    Application* Application::sInstance = nullptr;
 
     Application::Application()
     {
@@ -15,7 +13,7 @@ namespace Razix
         sInstance = this;
 
         m_Window = std::unique_ptr<Window>(Window::Create());
-        m_Window->SetEventCallback(BIND_CB_EVENT_FN(OnEvent));
+        m_Window->SetEventCallback(RZX_BIND_CB_EVENT_FN(OnEvent));
     }
 
     Application::~Application()
@@ -26,7 +24,7 @@ namespace Razix
     void Application::OnEvent(Event& event)
     {
         EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowCloseEvent>(BIND_CB_EVENT_FN(OnWindowClose));
+        dispatcher.Dispatch<WindowCloseEvent>(RZX_BIND_CB_EVENT_FN(OnWindowClose));
 
         // Core Event tracing
         RZX_CORE_TRACE("Event: {0}", event);
@@ -67,6 +65,5 @@ namespace Razix
             m_Window->OnWindowUpdate();
         }
     }
-
 
 }

@@ -25,6 +25,7 @@ project "Razix"
     location "Razix"
     kind "SharedLib"
     language "C++"
+    staticruntime "off"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -63,7 +64,6 @@ project "Razix"
 
     filter "system:windows"
         cppdialect "C++17"
-        staticruntime "On"
         systemversion "latest"
 
         defines
@@ -82,17 +82,17 @@ project "Razix"
                 "RZX_DEBUG",
                 "RZX_ENABLE_ASSERTS"
             }
-            buildoptions "/MDd"
+            runtime "Debug"
             symbols "On"
 
         filter "configurations:Release"
             defines "RZX_RELEASE"
-            buildoptions "/MD"
+            runtime "Release"
             optimize "On"
 
         filter "configurations:Dist"
             defines "RZX_DIST"
-            buildoptions "/MD"
+            runtime "Release"
             symbols "Off"
             optimize "Full"
 
@@ -100,6 +100,7 @@ project "Sandbox"
     location "Sandbox"
     kind "ConsoleApp"
     language "C++"
+    staticruntime "off"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -123,7 +124,6 @@ project "Sandbox"
 
     filter "system:windows"
         cppdialect "C++17"
-        staticruntime "On"
         systemversion "latest"
 
         defines
@@ -133,16 +133,16 @@ project "Sandbox"
 
         filter "configurations:Debug"
             defines "RZX_DEBUG"
-            buildoptions "/MDd"
+            runtime "Debug"
             symbols "On"
 
         filter "configurations:Release"
             defines "RZX_RELEASE"
-            buildoptions "/MD"
+            runtime "Release"
             optimize "On"
 
         filter "configurations:Dist"
             defines "RZX_DIST"
-            buildoptions "/MD"
+            runtime "Release"
             symbols "Off"
             optimize "Full"
