@@ -13,6 +13,7 @@ namespace Razix
         
         virtual void OnAttach() {}
         virtual void OnDetach() {}
+        virtual void OnImguiRender() {}
         virtual void OnUpdate() {}
         virtual void OnEvent(Event& event) {}
 

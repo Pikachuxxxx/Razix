@@ -6,7 +6,7 @@ namespace Razix
 
     LayerStack::LayerStack()
     {
-        m_LayerIterator = m_Layers.begin();
+
     }
 
     LayerStack::~LayerStack()
@@ -17,7 +17,8 @@ namespace Razix
 
     void LayerStack::PushLayer(Layer* layer)
     {
-        m_LayerIterator = m_Layers.emplace(m_LayerIterator, layer);
+        m_Layers.emplace(m_Layers.begin() + m_LayerIteratorIndex, layer);
+        m_LayerIteratorIndex++;
     }
 
     void LayerStack::PushOverlay(Layer* overlay)
@@ -31,7 +32,7 @@ namespace Razix
         if (itr != m_Layers.end())
         {
             m_Layers.erase(itr);
-            m_LayerIterator--;
+            m_LayerIteratorIndex--;
         }
     }
 
