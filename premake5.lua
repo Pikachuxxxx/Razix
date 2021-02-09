@@ -17,9 +17,11 @@ IncludeDir["Glad"] = "%{wks.location}/Razix/vendor/glad/include"
 IncludeDir["ImGui"] = "%{wks.location}/Razix/vendor/ImGui"
 
 -- premake includes of Dependencies
-include "Razix/vendor/GLFW"
-include "Razix/vendor/glad"
-include "Razix/vendor/ImGui"
+group "Dependencies"
+    include "Razix/vendor/GLFW"
+    include "Razix/vendor/glad"
+    include "Razix/vendor/ImGui"
+group ""
 
 project "Razix"
     location "Razix"
