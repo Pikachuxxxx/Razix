@@ -3,6 +3,8 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
+#include <glad/glad.h>
+
 namespace Razix
 {
     Application* Application::sInstance = nullptr;
@@ -14,11 +16,14 @@ namespace Razix
 
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(RZX_BIND_CB_EVENT_FN(OnEvent));
+
+        m_ImGuiLayer = new ImGuiLayer();
+        PushOverlay(m_ImGuiLayer);
     }
 
     Application::~Application()
     {
-
+        // TODO: Detatch the layers explicitly here if not previously detached elsewhere 
     }
 
     void Application::OnEvent(Event& event)
@@ -59,8 +64,19 @@ namespace Razix
     {
         while (m_Running)
         {
+
+            glClear(GL_COLOR_BUFFER_BIT);
+
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate();
+
+#if 1
+            // TODO: Pass this to the render pass of the renderer
+            m_ImGuiLayer->Begin();
+            for (Layer* layer : m_LayerStack)
+                layer->OnImguiRender();
+            m_ImGuiLayer->End();
+#endif
             
             m_Window->OnWindowUpdate();
         }

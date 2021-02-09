@@ -12,10 +12,14 @@ namespace Razix
         ImGuiLayer();
         ~ImGuiLayer();
 
-        virtual void OnUpdate() override;
-        virtual void OnEvent(Event& event) override;
+        virtual void OnAttach() override;
+        virtual void OnDetach() override;
+        virtual void OnImguiRender() override;
+
+        void Begin();
+        void End();
     private:
-            
+        float m_Time = 0.0f;
     };
 
 }

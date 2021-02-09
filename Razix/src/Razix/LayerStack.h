@@ -22,7 +22,7 @@ namespace Razix
         std::vector<Layer*>::iterator end() { return m_Layers.end(); }
     private:
         std::vector<Layer*> m_Layers;
-        std::vector<Layer*>::iterator m_LayerIterator;
+        unsigned int m_LayerIteratorIndex = 0;
     };
 }
 

@@ -7,6 +7,8 @@
 #include "Razix/Events/KeyEvent.h"
 #include "Razix/Events/MouseEvent.h"
 
+#include "Razix/ImGuiRuntime/ImguiLayer.h"
+
 namespace Razix
 {
     // Create an Razix Application
@@ -29,6 +31,7 @@ namespace Razix
         bool OnWindowClose(WindowCloseEvent& e);
 
         std::unique_ptr<Window> m_Window;
+        ImGuiLayer* m_ImGuiLayer;
         bool m_Running = true;
         LayerStack m_LayerStack;
     private:

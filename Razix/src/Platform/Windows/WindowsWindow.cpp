@@ -62,8 +62,8 @@ namespace Razix
         }
 
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
-        glfwWindowHint(GLFW_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
