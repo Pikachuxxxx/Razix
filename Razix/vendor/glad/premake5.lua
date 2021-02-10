@@ -1,40 +1,48 @@
 project "Glad"
-	kind "StaticLib"
-	language "C"
+    kind "StaticLib"
+    language "C"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+    configurations
+    {
+        "Debug",
+        "Release",
+        "Dist"
+    }
 
-	files
-	{
-		"include/glad/glad.h",
-		"include/KHR/khrplatform.h",
-		"src/glad.c"
-	}
+    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	includedirs
-	{
-		"include"
-	}
+    files
+    {
+        "include/glad/glad.h",
+        "include/KHR/khrplatform.h",
+        "src/glad.c"
+    }
 
-	filter "system:linux"
-		pic "On"
+    includedirs
+    {
+        "include"
+    }
 
-		systemversion "latest"
-		staticruntime "On"
+    filter "system:linux"
+        pic "On"
 
-	filter "system:windows"
-		systemversion "latest"
-		staticruntime "On"
+        systemversion "latest"
+        staticruntime "On"
 
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "on"
+    filter "system:windows"
+        systemversion "latest"
+        staticruntime "On"
 
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "on"
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
 
-	filter "configurations:Dist"
-            symbols "Off"
-            optimize "Full"
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
+
+    filter "configurations:Dist"
+        runtime "Release"
+        symbols "Off"
+        optimize "Full"
