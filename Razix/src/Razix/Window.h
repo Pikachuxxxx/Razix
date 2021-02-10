@@ -1,10 +1,8 @@
 #pragma once
 
-#include "rzxpch.h"
-
 #include "Razix/Core.h"
 #include "Razix/Log.h"
-#include "razix/events/event.h"
+#include "Razix/Events/event.h"
 
 namespace Razix
 {

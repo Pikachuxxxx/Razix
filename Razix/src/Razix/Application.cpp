@@ -16,7 +16,6 @@ namespace Razix
 
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(RZX_BIND_CB_EVENT_FN(OnEvent));
-
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
     }
@@ -64,8 +63,7 @@ namespace Razix
     {
         while (m_Running)
         {
-
-            glClear(GL_COLOR_BUFFER_BIT);
+           glClear(GL_COLOR_BUFFER_BIT);
 
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate();
@@ -77,7 +75,7 @@ namespace Razix
                 layer->OnImguiRender();
             m_ImGuiLayer->End();
 #endif
-            
+
             m_Window->OnWindowUpdate();
         }
     }

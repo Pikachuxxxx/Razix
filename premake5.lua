@@ -10,16 +10,18 @@ workspace "Razix"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- premake includes of Dependencies
+group "Dependencies"
+    include "Razix/vendor/GLFW"
+    include "Razix/vendor/glad"
+    include "Razix/vendor/ImGui"
+group ""
+
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "%{wks.location}/Razix/vendor/GLFW/include"
 IncludeDir["Glad"] = "%{wks.location}/Razix/vendor/glad/include"
 IncludeDir["ImGui"] = "%{wks.location}/Razix/vendor/ImGui"
-
--- premake includes of Dependencies
-include "Razix/vendor/GLFW"
-include "Razix/vendor/glad"
-include "Razix/vendor/ImGui"
 
 project "Razix"
     location "Razix"
