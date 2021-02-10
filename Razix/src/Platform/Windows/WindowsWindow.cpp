@@ -61,13 +61,15 @@ namespace Razix
             sGLFWInitialized = true;
         }
 
-        m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
         glfwWindowHint(GLFW_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Disabling this solved the multi viewports crashing error
         #ifdef __APPLE__
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif
+
+        m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
+
         glfwMakeContextCurrent(m_Window);
 
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -79,6 +81,7 @@ namespace Razix
         const GLubyte* version = glGetString(GL_VERSION); // Returns the version
 
         RZX_CORE_INFO("OpenGL Info : \n \t\t\t Vendor : {0} \n \t\t\t Renderer : {1} \n \t\t\t Version : {2} ", vendor, renderer, version);
+        RZX_CORE_INFO("GLFW Version : {0}", glfwGetVersionString());
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
