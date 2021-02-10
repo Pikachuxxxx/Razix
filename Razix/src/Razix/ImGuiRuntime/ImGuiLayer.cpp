@@ -36,7 +36,7 @@ namespace Razix
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Unexpected crashing caused by (ImGuiImpl + glfw) API, GLFWwindow* is being passed properly but becomes a nullptr abruptly in the internal API
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Unexpected crashing caused by (ImGuiImpl + glfw) API, GLFWwindow* is being passed properly but becomes a nullptr abruptly in the internal API
         // IDK if this is caused by Engine's reference to the native window is being broken or if the internal (ImGuiImpl + GLFW) API is disrupting the reference to the native window
 
         ImGui::StyleColorsDark();
@@ -47,7 +47,7 @@ namespace Razix
 
         // This window reference is being casted into null somewhere causing the Razix application to crash when using multiple viewports
         ImGui_ImplGlfw_InitForOpenGL(window, true);
-        ImGui_ImplOpenGL3_Init("#version 130");
+        ImGui_ImplOpenGL3_Init("#version 460");
     }
 
     void ImGuiLayer::OnDetach()
