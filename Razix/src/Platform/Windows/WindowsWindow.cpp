@@ -50,7 +50,7 @@ namespace Razix
         m_Data.Width = properties.Width;
         m_Data.Height = properties.Height;
 
-        RZX_CORE_INFO("Creating Window... \n \t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
+        RZX_CORE_INFO("Creating Window... \n \t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
 
         // TODO: Replace all this with WIN32 API
         if (!sGLFWInitialized)
@@ -63,7 +63,7 @@ namespace Razix
 
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
         glfwWindowHint(GLFW_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_VERSION_MINOR, 1);
+        glfwWindowHint(GLFW_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -72,6 +72,13 @@ namespace Razix
 
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
         RZX_CORE_ASSERT(status, "Cannot initialize GLAD!");
+
+        // Log the Vendor, Renderer Device and the Version of the drivers
+        const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
+        const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
+        const GLubyte* version = glGetString(GL_VERSION); // Returns the version
+
+        RZX_CORE_INFO("OpenGL Info : \n \t\t\t Vendor : {0} \n \t\t\t Renderer : {1} \n \t\t\t Version : {2} ", vendor, renderer, version);
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
