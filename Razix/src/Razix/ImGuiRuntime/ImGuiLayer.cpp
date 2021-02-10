@@ -1,6 +1,10 @@
 #include "rzxpch.h"
 #include "ImGuiLayer.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include "imgui.h"
 // TODO: Include header files for ImGui back end support depending on the engine's rendering API
 //#ifdef OPENGL_RENDERER
@@ -9,13 +13,8 @@
 //#elif DIRECT_3D_RENDERER
 // Include direct x specific back end header files
 
-
 #include "Razix/Application.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WGL
-#define GLFW_EXPOSE_NATIVE_WIN32 
-#include <GLFW/glfw3native.h>
+
 namespace Razix
 {
 
@@ -37,7 +36,8 @@ namespace Razix
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Unexpected crashing caused by (ImGuiImpl + glfw) API, GLFWwindow* is being passed properly but becomes a nullptr abruptly in the internal API
+        // IDK if this is caused by Engine's reference to the native window is being broken or if the internal (ImGuiImpl + GLFW) API is disrupting the reference to the native window
 
         ImGui::StyleColorsDark();
 
@@ -45,9 +45,9 @@ namespace Razix
         Application& app = Application::GetApplication();
         GLFWwindow* window = (GLFWwindow*)(app.GetWindow().GetNativeWindow());
 
-        // This window reference is being casted into null somewhere causing the Razix application to crash
+        // This window reference is being casted into null somewhere causing the Razix application to crash when using multiple viewports
         ImGui_ImplGlfw_InitForOpenGL(window, true);
-        ImGui_ImplOpenGL3_Init("#version 410");
+        ImGui_ImplOpenGL3_Init("#version 130");
     }
 
     void ImGuiLayer::OnDetach()

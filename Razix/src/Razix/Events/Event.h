@@ -2,6 +2,8 @@
 
 #include "Razix/Core.h"
 
+#include "rzxpch.h"
+
 namespace Razix {
 
     // Events in Razix are currently blocking
