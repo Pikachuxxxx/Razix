@@ -32,8 +32,8 @@ namespace Razix
 
         struct WindowData
         {
-            std::string Title;
-            unsigned int Width, Height;
+            std::string Title{};
+            unsigned int Width{}, Height{};
             bool Vsync;
 
             EventCallbackFn EventCallback;

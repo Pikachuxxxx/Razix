@@ -27,6 +27,7 @@ project "Razix"
     location "Razix"
     kind "SharedLib"
     language "C++"
+    cppdialect "C++17"
     staticruntime "off"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -65,7 +66,6 @@ project "Razix"
     }
 
     filter "system:windows"
-        cppdialect "C++17"
         systemversion "latest"
 
         defines
