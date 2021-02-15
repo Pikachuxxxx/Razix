@@ -3,8 +3,6 @@
 #include "Razix/Core.h"
 #include "Razix/Layer.h"
 
-#include <vector>
-
 namespace Razix
 {
     class RAZIX_API LayerStack

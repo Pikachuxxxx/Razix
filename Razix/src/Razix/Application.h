@@ -30,13 +30,15 @@ namespace Razix
         inline static Application& GetApplication() { return *sInstance; }
     private:
         bool OnWindowClose(WindowCloseEvent& e);
-
-        std::unique_ptr<Window> m_Window;
-        ImGuiLayer* m_ImGuiLayer;
-        bool m_Running = true;
-        LayerStack m_LayerStack;
     private:
-        static Application* sInstance;
+        unsigned int m_VAO, m_VBO, m_IBO;
+
+        bool                    m_Running = true;
+        ImGuiLayer*             m_ImGuiLayer;
+        LayerStack              m_LayerStack;
+        std::unique_ptr<Window> m_Window;
+
+        static Application*     sInstance;
     };
 
     // To be defined on CLIENT side to create the application

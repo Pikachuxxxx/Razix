@@ -4,6 +4,9 @@
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/KeyEvent.h"
 #include "Razix/Events/MouseEvent.h"
+
+#include "Platform/OpenGL/OpenGLContext.h"
+
 namespace Razix
 {
     static bool sGLFWInitialized = false;
@@ -27,6 +30,8 @@ namespace Razix
     {
         glfwPollEvents();
         glfwSwapBuffers(m_Window);
+
+        //m_Context->SwapBuffers();
     }
 
     void WindowsWindow::SetVSync(bool enabled)
@@ -49,6 +54,7 @@ namespace Razix
         m_Data.Title = properties.Title;
         m_Data.Width = properties.Width;
         m_Data.Height = properties.Height;
+        //m_Data.API = properties.API; // use this with a switch statement to choose a proper rendering API
 
         RZX_CORE_INFO("Creating Window... \n \t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
 
@@ -65,24 +71,15 @@ namespace Razix
         glfwWindowHint(GLFW_VERSION_MINOR, 6);
         //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Disabling this solved the multi viewports crashing error
         #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
         #endif
 
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
+        
+        m_Context = new OpenGLContext(m_Window);
+        m_Context->Init();
 
         glfwMakeContextCurrent(m_Window);
-
-        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-        RZX_CORE_ASSERT(status, "Cannot initialize GLAD!");
-
-        // Log the Vendor, Renderer Device and the Version of the drivers
-        const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
-        const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
-        const GLubyte* version = glGetString(GL_VERSION); // Returns the version
-
-        RZX_CORE_INFO("OpenGL Info : \n \t\t\t Vendor : {0} \n \t\t\t Renderer : {1} \n \t\t\t Version : {2} ", vendor, renderer, version);
-        RZX_CORE_INFO("GLFW Version : {0}", glfwGetVersionString());
-
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
 

@@ -68,7 +68,7 @@ namespace Razix
     {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         Application& app = Application::GetApplication();
-        io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
+        io.DisplaySize = ImVec2((float)(double)app.GetWindow().GetWidth(), (float)(double)app.GetWindow().GetHeight());
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

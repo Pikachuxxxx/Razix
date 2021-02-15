@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Razix/Window.h"
+#include "Razix/Renderer/GraphicsContext.h"
 
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include <GLFW/glfw3.h> // Ehh I don't want this here
 
 namespace Razix
 {
@@ -29,11 +29,12 @@ namespace Razix
         virtual void Shutdown();
     private:
         GLFWwindow* m_Window;
+        GraphicsContext* m_Context;
 
         struct WindowData
         {
-            std::string Title;
-            unsigned int Width, Height;
+            std::string Title{};
+            unsigned int Width{}, Height{};
             bool Vsync;
 
             EventCallbackFn EventCallback;
