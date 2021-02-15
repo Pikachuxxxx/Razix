@@ -18,6 +18,20 @@ namespace Razix
         m_Window->SetEventCallback(RZX_BIND_CB_EVENT_FN(OnEvent));
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
+
+        glGenVertexArrays(1, &m_VAO);
+        glBindVertexArray(m_VAO);
+        glGenBuffers(1, &m_VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
+        float vertices[3 * 3] = {
+            -0.5f, -0.5f, 0.0f,
+             0.5f, -0.5f, 0.0f,
+             0.0f,  0.5f, 0.0f,
+        };
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
     }
 
     Application::~Application()
@@ -64,6 +78,8 @@ namespace Razix
         while (m_Running)
         {
            glClear(GL_COLOR_BUFFER_BIT);
+           glBindVertexArray(m_VAO);
+           glDrawArrays(GL_TRIANGLES, 0, 3);
 
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate();
