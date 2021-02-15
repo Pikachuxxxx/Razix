@@ -1,8 +1,10 @@
-#include "rzxpch.h"
 #pragma once
 
 #include "Razix/Core.h"
 
+#include <iostream>
+#include <functional>
+#include <sstream>
 
 namespace Razix {
 
