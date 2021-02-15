@@ -12,7 +12,7 @@ namespace Razix
         inline static bool IsKeyHeld(int keycode) { return sInstance->IsIsKeyHeldImpl(keycode); }
 
         inline static bool IsMouseButtonPressed(int button) { return sInstance->IsMouseButtonPressedImpl(button); }
-        inline static std::pair<float, float> GetMousePosition() { return sInstance->GetMousePosition(); }
+        inline static std::pair<float, float> GetMousePosition() { return sInstance->GetMousePositionImpl(); }
         inline static float GetMouseX() { return sInstance->GetMouseXImpl(); }
         inline static float GetMouseY() { return sInstance->GetMouseYImpl(); }
     protected:

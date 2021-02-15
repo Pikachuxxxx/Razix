@@ -20,7 +20,7 @@ namespace Razix {
 		}
 
 		EVENT_CLASS_TYPE(WindowResize)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	private:
 		unsigned int m_Width, m_Height;
 	};
@@ -31,7 +31,7 @@ namespace Razix {
 		WindowCloseEvent() {}
 
 		EVENT_CLASS_TYPE(WindowClose)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	};
 
 	class RAZIX_API AppTickEvent : public Event
@@ -40,7 +40,7 @@ namespace Razix {
 		AppTickEvent() {}
 
 		EVENT_CLASS_TYPE(AppTick)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	};
 
 	class RAZIX_API AppUpdateEvent : public Event
@@ -49,7 +49,7 @@ namespace Razix {
 		AppUpdateEvent() {}
 
 		EVENT_CLASS_TYPE(AppUpdate)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	};
 
 	class RAZIX_API AppRenderEvent : public Event
@@ -58,6 +58,6 @@ namespace Razix {
 		AppRenderEvent() {}
 
 		EVENT_CLASS_TYPE(AppRender)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	};
 }
