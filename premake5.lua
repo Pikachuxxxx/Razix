@@ -60,5 +60,5 @@ workspace ( settings.workspace_name )
 
     -- Build Script for Razix Engine
     include "Razix/premake5"
-    -- Build script for premake
-    -- include "Sandbox/premake5"
+    -- Build script for Sandbox
+    include "Sandbox/premake5"

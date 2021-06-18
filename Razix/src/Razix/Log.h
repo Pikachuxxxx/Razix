@@ -25,7 +25,7 @@ namespace Razix
 }
 
 // Strip out the logging system in the distribution build
-#ifndef RZX_DIST
+#ifndef RAZIX_DISTRIBUTION
 
 // Core Engine Logging 
 #define RZX_CORE_TRACE(...)		::Razix::Log::GetCoreLogger()->trace(__VA_ARGS__)

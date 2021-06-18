@@ -1,10 +1,11 @@
 #pragma once
 
-#ifdef RZX_PLATFORM_WINDOWS
+#ifdef RAZIX_PLATFORM_WINDOWS
 
 // Using the forward declared the application creating function, that we assume was defined on the client side
 extern Razix::Application* Razix::CreateApplication();
 
+// Engine Entry point - main method
 int main(int argc, char** argv)
 {
     // Engine Systems Initializations
