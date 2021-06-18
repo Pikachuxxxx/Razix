@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core.h"
+#include "Razix/Core/Core.h"
 #include "Razix/LayerStack.h"
 #include "Razix/Window.h"
 
