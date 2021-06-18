@@ -1,19 +1,19 @@
 #pragma once
 
 // DLL Export and Import settings for Windows OS
-#ifdef RZX_PLATFORM_WINDOWS
-    #ifdef RZX_BUILD_DLL
+#ifdef RAZIX_PLATFORM_WINDOWS
+    #ifdef RAZIX_DYNAMIC
         #define RAZIX_API __declspec(dllexport)
     #else
         #define RAZIX_API __declspec(dllimport)
     #endif
 
-#elif RZX_PLATFORM_MACOS
+#elif RAZIX_PLATFORM_MACOS
     #error Does not support MacOS yet!
 #endif 
 
 // Platform specific Debug functions 
-#ifdef RZX_PLATFORM_WINDOWS
+#ifdef RAZIX_PLATFORM_WINDOWS
     #define RZX_DEBUG_BREAK() __debugbreak()
 #elif
     #define RZX_DEBUG_BREAK() 

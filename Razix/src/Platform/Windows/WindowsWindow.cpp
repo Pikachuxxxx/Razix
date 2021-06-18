@@ -29,9 +29,7 @@ namespace Razix
     void WindowsWindow::OnWindowUpdate()
     {
         glfwPollEvents();
-        glfwSwapBuffers(m_Window);
-
-        //m_Context->SwapBuffers();
+        m_Context->SwapBuffers();
     }
 
     void WindowsWindow::SetVSync(bool enabled)
@@ -58,6 +56,11 @@ namespace Razix
 
         RZX_CORE_INFO("Creating Window... \n \t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
 
+        glfwSetErrorCallback([](int errorCode, const char* description)
+        {
+            RZX_CORE_ERROR("GLFW Error! code : {0} description : {1}", errorCode, description);
+        });
+
         // TODO: Replace all this with WIN32 API
         if (!sGLFWInitialized)
         {
@@ -67,12 +70,12 @@ namespace Razix
             sGLFWInitialized = true;
         }
 
-        glfwWindowHint(GLFW_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_VERSION_MINOR, 6);
-        //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Disabling this solved the multi viewports crashing error
-        #ifdef __APPLE__
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-        #endif
+#endif
 
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
         
