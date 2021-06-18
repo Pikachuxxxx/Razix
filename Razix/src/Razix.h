@@ -10,9 +10,10 @@
 #include "Razix/events/keyevent.h"
 #include "Razix/events/mouseevent.h"
 
+// Hmmm...some category
 #include "Razix/Input.h"
 #include "Razix/LayerStack.h"
 
 //-----------Entry Point-------------
-#include "Razix/EntryPoint.h"
+#include "Razix/Core/EntryPoint.h"
 //-----------------------------------
