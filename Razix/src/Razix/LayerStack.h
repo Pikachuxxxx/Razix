@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core.h"
+#include "Razix/Core/Core.h"
 #include "Razix/Layer.h"
 
 namespace Razix
