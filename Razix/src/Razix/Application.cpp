@@ -84,13 +84,11 @@ namespace Razix
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate();
 
-#if 1
             // TODO: Pass this to the render pass of the renderer
             m_ImGuiLayer->Begin();
             for (Layer* layer : m_LayerStack)
                 layer->OnImguiRender();
             m_ImGuiLayer->End();
-#endif
 
             m_Window->OnWindowUpdate();
         }

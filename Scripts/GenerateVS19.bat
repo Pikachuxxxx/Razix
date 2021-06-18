@@ -1,3 +1,3 @@
-call cd ..
-call vendor\premake\premake5.exe vs2019
+cd ..
+call Tools\premake\premake5.exe vs2019
 PAUSE
