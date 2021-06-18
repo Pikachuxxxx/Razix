@@ -86,5 +86,21 @@ namespace Razix
     {
         static bool show = true;
         ImGui::ShowDemoWindow(&show);
+
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("Debug"))
+            {
+                ImGui::MenuItem("Item 1", NULL, &show);
+                if (ImGui::BeginMenu("Menu 1"))
+                {
+                    ImGui::MenuItem("item 2", NULL, &show);
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMainMenuBar();
+        }
     }
 }

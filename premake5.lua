@@ -1,150 +1,64 @@
-workspace "Razix"
-    architecture "x64"
+require 'Scripts/premake-defines'
+require 'Scripts/premake-triggers'
+require 'Scripts/premake-settings'
 
+-- Current root directory where the global premake file is located
+root_dir = os.getcwd()
+
+-- Using the command line to get the selected architecture
+Arch = ""
+
+if _OPTIONS["arch"] then
+	Arch = _OPTIONS["arch"]
+else
+	if _OPTIONS["os"] then
+		_OPTIONS["arch"] = "arm"
+		Arch = "arm"
+	else
+		_OPTIONS["arch"] = "x64"
+		Arch = "x64"
+	end
+end
+
+-- The Razix Engine Workspace
+workspace ( settings.workspace_name )
+    location "build"
+    startproject "Sandbox"
+        flags 'MultiProcessorCompile'
+
+    -- Output directory path based on build config
+    outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+    -- Binaries Output directory
+    targetdir ("bin/%{outputdir}/")
+    -- Intermediate files Output directory
+    objdir ("bin-int/%{outputdir}/obj/")
+
+    if Arch == "arm" then
+		architecture "ARM"
+	elseif Arch == "x64" then
+		architecture "x86_64"
+	elseif Arch == "x86" then
+		architecture "x86"
+	end
+
+    print("Generating Project files for Architecture = ", Arch)
+
+    -- Various build configuration for the engine
     configurations
     {
         "Debug",
         "Release",
-        "Dist"
+        "Distribution"
     }
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+    group "Dependencies"
+        require("Razix/vendor/ImGui/premake5")
+        require("Razix/vendor/spdlog/premake5")
+        require("Razix/vendor/GLFW/premake5")
+    filter {}
+    group ""
 
--- premake includes of Dependencies
-group "Dependencies"
-    include "Razix/vendor/GLFW"
-    include "Razix/vendor/glad"
-    include "Razix/vendor/ImGui"
-group ""
-
--- Include directories relative to root folder (solution directory)
-IncludeDir = {}
-IncludeDir["GLFW"] = "%{wks.location}/Razix/vendor/GLFW/include"
-IncludeDir["Glad"] = "%{wks.location}/Razix/vendor/glad/include"
-IncludeDir["ImGui"] = "%{wks.location}/Razix/vendor/ImGui"
-
-project "Razix"
-    location "Razix"
-    kind "SharedLib"
-    language "C++"
-    cppdialect "C++17"
-    staticruntime "off"
-
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-    pchheader "rzxpch.h"
-    pchsource "Razix/src/rzxpch.cpp"
-
-    files
-    {
-        "%{prj.name}/src/**.h",
-        "%{prj.name}/src/**.cpp"
-    }
-
-    includedirs
-    {
-        "%{prj.name}/src",
-        "%{prj.name}/vendor/spdlog/include",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.ImGui}"
-    }
-
-    links
-    {
-        "GLFW",
-        "Glad",
-        "ImGui",
-        "opengl32.lib"
-    }
-
-    defines
-    {
-        "RZX_BUILD_DLL",
-        "GLFW_INCLUDE_NONE"
-    }
-
-    filter "system:windows"
-        systemversion "latest"
-
-        defines
-        {
-            "RZX_PLATFORM_WINDOWS"
-        }
-
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-        }
-
-        filter "configurations:Debug"
-            defines 
-            {
-                "RZX_DEBUG",
-                "RZX_ENABLE_ASSERTS"
-            }
-            runtime "Debug"
-            symbols "On"
-
-        filter "configurations:Release"
-            defines "RZX_RELEASE"
-            runtime "Release"
-            optimize "On"
-
-        filter "configurations:Dist"
-            defines "RZX_DIST"
-            runtime "Release"
-            symbols "Off"
-            optimize "Full"
-
-project "Sandbox"
-    location "Sandbox"
-    kind "ConsoleApp"
-    language "C++"
-    staticruntime "off"
-
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-    files
-    {
-        "%{prj.name}/src/**.h",
-        "%{prj.name}/src/**.cpp"
-    }
-
-    includedirs
-    {
-        "Razix/vendor/spdlog/include",
-        "Razix/src"
-    }
-
-    links
-    {
-        "Razix"
-    }
-
-    filter "system:windows"
-        cppdialect "C++17"
-        systemversion "latest"
-
-        defines
-        {
-            "RZX_PLATFORM_WINDOWS"
-        }
-
-        filter "configurations:Debug"
-            defines "RZX_DEBUG"
-            runtime "Debug"
-            symbols "On"
-
-        filter "configurations:Release"
-            defines "RZX_RELEASE"
-            runtime "Release"
-            optimize "On"
-
-        filter "configurations:Dist"
-            defines "RZX_DIST"
-            runtime "Release"
-            symbols "Off"
-            optimize "Full"
+    -- Build Script for Razix Engine
+    include "Razix/premake5"
+    -- Build script for premake
+    -- include "Sandbox/premake5"

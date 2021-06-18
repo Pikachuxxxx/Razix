@@ -6,7 +6,8 @@
 #include <GLFW/glfw3.h> // Ehh I don't want this here
 
 namespace Razix
-{
+{   
+    // TODO: Refactor this class to use WIN32 API and move this to OpenGLWindow Class
     class WindowsWindow : public Window
     {
     public:    
