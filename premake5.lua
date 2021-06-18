@@ -52,9 +52,9 @@ workspace ( settings.workspace_name )
     }
 
     group "Dependencies"
-        require("Razix/vendor/ImGui/premake5")
+        require("Razix/vendor/imgui/premake5")
         require("Razix/vendor/spdlog/premake5")
-        require("Razix/vendor/GLFW/premake5")
+        require("Razix/vendor/glfw/premake5")
     filter {}
     group ""
 

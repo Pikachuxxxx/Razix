@@ -1,5 +1,5 @@
 IncludeDir = {}
-IncludeDir["GLFW"] = "../Razix/vendor/GLFW/include/"
+IncludeDir["GLFW"] = "../Razix/vendor/glfw/include/"
 IncludeDir["Glad"] = "../Razix/vendor/glad/include/"
 IncludeDir["ImGui"] = "../Razix/vendor/imgui/"
 IncludeDir["spdlog"] = "../Razix/vendor/spdlog/include"
