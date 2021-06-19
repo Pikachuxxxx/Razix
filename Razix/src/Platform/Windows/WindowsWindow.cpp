@@ -54,18 +54,18 @@ namespace Razix
         m_Data.Height = properties.Height;
         //m_Data.API = properties.API; // use this with a switch statement to choose a proper rendering API
 
-        RZX_CORE_INFO("Creating Window... \n \t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
+        RAZIX_CORE_INFO("Creating Window... \n \t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
 
         glfwSetErrorCallback([](int errorCode, const char* description)
         {
-            RZX_CORE_ERROR("GLFW Error! code : {0} description : {1}", errorCode, description);
+            RAZIX_CORE_ERROR("GLFW Error! code : {0} description : {1}", errorCode, description);
         });
 
         // TODO: Replace all this with WIN32 API
         if (!sGLFWInitialized)
         {
             int success = glfwInit();
-            RZX_CORE_ASSERT(success, "Could not initializr GLFW");
+            RAZIX_CORE_ASSERT(success, "Could not initialize GLFW");
 
             sGLFWInitialized = true;
         }

@@ -12,11 +12,11 @@ int main(int argc, char** argv)
     // -> Logging System
     Razix::Log::InitLogger();
 
-    RZX_CORE_INFO("Initialized Core Engine Logger");
-    RZX_INFO("Initialized Engine Application Logger");
+    RAZIX_CORE_INFO("Initialized Core Engine Logger");
+    RAZIX_INFO("Initialized Engine Application Logger");
 
     // Application auto Initialization by the Engine
-    RZX_INFO("Creating Razix Application");
+    RAZIX_INFO("Creating Razix Application");
     auto app = Razix::CreateApplication();
     app->Run();
     delete app;
