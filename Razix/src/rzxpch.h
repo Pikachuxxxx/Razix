@@ -1,5 +1,8 @@
 #pragma once
 
+//-----C Standard Includes-----//
+#include <stdint.h>
+
 //-----System Includes-----//
 #include <iostream>
 #include <memory>

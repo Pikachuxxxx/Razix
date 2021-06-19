@@ -28,27 +28,27 @@ namespace Razix
 #ifndef RAZIX_DISTRIBUTION
 
 // Core Engine Logging 
-#define RZX_CORE_TRACE(...)		::Razix::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define RZX_CORE_INFO(...)		::Razix::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define RZX_CORE_WARN(...)		::Razix::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define RZX_CORE_ERROR(...)		::Razix::Log::GetCoreLogger()->error(__VA_ARGS__)
+#define RAZIX_CORE_TRACE(...)		::Razix::Log::GetCoreLogger()->trace(__VA_ARGS__)
+#define RAZIX_CORE_INFO(...)		::Razix::Log::GetCoreLogger()->info(__VA_ARGS__)
+#define RAZIX_CORE_WARN(...)		::Razix::Log::GetCoreLogger()->warn(__VA_ARGS__)
+#define RAZIX_CORE_ERROR(...)		::Razix::Log::GetCoreLogger()->error(__VA_ARGS__)
                                                            
 // Application Logging									   
-#define RZX_TRACE(...)			::Razix::Log::GetApplicationLogger()->trace(__VA_ARGS__)
-#define RZX_INFO(...)			::Razix::Log::GetApplicationLogger()->info(__VA_ARGS__)
-#define RZX_WARN(...)			::Razix::Log::GetApplicationLogger()->warn(__VA_ARGS__)
-#define RZX_ERROR(...)			::Razix::Log::GetApplicationLogger()->error(__VA_ARGS__)
+#define RAZIX_TRACE(...)			::Razix::Log::GetApplicationLogger()->trace(__VA_ARGS__)
+#define RAZIX_INFO(...)			::Razix::Log::GetApplicationLogger()->info(__VA_ARGS__)
+#define RAZIX_WARN(...)			::Razix::Log::GetApplicationLogger()->warn(__VA_ARGS__)
+#define RAZIX_ERROR(...)			::Razix::Log::GetApplicationLogger()->error(__VA_ARGS__)
                                                            
 #else
 // Core Engine Logging 
-#define RZX_CORE_TRACE(...)
-#define RZX_CORE_INFO(...)
-#define RZX_CORE_WARN(...)
-#define RZX_CORE_ERROR(...)
+#define RAZIX_CORE_TRACE(...)
+#define RAZIX_CORE_INFO(...)
+#define RAZIX_CORE_WARN(...)
+#define RAZIX_CORE_ERROR(...)
 
 // Application Logging	
-#define RZX_TRACE(...)	
-#define RZX_INFO(...)	
-#define RZX_WARN(...)	
-#define RZX_ERROR(...)	
+#define RAZIX_TRACE(...)	
+#define RAZIX_INFO(...)	
+#define RAZIX_WARN(...)	
+#define RAZIX_ERROR(...)	
 #endif
