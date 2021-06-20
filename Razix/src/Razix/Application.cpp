@@ -11,11 +11,11 @@ namespace Razix
 
     Application::Application()
     {
-        RZX_CORE_ASSERT(!sInstance, "Application already exists!");
+        RAZIX_CORE_ASSERT(!sInstance, "Application already exists!");
         sInstance = this;
 
         m_Window = std::unique_ptr<Window>(Window::Create());
-        m_Window->SetEventCallback(RZX_BIND_CB_EVENT_FN(OnEvent));
+        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(OnEvent));
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
 
@@ -42,10 +42,10 @@ namespace Razix
     void Application::OnEvent(Event& event)
     {
         EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowCloseEvent>(RZX_BIND_CB_EVENT_FN(OnWindowClose));
+        dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
 
         // Core Event tracing
-        RZX_CORE_TRACE("Event: {0}", event);
+        RAZIX_CORE_TRACE("Event: {0}", event);
 
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
         {

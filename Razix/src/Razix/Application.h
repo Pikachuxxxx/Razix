@@ -31,6 +31,7 @@ namespace Razix
     private:
         bool OnWindowClose(WindowCloseEvent& e);
     private:
+        // TODO: Remove this!
         unsigned int m_VAO, m_VBO, m_IBO;
 
         bool                    m_Running = true;
@@ -41,7 +42,7 @@ namespace Razix
         static Application*     sInstance;
     };
 
-    // To be defined on CLIENT side to create the application
+    // To be defined on the CLIENT side to create the application
     //
     // What this means is that the Entry point thinks the engine will define this for sure.
     // In fact it does by just forward declaring, but who actually defines it?

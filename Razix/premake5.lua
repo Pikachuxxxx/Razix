@@ -12,7 +12,7 @@ IncludeDir["Vendor"] = "vendor/"
 project "Razix"
     kind "SharedLib"
     language "C++"
-    editandcontinue "Off"
+    -- editandcontinue "Off"
 
     files
     {
@@ -55,7 +55,7 @@ project "Razix"
     defines
     {
         "RAZIX_ENGINE",
-        "RAZIX_DYNAMIC",
+        "RAZIX_BUILD_DLL",
         "RAZIX_ROOT_DIR="  .. root_dir,
         -- "IMGUI_USER_CONFIG=\"src/Razix/ImGui/ImConfig.h\"",
         "SPDLOG_COMPILED_LIB"
@@ -65,11 +65,12 @@ project "Razix"
 --filter 'files:src/Razix/Utilities/ExternalBuild.cpp'
 buildoptions
 {
-    "-w"
+    "-W3"
 }
 
-    filter 'architecture:x86_64'
-        defines { "RAZIX_SSE"}
+    -- Add special SSE optimization for 32-bit
+    -- filter 'architecture:x86_64'
+    --     defines { "RAZIX_SSE"}
 
     filter "system:windows"
         cppdialect "C++17"
@@ -101,6 +102,9 @@ buildoptions
 
             "src/Razix/Platform/GLFW/*.h",
             "src/Razix/Platform/GLFW/*.cpp",
+
+            "src/Razix/Platform/OpenGL/*.h",
+            "src/Razix/Platform/OpenGL/*.cpp",
 
             "vendor/glad/src/glad.c"
         }

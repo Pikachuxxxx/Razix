@@ -65,7 +65,6 @@ project "Sandbox"
 			"_DISABLE_EXTENDED_ALIGNED_STORAGE",
 			"_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
 			"RAZIX_ROOT_DIR="  .. root_dir,
-			"RAZIX_VOLK"
 		}
 
 		libdirs
