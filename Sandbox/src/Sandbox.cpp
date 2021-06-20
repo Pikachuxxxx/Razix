@@ -33,5 +33,6 @@ public:
 
 Razix::Application* Razix::CreateApplication()
 {
+	RAZIX_INFO("Creating Razix Application");
     return new Sandbox();
 }

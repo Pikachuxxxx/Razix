@@ -1,10 +1,19 @@
-#Directories
+# Directories
 .vs/
 bin/
 bin-int/
+build/
 
-#Visual Studio Project Files
+# Visual Studio Project Files
 *.sln
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+
+# XCode Project Files
+*.xcworkspace
+*.xcodeproj
+
+# MacOS files
+.DS_Store
+
