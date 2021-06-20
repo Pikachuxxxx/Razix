@@ -20,5 +20,4 @@ int main(int argc, char** argv)
     // Shutdown the Engine systems
     Razix::Debug::Log::ShutdownLogger();
 }
-
 #endif
