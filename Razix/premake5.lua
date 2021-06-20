@@ -103,6 +103,9 @@ buildoptions
             "src/Razix/Platform/GLFW/*.h",
             "src/Razix/Platform/GLFW/*.cpp",
 
+            "src/Razix/Platform/OpenGL/*.h",
+            "src/Razix/Platform/OpenGL/*.cpp",
+
             "vendor/glad/src/glad.c"
         }
 
