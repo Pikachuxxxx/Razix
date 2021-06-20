@@ -4,7 +4,6 @@
 
 namespace Razix
 {
-    
     class WindowsInput : public Input
     {
     protected:

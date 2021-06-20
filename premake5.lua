@@ -55,6 +55,7 @@ workspace ( settings.workspace_name )
         require("Razix/vendor/imgui/premake5")
         require("Razix/vendor/spdlog/premake5")
         require("Razix/vendor/glfw/premake5")
+        include "Tools/premake/premake5"
     filter {}
     group ""
 
