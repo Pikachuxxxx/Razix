@@ -1,12 +1,9 @@
 #pragma once
 
-#include "Razix/Window.h"
-#include "Razix/Renderer/GraphicsContext.h"
-
-#include <GLFW/glfw3.h> // Ehh I don't want this here
+#include "Razix/Core/OS/Window.h"
 
 namespace Razix
-{   
+{   /*
     // TODO: Refactor this class to use WIN32 API and move this to OpenGLWindow Class
     class WindowsWindow : public Window
     {
@@ -28,19 +25,7 @@ namespace Razix
     private:
         virtual void Init(const WindowProperties& properties);
         virtual void Shutdown();
-    private:
-        GLFWwindow* m_Window;
-        GraphicsContext* m_Context;
-
-        struct WindowData
-        {
-            std::string Title{};
-            unsigned int Width{}, Height{};
-            bool Vsync;
-
-            EventCallbackFn EventCallback;
-        } m_Data; // Call me old fashioned, Bitch!!!
     };
-
+    */
 }
 

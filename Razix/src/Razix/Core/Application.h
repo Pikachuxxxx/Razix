@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Razix/Core/Core.h"
-#include "Razix/LayerStack.h"
-#include "Razix/Window.h"
+#include "Razix/Core/LayerStack.h"
+#include "Razix/Core/OS/Window.h"
 
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/KeyEvent.h"
