@@ -57,7 +57,7 @@
         if(!(condition))                                                                            \
         {                                                                                           \
             RAZIX_CORE_ERROR("Assertion Failed: at Line {0} in File {1}", __LINE__, __FILE__);      \
-            RAZIX_DEBUG_BREAK();                                                                      \
+            RAZIX_DEBUG_BREAK();                                                                    \
         }                                                                                           \
     }
 
@@ -66,7 +66,7 @@
         if(!(condition))                                                                                            \
         {                                                                                                           \
             RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__);    \
-            RAZIX_DEBUG_BREAK();                                                                                      \
+            RAZIX_DEBUG_BREAK();                                                                                    \
         }                                                                                                           \
     }
 #else 
@@ -95,14 +95,14 @@
         ((m_hex >= '0' && m_hex <= '9') ? (m_hex - '0') : ((m_hex >= 'A' && m_hex <= 'F') ? (10 + m_hex - 'A') : ((m_hex >= 'a' && m_hex <= 'f') ? (10 + m_hex - 'a') : 0)))
 
 
-// Unimplemented Function/Class indicator
+// Unimplemented Function Breaker
 #define UNIMPLEMENTED                                                               \
 {                                                                                   \
     RAZIX_CORE_ERROR("Unimplemented : {0} : {1}", __FILE__, __LINE__);              \
     RAZIX_DEBUG_BREAK();                                                            \
 }
 
-// Make the Class/Struct Object Non-Copyable
+// Make the Class/Struct Object Non-Copyable/Assignable
 #define NONCOPYABLE(type_identifier)                                \
     type_identifier(const type_identifier&) = delete;               \
     type_identifier& operator=(const type_identifier&) = delete;
