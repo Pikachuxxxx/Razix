@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Core.h"
-#include "Razix/Log.h"
+#include "Razix/Core/Log.h"
 
 namespace Razix
 {

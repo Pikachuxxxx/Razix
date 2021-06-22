@@ -6,7 +6,6 @@
 
 namespace Razix
 {
-
     OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
         : m_WindowHandle(windowHandle)
     {
@@ -32,5 +31,4 @@ namespace Razix
     {
         glfwSwapBuffers(m_WindowHandle);
     }
-
 }

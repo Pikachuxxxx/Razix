@@ -1,18 +1,18 @@
 #pragma once
 
 // Core
-#include "Razix/Application.h"
-#include "Razix/Layer.h"
-#include "Razix/Log.h"
+#include "Razix/Core/Application.h"
+#include "Razix/Core/Layer.h"
+#include "Razix/Core/Log.h"
 
 // Events
-#include "Razix/events/applicationevent.h"
-#include "Razix/events/keyevent.h"
-#include "Razix/events/mouseevent.h"
+#include "Razix/Events/applicationevent.h"
+#include "Razix/Events/keyevent.h"
+#include "Razix/Events/mouseevent.h"
 
 // Hmmm...some category
-#include "Razix/Input.h"
-#include "Razix/LayerStack.h"
+#include "Razix/Core/OS/Input.h"
+#include "Razix/Core/LayerStack.h"
 
 //-----------Entry Point-------------
 #include "Razix/Core/EntryPoint.h"
