@@ -25,6 +25,7 @@ namespace Razix
         virtual float GetMouseXImpl() = 0;
         virtual float GetMouseYImpl() = 0;
     private:
+        // TODO: Create a static singleton Instance and assign it in the OS initialization depending on the OS type
         static Input* sInstance;
     };
 }

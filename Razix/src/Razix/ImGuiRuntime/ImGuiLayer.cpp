@@ -13,7 +13,7 @@
 //#elif DIRECT_3D_RENDERER
 // Include direct x specific back end header files
 
-#include "Razix/Application.h"
+#include "Razix/Core/Application.h"
 
 namespace Razix
 {
