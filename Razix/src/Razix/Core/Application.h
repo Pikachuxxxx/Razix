@@ -16,7 +16,7 @@ namespace Razix
     class RAZIX_API Application
     {
     public:
-        Application();
+        Application(const std::string& appName = "Razix App");
         virtual ~Application();
 
         void Run();
@@ -30,6 +30,7 @@ namespace Razix
         inline static Application& GetApplication() { return *sInstance; }
     private:
         bool OnWindowClose(WindowCloseEvent& e);
+        bool OnWindowResize(WindowResizeEvent& e);
     private:
         // TODO: Remove this!
         unsigned int m_VAO, m_VBO, m_IBO;
@@ -38,7 +39,7 @@ namespace Razix
         ImGuiLayer*             m_ImGuiLayer;
         LayerStack              m_LayerStack;
         std::unique_ptr<Window> m_Window;
-
+        std::string             m_AppName;
         static Application*     sInstance;
     };
 

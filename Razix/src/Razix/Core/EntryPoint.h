@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RazixVersion.h"
 // Using the forward declared the application creating function, that we assume was defined on the client side
 extern Razix::Application* Razix::CreateApplication();
 
@@ -11,12 +12,12 @@ extern Razix::Application* Razix::CreateApplication();
 #include "Platform/Windows/WindowsOS.h"
 
 //#pragma comment(linker, "/subsystem:windows")
-
-#ifndef NOMINMAX
-#define NOMINMAX // For windows.h
-#endif
-
-#include <windows.h>
+//
+//#ifndef NOMINMAX
+//#define NOMINMAX // For windows.h
+//#endif
+//
+//#include <windows.h>
 
 // Windows Entry point - WinMain
 // TODO: Change this back to WinMain, since we are use the logging system to output to console we use an Console App instead of an Widowed App
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
 {
     // 1.-> Logging System Initialization
     Razix::Debug::Log::InitLogger();
+    RAZIX_CORE_INFO(Razix::RazixVersion.GetVersionString());
     
     // Create the OS Instance
     auto windowsOS = new Razix::WindowsOS();
