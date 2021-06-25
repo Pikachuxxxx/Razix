@@ -11,7 +11,7 @@ public:
 
     void OnUpdate() override
     {
-        //RZX_TRACE("Mouse Position : {0}, {1}", Razix::Input::GetMouseX(), Razix::Input::GetMouseY());
+        RAZIX_TRACE("Mouse Position : {0}, {1}", Razix::Input::GetMouseX(), Razix::Input::GetMouseY());
     }
 
     void OnEvent(Razix::Event& event) override { }
@@ -20,7 +20,7 @@ public:
 class Sandbox : public Razix::Application
 {
 public:
-    Sandbox()
+    Sandbox() : Application("Sandbox")
     {
         PushLayer(new TestLayer());
     }
@@ -33,6 +33,6 @@ public:
 
 Razix::Application* Razix::CreateApplication()
 {
-	RAZIX_INFO("Creating Razix Application");
+	RAZIX_INFO("Creating Razix Sandbox Application");
     return new Sandbox();
 }

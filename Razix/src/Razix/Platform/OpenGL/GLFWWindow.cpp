@@ -9,7 +9,7 @@
 //TODO: Remove this, the context handle using Refs and Init
 #ifdef RAZIX_RENDER_API_OPENGL
 #include "Platform/OpenGL/OpenGLContext.h"
-#endif // RAZXI_RENDER_API_OPENGL
+#endif // RAZIX_RENDER_API_OPENGL
 
 namespace Razix
 {
@@ -30,7 +30,7 @@ namespace Razix
 #ifdef RAZIX_RENDER_API_OPENGL
 		glfwPollEvents();
 		m_Context->SwapBuffers();
-#endif // RAZXI_RENDER_API_OPENGL
+#endif // RAZIX_RENDER_API_OPENGL
 	}
 
 	void GLFWWindow::SetVSync(bool enabled)
