@@ -16,7 +16,7 @@ namespace Razix
 {
 	void WindowsOS::Init()
 	{
-		RAZIX_CORE_INFO("System OS : [Windows]");
+		RAZIX_CORE_INFO("System OS : {0}", STRINGIZE(RAZIX_BUILD_CONFIG));
 	#ifdef RAZIX_USE_GLFW_WINDOWS
 		GLFWWindow::Construct();
 	#else 
