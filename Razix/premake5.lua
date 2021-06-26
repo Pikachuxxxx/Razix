@@ -57,6 +57,7 @@ project "Razix"
         "RAZIX_ENGINE",
         "RAZIX_BUILD_DLL",
         "RAZIX_ROOT_DIR="  .. root_dir,
+        "RAZIX_BUILD_CONFIG=" .. outputdir,
         -- "IMGUI_USER_CONFIG=\"src/Razix/ImGui/ImConfig.h\"",
         "SPDLOG_COMPILED_LIB"
 }

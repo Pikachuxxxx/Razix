@@ -23,7 +23,7 @@ namespace Razix
         const GLubyte* renderer = glGetString(GL_RENDERER);     // Returns a hint to the model
         const GLubyte* version  = glGetString(GL_VERSION);      // Returns the version
 
-        RAZIX_CORE_INFO("OpenGL Info : \n \t\t\t Vendor : {0} \n \t\t\t Renderer : {1} \n \t\t\t Version : {2} ", vendor, renderer, version);
+		RAZIX_CORE_INFO("OpenGL Info : \n \t\t\t\t Vendor : {0} \n \t\t\t\t Renderer : {1} \n \t\t\t\t Version : {2} ", vendor, renderer, version);
         RAZIX_CORE_INFO("GLFW Version : {0}", glfwGetVersionString());
     }
 

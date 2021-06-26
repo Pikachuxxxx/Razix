@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Razix/Core/Log.h"
+
 namespace Razix
 {
 	struct Version
 	{
 	public :
-		enum Stage
+		enum class Stage
 		{
 			Development,
 			Alpha,
@@ -29,18 +31,21 @@ namespace Razix
 		{
 			switch (ReleaseStage)
 			{
-			case Razix::Version::Development:
+			case Razix::Version::Stage::Development:
 				return "Development";
 				break;
-			case Razix::Version::Alpha:
+			case Razix::Version::Stage::Alpha:
 				return "Alpha";
 				break;
-			case Razix::Version::Beta:
+			case Razix::Version::Stage::Beta:
 				return "Beta";
 					break;
-			case Razix::Version::RC:
+			case Razix::Version::Stage::RC:
 				return "RC";
 					break;
+			default:
+				return "None";
+				break;
 			}
 		}
 		std::string GetReleaseDate() const { return (std::to_string(ReleaseDate.Day) + "-" + std::to_string(ReleaseDate.Month) + "-" + std::to_string(ReleaseDate.Year)); }
