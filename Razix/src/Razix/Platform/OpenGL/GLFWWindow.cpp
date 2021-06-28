@@ -9,7 +9,7 @@
 //TODO: Remove this, the context handle using Refs and Init
 #ifdef RAZIX_RENDER_API_OPENGL
 #include "Platform/OpenGL/OpenGLContext.h"
-#endif // RAZXI_RENDER_API_OPENGL
+#endif // RAZIX_RENDER_API_OPENGL
 
 namespace Razix
 {
@@ -30,7 +30,7 @@ namespace Razix
 #ifdef RAZIX_RENDER_API_OPENGL
 		glfwPollEvents();
 		m_Context->SwapBuffers();
-#endif // RAZXI_RENDER_API_OPENGL
+#endif // RAZIX_RENDER_API_OPENGL
 	}
 
 	void GLFWWindow::SetVSync(bool enabled)
@@ -65,7 +65,7 @@ namespace Razix
 		m_Data.Height = properties.Height;
 		//m_Data.API = properties.API; // use this with a switch statement to choose a proper rendering API
 
-		RAZIX_CORE_INFO("Creating Window... \n \t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
+		RAZIX_CORE_INFO("Creating Window... \n \t\t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
 
 		glfwSetErrorCallback([](int errorCode, const char* description)
 		{

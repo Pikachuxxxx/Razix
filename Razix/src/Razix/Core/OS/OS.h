@@ -26,10 +26,12 @@ namespace Razix
 
 		/*** Important ***/
 		/// <summary>
-		/// Controls the Application lifecycle 
+		/// Controls the Application lifecycle
+		/// Should be Implemented OS so as to give the OS control over the application
 		/// </summary>
 		virtual void Run() = 0;
 	protected:
+		/// The global OS instance for the Engine to call
 		static OS* s_Instance;
 	};
 }

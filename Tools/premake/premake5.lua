@@ -5,6 +5,7 @@ project "Premake"
 
 	files
 	{
+		"**.lua",
 		"**premake5.lua",
 		"%{wks.location}../../**premake5.lua"
 	}
