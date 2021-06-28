@@ -1,6 +1,7 @@
 #include "rzxpch.h"
 #include "Application.h"
 
+#include "Razix/Core/RazixVersion.h"
 #include "Razix/Events/ApplicationEvent.h"
 
 #include <glad/glad.h>
@@ -9,16 +10,22 @@ namespace Razix
 {
     Application* Application::sInstance = nullptr;
 
-    Application::Application()
+    Application::Application(const std::string& appName) : m_AppName(appName)
     {
         RAZIX_CORE_ASSERT(!sInstance, "Application already exists!");
         sInstance = this;
 
-        m_Window = std::unique_ptr<Window>(Window::Create());
+        /// The Razix Application Signature Name is generated here and passed to the window
+        // TODO: Add render API being used to the Signature dynamically
+        // TODO: add scene name to the Signature
+        std::string SignatureTitle = appName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStage() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
+       
+        m_Window = std::unique_ptr<Window>(Window::Create(WindowProperties(SignatureTitle)));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(OnEvent));
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
 
+        // TODO: Remove this test code!
         glGenVertexArrays(1, &m_VAO);
         glBindVertexArray(m_VAO);
         glGenBuffers(1, &m_VBO);
@@ -42,10 +49,14 @@ namespace Razix
     void Application::OnEvent(Event& event)
     {
         EventDispatcher dispatcher(event);
+        // Window close event
         dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
+        // Window resize event
+        dispatcher.Dispatch<WindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
+
 
         // Core Event tracing
-        RAZIX_CORE_TRACE("Event: {0}", event);
+        //RAZIX_CORE_TRACE("Event: {0}", event);
 
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
         {
@@ -73,7 +84,13 @@ namespace Razix
         return true;
     }
 
-    void Application::Run()
+    bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+        glViewport(0, 0, e.GetWidth(), e.GetHeight());
+        return true;
+	}
+
+	void Application::Run()
     {
         while (m_Running)
         {
