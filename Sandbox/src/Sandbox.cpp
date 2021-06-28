@@ -12,7 +12,7 @@ public:
     void OnUpdate() override
     {
         // Testing the Input
-        RAZIX_TRACE("Mouse Position : {0}, {1}", Razix::Input::GetMouseX(), Razix::Input::GetMouseY());
+        //RAZIX_TRACE("Mouse Position : {0}, {1}", Razix::Input::GetMouseX(), Razix::Input::GetMouseY());
     }
 
     void OnEvent(Razix::Event& event) override { }

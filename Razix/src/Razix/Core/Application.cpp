@@ -19,7 +19,6 @@ namespace Razix
         // TODO: Add render API being used to the Signature dynamically
         // TODO: add scene name to the Signature
         std::string SignatureTitle = appName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStage() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
-        RAZIX_CORE_INFO("Engine Version = {0}", SignatureTitle);
        
         m_Window = std::unique_ptr<Window>(Window::Create(WindowProperties(SignatureTitle)));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(OnEvent));
