@@ -1,5 +1,5 @@
 <br>
-<img width=200" align="left" src="https://github.com/Pikachuxxxx/Limber/blob/master/Branding/LimberIcon.png"> <h1> Razix Engine </h1>
+<img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
 Razix is a High Performance Research Engine for production pipeline with emphasis on experimenting with different rendering techniques. Razix supports Windows, Mac, Linux, PSVita, PS3 and PS4 systems.
 
  ---
