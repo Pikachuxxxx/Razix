@@ -21,7 +21,7 @@ namespace Razix
         std::string SignatureTitle = appName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStage() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
        
         m_Window = std::unique_ptr<Window>(Window::Create(WindowProperties(SignatureTitle)));
-        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(OnEvent));
+        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
 

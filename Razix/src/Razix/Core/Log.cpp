@@ -9,7 +9,7 @@ namespace Razix
         std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
         std::shared_ptr<spdlog::logger> Log::s_ApplicationLogger;
 
-        void Log::InitLogger()
+        void Log::StartUp()
         {
             // TODO: Add src file and line logging to the pattern
             // Try using __FUNCTION__, __LINE__ and __FILE__ etc.instead of using Macro-ed global SPDLog functions
@@ -24,7 +24,7 @@ namespace Razix
             RAZIX_INFO("Initialized Engine Application Logger");
         }
 
-        void Log::ShutdownLogger()
+        void Log::Shutdown()
         {
             RAZIX_CORE_TRACE("Shutting down Logging System");
             s_CoreLogger.reset();
