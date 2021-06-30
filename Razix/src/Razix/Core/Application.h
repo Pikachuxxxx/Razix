@@ -12,7 +12,9 @@
 
 namespace Razix
 {
-    // Create an Razix Application
+    /// <summary>
+    /// Creates an Razix Application (Used as the base for Editor , Sandbox and Game Project)
+    /// </summary>
     class RAZIX_API Application
     {
     public:

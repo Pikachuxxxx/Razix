@@ -8,7 +8,7 @@ namespace Razix
 {
     struct WindowProperties
     {
-		WindowProperties(const std::string& title = "Razix", uint32_t width = 1280, uint32_t height = 720, int renderAPI = 0, bool fullscreen = false, bool vSync = true, bool borderless = false, const std::string& filepath = "")
+		WindowProperties(const std::string& title = "Razix Engine", uint32_t width = 1280, uint32_t height = 720, int renderAPI = 0, bool fullscreen = false, bool vSync = true, bool borderless = false, const std::string& filepath = "")
 			: Width(width)
 			, Height(height)
 			, Title(title)
@@ -55,5 +55,4 @@ namespace Razix
 		Window() = default;
 
     };
-
 }

@@ -20,12 +20,13 @@ extern Razix::Application* Razix::CreateApplication();
 //
 //#include <windows.h>
 
-// Windows Entry point - WinMain
+/// Windows Entry point - WinMain
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 int main(int argc, char** argv)
 {
     // 1.-> Logging System Initialization
-    Razix::Debug::Log::InitLogger();
+    Razix::Debug::Log::StartUp();
+
     // Logging the Version details
     RAZIX_CORE_INFO("Version : {0}", Razix::RazixVersion.GetVersionString());
     RAZIX_CORE_INFO("Release Stage : {0}", Razix::RazixVersion.GetReleaseStage());
@@ -43,7 +44,7 @@ int main(int argc, char** argv)
     delete windowsOS;
 
     // Shutdown the Engine systems
-    Razix::Debug::Log::ShutdownLogger();
+    Razix::Debug::Log::Shutdown();
 
     return EXIT_SUCCESS;
 }

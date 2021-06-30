@@ -19,8 +19,8 @@ namespace Razix {
         class RAZIX_API Log
         {
         public:
-            static void InitLogger();
-            static void ShutdownLogger();
+            static void StartUp();
+            static void Shutdown();
 
             inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
             inline static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
