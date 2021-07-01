@@ -4,6 +4,7 @@
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/KeyEvent.h"
 #include "Razix/Events/MouseEvent.h"
+#include "Razix/Utilities/LoadImage.h"
 
 #include <GLFW/glfw3.h>
 //TODO: Remove this, the context handle using Refs and Init
@@ -46,6 +47,22 @@ namespace Razix
 	bool GLFWWindow::IsVSync() const
 	{
 		return m_Data.Vsync;
+	}
+
+	void GLFWWindow::SetWindowIcon(const std::string& iconFilePath)
+	{
+		uint32_t width, height;
+		uint8_t* pixels = Utilities::LoadImage(iconFilePath, &width, &height, nullptr);
+
+		std::vector<GLFWimage> images;
+		GLFWimage image;
+		image.height = height;
+		image.width = width;
+		image.pixels = static_cast<unsigned char*>(pixels);
+		images.push_back(image);
+
+		glfwSetWindowIcon(m_Window, int(images.size()), images.data());
+
 	}
 
 	void GLFWWindow::Construct()
@@ -98,6 +115,9 @@ namespace Razix
 		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
+
+		std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
+		SetWindowIcon(icon);
 
 		// Setting up event callbacks function via the dispatcher
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)

@@ -31,6 +31,7 @@ namespace Razix
     };
 
     /// Window Interface for Desktop systems
+	// TODO: Add methods for all the window properties in the WindowProperties Constructor
     class RAZIX_API Window
     {
     public:
@@ -48,6 +49,8 @@ namespace Razix
         virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
         virtual void SetVSync(bool enabled) = 0;
         virtual bool IsVSync() const = 0;
+
+		virtual void SetWindowIcon(const std::string& iconFilePath) = 0;
 
         virtual void* GetNativeWindow() const = 0;
 	protected:
