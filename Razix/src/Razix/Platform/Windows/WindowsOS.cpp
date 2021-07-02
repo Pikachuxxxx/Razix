@@ -19,6 +19,7 @@ namespace Razix
 		RAZIX_CORE_INFO("System OS : {0}", STRINGIZE(RAZIX_BUILD_CONFIG));
 	#ifdef RAZIX_USE_GLFW_WINDOWS
 		GLFWWindow::Construct();
+		// TODO: Initialize the OS specific Input Implementation here
 	#else 
 		WindowsWindow::Construct();
 		Razix::Input* Razix::Input::sInstance = new WindowsInput();
