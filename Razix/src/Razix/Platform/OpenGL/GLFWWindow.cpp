@@ -117,7 +117,7 @@ namespace Razix
         SetVSync(true);
 
         std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
-        SetWindowIcon(icon);
+        SetWindowIcon("//EngineSource/Embedded/RazixLogo.png");
 
         // Setting up event callbacks function via the dispatcher
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)

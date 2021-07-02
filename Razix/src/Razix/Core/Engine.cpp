@@ -1,6 +1,8 @@
 #include "rzxpch.h"
 #include "Engine.h"
 
+#include "Razix/Core/OS/VFS.h"
+
 #include <chrono>
 
 namespace Razix
@@ -15,17 +17,20 @@ namespace Razix
 		RAZIX_CORE_INFO("*************************");
 
 		// Logging the Engine Version details
-		RAZIX_CORE_INFO("Version : {0}", Razix::RazixVersion.GetVersionString());
-		RAZIX_CORE_INFO("Release Stage : {0}", Razix::RazixVersion.GetReleaseStage());
+		RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStage());
 
-		// TODO: Ignite all the sub-systems here
+		// Igniting all the sub-systems
+		// 1. Virtual File System
+		VFS::StartUp();
+		// Mount engine specific Paths
+		VFS::Get()->Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/src/Razix")));
 
 		// Log after all the Engine systems have been successfully Started Up
 		RAZIX_CORE_INFO("*************************");
 		RAZIX_CORE_INFO("*    Engine Ignited!    *");
 		RAZIX_CORE_INFO("*************************");
 
-		//TODO: Log the time take to initialize engine using Profiling macros
+		// TODO: Log the time take to initialize engine using Profiling macros
 		auto stop = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::milli> ms_double = (stop - start);
 		RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_double.count());
@@ -33,7 +38,17 @@ namespace Razix
 
 	void Engine::ShutDown()
 	{
-		UNIMPLEMENTED
+		RAZIX_CORE_ERROR("******************************");
+		RAZIX_CORE_ERROR("*    Shutting down Engine....*");
+		RAZIX_CORE_ERROR("******************************");
+		// Shutting down all the sub-systems
+		// Shutdown the VFS last
+		VFS::ShutDown();
+
+		// Log the completion of engine shutdown
+		RAZIX_CORE_ERROR("***********************************");
+		RAZIX_CORE_ERROR("*    Engine Shutdown Complete!    *");
+		RAZIX_CORE_ERROR("***********************************");
 	}
 
 	void Engine::Run()
