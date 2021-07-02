@@ -45,6 +45,9 @@ int main(int argc, char** argv)
     windowsOS->Run();
     delete windowsOS;
 
+    // Shutdown the Engine
+    Razix::Engine::Get().ShutDown();
+
     // Shutdown the Engine systems
     Razix::Debug::Log::Shutdown();
 

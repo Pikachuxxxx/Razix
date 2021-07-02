@@ -8,6 +8,7 @@ namespace Razix
 	/// <summary>
 	/// Cross-platform Virtual File System for the Engine
 	/// </summary>
+	/// // TODO: Log unsuccessful path resolution
 	class VFS
 	{
 	public:
@@ -25,7 +26,7 @@ namespace Razix
 		/// Returns the instance to the Static instance of the VFS
 		/// </summary>
 		/// <returns> Returns a const pointer to the Virtual File System Object </returns>
-		inline static const VFS* Get() { return s_Instance; }
+		inline static VFS* Get() { return s_Instance; }
 
 		/// <summary>
 		/// Mounts the Virtual path along with it's actual physical path so as to resolve 
@@ -86,13 +87,16 @@ namespace Razix
 		/// <param name="path"> The virtual path to which the file is being written to </param>
 		/// <returns> True, if the file was written successfully </returns>
 		bool WriteTextFile(const std::string& path, const std::string& text);
-
 	private:
+		VFS() {}
+		~VFS() {}
+
 		///	The singleton static instance of the class
 		static VFS* s_Instance;
 		/// The map of virtual path and it's corresponding Physical mount paths in a key value association
 		std::unordered_map<std::string, std::vector<std::string>> m_MountPoints;
 	private:
+		NONCOPYABLE(VFS)
 	};
 	
 }
