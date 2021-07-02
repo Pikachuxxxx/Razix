@@ -17,7 +17,7 @@ namespace Razix
 
     void VFS::ShutDown()
     {
-		RAZIX_CORE_ERROR("Shutting down VFS and unmounting all paths");
+		RAZIX_CORE_ERROR("Shutting Down Virtual File System");
         delete s_Instance;
     }
 

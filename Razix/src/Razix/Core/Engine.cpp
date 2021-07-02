@@ -23,6 +23,7 @@ namespace Razix
 		// 1. Virtual File System
 		VFS::StartUp();
 		// Mount engine specific Paths
+		// TODO: Either use embedded data for these using .inl files or load them from the Application derived data, Whatever it is remove this by loading from source path
 		VFS::Get()->Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/src/Razix")));
 
 		// Log after all the Engine systems have been successfully Started Up
@@ -38,9 +39,10 @@ namespace Razix
 
 	void Engine::ShutDown()
 	{
-		RAZIX_CORE_ERROR("******************************");
-		RAZIX_CORE_ERROR("*    Shutting down Engine....*");
-		RAZIX_CORE_ERROR("******************************");
+		RAZIX_CORE_ERROR("***********************************");
+		RAZIX_CORE_ERROR("*    Shutting down Engine....     *");
+		RAZIX_CORE_ERROR("***********************************");
+
 		// Shutting down all the sub-systems
 		// Shutdown the VFS last
 		VFS::ShutDown();
