@@ -15,18 +15,24 @@ namespace Razix
             // Try using __FUNCTION__, __LINE__ and __FILE__ etc.instead of using Macro-ed global SPDLog functions
             spdlog::set_pattern("%^ %n [%T] :: %v %$");
 
-            s_CoreLogger = spdlog::stdout_color_mt("Razix Core");
+            std::stringstream coreLoggerName;
+			coreLoggerName << std::setw(18) << std::left << "Razix Core";
+
+            s_CoreLogger = spdlog::stdout_color_mt(coreLoggerName.str());
             s_CoreLogger->set_level(spdlog::level::trace);
             RAZIX_CORE_INFO("Initialized Core Engine Logger");
 
-            s_ApplicationLogger = spdlog::stdout_color_mt("Razix Application");
+			std::stringstream appLoggerName;
+			appLoggerName << std::setw(18) << std::left << "Razix Application";
+
+            s_ApplicationLogger = spdlog::stdout_color_mt(appLoggerName.str());
             s_ApplicationLogger->set_level(spdlog::level::trace);
             RAZIX_INFO("Initialized Engine Application Logger");
         }
 
         void Log::Shutdown()
         {
-            RAZIX_CORE_TRACE("Shutting down Logging System");
+            RAZIX_CORE_ERROR("Shutting down Logging System");
             s_CoreLogger.reset();
             s_ApplicationLogger.reset();
             spdlog::shutdown();
