@@ -11,13 +11,13 @@ namespace Razix
 
     void VFS::StartUp()
     {
-        RAZIX_CORE_INFO("Strarting Up Virtual File Sytem");
+        RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
         s_Instance = new VFS();
     }
 
     void VFS::ShutDown()
     {
-        RAZIX_CORE_WARN("Shutting down VFS and unmounting all paths");
+		RAZIX_CORE_ERROR("Shutting Down Virtual File System");
         delete s_Instance;
     }
 

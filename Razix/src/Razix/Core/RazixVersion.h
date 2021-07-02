@@ -61,5 +61,5 @@ namespace Razix
 	};
 
 	///	The Engine's current Version and release status
-	const Version RazixVersion = Version(0, 16, 0, Version::Stage::Development, Version::Date(25, 06, 2021));
+	const Version RazixVersion = Version(0, 14, 0, Version::Stage::Development, Version::Date(02, 07, 2021));
 }
