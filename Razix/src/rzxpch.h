@@ -5,6 +5,7 @@
 
 //-----System Includes-----//
 #include <iostream>
+#include <iomanip>
 #include <memory>
 #include <utility>
 #include <algorithm>
@@ -16,6 +17,9 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+
+//-----Engine-----//
+#include "Razix/Core/Log.h"
 
 //-----3rd Party-----//
 

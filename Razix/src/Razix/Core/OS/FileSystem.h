@@ -3,7 +3,7 @@
 namespace Razix
 {
 	/// <summary>
-	/// Provides a OS independent interface to Interact with the files stored on the host disk
+	/// Provides a OS independent interface to Interact with the files stored on the host
 	/// </summary>
 	class FileSystem
 	{
@@ -43,18 +43,6 @@ namespace Razix
 
 			return !IsRelativePath(path);
 		}
-
-	//private:
-	//	static bool (*FileExistsFunc)(const std::string&);
-	//	static bool (*FolderExistsFunc)(const std::string&);
-	//	static int64_t(*GetFileSizeFunc)(const std::string&);
-	//
-	//	static uint8_t* (*ReadFileFunc)(const std::string&);
-	//	static bool (*ReadFileBufferFunc)(const std::string&, void*, int64_t);
-	//	static std::string(*ReadTextFileFunc)(const std::string&);
-	//
-	//	static bool (*WriteFileFunc)(const std::string&, uint8_t*);
-	//	static bool (*WriteTextFileFunc)(const std::string&, const std::string&);
 	};
 }
 
