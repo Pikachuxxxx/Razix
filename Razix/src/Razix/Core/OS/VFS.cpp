@@ -65,6 +65,7 @@ namespace Razix
                 return true;
             }
         }
+        return false;
     }
 
     bool VFS::AbsolutePathToVFS(const std::string& absolutePath, std::string& outVirtualPath, bool folder /*= false*/)

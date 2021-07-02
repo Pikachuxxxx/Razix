@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RazixVersion.h"
+#include "Razix/Core/Engine.h"
 // Using the forward declared the application creating function, that we assume was defined on the client side
 extern Razix::Application* Razix::CreateApplication();
 
@@ -27,14 +27,16 @@ int main(int argc, char** argv)
     // 1.-> Logging System Initialization
     Razix::Debug::Log::StartUp();
 
-    // Logging the Version details
-    RAZIX_CORE_INFO("Version : {0}", Razix::RazixVersion.GetVersionString());
-    RAZIX_CORE_INFO("Release Stage : {0}", Razix::RazixVersion.GetReleaseStage());
-
     // Create the OS Instance
     auto windowsOS = new Razix::WindowsOS();
     Razix::OS::SetInstance(windowsOS);
     windowsOS->Init();
+
+    //-------------------------------//
+    //        Engine Ignition        //
+    //-------------------------------//
+    Razix::Engine::Get().Ignite();
+    //-------------------------------//
 
     // Application auto Initialization by the Engine
     Razix::CreateApplication();
