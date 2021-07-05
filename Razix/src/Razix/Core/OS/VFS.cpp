@@ -12,6 +12,8 @@ namespace Razix
     void VFS::StartUp()
     {
         RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
+        /// Instance is automatically created once the system is Started Up
+        // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class
         s_Instance = new VFS();
     }
 
