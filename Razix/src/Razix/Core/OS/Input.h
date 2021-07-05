@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Core.h"
+#include "Razix/Core/OS/KeyCodes.h"
 
 namespace Razix
 {
@@ -16,28 +17,28 @@ namespace Razix
         /// </summary>
         /// <param name="keycode"> The code for the key being checked </param>
         /// <returns> True, if the key is pressed </returns>
-        inline static bool IsKeyPressed(int keycode) { return sInstance->IsKeyPressedImpl(keycode); }
+        inline static bool IsKeyPressed(Razix::KeyCode::Key keycode) { return sInstance->IsKeyPressedImpl(int(keycode)); }
 
         /// <summary>
         /// Tells whether or not a particular key was released or not
         /// </summary>
-		/// <param name="keycode"> The code for the key being checked </param>
-		/// <returns> True, if the key is released after an immediate press </returns>
-        inline static bool IsKeyReleased(int keycode) { return sInstance->IsKeyReleasedImpl(keycode); }
+        /// <param name="keycode"> The code for the key being checked </param>
+        /// <returns> True, if the key is released after an immediate press </returns>
+        inline static bool IsKeyReleased(Razix::KeyCode::Key keycode) { return sInstance->IsKeyReleasedImpl(int(keycode)); }
 
-		/// <summary>
+        /// <summary>
         /// Tells whether or not a particular key was being held or not
         /// </summary>
         /// <param name="keycode"> The code for the key being checked </param>
         /// <returns> True, if the key is held </returns>
-        inline static bool IsKeyHeld(int keycode) { return sInstance->IsIsKeyHeldImpl(keycode); }
+        inline static bool IsKeyHeld(Razix::KeyCode::Key keycode) { return sInstance->IsIsKeyHeldImpl(int(keycode)); }
 
         /// <summary>
         /// Tells whether a mouse button was pressed
         /// </summary>
         /// <param name="button"> The mouse button being checked </param>
         /// <returns> True if the mouse button is pressed </returns>
-        inline static bool IsMouseButtonPressed(int button) { return sInstance->IsMouseButtonPressedImpl(button); }
+        inline static bool IsMouseButtonPressed(Razix::KeyCode::MouseKey button) { return sInstance->IsMouseButtonPressedImpl(int(button)); }
 
         /// <summary>
         /// Gets the current position of the mouse
