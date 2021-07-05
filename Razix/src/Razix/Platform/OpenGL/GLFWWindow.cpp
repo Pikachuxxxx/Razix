@@ -29,8 +29,14 @@ namespace Razix
     void GLFWWindow::OnWindowUpdate()
     {
 #ifdef RAZIX_RENDER_API_OPENGL
-        glfwPollEvents();
         m_Context->SwapBuffers();
+#endif // RAZIX_RENDER_API_OPENGL
+    }
+
+    void GLFWWindow::ProcessInput()
+    {
+#ifdef RAZIX_RENDER_API_OPENGL
+		glfwPollEvents();
 #endif // RAZIX_RENDER_API_OPENGL
     }
 
@@ -55,7 +61,7 @@ namespace Razix
         uint8_t* pixels = Utilities::LoadImage(iconFilePath, &width, &height, nullptr);
 
         std::vector<GLFWimage> images;
-        GLFWimage image;
+        GLFWimage image{};
         image.height = height;
         image.width = width;
         image.pixels = static_cast<unsigned char*>(pixels);
