@@ -48,7 +48,7 @@ namespace Razix
 		/// <summary>
 		/// Gets the Statistics of the current engine state
 		/// </summary>
-		const Stats& GetStatistics() const { return m_Stats; }
+		Stats& GetStatistics() { return m_Stats; }
 
 		/// <summary>
 		/// Resets the stats to the default value
@@ -77,6 +77,6 @@ namespace Razix
 		/// Current frame basic statistics
 		Stats m_Stats;
 		/// Maximum frames per second that will be rendered by the Engine
-		float m_MaxFramesPerSecond = 60.0f;
+		float m_MaxFramesPerSecond = 1000.0f / 60.0f;
 	};
 }

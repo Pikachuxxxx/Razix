@@ -1,29 +1,11 @@
 #include <Razix.h>
 
-class TestLayer : public Razix::Layer
-{
-public:
-    TestLayer()
-        : Layer("Test Layer")
-    {
-
-    }
-
-    void OnUpdate() override
-    {
-        // Testing the Input
-        //RAZIX_TRACE("Mouse Position : {0}, {1}", Razix::Input::GetMouseX(), Razix::Input::GetMouseY());
-    }
-
-    void OnEvent(Razix::Event& event) override { }
-};
-
 class Sandbox : public Razix::Application
 {
 public:
-    Sandbox() : Application("Sandbox")
+    Sandbox() : Application("/Sandbox/","Sandbox")
     {
-        PushLayer(new TestLayer());
+       
     }
 
     ~Sandbox()
