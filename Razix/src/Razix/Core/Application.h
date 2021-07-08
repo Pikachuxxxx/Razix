@@ -76,7 +76,7 @@ namespace Razix
         bool OnWindowClose(WindowCloseEvent& e);
 
         /// <summary>
-        /// Called when the window was resized
+        /// Called when the window is resized
         /// </summary>
         /// <param name="e"> The window resize event </param>
         /// <returns> True, if the window was resized successfully </returns>
