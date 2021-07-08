@@ -24,7 +24,7 @@ namespace Razix
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		inline void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
-		void SetWindowIcon(const std::string& iconFilePath) override;
+		void SetWindowIcon() override;
 
 		virtual void* GetNativeWindow() const override { return m_Window; }
 

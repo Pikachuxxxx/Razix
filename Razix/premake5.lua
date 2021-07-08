@@ -18,7 +18,8 @@ project "Razix"
     {
         "src/**.h",
         "src/**.c",
-        "src/**.cpp"
+        "src/**.cpp",
+        "src/**.inl"
     }
 
     removefiles

@@ -1,6 +1,9 @@
 #include "rzxpch.h"
 #include "GLFWWindow.h"
 
+#include "Razix/Embedded/RazixLogo32.inl"
+#include "Razix/Embedded/RazixLogo64.inl"
+
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/KeyEvent.h"
 #include "Razix/Events/MouseEvent.h"
@@ -55,17 +58,24 @@ namespace Razix
         return m_Data.Vsync;
     }
 
-    void GLFWWindow::SetWindowIcon(const std::string& iconFilePath)
+    void GLFWWindow::SetWindowIcon()
     {
-        uint32_t width, height;
-        uint8_t* pixels = Utilities::LoadImage(iconFilePath, &width, &height, nullptr);
+        uint8_t* pixels = nullptr;
 
+        // 64-bit logo
         std::vector<GLFWimage> images;
-        GLFWimage image{};
-        image.height = height;
-        image.width = width;
-        image.pixels = static_cast<unsigned char*>(pixels);
-        images.push_back(image);
+        GLFWimage image64{};
+        image64.height = RazixLogo64Height;
+        image64.width = RazixLogo64Width;
+        image64.pixels = static_cast<unsigned char*>(&RazixLogo64Pixels[0]);
+        images.push_back(image64);
+
+        // 32-bit logo
+		GLFWimage image32{};
+        image32.height = RazixLogo32Height;
+        image32.width = RazixLogo32Width;
+        image32.pixels = static_cast<unsigned char*>(RazixLogo32Pixels);
+        images.push_back(image32);
 
         glfwSetWindowIcon(m_Window, int(images.size()), images.data());
 
@@ -123,7 +133,7 @@ namespace Razix
         SetVSync(true);
 
         std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
-        SetWindowIcon("//EngineSource/Embedded/RazixLogo.png");
+        SetWindowIcon();
 
         // Setting up event callbacks function via the dispatcher
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)

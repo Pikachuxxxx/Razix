@@ -97,7 +97,7 @@ namespace Razix
         virtual void SetVSync(bool enabled) = 0;
         virtual bool IsVSync() const = 0;
 
-		virtual void SetWindowIcon(const std::string& iconFilePath) = 0;
+		virtual void SetWindowIcon() = 0;
 
         virtual void* GetNativeWindow() const = 0;
 	protected:
