@@ -1,14 +1,16 @@
 #include "rzxpch.h"
 #include "Application.h"
 
+// ---------- Engine ----------
 #include "Razix/Core/Engine.h"
+// ----------------------------
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/OS/VFS.h"
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Core/OS/Input.h"
 
+// TODO: Remove this test code!
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
 
 namespace Razix
 {
@@ -40,13 +42,13 @@ namespace Razix
         std::string SignatureTitle = appName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStage() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
-        m_Timer = std::make_unique<Timer>();
+        m_Timer = CreateUniqueRef<Timer>();
 
         // Set the window properties and create the timer
         WindowProperties windowProperties{};
         windowProperties.Title = SignatureTitle;
        
-        m_Window = std::unique_ptr<Window>(Window::Create(windowProperties));
+        m_Window = UniqueRef<Window>(Window::Create(windowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
         // Convert the app to loaded state
@@ -110,10 +112,9 @@ namespace Razix
         // Poll for Input events
         m_Window->ProcessInput();
 
-        // Early close if the escape key is pressed
         if (Input::IsKeyPressed(Razix::KeyCode::Key::Escape))
             m_CurrentState = AppState::Closing;
-
+        // Early close if the escape key is pressed or close button is pressed
         if (m_CurrentState == AppState::Closing)
             return false;
 
