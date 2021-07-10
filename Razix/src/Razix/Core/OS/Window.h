@@ -94,13 +94,32 @@ namespace Razix
         /// </summary>
         /// <param name="callback"> Pointer to the callback function </param>
         virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+
+        /// <summary>
+        /// Enables V-Sync
+        /// </summary>
+        /// <param name="enabled"> Whether or not to enable v-sycn </param>
         virtual void SetVSync(bool enabled) = 0;
+
+        /// <summary>
+        /// Tells whether or not VSync was enabled or not
+        /// </summary>
         virtual bool IsVSync() const = 0;
 
-		virtual void SetWindowIcon(const std::string& iconFilePath) = 0;
+		/// <summary>
+		/// Sets the window Icon
+		/// </summary>
+		virtual void SetWindowIcon() = 0;
 
+        /// <summary>
+        /// Gets the native window handle for the underlying OS
+        /// </summary>
+        /// <returns> A pointer to the underlying OS native handle </returns>
         virtual void* GetNativeWindow() const = 0;
 	protected:
+		/// <summary>
+		/// Pointer to the appropriate Window Creation function based on OS
+		/// </summary>
 		static Window* (*ConstructionFunc)(const WindowProperties&);
 		Window() = default;
     };

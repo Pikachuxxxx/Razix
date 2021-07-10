@@ -1,20 +1,22 @@
 #include "rzxpch.h"
 #include "Application.h"
 
+// ---------- Engine ----------
 #include "Razix/Core/Engine.h"
+// ----------------------------
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/OS/VFS.h"
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Core/OS/Input.h"
 
+// TODO: Remove this test code!
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
 
 namespace Razix
 {
     Application* Application::sInstance = nullptr;
 
-	Application::Application(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
+    Application::Application(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
     {
         RAZIX_CORE_ASSERT(!sInstance, "Application already exists!");
         sInstance = this;
@@ -28,25 +30,25 @@ namespace Razix
 
         // Mount the project asset paths
         // TODO: Move this to the sandbox later or mount all/new paths dynamically from the project root path for the asset browser 
-		VFS::Get()->Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
-		VFS::Get()->Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
-		VFS::Get()->Mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
-		VFS::Get()->Mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
-		VFS::Get()->Mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
-		VFS::Get()->Mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
+        VFS::Get()->Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
+        VFS::Get()->Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
+        VFS::Get()->Mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
+        VFS::Get()->Mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
+        VFS::Get()->Mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
+        VFS::Get()->Mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
 
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
         std::string SignatureTitle = appName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStage() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
-        m_Timer = std::make_unique<Timer>();
+        m_Timer = CreateUniqueRef<Timer>();
 
         // Set the window properties and create the timer
         WindowProperties windowProperties{};
-		windowProperties.Title = SignatureTitle;
+        windowProperties.Title = SignatureTitle;
        
-        m_Window = std::unique_ptr<Window>(Window::Create(windowProperties));
+        m_Window = UniqueRef<Window>(Window::Create(windowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
         // Convert the app to loaded state
@@ -68,7 +70,7 @@ namespace Razix
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
     }
 
-	void Application::OnEvent(Event& event)
+    void Application::OnEvent(Event& event)
     {
         EventDispatcher dispatcher(event);
         // Window close event
@@ -85,7 +87,7 @@ namespace Razix
 
     bool Application::OnWindowResize(WindowResizeEvent& e)
     {
-		// TODO: Remove this test code!
+        // TODO: Remove this test code!
         glViewport(0, 0, e.GetWidth(), e.GetHeight());
         return true;
     }
@@ -96,12 +98,12 @@ namespace Razix
         Quit();
     }
 
-	bool Application::OnFrame()
-	{
+    bool Application::OnFrame()
+    {
         // Calculate the delta time
         float now = m_Timer->GetElapsedS();
-		auto& stats = Engine::Get().GetStatistics();
-		m_Timestep.Update(now);
+        auto& stats = Engine::Get().GetStatistics();
+        m_Timestep.Update(now);
 
         // Update the stats
         stats.FrameTime = m_Timestep.GetTimestepMs();
@@ -110,12 +112,11 @@ namespace Razix
         // Poll for Input events
         m_Window->ProcessInput();
 
-        // Early close if the escape key is pressed
         if (Input::IsKeyPressed(Razix::KeyCode::Key::Escape))
             m_CurrentState = AppState::Closing;
-
-		if (m_CurrentState == AppState::Closing)
-			return false;
+        // Early close if the escape key is pressed or close button is pressed
+        if (m_CurrentState == AppState::Closing)
+            return false;
 
         // Update the Engine systems
         OnUpdate(m_Timestep);
@@ -128,38 +129,38 @@ namespace Razix
         // Update the window (basically swap buffer)
         m_Window->OnWindowUpdate();
 
-		if (now - m_SecondTimer > 1.0f)
-		{
-			m_SecondTimer += 1.0f;
+        if (now - m_SecondTimer > 1.0f)
+        {
+            m_SecondTimer += 1.0f;
 
-			stats.FramesPerSecond = m_Frames;
-			stats.UpdatesPerSecond = m_Updates;
-			RAZIX_CORE_TRACE("FPS : {0} ms", stats.FramesPerSecond);
-			RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
+            stats.FramesPerSecond = m_Frames;
+            stats.UpdatesPerSecond = m_Updates;
+            RAZIX_CORE_TRACE("FPS : {0} ms", stats.FramesPerSecond);
+            RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
-			m_Frames = 0;
-			m_Updates = 0;
-		}
+            m_Frames = 0;
+            m_Updates = 0;
+        }
 
-		return m_CurrentState != AppState::Closing;
-	}
+        return m_CurrentState != AppState::Closing;
+    }
 
-	void Application::OnRender()
-	{
-		// TODO: Remove this test code!
-		glClear(GL_COLOR_BUFFER_BIT);
-		glBindVertexArray(m_VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-	}
+    void Application::OnRender()
+    {
+        // TODO: Remove this test code!
+        glClear(GL_COLOR_BUFFER_BIT);
+        glBindVertexArray(m_VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+    }
 
-	void Application::OnUpdate(const Timestep& dt)
-	{
+    void Application::OnUpdate(const Timestep& dt)
+    {
 
-	}
+    }
 
-	void Application::Quit()
-	{
+    void Application::Quit()
+    {
         RAZIX_CORE_ERROR("Closing Application!");
-	}
+    }
 
 }
