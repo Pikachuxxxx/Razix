@@ -1,7 +1,6 @@
 #include "rzxpch.h"
 #include "Log.h"
 
-
 namespace Razix
 {
     namespace Debug {

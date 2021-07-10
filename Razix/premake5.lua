@@ -18,9 +18,11 @@ project "Razix"
     {
         "src/**.h",
         "src/**.c",
-        "src/**.cpp"
+        "src/**.cpp",
+        "src/**.inl"
     }
 
+    -- Lazily add the platform files based on OS config
     removefiles
     {
         "src/Razix/Platform/**"
