@@ -23,7 +23,7 @@ namespace Razix
 
         // Set the Application root path and mount the VFS paths
         const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
-        // TODO: Still need to be implemented
+        // TODO: Still need to be implemented, the project root usually resides on client side and the Engine is installed somewhere else in a fixed place
         // Path to the Project path (*.razixproject)
         m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
