@@ -9,26 +9,41 @@
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Core/OS/Input.h"
 
-// TODO: Remove this test code!
+// TODO: Remove this!
 #include <glad/glad.h>
 
 namespace Razix
 {
-    Application* Application::sInstance = nullptr;
+    Application* Application::s_Instance = nullptr;
 
     Application::Application(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
     {
-        RAZIX_CORE_ASSERT(!sInstance, "Application already exists!");
-        sInstance = this;
+        RAZIX_CORE_ASSERT(!s_Instance, "Application already exists!");
+        s_Instance = this;
 
-        // Set the Application root path and mount the VFS paths
+        // Set the Application root path and Load the project settings
         const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
-        // TODO: Still need to be implemented
         // Path to the Project path (*.razixproject)
-        m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
+        // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored
+        m_AppFilePath = razixRoot + projectRoot;// +appName;// + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
 
-        // Mount the project asset paths
+        // Load the de-serialized data from the project file 
+        // TODO: Add verification for Engine and Project Version
+        std::ifstream AppStream(m_AppFilePath + std::string(".razixproject"));
+        if (!AppStream.good()) {
+            RAZIX_CORE_ERROR("Project File does not exist!");
+			std::ofstream opAppStream(m_AppFilePath + std::string(".razixproject"));
+            cereal::JSONOutputArchive defArchive(opAppStream);
+            RAZIX_CORE_TRACE("Creating a default Project file...");
+            defArchive(cereal::make_nvp(m_AppName, *s_Instance));
+        }
+        else {
+			cereal::JSONInputArchive inputArchive(AppStream);
+            inputArchive(cereal::make_nvp(m_AppName, *s_Instance));
+        }
+
+        // Mount the VFS paths
         // TODO: Move this to the sandbox later or mount all/new paths dynamically from the project root path for the asset browser 
         VFS::Get()->Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
         VFS::Get()->Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
@@ -39,16 +54,15 @@ namespace Razix
 
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
-        std::string SignatureTitle = appName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStage() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = appName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString()+ " " + "[" + Razix::RazixVersion.GetReleaseStage() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
         m_Timer = CreateUniqueRef<Timer>();
 
         // Set the window properties and create the timer
-        WindowProperties windowProperties{};
-        windowProperties.Title = SignatureTitle;
+        m_WindowProperties.Title = SignatureTitle;
        
-        m_Window = UniqueRef<Window>(Window::Create(windowProperties));
+        m_Window = UniqueRef<Window>(Window::Create(m_WindowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
         // Convert the app to loaded state
@@ -107,7 +121,7 @@ namespace Razix
 
         // Update the stats
         stats.FrameTime = m_Timestep.GetTimestepMs();
-        RAZIX_CORE_TRACE("Time steps : {0} ms", stats.FrameTime);
+        //RAZIX_CORE_TRACE("Time steps : {0} ms", stats.FrameTime);
 
         // Poll for Input events
         m_Window->ProcessInput();
@@ -135,8 +149,8 @@ namespace Razix
 
             stats.FramesPerSecond = m_Frames;
             stats.UpdatesPerSecond = m_Updates;
-            RAZIX_CORE_TRACE("FPS : {0} ms", stats.FramesPerSecond);
-            RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
+            //RAZIX_CORE_TRACE("FPS : {0} ms", stats.FramesPerSecond);
+            //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
             m_Frames = 0;
             m_Updates = 0;
