@@ -3,6 +3,7 @@ IncludeDir["GLFW"] = "vendor/glfw/include/"
 IncludeDir["Glad"] = "vendor/glad/include/"
 IncludeDir["ImGui"] = "vendor/imgui/"
 IncludeDir["spdlog"] = "vendor/spdlog/include"
+IncludeDir["cereal"] = "vendor/cereal/include"
 IncludeDir["stb"] = "vendor/stb/"
 IncludeDir["Razix"] = "src"
 IncludeDir["vendor"] = "vendor/"
@@ -34,6 +35,15 @@ project "Razix"
         "../",
         "src/",
         "src/Razix",
+         "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.stb}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
+        "%{IncludeDir.Razix}",
+        "%{IncludeDir.external}",
+        "%{IncludeDir.External}"
     }
 
     sysincludedirs
@@ -43,6 +53,7 @@ project "Razix"
         "%{IncludeDir.stb}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.external}",
         "%{IncludeDir.External}"
@@ -64,12 +75,12 @@ project "Razix"
         "SPDLOG_COMPILED_LIB"
 }
 
--- Vendor Build files
---filter 'files:src/Razix/Utilities/ExternalBuild.cpp'
-buildoptions
-{
-    "-W3"
-}
+    -- Vendor Build files
+    --filter 'files:src/Razix/Utilities/ExternalBuild.cpp'
+    buildoptions
+    {
+        "-W3"
+    }
 
     -- Add special SSE optimization for 32-bit
     -- filter 'architecture:x86_64'

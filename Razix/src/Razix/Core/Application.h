@@ -11,6 +11,10 @@
 #include "Razix/Utilities/Timestep.h"
 #include "Razix/Utilities/Timer.h"
 
+// Cereal 
+#include <cereal/archives/json.hpp>
+#include <fstream>
+
 namespace Razix
 {
     /// <summary>
