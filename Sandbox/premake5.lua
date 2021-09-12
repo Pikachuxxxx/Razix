@@ -3,6 +3,7 @@ IncludeDir["GLFW"] = "../Razix/vendor/glfw/include/"
 IncludeDir["Glad"] = "../Razix/vendor/glad/include/"
 IncludeDir["ImGui"] = "../Razix/vendor/imgui/"
 IncludeDir["spdlog"] = "../Razix/vendor/spdlog/include"
+IncludeDir["cereal"] = "../Razix/vendor/cereal/include"
 IncludeDir["stb"] = "../Razix/vendor/stb/"
 IncludeDir["Razix"] = "../Razix/src"
 IncludeDir["vendor"] = "../Razix/vendor/"
@@ -25,6 +26,7 @@ project "Sandbox"
         "%{IncludeDir.stb}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
+		"%{IncludeDir.cereal}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.external}",
         "%{IncludeDir.External}"
@@ -33,6 +35,13 @@ project "Sandbox"
 	includedirs
 	{
 		"../Razix/src/Razix",
+		"%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.stb}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
+        "%{IncludeDir.Razix}"
 	}
 
 	links

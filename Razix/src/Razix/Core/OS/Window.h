@@ -9,6 +9,7 @@ namespace Razix
     /// <summary>
     /// A struct to set different window properties
     /// </summary>
+	// TODO: Store some properties in the Application class
     struct WindowProperties
     {
 		/// <summary>
@@ -22,15 +23,13 @@ namespace Razix
 		/// <param name="vSync"> Whether to enable vsync or not </param>
 		/// <param name="borderless"> Should the window be borderless or not </param>
 		/// <param name="filepath"> The path of the application </param>
-		WindowProperties(const std::string& title = "Razix Engine", uint32_t width = 1280, uint32_t height = 720, int renderAPI = 0, bool fullscreen = false, bool vSync = true, bool borderless = false, const std::string& filepath = "")
+		WindowProperties(const std::string& title = "Razix Engine", uint32_t width = 1280, uint32_t height = 720, bool fullscreen = false, bool vSync = true, bool borderless = false)
 			: Width(width)
 			, Height(height)
 			, Title(title)
 			, Fullscreen(fullscreen)
 			, VSync(vSync)
 			, Borderless(borderless)
-			, RenderAPI(renderAPI)
-			, FilePath(filepath)
 		{
 		}
 
@@ -46,10 +45,6 @@ namespace Razix
 		bool ShowConsole = true;
 		///	The title of the window
 		std::string Title;
-		///	The render API being used
-		int RenderAPI;
-		///	The file path of the application
-		std::string FilePath;
     };
 
     /// Window Interface for Desktop systems
