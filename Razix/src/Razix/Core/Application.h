@@ -89,14 +89,37 @@ namespace Razix
 
         // Serialization
         template<class Archive>
-        void serialize(Archive& archive)
+        void load(Archive& archive) 
         {
+            std::string projectName;
+            archive(cereal::make_nvp("Project Name", projectName));
+            RAZIX_ASSERT_MESSAGE((projectName == m_AppName), "Project name doesn't match with Executable");
+            /**
+             * Currently the project name will be verifies with the one given in the sandbox or game project
+             * If it doesn't match it updates the project name, it's not necessary that the name must match the 
+             * executable name, since the Editor can load any *.razixproject file, this should also mean that
+             * it should be able to load any project name since the project name is always mutable just all it's properties
+             * There's not enforcement on the project names and other properties, the Razix Editor Application 
+             * and can load any thing as long it is supplies with the required data to
+             */
+            m_AppName = projectName;
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
             archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", m_RenderAPI));
             archive(cereal::make_nvp("Width", m_WindowProperties.Width));
             archive(cereal::make_nvp("Height", m_WindowProperties.Height));
-            archive(cereal::make_nvp("Project Path", m_AppFilePath));
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("Project Name", m_AppName));
+            archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
+            archive(cereal::make_nvp("Project Version", 0));
+            archive(cereal::make_nvp("Render API", m_RenderAPI));
+            archive(cereal::make_nvp("Width", m_Window->GetWidth()));
+            archive(cereal::make_nvp("Height", m_Window->GetHeight()));
+            archive(cereal::make_nvp("Project Path", m_AppFilePath)); // Why am I even serializing this?
         }
 
     private:

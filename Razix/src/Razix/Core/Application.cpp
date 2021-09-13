@@ -26,23 +26,26 @@ namespace Razix
         const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
         // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored
-        m_AppFilePath = razixRoot + projectRoot + appName;// + std::string(".razixproject");
+        m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
 
-        // Load the de-serialized data from the project file (create a default file if nothing exists)
+        // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
-        std::ifstream AppStream(m_AppFilePath + std::string(".razixproject"));
-        if (!AppStream.good()) {
-            RAZIX_CORE_ERROR("Project File does not exist!");
-            std::ofstream opAppStream(m_AppFilePath + std::string(".razixproject"));
-            cereal::JSONOutputArchive defArchive(opAppStream);
-            RAZIX_CORE_TRACE("Creating a default Project file...");
-            defArchive(cereal::make_nvp(m_AppName, *s_Instance));
+        std::ifstream AppStream;
+        if(Engine::Get().commandLineParser.IsSet("project filename")) {
+            std::string fullPath = Engine::Get().commandLineParser.GetValueAsString("project filename");
+            RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
+            AppStream.open(fullPath, std::ifstream::in);
+            m_AppFilePath = fullPath;// .substr(0, fullPath.find_last_of("\\/"));
         }
-        else {
+        else
+            AppStream.open(m_AppFilePath, std::ifstream::in);
+
+        // De-serialize
+        if (AppStream.is_open()) {
             RAZIX_CORE_TRACE("Loading project file...");
             cereal::JSONInputArchive inputArchive(AppStream);
-            inputArchive(cereal::make_nvp(m_AppName, *s_Instance));
+            inputArchive(cereal::make_nvp("Razix Application", *s_Instance));
         }
 
         // Mount the VFS paths
@@ -66,6 +69,15 @@ namespace Razix
        
         m_Window = UniqueRef<Window>(Window::Create(m_WindowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
+
+        // Create a default project file file if nothing exists
+        if (!AppStream.is_open()) {
+            RAZIX_CORE_ERROR("Project File does not exist!");
+            std::ofstream opAppStream(m_AppFilePath);
+            cereal::JSONOutputArchive defArchive(opAppStream);
+            RAZIX_CORE_TRACE("Creating a default Project file...");
+            defArchive(cereal::make_nvp("Razix Application", *s_Instance));
+        }
 
         // Convert the app to loaded state
         m_CurrentState = AppState::Running;
@@ -176,7 +188,13 @@ namespace Razix
 
     void Application::Quit()
     {
+        // Save the app serialization data before closing
+        RAZIX_CORE_TRACE("Saving project...");
+        std::ofstream opAppStream(m_AppFilePath);
+        cereal::JSONOutputArchive saveArchive(opAppStream);
+        saveArchive(cereal::make_nvp("Razix Application", *s_Instance));
         RAZIX_CORE_ERROR("Closing Application!");
     }
 
 }
+//- f "C:\Users\phani\Desktop\test.razixproject"
