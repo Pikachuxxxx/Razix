@@ -6,14 +6,14 @@ namespace Razix
     CommandLineParser::CommandLineParser()
     {
         AddCommand("help", { "--help" }, 0, "Show help");
-        AddCommand("project filename", { "-f, --project-file" }, 1, "The project file to start the application with");
-        AddCommand("engine config filename", { "-cf, --config-file" }, 1, "The engine config file to for the engine runtime settings");
-        AddCommand("rendering api", { "-a, --api" }, 1, "The Render API to use");
+        AddCommand("project filename", { "-f", "--project-file" }, 1, "The project file to start the application with");
+        AddCommand("engine config filename", { "-cf", "--config-file" }, 1, "The engine config file to for the engine runtime settings");
+        AddCommand("rendering api", { "-a", "--api" }, 1, "The Rendering API to use");
         AddCommand("validation", { "-v", "--validation" }, 0, "Enable Graphics API validation layers");
         AddCommand("vsync", { "-vs", "--vsync" }, 0, "Enable V-Sync");
         AddCommand("width", { "-w", "--width" }, 1, "Set window width");
         AddCommand("height", { "-h", "--height" }, 1, "Set window height");
-        AddCommand("gpuselection", { "-gs", "--gpu-selected" }, 1, "Select GPU to run on");
+        //AddCommand("gpuselection", { "-gs", "--gpu-selected" }, 1, "the gpu be");
         AddCommand("gpulist", { "-gl", "--gpu-list" }, 0, "Display a list of available Vulkan devices");
         AddCommand("profile", { "-p", "--profile" }, 0, "Run game in profiling mode");
         AddCommand("profile-frames", { "-pf", "--profile-frames" }, 1, "Profiles the game upto the specified frames");
@@ -50,7 +50,7 @@ namespace Razix
 
     int32_t CommandLineParser::GetValueAsInt(std::string name)
     {
-        RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
+        RAZIX_CORE_ASSERT(m_CommandOptions.find(name) == m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
         char* numConvPtr;
         int32_t intVal = strtol(value.c_str(), &numConvPtr, 10);
@@ -98,6 +98,4 @@ namespace Razix
         if (IsSet("help"))
             PrintHelp();
     }
-
-
 }
