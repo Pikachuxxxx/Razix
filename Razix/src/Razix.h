@@ -20,6 +20,7 @@
 #include "Razix/Utilities/Timestep.h"
 #include "Razix/Utilities/LoadImage.h"
 #include "Razix/Utilities/StringUtilities.h"
+#include "Razix/Utilities/CommandLineParser.h"
 
 //-----------Entry Point-------------
 #include "Razix/Core/EntryPoint.h"

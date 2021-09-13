@@ -43,7 +43,7 @@ namespace Razix
 		{
 			std::string Title{};
 			unsigned int Width{}, Height{};
-			bool Vsync;
+			bool Vsync = false;
 
 			EventCallbackFn EventCallback;
 		} m_Data; // Call me old fashioned, Bitch!!!
