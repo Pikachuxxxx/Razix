@@ -12,7 +12,9 @@
 #include "Razix/Utilities/Timer.h"
 
 // Cereal
+#pragma warning(push, 0)
 #include <cereal/archives/json.hpp>
+#pragma warning(pop)
 #include <fstream>
 
 namespace Razix
@@ -23,6 +25,13 @@ namespace Razix
         Running,
         Loading,
         Closing
+    };
+
+    /* The type of the application (Editor or Game) */
+    enum class AppType 
+    {
+        EDITOR,
+        GAME
     };
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
@@ -49,8 +58,8 @@ namespace Razix
          */
         bool OnFrame();
         /**
-		 * Calls the engine sub-systems to render the stuff calculated in OnFrame()
-		 * Begins the frame and submits the rendergraph to final display
+         * Calls the engine sub-systems to render the stuff calculated in OnFrame()
+         * Begins the frame and submits the rendergraph to final display
          */
         void OnRender();
         /// <summary>
@@ -79,16 +88,16 @@ namespace Razix
         inline static Application& GetApplication() { return *s_Instance; }
 
         // Serialization
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
-			archive(cereal::make_nvp("Project Version", 0));
-			archive(cereal::make_nvp("Render API", m_RenderAPI));
-			archive(cereal::make_nvp("Width", m_WindowProperties.Width));
-			archive(cereal::make_nvp("Height", m_WindowProperties.Height));
-			archive(cereal::make_nvp("Project Path", m_AppFilePath));
-		}
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
+            archive(cereal::make_nvp("Project Version", 0));
+            archive(cereal::make_nvp("Render API", m_RenderAPI));
+            archive(cereal::make_nvp("Width", m_WindowProperties.Width));
+            archive(cereal::make_nvp("Height", m_WindowProperties.Height));
+            archive(cereal::make_nvp("Project Path", m_AppFilePath));
+        }
 
     private:
         /// <summary>
@@ -103,6 +112,8 @@ namespace Razix
         /// <param name="e"> The window resize event </param>
         /// <returns> True, if the window was resized successfully </returns>
         bool OnWindowResize(WindowResizeEvent& e);
+
+        NONCOPYABLE(Application);
 
     private:
         // TODO: Remove this!
@@ -119,18 +130,18 @@ namespace Razix
         UniqueRef<Window>       m_Window;                               /* The window that will be used to view graphics            */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
         static Application*     s_Instance;                             /* The singleton instance of the application                */
-		WindowProperties        m_WindowProperties;
+        WindowProperties        m_WindowProperties;
 
     };
 
-	/**
+    /**
      * To be defined on the CLIENT side to create the application
-	 *
-	 * What this means is that the Entry point thinks the engine will define this for sure.
-	 * In fact it does by just forward declaring, but who actually defines it?
-	 * Now the engine forces the client to implement this according to their needs. 
-	 * [Application(forward declaration)-->Entry Point(extern declaration)-->CLIENT(definition)]
-	 * Defined by the client to create the application definition
+     *
+     * What this means is that the Entry point thinks the engine will define this for sure.
+     * In fact it does by just forward declaring, but who actually defines it?
+     * Now the engine forces the client to implement this according to their needs. 
+     * [Application(forward declaration)-->Entry Point(extern declaration)-->CLIENT(definition)]
+     * Defined by the client to create the application definition
      */ 
     Application* CreateApplication();
 }

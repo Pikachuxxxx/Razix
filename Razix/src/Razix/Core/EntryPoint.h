@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Engine.h"
+
 // Using the forward declared the application creating function, that we assume was defined on the client side
 extern Razix::Application* Razix::CreateApplication();
 
@@ -24,6 +25,12 @@ extern Razix::Application* Razix::CreateApplication();
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 int main(int argc, char** argv)
 {
+    // Read the command line arguments
+    static std::vector<const char*> args;
+    for (int32_t i = 1; i < argc; i++) { 
+        args.push_back(argv[i]);
+    };
+
     // 1.-> Logging System Initialization
     Razix::Debug::Log::StartUp();
 
@@ -37,6 +44,10 @@ int main(int argc, char** argv)
     //-------------------------------//
     Razix::Engine::Get().Ignite();
     //-------------------------------//
+
+    // Parse the command line arguments
+    if(argc > 1)
+        Razix::Engine::Get().commandLineParser.parse(args);
 
     // Application auto Initialization by the Engine
     Razix::CreateApplication();

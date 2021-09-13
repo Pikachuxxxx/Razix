@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RazixVersion.h"
+#include "Razix/Utilities/CommandLineParser.h"
 #include "Razix/Utilities/TSingleton.h"
 
 namespace Razix
@@ -26,6 +27,9 @@ namespace Razix
 			float UsedGPUMemory = 0;
 			float UsedRam = 0;
 		};
+
+		CommandLineParser commandLineParser;
+
 	public:
 		Engine() {}
 		~Engine() {}

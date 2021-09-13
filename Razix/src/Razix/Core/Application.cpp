@@ -4,12 +4,13 @@
 // ---------- Engine ----------
 #include "Razix/Core/Engine.h"
 // ----------------------------
+
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/OS/VFS.h"
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Core/OS/Input.h"
 
-// TODO: Remove this!
+// TODO: Remove this! 
 #include <glad/glad.h>
 
 namespace Razix
@@ -20,26 +21,27 @@ namespace Razix
     {
         RAZIX_CORE_ASSERT(!s_Instance, "Application already exists!");
         s_Instance = this;
-
+        
         // Set the Application root path and Load the project settings
         const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
         // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored
-        m_AppFilePath = razixRoot + projectRoot;// +appName;// + std::string(".razixproject");
+        m_AppFilePath = razixRoot + projectRoot + appName;// + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
 
-        // Load the de-serialized data from the project file 
+        // Load the de-serialized data from the project file (create a default file if nothing exists)
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream(m_AppFilePath + std::string(".razixproject"));
         if (!AppStream.good()) {
             RAZIX_CORE_ERROR("Project File does not exist!");
-			std::ofstream opAppStream(m_AppFilePath + std::string(".razixproject"));
+            std::ofstream opAppStream(m_AppFilePath + std::string(".razixproject"));
             cereal::JSONOutputArchive defArchive(opAppStream);
             RAZIX_CORE_TRACE("Creating a default Project file...");
             defArchive(cereal::make_nvp(m_AppName, *s_Instance));
         }
         else {
-			cereal::JSONInputArchive inputArchive(AppStream);
+            RAZIX_CORE_TRACE("Loading project file...");
+            cereal::JSONInputArchive inputArchive(AppStream);
             inputArchive(cereal::make_nvp(m_AppName, *s_Instance));
         }
 
