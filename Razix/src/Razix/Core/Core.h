@@ -57,7 +57,6 @@
         if(!(condition))                                                                            \
         {                                                                                           \
             RAZIX_CORE_ERROR("Assertion Failed: at Line {0} in File {1}", __LINE__, __FILE__);      \
-            RAZIX_DEBUG_BREAK();                                                                    \
         }                                                                                           \
     }
 
@@ -66,7 +65,6 @@
         if(!(condition))                                                                                            \
         {                                                                                                           \
             RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__);    \
-            RAZIX_DEBUG_BREAK();                                                                                    \
         }                                                                                                           \
     }
 #else 
@@ -91,8 +89,7 @@
 #define BIT(x) (1 << x) 
 
 // Convert hex to character
-#define HEX2CHR(m_hex) \
-        ((m_hex >= '0' && m_hex <= '9') ? (m_hex - '0') : ((m_hex >= 'A' && m_hex <= 'F') ? (10 + m_hex - 'A') : ((m_hex >= 'a' && m_hex <= 'f') ? (10 + m_hex - 'a') : 0)))
+#define HEX2CHR(m_hex) ((m_hex >= '0' && m_hex <= '9') ? (m_hex - '0') : ((m_hex >= 'A' && m_hex <= 'F') ? (10 + m_hex - 'A') : ((m_hex >= 'a' && m_hex <= 'f') ? (10 + m_hex - 'a') : 0)))
 
 
 // Unimplemented Function Breaker
