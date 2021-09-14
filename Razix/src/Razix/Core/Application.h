@@ -62,32 +62,30 @@ namespace Razix
          * Begins the frame and submits the rendergraph to final display
          */
         void OnRender();
-        /// <summary>
-        /// Updates the Engine systems for every engine timestep
-        /// </summary>
-        /// <param name="dt"> The timestep taken for every frame </param>
+        /**
+         * Updates the Engine systems for every engine timestep
+         * 
+         * @param dt The timestep taken for every frame
+         */
         void OnUpdate(const Timestep& dt);
-        /// <summary>
-        /// Gets the Events from the engine, window and OS
-        /// </summary>
-        /// <param name="event"> The event reveived from all the sub-ssytems </param>
+        /**
+         * Gets the Events from the engine, window and OS
+         * 
+         * @param event  The event received from all the sub-systems
+         */
         void OnEvent(Event& event);
 
-        /// <summary>
-        /// Quits the application and releases any resources held by it
-        /// </summary>
+        /**
+         * Quits the application and releases any resources held by it
+         */
         void Quit();
-
-        /// <summary>
-        /// Gets the reference to the application window
-        /// </summary>
+        
+        /* Returns a reference to the application window */
         inline Window& GetWindow() { return *m_Window; }
-        /// <summary>
-        /// Reference to the Application instance
-        /// </summary>
+        /* Returns a reference to the Application instance */
         inline static Application& GetApplication() { return *s_Instance; }
 
-        // Serialization
+        // Application Serialization
         template<class Archive>
         void load(Archive& archive) 
         {
@@ -103,8 +101,9 @@ namespace Razix
              * and can load any thing as long it is supplies with the required data to
              */
             m_AppName = projectName;
-            archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
-            archive(cereal::make_nvp("Project Version", 0));
+            // TODO: Verify these two!
+            //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
+            //archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", m_RenderAPI));
             archive(cereal::make_nvp("Width", m_WindowProperties.Width));
             archive(cereal::make_nvp("Height", m_WindowProperties.Height));
@@ -123,17 +122,21 @@ namespace Razix
         }
 
     private:
-        /// <summary>
-        /// Called when the application was closed
-        /// </summary>
-        /// <param name="e"> The window close event </param>
-        /// <returns> True, if the window was closed successfully </returns>
+        /**
+         * Called when the application is about to be closed
+         * 
+         * @param e The window close event
+         * 
+         * @returns  True, if the window was closed successfully
+         */
         bool OnWindowClose(WindowCloseEvent& e);
-        /// <summary>
-        /// Called when the window is resized
-        /// </summary>
-        /// <param name="e"> The window resize event </param>
-        /// <returns> True, if the window was resized successfully </returns>
+        /**
+         * Called when the window is resized
+         * 
+         * @param e The window resize event
+         * 
+         * @returns  True, if the window was resized successfully
+         */
         bool OnWindowResize(WindowResizeEvent& e);
 
         NONCOPYABLE(Application);
@@ -142,6 +145,8 @@ namespace Razix
         // TODO: Remove this!
         unsigned int m_VAO, m_VBO, m_IBO;
 
+        static Application*     s_Instance;                             /* The singleton instance of the application                */
+        AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
         std::string             m_AppName;                              /* The name of the application                              */
         std::string             m_AppFilePath;                          /* The path of the Razix Project file (*.razixproject)      */
         uint32_t                m_RenderAPI;                            /* The Render API being used to render the application      */
@@ -151,10 +156,7 @@ namespace Razix
         float                   m_SecondTimer   = 0;                    /* A secondary timer to count the ticks per second          */
         Timestep                m_Timestep;                             /* The timesteps taken to update the application            */
         UniqueRef<Window>       m_Window;                               /* The window that will be used to view graphics            */
-        AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
-        static Application*     s_Instance;                             /* The singleton instance of the application                */
-        WindowProperties        m_WindowProperties;
-
+        WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
     };
 
     /**

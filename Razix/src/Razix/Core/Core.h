@@ -57,7 +57,6 @@
         if(!(condition))                                                                            \
         {                                                                                           \
             RAZIX_CORE_ERROR("Assertion Failed: at Line {0} in File {1}", __LINE__, __FILE__);      \
-            RAZIX_DEBUG_BREAK();                                                                    \
         }                                                                                           \
     }
 

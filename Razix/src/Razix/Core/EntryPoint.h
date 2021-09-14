@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     Razix::Engine::Get().Ignite();
     //-------------------------------//
 
-    // Parse the command line arguments
+    // Parse the command line arguments, if any
     if(argc > 1)
         Razix::Engine::Get().commandLineParser.parse(args);
 

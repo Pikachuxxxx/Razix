@@ -13,11 +13,11 @@ namespace Razix
         /* Command Line Option information */ 
         struct CommandLineOption
         {
-            std::vector<std::string>                            commandFlags;           /* The list of flags that can be used to call the command                               */
-            std::string                                         value;                  /* The value passed along with the command flag                                         */
-            std::string                                         helpDesc;               /* The description of the command                                                       */
-            bool                                                set         = false;    /* A boolean to indicate whether the command was set or not                             */
-            bool                                                hasValue    = false;    /* Boolean to check is the command has any value, if set true, it read the value passed */
+            std::vector<std::string>    commandFlags;          /* The list of flags that can be used to call the command                               */
+            std::string                 value;                 /* The value passed along with the command flag                                         */
+            std::string                 helpDesc;              /* The description of the command                                                       */
+            bool                        set        = false;    /* A boolean to indicate whether the command was set or not                             */
+            bool                        hasValue   = false;    /* Boolean to check is the command has any value, if set true, it read the value passed */
         };
 
     public:
@@ -47,7 +47,7 @@ namespace Razix
         int32_t GetValueAsInt(std::string name);
 
     private:
-          std::unordered_map<std::string, CommandLineOption>    m_CommandOptions;       /* The list of all command line options available, if passed via command line, it is set */
+          std::unordered_map<std::string, CommandLineOption> m_CommandOptions;  /* The list of all command line options available, if passed via command line, it is set */
 
     private:
         /**
