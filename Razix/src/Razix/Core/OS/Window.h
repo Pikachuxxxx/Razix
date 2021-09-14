@@ -37,7 +37,7 @@ namespace Razix
 		uint32_t Width, Height;
 		/// Fullscreen status of the window
 		bool Fullscreen;
-		/// A boolena to whether enable V-Sync or not
+		/// A boolean to whether enable V-Sync or not
 		bool VSync;
 		///	Whether the window should be created with window or not
 		bool Borderless;

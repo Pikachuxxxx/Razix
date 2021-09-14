@@ -5,6 +5,9 @@
 *             # Razix Engine ChangeLog              *
 *****************************************************
 
+## Version - 0.15.0 [Development] - 12/09/2021
+    - Added application serialization
+
 ## Version - 0.14.0 [Development] - 02/07/2021
     - Added Engine Singleton
     - Added Engine Ignition with proper logging
