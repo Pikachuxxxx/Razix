@@ -24,23 +24,30 @@ namespace Razix
 			Date(int dd = 0, int mm = 0, int yyyy = 0) : Day(dd), Month(mm), Year(yyyy) {}
 		};
 
+
 		Version(int major, int  minor, int patch, Stage stage, Date releaseDate) : Major(major), Minor(minor), Patch(patch), ReleaseStage(stage), ReleaseDate(releaseDate) {}
+		
+		int GetVersionMajor() const { return Major; }
+		int GetVersionMinor() const { return Minor; }
+		int GetVersionPatch() const { return Patch; }
+		Stage GetReleaseStage() const { return ReleaseStage; }
+		Date GetReleaseDate() const { return ReleaseDate; }
 
 		std::string GetVersionString() const { return (std::to_string(Major) + "." + std::to_string(Minor) + "." + std::to_string(Patch)); }
-		std::string GetReleaseStage() const
+		std::string GetReleaseStageString() const
 		{
 			switch (ReleaseStage)
 			{
-			case Razix::Version::Stage::Development:
+			case Stage::Development:
 				return "Development";
 				break;
-			case Razix::Version::Stage::Alpha:
+			case Stage::Alpha:
 				return "Alpha";
 				break;
-			case Razix::Version::Stage::Beta:
+            case Stage::Beta:
 				return "Beta";
 					break;
-			case Razix::Version::Stage::RC:
+			case Stage::RC:
 				return "RC";
 					break;
 			default:
@@ -48,7 +55,7 @@ namespace Razix
 				break;
 			}
 		}
-		std::string GetReleaseDate() const { return (std::to_string(ReleaseDate.Day) + "-" + std::to_string(ReleaseDate.Month) + "-" + std::to_string(ReleaseDate.Year)); }
+		std::string GetReleaseDateString() const { return (std::to_string(ReleaseDate.Day) + "-" + std::to_string(ReleaseDate.Month) + "-" + std::to_string(ReleaseDate.Year)); }
 
 	private:
 		int Major = 0;
