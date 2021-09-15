@@ -21,7 +21,7 @@ namespace Razix
         Razix::SplashScreen::Get().SetLogString("Igniting Engine...");
 
         // Logging the Engine Version details
-        RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStage(), Razix::RazixVersion.GetReleaseDate());
+        RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStageString(), Razix::RazixVersion.GetReleaseDateString());
 
         //------------------------------//
         // Igniting all the sub-systems //

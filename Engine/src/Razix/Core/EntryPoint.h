@@ -32,6 +32,7 @@ int main(int argc, char** argv)
         args.push_back(argv[i]);
     };
 
+    // Splash Screen!
     Razix::SplashScreen::Get().Init();
     Razix::SplashScreen::Get().SetLogString("Initializing Razix Engine");
 
@@ -48,7 +49,6 @@ int main(int argc, char** argv)
     //-------------------------------//
     Razix::Engine::Get().Ignite();
     //-------------------------------//
-
 
     // Parse the command line arguments, if any
     if(argc > 1)
