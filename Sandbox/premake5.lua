@@ -1,13 +1,13 @@
 IncludeDir = {}
-IncludeDir["GLFW"] = "../Razix/vendor/glfw/include/"
-IncludeDir["Glad"] = "../Razix/vendor/glad/include/"
-IncludeDir["ImGui"] = "../Razix/vendor/imgui/"
-IncludeDir["spdlog"] = "../Razix/vendor/spdlog/include"
-IncludeDir["cereal"] = "../Razix/vendor/cereal/include"
-IncludeDir["stb"] = "../Razix/vendor/stb/"
-IncludeDir["Razix"] = "../Razix/src"
-IncludeDir["vendor"] = "../Razix/vendor/"
-IncludeDir["Vendor"] = "../Razix/vendor/"
+IncludeDir["GLFW"] = "../Engine/vendor/glfw/include/"
+IncludeDir["Glad"] = "../Engine/vendor/glad/include/"
+IncludeDir["ImGui"] = "../Engine/vendor/imgui/"
+IncludeDir["spdlog"] = "../Engine/vendor/spdlog/include"
+IncludeDir["cereal"] = "../Engine/vendor/cereal/include"
+IncludeDir["stb"] = "../Engine/vendor/stb/"
+IncludeDir["Razix"] = "../Engine/src"
+IncludeDir["vendor"] = "../Engine/vendor/"
+IncludeDir["Vendor"] = "../Engine/vendor/"
 
 project "Sandbox"
 	kind "ConsoleApp"
@@ -34,7 +34,7 @@ project "Sandbox"
 
 	includedirs
 	{
-		"../Razix/src/Razix",
+		"../Engine/src/Razix",
 		"%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",

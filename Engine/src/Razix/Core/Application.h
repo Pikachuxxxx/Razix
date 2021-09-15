@@ -75,9 +75,7 @@ namespace Razix
          */
         void OnEvent(Event& event);
 
-        /**
-         * Quits the application and releases any resources held by it
-         */
+        /* Quits the application and releases any resources held by it */
         void Quit();
         
         /* Returns a reference to the application window */
