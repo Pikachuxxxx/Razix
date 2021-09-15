@@ -123,6 +123,7 @@ namespace Razix
 
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
 
+        // Creating the Graphics Context
 #ifdef RAZIX_RENDER_API_OPENGL
         m_Context = new OpenGLContext(m_Window);
         m_Context->Init();
