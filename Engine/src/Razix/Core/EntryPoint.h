@@ -6,11 +6,12 @@
 extern Razix::Application* Razix::CreateApplication();
 
 /********************************************************************************
- *                              Engine Entry Point                              *
+ *                        Razix Engine Entry Point                              *
  *******************************************************************************/ 
 #ifdef RAZIX_PLATFORM_WINDOWS
 
 #include "Platform/Windows/WindowsOS.h"
+#include "Razix/Core/SplashScreen.h"
 
 // TODO: Change this back to WinMain, since we are use the logging system to output to console we use an Console App instead of an Widowed App
 //#pragma comment(linker, "/subsystem:windows")
@@ -31,6 +32,9 @@ int main(int argc, char** argv)
         args.push_back(argv[i]);
     };
 
+    Razix::SplashScreen::Get().Init();
+    Razix::SplashScreen::Get().SetLogString("Initializing Razix Engine");
+
     // 1.-> Logging System Initialization
     Razix::Debug::Log::StartUp();
 
@@ -44,6 +48,7 @@ int main(int argc, char** argv)
     //-------------------------------//
     Razix::Engine::Get().Ignite();
     //-------------------------------//
+
 
     // Parse the command line arguments, if any
     if(argc > 1)
