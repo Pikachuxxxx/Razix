@@ -2,6 +2,8 @@
 #include "Engine.h"
 
 #include "Razix/Core/OS/VFS.h"
+#include "Razix/Core/RazixVersion.h"
+#include "Razix/Core/SplashScreen.h"
 
 #include <chrono>
 
@@ -15,6 +17,8 @@ namespace Razix
         RAZIX_CORE_INFO("*************************");
         RAZIX_CORE_INFO("*    Igniting Engine....*");
         RAZIX_CORE_INFO("*************************");
+        Razix::SplashScreen::Get().SetVersionString("Version : " + std::string(Razix::RazixVersion.GetVersionString()));
+        Razix::SplashScreen::Get().SetLogString("Igniting Engine...");
 
         // Logging the Engine Version details
         RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStage(), Razix::RazixVersion.GetReleaseDate());
@@ -24,7 +28,8 @@ namespace Razix
         //------------------------------//
         // 1. Virtual File System
         VFS::StartUp();
-        // Mount engine specific Paths
+
+        // 2. Mount engine specific Paths
         // TODO: Either use embedded data for these using .inl files or load them from the Application derived data, Whatever it is remove this by loading from source path
         VFS::Get()->Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/src/Razix")));
 
@@ -32,7 +37,9 @@ namespace Razix
         RAZIX_CORE_INFO("*************************");
         RAZIX_CORE_INFO("*    Engine Ignited!    *");
         RAZIX_CORE_INFO("*************************");
-
+        Razix::SplashScreen::Get().SetLogString("Engine Ignited!");
+        Razix::SplashScreen::Get().Destroy();
+        
         // TODO: Log the time take to initialize engine using Profiling macros
         auto stop = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> ms_double = (stop - start);

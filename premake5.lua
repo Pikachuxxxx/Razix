@@ -1,6 +1,10 @@
-require 'Scripts/premake-defines'
-require 'Scripts/premake-triggers'
-require 'Scripts/premake-settings'
+require 'Scripts/premake-config'
+
+settings = { }
+settings.workspace_name   = 'Razix'
+settings.bundle_identifier = 'com.Pikachuxxx'
+
+outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Current root directory where the global premake file is located
 root_dir = os.getcwd()
@@ -52,14 +56,14 @@ workspace ( settings.workspace_name )
     }
 
     group "Dependencies"
-        require("Razix/vendor/imgui/premake5")
-        require("Razix/vendor/spdlog/premake5")
-        require("Razix/vendor/glfw/premake5")
+        require("Engine/vendor/imgui/premake5")
+        require("Engine/vendor/spdlog/premake5")
+        require("Engine/vendor/glfw/premake5")
         include "Tools/premake/premake5"
     filter {}
     group ""
 
     -- Build Script for Razix Engine
-    include "Razix/premake5"
+    include "Engine/premake5"
     -- Build script for Sandbox
     include "Sandbox/premake5"

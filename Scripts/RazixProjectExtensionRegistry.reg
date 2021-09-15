@@ -17,7 +17,7 @@ Windows Registry Editor Version 5.00
 
 ; Opens with the Engine by default
 [HKEY_CLASSES_ROOT\Razix.ProjectFile\shell\open]
-@="open"
+@="Launch Game"
 
 ; Passing the filename as a command line argument with a -f flag to the Razix Game Application
 [HKEY_CLASSES_ROOT\Razix.ProjectFile\shell\open\command]
