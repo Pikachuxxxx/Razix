@@ -10,14 +10,14 @@ Windows Registry Editor Version 5.00
 
 ; Remove the default Icon path
 [-HKEY_CLASSES_ROOT\Razix.ProjectFile\DefaultIcon]
-@="\"C:\\Dev\\Game Engines\\Razix\\Razix\\content\\RazixLogo64.ico\""
+@="\"C:\\Dev\\Game Engines\\Razix\\Engine\\content\\Logos\\RazixLogo64.ico\""
 
 ; Remove default open behaviour
 [-HKEY_CLASSES_ROOT\Razix.ProjectFile\shell]
 
 ; Remove Opens with Razix Engine
 [-HKEY_CLASSES_ROOT\Razix.ProjectFile\shell\open]
-@="open"
+@="Open"
 
 ; Remove Passing the filename as a command line argument with a -f flag to the Razix Game Application
 [-HKEY_CLASSES_ROOT\Razix.ProjectFile\shell\open\command]

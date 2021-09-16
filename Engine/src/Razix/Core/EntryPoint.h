@@ -34,6 +34,7 @@ int main(int argc, char** argv)
 
     // Splash Screen!
     Razix::SplashScreen::Get().Init();
+    Razix::SplashScreen::Get().SetVersionString("Version : " + std::string(Razix::RazixVersion.GetVersionString()));
     Razix::SplashScreen::Get().SetLogString("Initializing Razix Engine");
 
     // 1.-> Logging System Initialization
