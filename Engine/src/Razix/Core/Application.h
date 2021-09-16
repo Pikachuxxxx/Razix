@@ -41,8 +41,8 @@ namespace Razix
         /**
          * Creates a Razix Application
          * 
-         * @param projectRoot The root location of the application
-         * @param appName The name of the Razix application
+         * @param projectRoot   The root location of the application
+         * @param appName       The name of the Razix application
          */
         Application(const std::string& projectRoot , const std::string& appName = "Razix App");
         /* Simple Virtual destructor */

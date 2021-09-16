@@ -17,6 +17,8 @@ namespace Razix
         // Select the splash image based on the release stage
         if(RazixVersion.GetReleaseStage() == Version::Stage::Development)
             m_ImagePath = STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/Splash/RazixSplashScreenDev.bmp");
+        else if (RazixVersion.GetReleaseStage() == Version::Stage::Alpha)
+            m_ImagePath = STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/Splash/RazixSplashScreenAlpha2.bmp");
 
         // Create Window Instance & get hWnd
         hWnd = CreateWindow(
