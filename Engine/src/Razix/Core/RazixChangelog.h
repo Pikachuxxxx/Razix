@@ -5,6 +5,11 @@
 *             # Razix Engine ChangeLog              *
 *****************************************************
 
+## Version - 0.16.0 [Development] - dd/mm/2021
+    - Added Command line options for Engine application
+    - Added *.razixproject file type registation for windows
+    - Added splash screen to track Engine Ignition [WINDOWS ONLY]
+
 ## Version - 0.15.0 [Development] - 12/09/2021
     - Added application serialization
 
