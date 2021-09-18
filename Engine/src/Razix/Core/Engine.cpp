@@ -17,11 +17,13 @@ namespace Razix
         RAZIX_CORE_INFO("*************************");
         RAZIX_CORE_INFO("*    Igniting Engine....*");
         RAZIX_CORE_INFO("*************************");
-        Razix::SplashScreen::Get().SetVersionString("Version : " + std::string(Razix::RazixVersion.GetVersionString()));
         Razix::SplashScreen::Get().SetLogString("Igniting Engine...");
 
+        // TODO: Temp code remove this!!!
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
         // Logging the Engine Version details
-        RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStage(), Razix::RazixVersion.GetReleaseDate());
+        RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStageString(), Razix::RazixVersion.GetReleaseDateString());
 
         //------------------------------//
         // Igniting all the sub-systems //
