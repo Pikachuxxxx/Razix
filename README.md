@@ -6,6 +6,8 @@ Razix is a High Performance Research Engine for production pipeline with emphasi
 
 # About
 Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan DirectX 11, GXM, GCM, GNM and GNMX). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
+                                                                                                          
+View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
 - Support for Windows, Linux, macOS, PSVita, PS3 and PS4 systems.
