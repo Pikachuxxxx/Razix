@@ -10,83 +10,83 @@ IncludeDir["vendor"] = "../Engine/vendor/"
 IncludeDir["Vendor"] = "../Engine/vendor/"
 
 project "Sandbox"
-	kind "ConsoleApp"
-	language "C++"
+    kind "ConsoleApp"
+    language "C++"
 
-	files
-	{
-		"src/**.h",
-		"src/**.cpp"
-	}
+    files
+    {
+        "src/**.h",
+        "src/**.cpp"
+    }
 
-	sysincludedirs
-	{
+    sysincludedirs
+    {
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
-		"%{IncludeDir.cereal}",
+        "%{IncludeDir.cereal}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.external}",
         "%{IncludeDir.External}"
-	}
+    }
 
-	includedirs
-	{
-		"../Engine/src/Razix",
-		"%{IncludeDir.GLFW}",
+    includedirs
+    {
+        "../Engine/src/Razix",
+        "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
         "%{IncludeDir.Razix}"
-	}
+    }
 
-	links
-	{
-		"Razix",
-		"imgui",
-		"spdlog"
-	}
+    links
+    {
+        "Razix",
+        "imgui",
+        "spdlog"
+    }
 
-	defines
-	{
-		"SPDLOG_COMPILED_LIB"
-	}
+    defines
+    {
+        "SPDLOG_COMPILED_LIB"
+    }
 
-	filter { "files:vendor/**"}
-		warnings "Off"
+    filter { "files:vendor/**"}
+        warnings "Off"
 
-	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
-		systemversion "latest"
-		-- entrypoint "WinMainCRTStartup"
+    filter "system:windows"
+        cppdialect "C++17"
+        staticruntime "On"
+        systemversion "latest"
+        -- entrypoint "WinMainCRTStartup"
 
-		defines
-		{
-			"RAZIX_PLATFORM_WINDOWS",
-			"RAZIX_RENDER_API_OPENGL",
-			"WIN32_LEAN_AND_MEAN",
-			"_CRT_SECURE_NO_WARNINGS",
-			"_DISABLE_EXTENDED_ALIGNED_STORAGE",
-			"_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
-			"RAZIX_ROOT_DIR="  .. root_dir,
-		}
+        defines
+        {
+            "RAZIX_PLATFORM_WINDOWS",
+            "RAZIX_RENDER_API_OPENGL",
+            "WIN32_LEAN_AND_MEAN",
+            "_CRT_SECURE_NO_WARNINGS",
+            "_DISABLE_EXTENDED_ALIGNED_STORAGE",
+            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
+            "RAZIX_ROOT_DIR="  .. root_dir,
+        }
 
-		libdirs
-		{
-		}
+        libdirs
+        {
+        }
 
-		links
-		{
-			"glfw",
-			"OpenGL32",
-		}
+        links
+        {
+            "glfw",
+            "OpenGL32",
+        }
 
-		disablewarnings { 4307 }
+        disablewarnings { 4307 }
 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
