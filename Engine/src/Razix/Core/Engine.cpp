@@ -14,13 +14,13 @@ namespace Razix
         auto start = std::chrono::high_resolution_clock::now();
 
         // Log the Engine Ignition
-        RAZIX_CORE_INFO("*************************");
-        RAZIX_CORE_INFO("*    Igniting Engine....*");
-        RAZIX_CORE_INFO("*************************");
+        RAZIX_CORE_INFO("***********************************");
+        RAZIX_CORE_INFO("*          Igniting Engine....    *");
+        RAZIX_CORE_INFO("***********************************");
         Razix::SplashScreen::Get().SetLogString("Igniting Engine...");
 
         // TODO: Temp code remove this!!!
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
         // Logging the Engine Version details
         RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStageString(), Razix::RazixVersion.GetReleaseDateString());
@@ -36,9 +36,9 @@ namespace Razix
         VFS::Get()->Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/src/Razix")));
 
         // Log after all the Engine systems have been successfully Started Up
-        RAZIX_CORE_INFO("*************************");
-        RAZIX_CORE_INFO("*    Engine Ignited!    *");
-        RAZIX_CORE_INFO("*************************");
+        RAZIX_CORE_INFO("***********************************");
+        RAZIX_CORE_INFO("*          Engine Ignited!        *");
+        RAZIX_CORE_INFO("***********************************");
         Razix::SplashScreen::Get().SetLogString("Engine Ignited!");
         Razix::SplashScreen::Get().Destroy();
         
