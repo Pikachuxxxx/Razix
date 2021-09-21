@@ -1,8 +1,11 @@
 <br>
 <img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
-Razix is a High Performance Research Engine for production pipeline with emphasis on experimenting with different rendering techniques. Razix supports Windows, Mac, Linux, PSVita, PS3 and PS4 systems.
+Razix is a High Performance Research Engine for production pipeline with emphasis on experimenting with different rendering techniques. Razix supports Windows, Mac, Linux, PSVita and PS3 systems.
 
  ---
+
+|:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul hence nothing will make sense |
+| --- |
 
 # About
 Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan DirectX 11, GXM, GCM, GNM and GNMX). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
@@ -12,7 +15,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Features
 - Support for Windows, Linux, macOS, PSVita, PS3 and PS4 systems.
 - Support for OpenGL, Vulkan DirectX 11, GXM, GCM, GNM and GNMX.
-- 3D audio using OpenAL and Scream and Sulpha.
+- 3D audio using OpenAL.
 - Rendering 3D models with deferred PBR shading.
 - Editor GUI using ImGui.
 - Multi Physics engine support.
@@ -24,39 +27,20 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Supports GLSL, HLSL and PSSL shading languages to create custom materials
 - Supports Hull, Domain, Geometry, Compute shaders for all Platforms
 - Asset streaming pipeline and custom asset format
+- Future support for Falcor and Render Graph Editor
+
+# Architecture
+
+#### :warning: Still a work in progress
+![](./Docs/Architecture/RazixEngine-Architecture.png)
+
+**For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
 
 # To be Updated...
 
-<details>
-  <summary>Click to view changelog </summary>
+[Click to view changelog](./Docs/CHANGELOG.md)
 
-# Razix Engine ChangeLog
+[Click to view ReleaseNotes](./Docs/ReleaseNotes.md)
 
-## Version - 0.14.0 [Development] - 02/07/2021
-    - Added Engine Singleton
-    - Added Engine Ignition with proper logging
-    - Added VFS to Engine Ignition
-    - Changed Entrypoint and VFS initiation
-
-## Version - 0.13.0 [Development] - 27/06/2021
-    - Added OS independent FileSystem (Windows only implementation for now)
-    - Added Virtual File system
-    - Added Window Icon
-
-## Version - 0.12.0 [Development]
-    - Refactored Premake build system to be more robust
-    - Added Window and Input Abstraction for Windows(GLFW only)
-    - Added OpenGL Context abstraction for graphics context
-
-## Version - 0.11.0 [Development]
-    - Added basic layer system and ImGui
-    - Added OS abstraction
-    - Added Event system
-
-## Version - 0.10.0 [Development]
-    - Added Application and Entry point
-    - Added Logging system using spdlog
-    - Added dependencies (glad, glfw, imgui, spdlog, premake)
-    - Added premake build system
-
-</details>
+# License
+Razix Engine is distributed under Apache 2.0 license. [LICENSE](https://github.com/Pikachuxxxx/Razix/blob/master/LICENSE)
