@@ -32,10 +32,17 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Architecture
 
 #### :warning: Still a work in progress
-![](./Docs/Architecture/RazixEngine-Architecture.png)
+                                                                                                          
+ **For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. [Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
+                                                                                                          
+<p float="left">
+  <img src="https://github.com/Pikachuxxxx/Razix/blob/master/Docs/Architecture/RazixEngine-Architecture.png" width="500" />
+  <img src="https://github.com/Pikachuxxxx/Razix/blob/master/Docs/Architecture/RazixEngine-CoreSystems.png" width="400" />
+                                                                                                                     
+</p>
+                                                                                                                        
 
-**For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
-
+                                                                                                                  
 # To be Updated...
 
 [Click to view changelog](./Docs/CHANGELOG.md)
