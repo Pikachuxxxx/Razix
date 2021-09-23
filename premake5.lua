@@ -59,8 +59,8 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/imgui/premake5")
         require("Engine/vendor/spdlog/premake5")
         require("Engine/vendor/glfw/premake5")
+        require("Engine/vendor/cereal/premake5")
         include "Tools/premake/premake5"
-    filter {}
     group ""
 
     -- Build Script for Razix Engine
