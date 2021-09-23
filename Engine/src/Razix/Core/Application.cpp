@@ -32,8 +32,8 @@ namespace Razix
         // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream;
-        if(Engine::Get().commandLineParser.IsSet("project filename")) {
-            std::string fullPath = Engine::Get().commandLineParser.GetValueAsString("project filename");
+        if(Engine::Get().commandLineParser.isSet("project filename")) {
+            std::string fullPath = Engine::Get().commandLineParser.getValueAsString("project filename");
             RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
             AppStream.open(fullPath, std::ifstream::in);
             m_AppFilePath = fullPath;// .substr(0, fullPath.find_last_of("\\/"));
@@ -163,7 +163,7 @@ namespace Razix
 
             stats.FramesPerSecond = m_Frames;
             stats.UpdatesPerSecond = m_Updates;
-            //RAZIX_CORE_TRACE("FPS : {0} ms", stats.FramesPerSecond);
+            RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
             //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
             m_Frames = 0;
@@ -193,8 +193,7 @@ namespace Razix
         std::ofstream opAppStream(m_AppFilePath);
         cereal::JSONOutputArchive saveArchive(opAppStream);
         saveArchive(cereal::make_nvp("Razix Application", *s_Instance));
+
         RAZIX_CORE_ERROR("Closing Application!");
     }
-
 }
-//- f "C:\Users\phani\Desktop\test.razixproject"
