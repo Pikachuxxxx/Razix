@@ -11,7 +11,7 @@
 #include "Razix/Core/SmartPointers.h"
 #include "Razix/Core/SplashScreen.h"
 
-// OS
+// Core/OS
 #include "Razix/Core/OS/OS.h"
 #include "Razix/Core/OS/Input.h"
 #include "Razix/Core/OS/FileSystem.h"
@@ -24,7 +24,7 @@
 #include "Razix/Events/KeyEvent.h"
 #include "Razix/Events/MouseEvent.h"
 
-// Graphics
+// Graphics/API
 #include "Razix/Graphics/API/GraphicsContext.h"
 
 // Utilities

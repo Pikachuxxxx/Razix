@@ -16,6 +16,6 @@ public:
 
 Razix::Application* Razix::CreateApplication()
 {
-	RAZIX_INFO("Creating Razix Sandbox Application");
+    RAZIX_INFO("Creating Razix Sandbox Application");
     return new Sandbox();
 }

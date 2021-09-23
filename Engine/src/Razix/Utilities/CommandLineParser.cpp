@@ -20,7 +20,7 @@ namespace Razix
         AddCommand("profile-time", { "-pt", "--profile-time" }, 1, "Profiles the game upto a specified time");
     }
 
-    void CommandLineParser::PrintHelp()
+    void CommandLineParser::printHelp()
     {
         std::cout << "Available command line options:\n";
         for (auto& option : m_CommandOptions) {
@@ -36,19 +36,19 @@ namespace Razix
         std::cout << "\n";
     }
 
-    bool CommandLineParser::IsSet(std::string name)
+    bool CommandLineParser::isSet(std::string name)
     {
         return ((m_CommandOptions.find(name) != m_CommandOptions.end()) && m_CommandOptions[name].set);
     }
 
-    std::string CommandLineParser::GetValueAsString(std::string name)
+    std::string CommandLineParser::getValueAsString(std::string name)
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
         return value;
     }
 
-    int32_t CommandLineParser::GetValueAsInt(std::string name)
+    int32_t CommandLineParser::getValueAsInt(std::string name)
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) == m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
@@ -68,7 +68,7 @@ namespace Razix
 
     void CommandLineParser::parse(std::vector<const char*>& arguments)
     {
-        bool printHelp = false;
+        bool printH = false;
         // Known arguments
         for (auto& option : m_CommandOptions) {
             for (auto& command : option.second.commandFlags) {
@@ -81,7 +81,7 @@ namespace Razix
                                 option.second.value = arguments[i + 1];
                             }
                             if (option.second.value == "") {
-                                printHelp = true;
+                                printH = true;
                                 break;
                             }
                         }
@@ -90,12 +90,12 @@ namespace Razix
             }
         }
         // Print help for unknown arguments or missing argument values
-        if (printHelp) {
+        if (printH) {
             m_CommandOptions["help"].set = true;
         }
         
         // If help is set print it
-        if (IsSet("help"))
-            PrintHelp();
+        if (isSet("help"))
+            printHelp();
     }
 }

@@ -34,7 +34,7 @@ namespace Razix
         /**
          * prints the description of all command available and their description
          */
-        void PrintHelp();  
+        void printHelp();  
         /**
          * Tells whether or not if the options was passed in the command line or not
          * 
@@ -42,9 +42,9 @@ namespace Razix
          * 
          * @returns True, if the flag was set
          */
-        bool IsSet(std::string name);
-        std::string GetValueAsString(std::string name);
-        int32_t GetValueAsInt(std::string name);
+        bool isSet(std::string name);
+        std::string getValueAsString(std::string name);
+        int32_t getValueAsInt(std::string name);
 
     private:
           std::unordered_map<std::string, CommandLineOption> m_CommandOptions;  /* The list of all command line options available, if passed via command line, it is set */
