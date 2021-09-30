@@ -8,32 +8,26 @@
 
 namespace Razix
 {
-    VFS* VFS::s_Instance = nullptr;
-
     void VFS::StartUp()
     {
         RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
         Razix::SplashScreen::Get().SetLogString("Starting VFS...");
         /// Instance is automatically created once the system is Started Up
         // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class
-        s_Instance = new VFS();
     }
 
     void VFS::ShutDown()
     {
 		RAZIX_CORE_ERROR("Shutting Down Virtual File System");
-        delete s_Instance;
     }
 
     void VFS::Mount(const std::string& virtualPath, const std::string& physicalPath)
     {
-        RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
         m_MountPoints[virtualPath].push_back(physicalPath);
     }
 
     void VFS::UnMount(const std::string& path)
     {
-        RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
         m_MountPoints[path].clear();
     }
 
@@ -95,28 +89,28 @@ namespace Razix
 
     uint8_t* VFS::ReadFile(const std::string& path)
     {
-        RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
+        // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
         return ResolvePhysicalPath(path, physicalPath) ? FileSystem::ReadFile(physicalPath) : nullptr;
     }
 
     std::string VFS::ReadTextFile(const std::string& path)
     {
-        RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
+        // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
         return ResolvePhysicalPath(path, physicalPath) ? FileSystem::ReadTextFile(physicalPath) : nullptr;
     }
 
     bool VFS::WriteFile(const std::string& path, uint8_t* buffer)
     {
-        RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
+        // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
         return ResolvePhysicalPath(path, physicalPath) ? FileSystem::WriteFile(physicalPath, buffer) : false;
     }
 
     bool VFS::WriteTextFile(const std::string& path, const std::string& text)
     {
-		RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
+		// RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
         return ResolvePhysicalPath(path, physicalPath) ? FileSystem::WriteTextFile(physicalPath, text) : false;
     }
