@@ -23,7 +23,7 @@ namespace Razix
 		// TODO: Initialize the OS specific Input Implementation here
 	#else 
 		WindowsWindow::Construct();
-		Razix::Input* Razix::Input::sInstance = new WindowsInput();
+		Razix::RazixInput* Razix::RazixInput::sInstance = new WindowsInput();
 	#endif
 
 	}

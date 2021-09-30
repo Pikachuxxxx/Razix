@@ -5,4 +5,3 @@ call CD /d %userprofile%\AppData\Local
 call DEL IconCache.db /a
 echo Restarting Explorer...
 call explorer.exe
-exit

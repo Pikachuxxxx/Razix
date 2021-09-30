@@ -10,7 +10,7 @@ namespace Razix
     /// Input manager for the Engine to interface with various input devices
 	/// such as Keyboard, Mouse, Joystick and other HID devices.
     /// </summary>
-    class RAZIX_API Input
+    class RAZIX_API RazixInput
     {
     public:
         /// <summary>
@@ -100,8 +100,9 @@ namespace Razix
         /// This should be Implementation per OS
         /// </summary>
         virtual float GetMouseYImpl() = 0;
+
     private:
         /// The Global Input variable for the Engine, from which the Input information is retrieved
-        static Input* sInstance;
+        static RazixInput* sInstance;
     };
 }

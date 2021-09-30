@@ -8,7 +8,7 @@
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/OS/VFS.h"
 #include "Razix/Events/ApplicationEvent.h"
-#include "Razix/Core/OS/Input.h"
+#include "Razix/Core/OS/RazixInput.h"
 
 // TODO: Remove this! 
 #include <glad/glad.h>
@@ -50,12 +50,12 @@ namespace Razix
 
         // Mount the VFS paths
         // TODO: Move this to the sandbox later or mount all/new paths dynamically from the project root path for the asset browser 
-        VFS::Get()->Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
-        VFS::Get()->Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
-        VFS::Get()->Mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
-        VFS::Get()->Mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
-        VFS::Get()->Mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
-        VFS::Get()->Mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
+        VFS::Get().Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
+        VFS::Get().Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
+        VFS::Get().Mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
+        VFS::Get().Mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
+        VFS::Get().Mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
+        VFS::Get().Mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
 
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
@@ -140,7 +140,7 @@ namespace Razix
         // Poll for Input events
         m_Window->ProcessInput();
 
-        if (Input::IsKeyPressed(Razix::KeyCode::Key::Escape))
+        if (RazixInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
             m_CurrentState = AppState::Closing;
         // Early close if the escape key is pressed or close button is pressed
         if (m_CurrentState == AppState::Closing)
