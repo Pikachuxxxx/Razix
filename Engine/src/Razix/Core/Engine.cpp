@@ -29,11 +29,11 @@ namespace Razix
         // Igniting all the sub-systems //
         //------------------------------//
         // 1. Virtual File System
-        VFS::StartUp();
+        VFS::Get().StartUp();
 
         // 2. Mount engine specific Paths
         // TODO: Either use embedded data for these using .inl files or load them from the Application derived data, Whatever it is remove this by loading from source path
-        VFS::Get()->Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/src/Razix")));
+        VFS::Get().Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/src/Razix")));
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");

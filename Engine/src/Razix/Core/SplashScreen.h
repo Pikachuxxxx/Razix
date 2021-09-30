@@ -10,14 +10,14 @@
 #include <Windows.h>
 
 #include "Razix/Core/Core.h"
-#include "Razix/Utilities/TSingleton.h"
+#include "Razix/Utilities/TRazixSingleton.h"
 
 namespace Razix
 {
 
 #define UPDATE_VERSION_LABEL (WM_APP + 20)
 	// TODO: Don't close all instances of the window if we close one of them
-	class RAZIX_API SplashScreen : public TSingleton<SplashScreen>
+	class RAZIX_API SplashScreen : public TRazixSingleton<SplashScreen>
 	{
 	private:
 		// singleton manages registration/cleanup of window class

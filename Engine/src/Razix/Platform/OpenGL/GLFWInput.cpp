@@ -11,7 +11,7 @@
 namespace Razix
 {
     // Temporarily creating Input directly from GLFW
-	Razix::Input* Razix::Input::sInstance = new GLFWInput();
+	Razix::RazixInput* Razix::RazixInput::sInstance = new GLFWInput();
 
     bool GLFWInput::IsKeyPressedImpl(int keycode)
     {

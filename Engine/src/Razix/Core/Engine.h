@@ -2,14 +2,14 @@
 
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Utilities/CommandLineParser.h"
-#include "Razix/Utilities/TSingleton.h"
+#include "Razix/Utilities/TRazixSingleton.h"
 
 namespace Razix
 {
 	/// <summary>
 	/// The Engine class that Starts and Manages all the Engine back-end and runtime systems
 	/// </summary>
-	class RAZIX_API Engine : public TSingleton<Engine>
+	class RAZIX_API Engine : public TRazixSingleton<Engine>
 	{
 		// All internal type definition go here
 	public:
@@ -31,9 +31,6 @@ namespace Razix
 		CommandLineParser commandLineParser;
 
 	public:
-		Engine() {}
-		~Engine() {}
-
 		/// <summary>
 		/// Starts up the Engine and it's sub-systems
 		/// </summary>
@@ -77,6 +74,7 @@ namespace Razix
 		/// </summary>
 		/// <param name="targetFPS"> The targeted FPS for the engine </param>
 		void SetTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
+
 	private:
 		/// Current frame basic statistics
 		Stats m_Stats;

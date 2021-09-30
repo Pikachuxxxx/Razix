@@ -12,7 +12,7 @@ namespace Razix
 	uint8_t* Utilities::LoadImage(const std::string& filePath, uint32_t* width, uint32_t* height, uint32_t* bpp)
 	{
 		std::string physicalPath;
-		if (!VFS::Get()->ResolvePhysicalPath(filePath, physicalPath))
+		if (!VFS::Get().ResolvePhysicalPath(filePath, physicalPath))
 			return nullptr;
 
 		int texWidth = 0, texHeight = 0, texChannels = 0;
