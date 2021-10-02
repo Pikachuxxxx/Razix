@@ -7,6 +7,9 @@
 
 #include <chrono>
 
+#include <vulkan/vulkan.h>
+#include <d3d11.h>
+
 namespace Razix
 {
     void Engine::Ignite()

@@ -1,20 +1,50 @@
+-- Razix Include Directories
 IncludeDir = {}
-IncludeDir["GLFW"] = "vendor/glfw/include/"
-IncludeDir["Glad"] = "vendor/glad/include/"
-IncludeDir["ImGui"] = "vendor/imgui/"
-IncludeDir["spdlog"] = "vendor/spdlog/include"
-IncludeDir["cereal"] = "vendor/cereal/include"
-IncludeDir["stb"] = "vendor/stb/"
-IncludeDir["Razix"] = "src"
-IncludeDir["vendor"] = "vendor/"
-IncludeDir["Vendor"] = "vendor/"
+IncludeDir["cereal"]    = "vendor/cereal/include"
+IncludeDir["Glad"]      = "vendor/glad/include/"
+IncludeDir["GLFW"]      = "vendor/glfw/include/"
+IncludeDir["ImGui"]     = "vendor/imgui/"
+IncludeDir["spdlog"]    = "vendor/spdlog/include"
+IncludeDir["stb"]       = "vendor/stb/"
+IncludeDir["Razix"]     = "src"
+IncludeDir["vendor"]    = "vendor/"
 
+-- Vulkan SDK
+VulkanSDK = os.getenv("VULKAN_SDK")
 
+if (VulkanSDK == nil or VulkanSDK == '') then
+    print("VULKAN_SDK Enviroment variable is not found! Please check your development environment settings")
+    os.exit()
+else
+    print("Vulkan SDK found at : " .. VulkanSDK)
+end
+
+-- Razix project
 project "Razix"
     kind "SharedLib"
     language "C++"
-    -- editandcontinue "Off"
 
+    pchheader "src/rzxpch.h"
+    pchsource "src/rzxpch.cpp"
+
+    -- Razix Engine defines (Global)
+    defines
+    {
+        --Razix
+        "RAZIX_ENGINE",
+        "RAZIX_BUILD_DLL",
+        "RAZIX_ROOT_DIR="  .. root_dir,
+        "RAZIX_BUILD_CONFIG=" .. outputdir,
+        -- Renderer
+        "RAZIX_RENDERER_RAZIX",
+        "RAZIX_RENDERER_FALCOR",
+        "RAZIX_RAY_TRACE_RENDERER_RAZIX",
+        "RAZIX_RAY_TRACE_RENDERER_OPTIX",
+        "RAZIX_RAY_TRACE_RENDERER_EMBREE"
+        -- vendor
+    }
+
+    -- Razix Engine source files (Global)
     files
     {
         "src/**.h",
@@ -29,25 +59,15 @@ project "Razix"
         "src/Razix/Platform/**"
     }
 
+    -- Include paths
     includedirs
     {
-        "",
+        -- Engine
+        "./",
         "../",
         "src/",
         "src/Razix",
-         "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.external}",
-        "%{IncludeDir.External}"
-    }
-
-    sysincludedirs
-    {
+        -- Vendor
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -55,60 +75,89 @@ project "Razix"
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
         "%{IncludeDir.Razix}",
-        "%{IncludeDir.external}",
-        "%{IncludeDir.External}"
+        "%{IncludeDir.vendor}",
+        -- API related 
+        "%{VulkanSDK}"
     }
 
+    -- For MacOS
+    sysincludedirs
+    {
+        -- Engine
+        "./",
+        "../",
+        "src/",
+        "src/Razix",
+        -- Vendor
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.stb}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
+        "%{IncludeDir.Razix}",
+        "%{IncludeDir.vendor}",
+        -- API related 
+        "%{VulkanSDK}"
+    }
+
+    -- Razix engine external linkage libraries (Global)
     links
     {
+        "glfw",
         "imgui",
         "spdlog"
     }
 
-    defines
-    {
-        "RAZIX_ENGINE",
-        "RAZIX_BUILD_DLL",
-        "RAZIX_ROOT_DIR="  .. root_dir,
-        "RAZIX_BUILD_CONFIG=" .. outputdir,
-        -- "IMGUI_USER_CONFIG=\"src/Razix/ImGui/ImConfig.h\"",
-        "SPDLOG_COMPILED_LIB"
-}
-
-    -- Vendor Build files
-    --filter 'files:src/Razix/Utilities/ExternalBuild.cpp'
+    -- Build options for Razix Engine DLL
     buildoptions
     {
-        "-W3"
+        --"-W3"
     }
 
-    -- Add special SSE optimization for 32-bit
-    -- filter 'architecture:x86_64'
-    --     defines { "RAZIX_SSE"}
+    -- Disable PCH for vendors
+    filter 'files:vendor/**.cpp'
+        flags  { 'NoPCH' }
+    filter 'files:vendor/**.c'
+        flags  { 'NoPCH' }
 
+     -- Disable warning for vendor
+    filter { "files:vendor/**"}
+        warnings "Off"
+
+    -- Razix Project settings for Windows
     filter "system:windows"
         cppdialect "C++17"
         staticruntime "on"
         systemversion "latest"
         disablewarnings { 4307 }
         characterset ("MBCS")
+        editandcontinue "Off"
 
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
 
+        -- Windows specific defines
         defines
         {
+            -- Engine
             "RAZIX_PLATFORM_WINDOWS",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_IMGUI",
+            -- API
             "RAZIX_RENDER_API_OPENGL",
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_DIRECTX11",
+            "RAZIX_RENDER_API_DIRECTX12",
+            -- Windows / Vidual Studio
             "WIN32_LEAN_AND_MEAN",
             "_CRT_SECURE_NO_WARNINGS",
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
-            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
-            "RAZIX_IMGUI",
-            "RAZIX_USE_GLFW_WINDOWS"
+            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
         }
 
+        -- Windows specific source files for compilation
         files
         {
             "src/Razix/Platform/Windows/*.h",
@@ -120,39 +169,59 @@ project "Razix"
             "src/Razix/Platform/OpenGL/*.h",
             "src/Razix/Platform/OpenGL/*.cpp",
 
+            "src/Razix/Platform/Vulkan/*.h",
+            "src/Razix/Platform/Vulkan/*.cpp",
+
+            "src/Razix/Platform/DirectX11/*.h",
+            "src/Razix/Platform/DirectX11/*.cpp",
+
+            -- Vendor source files
             "vendor/glad/src/glad.c"
         }
 
-        links
+        -- Windows specific incldue directories
+        includedirs
         {
-            "glfw",
-            "Dbghelp"
+             VulkanSDK .. "/include"
         }
 
+        -- Windows specific library directories
+        libdirs
+        {
+            VulkanSDK .. "/Lib"
+        }
+
+        -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
+        links
+        {
+            "Dbghelp",
+            -- Redner API
+            "vulkan-1",
+            "d3d11",
+            "D3DCompiler"
+        }
+
+        -- Build options for Windows / Visual Studio (MSVC)
         buildoptions
         {
             "/MP", "/bigobj"
         }
 
-        filter 'files:vendor/**.cpp'
-            flags  { 'NoPCH' }
-        filter 'files:vendor/**.c'
-            flags  { 'NoPCH' }
-
+    -- Cinfig settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "_DEBUG" }
+        defines { "RAZIX_DEBUG" }
         symbols "On"
         runtime "Debug"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE"}
+        defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
         runtime "Release"
 
     filter "configurations:Distribution"
-        defines "RAZIX_DISTRIBUTION"
+        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

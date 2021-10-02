@@ -1,8 +1,9 @@
+-- Configuration settings
 require 'Scripts/premake-config'
 
 settings = { }
-settings.workspace_name   = 'Razix'
-settings.bundle_identifier = 'com.Pikachuxxx'
+settings.workspace_name     = 'Razix'
+settings.bundle_identifier  = 'com.Pikachuxxx'
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
@@ -13,22 +14,22 @@ root_dir = os.getcwd()
 Arch = ""
 
 if _OPTIONS["arch"] then
-	Arch = _OPTIONS["arch"]
+    Arch = _OPTIONS["arch"]
 else
-	if _OPTIONS["os"] then
-		_OPTIONS["arch"] = "arm"
-		Arch = "arm"
-	else
-		_OPTIONS["arch"] = "x64"
-		Arch = "x64"
-	end
+    if _OPTIONS["os"] then
+        _OPTIONS["arch"] = "arm"
+        Arch = "arm"
+    else
+        _OPTIONS["arch"] = "x64"
+        Arch = "x64"
+    end
 end
 
 -- The Razix Engine Workspace
 workspace ( settings.workspace_name )
     location "build"
     startproject "Sandbox"
-        flags 'MultiProcessorCompile'
+    flags 'MultiProcessorCompile'
 
     -- Output directory path based on build config
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
@@ -37,13 +38,14 @@ workspace ( settings.workspace_name )
     -- Intermediate files Output directory
     objdir ("bin-int/%{outputdir}/obj/")
 
+    -- Setting the architecture for the workspace
     if Arch == "arm" then
-		architecture "ARM"
-	elseif Arch == "x64" then
-		architecture "x86_64"
-	elseif Arch == "x86" then
-		architecture "x86"
-	end
+        architecture "ARM"
+    elseif Arch == "x64" then
+        architecture "x86_64"
+    elseif Arch == "x86" then
+        architecture "x86"
+    end
 
     print("Generating Project files for Architecture = ", Arch)
 
@@ -55,15 +57,19 @@ workspace ( settings.workspace_name )
         "Distribution"
     }
 
+    -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
+        require("Engine/vendor/cereal/premake5")
+        require("Engine/vendor/glfw/premake5")
         require("Engine/vendor/imgui/premake5")
         require("Engine/vendor/spdlog/premake5")
-        require("Engine/vendor/glfw/premake5")
-        require("Engine/vendor/cereal/premake5")
         include "Tools/premake/premake5"
     group ""
 
     -- Build Script for Razix Engine
+    --------------------------------------------------------------------------------
     include "Engine/premake5"
+    --------------------------------------------------------------------------------
+
     -- Build script for Sandbox
     include "Sandbox/premake5"
