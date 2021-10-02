@@ -4,7 +4,7 @@
 #include "Razix/Core/Core.h"
 #include "Razix/Core/Log.h"
 #include "Razix/Core/Engine.h"
-#include "Razix/Core/ISystem.h"
+#include "Razix/Core/IRazixSystem.h"
 #include "Razix/Core/Application.h"
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/ReferenceCounter.h"
