@@ -106,6 +106,8 @@ namespace Razix
             //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
             //archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", m_RenderAPI));
+            // Set the render API from the De-serialized data
+            Graphics::GraphicsContext::SetRenderAPI((Graphics::RenderAPI)m_RenderAPI);
             archive(cereal::make_nvp("Width", m_WindowProperties.Width));
             archive(cereal::make_nvp("Height", m_WindowProperties.Height));
         }
@@ -113,10 +115,12 @@ namespace Razix
         template<class Archive>
         void save(Archive& archive) const
         {
+            Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
+
             archive(cereal::make_nvp("Project Name", m_AppName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
             archive(cereal::make_nvp("Project Version", 0));
-            archive(cereal::make_nvp("Render API", m_RenderAPI));
+            archive(cereal::make_nvp("Render API", (uint32_t)Graphics::GraphicsContext::GetRenderAPI()));
             archive(cereal::make_nvp("Width", m_Window->GetWidth()));
             archive(cereal::make_nvp("Height", m_Window->GetHeight()));
             archive(cereal::make_nvp("Project Path", m_AppFilePath)); // Why am I even serializing this?

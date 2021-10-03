@@ -13,11 +13,11 @@ namespace Razix
         enum class RenderAPI
         {
             OPENGL = 0,
-            VULKAN,
-            DIRECTX11,
-            DIRECTX12,  // Not Supported yet!
-            GXM,        // Not Supported yet! (PSVita)
-            GCM         // Not Supported yet! (PS3)
+            VULKAN = 1,
+            DIRECTX11 = 2,
+            DIRECTX12 = 3,  // Not Supported yet!
+            GXM = 4,        // Not Supported yet! (PSVita)
+            GCM = 5         // Not Supported yet! (PS3)
         };
 
         /**
