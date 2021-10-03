@@ -31,7 +31,7 @@ namespace Razix
 	void WindowsOS::Run()
 	{
 		// TODO: Implement the Application life cycle here! in a more Robust way
-
+		Razix::Application::Get().Init();
 		// Application auto Initialization by the Engine
 		Razix::Application::Get().Run();
 	}

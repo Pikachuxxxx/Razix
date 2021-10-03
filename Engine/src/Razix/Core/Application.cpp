@@ -16,6 +16,10 @@
 
 #include <glad/glad.h>
 
+/*
+*
+*  [Graphics] Added Graphics Context; OpenGL context, Vulkan Instance, device and physical device and DirectX context, device, swapchain and RT;
+*/
 
 namespace Razix
 {
@@ -25,7 +29,7 @@ namespace Razix
     {
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
         s_AppInstance = this;
-        
+
         // Set the Application root path and Load the project settings
         const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
@@ -33,10 +37,21 @@ namespace Razix
         m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
 
+        // Mount the VFS paths
+        // TODO: Move this to the sandbox later or mount all/new paths dynamically from the project root path for the asset browser 
+        VFS::Get().Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
+        VFS::Get().Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
+        VFS::Get().Mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
+        VFS::Get().Mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
+        VFS::Get().Mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
+        VFS::Get().Mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
+    }
+
+    void Application::Init() {
         // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream;
-        if(Engine::Get().commandLineParser.isSet("project filename")) {
+        if (Engine::Get().commandLineParser.isSet("project filename")) {
             std::string fullPath = Engine::Get().commandLineParser.getValueAsString("project filename");
             RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
             AppStream.open(fullPath, std::ifstream::in);
@@ -52,25 +67,17 @@ namespace Razix
             inputArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
-        // Mount the VFS paths
-        // TODO: Move this to the sandbox later or mount all/new paths dynamically from the project root path for the asset browser 
-        VFS::Get().Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
-        VFS::Get().Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
-        VFS::Get().Mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
-        VFS::Get().Mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
-        VFS::Get().Mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
-        VFS::Get().Mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
-
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
-        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStageString() + "]" + " " + "<" + "OpenGL" + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStageString() + "]" + " " + "<" + Graphics::GraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
-        m_Timer = CreateUniqueRef<Timer>();
+         m_Timer = CreateUniqueRef<Timer>();
 
         // Set the window properties and create the timer
         m_WindowProperties.Title = SignatureTitle;
-       
+
+        // Create the Window
         m_Window = UniqueRef<Window>(Window::Create(m_WindowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
@@ -192,6 +199,8 @@ namespace Razix
     void Application::OnUpdate(const Timestep& dt) {
         if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.97f, 0.58f, 0.25f);
+        else if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
+            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.34f, 0.44f, 0.96f);
     }
 
     void Application::OnRender() {
@@ -213,8 +222,3 @@ namespace Razix
         RAZIX_CORE_ERROR("Closing Application!");
     }
 }
-
-/*
-* 
-*  [Graphics] Added Graphics Context; OpenGL context, Vulkan Instance, device and physical device and DirectX context, device, swapchain and RT;
-* /

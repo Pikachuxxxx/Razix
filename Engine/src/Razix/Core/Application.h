@@ -48,6 +48,8 @@ namespace Razix
         /* Simple Virtual destructor */
         virtual ~Application() {}
 
+        void Init();
+
         /* Starts the Engine Runtime systems */
         void Run();
 
