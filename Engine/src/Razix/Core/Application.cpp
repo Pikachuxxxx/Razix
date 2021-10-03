@@ -16,11 +16,6 @@
 
 #include <glad/glad.h>
 
-/*
-*
-*  [Graphics] Added Graphics Context; OpenGL context, Vulkan Instance, device and physical device and DirectX context, device, swapchain and RT;
-*/
-
 namespace Razix
 {
     Application* Application::s_AppInstance = nullptr;
@@ -60,7 +55,11 @@ namespace Razix
         else
             AppStream.open(m_AppFilePath, std::ifstream::in);
 
-        // De-serialize
+        // Check the command line arguments for the rendering api
+        if (Engine::Get().commandLineParser.isSet("rendering api"))
+            Graphics::GraphicsContext::SetRenderAPI((Graphics::RenderAPI) Engine::Get().commandLineParser.getValueAsInt("project filename"));
+
+        // De-serialize the application
         if (AppStream.is_open()) {
             RAZIX_CORE_TRACE("Loading project file...");
             cereal::JSONInputArchive inputArchive(AppStream);
@@ -82,6 +81,7 @@ namespace Razix
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
         // Creating the Graphics Context
+        //Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
         Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.GetOwnedPtr());
         Graphics::GraphicsContext::Get()->Init();
 
@@ -197,10 +197,7 @@ namespace Razix
     }
 
     void Application::OnUpdate(const Timestep& dt) {
-        if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
-            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.97f, 0.58f, 0.25f);
-        else if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
-            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.34f, 0.44f, 0.96f);
+
     }
 
     void Application::OnRender() {
