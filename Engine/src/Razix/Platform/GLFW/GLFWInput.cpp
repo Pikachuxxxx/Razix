@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #ifdef RAZIX_RENDER_API_OPENGL
-#include "Razix/Platform/OpenGL/GLFWInput.h"
+#include "Razix/Platform/GLFW/GLFWInput.h"
 #endif // RAZIX_RENDER_API_OPENGL
 
 namespace Razix
@@ -15,35 +15,35 @@ namespace Razix
 
     bool GLFWInput::IsKeyPressedImpl(int keycode)
     {
-        auto window = static_cast<GLFWwindow*>(Application::GetApplication().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_PRESS;
     }
 
     bool GLFWInput::IsKeyReleasedImpl(int keycode)
     {
-        auto window = static_cast<GLFWwindow*>(Application::GetApplication().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_RELEASE;
     }
 
     bool GLFWInput::IsIsKeyHeldImpl(int keycode)
     {
-        auto window = static_cast<GLFWwindow*>(Application::GetApplication().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_PRESS || keyState == GLFW_REPEAT;
     }
 
     bool GLFWInput::IsMouseButtonPressedImpl(int button)
     {
-        auto window = static_cast<GLFWwindow*>(Application::GetApplication().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
         int buttonState = glfwGetMouseButton(window, button);
         return buttonState == GLFW_PRESS;
     }
 
     std::pair<float, float> GLFWInput::GetMousePositionImpl()
     {
-        auto window = static_cast<GLFWwindow*>(Application::GetApplication().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 
