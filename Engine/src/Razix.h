@@ -39,3 +39,6 @@
 //-----------Entry Point-------------
 #include "Razix/Core/EntryPoint.h"
 //-----------------------------------
+
+// TODO: Remove this!
+#include <glad/glad.h>

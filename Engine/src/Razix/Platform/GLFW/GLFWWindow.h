@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Razix/Core/OS/Window.h"
-#include "Razix/Graphics/API/GraphicsContext.h"
 
 // Forward declaring to reduce header file complexity
 struct GLFWwindow;
@@ -37,7 +36,6 @@ namespace Razix
 		virtual void Shutdown();
 
 		GLFWwindow* m_Window;
-		GraphicsContext* m_Context;
 
 		struct WindowData
 		{

@@ -58,16 +58,17 @@ namespace Razix
          */
         bool OnFrame();
         /**
-         * Calls the engine sub-systems to render the stuff calculated in OnFrame()
-         * Begins the frame and submits the rendergraph to final display
-         */
-        void OnRender();
-        /**
          * Updates the Engine systems for every engine timestep
          * 
          * @param dt The timestep taken for every frame
          */
-        void OnUpdate(const Timestep& dt);
+        virtual void OnUpdate(const Timestep& dt);
+        virtual void OnStart();
+        /**
+         * Calls the engine sub-systems to render the stuff calculated in OnFrame()
+         * Begins the frame and submits the rendergraph to final display
+         */
+        virtual void OnRender();
         /**
          * Gets the Events from the engine, window and OS
          * 
@@ -81,7 +82,7 @@ namespace Razix
         /* Returns a reference to the application window */
         inline Window& GetWindow() { return *m_Window; }
         /* Returns a reference to the Application instance */
-        inline static Application& GetApplication() { return *s_Instance; }
+        inline static Application& Get() { return *s_AppInstance; }
 
         // Application Serialization
         template<class Archive>
@@ -120,30 +121,9 @@ namespace Razix
         }
 
     private:
-        /**
-         * Called when the application is about to be closed
-         * 
-         * @param e The window close event
-         * 
-         * @returns  True, if the window was closed successfully
-         */
-        bool OnWindowClose(WindowCloseEvent& e);
-        /**
-         * Called when the window is resized
-         * 
-         * @param e The window resize event
-         * 
-         * @returns  True, if the window was resized successfully
-         */
-        bool OnWindowResize(WindowResizeEvent& e);
+        unsigned int m_VAO = 0, m_VBO, m_IBO;
 
-        NONCOPYABLE(Application);
-
-    private:
-        // TODO: Remove this!
-        unsigned int m_VAO, m_VBO, m_IBO;
-
-        static Application*     s_Instance;                             /* The singleton instance of the application                */
+        static Application*     s_AppInstance;                          /* The singleton instance of the application                */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
         std::string             m_AppName;                              /* The name of the application                              */
         std::string             m_AppFilePath;                          /* The path of the Razix Project file (*.razixproject)      */
@@ -155,6 +135,26 @@ namespace Razix
         Timestep                m_Timestep;                             /* The timesteps taken to update the application            */
         UniqueRef<Window>       m_Window;                               /* The window that will be used to view graphics            */
         WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
+
+    private:
+        /**
+         * Called when the application is about to be closed
+         *
+         * @param e The window close event
+         *
+         * @returns  True, if the window was closed successfully
+         */
+        bool OnWindowClose(WindowCloseEvent& e);
+        /**
+         * Called when the window is resized
+         *
+         * @param e The window resize event
+         *
+         * @returns  True, if the window was resized successfully
+         */
+        bool OnWindowResize(WindowResizeEvent& e);
+
+        NONCOPYABLE(Application);
     };
 
     /**

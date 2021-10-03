@@ -6,21 +6,25 @@
 // ----------------------------
 
 #include "Razix/Core/RazixVersion.h"
+
 #include "Razix/Core/OS/VFS.h"
-#include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Core/OS/RazixInput.h"
 
-// TODO: Remove this! 
+#include "Razix/Events/ApplicationEvent.h"
+
+#include "Razix/Graphics/API/GraphicsContext.h"
+
 #include <glad/glad.h>
+
 
 namespace Razix
 {
-    Application* Application::s_Instance = nullptr;
+    Application* Application::s_AppInstance = nullptr;
 
     Application::Application(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
     {
-        RAZIX_CORE_ASSERT(!s_Instance, "Application already exists!");
-        s_Instance = this;
+        RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
+        s_AppInstance = this;
         
         // Set the Application root path and Load the project settings
         const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
@@ -45,7 +49,7 @@ namespace Razix
         if (AppStream.is_open()) {
             RAZIX_CORE_TRACE("Loading project file...");
             cereal::JSONInputArchive inputArchive(AppStream);
-            inputArchive(cereal::make_nvp("Razix Application", *s_Instance));
+            inputArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
         // Mount the VFS paths
@@ -70,32 +74,24 @@ namespace Razix
         m_Window = UniqueRef<Window>(Window::Create(m_WindowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
+        // Creating the Graphics Context
+        Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.GetOwnedPtr());
+        Graphics::GraphicsContext::Get()->Init();
+
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
             RAZIX_CORE_ERROR("Project File does not exist!");
             std::ofstream opAppStream(m_AppFilePath);
             cereal::JSONOutputArchive defArchive(opAppStream);
             RAZIX_CORE_TRACE("Creating a default Project file...");
-            defArchive(cereal::make_nvp("Razix Application", *s_Instance));
+            defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
         // Convert the app to loaded state
         m_CurrentState = AppState::Running;
 
-        // TODO: Remove this test code!
-        glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(m_VAO);
-        glGenBuffers(1, &m_VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-
-        float vertices[3 * 3] = {
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.0f,  0.5f, 0.0f,
-        };
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
+        // Enable V-Sync
+        m_Window->SetVSync(true);
     }
 
     void Application::OnEvent(Event& event)
@@ -115,13 +111,12 @@ namespace Razix
 
     bool Application::OnWindowResize(WindowResizeEvent& e)
     {
-        // TODO: Remove this test code!
-        glViewport(0, 0, e.GetWidth(), e.GetHeight());
         return true;
     }
 
     void Application::Run()
     {
+        OnStart();
         while (OnFrame()) { }
         Quit();
     }
@@ -156,6 +151,7 @@ namespace Razix
 
         // Update the window (basically swap buffer)
         m_Window->OnWindowUpdate();
+        Graphics::GraphicsContext::Get()->SwapBuffers();
 
         if (now - m_SecondTimer > 1.0f)
         {
@@ -173,17 +169,37 @@ namespace Razix
         return m_CurrentState != AppState::Closing;
     }
 
-    void Application::OnRender()
-    {
-        // TODO: Remove this test code!
-        glClear(GL_COLOR_BUFFER_BIT);
-        glBindVertexArray(m_VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+    void Application::OnStart() {
+        if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+            glGenVertexArrays(1, &m_VAO);
+            glBindVertexArray(m_VAO);
+            glGenBuffers(1, &m_VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
+            float vertices[3 * 3] = {
+                -0.5f, -0.5f, 0.0f,
+                 0.5f, -0.5f, 0.0f,
+                 0.0f,  0.5f, 0.0f,
+            };
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
+
+            glViewport(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
+        }
     }
 
-    void Application::OnUpdate(const Timestep& dt)
-    {
+    void Application::OnUpdate(const Timestep& dt) {
+        if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.97f, 0.58f, 0.25f);
+    }
 
+    void Application::OnRender() {
+        if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+            glClear(GL_COLOR_BUFFER_BIT);
+            glBindVertexArray(m_VAO);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
     }
 
     void Application::Quit()
@@ -192,8 +208,13 @@ namespace Razix
         RAZIX_CORE_WARN("Saving project...");
         std::ofstream opAppStream(m_AppFilePath);
         cereal::JSONOutputArchive saveArchive(opAppStream);
-        saveArchive(cereal::make_nvp("Razix Application", *s_Instance));
+        saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
 
         RAZIX_CORE_ERROR("Closing Application!");
     }
 }
+
+/*
+* 
+*  [Graphics] Added Graphics Context; OpenGL context, Vulkan Instance, device and physical device and DirectX context, device, swapchain and RT;
+* /

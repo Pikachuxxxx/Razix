@@ -160,20 +160,22 @@ project "Razix"
         -- Windows specific source files for compilation
         files
         {
+            -- platform sepecific implementatioon
             "src/Razix/Platform/Windows/*.h",
             "src/Razix/Platform/Windows/*.cpp",
 
             "src/Razix/Platform/GLFW/*.h",
             "src/Razix/Platform/GLFW/*.cpp",
 
-            "src/Razix/Platform/OpenGL/*.h",
-            "src/Razix/Platform/OpenGL/*.cpp",
+            -- Platform supported Graphics API implementatioon
+            "src/Razix/Platform/API/OpenGL/*.h",
+            "src/Razix/Platform/API/OpenGL/*.cpp",
 
-            "src/Razix/Platform/Vulkan/*.h",
-            "src/Razix/Platform/Vulkan/*.cpp",
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
 
-            "src/Razix/Platform/DirectX11/*.h",
-            "src/Razix/Platform/DirectX11/*.cpp",
+            "src/Razix/Platform/API/DirectX11/*.h",
+            "src/Razix/Platform/API/DirectX11/*.cpp",
 
             -- Vendor source files
             "vendor/glad/src/glad.c"

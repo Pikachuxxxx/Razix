@@ -9,11 +9,12 @@
 #include "Razix/Events/MouseEvent.h"
 #include "Razix/Utilities/LoadImage.h"
 
-#include <GLFW/glfw3.h>
-//TODO: Remove this, the context handle using Refs and Init
 #ifdef RAZIX_RENDER_API_OPENGL
-#include "Platform/OpenGL/OpenGLContext.h"
-#endif // RAZIX_RENDER_API_OPENGL
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#endif
+
+#include "Razix/Graphics/API/GraphicsContext.h"
 
 namespace Razix
 {
@@ -31,9 +32,7 @@ namespace Razix
 
     void GLFWWindow::OnWindowUpdate()
     {
-#ifdef RAZIX_RENDER_API_OPENGL
-        m_Context->SwapBuffers();
-#endif // RAZIX_RENDER_API_OPENGL
+
     }
 
     void GLFWWindow::ProcessInput()
@@ -123,15 +122,7 @@ namespace Razix
 
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
 
-        // Creating the Graphics Context
-#ifdef RAZIX_RENDER_API_OPENGL
-        m_Context = new OpenGLContext(m_Window);
-        m_Context->Init();
-#endif
-
-        glfwMakeContextCurrent(m_Window);
         glfwSetWindowUserPointer(m_Window, &m_Data);
-        SetVSync(true);
 
         //std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
         SetWindowIcon();
