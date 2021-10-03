@@ -44,11 +44,12 @@ namespace Razix
 
     void GLFWWindow::SetVSync(bool enabled)
     {
-        if (enabled)
-            glfwSwapInterval(1);
-        else
-            glfwSwapInterval(0);
-
+        if (Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
+            if (enabled)
+                glfwSwapInterval(1);
+            else
+                glfwSwapInterval(0);
+        }
         m_Data.Vsync = enabled;
     }
 
@@ -113,13 +114,16 @@ namespace Razix
             sGLFWInitialized = true;
         }
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-        #endif
-
+#ifdef RAZIX_RENDER_API_OPENGL
+        if (Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+#endif
+        }
+#endif
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
