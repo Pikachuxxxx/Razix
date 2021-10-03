@@ -7,14 +7,19 @@ class Sandbox : public Razix::Application
 public:
     Sandbox() : Application("/Sandbox/","Sandbox")
     {
-        //RAZIX_TRACE("Default Render API : {0}", Razix::Graphics::GraphicsContext::GetRenderAPIString());
-        Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
+        // This doesn't work as the RenderAPI is set by the De-serialized data or by the command line
     }
 
     ~Sandbox() {
 
     }
 
+    void OnUpdate(const Timestep& dt) override {
+        if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.97f, 0.58f, 0.25f);
+        else if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
+            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.04f, 0.44f, 0.66f);
+    }
 };
 
 Razix::Application* Razix::CreateApplication()
