@@ -25,7 +25,7 @@ namespace Razix {
 
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL:    s_Context = new OpenGLContext((GLFWwindow*) window->GetNativeWindow()); break;
-                case Razix::Graphics::RenderAPI::VULKAN:    s_Context = new VKContext();                                            break;
+                case Razix::Graphics::RenderAPI::VULKAN:    s_Context = new VKContext(window);                                      break;
                 case Razix::Graphics::RenderAPI::DIRECTX11: s_Context = new DX11Context(window);                                    break;
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -35,14 +35,15 @@ namespace Razix {
         }
 
         void GraphicsContext::Release() {
+            s_Context->Destroy();
             delete s_Context;
         }
 
         GraphicsContext* GraphicsContext::Get() {
             switch (s_RenderAPI) {
-                case Razix::Graphics::RenderAPI::OPENGL:    return (OpenGLContext*) s_Context; break;
-                case Razix::Graphics::RenderAPI::VULKAN:    return (VKContext*)     s_Context; break;
-                case Razix::Graphics::RenderAPI::DIRECTX11: return (DX11Context*)   s_Context; break;
+                case Razix::Graphics::RenderAPI::OPENGL:    return static_cast<OpenGLContext*> (s_Context); break;
+                case Razix::Graphics::RenderAPI::VULKAN:    return static_cast<VKContext*>     (s_Context); break;
+                case Razix::Graphics::RenderAPI::DIRECTX11: return static_cast<DX11Context*>   (s_Context); break;
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
