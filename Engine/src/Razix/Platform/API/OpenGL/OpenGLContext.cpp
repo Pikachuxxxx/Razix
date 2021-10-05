@@ -26,6 +26,10 @@ namespace Razix
             RAZIX_CORE_INFO("GLFW Version : {0}", glfwGetVersionString());
         }
 
+        void OpenGLContext::Destroy() {
+            glfwTerminate();
+        }
+
         void OpenGLContext::SwapBuffers() {
             glfwSwapBuffers(m_WindowHandle);
         }

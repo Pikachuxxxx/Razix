@@ -124,6 +124,15 @@ namespace Razix
 #endif
         }
 #endif
+
+#ifdef RAZIX_RENDER_API_VULKAN
+        if (Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+            // TODO: Enable this later
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        }
+
+#endif
         m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
 
         glfwSetWindowUserPointer(m_Window, &m_Data);

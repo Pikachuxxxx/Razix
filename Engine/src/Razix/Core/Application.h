@@ -85,6 +85,7 @@ namespace Razix
         inline Window& GetWindow() { return *m_Window; }
         /* Returns a reference to the Application instance */
         inline static Application& Get() { return *s_AppInstance; }
+        inline std::string GetAppName() const { return m_AppName; }
 
         // Application Serialization
         template<class Archive>
