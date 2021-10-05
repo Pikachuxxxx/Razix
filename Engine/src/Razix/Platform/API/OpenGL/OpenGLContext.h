@@ -13,6 +13,7 @@ namespace Razix
             OpenGLContext(GLFWwindow* windowHandle);
 
             virtual void Init() override;
+            virtual void Destroy() override;
             virtual void SwapBuffers() override;
             virtual void ClearWithColor(float r, float g, float b) override;
 

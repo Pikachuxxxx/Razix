@@ -68,6 +68,13 @@ namespace Razix {
             m_Context->OMSetRenderTargets(1u, m_Target.GetAddressOf(), nullptr);
         }
 
+        void DX11Context::Destroy() {
+            m_Target.Reset();
+            m_Swapchain.Reset();
+            m_Device.Reset();
+            m_Context.Reset();
+        }
+
         void DX11Context::SwapBuffers() {
             m_Swapchain->Present(1u, 0u);
         }
