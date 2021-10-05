@@ -30,6 +30,7 @@ namespace Razix
             static void Release();
 
             virtual void Init() = 0;
+            virtual void Destroy() = 0;
             virtual void SwapBuffers() = 0;
             virtual void ClearWithColor(float r, float g, float b) = 0;
 

@@ -18,6 +18,7 @@ namespace Razix {
             DX11Context(Window* windowHandle);
 
             void Init() override;
+            void Destroy() override;
             void SwapBuffers() override;
             void ClearWithColor(float r, float g, float b) override;
 

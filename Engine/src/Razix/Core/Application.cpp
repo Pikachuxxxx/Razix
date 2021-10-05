@@ -66,12 +66,20 @@ namespace Razix
             inputArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
+
+
+        // Override the Graphics API here! for testing
+        Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+
+
+
+
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
         std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStageString() + "]" + " " + "<" + Graphics::GraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
-         m_Timer = CreateUniqueRef<Timer>();
+        m_Timer = CreateUniqueRef<Timer>();
 
         // Set the window properties and create the timer
         m_WindowProperties.Title = SignatureTitle;
@@ -81,7 +89,6 @@ namespace Razix
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
         // Creating the Graphics Context
-        //Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
         Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.GetOwnedPtr());
         Graphics::GraphicsContext::Get()->Init();
 
@@ -210,6 +217,10 @@ namespace Razix
 
     void Application::Quit()
     {
+
+        // TODO: Release the Graphics context
+        Graphics::GraphicsContext::Release();
+
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
         std::ofstream opAppStream(m_AppFilePath);
