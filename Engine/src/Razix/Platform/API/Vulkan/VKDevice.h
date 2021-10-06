@@ -2,12 +2,15 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN 
 
+#include "Razix/Core/SmartPointers.h"
+#include "Razix/Utilities/TRazixSingleton.h"
+
 #include <vulkan/vulkan.h>
 
 namespace Razix {
     namespace Graphics {
 
-        /* he actual handle tho the Physical GPU being used to process the application */
+        /* The actual handle to the Physical GPU being used to process the application */
         class VKPhysicalDevice
         {
             struct QueueFamilyIndices
@@ -21,16 +24,16 @@ namespace Razix {
             VKPhysicalDevice();
             ~VKPhysicalDevice();
 
+            bool isDeviceSuitable(VkPhysicalDevice gpu);
             /* 
              * Checks the Physical Device for the provided list of extension availability
              * 
              * @param extensionName The extension to check for, if it's supported by the GPU
-             * 
              * @returns True, if the extension is supported
              */
-            bool IsExtensionSupported(const std::string& extensionName) const;
-            uint32_t GetMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const;
-            std::string GetPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
+            bool isExtensionSupported(const std::string& extensionName) const;
+            uint32_t getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const;
+            std::string getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
 
             inline VkPhysicalDevice GetVulkanPhysicalDevice() const { return m_PhysicalDevice; }
             inline int32_t GetGraphicsQueueFamilyIndex() const { return m_QueueFamilyIndices.Graphics; }
@@ -53,8 +56,29 @@ namespace Razix {
         };
 
         /* The logical device handle */
-        class VKDevice
+        class VKDevice : public TRazixSingleton<VKDevice>
         {
+        public:
+            VKDevice();
+            ~VKDevice();
+
+            bool Init();
+            void Destroy();
+
+            VkDevice GetDevice() const { return m_Device; };
+            VkPhysicalDevice GetGPU() const { return m_PhysicalDevice->GetVulkanPhysicalDevice(); };
+            const UniqueRef<VKPhysicalDevice>& GetPhysicalDevice() const { return m_PhysicalDevice; }
+            VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; };
+            VkQueue GetPresentQueue() const { return m_PresentQueue; };
+
+        private:
+            VkDevice                    m_Device;
+            VkQueue                     m_GraphicsQueue;
+            VkQueue                     m_PresentQueue;
+            VkPipelineCache             m_PipelineCache;
+            VkDescriptorPool            m_DescriptorPool;
+            VkPhysicalDeviceFeatures    m_EnabledFeatures;
+            UniqueRef<VKPhysicalDevice> m_PhysicalDevice;
 
         };
     }

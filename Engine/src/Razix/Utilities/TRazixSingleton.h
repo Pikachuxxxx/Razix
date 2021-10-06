@@ -29,6 +29,7 @@ namespace Razix
         NONCOPYABLE(TRazixSingleton);
     };
 
+    /*
     // TODO: Test with DCLP before using
     // TODO: Do not use this yet!
     template <class T>
@@ -51,4 +52,5 @@ namespace Razix
     private:
         NONCOPYABLE(TRazixThreadSafeSingleton);
     };
+    */
 }

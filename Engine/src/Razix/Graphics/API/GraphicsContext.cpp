@@ -39,7 +39,7 @@ namespace Razix {
             delete s_Context;
         }
 
-        GraphicsContext* GraphicsContext::Get() {
+        GraphicsContext* GraphicsContext::GetContext() {
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return static_cast<OpenGLContext*> (s_Context); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return static_cast<VKContext*>     (s_Context); break;
