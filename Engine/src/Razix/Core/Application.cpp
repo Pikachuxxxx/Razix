@@ -90,7 +90,7 @@ namespace Razix
 
         // Creating the Graphics Context
         Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.GetOwnedPtr());
-        Graphics::GraphicsContext::Get()->Init();
+        Graphics::GraphicsContext::GetContext()->Init();
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
@@ -165,7 +165,7 @@ namespace Razix
 
         // Update the window (basically swap buffer)
         m_Window->OnWindowUpdate();
-        Graphics::GraphicsContext::Get()->SwapBuffers();
+        Graphics::GraphicsContext::GetContext()->SwapBuffers();
 
         if (now - m_SecondTimer > 1.0f)
         {

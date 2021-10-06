@@ -172,7 +172,7 @@ namespace Razix
             return *this;
         }
         inline Reference& operator=(std::nullptr_t) { Reset(); return *this; }
-        inline T* operator->() const { return &*this; }
+        inline T* operator->() const { return &(*this); }
         inline T& operator&() const { return *m_Ptr; }
         inline T& operator[](int index) const { return m_Ptr[index]; }
         inline explicit constexpr operator bool() const { return m_Ptr != nullptr; }
