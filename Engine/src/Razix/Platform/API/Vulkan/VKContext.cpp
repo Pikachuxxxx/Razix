@@ -8,6 +8,7 @@
 
 #include "Razix/Core/Application.h"
 #include "Razix/Core/RazixVersion.h"
+#include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 #define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
@@ -39,16 +40,21 @@ namespace Razix {
         void VKContext::Init() {
             // Create the Vulkan instance to interface with the Vulkan library
             CreateInstance();
+
+            // Create the Logical Device
+            VKDevice::Get().Init();
+
         }
 
         void VKContext::Destroy() {
-            // TODO: Device will destroyed later
+            // Destroy the logical device
+            VKDevice::Get().Destroy();
             // Destroy the surface
-            vkDestroyInstance(m_Instance, nullptr);
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
             // Destroy the debug manager
             DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugCallbackHandle, nullptr);
             // Destroy the instance at last
+            vkDestroyInstance(m_Instance, nullptr);
         }
 
         void VKContext::ClearWithColor(float r, float g, float b) {
@@ -59,31 +65,31 @@ namespace Razix {
 
             // Vulkan Application Info
             VkApplicationInfo appInfo{};
-            appInfo.sType               = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-            appInfo.pApplicationName    = Application::Get().GetAppName().c_str();
-            appInfo.applicationVersion  = VK_MAKE_VERSION(1, 0, 0); // TODO: Add this feature later! once we add this to the Application class
-            appInfo.pEngineName         = "Razix Engine";
-            appInfo.engineVersion       = VK_MAKE_VERSION(RazixVersion.GetVersionMajor(), RazixVersion.GetVersionMinor(), RazixVersion.GetVersionPatch());
-            appInfo.apiVersion          = VK_API_VERSION_1_1;
+            appInfo.sType                       = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+            appInfo.pApplicationName            = Application::Get().GetAppName().c_str();
+            appInfo.applicationVersion          = VK_MAKE_VERSION(1, 0, 0); // TODO: Add this feature later! once we add it to the Application class
+            appInfo.pEngineName                 = "Razix Engine";
+            appInfo.engineVersion               = VK_MAKE_VERSION(RazixVersion.GetVersionMajor(), RazixVersion.GetVersionMinor(), RazixVersion.GetVersionPatch());
+            appInfo.apiVersion                  = VK_API_VERSION_1_1;
 
             // Instance Create Info
             VkInstanceCreateInfo instanceCI{};
-            instanceCI.sType            = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-            instanceCI.pApplicationInfo = &appInfo;
+            instanceCI.sType                    = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+            instanceCI.pApplicationInfo         = &appInfo;
 
             // To track if there is any issue with instance creation we supply the pNext with the `VkDebugUtilsMessengerCreateInfoEXT`
             m_DebugCI = {};
-            m_DebugCI.sType             = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            m_DebugCI.messageSeverity   = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-            m_DebugCI.messageType       = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-            m_DebugCI.pfnUserCallback   = DebugCallback;
+            m_DebugCI.sType                     = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+            m_DebugCI.messageSeverity           = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+            m_DebugCI.messageType               = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+            m_DebugCI.pfnUserCallback           = DebugCallback;
 
-            instanceCI.pNext            = (VkDebugUtilsMessengerCreateInfoEXT*) &m_DebugCI;
+            instanceCI.pNext                    = (VkDebugUtilsMessengerCreateInfoEXT*) &m_DebugCI;
 
             // Get the Required Instance Layers from the app/engine
-            m_RequiredInstanceLayerNames = GetRequiredLayers();
+            m_RequiredInstanceLayerNames        = GetRequiredLayers();
             // Get the Required Instance aka Global Extension (also applicable for the device and application)
-            m_RequiredInstanceExtensionNames = GetRequiredExtensions();
+            m_RequiredInstanceExtensionNames    = GetRequiredExtensions();
 
             // Get the Instance Layers and Extensions
             instanceCI.enabledLayerCount        = static_cast<uint32_t>(m_RequiredInstanceLayerNames.size());

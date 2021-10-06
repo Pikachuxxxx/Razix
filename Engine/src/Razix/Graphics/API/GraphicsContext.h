@@ -34,7 +34,7 @@ namespace Razix
             virtual void SwapBuffers() = 0;
             virtual void ClearWithColor(float r, float g, float b) = 0;
 
-            static GraphicsContext* Get();
+            static GraphicsContext* GetContext();
 
             static RenderAPI GetRenderAPI() { return s_RenderAPI; }
             static void SetRenderAPI(RenderAPI api) { s_RenderAPI = api; }
