@@ -16,9 +16,9 @@ public:
 
     void OnUpdate(const Timestep& dt) override {
         if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
-            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.97f, 0.58f, 0.25f);
+            Razix::Graphics::GraphicsContext::GetContext()->ClearWithColor(0.97f, 0.58f, 0.25f);
         else if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
-            Razix::Graphics::GraphicsContext::Get()->ClearWithColor(0.04f, 0.44f, 0.66f);
+            Razix::Graphics::GraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
     }
 };
 

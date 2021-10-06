@@ -23,7 +23,7 @@ namespace Razix
         Razix::SplashScreen::Get().SetLogString("Igniting Engine...");
 
         // TODO: Temp code remove this!!!
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         // Logging the Engine Version details
         RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStageString(), Razix::RazixVersion.GetReleaseDateString());
