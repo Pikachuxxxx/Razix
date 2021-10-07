@@ -2,7 +2,7 @@
 
 #include "Razix/Core/ReferenceCounter.h"
 
-#define CUSTOM_SMART_PTR
+#undef CUSTOM_SMART_PTR
 
 namespace Razix
 {
