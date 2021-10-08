@@ -89,7 +89,7 @@ namespace Razix
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
 
         // Creating the Graphics Context
-        Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.GetOwnedPtr());
+        Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.get());
         Graphics::GraphicsContext::GetContext()->Init();
 
         // Create a default project file file if nothing exists
@@ -173,7 +173,7 @@ namespace Razix
 
             stats.FramesPerSecond = m_Frames;
             stats.UpdatesPerSecond = m_Updates;
-            RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+            //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
             //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
             m_Frames = 0;

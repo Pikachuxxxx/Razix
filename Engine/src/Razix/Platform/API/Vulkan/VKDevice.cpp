@@ -217,7 +217,7 @@ namespace Razix {
         bool VKDevice::Init() {
     
             // Create the Physical device 
-            m_PhysicalDevice = CreateUniqueRef<VKPhysicalDevice>();
+            m_PhysicalDevice = CreateRef<VKPhysicalDevice>();
 
             // Create the Logical device
             // Get the device features of the selected GPU and Enable whatever features we need
