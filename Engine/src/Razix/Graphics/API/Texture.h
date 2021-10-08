@@ -116,10 +116,24 @@ namespace Razix {
         public:
             virtual ~Texture() {}
 
+
             virtual void Bind(uint32_t slot = 0) const = 0;
             virtual void Unbind(uint32_t = 0) const = 0;
 
             virtual void SetData(const void* pixels) = 0;
+
+
+        };
+
+        class RAZIX_API Texture2D : public Texture
+        {
+        public:
+            static void Texture2D* CreateTexture(std::string name, std::string pathName, TextureLoadOptions loadOptions = = TextureLoadOptions(), TextureParameters parameters = TextureParameters());
+
+            void Bind(uint32_t slot = 0) const override;
+            void Unbind(uint32_t = 0) const override;
+
+            void SetData(const void* pixels) override;
 
         };
 
