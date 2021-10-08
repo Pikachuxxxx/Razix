@@ -27,6 +27,11 @@ Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan Di
 - Asset streaming pipeline and custom asset format
 - Future support for Falcor and Render Graph Editor
 
+# RoadMap
+
+## V 1.0.0 - RC
+![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0.png)
+
 # Architecture
 
 #### :warning: Still a work in progress
