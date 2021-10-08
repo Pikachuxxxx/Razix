@@ -29,6 +29,11 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Asset streaming pipeline and custom asset format
 - Future support for Falcor and Render Graph Editor
 
+# RoadMap
+
+## V 1.0.0 - RC
+![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0.png)
+
 # Architecture
 
 #### :warning: Still a work in progress
