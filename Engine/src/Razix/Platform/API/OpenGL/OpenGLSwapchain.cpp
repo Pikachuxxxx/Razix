@@ -1,6 +1,8 @@
 #include "rzxpch.h"
 #include "OpenGLSwapchain.h"
 
+#ifdef RAZIX_RENDER_API_OPENGL
+
 namespace Razix {
     namespace Graphics {
 
@@ -38,3 +40,4 @@ namespace Razix {
 
     }
 }
+#endif
