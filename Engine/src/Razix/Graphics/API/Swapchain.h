@@ -21,12 +21,11 @@ namespace Razix {
             virtual void Init() = 0;
             virtual void Destroy() = 0;
 
-            virtual Texture* GetCurrentImage() = 0;
             virtual Texture* GetImage(uint32_t index) = 0;
+            virtual Texture* GetCurrentImage() = 0;
             virtual uint32_t GetCurrentImageIndex() = 0;
             virtual size_t GetSwapchainImageCount() = 0;
             virtual CommandBuffer* GetCurrentCommandBuffer() = 0;
-
         };
 
     }
