@@ -1,8 +1,8 @@
 #pragma once
 
-#ifdef RAZIX_RENDER_API_OPENGL
-
 #include "Razix/Graphics/API/Swapchain.h"
+
+#ifdef RAZIX_RENDER_API_OPENGL
 
 namespace Razix {
     namespace Graphics {
@@ -29,6 +29,4 @@ namespace Razix {
         };
     }
 }
-
-
 #endif

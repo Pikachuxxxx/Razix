@@ -23,7 +23,7 @@ namespace Razix
         Razix::SplashScreen::Get().SetLogString("Igniting Engine...");
 
         // TODO: Temp code remove this!!!
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Logging the Engine Version details
         RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStageString(), Razix::RazixVersion.GetReleaseDateString());
@@ -33,16 +33,20 @@ namespace Razix
         //------------------------------//
         // 1. Virtual File System
         VFS::Get().StartUp();
+        // TODO: Temp code remove this!!!
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // 2. Mount engine specific Paths
         // TODO: Either use embedded data for these using .inl files or load them from the Application derived data, Whatever it is remove this by loading from source path
-        VFS::Get().Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/src/Razix")));
+        VFS::Get().Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/")));
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
         RAZIX_CORE_INFO("*          Engine Ignited!        *");
         RAZIX_CORE_INFO("***********************************");
         Razix::SplashScreen::Get().SetLogString("Engine Ignited!");
+        // TODO: Temp code remove this!!!
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         Razix::SplashScreen::Get().Destroy();
         
         // TODO: Log the time take to initialize engine using Profiling macros
