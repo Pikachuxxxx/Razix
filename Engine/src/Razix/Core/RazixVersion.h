@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Razix/Core/Log.h"
+#include <iostream>
+#include <string>
 
 namespace Razix
 {
