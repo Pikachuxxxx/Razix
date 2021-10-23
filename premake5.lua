@@ -1,13 +1,15 @@
 -- Configuration settings
 require 'Scripts/premake-config'
 
+-- Workspace Settings
 settings = { }
 settings.workspace_name     = 'Razix'
-settings.bundle_identifier  = 'com.Pikachuxxx'
+settings.bundle_identifier  = 'com.PhaniSrikar'
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Current root directory where the global premake file is located
+-- TODO: Use a fixed installation directory in program files insted of an arbitrary thing/ infact use this to verify the proper installation directory 
 root_dir = os.getcwd()
 
 -- Using the command line to get the selected architecture
@@ -63,13 +65,28 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/glfw/premake5")
         require("Engine/vendor/imgui/premake5")
         require("Engine/vendor/spdlog/premake5")
-        include "Tools/premake/premake5"
     group ""
 
     -- Build Script for Razix Engine
     --------------------------------------------------------------------------------
-    include "Engine/premake5"
+    group "Engine"
+        include "Engine/premake5"
+    group ""
     --------------------------------------------------------------------------------
 
     -- Build script for Sandbox
-    include "Sandbox/premake5"
+    --group "Sandbox"
+        include "Sandbox/premake5"
+    --group ""
+
+    -- Engine related tools\
+    -- TODO: Add a project here that outputs the Engine Version and Signanture when run (Using RazixVersion.h), depneds on the same config as Razix Engine (Used by GitHub workflow for creating releases automatically)
+    group "Tools/Build"
+            -- premake scripts Utility project for in IDE management
+            include "Tools/Build/premake/premake5"
+            -- Gets the version of the Engine for Build workflows
+            include "Tools/Build/RazixVersion/premake5"
+    group ""
+
+    -- TODO: Tests (recrusively projects are added)
+    -- TODO: Samples
