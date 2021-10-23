@@ -108,12 +108,12 @@ project "Sandbox"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE"}
+        defines { "RAZIX_RELEASE" }
         optimize "Speed"
         symbols "On"
         runtime "Release"
 
     filter "configurations:Distribution"
-        defines "RAZIX_DISTRIBUTION"
+        defines { "RAZIX_DISTRIBUTION" }
         symbols "Off"
         optimize "Full"
