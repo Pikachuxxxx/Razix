@@ -13,7 +13,7 @@ namespace Razix {
         Texture* Texture::Create2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
         {
             switch (Graphics::GraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL:    return OpenGLTexture(); break;
+                case Razix::Graphics::RenderAPI::OPENGL:  new OpenGLTexture(); break;
                 case Razix::Graphics::RenderAPI::VULKAN:
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
@@ -26,7 +26,7 @@ namespace Razix {
         Texture* Texture::Create2DFromFile(const std::string& filePath, const std::string& name, Format format, Wrapping wrapMode, Filtering filterMode)
         {
             switch (Graphics::GraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL:    
+                case Razix::Graphics::RenderAPI::OPENGL:
                 case Razix::Graphics::RenderAPI::VULKAN:
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:

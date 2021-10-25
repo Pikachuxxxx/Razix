@@ -3,7 +3,7 @@
 #include "Razix/Core/Engine.h"
 
 // Using the forward declared the application creating function, that we assume was defined on the client side
-extern Razix::Application* Razix::CreateApplication();
+extern Razix::RZApplication* Razix::CreateApplication();
 
 /********************************************************************************
  *                        Razix Engine Entry Point                              *
@@ -42,18 +42,18 @@ int main(int argc, char** argv)
 
     // Create the OS Instance
     auto windowsOS = new Razix::WindowsOS();
-    Razix::OS::SetInstance(windowsOS);
+    Razix::RZOS::SetInstance(windowsOS);
     windowsOS->Init();
 
     //-------------------------------//
     //        Engine Ignition        //
     //-------------------------------//
-    Razix::Engine::Get().Ignite();
+    Razix::RZEngine::Get().Ignite();
     //-------------------------------//
 
     // Parse the command line arguments, if any
     if(argc > 1)
-        Razix::Engine::Get().commandLineParser.parse(args);
+        Razix::RZEngine::Get().commandLineParser.parse(args);
 
     // Application auto Initialization by the Engine
     Razix::CreateApplication();
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     delete windowsOS;
 
     // Shutdown the Engine
-    Razix::Engine::Get().ShutDown();
+    Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
     Razix::Debug::Log::Shutdown();

@@ -7,7 +7,7 @@ struct GLFWwindow;
 
 namespace Razix
 {
-	class GLFWWindow : public Window
+	class GLFWWindow : public RZWindow
 	{
 	public:
 		GLFWWindow(const WindowProperties& properties);
@@ -30,7 +30,7 @@ namespace Razix
 		static void Construct();
 
 	private:
-		static Window* GLFWConstructionFunc(const WindowProperties& properties);
+		static RZWindow* GLFWConstructionFunc(const WindowProperties& properties);
 
 		virtual void Init(const WindowProperties& properties);
 		virtual void Shutdown();

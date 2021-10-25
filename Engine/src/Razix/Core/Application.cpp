@@ -7,8 +7,8 @@
 
 #include "Razix/Core/RazixVersion.h"
 
-#include "Razix/Core/OS/VFS.h"
-#include "Razix/Core/OS/RazixInput.h"
+#include "Razix/Core/OS/VirtualFileSystem.h"
+#include "Razix/Core/OS/Input.h"
 
 #include "Razix/Events/ApplicationEvent.h"
 
@@ -18,9 +18,9 @@
 
 namespace Razix
 {
-    Application* Application::s_AppInstance = nullptr;
+    RZApplication* RZApplication::s_AppInstance = nullptr;
 
-    Application::Application(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
+    RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
     {
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
         s_AppInstance = this;
@@ -34,20 +34,20 @@ namespace Razix
 
         // Mount the VFS paths
         // TODO: Move this to the sandbox later or mount all/new paths dynamically from the project root path for the asset browser 
-        VFS::Get().Mount("Assets", razixRoot + projectRoot + std::string("Assets"));
-        VFS::Get().Mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
-        VFS::Get().Mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
-        VFS::Get().Mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
-        VFS::Get().Mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
-        VFS::Get().Mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
+        RZVirtualFileSystem::Get().mount("Assets", razixRoot + projectRoot + std::string("Assets"));
+        RZVirtualFileSystem::Get().mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
+        RZVirtualFileSystem::Get().mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
+        RZVirtualFileSystem::Get().mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
+        RZVirtualFileSystem::Get().mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
+        RZVirtualFileSystem::Get().mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
     }
 
-    void Application::Init() {
+    void RZApplication::Init() {
         // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream;
-        if (Engine::Get().commandLineParser.isSet("project filename")) {
-            std::string fullPath = Engine::Get().commandLineParser.getValueAsString("project filename");
+        if (RZEngine::Get().commandLineParser.isSet("project filename")) {
+            std::string fullPath = RZEngine::Get().commandLineParser.getValueAsString("project filename");
             RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
             AppStream.open(fullPath, std::ifstream::in);
             m_AppFilePath = fullPath;// .substr(0, fullPath.find_last_of("\\/"));
@@ -56,8 +56,8 @@ namespace Razix
             AppStream.open(m_AppFilePath, std::ifstream::in);
 
         // Check the command line arguments for the rendering api
-        if (Engine::Get().commandLineParser.isSet("rendering api"))
-            Graphics::GraphicsContext::SetRenderAPI((Graphics::RenderAPI) Engine::Get().commandLineParser.getValueAsInt("project filename"));
+        if (RZEngine::Get().commandLineParser.isSet("rendering api"))
+            Graphics::GraphicsContext::SetRenderAPI((Graphics::RenderAPI) RZEngine::Get().commandLineParser.getValueAsInt("project filename"));
 
         // De-serialize the application
         if (AppStream.is_open()) {
@@ -68,9 +68,10 @@ namespace Razix
 
 
 
+        //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
         Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
-
+        //-------------------------------------------------------------------------------------
 
 
 
@@ -85,8 +86,8 @@ namespace Razix
         m_WindowProperties.Title = SignatureTitle;
 
         // Create the Window
-        m_Window = UniqueRef<Window>(Window::Create(m_WindowProperties));
-        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(Application::OnEvent));
+        m_Window = UniqueRef<RZWindow>(RZWindow::Create(m_WindowProperties));
+        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
 
         // Creating the Graphics Context
         Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.get());
@@ -108,7 +109,7 @@ namespace Razix
         m_Window->SetVSync(true);
     }
 
-    void Application::OnEvent(Event& event)
+    void RZApplication::OnEvent(Event& event)
     {
         EventDispatcher dispatcher(event);
         // Window close event
@@ -117,29 +118,29 @@ namespace Razix
         dispatcher.Dispatch<WindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
     }
 
-    bool Application::OnWindowClose(WindowCloseEvent& e)
+    bool RZApplication::OnWindowClose(WindowCloseEvent& e)
     {
         m_CurrentState = AppState::Closing;
         return true;
     }
 
-    bool Application::OnWindowResize(WindowResizeEvent& e)
+    bool RZApplication::OnWindowResize(WindowResizeEvent& e)
     {
         return true;
     }
 
-    void Application::Run()
+    void RZApplication::Run()
     {
         OnStart();
         while (OnFrame()) { }
         Quit();
     }
 
-    bool Application::OnFrame()
+    bool RZApplication::OnFrame()
     {
         // Calculate the delta time
         float now = m_Timer->GetElapsedS();
-        auto& stats = Engine::Get().GetStatistics();
+        auto& stats = RZEngine::Get().GetStatistics();
         m_Timestep.Update(now);
 
         // Update the stats
@@ -149,7 +150,7 @@ namespace Razix
         // Poll for Input events
         m_Window->ProcessInput();
 
-        if (RazixInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
+        if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
             m_CurrentState = AppState::Closing;
         // Early close if the escape key is pressed or close button is pressed
         if (m_CurrentState == AppState::Closing)
@@ -183,7 +184,7 @@ namespace Razix
         return m_CurrentState != AppState::Closing;
     }
 
-    void Application::OnStart() {
+    void RZApplication::OnStart() {
         if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             glGenVertexArrays(1, &m_VAO);
             glBindVertexArray(m_VAO);
@@ -203,11 +204,11 @@ namespace Razix
         }
     }
 
-    void Application::OnUpdate(const Timestep& dt) {
+    void RZApplication::OnUpdate(const Timestep& dt) {
 
     }
 
-    void Application::OnRender() {
+    void RZApplication::OnRender() {
         if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             glClear(GL_COLOR_BUFFER_BIT);
             glBindVertexArray(m_VAO);
@@ -215,7 +216,7 @@ namespace Razix
         }
     }
 
-    void Application::Quit()
+    void RZApplication::Quit()
     {
 
         // TODO: Release the Graphics context

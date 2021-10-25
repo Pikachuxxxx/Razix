@@ -9,7 +9,7 @@ namespace Razix {
          * A class that manages Textures/Image resources for the Engine
          * @brief It manages creation and conversion of Image resources, also stores in a custom Engine Format depending on how it's being used
          */
-        // TODO: Derive Texture from a RazixResource/Asset class this way it gets a resource/asset UUID
+        // TODO: Derive Texture from a RazixResource/Asset class this way it gets a resource/asset UUID + serialization by default
         class Texture
         {
             // Texture Types
@@ -46,7 +46,7 @@ namespace Razix {
             /* Virtual destructor enables the API implementation to delete it's resources */
             virtual ~Texture() {}
 
-            /*  */
+            /* Create a 2D texture resource from the given data */
             static Texture* Create2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode);
             static Texture* Create2DFromFile(const std::string& filePath, const std::string& name, Format format, Wrapping wrapMode, Filtering filterMode);
 

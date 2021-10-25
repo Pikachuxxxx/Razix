@@ -3,9 +3,9 @@
 
 namespace Razix
 {
-	OS* OS::s_Instance = nullptr;
+	RZOS* RZOS::s_Instance = nullptr;
 	
-	void OS::Destroy()
+	void RZOS::Destroy()
 	{
 		delete s_Instance;
 		s_Instance = nullptr;

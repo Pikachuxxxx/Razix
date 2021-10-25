@@ -26,7 +26,7 @@ namespace Razix
         class RAZIX_API GraphicsContext
         {
         public:
-            static void Create(const WindowProperties& properties, Window* window);
+            static void Create(const WindowProperties& properties, RZWindow* window);
             static void Release();
 
             virtual void Init() = 0;

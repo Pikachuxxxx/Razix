@@ -2,10 +2,10 @@
 
 using namespace Razix;
 
-class Sandbox : public Razix::Application
+class Sandbox : public Razix::RZApplication
 {
 public:
-    Sandbox() : Application("/Sandbox/","Sandbox")
+    Sandbox() : RZApplication("/Sandbox/","Sandbox")
     {
         // This doesn't work as the RenderAPI is set by the De-serialized data or by the command line
     }
@@ -22,7 +22,7 @@ public:
     }
 };
 
-Razix::Application* Razix::CreateApplication()
+Razix::RZApplication* Razix::CreateApplication()
 {
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new Sandbox();

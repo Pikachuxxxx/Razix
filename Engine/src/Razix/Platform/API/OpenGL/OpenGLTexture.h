@@ -10,7 +10,7 @@ namespace Razix {
         class OpenGLTexture : public Texture
         {
         public:
-            OpenGLTexture();
+            OpenGLTexture() {}
 
         protected:
             void Bind() override;
