@@ -36,9 +36,10 @@ namespace Razix
         // TODO: Temp code remove this!!!
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        // 2. Mount engine specific Paths
-        // TODO: Either use embedded data for these using .inl files or load them from the Application derived data, Whatever it is remove this by loading from source path
-        VFS::Get().Mount("EngineSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Razix/")));
+        //  1.1. Mount engine specific Paths
+        VFS::Get().Mount("RazixRoot", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
+        VFS::Get().Mount("RazixSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
+        VFS::Get().Mount("RazixContent", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");

@@ -34,7 +34,7 @@ namespace Razix {
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         VKContext::VKContext(Window* windowHandle) : m_Window(windowHandle) {
-            RAZIX_CORE_ASSERT(windowHandle, "Window Handle is NULL!");
+            RAZIX_CORE_ASSERT(windowHandle, "[Vulkan] Window Handle is NULL!");
         }
 
         void VKContext::Init() {
