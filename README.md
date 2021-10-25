@@ -4,18 +4,18 @@ Razix is a High Performance Research Engine for production pipeline with emphasi
 
  ---
 
-|:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul hence nothing will make sense |
+|:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul hence nothing will make sense, check the RoadMap below for release information |
 | --- |
 
 # About
 Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan DirectX 11, GXM, GCM, GNM and GNMX). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
 
 # Features
-- Support for Windows, Linux, macOS, PSVita, PS3 and PS4 systems.
-- Support for OpenGL, Vulkan DirectX 11, GXM, GCM, GNM and GNMX.
+- Support for Windows, Linux, macOS, PSVita and PS3 systems.
+- Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
 - 3D audio using OpenAL.
 - Rendering 3D models with deferred PBR shading.
-- Editor GUI using ImGui.
+- Editor GUI using SonyWWS ATF.
 - Multi Physics engine support.
 - 3D physics using PhysX, Bullet and Havok.
 - 2D physic using Box2D.
@@ -26,11 +26,17 @@ Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan Di
 - Supports Hull, Domain, Geometry, Compute shaders for all Platforms
 - Asset streaming pipeline and custom asset format
 - Future support for Falcor and Render Graph Editor
+- Data drive pipeline architecture
 
 # RoadMap
 
 ## V 1.0.0 - RC
 ![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0.png)
+
+# Contributing
+More information will be update on creating PRs and other ways to contribute to Razix Engine.
+### Style Guide
+Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Architecture
 
@@ -39,7 +45,8 @@ Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan Di
 
 **For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
 
-# To be Updated...
+
+# Changelog and Release Notes
 
 [Click to view changelog](./Docs/CHANGELOG.md)
 

@@ -9,7 +9,7 @@ settings.bundle_identifier  = 'com.PhaniSrikar'
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Current root directory where the global premake file is located
--- TODO: Use a fixed installation directory in program files insted of an arbitrary thing/ infact use this to verify the proper installation directory 
+-- TODO: Use a fixed installation directory in program files insted of an arbitrary thing/ infact use this to verify the proper installation directory
 root_dir = os.getcwd()
 
 -- Using the command line to get the selected architecture
@@ -72,21 +72,22 @@ workspace ( settings.workspace_name )
     group "Engine"
         include "Engine/premake5"
     group ""
-    --------------------------------------------------------------------------------
 
+    --------------------------------------------------------------------------------
     -- Build script for Sandbox
     --group "Sandbox"
         include "Sandbox/premake5"
     --group ""
 
-    -- Engine related tools\
-    -- TODO: Add a project here that outputs the Engine Version and Signanture when run (Using RazixVersion.h), depneds on the same config as Razix Engine (Used by GitHub workflow for creating releases automatically)
+    --------------------------------------------------------------------------------
+    -- Engine related tools
     group "Tools/Build"
             -- premake scripts Utility project for in IDE management
-            include "Tools/Build/premake/premake5"
+            include "Tools/Building/premake/premake5"
             -- Gets the version of the Engine for Build workflows
-            include "Tools/Build/RazixVersion/premake5"
+            include "Tools/Building/RazixVersion/premake5"
     group ""
 
+    --------------------------------------------------------------------------------
     -- TODO: Tests (recrusively projects are added)
     -- TODO: Samples

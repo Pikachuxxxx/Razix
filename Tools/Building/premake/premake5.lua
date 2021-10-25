@@ -12,7 +12,7 @@ project "Premake"
 
 	postbuildmessage "Regenerating project files with Premake5!"
 
-	postbuildcommands 
+	postbuildcommands
 	{
-		"\"%{wks.location}../Tools/Build/premake/premake5\" %{_ACTION} --file=\"%{wks.location}../premake5.lua\""
+		"\"%{wks.location}../Tools/Building/premake/premake5\" %{_ACTION} --file=\"%{wks.location}../premake5.lua\""
 	}
