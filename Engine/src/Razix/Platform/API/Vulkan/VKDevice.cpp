@@ -19,8 +19,8 @@ namespace Razix {
             uint32_t numGPUs = 0;
             VkInstance instance = VKContext::Get()->GetInstance();
             vkEnumeratePhysicalDevices(instance, &numGPUs, nullptr);
-            RAZIX_CORE_ASSERT(!(numGPUs == 0), "No Suitable GPUs found!");
-            RAZIX_CORE_INFO("GPUs found : {0}", numGPUs);
+            RAZIX_CORE_ASSERT(!(numGPUs == 0), "[Vulkan] No Suitable GPUs found!");
+            RAZIX_CORE_INFO("[Vulkan] GPUs found         : {0}", numGPUs);
             // Now that we know the number of available GPUs get their list
             std::vector<VkPhysicalDevice> physicalDevices(numGPUs);
             vkEnumeratePhysicalDevices(instance, &numGPUs, physicalDevices.data());
@@ -32,17 +32,17 @@ namespace Razix {
                     break;
                 }
             }
-            RAZIX_CORE_ASSERT(!(m_PhysicalDevice == VK_NULL_HANDLE), "No GPU is selected!");
+            RAZIX_CORE_ASSERT(!(m_PhysicalDevice == VK_NULL_HANDLE), "[Vulkan] No GPU is selected!");
 
             // Get the memory properties
             vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &m_MemoryProperties);
 
             // Print the GPU details
-            RAZIX_CORE_INFO("Vulkan API Version : {0}.{1}.{2}", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.apiVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.apiVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.apiVersion));
-            RAZIX_CORE_INFO("GPU Name           : {0}", std::string(m_PhysicalDeviceProperties.deviceName));
-            RAZIX_CORE_INFO("Vendor ID          : {0}", std::to_string(m_PhysicalDeviceProperties.vendorID));
-            RAZIX_CORE_INFO("Device Type        : {0}", std::string(getPhysicalDeviceTypeString(m_PhysicalDeviceProperties.deviceType)));
-            RAZIX_CORE_INFO("Driver Version     : {0}.{1}.{2}", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
+            RAZIX_CORE_INFO("[Vulkan] Vulkan API Version : {0}.{1}.{2}", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.apiVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.apiVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.apiVersion));
+            RAZIX_CORE_INFO("[Vulkan] GPU Name           : {0}", std::string(m_PhysicalDeviceProperties.deviceName));
+            RAZIX_CORE_INFO("[Vulkan] Vendor ID          : {0}", std::to_string(m_PhysicalDeviceProperties.vendorID));
+            RAZIX_CORE_INFO("[Vulkan] Device Type        : {0}", std::string(getPhysicalDeviceTypeString(m_PhysicalDeviceProperties.deviceType)));
+            RAZIX_CORE_INFO("[Vulkan] Driver Version     : {0}.{1}.{2}", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
 
             /*
             // Load the supported device extension supported by the GPU
@@ -139,7 +139,7 @@ namespace Razix {
                 typeBits >>= 1;
             }
 
-            RAZIX_CORE_ASSERT(false, "Could not find a suitable memory type!");
+            RAZIX_CORE_ASSERT(false, "[Vulkan] Could not find a suitable memory type!");
             return UINT32_MAX;
         }
 
