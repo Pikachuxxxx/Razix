@@ -1,7 +1,7 @@
 #include "rzxpch.h"
 #include "Engine.h"
 
-#include "Razix/Core/OS/VFS.h"
+#include "Razix/Core/OS/VirtualFileSystem.h"
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/SplashScreen.h"
 
@@ -12,7 +12,7 @@
 
 namespace Razix
 {
-    void Engine::Ignite()
+    void RZEngine::Ignite()
     {
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -32,14 +32,14 @@ namespace Razix
         // Igniting all the sub-systems //
         //------------------------------//
         // 1. Virtual File System
-        VFS::Get().StartUp();
+        RZVirtualFileSystem::Get().StartUp();
         // TODO: Temp code remove this!!!
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         //  1.1. Mount engine specific Paths
-        VFS::Get().Mount("RazixRoot", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
-        VFS::Get().Mount("RazixSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
-        VFS::Get().Mount("RazixContent", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
+        RZVirtualFileSystem::Get().mount("RazixRoot", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
+        RZVirtualFileSystem::Get().mount("RazixSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
+        RZVirtualFileSystem::Get().mount("RazixContent", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
@@ -56,7 +56,7 @@ namespace Razix
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_double.count());
     }
 
-    void Engine::ShutDown()
+    void RZEngine::ShutDown()
     {
         RAZIX_CORE_ERROR("***********************************");
         RAZIX_CORE_ERROR("*    Shutting down Engine....     *");
@@ -64,7 +64,7 @@ namespace Razix
 
         // Shutting down all the sub-systems
         // Shutdown the VFS last
-        VFS::ShutDown();
+        RZVirtualFileSystem::ShutDown();
 
         // Log the completion of engine shutdown
         RAZIX_CORE_ERROR("***********************************");
@@ -72,7 +72,7 @@ namespace Razix
         RAZIX_CORE_ERROR("***********************************");
     }
 
-    void Engine::Run()
+    void RZEngine::Run()
     {
         UNIMPLEMENTED
     }

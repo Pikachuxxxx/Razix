@@ -17,7 +17,7 @@ namespace Razix
 
 #define UPDATE_VERSION_LABEL (WM_APP + 20)
 	// TODO: Don't close all instances of the window if we close one of them
-	class RAZIX_API SplashScreen : public TRazixSingleton<SplashScreen>
+	class RAZIX_API SplashScreen : public RZSingleton<SplashScreen>
 	{
 	private:
 		// singleton manages registration/cleanup of window class

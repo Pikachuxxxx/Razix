@@ -7,7 +7,7 @@ namespace Razix
 	/// <summary>
 	/// Windows specific OS Instance 
 	/// </summary>
-	class RAZIX_API WindowsOS : public OS
+	class RAZIX_API WindowsOS : public RZOS
 	{
 	public:
 		WindowsOS() = default;

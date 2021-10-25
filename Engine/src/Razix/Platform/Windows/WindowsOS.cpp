@@ -23,7 +23,7 @@ namespace Razix
 		// TODO: Initialize the OS specific Input Implementation here
 	#else 
 		WindowsWindow::Construct();
-		Razix::RazixInput* Razix::RazixInput::sInstance = new WindowsInput();
+		Razix::RZInput* Razix::RZInput::sInstance = new WindowsInput();
 	#endif
 
 	}
@@ -31,9 +31,9 @@ namespace Razix
 	void WindowsOS::Run()
 	{
 		// TODO: Implement the Application life cycle here! in a more Robust way
-		Razix::Application::Get().Init();
+		Razix::RZApplication::Get().Init();
 		// Application auto Initialization by the Engine
-		Razix::Application::Get().Run();
+		Razix::RZApplication::Get().Run();
 	}
 
 }

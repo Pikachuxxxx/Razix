@@ -3,9 +3,9 @@
 
 namespace Razix
 {
-	Window* (*Window::ConstructionFunc) (const WindowProperties&) = nullptr;
+	RZWindow* (*RZWindow::ConstructionFunc) (const WindowProperties&) = nullptr;
 
-	Window* Window::Create(const WindowProperties& properties /*= WindowProperties()*/)
+	RZWindow* RZWindow::Create(const WindowProperties& properties /*= WindowProperties()*/)
 	{
 		RAZIX_ASSERT(ConstructionFunc, "Windows construction funcition not found!");
 		return ConstructionFunc(properties);

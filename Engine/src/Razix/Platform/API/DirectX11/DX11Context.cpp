@@ -10,7 +10,7 @@
 namespace Razix {
     namespace Graphics {
 
-        DX11Context::DX11Context(Window* windowHandle) : m_Window(windowHandle) {
+        DX11Context::DX11Context(RZWindow* windowHandle) : m_Window(windowHandle) {
             RAZIX_CORE_ASSERT(windowHandle, "Window Handle is NULL!");
         }
 

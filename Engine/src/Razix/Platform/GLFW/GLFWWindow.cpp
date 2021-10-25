@@ -86,7 +86,7 @@ namespace Razix
         ConstructionFunc = GLFWConstructionFunc;
     }
 
-    Window* GLFWWindow::GLFWConstructionFunc(const WindowProperties& properties)
+    RZWindow* GLFWWindow::GLFWConstructionFunc(const WindowProperties& properties)
     {
         return new GLFWWindow(properties);
     }

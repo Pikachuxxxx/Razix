@@ -21,7 +21,7 @@ namespace Razix {
         GraphicsContext* GraphicsContext::s_Context = nullptr;
         RenderAPI GraphicsContext::s_RenderAPI = RenderAPI::OPENGL;
 
-        void GraphicsContext::Create(const WindowProperties& properties, Window* window) {
+        void GraphicsContext::Create(const WindowProperties& properties, RZWindow* window) {
 
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL:    s_Context = new OpenGLContext((GLFWwindow*) window->GetNativeWindow()); break;
