@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Razix/Core/OS/RazixInput.h"
+#include "Razix/Core/OS/Input.h"
 
 namespace Razix
 {
-    class RAZIX_API GLFWInput : public RazixInput
+    class RAZIX_API GLFWInput : public RZInput
     {
     protected:
         bool IsKeyPressedImpl(int keycode) override;

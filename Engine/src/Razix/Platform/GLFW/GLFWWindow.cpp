@@ -44,7 +44,7 @@ namespace Razix
 
     void GLFWWindow::SetVSync(bool enabled)
     {
-        if (Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
+        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
             if (enabled)
                 glfwSwapInterval(1);
             else
@@ -86,7 +86,7 @@ namespace Razix
         ConstructionFunc = GLFWConstructionFunc;
     }
 
-    Window* GLFWWindow::GLFWConstructionFunc(const WindowProperties& properties)
+    RZWindow* GLFWWindow::GLFWConstructionFunc(const WindowProperties& properties)
     {
         return new GLFWWindow(properties);
     }
@@ -115,7 +115,7 @@ namespace Razix
         }
 
 #ifdef RAZIX_RENDER_API_OPENGL
-        if (Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
+        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -126,7 +126,7 @@ namespace Razix
 #endif
 
 #ifdef RAZIX_RENDER_API_VULKAN
-        if (Graphics::GraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
+        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
             // TODO: Enable this later
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

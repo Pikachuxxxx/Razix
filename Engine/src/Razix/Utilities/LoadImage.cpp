@@ -1,7 +1,7 @@
 #include "rzxpch.h"
 #include "LoadImage.h"
 
-#include "Razix/Core/OS/VFS.h"
+#include "Razix/Core/OS/VirtualFileSystem.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -9,10 +9,10 @@
 namespace Razix
 {
 
-	uint8_t* Utilities::LoadImage(const std::string& filePath, uint32_t* width, uint32_t* height, uint32_t* bpp)
+	uint8_t* Utilities::LoadImageData(const std::string& filePath, uint32_t* width, uint32_t* height, uint32_t* bpp)
 	{
 		std::string physicalPath;
-		if (!VFS::Get().ResolvePhysicalPath(filePath, physicalPath))
+		if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
 			return nullptr;
 
 		int texWidth = 0, texHeight = 0, texChannels = 0;

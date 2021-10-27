@@ -9,7 +9,7 @@ namespace Razix
 	/// <summary>
 	/// The Engine class that Starts and Manages all the Engine back-end and runtime systems
 	/// </summary>
-	class RAZIX_API Engine : public TRazixSingleton<Engine>
+	class RAZIX_API RZEngine : public RZSingleton<RZEngine>
 	{
 		// All internal type definition go here
 	public:

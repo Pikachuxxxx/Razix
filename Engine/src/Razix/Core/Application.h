@@ -17,6 +17,9 @@
 #pragma warning(pop)
 #include <fstream>
 
+
+//! The style guide rules are waved off for RZApplication class
+
 namespace Razix
 {
     /* Determines the state of the application */
@@ -35,7 +38,7 @@ namespace Razix
     };
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
-    class RAZIX_API Application
+    class RAZIX_API RZApplication
     {
     public: 
         /**
@@ -44,10 +47,11 @@ namespace Razix
          * @param projectRoot   The root location of the application
          * @param appName       The name of the Razix application
          */
-        Application(const std::string& projectRoot , const std::string& appName = "Razix App");
+        RZApplication(const std::string& projectRoot , const std::string& appName = "Razix App");
         /* Simple Virtual destructor */
-        virtual ~Application() {}
+        virtual ~RZApplication() {}
 
+        /* Initializes the application and other runtime systems */
         void Init();
 
         /* Starts the Engine Runtime systems */
@@ -60,12 +64,16 @@ namespace Razix
          */
         bool OnFrame();
         /**
+         * Called before the application starts rendering
+         * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
+         */
+        virtual void OnStart();
+        /**
          * Updates the Engine systems for every engine timestep
          * 
          * @param dt The timestep taken for every frame
          */
         virtual void OnUpdate(const Timestep& dt);
-        virtual void OnStart();
         /**
          * Calls the engine sub-systems to render the stuff calculated in OnFrame()
          * Begins the frame and submits the rendergraph to final display
@@ -82,12 +90,12 @@ namespace Razix
         void Quit();
         
         /* Returns a reference to the application window */
-        inline Window& GetWindow() { return *m_Window; }
+        inline RZWindow& GetWindow() { return *m_Window; }
         /* Returns a reference to the Application instance */
-        inline static Application& Get() { return *s_AppInstance; }
+        inline static RZApplication& Get() { return *s_AppInstance; }
         inline std::string GetAppName() const { return m_AppName; }
 
-        // Application Serialization
+        /* Application Serialization */
         template<class Archive>
         void load(Archive& archive) 
         {
@@ -108,7 +116,7 @@ namespace Razix
             //archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", m_RenderAPI));
             // Set the render API from the De-serialized data
-            Graphics::GraphicsContext::SetRenderAPI((Graphics::RenderAPI)m_RenderAPI);
+            Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI)m_RenderAPI);
             archive(cereal::make_nvp("Width", m_WindowProperties.Width));
             archive(cereal::make_nvp("Height", m_WindowProperties.Height));
         }
@@ -116,12 +124,12 @@ namespace Razix
         template<class Archive>
         void save(Archive& archive) const
         {
-            Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
+            Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
 
             archive(cereal::make_nvp("Project Name", m_AppName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
             archive(cereal::make_nvp("Project Version", 0));
-            archive(cereal::make_nvp("Render API", (uint32_t)Graphics::GraphicsContext::GetRenderAPI()));
+            archive(cereal::make_nvp("Render API", (uint32_t)Graphics::RZGraphicsContext::GetRenderAPI()));
             archive(cereal::make_nvp("Width", m_Window->GetWidth()));
             archive(cereal::make_nvp("Height", m_Window->GetHeight()));
             archive(cereal::make_nvp("Project Path", m_AppFilePath)); // Why am I even serializing this?
@@ -130,7 +138,7 @@ namespace Razix
     private:
         unsigned int m_VAO = 0, m_VBO, m_IBO;
 
-        static Application*     s_AppInstance;                          /* The singleton instance of the application                */
+        static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
         std::string             m_AppName;                              /* The name of the application                              */
         std::string             m_AppFilePath;                          /* The path of the Razix Project file (*.razixproject)      */
@@ -140,7 +148,7 @@ namespace Razix
         UniqueRef<Timer>        m_Timer;                                /* The timer used to calculate the delta time and timesteps */
         float                   m_SecondTimer   = 0;                    /* A secondary timer to count the ticks per second          */
         Timestep                m_Timestep;                             /* The timesteps taken to update the application            */
-        UniqueRef<Window>       m_Window;                               /* The window that will be used to view graphics            */
+        UniqueRef<RZWindow>     m_Window;                               /* The window that will be used to view graphics            */
         WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
 
     private:
@@ -161,7 +169,7 @@ namespace Razix
          */
         bool OnWindowResize(WindowResizeEvent& e);
 
-        NONCOPYABLE(Application);
+        NONCOPYABLE(RZApplication);
     };
 
     /**
@@ -173,7 +181,7 @@ namespace Razix
      * [Application(forward declaration)-->Entry Point(extern declaration)-->CLIENT(definition)]
      * Defined by the client to create the application definition
      */ 
-    Application* CreateApplication();
+    RZApplication* CreateApplication();
 }
 
  

@@ -16,10 +16,10 @@ struct GLFWwindow;
 namespace Razix {
     namespace Graphics {
 
-        class VKContext : public GraphicsContext
+        class VKContext : public RZGraphicsContext
         {
         public:
-            VKContext(Window* windowHandle);
+            VKContext(RZWindow* windowHandle);
 
             virtual void Init() override;
             virtual void Destroy() override;
@@ -31,7 +31,7 @@ namespace Razix {
             VkSurfaceKHR GetSurface() const { return m_Surface; }
 
         private:
-            Window*                             m_Window;                           /* The Window handle                                    */
+            RZWindow*                             m_Window;                           /* The Window handle                                    */
             VkInstance                          m_Instance;                         /* The Vulkan instance handle                           */
             bool                                m_EnabledValidationLayer;           /* Whether or not to enable validation layers on not    */
             std::vector<VkLayerProperties>      m_InstanceLayers;                   /* Collection of list of Instance layers supported      */

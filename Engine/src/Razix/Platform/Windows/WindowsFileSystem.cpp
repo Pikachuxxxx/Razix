@@ -28,19 +28,19 @@ namespace Razix
 #pragma warning(pop)
     }
 
-    bool FileSystem::FileExists(const std::string& path)
+    bool RZFileSystem::FileExists(const std::string& path)
     {
         auto dwAttr = GetFileAttributes((LPCSTR)path.c_str());
         return (dwAttr != INVALID_FILE_ATTRIBUTES) && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) == 0;
     }
 
-    bool FileSystem::FolderExists(const std::string& path)
+    bool RZFileSystem::FolderExists(const std::string& path)
     {
         DWORD dwAttrib = GetFileAttributes(path.c_str());
         return dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0;
     }
 
-    int64_t FileSystem::GetFileSize(const std::string& path)
+    int64_t RZFileSystem::GetFileSize(const std::string& path)
     {
         const HANDLE file = OpenFileForReading(path);
         if(file == INVALID_HANDLE_VALUE)
@@ -51,7 +51,7 @@ namespace Razix
         return result;
     }
 
-    bool FileSystem::ReadFile(const std::string& path, void* buffer, int64_t size)
+    bool RZFileSystem::ReadFile(const std::string& path, void* buffer, int64_t size)
     {
         const HANDLE file = OpenFileForReading(path);
         if(file == INVALID_HANDLE_VALUE)
@@ -65,7 +65,7 @@ namespace Razix
         return result;
     }
 
-    uint8_t* FileSystem::ReadFile(const std::string& path)
+    uint8_t* RZFileSystem::ReadFile(const std::string& path)
     {
         const HANDLE file = OpenFileForReading(path);
         const int64_t size = GetFileSizeInternal(file);
@@ -77,7 +77,7 @@ namespace Razix
         return result ? buffer : nullptr;
     }
 
-    std::string FileSystem::ReadTextFile(const std::string& path)
+    std::string RZFileSystem::ReadTextFile(const std::string& path)
     {
         const HANDLE file = OpenFileForReading(path);
         const int64_t size = GetFileSizeInternal(file);
@@ -92,7 +92,7 @@ namespace Razix
         return success ? result : std::string();
     }
 
-    bool FileSystem::WriteFile(const std::string& path, uint8_t* buffer)
+    bool RZFileSystem::WriteFile(const std::string& path, uint8_t* buffer)
     {
         const HANDLE file = CreateFile(path.c_str(), GENERIC_WRITE, NULL, nullptr, CREATE_NEW | OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if(file == INVALID_HANDLE_VALUE)
@@ -105,7 +105,7 @@ namespace Razix
         return result;
     }
 
-    bool FileSystem::WriteTextFile(const std::string& path, const std::string& text)
+    bool RZFileSystem::WriteTextFile(const std::string& path, const std::string& text)
     {
         return WriteFile(path, (uint8_t*)&text[0]);
     }

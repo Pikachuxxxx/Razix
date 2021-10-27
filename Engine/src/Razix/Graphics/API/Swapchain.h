@@ -8,24 +8,24 @@
 namespace Razix {
     namespace Graphics {
 
-        class Texture;
-        class CommandBuffer;
+        class RZTexture;
+        class RZCommandBuffer;
 
-        class Swapchain
+        class RZSwapchain
         {
         public:
-            virtual ~Swapchain() = default;
+            virtual ~RZSwapchain() = default;
 
-            static Swapchain* Create(uint32_t width, uint32_t height);
+            static RZSwapchain* Create(uint32_t width, uint32_t height);
             
             virtual void Init() = 0;
             virtual void Destroy() = 0;
 
-            virtual Texture* GetImage(uint32_t index) = 0;
-            virtual Texture* GetCurrentImage() = 0;
+            virtual RZTexture* GetImage(uint32_t index) = 0;
+            virtual RZTexture* GetCurrentImage() = 0;
             virtual uint32_t GetCurrentImageIndex() = 0;
             virtual size_t GetSwapchainImageCount() = 0;
-            virtual CommandBuffer* GetCurrentCommandBuffer() = 0;
+            virtual RZCommandBuffer* GetCurrentCommandBuffer() = 0;
         };
 
     }

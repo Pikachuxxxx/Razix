@@ -56,7 +56,7 @@ namespace Razix {
         };
 
         /* The logical device handle */
-        class VKDevice : public TRazixSingleton<VKDevice>
+        class VKDevice : public RZSingleton<VKDevice>
         {
         public:
             VKDevice();
