@@ -7,7 +7,7 @@ struct GLFWwindow;
 namespace Razix
 {
     namespace Graphics {
-        class OpenGLContext : public GraphicsContext
+        class OpenGLContext : public RZGraphicsContext
         {
         public:
             OpenGLContext(GLFWwindow* windowHandle);

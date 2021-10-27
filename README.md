@@ -9,7 +9,7 @@ Razix is a High Performance Research Engine for production pipeline with emphasi
 
 # About
 Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan DirectX 11, GXM, GCM, GNM and GNMX). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
-                                                                                                          
+
 View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
@@ -41,22 +41,16 @@ More information will be update on creating PRs and other ways to contribute to 
 Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Architecture
-                                                                                                          
+
 #### :warning: Still a work in progress
 ![](./Docs/Architecture/RazixEngine-Architecture.png)
 
 **For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
-                                                                                               
+
  **For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. [Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
-                                                                                                          
-<p float="left">
-  <img src="https://github.com/Pikachuxxxx/Razix/blob/master/Docs/Architecture/RazixEngine-Architecture.png" width="500" />
-  <img src="https://github.com/Pikachuxxxx/Razix/blob/master/Docs/Architecture/RazixEngine-CoreSystems.png" width="400" />
-                                                                                                                     
-</p>
-                                                                                                                                                                                                                                    
+
 # Changelog and Release Notes
-                                                                                                                       
+
 [Click to view changelog](./Docs/CHANGELOG.md)
 
 [Click to view ReleaseNotes](./Docs/ReleaseNotes.md)

@@ -7,7 +7,7 @@
 namespace Razix {
     namespace Graphics {
     
-        class OpenGLSwapchain : public Swapchain
+        class OpenGLSwapchain : public RZSwapchain
         {
         public:
             OpenGLSwapchain(uint32_t width, uint32_t height);
@@ -15,11 +15,11 @@ namespace Razix {
             void Init() override;
             void Destroy() override;
 
-            Texture* GetCurrentImage() override;
-            Texture * GetImage(uint32_t index) override;
+            RZTexture* GetCurrentImage() override;
+            RZTexture * GetImage(uint32_t index) override;
             uint32_t GetCurrentImageIndex() override;
             size_t GetSwapchainImageCount() override;
-            CommandBuffer* GetCurrentCommandBuffer() override;
+            RZCommandBuffer* GetCurrentCommandBuffer() override;
 
         private:
             uint32_t m_Width;

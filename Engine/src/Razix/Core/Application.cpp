@@ -57,7 +57,7 @@ namespace Razix
 
         // Check the command line arguments for the rendering api
         if (RZEngine::Get().commandLineParser.isSet("rendering api"))
-            Graphics::GraphicsContext::SetRenderAPI((Graphics::RenderAPI) RZEngine::Get().commandLineParser.getValueAsInt("project filename"));
+            Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) RZEngine::Get().commandLineParser.getValueAsInt("project filename"));
 
         // De-serialize the application
         if (AppStream.is_open()) {
@@ -70,14 +70,14 @@ namespace Razix
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::GraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
 
 
 
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
-        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStageString() + "]" + " " + "<" + Graphics::GraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
         m_Timer = CreateUniqueRef<Timer>();
@@ -90,8 +90,8 @@ namespace Razix
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
 
         // Creating the Graphics Context
-        Graphics::GraphicsContext::Create(m_WindowProperties, m_Window.get());
-        Graphics::GraphicsContext::GetContext()->Init();
+        Graphics::RZGraphicsContext::Create(m_WindowProperties, m_Window.get());
+        Graphics::RZGraphicsContext::GetContext()->Init();
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
@@ -166,7 +166,7 @@ namespace Razix
 
         // Update the window (basically swap buffer)
         m_Window->OnWindowUpdate();
-        Graphics::GraphicsContext::GetContext()->SwapBuffers();
+        Graphics::RZGraphicsContext::GetContext()->SwapBuffers();
 
         if (now - m_SecondTimer > 1.0f)
         {
@@ -185,7 +185,7 @@ namespace Razix
     }
 
     void RZApplication::OnStart() {
-        if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             glGenVertexArrays(1, &m_VAO);
             glBindVertexArray(m_VAO);
             glGenBuffers(1, &m_VBO);
@@ -209,7 +209,7 @@ namespace Razix
     }
 
     void RZApplication::OnRender() {
-        if (Razix::Graphics::GraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             glClear(GL_COLOR_BUFFER_BIT);
             glBindVertexArray(m_VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -220,7 +220,7 @@ namespace Razix
     {
 
         // TODO: Release the Graphics context
-        Graphics::GraphicsContext::Release();
+        Graphics::RZGraphicsContext::Release();
 
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");

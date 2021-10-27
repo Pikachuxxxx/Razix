@@ -8,9 +8,8 @@
 namespace Razix {
     namespace Graphics {
 
-        Swapchain* Swapchain::Create(uint32_t width, uint32_t height) {
-
-            switch (Graphics::GraphicsContext::GetRenderAPI()) {
+        RZSwapchain* RZSwapchain::Create(uint32_t width, uint32_t height) {
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLSwapchain(width, height); break;
                 case Razix::Graphics::RenderAPI::VULKAN:
                 case Razix::Graphics::RenderAPI::DIRECTX11:
