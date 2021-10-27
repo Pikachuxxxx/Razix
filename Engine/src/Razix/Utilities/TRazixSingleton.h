@@ -10,7 +10,7 @@ namespace Razix
     /// Note: [Design Suggested in Game Engine Architecture by Jason Gregory at p.199-201]
     /// </summary>
     template <class T>
-    class TRazixSingleton
+    class RZSingleton
     {
     public:
         /// <summary>
@@ -22,11 +22,11 @@ namespace Razix
             return instance;
         }
     protected:
-        TRazixSingleton() {}
-        ~TRazixSingleton() {}
+        RZSingleton() {}
+        ~RZSingleton() {}
     private:
         ///	Make the singleton non-copyable
-        NONCOPYABLE(TRazixSingleton);
+        NONCOPYABLE(RZSingleton);
     };
 
     /*

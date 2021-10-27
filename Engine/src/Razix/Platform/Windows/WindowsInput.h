@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/OS/RazixInput.h"
+#include "Razix/Core/OS/Input.h"
 
 namespace Razix
 {

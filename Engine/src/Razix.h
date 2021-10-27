@@ -13,10 +13,10 @@
 
 // Core/OS
 #include "Razix/Core/OS/OS.h"
-#include "Razix/Core/OS/RazixInput.h"
+#include "Razix/Core/OS/Input.h"
 #include "Razix/Core/OS/FileSystem.h"
 #include "Razix/Core/OS/Window.h"
-#include "Razix/Core/OS/VFS.h"
+#include "Razix/Core/OS/VirtualFileSystem.h"
 
 // Events
 #include "Razix/Events/Event.h"

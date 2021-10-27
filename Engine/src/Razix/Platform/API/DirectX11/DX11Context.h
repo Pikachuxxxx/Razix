@@ -12,10 +12,10 @@
 namespace Razix {
     namespace Graphics {
 
-        class DX11Context : public GraphicsContext
+        class DX11Context : public RZGraphicsContext
         {
         public:
-            DX11Context(Window* windowHandle);
+            DX11Context(RZWindow* windowHandle);
 
             void Init() override;
             void Destroy() override;
@@ -24,7 +24,7 @@ namespace Razix {
 
         private:
             /* The window handle */
-            Window* m_Window;
+            RZWindow* m_Window;
             /* DirectX device Context */
             Microsoft::WRL::ComPtr<ID3D11DeviceContext>     m_Context;
             /* DirectX handle to the device */

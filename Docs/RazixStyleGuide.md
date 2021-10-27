@@ -4,21 +4,19 @@ This document describes the style code rules in **Razix Engine**. The code is wr
 Table of contents
 =================
 
-* [Comments in C++ & GLSL](#Comments%20in%20C++%20&%20GLSL)
-* [Naming conventions in C++ & GLSL](#Naming%20conventions%20in%20C++%20&%20GLSL)
-* [Naming conventions for files and directories](#Naming%20conventions%20for%20files%20and%20directories)
-* [C++ rules](#C++%20rules)
+* [Comments in C++ & GLSL](#comments-in-c--glsl)
+* [Naming conventions in C++ & GLSL](#naming-conventions-in-c--glsl)
+* [Naming conventions for files and directories](#naming-conventions-for-files-and-directories)
+* [C++ rules](#c-rules)
 
 Comments in C++ & GLSL
 ======================
 
-All comments are C++ like:
+**All comments are C++ like:**
 
 	// Some comment
 
-Use ``\\tex:$numLevels = 1 + floor(log2(max(w, h, d)))$`` style comments for math equation in Latex
-
-And for doxygen comments in C++ use JavaDoc * styling:
+**Use ``\\tex:$numLevels = 1 + floor(log2(max(w, h, d)))$`` style comments for math equation in Latex. And for doxygen comments in C++ use JavaDoc * styling**
 
 Ex: 1
 
@@ -35,7 +33,7 @@ Ex: 2
     * @param height    The height of the texture
     */
 
-For Variables use ``/* info about variable */`` with proper spacing normalization
+**For Variables use ``/* info about variable */`` with proper spacing normalization**
 
 Ex:
 
@@ -50,11 +48,12 @@ Ex:
     bool            m_FlipX;            /* Flip the texture on X-axis during load   */
     bool            m_FlipY;            /* Flip the texture on Y-axis during load   */
 
+**For all inline functions use ``/* info */`` single line comments** no need of @brief, @param or other stuff, just needs a simple single line comment
 
 Naming conventions in C++ & GLSL
 ================================
 
-**Public Variables and Member Functions including inline functions as well as getters and setters** are lower camelCase.
+**Public Variables and Member Functions including inline functions as well as getters and setters** are lower camelCase. Exception for `RZEngine` and `RZApplication` classes.
 
 	int someVariableA, someVariableB;
 
@@ -64,20 +63,19 @@ Naming conventions in C++ & GLSL
     uint32_t getWidth() const { return m_Width; }
     uint32_t getHeight() const { return m_Height; }
 
-**Static and Virtual Functions** are Pascal camelCase
+**Static and Virtual Functions** are Pascalcase.
 
     static Texture* Create2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode);
 
+**Any function starting with `OnSomeFunction` is PascalCase**
 
 **No hungarian notations** with 2 exceptions.
-
     - All private and protected member variables have the `m_` prefix. That applies to classes and structs.
     - All global variables have the `g_` prefix.
     - All static variables have the `s_` prefix.
     - All constant variables have the `k_` prefix.
 
     In GLSL there are more exceptions:
-
     - All uniforms (buffers, textures, images, push constants) and storage buffers have the `u_` prefix.
     - All input globals the `in_` prefix.
     - All output globals the `out_` prefix.
@@ -110,9 +108,9 @@ Naming conventions for files and directories
 
 **Filenames and directories should be PascalCase**. The extensions of the files are lowercase.
 
-All Razix Related files should start with Razix*FIleName*
+All Razix Related files should start with *FIleName*. Only custom types use Razix prefix for file names ex. `RazixSingleton` etc.
 
-    src/Razix/Core/RazixSingleton.h
+    src/Razix/Core/Singleton.h
 
 
 C++ rules

@@ -1,5 +1,5 @@
 #include "rzxpch.h"
-#include "VFS.h"
+#include "VirtualFileSystem.h"
 
 #include "Razix/Core/Log.h"
 #include "Razix/Core/SplashScreen.h"
@@ -8,7 +8,7 @@
 
 namespace Razix
 {
-    void VFS::StartUp()
+    void RZVirtualFileSystem::StartUp()
     {
         RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
         Razix::SplashScreen::Get().SetLogString("Starting VFS...");
@@ -16,28 +16,28 @@ namespace Razix
         // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class
     }
 
-    void VFS::ShutDown()
+    void RZVirtualFileSystem::ShutDown()
     {
 		RAZIX_CORE_ERROR("Shutting Down Virtual File System");
     }
 
-    void VFS::Mount(const std::string& virtualPath, const std::string& physicalPath)
+    void RZVirtualFileSystem::mount(const std::string& virtualPath, const std::string& physicalPath)
     {
         m_MountPoints[virtualPath].push_back(physicalPath);
     }
 
-    void VFS::UnMount(const std::string& path)
+    void RZVirtualFileSystem::unMount(const std::string& path)
     {
         m_MountPoints[path].clear();
     }
 
-    bool VFS::ResolvePhysicalPath(const std::string& virtualPath, std::string& outPhysicalPath, bool folder /*= false*/)
+    bool RZVirtualFileSystem::resolvePhysicalPath(const std::string& virtualPath, std::string& outPhysicalPath, bool folder /*= false*/)
     {
         // Check if it's the absolute path, if not resolve the virtual path
         if (!(virtualPath[0] == '/' && virtualPath[1] == '/'))
         {
             outPhysicalPath = virtualPath;
-            return folder ? FileSystem::FolderExists(virtualPath) : FileSystem::FileExists(virtualPath);
+            return folder ? RZFileSystem::FolderExists(virtualPath) : RZFileSystem::FileExists(virtualPath);
         }
 
         // Break the path by '/' and get the list of directories of the path to search
@@ -49,7 +49,7 @@ namespace Razix
         if (m_MountPoints.find(virtualDir) == m_MountPoints.end() || m_MountPoints[virtualDir].empty())
         {
             outPhysicalPath = virtualPath;
-            return folder ? FileSystem::FolderExists(virtualPath) : FileSystem::FileExists(virtualPath);
+            return folder ? RZFileSystem::FolderExists(virtualPath) : RZFileSystem::FileExists(virtualPath);
         }
 
         // Find the new path from the mount points using the virtual directories
@@ -57,7 +57,7 @@ namespace Razix
         for (const std::string& physicalPath : m_MountPoints[virtualDir])
         {
             const std::string newPath = physicalPath + remainder;
-            if (folder ? FileSystem::FolderExists(newPath) : FileSystem::FileExists(newPath))
+            if (folder ? RZFileSystem::FolderExists(newPath) : RZFileSystem::FileExists(newPath))
             {
                 outPhysicalPath = newPath;
                 return true;
@@ -66,7 +66,7 @@ namespace Razix
         return false;
     }
 
-    bool VFS::AbsolutePathToVFS(const std::string& absolutePath, std::string& outVirtualPath, bool folder /*= false*/)
+    bool RZVirtualFileSystem::absolutePathToVFS(const std::string& absolutePath, std::string& outVirtualPath, bool folder /*= false*/)
     {
         // Find the corresponding virtual path from the mount points using the complete file path
         for (auto const& [key, val] : m_MountPoints)
@@ -87,32 +87,32 @@ namespace Razix
         return false;
     }
 
-    uint8_t* VFS::ReadFile(const std::string& path)
+    uint8_t* RZVirtualFileSystem::readFile(const std::string& path)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
-        return ResolvePhysicalPath(path, physicalPath) ? FileSystem::ReadFile(physicalPath) : nullptr;
+        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::ReadFile(physicalPath) : nullptr;
     }
 
-    std::string VFS::ReadTextFile(const std::string& path)
+    std::string RZVirtualFileSystem::readTextFile(const std::string& path)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
-        return ResolvePhysicalPath(path, physicalPath) ? FileSystem::ReadTextFile(physicalPath) : nullptr;
+        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::ReadTextFile(physicalPath) : nullptr;
     }
 
-    bool VFS::WriteFile(const std::string& path, uint8_t* buffer)
+    bool RZVirtualFileSystem::writeFile(const std::string& path, uint8_t* buffer)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
-        return ResolvePhysicalPath(path, physicalPath) ? FileSystem::WriteFile(physicalPath, buffer) : false;
+        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteFile(physicalPath, buffer) : false;
     }
 
-    bool VFS::WriteTextFile(const std::string& path, const std::string& text)
+    bool RZVirtualFileSystem::writeTextFile(const std::string& path, const std::string& text)
     {
 		// RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
 		std::string physicalPath;
-        return ResolvePhysicalPath(path, physicalPath) ? FileSystem::WriteTextFile(physicalPath, text) : false;
+        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteTextFile(physicalPath, text) : false;
     }
 
 }
