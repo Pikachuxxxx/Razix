@@ -9,7 +9,7 @@
 namespace Razix
 {
 
-	uint8_t* Utilities::LoadImage(const std::string& filePath, uint32_t* width, uint32_t* height, uint32_t* bpp)
+	uint8_t* Utilities::LoadImageData(const std::string& filePath, uint32_t* width, uint32_t* height, uint32_t* bpp)
 	{
 		std::string physicalPath;
 		if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))

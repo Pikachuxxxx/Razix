@@ -23,7 +23,7 @@ namespace Razix
         /**
          * The Graphics Context that manages the context of the underlying graphics API
          */
-        class RAZIX_API GraphicsContext
+        class RAZIX_API RZGraphicsContext
         {
         public:
             static void Create(const WindowProperties& properties, RZWindow* window);
@@ -35,7 +35,7 @@ namespace Razix
             virtual void SwapBuffers() = 0;
             virtual void ClearWithColor(float r, float g, float b) = 0;
 
-            static GraphicsContext* GetContext();
+            static RZGraphicsContext* GetContext();
 
             static RenderAPI GetRenderAPI() { return s_RenderAPI; }
             static void SetRenderAPI(RenderAPI api) { s_RenderAPI = api; }
@@ -43,7 +43,7 @@ namespace Razix
 
         protected:
             /* Pointer to the underlying graphics APi implementation */
-            static GraphicsContext* s_Context;
+            static RZGraphicsContext* s_Context;
             /* The render API selected to render the application */
             static RenderAPI s_RenderAPI;
         };

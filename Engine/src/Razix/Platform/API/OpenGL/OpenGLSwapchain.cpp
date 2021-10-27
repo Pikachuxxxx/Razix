@@ -18,11 +18,11 @@ namespace Razix {
 
         }
 
-        Texture* OpenGLSwapchain::GetCurrentImage() {
+        RZTexture* OpenGLSwapchain::GetCurrentImage() {
             return nullptr;
         }
 
-        Texture* OpenGLSwapchain::GetImage(uint32_t index) {
+        RZTexture* OpenGLSwapchain::GetImage(uint32_t index) {
             return nullptr;
         }
 
@@ -34,7 +34,7 @@ namespace Razix {
             return 0;
         }
 
-        CommandBuffer* OpenGLSwapchain::GetCurrentCommandBuffer() {
+        RZCommandBuffer* OpenGLSwapchain::GetCurrentCommandBuffer() {
             return nullptr;
         }
 

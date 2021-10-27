@@ -12,7 +12,7 @@
 namespace Razix {
     namespace Graphics {
 
-        class DX11Context : public GraphicsContext
+        class DX11Context : public RZGraphicsContext
         {
         public:
             DX11Context(RZWindow* windowHandle);

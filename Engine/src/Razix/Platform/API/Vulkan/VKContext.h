@@ -16,7 +16,7 @@ struct GLFWwindow;
 namespace Razix {
     namespace Graphics {
 
-        class VKContext : public GraphicsContext
+        class VKContext : public RZGraphicsContext
         {
         public:
             VKContext(RZWindow* windowHandle);
