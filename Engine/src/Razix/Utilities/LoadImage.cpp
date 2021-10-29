@@ -20,8 +20,7 @@ namespace Razix
 	
 		pixels = stbi_load(physicalPath.c_str(), &texWidth, &texHeight, &texChannels, 0);
 
-		// FIXME: Fix the assert system
-		//RAZIX_ASSERT((pixels != nullptr), "Could not load image '{0}'!", physicalPath);
+		RAZIX_CORE_ASSERT((pixels != nullptr), "Could not load image from : {0}", physicalPath);
 
 		// TODO: support different texChannels
 
@@ -29,6 +28,8 @@ namespace Razix
 			*width = texWidth;
 		if (height)
 			*height = texHeight;
+		if (bpp)
+			*bpp = texChannels;
 
 		const int32_t size = texWidth * texHeight * texChannels;
 		uint8_t* result = new uint8_t[size];

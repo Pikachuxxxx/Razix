@@ -26,6 +26,18 @@
 
 // Graphics/API
 #include "Razix/Graphics/API/GraphicsContext.h"
+#include "Razix/Graphics/API/Swapchain.h"
+#include "Razix/Graphics/API/Texture.h"
+
+// Platform
+#include "Razix/Platform/API/DirectX11/DX11Context.h"
+#include "Razix/Platform/API/DirectX11/DX11Swapchain.h"
+#include "Razix/Platform/API/DirectX11/DX11Texture.h"
+
+#include "Razix/Platform/API/OpenGL/OpenGLContext.h"
+#include "Razix/Platform/API/OpenGL/OpenGLSwapchain.h"
+#include "Razix/Platform/API/OpenGL/OpenGLTexture.h"
+#include "Razix/Platform/API/OpenGL/OpenGLUtilities.h"
 
 // Utilities
 #include "Razix/Utilities/CommandLineParser.h"
