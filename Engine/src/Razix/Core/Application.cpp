@@ -14,6 +14,8 @@
 
 #include "Razix/Graphics/API/GraphicsContext.h"
 
+#include "Razix/Graphics/API/Texture.h"
+
 #include <glad/glad.h>
 
 namespace Razix
@@ -70,7 +72,7 @@ namespace Razix
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        //Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
 
 
@@ -201,6 +203,13 @@ namespace Razix
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
 
             glViewport(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
+
+            //! Testing Texture loading REMOVE THIS!!!
+            Graphics::RZTexture::Filtering filtering;
+            filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
+            filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
+
+            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAtachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering); 
         }
     }
 

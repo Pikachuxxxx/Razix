@@ -11,12 +11,12 @@
 
 namespace Razix {
     namespace Graphics {
-        namespace Utilities::OpenGL {
+        namespace OpenGLUtilities {
 
             /* Check the OpenGL functions for any errors and reports them */
-#define GLCall(x)   ::Razix::Graphics::Utilities::OpenGL::GLClearError();\
+#define GLCall(x)   ::Razix::Graphics::OpenGLUtilities::GLClearError();\
                         (x);\
-                        RAZIX_CORE_ASSERT(::Razix::Graphics::Utilities::OpenGL::GLLogCall(#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
+                        RAZIX_CORE_ASSERT(::Razix::Graphics::OpenGLUtilities::GLLogCall(#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
 
             /* Checks for any OpenGL errors */
             static void GLClearError()
