@@ -7,7 +7,7 @@ class Sandbox : public Razix::RZApplication
 public:
     Sandbox() : RZApplication("/Sandbox/","Sandbox")
     {
-       
+
     }
 
     ~Sandbox() {

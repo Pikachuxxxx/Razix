@@ -26,7 +26,7 @@ namespace Razix {
 
         RZTexture::Format RZTexture::bitsToTextureFormat(uint32_t bits)
         {
-            switch (bits) {
+            switch ((bits * 8)) {
                 case 8:
                     return  RZTexture::Format::R8;
                 case 16:
@@ -52,7 +52,7 @@ namespace Razix {
         RZTexture2D* RZTexture2D::Create(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL:  new OpenGLTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
+                case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::VULKAN:
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
@@ -66,7 +66,7 @@ namespace Razix {
         RZTexture2D* RZTexture2D::CreateFromFile(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL:
+                case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLTexture2D(filePath, name, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::VULKAN:
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
