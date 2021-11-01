@@ -164,7 +164,7 @@ namespace Razix {
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0} at location : {1}", name, filePath);
         }
 
-        VKTexture2D::~VKTexture2D()
+        void VKTexture2D::Release()
         {
             if (m_ImageSampler)
                 vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
@@ -252,6 +252,7 @@ namespace Razix {
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
 
             // Delete and clean up any temp stuff
+            stagingBuffer->destroy();
             delete stagingBuffer;
 
             // TODO: Generate mip maps for the Vulkan Texture

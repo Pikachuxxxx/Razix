@@ -211,7 +211,6 @@ namespace Razix {
         }
 
         VKDevice::~VKDevice() {
-
         }
 
         bool VKDevice::init() {
@@ -268,6 +267,9 @@ namespace Razix {
         }
 
         void VKDevice::destroy() {
+            // Destroy the single time Command pool
+            vkDestroyCommandPool(m_Device, m_CommandPool->getVKPool(), nullptr);
+            // Destroy the logical device
             vkDestroyDevice(m_Device, nullptr);
         }
 

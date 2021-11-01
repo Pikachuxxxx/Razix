@@ -16,6 +16,8 @@ namespace Razix {
             void Bind(uint32_t slot) override;
             void Unbind(uint32_t slot) override;
 
+            void Release() override {}
+
             void* GetHandle() const override { return (void*)(size_t)m_Handle; }
             void SetData(const void* pixels) override;
 
@@ -25,7 +27,6 @@ namespace Razix {
         private:
             uint32_t load(void* data);
         };
-
     }
 }
 #endif
