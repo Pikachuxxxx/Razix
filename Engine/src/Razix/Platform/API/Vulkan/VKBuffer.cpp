@@ -18,7 +18,7 @@ namespace Razix {
         VKBuffer::VKBuffer()
             : m_UsageFlags(VK_BUFFER_USAGE_TRANSFER_SRC_BIT), m_Size(0) { }
 
-        VKBuffer::~VKBuffer()
+        void VKBuffer::destroy()
         {
             if (m_Buffer) {
                 vkDestroyBuffer(VKDevice::Get().getDevice(), m_Buffer, nullptr);
@@ -72,9 +72,6 @@ namespace Razix {
             VK_CHECK_RESULT(vkCreateBuffer(VKDevice::Get().getDevice(), &bufferInfo, nullptr, &m_Buffer));
 
             // Get the memory requirements and allocate actual memory for the buffer and Bind it!
-            VK_CHECK_RESULT(vkCreateBuffer(VKDevice::Get().getDevice(), &bufferInfo, nullptr, &m_Buffer));
-
-            // Get the memory requirements
             VkMemoryRequirements memRequirements;
             vkGetBufferMemoryRequirements(VKDevice::Get().getDevice(), m_Buffer, &memRequirements);
 

@@ -56,8 +56,8 @@ namespace Razix {
 
             // Configure the viewport
             D3D11_VIEWPORT viewport = {};
-            viewport.Width = (FLOAT) m_Window->GetWidth();
-            viewport.Height = (FLOAT) m_Window->GetHeight();
+            viewport.Width = (FLOAT) m_Window->getWidth();
+            viewport.Height = (FLOAT) m_Window->getHeight();
             viewport.MaxDepth = 1;
             viewport.MinDepth = 0;
             viewport.TopLeftX = 0;

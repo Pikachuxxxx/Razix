@@ -69,10 +69,10 @@ namespace Razix
 		virtual void ProcessInput() {};
 
         /* Gets the Width of the window */
-        virtual unsigned int GetWidth() const = 0;
+        virtual unsigned int getWidth() const = 0;
         
 		/* Gets the Height of the window */
-		virtual unsigned int GetHeight() const = 0;
+		virtual unsigned int getHeight() const = 0;
 
         // Window Attributes
 		
