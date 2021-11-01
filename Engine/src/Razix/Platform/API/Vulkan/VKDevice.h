@@ -3,6 +3,7 @@
 #ifdef RAZIX_RENDER_API_VULKAN 
 
 #include "Razix/Core/SmartPointers.h"
+#include "Razix/Platform/API/Vulkan/VKCommandPool.h"
 #include "Razix/Utilities/TRazixSingleton.h"
 
 #include <vulkan/vulkan.h>
@@ -35,9 +36,9 @@ namespace Razix {
             uint32_t getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const;
             std::string getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
 
-            inline VkPhysicalDevice GetVulkanPhysicalDevice() const { return m_PhysicalDevice; }
-            inline int32_t GetGraphicsQueueFamilyIndex() const { return m_QueueFamilyIndices.Graphics; }
-            inline VkPhysicalDeviceProperties GetProperties() const { return m_PhysicalDeviceProperties; };
+            inline VkPhysicalDevice getVulkanPhysicalDevice() const { return m_PhysicalDevice; }
+            inline int32_t getGraphicsQueueFamilyIndex() const { return m_QueueFamilyIndices.Graphics; }
+            inline VkPhysicalDeviceProperties getProperties() const { return m_PhysicalDeviceProperties; };
 
         private:
             QueueFamilyIndices                      m_QueueFamilyIndices;
@@ -56,20 +57,22 @@ namespace Razix {
         };
 
         /* The logical device handle */
+        //TODO: Add all get sets methods of physical GPU to VKDevice to reduce coupling and call routing/code complexity, this purely done to improve readability
         class VKDevice : public RZSingleton<VKDevice>
         {
         public:
             VKDevice();
             ~VKDevice();
 
-            bool Init();
-            void Destroy();
+            bool init();
+            void destroy();
 
-            VkDevice GetDevice() const { return m_Device; };
-            VkPhysicalDevice GetGPU() const { return m_PhysicalDevice->GetVulkanPhysicalDevice(); };
-            //const UniqueRef<VKPhysicalDevice>& GetPhysicalDevice() const { return m_PhysicalDevice; }
-            VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; };
-            VkQueue GetPresentQueue() const { return m_PresentQueue; };
+            VkDevice getDevice() const { return m_Device; };
+            VkPhysicalDevice getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
+            const Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
+            VkQueue getGraphicsQueue() const { return m_GraphicsQueue; };
+            VkQueue getPresentQueue() const { return m_PresentQueue; };
+            const Ref<VKCommandPool>& getCommandPool() const { return m_CommandPool; }
 
         private:
             VkDevice                    m_Device;
@@ -79,6 +82,7 @@ namespace Razix {
             VkDescriptorPool            m_DescriptorPool;
             VkPhysicalDeviceFeatures    m_EnabledFeatures;
             Ref<VKPhysicalDevice>       m_PhysicalDevice;
+            Ref<VKCommandPool>          m_CommandPool;
 
         };
     }
