@@ -214,7 +214,7 @@ namespace Razix {
 
         }
 
-        bool VKDevice::Init() {
+        bool VKDevice::init() {
     
             // Create the Physical device 
             m_PhysicalDevice = CreateRef<VKPhysicalDevice>();
@@ -222,7 +222,7 @@ namespace Razix {
             // Create the Logical device
             // Get the device features of the selected GPU and Enable whatever features we need
             VkPhysicalDeviceFeatures physicalDeviceFeatures;
-            vkGetPhysicalDeviceFeatures(m_PhysicalDevice->GetVulkanPhysicalDevice(), &physicalDeviceFeatures);
+            vkGetPhysicalDeviceFeatures(m_PhysicalDevice->getVulkanPhysicalDevice(), &physicalDeviceFeatures);
 
             // Enable any device specific extensions
             // Ex. VK_KHR_RAY_TRACING etc.
@@ -251,7 +251,7 @@ namespace Razix {
             deviceCI.pEnabledFeatures           = &physicalDeviceFeatures;
             deviceCI.enabledLayerCount          = 0;
 
-            if (vkCreateDevice(m_PhysicalDevice->GetVulkanPhysicalDevice(), &deviceCI, nullptr, &m_Device) != VK_SUCCESS) {
+            if (vkCreateDevice(m_PhysicalDevice->getVulkanPhysicalDevice(), &deviceCI, nullptr, &m_Device) != VK_SUCCESS) {
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create logical device!");
                 return false;
             }
@@ -261,10 +261,13 @@ namespace Razix {
             vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
             vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_PresentQueue);
 
+            // Create a command pool for single time command buffers
+            m_CommandPool = CreateRef<VKCommandPool>(m_PhysicalDevice->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
             return true;
         }
 
-        void VKDevice::Destroy() {
+        void VKDevice::destroy() {
             vkDestroyDevice(m_Device, nullptr);
         }
 

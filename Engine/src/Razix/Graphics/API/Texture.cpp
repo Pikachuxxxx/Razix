@@ -7,6 +7,10 @@
 #include "Razix/Platform/API/OpenGL/OpenGLTexture.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_VULKAN
+#include "Razix/Platform/API/Vulkan/VKTexture.h"
+#endif
+
 namespace Razix {
     namespace Graphics {
 
@@ -67,7 +71,7 @@ namespace Razix {
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLTexture2D(filePath, name, wrapMode, filterMode); break;
-                case Razix::Graphics::RenderAPI::VULKAN:
+                case Razix::Graphics::RenderAPI::VULKAN:    return new VKTexture2D(filePath, name, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
