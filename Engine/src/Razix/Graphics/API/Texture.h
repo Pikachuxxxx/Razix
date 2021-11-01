@@ -10,6 +10,8 @@ namespace Razix {
          * @brief It manages creation and conversion of Image resources, also stores in a custom Engine Format depending on how it's being used
          */
         // TODO: Derive Texture from a RazixResource/Asset class this way it gets a resource/asset UUID + serialization by default
+        // TODO: Calculate size properly for manually set texture data
+        // TODO: Add support and Utility functions for sRGB textures
         class RAZIX_API RZTexture
         {
             // Texture internal Types
@@ -23,21 +25,23 @@ namespace Razix {
             /* The format of the Texture resource */
             enum class Format
             {
-                R8, R16, R32, RG8, RG16, RG32, RGB8, RGB16, RGB32, RGBA8, RGBA16, RGBA32,
-                R8F, R16F, R32F, RG8F, RG16F, RG32F, RGB8F, RGB16F, RGB32F, RGBA8F, RGBA16F, RGBA32F
+                R8, RG8, RGB8, RGBA8,
+                RGB16, RGBA16,
+                RGB32, RGBA32, RGBA32F,
+                RGB, RGBA
             };
 
             /* Wrap mode for the texture texels */
             enum class Wrapping
             {
-                NONE, REPEAT, CLAMP, MIRRORED_REPEAT,
+                REPEAT, MIRRORED_REPEAT,
                 CLAMP_TO_EDGE, CLAMP_TO_BORDER
             };
 
             /* Filtering for the Texture */
             struct Filtering
             {
-                enum class FilterMode{NONE, LINEAR, NEAREST};
+                enum class FilterMode{LINEAR, NEAREST};
                 FilterMode minFilter;
                 FilterMode magFilter;
             };
@@ -83,7 +87,7 @@ namespace Razix {
             uint32_t        m_Height;           /* The height of the texture                */
             uint32_t        m_Size;             /* The size of the texture resource         */
             Type            m_TextureType;      /* The type of this texture                 */
-            Format          m_Format;   /* The internal format of the texture data  */
+            Format          m_Format;           /* The internal format of the texture data  */
             Wrapping        m_WrapMode;         /* Wrap mode of the texture                 */
             Filtering       m_FilterMode;       /* Filtering mode of the texture data       */
             bool            m_FlipX;            /* Flip the texture on X-axis during load   */
@@ -123,6 +127,11 @@ namespace Razix {
              */
             static RZTexture2D* CreateFromFile(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
 
+            /**
+             * Sets the pixel data for the 2D Texture 
+             * 
+             * @param pixels The pixel data to set
+             */
             virtual void SetData(const void* pixels) = 0;
         };
         
