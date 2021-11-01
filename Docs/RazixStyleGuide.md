@@ -8,6 +8,7 @@ Table of contents
 * [Naming conventions in C++ & GLSL](#naming-conventions-in-c--glsl)
 * [Naming conventions for files and directories](#naming-conventions-for-files-and-directories)
 * [C++ rules](#c-rules)
+* [Special Cases](#special-cases)
 
 Comments in C++ & GLSL
 ======================
@@ -214,3 +215,14 @@ Always try to **comment parts of the source code in header with Doxygen style an
 **Empty functions have braces on same line with a single space**
 
     MyClass::SomeFunction() {}
+
+Special Cases
+======================
+
+1. **The style guide rules for Methods are waved off for RZApplication and RZEngine class**
+
+2. **Release and Destroy Naming convention**
+    - Engine Resources will have `virtual Release()`
+    - Engine Graphics API will have `virtual Destroy()`
+    - Vulkan and other platform graphic APIs will have `destroy()` which will be called in the `virtual Destroy()`
+    - So Engine wide `Release` for resources and `Destroy` will be Pascalcase, while platform will use `destroy()` aka camelcase convention
