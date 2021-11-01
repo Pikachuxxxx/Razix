@@ -20,14 +20,14 @@ namespace Razix {
             VK_CHECK_RESULT(vkCreateCommandPool(VKDevice::Get().getDevice(), &cmdPoolCI, nullptr, &m_Handle));
         }
 
-        VKCommandPool::~VKCommandPool()
-        {
-            vkDestroyCommandPool(VKDevice::Get().getDevice(), m_Handle, nullptr);
-        }
-
         void VKCommandPool::reset()
         {
             VK_CHECK_RESULT(vkResetCommandPool(VKDevice::Get().getDevice(), m_Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+        }
+
+        void VKCommandPool::destroy()
+        {
+            vkDestroyCommandPool(VKDevice::Get().getDevice(), m_Handle, nullptr);
         }
 
     }

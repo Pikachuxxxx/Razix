@@ -16,8 +16,8 @@ namespace Razix
 		void OnWindowUpdate() override;
 		void ProcessInput() override;
 
-		inline unsigned int GetWidth() const override { return m_Data.Width; }
-		inline unsigned int GetHeight() const override { return m_Data.Height; }
+		inline unsigned int getWidth() const override { return m_Data.Width; }
+		inline unsigned int getHeight() const override { return m_Data.Height; }
 
 		// Window Attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
