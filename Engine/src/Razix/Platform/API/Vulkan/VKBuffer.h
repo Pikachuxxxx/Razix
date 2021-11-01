@@ -21,7 +21,10 @@ namespace Razix {
             VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data);
             /* Creates an empty buffer to be mapped with data later */
             VKBuffer();
-            virtual ~VKBuffer();
+            ~VKBuffer() {}
+
+            /* Destroy the buffer and it's memory */
+            void destroy();
             
             /* Maps the buffer to an external location on the HOST to copy data to it */
             void map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);

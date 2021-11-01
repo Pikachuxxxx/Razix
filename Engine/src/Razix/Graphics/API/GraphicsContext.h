@@ -30,6 +30,7 @@ namespace Razix
             static void Release();
 
             virtual void Init() = 0;
+            //! Only here the Destroy method is in PascalCase rest of the API must maintain a camelCase destroy
             virtual void Destroy() = 0;
             // TODO: Remove this!
             virtual void SwapBuffers() = 0;

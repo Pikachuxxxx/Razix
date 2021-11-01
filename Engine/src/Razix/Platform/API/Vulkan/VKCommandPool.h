@@ -7,18 +7,29 @@
 namespace Razix {
     namespace Graphics {
         
+        /* Creates a Vulkan command buffer */
         class VKCommandPool
         {
         public:
+            /**
+             * Constructor for vulkan command buffer
+             * 
+             * @param queueIndex The Queue family index for which the pool will generate buffers for
+             * @param flags Configure the pool
+             */
             VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags);
-            ~VKCommandPool();
+            ~VKCommandPool() {}
 
+            /* Resets the pool and the buffers it allocated */
             void reset();
+            /* Destroys the command pool */
+            void destroy();
 
+            /* Returns the undelying Vulkan command pool handle */
             const VkCommandPool& getVKPool() const { return m_Handle; }
 
         private:
-            VkCommandPool m_Handle;
+            VkCommandPool m_Handle; /* Handle to vulkan command pool */
         };
     }
 }

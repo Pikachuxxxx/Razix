@@ -130,8 +130,8 @@ namespace Razix
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
             archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", (uint32_t)Graphics::RZGraphicsContext::GetRenderAPI()));
-            archive(cereal::make_nvp("Width", m_Window->GetWidth()));
-            archive(cereal::make_nvp("Height", m_Window->GetHeight()));
+            archive(cereal::make_nvp("Width", m_Window->getWidth()));
+            archive(cereal::make_nvp("Height", m_Window->getHeight()));
             archive(cereal::make_nvp("Project Path", m_AppFilePath)); // Why am I even serializing this?
         }
 

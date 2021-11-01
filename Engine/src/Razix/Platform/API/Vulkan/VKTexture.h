@@ -38,13 +38,15 @@ namespace Razix {
              * @param filterMode The filtering to use for the texture
              */
             VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
-            ~VKTexture2D();
-
+            ~VKTexture2D() {}
 
             /* Binds the texture object to the given slot */
             void Bind(uint32_t slot) override {}
             /* Unbinds the texture object to the given slot */
             void Unbind(uint32_t slot) override {}
+
+            /* Releases the vulkan texture resources */
+            void Release() override;
 
             /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
             void* GetHandle() const override { return (void*) &m_Descriptor; }

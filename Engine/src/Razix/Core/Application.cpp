@@ -208,12 +208,13 @@ namespace Razix
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
 
-            glViewport(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
+            glViewport(0, 0, m_Window->getWidth(), m_Window->getHeight());
 
             Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAtachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering); 
         }
         else if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
             Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAtachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
+            logoTexture->Release();
         }
     }
 
@@ -231,8 +232,7 @@ namespace Razix
 
     void RZApplication::Quit()
     {
-
-        // TODO: Release the Graphics context
+        // TODO: Release the Graphics context at the right place
         Graphics::RZGraphicsContext::Release();
 
         // Save the app data before closing

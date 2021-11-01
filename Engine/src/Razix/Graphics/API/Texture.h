@@ -19,7 +19,7 @@ namespace Razix {
             /* The type of the texture */
             enum class Type
             {
-                COLOR, DEPTH, CUBE
+                COLOR = 0, DEPTH, CUBE
             };
 
             /* The format of the Texture resource */
@@ -60,6 +60,10 @@ namespace Razix {
              */
             static uint32_t calculateMipMapCount(uint32_t width, uint32_t height);
             static Format bitsToTextureFormat(uint32_t bits);
+
+            // TODO: Move this to the RXBaseAsset class in later designs
+            /* Releases the texture data and it's underlying resources */
+            virtual void Release() = 0;
 
             /* Returns the name of the texture resource */
             std::string getName() const { return m_Name; }
