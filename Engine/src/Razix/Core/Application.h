@@ -136,6 +136,7 @@ namespace Razix
         }
 
     private:
+        //! Remove this shit! OpenGL testing code
         unsigned int m_VAO = 0, m_VBO, m_IBO;
 
         static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */

@@ -9,6 +9,7 @@
 #include "Razix/Core/Application.h"
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 #define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
@@ -42,23 +43,18 @@ namespace Razix {
             CreateInstance();
 
             // Create the Logical Device
-            VKDevice::Get().Init();
-
+            VKDevice::Get().init();
         }
 
         void VKContext::Destroy() {
             // Destroy the logical device
-            VKDevice::Get().Destroy();
+            VKDevice::Get().destroy();
             // Destroy the surface
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
             // Destroy the debug manager
             DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugCallbackHandle, nullptr);
             // Destroy the instance at last
             vkDestroyInstance(m_Instance, nullptr);
-        }
-
-        void VKContext::ClearWithColor(float r, float g, float b) {
-            
         }
 
         void VKContext::CreateInstance() {
@@ -97,7 +93,7 @@ namespace Razix {
             instanceCI.enabledExtensionCount    = static_cast<uint32_t>(m_RequiredInstanceExtensionNames.size());
             instanceCI.ppEnabledExtensionNames  = m_RequiredInstanceExtensionNames.data();
 
-            if (vkCreateInstance(&instanceCI, nullptr, &m_Instance) != VK_SUCCESS)
+            if(VK_CHECK_RESULT(vkCreateInstance(&instanceCI, nullptr, &m_Instance)))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create Instance!");
             else RAZIX_CORE_TRACE("[Vulkan] Succesfully created Instance!");
 
@@ -208,7 +204,6 @@ namespace Razix {
 
             return VK_FALSE;
         }
-
     }
 }
 #endif

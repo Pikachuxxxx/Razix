@@ -24,7 +24,7 @@ namespace Razix {
             virtual void Init() override;
             virtual void Destroy() override;
             virtual void SwapBuffers() override {}
-            void ClearWithColor(float r, float g, float b) override;
+            void ClearWithColor(float r, float g, float b) override {}
 
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }
             VkInstance GetInstance() { return m_Instance; }

@@ -30,12 +30,14 @@ namespace Razix
         // Set the Application root path and Load the project settings
         const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
-        // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored
+        // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored to use the installed Engine as Root directory
         m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
 
-        // Mount the VFS paths
-        // TODO: Move this to the sandbox later or mount all/new paths dynamically from the project root path for the asset browser 
+        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be ttroubled by all this labout workk)
+        // Project root directory
+        RZVirtualFileSystem::Get().mount("Project", razixRoot + projectRoot);
+        
         RZVirtualFileSystem::Get().mount("Assets", razixRoot + projectRoot + std::string("Assets"));
         RZVirtualFileSystem::Get().mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
         RZVirtualFileSystem::Get().mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
@@ -69,12 +71,10 @@ namespace Razix
         }
 
 
-
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        //Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
-
 
 
         // The Razix Application Signature Name is generated here and passed to the window
@@ -187,6 +187,12 @@ namespace Razix
     }
 
     void RZApplication::OnStart() {
+
+        //! Testing Texture loading and other demo stuff REMOVE THIS!!!
+        Graphics::RZTexture::Filtering filtering;
+        filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
+        filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
+
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             glGenVertexArrays(1, &m_VAO);
             glBindVertexArray(m_VAO);
@@ -204,12 +210,10 @@ namespace Razix
 
             glViewport(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
 
-            //! Testing Texture loading REMOVE THIS!!!
-            Graphics::RZTexture::Filtering filtering;
-            filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
-            filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
-
             Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAtachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering); 
+        }
+        else if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
+            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAtachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
         }
     }
 

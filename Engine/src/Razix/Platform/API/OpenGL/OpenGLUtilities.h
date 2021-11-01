@@ -11,12 +11,13 @@
 
 namespace Razix {
     namespace Graphics {
+        // TODO: Move implementation to .cpp file
         namespace OpenGLUtilities {
 
             /* Check the OpenGL functions for any errors and reports them */
-#define GLCall(x)   ::Razix::Graphics::OpenGLUtilities::GLClearError();\
-                        (x);\
-                        RAZIX_CORE_ASSERT(::Razix::Graphics::OpenGLUtilities::GLLogCall(#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
+            #define GLCall(x)   ::Razix::Graphics::OpenGLUtilities::GLClearError();\
+                                (x);\
+                                RAZIX_CORE_ASSERT(::Razix::Graphics::OpenGLUtilities::GLLogCall(#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
 
             /* Checks for any OpenGL errors */
             static void GLClearError()
@@ -46,23 +47,11 @@ namespace Razix {
                     case RZTexture::Format::R8:
                         return GL_R8;
                         break;
-                    case RZTexture::Format::R16:
-                        return GL_R16;
-                        break;
-                    case RZTexture::Format::R32:
-                        return GL_R32I;
-                        break;
                     case RZTexture::Format::RG8:
                         return GL_RG8;
                         break;
-                    case RZTexture::Format::RG16:
-                        return GL_RG16;
-                        break;
-                    case RZTexture::Format::RG32:
-                        return GL_RG32I;
-                        break;
                     case RZTexture::Format::RGB8:
-                        return GL_RGB8;
+                        return  srgb ? GL_SRGB8 : GL_RGB8;
                         break;
                     case RZTexture::Format::RGB16:
                         return GL_RGB16;
@@ -71,39 +60,23 @@ namespace Razix {
                         return GL_RGB;
                         break;
                     case RZTexture::Format::RGBA8:
-                        return GL_RGBA8;
+                        return srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
                         break;
                     case RZTexture::Format::RGBA16:
                         return GL_RGBA16;
                         break;
                     case RZTexture::Format::RGBA32:
                         return GL_RGBA;
-                        break;
-                    case RZTexture::Format::R16F:
-                        return GL_R16F;
-                        break;
-                    case RZTexture::Format::R32F:
-                        return GL_R32F;
-                        break;
-                    case RZTexture::Format::RG16F:
-                        return GL_RG16F;
-                        break;
-                    case RZTexture::Format::RG32F:
-                        return GL_RG32F;
-                        break;
-                    case RZTexture::Format::RGB16F:
-                        return GL_RGB16F;
-                        break;
-                    case RZTexture::Format::RGB32F:
-                        return GL_RGB32F;
-                        break;
-                    case RZTexture::Format::RGBA16F:
-                        return GL_RGBA16F;
-                        break;
+                        break;                 
                     case RZTexture::Format::RGBA32F:
                         return GL_RGBA32F;
                         break;
-
+                    case RZTexture::Format::RGB:
+                        return srgb ? GL_SRGB : GL_RGB;
+                        break;
+                    case RZTexture::Format::RGBA:
+                        return srgb ? GL_SRGB_ALPHA : GL_RGBA;
+                        break;
                     default:
                         RAZIX_CORE_WARN("Unsupported Texture format");
                         return 0;
@@ -114,8 +87,6 @@ namespace Razix {
             uint32_t TextureWrapToGL(const RZTexture::Wrapping wrap)
             {
                 switch (wrap) {
-                    case RZTexture::Wrapping::NONE:
-                        RAZIX_CORE_WARN("Unsupported Texture Wrappign mode");
                     case RZTexture::Wrapping::REPEAT:
                         return GL_REPEAT;
                         break;
@@ -157,10 +128,6 @@ namespace Razix {
                         return GL_RGBA;
                     case GL_RGB16:
                         return GL_RGB;
-                    case GL_RGBA16:
-                        return GL_RGBA;
-                    case GL_RGBA16F:
-                        return GL_RGBA;
                     case GL_RGB32F:
                         return GL_RGB;
                     case GL_RGBA32F:
