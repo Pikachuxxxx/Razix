@@ -4,6 +4,7 @@
 #include "Razix/Utilities/CommandLineParser.h"
 #include "Razix/Utilities/TRazixSingleton.h"
 
+//! The style guide rules are waved off for RZEngine class
 namespace Razix
 {
 	/// <summary>
