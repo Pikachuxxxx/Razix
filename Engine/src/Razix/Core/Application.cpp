@@ -13,8 +13,8 @@
 #include "Razix/Events/ApplicationEvent.h"
 
 #include "Razix/Graphics/API/GraphicsContext.h"
-
 #include "Razix/Graphics/API/Texture.h"
+#include "Razix/Graphics/API/Swapchain.h"
 
 #include <glad/glad.h>
 
@@ -79,7 +79,7 @@ namespace Razix
 
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
-        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
         m_Timer = CreateUniqueRef<Timer>();
@@ -94,6 +94,7 @@ namespace Razix
         // Creating the Graphics Context
         Graphics::RZGraphicsContext::Create(m_WindowProperties, m_Window.get());
         Graphics::RZGraphicsContext::GetContext()->Init();
+        swapchain = Graphics::RZSwapchain::Create(m_Window->getWidth(), m_Window->getHeight());
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
@@ -233,6 +234,7 @@ namespace Razix
     void RZApplication::Quit()
     {
         // TODO: Release the Graphics context at the right place
+        swapchain->Destroy();
         Graphics::RZGraphicsContext::Release();
 
         // Save the app data before closing

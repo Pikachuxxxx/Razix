@@ -63,7 +63,7 @@ namespace Razix {
 
             // TODO: Move this to the RXBaseAsset class in later designs
             /* Releases the texture data and it's underlying resources */
-            virtual void Release() = 0;
+            virtual void Release(bool deleteImage = true) = 0;
 
             /* Returns the name of the texture resource */
             std::string getName() const { return m_Name; }
