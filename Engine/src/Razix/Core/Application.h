@@ -11,6 +11,8 @@
 #include "Razix/Utilities/Timestep.h"
 #include "Razix/Utilities/Timer.h"
 
+#include "Razix/Graphics/API/Swapchain.h"
+
 // Cereal
 #pragma warning(push, 0)
 #include <cereal/archives/json.hpp>
@@ -127,7 +129,7 @@ namespace Razix
             Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
 
             archive(cereal::make_nvp("Project Name", m_AppName));
-            archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
+            archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
             archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", (uint32_t)Graphics::RZGraphicsContext::GetRenderAPI()));
             archive(cereal::make_nvp("Width", m_Window->getWidth()));
@@ -138,6 +140,7 @@ namespace Razix
     private:
         //! Remove this shit! OpenGL testing code
         unsigned int m_VAO = 0, m_VBO, m_IBO;
+        Graphics::RZSwapchain* swapchain;
 
         static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */

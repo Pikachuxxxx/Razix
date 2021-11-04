@@ -21,17 +21,19 @@ namespace Razix {
         public:
             VKContext(RZWindow* windowHandle);
 
-            virtual void Init() override;
-            virtual void Destroy() override;
-            virtual void SwapBuffers() override {}
+            void Init() override;
+            void Destroy() override;
+            void SwapBuffers() override {}
             void ClearWithColor(float r, float g, float b) override {}
 
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }
-            VkInstance GetInstance() { return m_Instance; }
-            VkSurfaceKHR GetSurface() const { return m_Surface; }
+            
+            inline VkInstance getInstance() const { return m_Instance; }
+            inline VkSurfaceKHR getSurface() const { return m_Surface; }
+            inline RZWindow* getWindow() const { return m_Window; }
 
         private:
-            RZWindow*                             m_Window;                           /* The Window handle                                    */
+            RZWindow*                           m_Window;                           /* The Window handle                                    */
             VkInstance                          m_Instance;                         /* The Vulkan instance handle                           */
             bool                                m_EnabledValidationLayer;           /* Whether or not to enable validation layers on not    */
             std::vector<VkLayerProperties>      m_InstanceLayers;                   /* Collection of list of Instance layers supported      */
@@ -45,13 +47,13 @@ namespace Razix {
 
         private:
             /* Creates a VkInstance to interface with the Vulkan library */
-            void CreateInstance();
-            std::vector<const char*> GetRequiredLayers();
-            std::vector<const char*> GetRequiredExtensions();
-            void SetupDebugMessenger();
-            void CreateSurface(GLFWwindow* window);
+            void createInstance();
+            std::vector<const char*> getRequiredLayers();
+            std::vector<const char*> getRequiredExtensions();
+            void setupDebugMessenger();
+            void createSurface(GLFWwindow* window);
             /* Vulkan debug callback reporting function */
-            static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
+            static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
         };
 
     }

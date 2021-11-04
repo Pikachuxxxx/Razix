@@ -16,7 +16,7 @@ namespace Razix {
             void Bind(uint32_t slot) override;
             void Unbind(uint32_t slot) override;
 
-            void Release() override {}
+            void Release(bool deleteImage) override {}
 
             void* GetHandle() const override { return (void*)(size_t)m_Handle; }
             void SetData(const void* pixels) override;

@@ -26,7 +26,7 @@ namespace Razix
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Logging the Engine Version details
-        RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.GetVersionString(), Razix::RazixVersion.GetReleaseStageString(), Razix::RazixVersion.GetReleaseDateString());
+        RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.getVersionString(), Razix::RazixVersion.getReleaseStageString(), Razix::RazixVersion.getReleaseDateString());
 
         //------------------------------//
         // Igniting all the sub-systems //

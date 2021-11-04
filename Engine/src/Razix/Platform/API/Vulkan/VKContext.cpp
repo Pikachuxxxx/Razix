@@ -40,7 +40,7 @@ namespace Razix {
 
         void VKContext::Init() {
             // Create the Vulkan instance to interface with the Vulkan library
-            CreateInstance();
+            createInstance();
 
             // Create the Logical Device
             VKDevice::Get().init();
@@ -57,7 +57,7 @@ namespace Razix {
             vkDestroyInstance(m_Instance, nullptr);
         }
 
-        void VKContext::CreateInstance() {
+        void VKContext::createInstance() {
 
             // Vulkan Application Info
             VkApplicationInfo appInfo{};
@@ -65,7 +65,7 @@ namespace Razix {
             appInfo.pApplicationName            = RZApplication::Get().GetAppName().c_str();
             appInfo.applicationVersion          = VK_MAKE_VERSION(1, 0, 0); // TODO: Add this feature later! once we add it to the Application class
             appInfo.pEngineName                 = "Razix Engine";
-            appInfo.engineVersion               = VK_MAKE_VERSION(RazixVersion.GetVersionMajor(), RazixVersion.GetVersionMinor(), RazixVersion.GetVersionPatch());
+            appInfo.engineVersion               = VK_MAKE_VERSION(RazixVersion.getVersionMajor(), RazixVersion.getVersionMinor(), RazixVersion.getVersionPatch());
             appInfo.apiVersion                  = VK_API_VERSION_1_1;
 
             // Instance Create Info
@@ -78,14 +78,14 @@ namespace Razix {
             m_DebugCI.sType                     = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
             m_DebugCI.messageSeverity           = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
             m_DebugCI.messageType               = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-            m_DebugCI.pfnUserCallback           = DebugCallback;
+            m_DebugCI.pfnUserCallback           = debugCallback;
 
             instanceCI.pNext                    = (VkDebugUtilsMessengerCreateInfoEXT*) &m_DebugCI;
 
             // Get the Required Instance Layers from the app/engine
-            m_RequiredInstanceLayerNames        = GetRequiredLayers();
+            m_RequiredInstanceLayerNames        = getRequiredLayers();
             // Get the Required Instance aka Global Extension (also applicable for the device and application)
-            m_RequiredInstanceExtensionNames    = GetRequiredExtensions();
+            m_RequiredInstanceExtensionNames    = getRequiredExtensions();
 
             // Get the Instance Layers and Extensions
             instanceCI.enabledLayerCount        = static_cast<uint32_t>(m_RequiredInstanceLayerNames.size());
@@ -98,20 +98,20 @@ namespace Razix {
             else RAZIX_CORE_TRACE("[Vulkan] Succesfully created Instance!");
 
             // Create the debug utils 
-            SetupDebugMessenger();
+            setupDebugMessenger();
 
             // Create the WSI surface
-            CreateSurface((GLFWwindow*)m_Window->GetNativeWindow());
+            createSurface((GLFWwindow*)m_Window->GetNativeWindow());
         }
 
-        std::vector<const char*> VKContext::GetRequiredLayers() {
+        std::vector<const char*> VKContext::getRequiredLayers() {
             std::vector<const char*> layers;
             if (m_EnabledValidationLayer)
                 layers.emplace_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
             return layers;
         }
 
-        std::vector<const char*> VKContext::GetRequiredExtensions() {
+        std::vector<const char*> VKContext::getRequiredExtensions() {
 
             // First we are sending in the list of desired extensions by GLFW to interface with the WPI
             uint32_t glfwExtensionsCount = 0;
@@ -154,19 +154,19 @@ namespace Razix {
             return extensions;
         }
 
-        void VKContext::SetupDebugMessenger() {
+        void VKContext::setupDebugMessenger() {
             if (CreateDebugUtilsMessengerEXT(m_Instance, &m_DebugCI, nullptr, &m_DebugCallbackHandle) != VK_SUCCESS)
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create debug messenger!");
             else RAZIX_CORE_TRACE("[Vulkan] Succesfully created debug messenger!");
         }
 
-        void VKContext::CreateSurface(GLFWwindow* window) {
+        void VKContext::createSurface(GLFWwindow* window) {
             if (glfwCreateWindowSurface(m_Instance, window, nullptr, &m_Surface))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create surface!");
             else RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface!");
         }
 
-        VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data) {
+        VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data) {
             // Select prefix depending on flags passed to the callback
             // Note that multiple flags may be set for a single validation message
             // Error that may result in undefined behavior

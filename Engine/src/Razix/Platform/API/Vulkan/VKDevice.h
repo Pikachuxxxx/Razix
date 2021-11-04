@@ -14,11 +14,16 @@ namespace Razix {
         /* The actual handle to the Physical GPU being used to process the application */
         class VKPhysicalDevice
         {
+        public:
             struct QueueFamilyIndices
             {
                 int32_t Graphics = -1;
-                int32_t Compute = -1;
-                int32_t Transfer = -1;
+                int32_t Present = -1;
+
+                bool isComplete()
+                {
+                    return Graphics > -1 && Present > -1;
+                }
             };
 
         public:
@@ -33,11 +38,14 @@ namespace Razix {
              * @returns True, if the extension is supported
              */
             bool isExtensionSupported(const std::string& extensionName) const;
+
             uint32_t getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const;
             std::string getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
 
             inline VkPhysicalDevice getVulkanPhysicalDevice() const { return m_PhysicalDevice; }
+            inline QueueFamilyIndices getQueueFamilyIndices() const { return m_QueueFamilyIndices; }
             inline int32_t getGraphicsQueueFamilyIndex() const { return m_QueueFamilyIndices.Graphics; }
+            inline int32_t getPresentQueueFamilyIndex() const { return m_QueueFamilyIndices.Present; }
             inline VkPhysicalDeviceProperties getProperties() const { return m_PhysicalDeviceProperties; };
 
         private:
@@ -53,7 +61,7 @@ namespace Razix {
             friend class VKDevice;
 
         private:
-            QueueFamilyIndices GetQueueFamilyIndices(int flags);
+            void findQueueFamilyIndices(VkSurfaceKHR surface);
         };
 
         /* The logical device handle */
