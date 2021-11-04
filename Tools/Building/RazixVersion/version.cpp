@@ -8,7 +8,7 @@
 
 int main() 
 {
-    std::string versionString = "Razix Engine - " + Razix::RazixVersion.GetVersionString() + " " + "[" + Razix::RazixVersion.GetReleaseStageString() + "]";// + " | " + STRINGIZE(RAZIX_BUILD_CONFIG);
+    std::string versionString = "Razix Engine - " + Razix::RazixVersion.getVersionString() + "." + Razix::RazixVersion.getReleaseStageString();// + " | " + STRINGIZE(RAZIX_BUILD_CONFIG);
 
     std::cout << versionString << std::endl;
 }

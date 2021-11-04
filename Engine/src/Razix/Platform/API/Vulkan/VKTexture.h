@@ -38,7 +38,59 @@ namespace Razix {
              * @param filterMode The filtering to use for the texture
              */
             VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            /**
+             * Creates a TRXTexture2D from the given image and it's view
+             * @brief Used by swapchain and render passes to create their own texture resources
+             * What will be the image layout of this?
+             * @param image Vulkan image handle
+             * @param imageView Vulkan image view handle for the specified image
+             */
+            VKTexture2D(VkImage image, VkImageView imageView);
             ~VKTexture2D() {}
+
+            /**
+             * Creates a Vulkan Image handle
+             *
+             * @param width The width of the texture
+             * @param height The height of the texture
+             * @param mipLevels Mips to generate
+             * @param format The Vulkan format
+             * @param imageType The image type of Vulkan
+             * @param tiling The tiling to be used for image
+             * @param usage The vulkan image usage
+             * @param properties The properties of the image memory
+             * @param image The reference to the image to be created
+             * @param imageMemory The reference to the image memory to created and will be bound to
+             */
+            static void CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags);
+
+            /**
+             * Creates an ImageView for the Vulkan image
+             *
+             * @param image The handle for vulkan image
+             * @param format The format of the image
+             * @param mipLevels The number of mip maps to generate
+             * @param viewType How are we viewing the image in 1D or 2D etc
+             * @param aspectMask Bit mask flags specifying which aspects of an image are included in a view for purposes such as identifying a subresource
+             * @param layerCount The layers of image views usually 1 unless stereoscopic 3D is used
+             * @param baseArrayLayer used if sterescopic3D is used to identify the layer of image to create the image view for
+             */
+            static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0);
+
+            /**
+             * Creates a sampler to sampler the image in shader pipeline stage
+             *
+             * @param magFilter The mag filter to use
+             * @param minFilter The minification filter to use
+             * @param minLod The min LOD with which the image will be sampled with
+             * @param maxLod The max LOD with which the image will be sampled with
+             * @param anisotropyEnable Whether or not to enable anisotropic filtering
+             * @param maxAnisotropy Maximum anisotropy supported by the GPU
+             * @param modeU Texel U coordinate wrap mode
+             * @param modeV Texel V coordinate wrap mode
+             * @param modeW Texel W coordinate wrap mode
+             */
+            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 
             /* Binds the texture object to the given slot */
             void Bind(uint32_t slot) override {}
@@ -46,7 +98,7 @@ namespace Razix {
             void Unbind(uint32_t slot) override {}
 
             /* Releases the vulkan texture resources */
-            void Release() override;
+            void Release(bool deleteImage) override;
 
             /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
             void* GetHandle() const override { return (void*) &m_Descriptor; }

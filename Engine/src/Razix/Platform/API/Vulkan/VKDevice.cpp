@@ -17,7 +17,7 @@ namespace Razix {
 
             // Query the number of GPUs available
             uint32_t numGPUs = 0;
-            VkInstance instance = VKContext::Get()->GetInstance();
+            VkInstance instance = VKContext::Get()->getInstance();
             vkEnumeratePhysicalDevices(instance, &numGPUs, nullptr);
             RAZIX_CORE_ASSERT(!(numGPUs == 0), "[Vulkan] No Suitable GPUs found!");
             RAZIX_CORE_INFO("[Vulkan] GPUs found         : {0}", numGPUs);
@@ -72,46 +72,55 @@ namespace Razix {
             // requests different queue types
             // Get queue family indices for the requested queue family types
             // Note that the indices may overlap depending on the implementation
-            static const float defaultQueuePriority(0.0f);
+            findQueueFamilyIndices(VKContext::Get()->getSurface());
 
-            int requestedQueueTypes = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;
-            m_QueueFamilyIndices = GetQueueFamilyIndices(requestedQueueTypes);
-
-            // Graphics queue
-            if (requestedQueueTypes & VK_QUEUE_GRAPHICS_BIT) {
-                VkDeviceQueueCreateInfo queueInfo{};
-                queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Graphics;
-                queueInfo.queueCount = 1;
-                queueInfo.pQueuePriorities = &defaultQueuePriority;
-                m_QueueCreateInfos.push_back(queueInfo);
+            std::set<int32_t> uniqueQueueFamilies = { m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present };
+            float queuePriority = 1.0f;
+            for (uint32_t queueFamily : uniqueQueueFamilies) {
+                VkDeviceQueueCreateInfo queueCreateInfo{};
+                queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+                queueCreateInfo.queueFamilyIndex = queueFamily;
+                queueCreateInfo.queueCount = 1;
+                queueCreateInfo.pQueuePriorities = &queuePriority;
+                m_QueueCreateInfos.push_back(queueCreateInfo);
             }
 
-            // Dedicated compute queue
-            if (requestedQueueTypes & VK_QUEUE_COMPUTE_BIT) {
-                if (m_QueueFamilyIndices.Compute != m_QueueFamilyIndices.Graphics) {
-                    // If compute family index differs, we need an additional queue create info for the compute queue
-                    VkDeviceQueueCreateInfo queueInfo{};
-                    queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                    queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Compute;
-                    queueInfo.queueCount = 1;
-                    queueInfo.pQueuePriorities = &defaultQueuePriority;
-                    m_QueueCreateInfos.push_back(queueInfo);
-                }
-            }
 
-            // Dedicated transfer queue
-            if (requestedQueueTypes & VK_QUEUE_TRANSFER_BIT) {
-                if ((m_QueueFamilyIndices.Transfer != m_QueueFamilyIndices.Graphics) && (m_QueueFamilyIndices.Transfer != m_QueueFamilyIndices.Compute)) {
-                    // If compute family index differs, we need an additional queue create info for the compute queue
-                    VkDeviceQueueCreateInfo queueInfo{};
-                    queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                    queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Transfer;
-                    queueInfo.queueCount = 1;
-                    queueInfo.pQueuePriorities = &defaultQueuePriority;
-                    m_QueueCreateInfos.push_back(queueInfo);
-                }
-            }
+            //// Graphics queue
+            //if (requestedQueueTypes & VK_QUEUE_GRAPHICS_BIT) {
+            //    VkDeviceQueueCreateInfo queueInfo{};
+            //    queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            //    queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Graphics;
+            //    queueInfo.queueCount = 1;
+            //    queueInfo.pQueuePriorities = &defaultQueuePriority;
+            //    m_QueueCreateInfos.push_back(queueInfo);
+            //}
+            //
+            //// Dedicated compute queue
+            //if (requestedQueueTypes & VK_QUEUE_COMPUTE_BIT) {
+            //    if (m_QueueFamilyIndices.Compute != m_QueueFamilyIndices.Graphics) {
+            //        // If compute family index differs, we need an additional queue create info for the compute queue
+            //        VkDeviceQueueCreateInfo queueInfo{};
+            //        queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            //        queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Compute;
+            //        queueInfo.queueCount = 1;
+            //        queueInfo.pQueuePriorities = &defaultQueuePriority;
+            //        m_QueueCreateInfos.push_back(queueInfo);
+            //    }
+            //}
+            //
+            //// Dedicated transfer queue
+            //if (requestedQueueTypes & VK_QUEUE_TRANSFER_BIT) {
+            //    if ((m_QueueFamilyIndices.Transfer != m_QueueFamilyIndices.Graphics) && (m_QueueFamilyIndices.Transfer != m_QueueFamilyIndices.Compute)) {
+            //        // If compute family index differs, we need an additional queue create info for the compute queue
+            //        VkDeviceQueueCreateInfo queueInfo{};
+            //        queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            //        queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Transfer;
+            //        queueInfo.queueCount = 1;
+            //        queueInfo.pQueuePriorities = &defaultQueuePriority;
+            //        m_QueueCreateInfos.push_back(queueInfo);
+            //    }
+            //}
         }
 
         VKPhysicalDevice::~VKPhysicalDevice() { }
@@ -154,52 +163,26 @@ namespace Razix {
             }
         }
 
-        Razix::Graphics::VKPhysicalDevice::QueueFamilyIndices VKPhysicalDevice::GetQueueFamilyIndices(int flags) {
-            QueueFamilyIndices indices;
-
-            // Dedicated queue for compute
-            // Try to find a queue family index that supports compute but not graphics
-            if (flags & VK_QUEUE_COMPUTE_BIT) {
-                for (uint32_t i = 0; i < m_QueueFamilyProperties.size(); i++) {
-                    auto& queueFamilyProperties = m_QueueFamilyProperties[i];
-                    if ((queueFamilyProperties.queueFlags & VK_QUEUE_COMPUTE_BIT) && ((queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)) {
-                        indices.Compute = i;
-                        break;
-                    }
-                }
-            }
-
-            // Dedicated queue for transfer
-            // Try to find a queue family index that supports transfer but not graphics and compute
-            if (flags & VK_QUEUE_TRANSFER_BIT) {
-                for (uint32_t i = 0; i < m_QueueFamilyProperties.size(); i++) {
-                    auto& queueFamilyProperties = m_QueueFamilyProperties[i];
-                    if ((queueFamilyProperties.queueFlags & VK_QUEUE_TRANSFER_BIT) && ((queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) && ((queueFamilyProperties.queueFlags & VK_QUEUE_COMPUTE_BIT) == 0)) {
-                        indices.Transfer = i;
-                        break;
-                    }
-                }
-            }
-
+        void VKPhysicalDevice::findQueueFamilyIndices(VkSurfaceKHR surface)
+        {
             // For other queue types or if no separate compute queue is present, return the first one to support the requested flags
-            for (uint32_t i = 0; i < m_QueueFamilyProperties.size(); i++) {
-                if ((flags & VK_QUEUE_TRANSFER_BIT) && indices.Transfer == -1) {
-                    if (m_QueueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
-                        indices.Transfer = i;
-                }
+            uint32_t i = 0;
+            for (const auto& queue : m_QueueFamilyProperties) {
+                if (queue.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                    m_QueueFamilyIndices.Graphics = i;
 
-                if ((flags & VK_QUEUE_COMPUTE_BIT) && indices.Compute == -1) {
-                    if (m_QueueFamilyProperties[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
-                        indices.Compute = i;
-                }
+                // Check for presentation support
+                VkBool32 presentationSupported = false;
+                vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, surface, &presentationSupported);
 
-                if (flags & VK_QUEUE_GRAPHICS_BIT) {
-                    if (m_QueueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-                        indices.Graphics = i;
-                }
+                if (presentationSupported)
+                    m_QueueFamilyIndices.Present = i;
+
+                if (m_QueueFamilyIndices.isComplete())
+                    break;
+
+                i++;
             }
-
-            return indices;
         }
 
         //-----------------------------------------------------------------------------------
