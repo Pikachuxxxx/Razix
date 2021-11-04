@@ -5,9 +5,11 @@
 
 namespace Razix
 {
+    /* Describes the current version details for Razix Engine */
     struct Version
     {
-    public :
+    public:
+        /* Describes the stage of release */
         enum class Stage
         {
             Development,
@@ -16,6 +18,7 @@ namespace Razix
             RC
         };
 
+        /* Engine release date */
         struct Date
         {
             int Day = 0;
@@ -25,22 +28,30 @@ namespace Razix
             Date(int dd = 0, int mm = 0, int yyyy = 0) : Day(dd), Month(mm), Year(yyyy) {}
         };
 
-
+    public:
+        /* Creates the version information of the engine */
         Version(int major, int  minor, int patch, Stage stage, Date releaseDate) : Major(major), Minor(minor), Patch(patch), ReleaseStage(stage), ReleaseDate(releaseDate) {}
         
-        int GetVersionMajor() const { return Major; }
-        int GetVersionMinor() const { return Minor; }
-        int GetVersionPatch() const { return Patch; }
-        Stage GetReleaseStage() const { return ReleaseStage; }
-        Date GetReleaseDate() const { return ReleaseDate; }
+        /* Gets the major version of the engine */
+        int getVersionMajor() const { return Major; }
+        /* gets the minor version of the engine */
+        int getVersionMinor() const { return Minor; }
+        /* gets the patch version of the Engine */
+        int getVersionPatch() const { return Patch; }
+        /* Gets the release stage of the Engine */
+        Stage getReleaseStage() const { return ReleaseStage; }
+        /* Gets the release data of the engine */
+        Date getReleaseDate() const { return ReleaseDate; }
 
-        std::string GetVersionString() const { return (std::to_string(Major) + "." + std::to_string(Minor) + "." + std::to_string(Patch)); }
-        std::string GetReleaseStageString() const
+        /* Returns the version as a string (Major.Minor.Patch) */
+        std::string getVersionString() const { return (std::to_string(Major) + "." + std::to_string(Minor) + "." + std::to_string(Patch)); }
+        /* Returns the release stage as a string */
+        std::string getReleaseStageString() const
         {
             switch (ReleaseStage)
             {
             case Stage::Development:
-                return "Development";
+                return "Dev";
                 break;
             case Stage::Alpha:
                 return "Alpha";
@@ -56,7 +67,8 @@ namespace Razix
                 break;
             }
         }
-        std::string GetReleaseDateString() const { return (std::to_string(ReleaseDate.Day) + "-" + std::to_string(ReleaseDate.Month) + "-" + std::to_string(ReleaseDate.Year)); }
+        /* Returns the release data as a string (dd-mm-yyyy) */
+        std::string getReleaseDateString() const { return (std::to_string(ReleaseDate.Day) + "-" + std::to_string(ReleaseDate.Month) + "-" + std::to_string(ReleaseDate.Year)); }
 
     private:
         int Major = 0;
@@ -70,7 +82,7 @@ namespace Razix
 
     /* The Engine's current Version and release status */
     ////-----------------------------------------------------------------------------------------------------------////
-    /**/ const Version RazixVersion = Version(0, 16, 0, Version::Stage::Development, Version::Date(15, 9, 2021));  /**/
+    /**/ const Version RazixVersion = Version(0, 16, 0, Version::Stage::Development, Version::Date(15, 9, 2021));
     ////-----------------------------------------------------------------------------------------------------------////
 
 }

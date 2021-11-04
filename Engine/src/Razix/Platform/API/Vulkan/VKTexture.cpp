@@ -15,21 +15,7 @@ namespace Razix {
         // Texture Utility Functions
         //-----------------------------------------------------------------------------------
 
-        /**
-         * Creates a Vulkan Image handle
-         * 
-         * @param width The width of the texture
-         * @param height The height of the texture
-         * @param mipLevels Mips to generate
-         * @param format The Vulkan format
-         * @param imageType The image type of Vulkan
-         * @param tiling The tiling to be used for image
-         * @param usage The vulkan image usage
-         * @param properties The properties of the image memory
-         * @param image The reference to the image to be created
-         * @param imageMemory The reference to the image memory to created and will be bound to
-         */
-        static void CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags)
+        void VKTexture2D::CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags)
         {
             // We pass the image as reference because we need the memory for it as well
             VkImageCreateInfo imageInfo = {};
@@ -63,19 +49,8 @@ namespace Razix {
             // Bind the image memory with the image
             VK_CHECK_RESULT(vkBindImageMemory(VKDevice::Get().getDevice(), image, imageMemory, 0));
         }
-        
-        /**
-         * Creates an ImageView for the Vulkan image
-         * 
-         * @param image The handle for vulkan image
-         * @param format The format of the image
-         * @param mipLevels The number of mip maps to generate
-         * @param viewType How are we viewing the image in 1D or 2D etc
-         * @param aspectMask Bit mask flags specifying which aspects of an image are included in a view for purposes such as identifying a subresource
-         * @param layerCount The layers of image views usually 1 unless stereoscopic 3D is used
-         * @param baseArrayLayer used if sterescopic3D is used to identify the layer of image to create the image view for
-         */
-        static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0)
+
+        VkImageView VKTexture2D::CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer)
         {
             VkImageViewCreateInfo viewInfo = {};
             viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -95,20 +70,7 @@ namespace Razix {
             return imageView;
         }
 
-        /**
-         * Creates a sampler to sampler the image in shader pipeline stage
-         * 
-         * @param magFilter The mag filter to use
-         * @param minFilter The minification filter to use
-         * @param minLod The min LOD with which the image will be sampled with
-         * @param maxLod The max LOD with which the image will be sampled with
-         * @param anisotropyEnable Whether or not to enable anisotropic filtering
-         * @param maxAnisotropy Maximum anisotropy supported by the GPU
-         * @param modeU Texel U coordinate wrap mode
-         * @param modeV Texel V coordinate wrap mode
-         * @param modeW Texel W coordinate wrap mode
-         */
-        static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE)
+        VkSampler VKTexture2D::CreateImageSampler(VkFilter magFilter /*= VK_FILTER_LINEAR*/, VkFilter minFilter /*= VK_FILTER_LINEAR*/, float minLod /*= 0.0f*/, float maxLod /*= 1.0f*/, bool anisotropyEnable /*= false*/, float maxAnisotropy /*= 1.0f*/, VkSamplerAddressMode modeU /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeV /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeW /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/)
         {
             VkSampler sampler;
             VkSamplerCreateInfo samplerInfo = {};
@@ -164,17 +126,24 @@ namespace Razix {
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0} at location : {1}", name, filePath);
         }
 
-        void VKTexture2D::Release()
+        VKTexture2D::VKTexture2D(VkImage image, VkImageView imageView)
+            : m_Image(image), m_ImageView(imageView), m_ImageSampler(VK_NULL_HANDLE), m_ImageMemory(VK_NULL_HANDLE)
         {
-            if (m_ImageSampler)
+            updateDescriptor();
+        }
+
+        void VKTexture2D::Release(bool deleteImage)
+        {
+            if (m_ImageSampler != VK_NULL_HANDLE)
                 vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
 
-            if (m_ImageView)
+            if (m_ImageView != VK_NULL_HANDLE)
                 vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageView, nullptr);
 
-            vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
+            if (deleteImage)
+                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
 
-            if (m_ImageMemory)
+            if (m_ImageMemory != VK_NULL_HANDLE)
                 vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
         }
 
