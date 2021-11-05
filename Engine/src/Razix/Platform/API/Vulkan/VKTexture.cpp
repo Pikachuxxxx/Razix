@@ -198,7 +198,7 @@ namespace Razix {
                 // 1.1 Copy from staging buffer to Image
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
 
-                VkBufferImageCopy region;
+                VkBufferImageCopy region = {};
                 region.bufferOffset = 0;
                 region.bufferRowLength = 0;
                 region.bufferImageHeight = 0;

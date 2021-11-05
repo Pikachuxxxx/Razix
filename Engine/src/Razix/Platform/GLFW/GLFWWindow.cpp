@@ -32,16 +32,14 @@ namespace Razix
 
     void GLFWWindow::OnWindowUpdate()
     {
-#if defined(RAZIX_RENDER_API_OPENGL) || defined(RAZIX_RENDER_API_VULKAN)
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL)
-            glfwSwapBuffers(m_Window);
-#endif
+
     }
 
     void GLFWWindow::ProcessInput()
     {
 #if defined(RAZIX_RENDER_API_OPENGL) || defined(RAZIX_RENDER_API_VULKAN)
-		glfwPollEvents();
+        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL || Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+		    glfwPollEvents();
 #endif // RAZIX_RENDER_API_OPENGL
     }
 

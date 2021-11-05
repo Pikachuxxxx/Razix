@@ -34,7 +34,7 @@ namespace Razix
         m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
 
-        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be ttroubled by all this labout workk)
+        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labout workk)
         // Project root directory
         RZVirtualFileSystem::Get().mount("Project", razixRoot + projectRoot);
         
@@ -46,7 +46,8 @@ namespace Razix
         RZVirtualFileSystem::Get().mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
     }
 
-    void RZApplication::Init() {
+    void RZApplication::Init()
+    {
         // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream;
@@ -73,7 +74,7 @@ namespace Razix
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
         //-------------------------------------------------------------------------------------
 
 
@@ -169,7 +170,7 @@ namespace Razix
 
         // Update the window (basically swap buffer)
         m_Window->OnWindowUpdate();
-        Graphics::RZGraphicsContext::GetContext()->SwapBuffers();
+        swapchain->Flip();
 
         if (now - m_SecondTimer > 1.0f)
         {
@@ -187,7 +188,8 @@ namespace Razix
         return m_CurrentState != AppState::Closing;
     }
 
-    void RZApplication::OnStart() {
+    void RZApplication::OnStart()
+    {
 
         //! Testing Texture loading and other demo stuff REMOVE THIS!!!
         Graphics::RZTexture::Filtering filtering;
@@ -219,12 +221,14 @@ namespace Razix
         }
     }
 
-    void RZApplication::OnUpdate(const Timestep& dt) {
+    void RZApplication::OnUpdate(const Timestep& dt) 
+    {
 
     }
 
     void RZApplication::OnRender() {
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) 
+        {
             glClear(GL_COLOR_BUFFER_BIT);
             glBindVertexArray(m_VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);

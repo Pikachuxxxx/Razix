@@ -32,8 +32,6 @@ namespace Razix
             virtual void Init() = 0;
             //! Only here the Destroy method is in PascalCase rest of the API must maintain a camelCase destroy
             virtual void Destroy() = 0;
-            // TODO: Remove this!
-            virtual void SwapBuffers() = 0;
             virtual void ClearWithColor(float r, float g, float b) = 0;
 
             static RZGraphicsContext* GetContext();
