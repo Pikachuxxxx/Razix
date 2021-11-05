@@ -13,7 +13,8 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
         // TODO: Decouple the constructor into separate functions
 
-        VKPhysicalDevice::VKPhysicalDevice() : m_PhysicalDevice(VK_NULL_HANDLE){
+        VKPhysicalDevice::VKPhysicalDevice() : m_PhysicalDevice(VK_NULL_HANDLE)
+        {
 
             // Query the number of GPUs available
             uint32_t numGPUs = 0;
@@ -45,7 +46,7 @@ namespace Razix {
             RAZIX_CORE_INFO("[Vulkan] Driver Version     : {0}.{1}.{2}", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
 
             /*
-            // Load the supported device extension supported by the GPU
+            // Verify the supported device extension supported by the GPU
             uint32_t extCount = 0;
             vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &extCount, nullptr);
             if (extCount > 0) {
@@ -74,6 +75,7 @@ namespace Razix {
             // Note that the indices may overlap depending on the implementation
             findQueueFamilyIndices(VKContext::Get()->getSurface());
 
+            //! BUG: I guess in Distribution mode the set has 2 elements or something is happening such that the queue priority for other element is nan and not 0 as we have provided
             std::set<int32_t> uniqueQueueFamilies = { m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present };
             float queuePriority = 1.0f;
             for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -84,48 +86,12 @@ namespace Razix {
                 queueCreateInfo.pQueuePriorities = &queuePriority;
                 m_QueueCreateInfos.push_back(queueCreateInfo);
             }
-
-
-            //// Graphics queue
-            //if (requestedQueueTypes & VK_QUEUE_GRAPHICS_BIT) {
-            //    VkDeviceQueueCreateInfo queueInfo{};
-            //    queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            //    queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Graphics;
-            //    queueInfo.queueCount = 1;
-            //    queueInfo.pQueuePriorities = &defaultQueuePriority;
-            //    m_QueueCreateInfos.push_back(queueInfo);
-            //}
-            //
-            //// Dedicated compute queue
-            //if (requestedQueueTypes & VK_QUEUE_COMPUTE_BIT) {
-            //    if (m_QueueFamilyIndices.Compute != m_QueueFamilyIndices.Graphics) {
-            //        // If compute family index differs, we need an additional queue create info for the compute queue
-            //        VkDeviceQueueCreateInfo queueInfo{};
-            //        queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            //        queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Compute;
-            //        queueInfo.queueCount = 1;
-            //        queueInfo.pQueuePriorities = &defaultQueuePriority;
-            //        m_QueueCreateInfos.push_back(queueInfo);
-            //    }
-            //}
-            //
-            //// Dedicated transfer queue
-            //if (requestedQueueTypes & VK_QUEUE_TRANSFER_BIT) {
-            //    if ((m_QueueFamilyIndices.Transfer != m_QueueFamilyIndices.Graphics) && (m_QueueFamilyIndices.Transfer != m_QueueFamilyIndices.Compute)) {
-            //        // If compute family index differs, we need an additional queue create info for the compute queue
-            //        VkDeviceQueueCreateInfo queueInfo{};
-            //        queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            //        queueInfo.queueFamilyIndex = m_QueueFamilyIndices.Transfer;
-            //        queueInfo.queueCount = 1;
-            //        queueInfo.pQueuePriorities = &defaultQueuePriority;
-            //        m_QueueCreateInfos.push_back(queueInfo);
-            //    }
-            //}
         }
 
         VKPhysicalDevice::~VKPhysicalDevice() { }
 
-        bool VKPhysicalDevice::isDeviceSuitable(VkPhysicalDevice gpu) {
+        bool VKPhysicalDevice::isDeviceSuitable(VkPhysicalDevice gpu) 
+        {
             vkGetPhysicalDeviceProperties(gpu, &m_PhysicalDeviceProperties);
             // See if it's a Discrete GPU if so use it, also save the device features while checking it's compatibility
             // TODO: Add a scoring mechanism for the GPU rating
@@ -135,11 +101,13 @@ namespace Razix {
             return false;
         }
 
-        bool VKPhysicalDevice::isExtensionSupported(const std::string& extensionName) const {
+        bool VKPhysicalDevice::isExtensionSupported(const std::string& extensionName) const
+        {
             return m_SupportedExtensions.find(extensionName) != m_SupportedExtensions.end();
         }
 
-        uint32_t VKPhysicalDevice::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const {
+        uint32_t VKPhysicalDevice::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const 
+        {
             for (uint32_t i = 0; i < m_MemoryProperties.memoryTypeCount; i++) {
                 if ((typeBits & 1) == 1) {
                     if ((m_MemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
@@ -152,7 +120,8 @@ namespace Razix {
             return UINT32_MAX;
         }
 
-        std::string VKPhysicalDevice::getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const {
+        std::string VKPhysicalDevice::getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const 
+        {
             switch (type) {
                 case VK_PHYSICAL_DEVICE_TYPE_OTHER:             return "OTHER";
                 case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:    return "INTEGRATED GPU";
@@ -189,15 +158,12 @@ namespace Razix {
         // Logical Device
         //-----------------------------------------------------------------------------------
 
-        VKDevice::VKDevice() {
+        VKDevice::VKDevice() { }
 
-        }
+        VKDevice::~VKDevice() { }
 
-        VKDevice::~VKDevice() {
-        }
-
-        bool VKDevice::init() {
-    
+        bool VKDevice::init() 
+        {
             // Create the Physical device 
             m_PhysicalDevice = CreateRef<VKPhysicalDevice>();
 
@@ -212,9 +178,8 @@ namespace Razix {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME
             };
 
-            if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME)) {
+            if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 deviceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-            }
 
 #if defined(RAZIX_PLATFORM_MACOS)
             // https://vulkan.lunarg.com/doc/view/1.2.162.0/mac/1.2-extensions/vkspec.html#VUID-VkDeviceCreateInfo-pProperties-04451
@@ -249,13 +214,13 @@ namespace Razix {
             return true;
         }
 
-        void VKDevice::destroy() {
+        void VKDevice::destroy()
+        {
             // Destroy the single time Command pool
             vkDestroyCommandPool(m_Device, m_CommandPool->getVKPool(), nullptr);
             // Destroy the logical device
             vkDestroyDevice(m_Device, nullptr);
         }
-
     }
 }
 

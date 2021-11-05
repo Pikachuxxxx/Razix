@@ -7,28 +7,20 @@
 //! The style guide rules are waved off for RZEngine class
 namespace Razix
 {
-	/// <summary>
-	/// The Engine class that Starts and Manages all the Engine back-end and runtime systems
-	/// </summary>
+	/* The Engine class that Starts and Manages all the Engine backend and runtime systems */
 	class RAZIX_API RZEngine : public RZSingleton<RZEngine>
 	{
 		// All internal type definition go here
 	public:
-		/// <summary>
-		/// Statistic about the current frame
-		/// </summary>
+		/* Statistic about the current frame */
 		struct Stats
 		{
 			uint32_t UpdatesPerSecond = 0;
 			uint32_t FramesPerSecond = 0;
-			uint32_t NumRenderedObjects = 0;
-			uint32_t NumDrawCalls = 0;
 			float FrameTime = 0;
-			float TotalGPUMemory = 0;
-			float UsedGPUMemory = 0;
-			float UsedRam = 0;
 		};
 
+    public:
 		CommandLineParser commandLineParser;
 
 	public:
@@ -57,12 +49,12 @@ namespace Razix
 		/// </summary>
 		void ResetStats()
 		{
-			m_Stats.NumRenderedObjects = 0;
+			//m_Stats.NumRenderedObjects = 0;
 			m_Stats.FrameTime = 0.0f;
-			m_Stats.UsedGPUMemory = 0.0f;
-			m_Stats.UsedRam = 0.0f;
-			m_Stats.NumDrawCalls = 0;
-			m_Stats.TotalGPUMemory = 0.0f;
+			//m_Stats.UsedGPUMemory = 0.0f;
+			//m_Stats.UsedRam = 0.0f;
+			//m_Stats.NumDrawCalls = 0;
+			//m_Stats.TotalGPUMemory = 0.0f;
 		}
 
 		/// <summary>
