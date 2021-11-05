@@ -43,7 +43,7 @@ namespace Razix {
                 0,
                 D3D11_SDK_VERSION,
                 &sd,
-                &m_Swapchain,
+                &m_Swapchain.getSwapchain(),
                 &m_Device,
                 nullptr,
                 &m_Context
@@ -51,8 +51,8 @@ namespace Razix {
 
             // Get the back buffer and render target
             Microsoft::WRL::ComPtr<ID3D11Resource> pBackBuffer = nullptr;
-            m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackBuffer);
-            m_Device->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &m_Target);
+            m_Swapchain.getSwapchain()->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackBuffer);
+            m_Device->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &m_Swapchain.getRenderTarget());
 
             // Configure the viewport
             D3D11_VIEWPORT viewport = {};
@@ -65,23 +65,18 @@ namespace Razix {
             m_Context->RSSetViewports(1, &viewport);
 
             // Bind the depth stencil view to OM
-            m_Context->OMSetRenderTargets(1u, m_Target.GetAddressOf(), nullptr);
+            m_Context->OMSetRenderTargets(1u, m_Swapchain.getRenderTarget().GetAddressOf(), nullptr);
         }
 
         void DX11Context::Destroy() {
-            m_Target.Reset();
-            m_Swapchain.Reset();
+            m_Swapchain.Destroy();
             m_Device.Reset();
             m_Context.Reset();
         }
 
-        void DX11Context::SwapBuffers() {
-            m_Swapchain->Present(1u, 0u);
-        }
-
         void DX11Context::ClearWithColor(float r, float g, float b) {
             const float  color[] = { r, g, b, 1.0f };
-            m_Context->ClearRenderTargetView(m_Target.Get(), color);
+            m_Context->ClearRenderTargetView( m_Swapchain.getRenderTarget().Get(), color);
         }
 
     }

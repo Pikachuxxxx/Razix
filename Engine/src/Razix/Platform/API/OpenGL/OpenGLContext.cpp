@@ -8,12 +8,12 @@ namespace Razix
 {
     namespace Graphics {
         OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
-            : m_WindowHandle(windowHandle) {
+            : m_Window(windowHandle) {
             RAZIX_CORE_ASSERT(windowHandle, "Window Handle is NULL!");
         }
 
         void OpenGLContext::Init() {
-            glfwMakeContextCurrent(m_WindowHandle);
+            glfwMakeContextCurrent(m_Window);
             int status = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
             RAZIX_CORE_ASSERT(status, "Cannot initialize GLAD!");
 
@@ -28,10 +28,6 @@ namespace Razix
 
         void OpenGLContext::Destroy() {
             glfwTerminate();
-        }
-
-        void OpenGLContext::SwapBuffers() {
-            glfwSwapBuffers(m_WindowHandle);
         }
 
         void OpenGLContext::ClearWithColor(float r, float g, float b) {
