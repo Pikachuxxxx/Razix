@@ -1,7 +1,7 @@
 #include "rzxpch.h"
 #include "LoadImage.h"
 
-#include "Razix/Core/OS/VirtualFileSystem.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

@@ -2,7 +2,7 @@
 
 #include "Razix/Core/Engine.h"
 
-// Using the forward declared the application creating function, that we assume was defined on the client side
+/* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication();
 
 /********************************************************************************
@@ -11,7 +11,7 @@ extern Razix::RZApplication* Razix::CreateApplication();
 #ifdef RAZIX_PLATFORM_WINDOWS
 
 #include "Platform/Windows/WindowsOS.h"
-#include "Razix/Core/SplashScreen.h"
+#include "Razix/Core/RZSplashScreen.h"
 
 // TODO: Change this back to WinMain, since we are use the logging system to output to console we use an Console App instead of an Widowed App
 //#pragma comment(linker, "/subsystem:windows")
@@ -22,7 +22,7 @@ extern Razix::RZApplication* Razix::CreateApplication();
 //
 //#include <windows.h>
 
-/// Windows Entry point - WinMain
+/* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 int main(int argc, char** argv)
 {
@@ -33,9 +33,9 @@ int main(int argc, char** argv)
     };
 
     // Splash Screen!
-    Razix::SplashScreen::Get().Init();
-    Razix::SplashScreen::Get().SetVersionString("Version : " + std::string(Razix::RazixVersion.getVersionString()));
-    Razix::SplashScreen::Get().SetLogString("Initializing Razix Engine");
+    Razix::RZSplashScreen::Get().init();
+    Razix::RZSplashScreen::Get().setVersionString("Version : " + std::string(Razix::RazixVersion.getVersionString()));
+    Razix::RZSplashScreen::Get().setLogString("Initializing Razix Engine...");
 
     // 1.-> Logging System Initialization
     Razix::Debug::Log::StartUp();
@@ -70,4 +70,5 @@ int main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
+
 #endif
