@@ -1,5 +1,5 @@
 #include "rzxpch.h"
-#include "Application.h"
+#include "RZApplication.h"
 
 // ---------- Engine ----------
 #include "Razix/Core/Engine.h"
@@ -7,8 +7,8 @@
 
 #include "Razix/Core/RazixVersion.h"
 
-#include "Razix/Core/OS/VirtualFileSystem.h"
-#include "Razix/Core/OS/Input.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/OS/RZInput.h"
 
 #include "Razix/Events/ApplicationEvent.h"
 
@@ -16,7 +16,9 @@
 #include "Razix/Graphics/API/Texture.h"
 #include "Razix/Graphics/API/Swapchain.h"
 
-#include <glad/glad.h>
+#ifdef RAZIX_RENDER_API_OPENGL
+    #include <glad/glad.h>
+#endif
 
 namespace Razix
 {
@@ -24,6 +26,7 @@ namespace Razix
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
     {
+        // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
         s_AppInstance = this;
 
@@ -34,7 +37,7 @@ namespace Razix
         m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
         RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
 
-        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labout workk)
+        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labor work)
         // Project root directory
         RZVirtualFileSystem::Get().mount("Project", razixRoot + projectRoot);
         
@@ -74,7 +77,7 @@ namespace Razix
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
 
 
@@ -92,10 +95,12 @@ namespace Razix
         m_Window = UniqueRef<RZWindow>(RZWindow::Create(m_WindowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
 
-        // Creating the Graphics Context
+        //-------------------------------------------------------------------------------------
+        // Creating the Graphics Context and Swapchain
         Graphics::RZGraphicsContext::Create(m_WindowProperties, m_Window.get());
         Graphics::RZGraphicsContext::GetContext()->Init();
         swapchain = Graphics::RZSwapchain::Create(m_Window->getWidth(), m_Window->getHeight());
+        //-------------------------------------------------------------------------------------
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
@@ -154,9 +159,10 @@ namespace Razix
         // Poll for Input events
         m_Window->ProcessInput();
 
+        // Early close if the escape key is pressed or close button is pressed
         if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
             m_CurrentState = AppState::Closing;
-        // Early close if the escape key is pressed or close button is pressed
+
         if (m_CurrentState == AppState::Closing)
             return false;
 
@@ -168,10 +174,13 @@ namespace Razix
         OnRender();
         m_Frames++;
 
-        // Update the window (basically swap buffer)
+        // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
+
+        // FLip the swapchain to present the rendered image
         swapchain->Flip();
 
+        // Record the FPS
         if (now - m_SecondTimer > 1.0f)
         {
             m_SecondTimer += 1.0f;
@@ -192,7 +201,7 @@ namespace Razix
     {
 
         //! Testing Texture loading and other demo stuff REMOVE THIS!!!
-        Graphics::RZTexture::Filtering filtering;
+        Graphics::RZTexture::Filtering filtering = {};
         filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
         filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
 
@@ -213,10 +222,10 @@ namespace Razix
 
             glViewport(0, 0, m_Window->getWidth(), m_Window->getHeight());
 
-            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAtachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering); 
+            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering); 
         }
         else if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
-            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAtachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
+            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
             logoTexture->Release();
         }
     }

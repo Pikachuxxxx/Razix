@@ -1,9 +1,9 @@
 #include "rzxpch.h"
 #include "Engine.h"
 
-#include "Razix/Core/OS/VirtualFileSystem.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/RazixVersion.h"
-#include "Razix/Core/SplashScreen.h"
+#include "Razix/Core/RZSplashScreen.h"
 
 #include <chrono>
 
@@ -20,7 +20,7 @@ namespace Razix
         RAZIX_CORE_INFO("***********************************");
         RAZIX_CORE_INFO("*          Igniting Engine....    *");
         RAZIX_CORE_INFO("***********************************");
-        Razix::SplashScreen::Get().SetLogString("Igniting Engine...");
+        Razix::RZSplashScreen::Get().setLogString("Igniting Engine...");
 
         // TODO: Temp code remove this!!!
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -33,6 +33,7 @@ namespace Razix
         //------------------------------//
         // 1. Virtual File System
         RZVirtualFileSystem::Get().StartUp();
+
         // TODO: Temp code remove this!!!
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -45,10 +46,13 @@ namespace Razix
         RAZIX_CORE_INFO("***********************************");
         RAZIX_CORE_INFO("*          Engine Ignited!        *");
         RAZIX_CORE_INFO("***********************************");
-        Razix::SplashScreen::Get().SetLogString("Engine Ignited!");
+        Razix::RZSplashScreen::Get().setLogString("Engine Ignited!");
+
         // TODO: Temp code remove this!!!
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        Razix::SplashScreen::Get().Destroy();
+
+        // Destroy the splash screen since the engine has Ignited successfully!
+        Razix::RZSplashScreen::Get().destroy();
         
         // TODO: Log the time take to initialize engine using Profiling macros
         auto stop = std::chrono::high_resolution_clock::now();

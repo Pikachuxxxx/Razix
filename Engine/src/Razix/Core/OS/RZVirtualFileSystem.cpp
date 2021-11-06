@@ -1,19 +1,19 @@
 #include "rzxpch.h"
-#include "VirtualFileSystem.h"
+#include "RZVirtualFileSystem.h"
 
 #include "Razix/Core/Log.h"
-#include "Razix/Core/SplashScreen.h"
-#include "Razix/Core/OS/FileSystem.h"
+#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Utilities/StringUtilities.h"
 
 namespace Razix
 {
+    // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class
     void RZVirtualFileSystem::StartUp()
     {
         RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
-        Razix::SplashScreen::Get().SetLogString("Starting VFS...");
+        Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
         /// Instance is automatically created once the system is Started Up
-        // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class
     }
 
     void RZVirtualFileSystem::ShutDown()

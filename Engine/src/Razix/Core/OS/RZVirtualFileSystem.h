@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Core.h"
-#include "Razix/Core/OS/FileSystem.h"
+#include "Razix/Core/OS/RZFileSystem.h"
 
 #include "Razix/Utilities/TRazixSingleton.h"
 

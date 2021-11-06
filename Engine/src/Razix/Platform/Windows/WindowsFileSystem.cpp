@@ -1,5 +1,5 @@
 #include "rzxpch.h"
-#include "Razix/Core/OS/FileSystem.h"
+#include "Razix/Core/OS/RZFileSystem.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
 #include <Windows.h>

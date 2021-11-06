@@ -7,7 +7,7 @@
 //! The style guide rules are waved off for RZEngine class
 namespace Razix
 {
-	/* The Engine class that Starts and Manages all the Engine backend and runtime systems */
+	/* The Engine class that Starts and Manages all the Engine back end and runtime systems */
 	class RAZIX_API RZEngine : public RZSingleton<RZEngine>
 	{
 		// All internal type definition go here
@@ -21,12 +21,10 @@ namespace Razix
 		};
 
     public:
-		CommandLineParser commandLineParser;
+		CommandLineParser commandLineParser;	/* Command line parser for that helps in setting Engine and Application options */
 
 	public:
-		/// <summary>
-		/// Starts up the Engine and it's sub-systems
-		/// </summary>
+		/* Starts up the Engine and it's sub-systems */
 		void Ignite();
 
 		/// <summary>
@@ -60,18 +58,16 @@ namespace Razix
 		/// <summary>
 		/// Gets the maximum number of frames that can be rendered
 		/// </summary>
-		const float& GetTargetFrameRate() const { return m_MaxFramesPerSecond; }
+		const float& getTargetFrameRate() const { return m_MaxFramesPerSecond; }
 
 		/// <summary>
 		/// Sets the maximum number of frames per second
 		/// </summary>
 		/// <param name="targetFPS"> The targeted FPS for the engine </param>
-		void SetTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
+		void setTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
 
 	private:
-		/// Current frame basic statistics
-		Stats m_Stats;
-		/// Maximum frames per second that will be rendered by the Engine
-		float m_MaxFramesPerSecond = 1000.0f / 60.0f;
+		Stats m_Stats;										/* Current frame basic statistics */
+		float m_MaxFramesPerSecond = 1000.0f / 60.0f;		/* Maximum frames per second that will be rendered by the Engine */
 	};
 }

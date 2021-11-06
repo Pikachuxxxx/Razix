@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/OS/Window.h"
+#include "Razix/Core/OS/RZWindow.h"
 
 #include "Razix/Graphics/API/GraphicsContext.h"
 
@@ -25,11 +25,15 @@ namespace Razix {
             void Destroy() override;
             void ClearWithColor(float r, float g, float b) override {}
 
+            /* Gets the underlying Vulkan context object */
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }
             
-            inline VkInstance getInstance() const { return m_Instance; }
-            inline VkSurfaceKHR getSurface() const { return m_Surface; }
-            inline RZWindow* getWindow() const { return m_Window; }
+            /* Gets the reference to the Vulkan instance handle */
+            inline const VkInstance& getInstance() const { return m_Instance; }
+            /* Gets the vulkan KHR surface object handle */
+            inline const VkSurfaceKHR& getSurface() const { return m_Surface; }
+            /*  Returns a const pointer to the window handle that the context renders to */
+            inline const RZWindow* getWindow() const { return m_Window; }
 
         private:
             RZWindow*                           m_Window;                           /* The Window handle                                    */
@@ -47,9 +51,13 @@ namespace Razix {
         private:
             /* Creates a VkInstance to interface with the Vulkan library */
             void createInstance();
+            /* gets the Required layers for the Vulkan application + GLFW requests */
             std::vector<const char*> getRequiredLayers();
+            /* Gets the required extension that must be enabled at the instance level */
             std::vector<const char*> getRequiredExtensions();
+            /* Sets the debug messenger this is used to record instance creation and deletion */
             void setupDebugMessenger();
+            /* creates the WSI surface to render the the stuff, required the platform window handle to create the surface */
             void createSurface(GLFWwindow* window);
             /* Vulkan debug callback reporting function */
             static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);

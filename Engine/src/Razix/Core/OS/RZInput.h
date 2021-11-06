@@ -13,6 +13,9 @@ namespace Razix
     class RAZIX_API RZInput
     {
     public:
+        // TODO: Use a better API convention for selecting input API implementation
+        /* Selects the GPFW Input class for polling and reporting input events */
+        static void SelectGLFWInputManager();
         /* Tells whether a key was pressed or not */
         inline static bool IsKeyPressed(Razix::KeyCode::Key keycode) { return sInstance->IsKeyPressedImpl(int(keycode)); }
         /* Tells whether if a key was released after being pressed */
