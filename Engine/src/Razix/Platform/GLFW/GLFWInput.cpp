@@ -1,7 +1,7 @@
 #include "rzxpch.h"
 #include "GLFWInput.h"
 
-#include "Razix/Core/Application.h"
+#include "Razix/Core/RZApplication.h"
 #include <GLFW/glfw3.h>
 
 #ifdef RAZIX_RENDER_API_OPENGL
@@ -11,7 +11,7 @@
 namespace Razix
 {
     // Temporarily creating Input directly from GLFW
-	Razix::RZInput* Razix::RZInput::sInstance = new GLFWInput();
+	Razix::RZInput* Razix::RZInput::sInstance = nullptr;
 
     bool GLFWInput::IsKeyPressedImpl(int keycode)
     {

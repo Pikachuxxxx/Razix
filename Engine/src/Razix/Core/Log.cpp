@@ -1,7 +1,7 @@
 #include "rzxpch.h"
 #include "Log.h"
 
-#include "Razix/Core/SplashScreen.h"
+#include "Razix/Core/RZSplashScreen.h"
 
 namespace Razix
 {
@@ -12,8 +12,7 @@ namespace Razix
 
         void Log::StartUp()
         {
-            // TODO: Add src file and line logging to the pattern
-            // Try using __FUNCTION__, __LINE__ and __FILE__ etc.instead of using Macro-ed global SPDLog functions
+            // Set the pattern for log message
             spdlog::set_pattern("%^ %n [%T] :: %v %$");
 
             std::stringstream coreLoggerName;
@@ -22,7 +21,7 @@ namespace Razix
             s_CoreLogger = spdlog::stdout_color_mt(coreLoggerName.str());
             s_CoreLogger->set_level(spdlog::level::trace);
             RAZIX_CORE_INFO("Starting Up Core Engine Logger");
-            Razix::SplashScreen::Get().SetLogString("Starting Up Core Engine Logger");
+            Razix::RZSplashScreen::Get().setLogString("Starting Up Core Engine Logger");
 
 			std::stringstream appLoggerName;
 			appLoggerName << std::setw(18) << std::left << "Razix Application";
@@ -30,7 +29,7 @@ namespace Razix
             s_ApplicationLogger = spdlog::stdout_color_mt(appLoggerName.str());
             s_ApplicationLogger->set_level(spdlog::level::trace);
             RAZIX_INFO("Starting Up Engine Application Logger");
-            Razix::SplashScreen::Get().SetLogString("Starting Up Engine Application Logger");
+            Razix::RZSplashScreen::Get().setLogString("Starting Up Engine Application Logger");
         }
 
         void Log::Shutdown()

@@ -1,7 +1,7 @@
 #include "rzxpch.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
-#include "SplashScreen.h"
+#include "RZSplashScreen.h"
 #include "Razix/Core/RazixVersion.h"
 
 #include <sstream>
@@ -10,9 +10,9 @@
 namespace Razix
 {
     // Window Class Construction for the static singleton variable
-    SplashScreen::WindowClass SplashScreen::WindowClass::wndClass;
+    RZSplashScreen::WindowClass RZSplashScreen::WindowClass::wndClass;
 
-    SplashScreen::SplashScreen()
+    RZSplashScreen::RZSplashScreen()
     {
         // Select the splash image based on the release stage
         if(RazixVersion.getReleaseStage() == Version::Stage::Development)
@@ -22,10 +22,10 @@ namespace Razix
 
         // Create Window Instance & get hWnd
         hWnd = CreateWindow(
-            WindowClass::GetName(), "Splash Screen",
+            WindowClass::getName(), "Splash Screen",
             WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
             0 - (480 / 2), 0 - (320 / 2), 480, 320,
-            nullptr, nullptr, WindowClass::GetInstance(), this
+            nullptr, nullptr, WindowClass::getInstance(), this
         );
 
         // Get the total dim of the screen
@@ -43,35 +43,35 @@ namespace Razix
         ShowWindow(hWnd, SW_SHOW);
     }
 
-    SplashScreen::~SplashScreen()
+    RZSplashScreen::~RZSplashScreen()
     {
         DestroyWindow(hWnd);
     }
 
-    void SplashScreen::Init()
+    void RZSplashScreen::init()
     {
         //std::thread splashThread(this->ProcessMessages());
         ProcessMessages();
     }
 
-    void SplashScreen::Destroy()
+    void RZSplashScreen::destroy()
     {
         DestroyWindow(hWnd);
     }
 
-    void SplashScreen::SetVersionString(const std::string& text)
+    void RZSplashScreen::setVersionString(const std::string& text)
     {
         m_VersionString = text;
         SendMessage(hWnd, UPDATE_VERSION_LABEL, NULL, NULL);
     }
 
-    void SplashScreen::SetLogString(const std::string& text)
+    void RZSplashScreen::setLogString(const std::string& text)
     {
         m_LogString = text;
         SendMessage(hWnd, UPDATE_VERSION_LABEL, NULL, NULL);
     }
 
-    std::optional<int> SplashScreen::ProcessMessages()
+    std::optional<int> RZSplashScreen::ProcessMessages()
     {
         MSG msg;
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -84,17 +84,17 @@ namespace Razix
         return {};
     }
 
-    LRESULT CALLBACK SplashScreen::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+    LRESULT CALLBACK RZSplashScreen::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
     {
         // use create parameter passed in from CreateWindow() to store window class pointer at WinAPI side
         if (msg == WM_NCCREATE) {
             // extract ptr to window class from creation data
             const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-            SplashScreen* const pWnd = static_cast<SplashScreen*>(pCreate->lpCreateParams);
+            RZSplashScreen* const pWnd = static_cast<RZSplashScreen*>(pCreate->lpCreateParams);
             // set WinAPI-managed user data to store ptr to window instance
             SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
             // set message proc to normal (non-setup) handler now that setup is finished
-            SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&SplashScreen::HandleMsgThunk));
+            SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&RZSplashScreen::HandleMsgThunk));
             // forward message to window instance handler
             return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
         }
@@ -102,16 +102,16 @@ namespace Razix
         return DefWindowProc(hWnd, msg, wParam, lParam);
     }
 
-    LRESULT CALLBACK SplashScreen::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+    LRESULT CALLBACK RZSplashScreen::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
     {
         // retrieve ptr to window instance
-        SplashScreen* const pWnd = reinterpret_cast<SplashScreen*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        RZSplashScreen* const pWnd = reinterpret_cast<RZSplashScreen*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         // forward message to window instance handler
         return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
     }
 
     /* Message callback Handler */
-    LRESULT SplashScreen::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+    LRESULT RZSplashScreen::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
     {
         // Maps the message map ID to map it to a string
         //OutputDebugString(mm(msg, wParam, lParam).c_str());
@@ -179,7 +179,7 @@ namespace Razix
      *						WindowsWindow::Window Class                      *
     *************************************************************************/
 
-    SplashScreen::WindowClass::WindowClass() noexcept : hInst(GetModuleHandle(nullptr))
+    RZSplashScreen::WindowClass::WindowClass() noexcept : hInst(GetModuleHandle(nullptr))
     {
         // Register the Window Class using a configuration struct
         WNDCLASSEX windowClass = { 0 };
@@ -188,27 +188,27 @@ namespace Razix
         windowClass.lpfnWndProc = HandleMsgSetup;	    // The window procedure to handle the messages
         windowClass.cbClsExtra = 0;					    // No extra used defines data for the custom data for current window class registered
         windowClass.cbWndExtra = 0;					    // Same as above but it's the data for every instance of this class 
-        windowClass.hInstance = GetInstance();		    // The instance handler for the current window 
+        windowClass.hInstance = getInstance();		    // The instance handler for the current window 
         windowClass.hIcon = nullptr;// static_cast<HICON>(LoadImage(hInst, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 64, 64, 0));				    // Icon 
         windowClass.hCursor = nullptr;				    // Using the default cursor
         windowClass.hbrBackground = nullptr;		    // We take care of this through DirectX, We don't specify how to clear the background we leave it empty to be taken care by DirectX
         windowClass.lpszMenuName = nullptr;			    // Not using any menus
-        windowClass.lpszClassName = GetName();		    // The name to identify this class handle
+        windowClass.lpszClassName = getName();		    // The name to identify this class handle
         windowClass.hIconSm = nullptr;// static_cast<HICON>(LoadImage(hInst, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 64, 64, 0));;
         RegisterClassEx(&windowClass);
     }
 
-    SplashScreen::WindowClass::~WindowClass()
+    RZSplashScreen::WindowClass::~WindowClass()
     {
-        UnregisterClass(wndClassName, GetInstance());
+        UnregisterClass(wndClassName, getInstance());
     }
 
-    const char* SplashScreen::WindowClass::GetName() noexcept
+    const char* RZSplashScreen::WindowClass::getName() noexcept
     {
         return wndClassName;
     }
 
-    HINSTANCE SplashScreen::WindowClass::GetInstance() noexcept
+    HINSTANCE RZSplashScreen::WindowClass::getInstance() noexcept
     {
         return wndClass.hInst;
     }

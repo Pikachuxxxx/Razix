@@ -12,16 +12,21 @@
 namespace Razix {
     namespace Debug
     {
-        /// The Engine wide Logging system
-        ///
-        /// Used for various Engine and Client sub-systems to report statuses, errors and other information
+        /** 
+         * The Engine wide Logging system
+         * @birief Used for various Engine and Client sub-systems to report statuses, errors and other information
+         */
         class RAZIX_API Log
         {
         public:
+            /* Starts Up the Logging system */
             static void StartUp();
+            /* Shuts down the Logging system */
             static void Shutdown();
-
+            
+            /* Returns the shared pointer to the engine core logger */
 			inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+            /* Returns the shared pointer to the engine application logger */
 			inline static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
         private:
 			static std::shared_ptr<spdlog::logger> s_CoreLogger;

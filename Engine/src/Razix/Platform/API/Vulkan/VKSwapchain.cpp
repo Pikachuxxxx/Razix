@@ -220,6 +220,25 @@ namespace Razix {
             }
             return swapchainImageViews;
         }
+
+        void VKSwapchain::presentSwapchain(VkCommandBuffer& commandBuffer)
+        {
+            UNIMPLEMENTED
+        }
+
+        void VKSwapchain::createSynchronizationPrimitives()
+        {
+            VkSemaphoreCreateInfo semaphoreInfo{};
+            semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+            m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+            m_RenderingFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+            m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+            m_ImagesInFlight.resize(m_SwapchainImageCount);
+
+
+
+        }
+
     }
 }
 

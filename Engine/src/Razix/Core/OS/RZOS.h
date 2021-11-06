@@ -23,6 +23,9 @@ namespace Razix
 		 */
 		static void SetInstance(RZOS* instance) { s_Instance = instance; }
 
+		/* Initializes the OS instance */
+		virtual void Init() = 0;
+
 		 /** Important
 		 * Controls the Application lifecycle
 		 * Should be Implemented OS so as to give the OS control over the application

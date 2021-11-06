@@ -5,18 +5,18 @@
 #include "Razix/Core/Log.h"
 #include "Razix/Core/Engine.h"
 #include "Razix/Core/IRazixSystem.h"
-#include "Razix/Core/Application.h"
+#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/ReferenceCounter.h"
 #include "Razix/Core/SmartPointers.h"
-#include "Razix/Core/SplashScreen.h"
+#include "Razix/Core/RZSplashScreen.h"
 
 // Core/OS
-#include "Razix/Core/OS/OS.h"
-#include "Razix/Core/OS/Input.h"
-#include "Razix/Core/OS/FileSystem.h"
-#include "Razix/Core/OS/Window.h"
-#include "Razix/Core/OS/VirtualFileSystem.h"
+#include "Razix/Core/OS/RZOS.h"
+#include "Razix/Core/OS/RZInput.h"
+#include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/OS/RZWindow.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 // Events
 #include "Razix/Events/Event.h"
