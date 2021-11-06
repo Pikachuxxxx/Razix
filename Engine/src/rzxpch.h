@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <functional>
 #include <sstream>
+#include <fstream>
 
 //-----Data Structures-----//
 #include <string>

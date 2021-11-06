@@ -1,9 +1,9 @@
 #include "rzxpch.h"
 #include "WindowsOS.h"
 
-#include "Razix/Core/Application.h"
+#include "Razix/Core/RZApplication.h"
 
-#include "Razix/Core/OS/Window.h"
+#include "Razix/Core/OS/RZWindow.h"
 #ifdef RAZIX_USE_GLFW_WINDOWS
 #include "Razix/Platform/GLFW/GLFWWindow.h"
 #include "Razix/Platform/GLFW/GLFWInput.h"
@@ -19,8 +19,10 @@ namespace Razix
 		RAZIX_CORE_INFO("Creating Windows OS instance");
 		RAZIX_CORE_INFO("System OS : {0}", STRINGIZE(RAZIX_BUILD_CONFIG));
 	#ifdef RAZIX_USE_GLFW_WINDOWS
+		// Set GLFW as window when the Engine API will be called to create the window
 		GLFWWindow::Construct();
-		// TODO: Initialize the OS specific Input Implementation here
+		// Select GLFW as the input manager client
+		RZInput::SelectGLFWInputManager();
 	#else 
 		WindowsWindow::Construct();
 		Razix::RZInput* Razix::RZInput::sInstance = new WindowsInput();
@@ -31,6 +33,7 @@ namespace Razix
 	void WindowsOS::Run()
 	{
 		// TODO: Implement the Application life cycle here! in a more Robust way
+		// Initialize the application with additional systems after application constructor is called with project name and VFS mounts
 		Razix::RZApplication::Get().Init();
 		// Application auto Initialization by the Engine
 		Razix::RZApplication::Get().Run();

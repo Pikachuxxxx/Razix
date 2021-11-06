@@ -3,16 +3,16 @@
 #include "Razix/Core/Core.h"
 #include "Razix/Core/Log.h"
 
-#include "Razix/Core/OS/Window.h"
+#include "Razix/Core/OS/RZWindow.h"
 
 namespace Razix {
     namespace Graphics {
 
         /* Forward decelerations */
-        class RZTexture;
-        class RZCommandBuffer;
+        class RZTexture;            /* The texture2D to which the swap images are stored as */
+        class RZCommandBuffer;      /* The command buffer that will be submitted for execution */  
 
-        /* The swapchain that consists of multiple render targets and framebuffer attachments to render to */
+        /* The swapchain that consists of multiple render targets and framebuffer attachments to render to the surface */
         class RZSwapchain
         {
         public:
@@ -31,7 +31,7 @@ namespace Razix {
             virtual void Init() = 0;
             /* Destroys the swapchain and it's resources */
             virtual void Destroy() = 0;
-            /* Flips the swapchain images for presentation */
+            /* Flips the swapchain images for presentation, typically used while foing double/triple buffered rendering */
             virtual void Flip() = 0;
 
             /* Gets the swapchain image at the given index */

@@ -3,13 +3,13 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-#include <vulkan/vulkan.h>
-#include <glfw/glfw3.h>
-
-#include "Razix/Core/Application.h"
+#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
+
+#include <vulkan/vulkan.h>
+#include <glfw/glfw3.h>
 
 #define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
@@ -44,6 +44,8 @@ namespace Razix {
 
             // Create the Logical Device
             VKDevice::Get().init();
+
+
         }
 
         void VKContext::Destroy() {

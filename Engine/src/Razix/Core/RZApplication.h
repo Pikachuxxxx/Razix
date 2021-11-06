@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Core.h"
-#include "Razix/Core/OS/Window.h"
+#include "Razix/Core/OS/RZWindow.h"
 #include "Razix/Core/SmartPointers.h"
 
 #include "Razix/Events/ApplicationEvent.h"
@@ -17,8 +17,6 @@
 #pragma warning(push, 0)
 #include <cereal/archives/json.hpp>
 #pragma warning(pop)
-#include <fstream>
-
 
 //! The style guide rules are waved off for RZApplication class
 

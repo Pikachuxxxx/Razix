@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/OS/Window.h"
+#include "Razix/Core/OS/RZWindow.h"
 
 // Forward declaring to reduce header file complexity
 struct GLFWwindow;

@@ -14,18 +14,17 @@
 
 namespace Razix
 {
-
 #define UPDATE_VERSION_LABEL (WM_APP + 20)
 	// TODO: Don't close all instances of the window if we close one of them
-	class RAZIX_API SplashScreen : public RZSingleton<SplashScreen>
+	class RAZIX_API RZSplashScreen : public RZSingleton<RZSplashScreen>
 	{
 	private:
 		// singleton manages registration/cleanup of window class
 		class WindowClass
 		{
 		public:
-			static const char* GetName() noexcept;
-			static HINSTANCE GetInstance() noexcept;
+			static const char* getName() noexcept;
+			static HINSTANCE getInstance() noexcept;
 		private:
 			WindowClass() noexcept;
 			~WindowClass();
@@ -36,14 +35,14 @@ namespace Razix
 			HINSTANCE hInst;
 		};
 	public:
-		SplashScreen();
-		~SplashScreen();
+		RZSplashScreen();
+		~RZSplashScreen();
 
-		void Init();
-		void Destroy();
+		void init();
+		void destroy();
 
-		void SetVersionString(const std::string& text);
-		void SetLogString(const std::string& text);
+		void setVersionString(const std::string& text);
+		void setLogString(const std::string& text);
 		static std::optional<int> ProcessMessages();
 	private:
 		int width;

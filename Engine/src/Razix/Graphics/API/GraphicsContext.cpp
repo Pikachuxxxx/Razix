@@ -19,7 +19,8 @@ namespace Razix {
 
         // Initializing the static variables
         RZGraphicsContext* RZGraphicsContext::s_Context = nullptr;
-        RenderAPI RZGraphicsContext::s_RenderAPI = RenderAPI::OPENGL;
+        // The Engine uses Vulkan aS the default render API
+        RenderAPI RZGraphicsContext::s_RenderAPI = RenderAPI::VULKAN;
 
         void RZGraphicsContext::Create(const WindowProperties& properties, RZWindow* window) {
 

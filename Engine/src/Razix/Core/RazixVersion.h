@@ -15,7 +15,7 @@ namespace Razix
             Development,
             Alpha,
             Beta,
-            RC
+            RC // Release candidate
         };
 
         /* Engine release date */
@@ -71,9 +71,9 @@ namespace Razix
         std::string getReleaseDateString() const { return (std::to_string(ReleaseDate.Day) + "-" + std::to_string(ReleaseDate.Month) + "-" + std::to_string(ReleaseDate.Year)); }
 
     private:
-        int Major = 0;
-        int Minor = 0;
-        int Patch = 0;
+        int Major = 0;  /* The Major release version of the engine */
+        int Minor = 0;  /* The minor release version of the engine */
+        int Patch = 0;  /* The Patch release version of the engine */
 
         Stage ReleaseStage;
 
