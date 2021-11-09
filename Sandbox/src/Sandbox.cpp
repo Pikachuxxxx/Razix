@@ -10,11 +10,13 @@ public:
 
     }
 
-    ~Sandbox() {
+    ~Sandbox()
+    {
 
     }
 
-    void OnUpdate(const Timestep& dt) override {
+    void OnUpdate(const Timestep& dt) override 
+    {
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.97f, 0.58f, 0.25f);
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)

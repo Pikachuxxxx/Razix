@@ -1,5 +1,5 @@
 #include "rzxpch.h"
-#include "Log.h"
+#include "RZLog.h"
 
 #include "Razix/Core/RZSplashScreen.h"
 
@@ -7,10 +7,10 @@ namespace Razix
 {
     namespace Debug {
 
-        std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
-        std::shared_ptr<spdlog::logger> Log::s_ApplicationLogger;
+        std::shared_ptr<spdlog::logger> RZLog::s_CoreLogger;
+        std::shared_ptr<spdlog::logger> RZLog::s_ApplicationLogger;
 
-        void Log::StartUp()
+        void RZLog::StartUp()
         {
             // Set the pattern for log message
             spdlog::set_pattern("%^ %n [%T] :: %v %$");
@@ -32,7 +32,7 @@ namespace Razix
             Razix::RZSplashScreen::Get().setLogString("Starting Up Engine Application Logger");
         }
 
-        void Log::Shutdown()
+        void RZLog::Shutdown()
         {
             RAZIX_CORE_ERROR("Shutting down Logging System");
             s_CoreLogger.reset();

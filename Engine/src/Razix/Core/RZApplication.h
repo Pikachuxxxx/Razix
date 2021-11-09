@@ -11,7 +11,7 @@
 #include "Razix/Utilities/Timestep.h"
 #include "Razix/Utilities/Timer.h"
 
-#include "Razix/Graphics/API/Swapchain.h"
+#include "Razix/Graphics/API/RZSwapchain.h"
 
 // Cereal
 #pragma warning(push, 0)
