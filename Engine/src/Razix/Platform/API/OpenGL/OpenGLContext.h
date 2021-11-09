@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/GraphicsContext.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
 
 struct GLFWwindow;
 

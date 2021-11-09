@@ -5,9 +5,9 @@
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
-#include "Razix/Core/Log.h"
+#include "Razix/Core/RZLog.h"
 
-#include "Razix/Graphics/API/Texture.h"
+#include "Razix/Graphics/API/RZTexture.h"
 
 namespace Razix {
     namespace Graphics {

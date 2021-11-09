@@ -14,7 +14,7 @@
 #include <GLFW/glfw3.h>
 #endif
 
-#include "Razix/Graphics/API/GraphicsContext.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
 
 namespace Razix
 {

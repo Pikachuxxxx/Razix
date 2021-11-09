@@ -2,7 +2,7 @@
 #include "RZApplication.h"
 
 // ---------- Engine ----------
-#include "Razix/Core/Engine.h"
+#include "Razix/Core/RZEngine.h"
 // ----------------------------
 
 #include "Razix/Core/RazixVersion.h"
@@ -12,9 +12,9 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
-#include "Razix/Graphics/API/GraphicsContext.h"
-#include "Razix/Graphics/API/Texture.h"
-#include "Razix/Graphics/API/Swapchain.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/API/RZSwapchain.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
     #include <glad/glad.h>
@@ -96,7 +96,7 @@ namespace Razix
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
 
         //-------------------------------------------------------------------------------------
-        // Creating the Graphics Context and Swapchain
+        // Creating the Graphics Context and Swapchain and Initialize it
         Graphics::RZGraphicsContext::Create(m_WindowProperties, m_Window.get());
         Graphics::RZGraphicsContext::GetContext()->Init();
         swapchain = Graphics::RZSwapchain::Create(m_Window->getWidth(), m_Window->getHeight());
@@ -199,7 +199,6 @@ namespace Razix
 
     void RZApplication::OnStart()
     {
-
         //! Testing Texture loading and other demo stuff REMOVE THIS!!!
         Graphics::RZTexture::Filtering filtering = {};
         filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;

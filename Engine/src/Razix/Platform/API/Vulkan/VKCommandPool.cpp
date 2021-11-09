@@ -13,21 +13,21 @@ namespace Razix {
         VKCommandPool::VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags)
         {
             VkCommandPoolCreateInfo cmdPoolCI{};
-            cmdPoolCI.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            cmdPoolCI.queueFamilyIndex = queueIndex;
-            cmdPoolCI.flags = flags;
+            cmdPoolCI.sType             = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            cmdPoolCI.queueFamilyIndex  = queueIndex;
+            cmdPoolCI.flags             = flags;
 
-            VK_CHECK_RESULT(vkCreateCommandPool(VKDevice::Get().getDevice(), &cmdPoolCI, nullptr, &m_Handle));
+            VK_CHECK_RESULT(vkCreateCommandPool(VKDevice::Get().getDevice(), &cmdPoolCI, nullptr, &m_CmdPool));
         }
 
         void VKCommandPool::reset()
         {
-            VK_CHECK_RESULT(vkResetCommandPool(VKDevice::Get().getDevice(), m_Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+            VK_CHECK_RESULT(vkResetCommandPool(VKDevice::Get().getDevice(), m_CmdPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
         }
 
         void VKCommandPool::destroy()
         {
-            vkDestroyCommandPool(VKDevice::Get().getDevice(), m_Handle, nullptr);
+            vkDestroyCommandPool(VKDevice::Get().getDevice(), m_CmdPool, nullptr);
         }
 
     }

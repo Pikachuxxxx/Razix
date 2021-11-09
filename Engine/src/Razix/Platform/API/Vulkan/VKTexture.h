@@ -2,7 +2,7 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-#include "Razix/Graphics/API/Texture.h"
+#include "Razix/Graphics/API/RZTexture.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 

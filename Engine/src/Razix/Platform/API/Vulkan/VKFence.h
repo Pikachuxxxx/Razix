@@ -21,18 +21,17 @@ namespace Razix {
 
             /* Indicates whether the fence is in signaled or not */
             bool isSignaled();
-            /* Waits for the fence to be signal it's completion */
+            /* Waits until the fence is signaled */
             bool wait();
             /* Resets the fence into a non signaled state */
             void reset();
 
             /* Gets the handle to the Vulkan fence */
-            const VkFence& getVulkanFence() const { return m_Fence; }
+            const VkFence& getVKFence() const { return m_Fence; }
         private: 
             VkFence m_Fence;        /* The handle to the Vulkan fence object                                        */
             bool    m_IsSignaled;   /* Boolean that indicates the whether the fence is in signaled state or not     */
         };
-
     }
 }
 #endif

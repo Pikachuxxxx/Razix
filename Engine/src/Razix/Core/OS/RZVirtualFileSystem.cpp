@@ -1,7 +1,7 @@
 #include "rzxpch.h"
 #include "RZVirtualFileSystem.h"
 
-#include "Razix/Core/Log.h"
+#include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Utilities/StringUtilities.h"
