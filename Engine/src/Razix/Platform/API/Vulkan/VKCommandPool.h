@@ -18,6 +18,7 @@ namespace Razix {
              * @param flags Configure the pool
              */
             VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags);
+            /* Destructor for the command pool */
             ~VKCommandPool() {}
 
             /* Resets the pool and the buffers it allocated */
@@ -25,11 +26,11 @@ namespace Razix {
             /* Destroys the command pool */
             void destroy();
 
-            /* Returns the undelying Vulkan command pool handle */
-            const VkCommandPool& getVKPool() const { return m_Handle; }
+            /* Returns the underlying Vulkan command pool handle */
+            const VkCommandPool& getVKPool() const { return m_CmdPool; }
 
         private:
-            VkCommandPool m_Handle; /* Handle to vulkan command pool */
+            VkCommandPool m_CmdPool;    /* Handle to vulkan command pool */
         };
     }
 }

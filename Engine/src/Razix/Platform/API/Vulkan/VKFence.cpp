@@ -40,6 +40,7 @@ namespace Razix {
         {
             RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is Signaled!");
 
+            // Waits until the fence is signaled
             const VkResult result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT32_MAX);
 
             VK_CHECK_RESULT(result);

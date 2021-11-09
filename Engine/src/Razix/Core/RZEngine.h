@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RazixVersion.h"
-#include "Razix/Utilities/CommandLineParser.h"
+#include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRazixSingleton.h"
 
 //! The style guide rules are waved off for RZEngine class
@@ -21,7 +21,7 @@ namespace Razix
 		};
 
     public:
-		CommandLineParser commandLineParser;	/* Command line parser for that helps in setting Engine and Application options */
+		RZCommandLineParser commandLineParser;	/* Command line parser for that helps in setting Engine and Application options */
 
 	public:
 		/* Starts up the Engine and it's sub-systems */
