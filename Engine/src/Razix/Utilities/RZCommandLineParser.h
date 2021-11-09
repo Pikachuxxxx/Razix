@@ -2,12 +2,16 @@
 
 #include "Razix/Core/Core.h"
 
+#include <string>
+#include <vector>
+#include <unordered_map>
+
 namespace Razix
 {
     /**
      * Parses the command line arguments for the Razix Application
      */
-    class RAZIX_API CommandLineParser
+    class RAZIX_API RZCommandLineParser
     {
     public:
         /* Command Line Option information */ 
@@ -21,8 +25,8 @@ namespace Razix
         };
 
     public:
-        CommandLineParser();
-        ~CommandLineParser(){}
+        RZCommandLineParser();
+        ~RZCommandLineParser(){}
 
         /**
          * Parses all the list of arguments passed from the command line

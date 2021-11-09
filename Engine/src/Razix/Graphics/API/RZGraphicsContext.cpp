@@ -1,5 +1,5 @@
 #include "rzxpch.h"
-#include "GraphicsContext.h"
+#include "RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
 #include "Platform/api/OpenGL/OpenGLContext.h"

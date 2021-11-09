@@ -16,12 +16,12 @@
 //-----Data Structures-----//
 #include <string>
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <set>
 
 //-----Engine-----//
-#include "Razix/Core/Log.h"
+#include "Razix/Core/RZLog.h"
 
 //-----3rd Party-----//
-

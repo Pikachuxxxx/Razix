@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Razix/Graphics/API/Swapchain.h"
-#include "Razix/Graphics/API/Texture.h"
+#include "Razix/Graphics/API/RZSwapchain.h"
+#include "Razix/Graphics/API/RZTexture.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN 
 

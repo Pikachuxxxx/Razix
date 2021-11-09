@@ -16,7 +16,7 @@ namespace Razix {
          * The Engine wide Logging system
          * @birief Used for various Engine and Client sub-systems to report statuses, errors and other information
          */
-        class RAZIX_API Log
+        class RAZIX_API RZLog
         {
         public:
             /* Starts Up the Logging system */
@@ -39,16 +39,16 @@ namespace Razix {
 #ifndef RAZIX_DISTRIBUTION
 
 // Core Engine Logging 
-#define RAZIX_CORE_TRACE(...)		::Razix::Debug::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define RAZIX_CORE_INFO(...)		::Razix::Debug::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define RAZIX_CORE_WARN(...)		::Razix::Debug::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define RAZIX_CORE_ERROR(...)		::Razix::Debug::Log::GetCoreLogger()->error(__VA_ARGS__)
+#define RAZIX_CORE_TRACE(...)		::Razix::Debug::RZLog::GetCoreLogger()->trace(__VA_ARGS__)
+#define RAZIX_CORE_INFO(...)		::Razix::Debug::RZLog::GetCoreLogger()->info(__VA_ARGS__)
+#define RAZIX_CORE_WARN(...)		::Razix::Debug::RZLog::GetCoreLogger()->warn(__VA_ARGS__)
+#define RAZIX_CORE_ERROR(...)		::Razix::Debug::RZLog::GetCoreLogger()->error(__VA_ARGS__)
                                                            
 // Application Logging									   
-#define RAZIX_TRACE(...)			::Razix::Debug::Log::GetApplicationLogger()->trace(__VA_ARGS__)
-#define RAZIX_INFO(...)			    ::Razix::Debug::Log::GetApplicationLogger()->info(__VA_ARGS__)
-#define RAZIX_WARN(...)			    ::Razix::Debug::Log::GetApplicationLogger()->warn(__VA_ARGS__)
-#define RAZIX_ERROR(...)			::Razix::Debug::Log::GetApplicationLogger()->error(__VA_ARGS__)
+#define RAZIX_TRACE(...)			::Razix::Debug::RZLog::GetApplicationLogger()->trace(__VA_ARGS__)
+#define RAZIX_INFO(...)			    ::Razix::Debug::RZLog::GetApplicationLogger()->info(__VA_ARGS__)
+#define RAZIX_WARN(...)			    ::Razix::Debug::RZLog::GetApplicationLogger()->warn(__VA_ARGS__)
+#define RAZIX_ERROR(...)			::Razix::Debug::RZLog::GetApplicationLogger()->error(__VA_ARGS__)
                                                            
 #else
 // Core Engine Logging 

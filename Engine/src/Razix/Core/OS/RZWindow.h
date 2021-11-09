@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/Log.h"
+#include "Razix/Core/RZLog.h"
 #include "Razix/Core/Core.h"
 #include "Razix/Events/event.h"
 

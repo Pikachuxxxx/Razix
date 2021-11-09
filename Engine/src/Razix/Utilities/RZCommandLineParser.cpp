@@ -1,9 +1,9 @@
 #include "rzxpch.h"
-#include "CommandLineParser.h"
+#include "RZCommandLineParser.h"
 
 namespace Razix
 {
-    CommandLineParser::CommandLineParser()
+    RZCommandLineParser::RZCommandLineParser()
     {
         AddCommand("help", { "--help" }, 0, "Show help");
         AddCommand("project filename", { "-f", "--project-file" }, 1, "The project file to start the application with");
@@ -20,7 +20,7 @@ namespace Razix
         AddCommand("profile-time", { "-pt", "--profile-time" }, 1, "Profiles the game upto a specified time");
     }
 
-    void CommandLineParser::printHelp()
+    void RZCommandLineParser::printHelp()
     {
         std::cout << "Available command line options:\n";
         for (auto& option : m_CommandOptions) {
@@ -36,19 +36,19 @@ namespace Razix
         std::cout << "\n";
     }
 
-    bool CommandLineParser::isSet(std::string name)
+    bool RZCommandLineParser::isSet(std::string name)
     {
         return ((m_CommandOptions.find(name) != m_CommandOptions.end()) && m_CommandOptions[name].set);
     }
 
-    std::string CommandLineParser::getValueAsString(std::string name)
+    std::string RZCommandLineParser::getValueAsString(std::string name)
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
         return value;
     }
 
-    int32_t CommandLineParser::getValueAsInt(std::string name)
+    int32_t RZCommandLineParser::getValueAsInt(std::string name)
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) == m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
@@ -57,7 +57,7 @@ namespace Razix
         return intVal;
     }
 
-    void CommandLineParser::AddCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help)
+    void RZCommandLineParser::AddCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help)
     {
         m_CommandOptions[name].commandFlags = commands;
         m_CommandOptions[name].helpDesc = help;
@@ -66,7 +66,7 @@ namespace Razix
         m_CommandOptions[name].value = "";
     }
 
-    void CommandLineParser::parse(std::vector<const char*>& arguments)
+    void RZCommandLineParser::parse(std::vector<const char*>& arguments)
     {
         bool printH = false;
         // Known arguments

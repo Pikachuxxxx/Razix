@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Razix/Graphics/API/Texture.h"
+#include "Razix/Graphics/API/RZTexture.h"
 
 #define VK_CHECK_RESULT(x)  VK_ERROR_REPORT(x)
 

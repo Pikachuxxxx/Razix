@@ -223,7 +223,12 @@ namespace Razix {
 
         void VKSwapchain::presentSwapchain(VkCommandBuffer& commandBuffer)
         {
-            UNIMPLEMENTED
+            vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentImageIndex], m_InFlightFences[m_CurrentImageIndex].getVKFence(), &m_CurrentImageIndex);
+
+            VkPresentInfoKHR presentInfo = {};
+            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+            presentInfo.swapchainCount = m_SwapchainImageCount;
+            presentInfo.waitSemaphoreCount = 1;
         }
 
         void VKSwapchain::createSynchronizationPrimitives()
@@ -234,9 +239,6 @@ namespace Razix {
             m_RenderingFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
             m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
             m_ImagesInFlight.resize(m_SwapchainImageCount);
-
-
-
         }
 
     }

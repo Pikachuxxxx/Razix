@@ -1,7 +1,7 @@
 #include "rzxpch.h"
-#include "Texture.h"
-
-#include "Razix/Graphics/API/GraphicsContext.h"
+#include "RZTexture.h"
+\
+#include "Razix/Graphics/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
 #include "Razix/Platform/API/OpenGL/OpenGLTexture.h"

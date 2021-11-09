@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/Engine.h"
+#include "Razix/Core/RZEngine.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication();
@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     Razix::RZSplashScreen::Get().setLogString("Initializing Razix Engine...");
 
     // 1.-> Logging System Initialization
-    Razix::Debug::Log::StartUp();
+    Razix::Debug::RZLog::StartUp();
 
     // Create the OS Instance
     auto windowsOS = new Razix::WindowsOS();
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
-    Razix::Debug::Log::Shutdown();
+    Razix::Debug::RZLog::Shutdown();
 
     return EXIT_SUCCESS;
 }
