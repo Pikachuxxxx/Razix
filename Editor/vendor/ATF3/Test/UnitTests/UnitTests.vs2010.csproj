@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0C4B6CCA-7686-4428-BC51-29C32680ED28}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UnitTests.Atf</RootNamespace>
+    <AssemblyName>UnitTests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\bin\Debug.vs2010\tests\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;CS_3;CS_4</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>..\..\bin\Release.vs2010\tests\</OutputPath>
+    <DefineConstants>TRACE;CS_3;CS_4</DefineConstants>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\ThirdParty\nUnit\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="nunit.core, Version=2.5.7.10213, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\nUnit\nunit.core.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.core.interfaces, Version=2.5.7.10213, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\nUnit\nunit.core.interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.5.7.10213, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\nUnit\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.util, Version=2.5.7.10213, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\nUnit\nunit.util.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DllImports\TestCalls.cs" />
+    <Compile Include="DllImports\TestDllImports.cs" />
+    <Compile Include="DomGen\TestSchemaGen.cs" />
+    <None Include="LocalizableStringExtractor\Cases\AboutDialog.cs">
+      <SubType>Form</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Compile Include="LocalizableStringExtractor\TestExtractor.cs" />
+    <Compile Include="LocalizableStringExtractor\TestLocalizableString.cs" />
+    <None Include="MsBuildUtils\Cases\Properties\AssemblyInfo.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MsBuildUtils\Cases\Properties\Resources.Designer.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MsBuildUtils\Cases\Properties\Settings.Designer.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MsBuildUtils\Cases\UserControl1.xaml.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Compile Include="MsBuildUtils\TestMsBuildUtils.cs" />
+    <Compile Include="Sce.Atf\Adaptation\TestAdaptableActiveCollection.cs" />
+    <Compile Include="Sce.Atf\Adaptation\TestAdapterCreator.cs" />
+    <Compile Include="Sce.Atf\Adaptation\ISimpleInterface.cs" />
+    <Compile Include="Sce.Atf\Adaptation\SimpleAdapter.cs" />
+    <Compile Include="Sce.Atf\Adaptation\SimpleDecoratable.cs" />
+    <Compile Include="Sce.Atf\Adaptation\SimpleAdaptable.cs" />
+    <Compile Include="Sce.Atf\Adaptation\TestAdapters.cs" />
+    <Compile Include="Sce.Atf\Adaptation\TestAdapter.cs" />
+    <Compile Include="Sce.Atf\Adaptation\TestAdaptableSelection.cs" />
+    <Compile Include="Sce.Atf\Applications\NetworkTargetServices\TestTcpIpTargetInfo.cs" />
+    <Compile Include="Sce.Atf\Applications\TestCommandLineArgsService.cs" />
+    <Compile Include="Sce.Atf\Applications\TestCommands.cs" />
+    <Compile Include="Sce.Atf\Applications\TestRenameCommand.cs" />
+    <Compile Include="Sce.Atf\Applications\TestSkinService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Sce.Atf\Applications\TestStandardFileCommands.cs" />
+    <Compile Include="Sce.Atf\Controls\PropertyEditing\TestBoundPropertyDescriptor.cs" />
+    <Compile Include="Sce.Atf\Controls\PropertyEditing\TestLongEnumEditor.cs" />
+    <Compile Include="Sce.Atf\Controls\PropertyEditing\TestPropertyUtils.cs" />
+    <Compile Include="Sce.Atf\Dom\TestChildAttributePropertyDescriptor.cs" />
+    <Compile Include="Sce.Atf\Dom\TestDataValidator.cs" />
+    <Compile Include="Sce.Atf\Dom\TestSubstitutionGroupRule.cs" />
+    <Compile Include="Sce.Atf\Dom\TestUniquePathIdValidator.cs" />
+    <Compile Include="Sce.Atf\Dom\TestSchemas.cs" />
+    <Compile Include="Sce.Atf\Dom\TestTransactionReporter.cs" />
+    <Compile Include="Sce.Atf\TestEnumUtil.cs" />
+    <Compile Include="Sce.Atf\TestMultimap.cs" />
+    <Compile Include="Sce.Atf\TestPath.cs" />
+    <Compile Include="Sce.Atf\Dom\TestAttributePropertyDescriptor.cs" />
+    <Compile Include="Sce.Atf\Dom\ValidationContext.cs" />
+    <Compile Include="Sce.Atf\Dom\Validator.cs" />
+    <Compile Include="Sce.Atf\Dom\TestDomNodeAdapter.cs" />
+    <Compile Include="Sce.Atf\TestDependencySystem.cs" />
+    <Compile Include="Sce.Atf\Dom\TestValidator.cs" />
+    <Compile Include="Sce.Atf\Dom\TestDomNode.cs" />
+    <Compile Include="Sce.Atf\TestEmptyEnumerable.cs" />
+    <Compile Include="Sce.Atf\Dom\TestDomNodeType.cs" />
+    <Compile Include="Sce.Atf\Dom\TestTypeAdapterCreator.cs" />
+    <Compile Include="Sce.Atf\Dom\TestStringEnumRule.cs" />
+    <Compile Include="Sce.Atf\Dom\TestExtensionInfo.cs" />
+    <Compile Include="Sce.Atf\Dom\TestChildInfo.cs" />
+    <Compile Include="Sce.Atf\Dom\TestAttributeInfo.cs" />
+    <Compile Include="Sce.Atf\Dom\DomTest.cs" />
+    <Compile Include="Sce.Atf\Dom\TestChildCountRule.cs" />
+    <Compile Include="Sce.Atf\TestReentryGuard.cs" />
+    <Compile Include="Sce.Atf\TestMathUtil.cs" />
+    <Compile Include="Sce.Atf\TestFileStreamResolver.cs" />
+    <Compile Include="Sce.Atf\TestResourceStreamResolver.cs" />
+    <Compile Include="Sce.Atf\TestStringUtil.cs" />
+    <Compile Include="Sce.Atf\TestTree.cs" />
+    <Compile Include="Sce.Atf\TestIntSet.cs" />
+    <Compile Include="Sce.Atf\TestCollectionAdapter.cs" />
+    <Compile Include="Sce.Atf\TestLazies.cs" />
+    <Compile Include="Sce.Atf\TestPair.cs" />
+    <Compile Include="Sce.Atf\TestEvent.cs" />
+    <Compile Include="Sce.Atf\TestActiveCollection.cs" />
+    <Compile Include="Sce.Atf\TestUniqueNamer.cs" />
+    <Compile Include="Sce.Atf\TestWeakKey.cs" />
+    <Compile Include="Sce.Atf\TestWinFormsUtil.cs" />
+    <Compile Include="Sce.Atf\TestXmlStringLocalizer.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestAngleAxisF.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestBezierCurve.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestBezierCurve2F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestBezierSpline.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestBox.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestBox2F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestCircleF.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestEulerAngles.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestFrustum.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestMatrix3F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestMatrix4F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestPlane3F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestPolygon3F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestQuatF.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestRay2F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestRay3F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestSeg2F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestSphere3F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestTriangle3F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestVec2F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestVec3F.cs" />
+    <Compile Include="Sce.Atf\VectorMath\TestVec4F.cs" />
+    <Compile Include="Sce.Atf\Wpf\Models\TestTreeViewModel.cs" />
+    <Compile Include="Utilities.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sce.Atf\TestEmptyArray.cs" />
+    <Compile Include="Sce.Atf\Dom\TestNumericMaxRule.cs" />
+    <Compile Include="Sce.Atf\Dom\TestNumericMinRule.cs" />
+    <Compile Include="Sce.Atf\Dom\TestAttributeType.cs" />
+    <Compile Include="Sce.Atf\Dom\TestNamedMetadata.cs" />
+    <Compile Include="Sce.Atf\TestSelection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MsBuildUtils\Cases\Properties\Resources.resx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <EmbeddedResource Include="Resources\test.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\testComplexTypes.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\testReferences.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\testSchemas.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\testSimpleTypes.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\test_customized.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\testReferences.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DevTools\DomGen\DomGen.vs2010.csproj">
+      <Project>{FE3CA2EA-2F56-49A5-AD02-E5DEC8694457}</Project>
+      <Name>DomGen</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DevTools\Localization\LocalizableStringExtractor\LocalizableStringExtractor.csproj">
+      <Project>{de007657-9550-426e-b276-3de94d956ef9}</Project>
+      <Name>LocalizableStringExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DevTools\MsBuildUtils\MsBuildUtils.csproj">
+      <Project>{d0fc856e-5d1b-4af5-aa3c-e3218f36a99f}</Project>
+      <Name>MsBuildUtils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Atgi\Atf.Atgi.vs2010.csproj">
+      <Project>{d1fa9a85-9359-4725-a50f-8a67a77d700c}</Project>
+      <Name>Atf.Atgi.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Collada\Atf.Collada.vs2010.csproj">
+      <Project>{6f80048b-e81f-4e06-9438-26c23487777c}</Project>
+      <Name>Atf.Collada.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Core\Atf.Core.vs2010.csproj">
+      <Project>{9D1835B6-D1C2-44BA-BAE1-05C6EC442D2F}</Project>
+      <Name>Atf.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Gui.WinForms\Atf.Gui.WinForms.vs2010.csproj">
+      <Project>{7C36A258-9102-420D-B80A-5EB5717644B6}</Project>
+      <Name>Atf.Gui.WinForms</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Gui.Wpf\Atf.Gui.Wpf.vs2010.csproj">
+      <Project>{050fc659-553f-4911-a609-5ba1be4edbf8}</Project>
+      <Name>Atf.Gui.Wpf.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Gui\Atf.Gui.vs2010.csproj">
+      <Project>{4765C2A7-F989-40DB-BC12-FCD67025B93F}</Project>
+      <Name>Atf.Gui</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Perforce\Atf.Perforce.vs2010.csproj">
+      <Project>{c7a306e0-32ae-4053-8882-e1a1e702c139}</Project>
+      <Name>Atf.Perforce.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Subversion\Atf.Subversion.vs2010.csproj">
+      <Project>{ad8b5500-d8e2-4609-beca-c405ea22b1ae}</Project>
+      <Name>Atf.Subversion.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NativeTestHelpers\NativeTestHelpers.vcxproj">
+      <Project>{fa4aab2f-8d6b-40f1-ae2d-e4793ae1b2df}</Project>
+      <Name>NativeTestHelpers</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="MsBuildUtils\Cases\Properties\Settings.settings">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\testImportSchemas.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="LocalizableStringExtractor\Cases\Localization.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MsBuildUtils\Cases\Test.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MsBuildUtils\Cases\Test.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="Resources\TestSkin.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="Resources\testSubstitutionGroups.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MsBuildUtils\Cases\UserControl1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LocalizableStringExtractor\Cases\FindTargetsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="LocalizableStringExtractor\Cases\Standard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
