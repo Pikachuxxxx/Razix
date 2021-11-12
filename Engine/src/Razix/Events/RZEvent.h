@@ -36,9 +36,9 @@ namespace Razix {
 
     #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
-    class RAZIX_API Event
+    class RAZIX_API RZEvent
     {
-        friend class EventDispatcher;
+        friend class RZEventDispatcher;
     public:
     bool Handled = false;
     public:
@@ -53,12 +53,12 @@ namespace Razix {
         }
     };
 
-    class EventDispatcher
+    class RZEventDispatcher
     {
         template<typename T>
         using EventFn = std::function<bool(T&)>;
     public:
-        EventDispatcher(Event& event)
+        RZEventDispatcher(RZEvent& event)
             : m_Event(event)
         {
         }
@@ -74,10 +74,10 @@ namespace Razix {
             return false;
         }
     private:
-        Event& m_Event;
+        RZEvent& m_Event;
     };
 
-    inline std::ostream& operator<<(std::ostream& os, const Event& e)
+    inline std::ostream& operator<<(std::ostream& os, const RZEvent& e)
     {
         return os << e.ToString();
     }

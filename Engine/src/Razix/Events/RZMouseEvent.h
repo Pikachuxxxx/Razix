@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Event.h"
+#include "RZEvent.h"
 
 namespace Razix {
 
-	class RAZIX_API MouseMovedEvent : public Event
+	class RAZIX_API RZMouseMovedEvent : public RZEvent
 	{
 	public:
-		MouseMovedEvent(float x, float y)
+		RZMouseMovedEvent(float x, float y)
 			: m_MouseX(x), m_MouseY(y) {}
 
 		inline float GetX() const { return m_MouseX; }
@@ -26,10 +26,10 @@ namespace Razix {
 		float m_MouseX, m_MouseY;
 	};
 
-	class RAZIX_API MouseScrolledEvent : public Event
+	class RAZIX_API RZMouseScrolledEvent : public RZEvent
 	{
 	public:
-		MouseScrolledEvent(float xOffset, float yOffset)
+		RZMouseScrolledEvent(float xOffset, float yOffset)
 			: m_XOffset(xOffset), m_YOffset(yOffset) {}
 
 		inline float GetXOffset() const { return m_XOffset; }
@@ -48,24 +48,24 @@ namespace Razix {
 		float m_XOffset, m_YOffset;
 	};
 
-	class RAZIX_API MouseButtonEvent : public Event
+	class RAZIX_API RZMouseButtonEvent : public RZEvent
 	{
 	public:
 		inline int GetMouseButton() const { return m_Button; }
 
 		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryMouse | (int)EventCategory::EventCategoryInput)
 	protected:
-		MouseButtonEvent(int button)
+		RZMouseButtonEvent(int button)
 			: m_Button(button) {}
 
 		int m_Button;
 	};
 
-	class RAZIX_API MouseButtonPressedEvent : public MouseButtonEvent
+	class RAZIX_API RZMouseButtonPressedEvent : public RZMouseButtonEvent
 	{
 	public:
-		MouseButtonPressedEvent(int button)
-			: MouseButtonEvent(button) {}
+		RZMouseButtonPressedEvent(int button)
+			: RZMouseButtonEvent(button) {}
 
 		std::string ToString() const override
 		{
@@ -77,11 +77,11 @@ namespace Razix {
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class RAZIX_API MouseButtonReleasedEvent : public MouseButtonEvent
+	class RAZIX_API RZMouseButtonReleasedEvent : public RZMouseButtonEvent
 	{
 	public:
-		MouseButtonReleasedEvent(int button)
-			: MouseButtonEvent(button) {}
+		RZMouseButtonReleasedEvent(int button)
+			: RZMouseButtonEvent(button) {}
 
 		std::string ToString() const override
 		{

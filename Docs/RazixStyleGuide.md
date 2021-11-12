@@ -109,13 +109,17 @@ Naming conventions for files and directories
 
 **Filenames and directories should be PascalCase**. The extensions of the files are lowercase.
 
-All Razix Related files should start with *FIleName*. Only custom types use Razix prefix for file names ex. `RazixSingleton` etc.
+All Razix Related files should start with *RZ*. Only custom types use **`T/I`** (type vs interface) prefix for file names ex. `RZSingleton` etc.
 
-    src/Razix/Core/Singleton.h
-
+    class RAZIX_API RZWindow
+    class RAZIX_API RZTexture
+    class RAZIX_API RZApplication
 
 C++ rules
 =========
+
+**All Classes start with `RZ` prefix**, while struts and enums have no such prefixes.
+
 
 **Always use strongly typed enums**.
 
@@ -135,16 +139,16 @@ C++ rules
 
 **Includes should always have the full file path in a alphabetical order of directories and file names**.
 
-    #include "Razix/Core/Core.h"
-    #include "Razix/Core/OS/Window.h"
-    #include "Razix/Core/SmartPointers.h"
+    #include "Razix/Core/RZCore.h"
+    #include "Razix/Core/OS/RZWindow.h"
+    #include "Razix/Core/RZSmartPointers.h"
 
-    #include "Razix/Events/ApplicationEvent.h"
-    #include "Razix/Events/KeyEvent.h"
-    #include "Razix/Events/MouseEvent.h"
+    #include "Razix/Events/RZApplicationEvent.h"
+    #include "Razix/Events/RZKeyEvent.h"
+    #include "Razix/Events/RZMouseEvent.h"
 
-    #include "Razix/Utilities/Timestep.h"
-    #include "Razix/Utilities/Timer.h"
+    #include "Razix/Utilities/RZTimestep.h"
+    #include "Razix/Utilities/RZTimer.h"
 
 **Access types in a class have a specified order**. First `public` then `protected` and last `private`. First Variables followed by Methods
 
@@ -162,7 +166,7 @@ C++ rules
 
 **Types/Macros declared in class should appear first under `public`**
 
-    class Texture
+    class RZTexture
            {
                // Texture Types
            public:
@@ -174,9 +178,9 @@ C++ rules
 
            public:
                 /* Default constructor, texture resource is done on demand */
-                Texture() = default;
+                RZTexture() = default;
                 /* Virtual destructor enables the API implementation to delete it's resources */
-                virtual ~Texture() {}
+                virtual ~RZTexture() {}
 
 Always **use `nullptr`**.
 

@@ -5,8 +5,8 @@
 #include "Razix/Embedded/RazixLogo64.inl"
 
 #include "Razix/Events/ApplicationEvent.h"
-#include "Razix/Events/KeyEvent.h"
-#include "Razix/Events/MouseEvent.h"
+#include "Razix/Events/RZKeyEvent.h"
+#include "Razix/Events/RZMouseEvent.h"
 #include "Razix/Utilities/LoadImage.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
@@ -149,7 +149,7 @@ namespace Razix
             data.Width = width;
             data.Height = height;
 
-            WindowResizeEvent event(width, height);
+            RZWindowResizeEvent event(width, height);
             data.EventCallback(event);
         });
 
@@ -169,19 +169,19 @@ namespace Razix
             {
             case GLFW_PRESS:
             {
-                KeyPressedEvent event(key, 0);
+                RZKeyPressedEvent event(key, 0);
                 data.EventCallback(event);
                 break;
             }
             case GLFW_RELEASE:
             {
-                KeyReleasedEvent event(key);
+                RZKeyReleasedEvent event(key);
                 data.EventCallback(event);
                 break;
             }
             case GLFW_REPEAT:
             {
-                KeyPressedEvent event(key, 1);
+                RZKeyPressedEvent event(key, 1);
                 data.EventCallback(event);
                 break;
             }
@@ -196,13 +196,13 @@ namespace Razix
             {
             case GLFW_PRESS:
             {
-                MouseButtonPressedEvent event(button);
+                RZMouseButtonPressedEvent event(button);
                 data.EventCallback(event);
                 break;
             }
             case GLFW_RELEASE:
             {
-                MouseButtonReleasedEvent event(button);
+                RZMouseButtonReleasedEvent event(button);
                 data.EventCallback(event);
                 break;
             }
@@ -213,7 +213,7 @@ namespace Razix
         {
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-            MouseScrolledEvent event((float)xOffset, (float)yOffset);
+            RZMouseScrolledEvent event((float)xOffset, (float)yOffset);
             data.EventCallback(event);
 
         });
@@ -222,7 +222,7 @@ namespace Razix
         {
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-            MouseMovedEvent event((float)xPos, (float)yPos);
+            RZMouseMovedEvent event((float)xPos, (float)yPos);
             data.EventCallback(event);
         });
     }
