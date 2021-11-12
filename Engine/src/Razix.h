@@ -21,10 +21,10 @@
 #include "Razix/Core/OS/RZWindow.h"
 
 // Events
-#include "Razix/Events/Event.h"
+#include "Razix/Events/RZEvent.h"
 #include "Razix/Events/ApplicationEvent.h"
-#include "Razix/Events/KeyEvent.h"
-#include "Razix/Events/MouseEvent.h"
+#include "Razix/Events/RZKeyEvent.h"
+#include "Razix/Events/RZMouseEvent.h"
 
 // Graphics/API
 #include "Razix/Graphics/API/RZGraphicsContext.h"

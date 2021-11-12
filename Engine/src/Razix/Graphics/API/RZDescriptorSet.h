@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Razix/Core/Core.h"
+
+#include "Razix/Graphics/API/RZShader.h"
 
 namespace Razix {
     namespace Graphics {
@@ -10,7 +13,22 @@ namespace Razix {
             UNIFORM_BUFFER, IMAGE_SAMPLER
         };
 
-        // Descriptor Set layout
-        // Vertex Input description 
+        /* Descriptor Set layout */
+        struct DescriptorLayout
+        {
+
+        };
+        
+        /* Vertex Input description */
+        struct VertexInputDescription
+        {
+
+        };
+
+        class RAZIX_API RZDescriptorSet
+        {
+        public:
+
+        };
     }
 }
