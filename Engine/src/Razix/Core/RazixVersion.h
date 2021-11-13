@@ -30,54 +30,52 @@ namespace Razix
 
     public:
         /* Creates the version information of the engine */
-        Version(int major, int  minor, int patch, Stage stage, Date releaseDate) : Major(major), Minor(minor), Patch(patch), ReleaseStage(stage), ReleaseDate(releaseDate) {}
+        Version(int major, int  minor, int patch, Stage stage, Date releaseDate) : m_Major(major), m_Minor(minor), m_Patch(patch), m_ReleaseStage(stage), m_ReleaseDate(releaseDate) {}
         
         /* Gets the major version of the engine */
-        int getVersionMajor() const { return Major; }
+        int getVersionMajor() const { return m_Major; }
         /* gets the minor version of the engine */
-        int getVersionMinor() const { return Minor; }
+        int getVersionMinor() const { return m_Minor; }
         /* gets the patch version of the Engine */
-        int getVersionPatch() const { return Patch; }
+        int getVersionPatch() const { return m_Patch; }
         /* Gets the release stage of the Engine */
-        Stage getReleaseStage() const { return ReleaseStage; }
+        Stage getReleaseStage() const { return m_ReleaseStage; }
         /* Gets the release data of the engine */
-        Date getReleaseDate() const { return ReleaseDate; }
+        Date getReleaseDate() const { return m_ReleaseDate; }
 
         /* Returns the version as a string (Major.Minor.Patch) */
-        std::string getVersionString() const { return (std::to_string(Major) + "." + std::to_string(Minor) + "." + std::to_string(Patch)); }
+        std::string getVersionString() const { return (std::to_string(m_Major) + "." + std::to_string(m_Minor) + "." + std::to_string(m_Patch)); }
         /* Returns the release stage as a string */
         std::string getReleaseStageString() const
         {
-            switch (ReleaseStage)
+            switch (m_ReleaseStage)
             {
             case Stage::Development:
-                return "Dev";
+                return "Development";
                 break;
             case Stage::Alpha:
                 return "Alpha";
                 break;
             case Stage::Beta:
                 return "Beta";
-                    break;
+                break;
             case Stage::RC:
                 return "RC";
-                    break;
+                break;
             default:
                 return "None";
                 break;
             }
         }
         /* Returns the release data as a string (dd-mm-yyyy) */
-        std::string getReleaseDateString() const { return (std::to_string(ReleaseDate.Day) + "-" + std::to_string(ReleaseDate.Month) + "-" + std::to_string(ReleaseDate.Year)); }
+        std::string getReleaseDateString() const { return (std::to_string(m_ReleaseDate.Day) + "-" + std::to_string(m_ReleaseDate.Month) + "-" + std::to_string(m_ReleaseDate.Year)); }
 
     private:
-        int Major = 0;  /* The Major release version of the engine */
-        int Minor = 0;  /* The minor release version of the engine */
-        int Patch = 0;  /* The Patch release version of the engine */
-
-        Stage ReleaseStage;
-
-        Date ReleaseDate;
+        int     m_Major = 0;        /* The Major release version of the engine  */
+        int     m_Minor = 0;        /* The minor release version of the engine  */
+        int     m_Patch = 0;        /* The Patch release version of the engine  */
+        Stage   m_ReleaseStage;     /* Current release stage of the engine      */
+        Date    m_ReleaseDate;      /* Current version release date             */
     };
 
     /* The Engine's current Version and release status */

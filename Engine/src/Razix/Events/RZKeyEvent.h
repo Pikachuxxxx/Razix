@@ -1,28 +1,28 @@
 #pragma once
 
-#include "Event.h"
+#include "RZEvent.h"
 
 
 namespace Razix {
 
-	class RAZIX_API KeyEvent : public Event
+	class RAZIX_API RZKeyEvent : public RZEvent
 	{
 	public:
 		inline int GetKeyCode() const { return m_KeyCode; }
 
 		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryKeyboard | (int)EventCategory::EventCategoryInput)
 	protected:
-		KeyEvent(int keycode)
+		RZKeyEvent(int keycode)
 			: m_KeyCode(keycode) {}
 
 		int m_KeyCode;
 	};
 
-	class RAZIX_API KeyPressedEvent : public KeyEvent
+	class RAZIX_API RZKeyPressedEvent : public RZKeyEvent
 	{
 	public:
-		KeyPressedEvent(int keycode, int repeatCount)
-			: KeyEvent(keycode), m_RepeatCount(repeatCount) {}
+		RZKeyPressedEvent(int keycode, int repeatCount)
+			: RZKeyEvent(keycode), m_RepeatCount(repeatCount) {}
 
 		inline int GetRepeatCount() const { return m_RepeatCount; }
 
@@ -38,11 +38,11 @@ namespace Razix {
 		int m_RepeatCount;
 	};
 
-	class RAZIX_API KeyReleasedEvent : public KeyEvent
+	class RAZIX_API RZKeyReleasedEvent : public RZKeyEvent
 	{
 	public:
-		KeyReleasedEvent(int keycode)
-			: KeyEvent(keycode) {}
+		RZKeyReleasedEvent(int keycode)
+			: RZKeyEvent(keycode) {}
 
 		std::string ToString() const override
 		{

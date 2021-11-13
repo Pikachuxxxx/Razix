@@ -18,8 +18,8 @@ namespace Razix {
         public:
             /* The type of the texture */
             enum class Type
-            {
                 COLOR = 0, DEPTH, CUBE
+            {
             };
 
             /* The format of the Texture resource */

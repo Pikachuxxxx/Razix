@@ -1,12 +1,12 @@
 #pragma once
-#include "Event.h"
+#include "RZEvent.h"
 
 namespace Razix {
 
-	class RAZIX_API WindowResizeEvent : public Event
+	class RAZIX_API RZWindowResizeEvent : public RZEvent
 	{
 	public:
-		WindowResizeEvent(unsigned int width, unsigned int height)
+		RZWindowResizeEvent(unsigned int width, unsigned int height)
 			: m_Width(width), m_Height(height) {}
 
 		inline unsigned int GetWidth() const { return m_Width; }
@@ -25,7 +25,7 @@ namespace Razix {
 		unsigned int m_Width, m_Height;
 	};
 
-	class RAZIX_API WindowCloseEvent : public Event
+	class RAZIX_API WindowCloseEvent : public RZEvent
 	{
 	public:
 		WindowCloseEvent() {}
@@ -34,7 +34,7 @@ namespace Razix {
 		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	};
 
-	class RAZIX_API AppTickEvent : public Event
+	class RAZIX_API AppTickEvent : public RZEvent
 	{
 	public:
 		AppTickEvent() {}
@@ -43,7 +43,7 @@ namespace Razix {
 		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	};
 
-	class RAZIX_API AppUpdateEvent : public Event
+	class RAZIX_API AppUpdateEvent : public RZEvent
 	{
 	public:
 		AppUpdateEvent() {}
@@ -52,7 +52,7 @@ namespace Razix {
 		EVENT_CLASS_CATEGORY((int)EventCategory::EventCategoryApplication)
 	};
 
-	class RAZIX_API AppRenderEvent : public Event
+	class RAZIX_API AppRenderEvent : public RZEvent
 	{
 	public:
 		AppRenderEvent() {}
