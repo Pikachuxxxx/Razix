@@ -6,7 +6,7 @@
 namespace Razix {
     namespace Graphics {
 
-        Razix::Graphics::RZUniformBuffer* RZUniformBuffer::Create(uint32_t size, const void* data)
+        RZUniformBuffer* RZUniformBuffer::Create(uint32_t size, const void* data)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:

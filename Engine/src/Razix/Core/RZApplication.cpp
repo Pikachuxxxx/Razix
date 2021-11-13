@@ -118,13 +118,13 @@ namespace Razix
         m_Window->SetVSync(true);
     }
 
-    void RZApplication::OnEvent(Event& event)
+    void RZApplication::OnEvent(RZEvent& event)
     {
-        EventDispatcher dispatcher(event);
+        RZEventDispatcher dispatcher(event);
         // Window close event
         dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
         // Window resize event
-        dispatcher.Dispatch<WindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
+        dispatcher.Dispatch<RZWindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
     }
 
     bool RZApplication::OnWindowClose(WindowCloseEvent& e)
@@ -133,7 +133,7 @@ namespace Razix
         return true;
     }
 
-    bool RZApplication::OnWindowResize(WindowResizeEvent& e)
+    bool RZApplication::OnWindowResize(RZWindowResizeEvent& e)
     {
         return true;
     }

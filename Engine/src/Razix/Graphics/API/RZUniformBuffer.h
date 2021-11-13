@@ -20,7 +20,7 @@ namespace Razix {
             static RZUniformBuffer* Create(uint32_t size, const void* data);
             
             /* Initializes the uniform buffer */
-            virtual void Init() = 0;
+            virtual void Init(const void* data) = 0;
             /**
              * Sets the data contents of the uniform buffer
              * 

@@ -2,7 +2,7 @@
 
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/Core.h"
-#include "Razix/Events/event.h"
+#include "Razix/Events/RZEvent.h"
 
 namespace Razix
 {
@@ -51,7 +51,7 @@ namespace Razix
     class RAZIX_API RZWindow
     {
     public:
-        using EventCallbackFn = std::function<void(Event&)>;
+        using EventCallbackFn = std::function<void(RZEvent&)>;
 
 		/**
          * Creates a Razix window with the given window properties

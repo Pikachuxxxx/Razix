@@ -5,8 +5,8 @@
 #include "Razix/Core/SmartPointers.h"
 
 #include "Razix/Events/ApplicationEvent.h"
-#include "Razix/Events/KeyEvent.h"
-#include "Razix/Events/MouseEvent.h"
+#include "Razix/Events/RZKeyEvent.h"
+#include "Razix/Events/RZMouseEvent.h"
 
 #include "Razix/Utilities/Timestep.h"
 #include "Razix/Utilities/Timer.h"
@@ -84,7 +84,7 @@ namespace Razix
          * 
          * @param event  The event received from all the sub-systems
          */
-        void OnEvent(Event& event);
+        void OnEvent(RZEvent& event);
 
         /* Quits the application and releases any resources held by it */
         void Quit();
@@ -169,7 +169,7 @@ namespace Razix
          *
          * @returns  True, if the window was resized successfully
          */
-        bool OnWindowResize(WindowResizeEvent& e);
+        bool OnWindowResize(RZWindowResizeEvent& e);
 
         NONCOPYABLE(RZApplication);
     };
