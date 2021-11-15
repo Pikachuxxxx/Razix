@@ -41,7 +41,7 @@ namespace Razix {
             }
 
             //TODO: USe macros to generate this code automatically
-            uint32_t TextureFormatToGL(const RZTexture::Format format, bool srgb)
+            static uint32_t TextureFormatToGL(const RZTexture::Format format, bool srgb)
             {
                 switch (format) {
                     case RZTexture::Format::R8:
@@ -84,7 +84,7 @@ namespace Razix {
                 }
             }
 
-            uint32_t TextureWrapToGL(const RZTexture::Wrapping wrap)
+            static uint32_t TextureWrapToGL(const RZTexture::Wrapping wrap)
             {
                 switch (wrap) {
                     case RZTexture::Wrapping::REPEAT:
@@ -107,7 +107,7 @@ namespace Razix {
                 }
             }
 
-            uint32_t TextureFormatToInternalFormat(uint32_t format)
+            static uint32_t TextureFormatToInternalFormat(uint32_t format)
             {
                 switch (format) {
                     case GL_SRGB8:
