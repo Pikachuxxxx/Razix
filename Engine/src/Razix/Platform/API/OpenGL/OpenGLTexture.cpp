@@ -1,8 +1,8 @@
 #include "rzxpch.h"
 #include "OpenGLTexture.h"
 
-#include "Razix/Utilities/LoadImage.h"
 #include "Razix/Platform/API/OpenGL/OpenGLUtilities.h"
+#include "Razix/Utilities/LoadImage.h"
 
 namespace Razix {
     namespace Graphics {
