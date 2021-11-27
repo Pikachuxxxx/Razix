@@ -3,7 +3,7 @@
 #include "Razix/Core/Core.h"
 
 #include "Razix/Utilities/Timestep.h"
-#include "Razix/Utilities/TRazixSingleton.h"
+#include "Razix/Utilities/TRZSingleton.h"
 
 #include <string>
 

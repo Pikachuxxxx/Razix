@@ -4,7 +4,7 @@
 
 #include "Razix/Core/SmartPointers.h"
 #include "Razix/Platform/API/Vulkan/VKCommandPool.h"
-#include "Razix/Utilities/TRazixSingleton.h"
+#include "Razix/Utilities/TRZSingleton.h"
 
 #include <vulkan/vulkan.h>
 

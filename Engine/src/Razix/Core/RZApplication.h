@@ -8,6 +8,7 @@
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
+#include "Razix/Utilities/TRZSingleton.h"
 #include "Razix/Utilities/Timestep.h"
 #include "Razix/Utilities/Timer.h"
 
@@ -38,7 +39,7 @@ namespace Razix
     };
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
-    class RAZIX_API RZApplication
+    class RAZIX_API RZApplication : public RZSingleton<RZApplication>
     {
     public: 
         /**
@@ -92,7 +93,7 @@ namespace Razix
         /* Returns a reference to the application window */
         inline RZWindow& GetWindow() { return *m_Window; }
         /* Returns a reference to the Application instance */
-        inline static RZApplication& Get() { return *s_AppInstance; }
+        //inline static RZApplication& Get() { return *s_AppInstance; }
         inline std::string GetAppName() const { return m_AppName; }
 
         /* Application Serialization */
@@ -140,7 +141,7 @@ namespace Razix
         unsigned int m_VAO = 0, m_VBO, m_IBO;
         Graphics::RZSwapchain* swapchain;
 
-        static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
+        //static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
         std::string             m_AppName;                              /* The name of the application                              */
         std::string             m_AppFilePath;                          /* The path of the Razix Project file (*.razixproject)      */

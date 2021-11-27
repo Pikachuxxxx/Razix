@@ -20,7 +20,7 @@ namespace Razix {
         void VKUniformBuffer::SetData(uint32_t size, const void* data)
         {
             VKBuffer::map();
-            memcpy(m_Mapped, data, static_cast<size_t>(m_Size));
+            memcpy(m_Mapped, data, static_cast<size_t>(m_BufferSize));
             VKBuffer::unMap();
         }
 

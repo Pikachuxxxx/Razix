@@ -37,7 +37,7 @@
 #include "Razix/Utilities/StringUtilities.h"
 #include "Razix/Utilities/Timer.h"
 #include "Razix/Utilities/Timestep.h"
-#include "Razix/Utilities/TRazixSingleton.h"
+#include "Razix/Utilities/TRZSingleton.h"
 
 //-----------Entry Point-------------
 #include "Razix/Core/EntryPoint.h"
