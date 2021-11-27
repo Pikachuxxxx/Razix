@@ -8,7 +8,7 @@ namespace Razix {
     namespace Graphics {
 
         VKCommandBuffer::VKCommandBuffer()
-            : m_CommandBuffer(VK_NULL_HANDLE) 
+            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE)
         { }
 
         VKCommandBuffer::~VKCommandBuffer()

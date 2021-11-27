@@ -10,11 +10,11 @@ typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimeStamp;
 
 namespace Razix
 {
-	class RAZIX_API Timer
+	class RAZIX_API RZTimer
 	{
 	public:
-		Timer();
-		~Timer() = default;
+		RZTimer();
+		~RZTimer() = default;
 
 		float GetTimeMS();
 		static TimeStamp Now();

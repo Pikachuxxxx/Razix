@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 
 #pragma warning(push, 0)
 #pragma warning( disable : 26812)

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 #include "Razix/Core/OS/RZKeyCodes.h"
 
 namespace Razix

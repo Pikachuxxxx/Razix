@@ -22,11 +22,13 @@ namespace Razix {
             return 0;
         }
 
-        OpenGLVertexBuffer::OpenGLVertexBuffer(BufferUsage usage)
+        OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size, const void* data, BufferUsage usage)
         {
             m_Usage = usage;
             m_Size = 0;
             GLCall(glGenBuffers(1, &m_VBO));
+            GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
+            GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, BufferUsageToOpenGL(m_Usage)));
         }
 
         OpenGLVertexBuffer::~OpenGLVertexBuffer()
@@ -34,7 +36,7 @@ namespace Razix {
             GLCall(glDeleteBuffers(1, &m_VBO));
         }
 
-        void OpenGLVertexBuffer::Bind(const RZCommandBuffer* cmdBuffer)
+        void OpenGLVertexBuffer::Bind(RZCommandBuffer* cmdBuffer)
         {
             // Bind the VAO here later
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
@@ -43,13 +45,6 @@ namespace Razix {
         void OpenGLVertexBuffer::Unbind()
         {
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        }
-
-        void OpenGLVertexBuffer::SetData(uint32_t size, const void* data)
-        {
-            m_Size = size;
-            GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-            GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, BufferUsageToOpenGL(m_Usage)));
         }
 
         void OpenGLVertexBuffer::SetSubData(uint32_t size, const void* data, uint32_t offset)

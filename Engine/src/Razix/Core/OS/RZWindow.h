@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZLog.h"
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 #include "Razix/Events/RZEvent.h"
 
 namespace Razix

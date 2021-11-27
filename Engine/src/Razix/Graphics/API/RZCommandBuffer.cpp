@@ -7,6 +7,10 @@
 #include "Razix/Platform/API/OpenGL/OpenGLCommandBuffer.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_VULKAN
+#include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+#endif
+
 namespace Razix {
     namespace Graphics {
 

@@ -1,20 +1,20 @@
 #pragma once
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 
 namespace Razix
 {
 	/// <summary>
 	/// Manages the delta time of the frame
 	/// </summary>
-	class RAZIX_API Timestep
+	class RAZIX_API RZTimestep
 	{
 	public:
 		/// <summary>
 		/// Initializes the delta time calculation function
 		/// </summary>
 		/// <param name="initialTime"> The time at which the runtime loop has started since the beggining of the initialization </param>
-		explicit inline Timestep(float initialTime)
+		explicit inline RZTimestep(float initialTime)
 			: m_Timestep(0.0f), m_LastTime(initialTime), m_Elapsed(0.0f) { }
 
 		/// <summary>

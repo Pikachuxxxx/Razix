@@ -21,6 +21,8 @@ namespace Razix {
             void Execute() override;
             void Reset() override;
             void UpdateViewport(uint32_t width, uint32_t height) override;
+
+            const VkCommandBuffer& getVKCmdBuffer() const { return m_CommandBuffer; }
     
         private:
             VkCommandBuffer m_CommandBuffer;    /* Handle to the Vulkan command buffer that will be executed by the GPu     */

@@ -17,7 +17,7 @@ namespace Razix
 	void WindowsOS::Init()
 	{
 		RAZIX_CORE_INFO("Creating Windows OS instance");
-		RAZIX_CORE_INFO("System OS : {0}", STRINGIZE(RAZIX_BUILD_CONFIG));
+		RAZIX_CORE_INFO("System OS : {0}", RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG));
 	#ifdef RAZIX_USE_GLFW_WINDOWS
 		// Set GLFW as window when the Engine API will be called to create the window
 		GLFWWindow::Construct();
