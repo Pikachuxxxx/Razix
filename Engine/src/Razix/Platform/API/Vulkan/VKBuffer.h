@@ -43,14 +43,14 @@ namespace Razix {
             /* Sets the usage of the buffer */
             inline void setUsage(VkBufferUsageFlags flags) { m_UsageFlags = flags; }
             /* Gets the size of the buffer */
-            inline VkDeviceSize getSize() const { return m_Size; }
+            inline VkDeviceSize getSize() const { return m_BufferSize; }
             /* Sets the size of the buffer */
-            inline void setSize(uint32_t size) { m_Size = (VkDeviceSize) size; }
+            inline void setSize(uint32_t size) { m_BufferSize = (VkDeviceSize) size; }
 
         protected:
             VkBuffer                m_Buffer;               /* handle to the Vulkan buffer          */
-            VkDeviceMemory          m_Memory;               /* Handle to the buffer memory          */
-            VkDeviceSize            m_Size;                 /* The size of the buffer               */
+            VkDeviceMemory          m_BufferMemory;         /* Handle to the buffer memory          */
+            VkDeviceSize            m_BufferSize;           /* The size of the buffer               */
             VkDescriptorBufferInfo  m_DesciptorBufferInfo;  /* The buffer description info          */
             VkBufferUsageFlags      m_UsageFlags;           /* Buffer usage description             */
             void*                   m_Mapped = nullptr;     /* The HOST mapped region of the buffer */

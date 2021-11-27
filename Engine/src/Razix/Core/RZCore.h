@@ -11,7 +11,7 @@
        
     // 16-bit Memory alignment for the Windows OS
     #define MEM_ALIGNMENT 16
-    #define MEM_ALIGN __declspec(align(MEM_ALIGNMENT)))
+    #define RAZIX_MEM_ALIGN __declspec(align(MEM_ALIGNMENT)))
 
     // Symbols Export settings for Engine
     #ifdef RAZIX_BUILD_DLL
@@ -79,8 +79,8 @@
 
 // Stringize
 #define STRINGIZE2(s) #s
-#define STRINGIZE(s) STRINGIZE2(s)
-#define ROOT_DIR STRINGIZE(RAZIX_ROOT_DIR)
+#define RAZIX_STRINGIZE(s) STRINGIZE2(s)
+#define RAZIX_ENGINE_ROOT_DIR STRINGIZE(RAZIX_ROOT_DIR)
 
 // Function Bind macro
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&RZApplication::x, this, std::placeholders::_1)
@@ -93,14 +93,14 @@
 
 
 // Unimplemented Function Breaker
-#define UNIMPLEMENTED                                                               \
+#define RAZIX_UNIMPLEMENTED_METHOD                                                               \
 {                                                                                   \
     RAZIX_CORE_ERROR("Unimplemented : {0} : {1}", __FILE__, __LINE__);              \
     RAZIX_DEBUG_BREAK();                                                            \
 }
 
 // Make the Class/Struct Object Non-Copyable/Assignable
-#define NONCOPYABLE(type_identifier)                                \
+#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                                \
     type_identifier(const type_identifier&) = delete;               \
     type_identifier& operator=(const type_identifier&) = delete;
 

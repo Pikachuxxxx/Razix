@@ -1,15 +1,15 @@
 #include "rzxpch.h"
-#include "Timer.h"
+#include "RZTimer.h"
 
 namespace Razix
 {
-	Timer::Timer() 
+	RZTimer::RZTimer() 
 		: m_Start(Now()), m_Frequency()
 	{
 		m_LastTime = m_Start;
 	}
 
-	float Timer::GetTimeMS()
+	float RZTimer::GetTimeMS()
 	{
 		float time = Duration(m_LastTime, Now(), 1000.0f);
 		m_LastTime = Now();

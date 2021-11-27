@@ -28,7 +28,7 @@ namespace Razix {
             void Destroy() override;
 
             inline const VkBuffer* const getBuffer() const { return &m_Buffer; }
-            inline const VkDeviceMemory* const getMemory() const { return &m_Memory; }
+            inline const VkDeviceMemory* const getMemory() const { return &m_BufferMemory; }
         };
     }
 }

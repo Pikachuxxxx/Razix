@@ -13,11 +13,6 @@ namespace Razix
         AddCommand("vsync", { "-vs", "--vsync" }, 0, "Enable V-Sync");
         AddCommand("width", { "-w", "--width" }, 1, "Set window width");
         AddCommand("height", { "-h", "--height" }, 1, "Set window height");
-        //AddCommand("gpuselection", { "-gs", "--gpu-selected" }, 1, "the gpu be");
-        AddCommand("gpulist", { "-gl", "--gpu-list" }, 0, "Display a list of available Vulkan devices");
-        AddCommand("profile", { "-p", "--profile" }, 0, "Run game in profiling mode");
-        AddCommand("profile-frames", { "-pf", "--profile-frames" }, 1, "Profiles the game upto the specified frames");
-        AddCommand("profile-time", { "-pt", "--profile-time" }, 1, "Profiles the game upto a specified time");
     }
 
     void RZCommandLineParser::printHelp()

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 
 namespace Razix
 {
@@ -23,8 +23,7 @@ namespace Razix
         RZSingleton() {}
         ~RZSingleton() {}
     private:
-        ///	Make the singleton non-copyable
-        NONCOPYABLE(RZSingleton);
+        RAZIX_NONCOPYABLE_CLASS(RZSingleton);
     };
 
     /*
@@ -48,7 +47,7 @@ namespace Razix
         static std::mutex m_mConstructed;
 
     private:
-        NONCOPYABLE(RZThreadSafeSingleton);
+        RAZIX_NONCOPYABLE_CLASS(RZThreadSafeSingleton);
     };
     */
 }
