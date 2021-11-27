@@ -23,7 +23,6 @@ namespace Razix
         RZSingleton() {}
         ~RZSingleton() {}
     private:
-        ///	Make the singleton non-copyable
         NONCOPYABLE(RZSingleton);
     };
 

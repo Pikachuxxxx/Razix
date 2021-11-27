@@ -10,17 +10,18 @@
 #include <Windows.h>
 
 #include "Razix/Core/Core.h"
-#include "Razix/Utilities/TRazixSingleton.h"
+#include "Razix/Utilities/TRZSingleton.h"
 
 namespace Razix
 {
-#define UPDATE_VERSION_LABEL (WM_APP + 20)
+#define UPDATE_VERSION_LABEL (WM_APP + 20) // We choose some arbitrary ID to register our custom event such so as to update the splash labels
 
+	// TODO: Fix the style guide enforcements for this class and comment everything properly
 	/* Creates a Splash Screen while the Engine systems are loading */
 	class RAZIX_API RZSplashScreen : public RZSingleton<RZSplashScreen>
 	{
 	private:
-		// singleton manages registration/cleanup of window class
+		/* singleton manages registration / cleanup of window class */
 		class WindowClass
 		{
 		public:
@@ -29,6 +30,7 @@ namespace Razix
 			/* Gets the Win32 windows instance */
 			static HINSTANCE getInstance() noexcept;
 		private:
+			/* Abstracts the Windows window registration */
 			WindowClass() noexcept;
 			~WindowClass();
 

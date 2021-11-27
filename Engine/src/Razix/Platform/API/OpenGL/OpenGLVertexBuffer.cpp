@@ -25,6 +25,7 @@ namespace Razix {
         OpenGLVertexBuffer::OpenGLVertexBuffer(BufferUsage usage)
         {
             m_Usage = usage;
+            m_Size = 0;
             GLCall(glGenBuffers(1, &m_VBO));
         }
 
@@ -35,6 +36,7 @@ namespace Razix {
 
         void OpenGLVertexBuffer::Bind(const RZCommandBuffer* cmdBuffer)
         {
+            // Bind the VAO here later
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
         }
 
