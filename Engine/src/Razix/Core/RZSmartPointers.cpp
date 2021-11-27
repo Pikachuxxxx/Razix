@@ -1,5 +1,5 @@
 #include "rzxpch.h"
-#include "SmartPointers.h"
+#include "RZSmartPointers.h"
 
 namespace Razix
 {

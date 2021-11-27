@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 #include "Razix/Core/OS/RZWindow.h"
-#include "Razix/Core/SmartPointers.h"
+#include "Razix/Core/RZSmartPointers.h"
 
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
-#include "Razix/Utilities/Timestep.h"
-#include "Razix/Utilities/Timer.h"
+#include "Razix/Utilities/RZTimestep.h"
+#include "Razix/Utilities/RZTimer.h"
 
 #include "Razix/Graphics/API/RZSwapchain.h"
 
@@ -39,7 +39,7 @@ namespace Razix
     };
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
-    class RAZIX_API RZApplication : public RZSingleton<RZApplication>
+    class RAZIX_API RZApplication
     {
     public: 
         /**
@@ -74,7 +74,7 @@ namespace Razix
          * 
          * @param dt The timestep taken for every frame
          */
-        virtual void OnUpdate(const Timestep& dt);
+        virtual void OnUpdate(const RZTimestep& dt);
         /**
          * Calls the engine sub-systems to render the stuff calculated in OnFrame()
          * Begins the frame and submits the rendergraph to final display
@@ -89,6 +89,8 @@ namespace Razix
 
         /* Quits the application and releases any resources held by it */
         void Quit();
+
+        static RZApplication& Get() { return *s_AppInstance; }
         
         /* Returns a reference to the application window */
         inline RZWindow& GetWindow() { return *m_Window; }
@@ -141,16 +143,16 @@ namespace Razix
         unsigned int m_VAO = 0, m_VBO, m_IBO;
         Graphics::RZSwapchain* swapchain;
 
-        //static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
+        static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
         std::string             m_AppName;                              /* The name of the application                              */
         std::string             m_AppFilePath;                          /* The path of the Razix Project file (*.razixproject)      */
         uint32_t                m_RenderAPI;                            /* The Render API being used to render the application      */
         uint32_t                m_Frames        = 0;                    /* The number of frames per second                          */
         uint32_t                m_Updates       = 0;                    /* The number of updated per second                         */
-        UniqueRef<Timer>        m_Timer;                                /* The timer used to calculate the delta time and timesteps */
+        UniqueRef<RZTimer>        m_Timer;                                /* The timer used to calculate the delta time and timesteps */
         float                   m_SecondTimer   = 0;                    /* A secondary timer to count the ticks per second          */
-        Timestep                m_Timestep;                             /* The timesteps taken to update the application            */
+        RZTimestep                m_Timestep;                             /* The timesteps taken to update the application            */
         UniqueRef<RZWindow>     m_Window;                               /* The window that will be used to view graphics            */
         WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
 
@@ -172,7 +174,7 @@ namespace Razix
          */
         bool OnWindowResize(RZWindowResizeEvent& e);
 
-        NONCOPYABLE(RZApplication);
+        RAZIX_NONCOPYABLE_CLASS(RZApplication);
     };
 
     /**

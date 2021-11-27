@@ -38,9 +38,9 @@ namespace Razix
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         //  1.1. Mount engine specific Paths
-        RZVirtualFileSystem::Get().mount("RazixRoot", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
-        RZVirtualFileSystem::Get().mount("RazixSource", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
-        RZVirtualFileSystem::Get().mount("RazixContent", std::string(STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
+        RZVirtualFileSystem::Get().mount("RazixRoot", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
+        RZVirtualFileSystem::Get().mount("RazixSource", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
+        RZVirtualFileSystem::Get().mount("RazixContent", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
@@ -78,6 +78,6 @@ namespace Razix
 
     void RZEngine::Run()
     {
-        UNIMPLEMENTED
+        RAZIX_UNIMPLEMENTED_METHOD
     }
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 
-#include "Razix/Utilities/Timestep.h"
+#include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
 #include <string>
@@ -12,10 +12,10 @@ namespace Razix
 	/*
 	 * An Interface for Engine Systems, Managers, Libraries and Factories
 	 */
-	class RAZIX_API IRazixSystem
+	class RAZIX_API IRZSystem
 	{
-        IRazixSystem() = default;
-        virtual ~IRazixSystem() = default;
+        IRZSystem() = default;
+        virtual ~IRZSystem() = default;
 
         /* StarUp of Engine system and it's behavior */
         virtual void StartUp() = 0;
@@ -26,7 +26,7 @@ namespace Razix
          * 
          * @param dt delta time between frames
          */
-        virtual void OnUpdate(const Timestep& dt) = 0;
+        virtual void OnUpdate(const RZTimestep& dt) = 0;
         /* ImGui behavior for the engine system */
         virtual void OnImGui() = 0;
 

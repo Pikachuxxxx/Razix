@@ -24,14 +24,14 @@ namespace Razix
 {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
-    RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
+    RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(RZTimestep(0.0f))
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
         s_AppInstance = this;
 
         // Set the Application root path and Load the project settings
-        const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
+        const std::string& razixRoot = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
         // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored to use the proper project path to resolve the VFS to mount the project Assets
         m_AppFilePath = razixRoot + projectRoot;
@@ -91,10 +91,10 @@ namespace Razix
 
         // The Razix Application Signature Name is generated here and passed to the window
         // TODO: Add render API being used to the Signature dynamically
-        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
-        m_Timer = CreateUniqueRef<Timer>();
+        m_Timer = CreateUniqueRef<RZTimer>();
 
         // Set the window properties and create the timer
         m_WindowProperties.Title = SignatureTitle;
@@ -237,7 +237,7 @@ namespace Razix
         }
     }
 
-    void RZApplication::OnUpdate(const Timestep& dt) 
+    void RZApplication::OnUpdate(const RZTimestep& dt) 
     {
 
     }

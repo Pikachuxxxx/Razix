@@ -9,7 +9,7 @@
 
 #include <Windows.h>
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
 namespace Razix
