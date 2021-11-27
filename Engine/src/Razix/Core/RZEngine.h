@@ -2,7 +2,7 @@
 
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Utilities/RZCommandLineParser.h"
-#include "Razix/Utilities/TRazixSingleton.h"
+#include "Razix/Utilities/TRZSingleton.h"
 
 //! The style guide rules are waved off for RZEngine class
 namespace Razix

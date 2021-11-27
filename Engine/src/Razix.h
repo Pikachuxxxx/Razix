@@ -1,16 +1,16 @@
 #pragma once
 
 // Core
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZLog.h"
-#include "Razix/Core/IRazixSystem.h"
+#include "Razix/Core/IRZSystem.h"
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/ReferenceCounter.h"
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZSplashScreen.h"
-#include "Razix/Core/SmartPointers.h"
+#include "Razix/Core/RZSmartPointers.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZKeyCodes.h"
@@ -35,9 +35,9 @@
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/LoadImage.h"
 #include "Razix/Utilities/StringUtilities.h"
-#include "Razix/Utilities/Timer.h"
-#include "Razix/Utilities/Timestep.h"
-#include "Razix/Utilities/TRazixSingleton.h"
+#include "Razix/Utilities/RZTimer.h"
+#include "Razix/Utilities/RZTimestep.h"
+#include "Razix/Utilities/TRZSingleton.h"
 
 //-----------Entry Point-------------
 #include "Razix/Core/EntryPoint.h"
