@@ -23,6 +23,7 @@ namespace Razix
 
     void RZVirtualFileSystem::mount(const std::string& virtualPath, const std::string& physicalPath)
     {
+        RAZIX_CORE_TRACE("RZVirtualFileSystem::Mounting file path at : {0}", physicalPath);
         m_MountPoints[virtualPath].push_back(physicalPath);
     }
 
