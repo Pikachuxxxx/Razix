@@ -9,6 +9,11 @@ namespace Razix {
             NONE, VERTEX, PIXEL, GEOMETRY, TCS, TES, COMPUTE
         };
 
+        enum class ShaderSourceType
+        {
+            RAZIX, GLSL, SPIRV, HLSL, PSSL, CG
+        };
+
         /* Razix Shader that will be passed to the GPU at various stages */
         class RZShader
         {
@@ -20,15 +25,22 @@ namespace Razix {
 
             virtual void Bind() const = 0;
             virtual void Unbind() const = 0;
-            virtual void ReflectShader() const = 0;
 
             void readShader();
+            static void ReflectShader(const ShaderSourceType& sourceType);
 
             /* Gets the stage of the pipeline that shader is bound/being used with */
             inline const ShaderStage& getStage() { return m_ShaderStage; }
 
         private:
             ShaderStage m_ShaderStage = ShaderStage::NONE;
+
+        private:
+            static void ReflectGLSLShader();
+            static void ReflectSPIRVShader();
+            static void ReflectHLSLShader();
+            static void ReflectPSSLShader();
+            static void ReflectCgShader();
         };
     
     } 

@@ -6,7 +6,7 @@
 namespace Razix {
     namespace Graphics {
     
-        RZDescriptor* RZDescriptor::Create(const DescriptorLayout& layout)
+        RZDescriptor* RZDescriptor::Create(const DescriptorBindingLayout& layout)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:   
@@ -18,6 +18,5 @@ namespace Razix {
                 default: return nullptr;  break;
             }
         }
-
     }
 }
