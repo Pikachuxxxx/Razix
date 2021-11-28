@@ -33,9 +33,9 @@ namespace Razix {
             /* Sets the index count of the index buffer */
             inline void setCount(uint32_t count) { m_IndexCount = count; }
         protected:
-            uint32_t m_IndexCount;  /* The index count of the index buffer */
-            BufferUsage m_Usage;
-            uint32_t m_Size;
+            uint32_t    m_IndexCount;   /* The index count of the index buffer  */
+            BufferUsage m_Usage;        /* The usage information of the buffer  */
+            uint32_t    m_Size;         /* The size of the Index buffer         */
         };
     }
 }

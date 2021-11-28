@@ -6,6 +6,7 @@ IncludeDir["ImGui"]     = "../Engine/vendor/imgui/"
 IncludeDir["spdlog"]    = "../Engine/vendor/spdlog/include"
 IncludeDir["cereal"]    = "../Engine/vendor/cereal/include"
 IncludeDir["stb"]       = "../Engine/vendor/stb/"
+IncludeDir["glm"]       = "../Engine/vendor/glm/"
 IncludeDir["Razix"]     = "../Engine/src"
 IncludeDir["vendor"]    = "../Engine/vendor/"
 
@@ -28,6 +29,7 @@ project "Sandbox"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
@@ -42,6 +44,7 @@ project "Sandbox"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",

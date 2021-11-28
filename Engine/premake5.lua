@@ -6,6 +6,7 @@ IncludeDir["GLFW"]      = "vendor/glfw/include/"
 IncludeDir["ImGui"]     = "vendor/imgui/"
 IncludeDir["spdlog"]    = "vendor/spdlog/include"
 IncludeDir["stb"]       = "vendor/stb/"
+IncludeDir["glm"]       = "vendor/glm/"
 IncludeDir["Razix"]     = "src"
 IncludeDir["vendor"]    = "vendor/"
 
@@ -71,6 +72,7 @@ project "Razix"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
@@ -92,6 +94,7 @@ project "Razix"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
