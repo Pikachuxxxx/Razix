@@ -9,7 +9,7 @@ namespace Razix {
 
         void RZVertexBufferLayout::pushImpl(const std::string& name, BufferFormat format, uint32_t size, bool Normalised)
         {
-            m_Elements.push_back({name, format, size, Normalised});
+            m_Elements.push_back({name, format, m_Stride, Normalised});
             m_Stride += size;
         }
 
@@ -68,14 +68,14 @@ namespace Razix {
             pushImpl(name, BufferFormat::R32G32B32A32_INT, sizeof(int) * 4, normalized);
         }
 
-        template <> void RZVertexBufferLayout::push<glm::mat3>(const std::string& name, bool normalized)
-        {
-            pushImpl(name, BufferFormat::R32G32B32_FLOAT3X3, sizeof(glm::mat3), normalized);
-        }
-
-        template <> void RZVertexBufferLayout::push<glm::mat4>(const std::string& name, bool normalized)
-        {
-            pushImpl(name, BufferFormat::R32G32B32A32_FLOAT4X4, sizeof(glm::mat4), normalized);
-        }
+        //template <> void RZVertexBufferLayout::push<glm::mat3>(const std::string& name, bool normalized)
+        //{
+        //    pushImpl(name, BufferFormat::R32G32B32_FLOAT3X3, sizeof(glm::mat3), normalized);
+        //}
+        //
+        //template <> void RZVertexBufferLayout::push<glm::mat4>(const std::string& name, bool normalized)
+        //{
+        //    pushImpl(name, BufferFormat::R32G32B32A32_FLOAT4X4, sizeof(glm::mat4), normalized);
+        //}
     }
 }

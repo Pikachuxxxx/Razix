@@ -16,10 +16,6 @@
 #include "Razix/Graphics/API/RZTexture.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include <glad/glad.h>
-#endif
-
 namespace Razix
 {
     RZApplication* RZApplication::s_AppInstance = nullptr;
@@ -208,9 +204,7 @@ namespace Razix
 
     void RZApplication::OnUpdate(const RZTimestep& dt) { }
 
-    void RZApplication::OnRender() 
-    {
-    }
+    void RZApplication::OnRender() { }
 
     void RZApplication::Quit()
     {
