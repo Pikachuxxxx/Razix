@@ -8,24 +8,18 @@
 namespace Razix {
     namespace Graphics {
 
+        // TODO: Add GLCall guards for all opengl function calls
         OpenGLCommandBuffer::OpenGLCommandBuffer() { }
 
         OpenGLCommandBuffer::~OpenGLCommandBuffer() { }
 
-        void OpenGLCommandBuffer::Init() { 
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
-        }
+        void OpenGLCommandBuffer::Init() { }
 
         void OpenGLCommandBuffer::BeginRecording() { }
 
         void OpenGLCommandBuffer::EndRecording() { }
 
-        void OpenGLCommandBuffer::Execute() 
-        {
-            // TODO: Remove thiss!!!!!!!!
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
+        void OpenGLCommandBuffer::Execute() { }
 
         void OpenGLCommandBuffer::Reset() { }
 
@@ -33,6 +27,18 @@ namespace Razix {
         {
             glViewport(0, 0, width, height);
         }
+
+        void OpenGLCommandBuffer::Draw(uint32_t verticexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+        {
+            glDrawArrays(GL_TRIANGLES, firstVertex, verticexCount);
+        }
+
+        void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
+        {
+            //TODO: How to send index data here?
+            glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_BYTE, nullptr);
+        }
+
     }
 }
 #endif

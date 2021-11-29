@@ -19,6 +19,8 @@ namespace Razix {
             void Unbind() override;
 
             void SetSubData(uint32_t size, const void* data, uint32_t offset) override;
+            void AddBufferLayout(RZVertexBufferLayout& layout) override;
+
         private:
             bool m_IsBufferMapped = false;
         };
