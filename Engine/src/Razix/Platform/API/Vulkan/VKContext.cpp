@@ -64,7 +64,7 @@ namespace Razix {
             // Vulkan Application Info
             VkApplicationInfo appInfo{};
             appInfo.sType                       = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-            appInfo.pApplicationName            = RZApplication::Get().GetAppName().c_str();
+            appInfo.pApplicationName            = RZApplication::Get().getAppName().c_str();
             appInfo.applicationVersion          = VK_MAKE_VERSION(1, 0, 0); // TODO: Add this feature later! once we add it to the Application class
             appInfo.pEngineName                 = "Razix Engine";
             appInfo.engineVersion               = VK_MAKE_VERSION(RazixVersion.getVersionMajor(), RazixVersion.getVersionMinor(), RazixVersion.getVersionPatch());

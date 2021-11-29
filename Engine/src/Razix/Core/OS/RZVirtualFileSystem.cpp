@@ -11,9 +11,9 @@ namespace Razix
     // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class
     void RZVirtualFileSystem::StartUp()
     {
+        // Instance is automatically created once the system is Started Up
         RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
         Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
-        /// Instance is automatically created once the system is Started Up
     }
 
     void RZVirtualFileSystem::ShutDown()
@@ -115,5 +115,4 @@ namespace Razix
 		std::string physicalPath;
         return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteTextFile(physicalPath, text) : false;
     }
-
 }

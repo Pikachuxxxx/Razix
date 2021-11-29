@@ -26,6 +26,8 @@ namespace Razix {
         {
             m_Usage = usage;
             m_Size = 0;
+            glGenVertexArrays(1, &m_VAO);
+            glBindVertexArray(m_VAO);
             GLCall(glGenBuffers(1, &m_VBO));
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
             GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, BufferUsageToOpenGL(m_Usage)));
