@@ -25,19 +25,67 @@ namespace Razix {
             R32G32B32_FLOAT,
             R32G32B32A32_INT,
             R32G32B32A32_UINT,
-            R32G32B32A32_FLOAT,
-            R32G32B32_FLOAT3X3,
-            R32G32B32A32_FLOAT4X4,
-
+            R32G32B32A32_FLOAT
         };
 
         /* Describes the format information of each element in the buffer data cluster */
         struct RAZIX_API BufferLayoutElement
         {
-            std::string     name;                   /* The name of the buffer element ex. position or uv or normal  */
-            BufferFormat    format;                 /* The format of the element data                               */
-            uint32_t        offset = 0;             /* Offset of the element from the first basically stride        */
-            bool            normalized = false;     /* Whether or not the data is normalized or not                 */
+            std::string     name;                   /* The name of the buffer element ex. position or uv or normal              */
+            BufferFormat    format;                 /* The format of the element data                                           */
+            uint32_t        offset = 0;             /* Offset of the element from the first basically stride                    */
+            bool            normalized = false;     /* Whether or not the data is normalized or not                             */
+
+            uint32_t getCount()
+            {
+                switch (format) {
+                    case Razix::Graphics::BufferFormat::R8_INT:
+                        return 1;
+                        break;
+                    case Razix::Graphics::BufferFormat::R8_UINT:
+                        return 1;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32_INT:
+                        return 1;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32_UINT:
+                        return 1;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32_FLOAT:
+                        return 1;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32_INT:
+                        return 2;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32_UINT:
+                        return 2;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32_FLOAT:
+                        return 2;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32B32_INT:
+                        return 3;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32B32_UINT:
+                        return 3;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32B32_FLOAT:
+                        return 3;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32B32A32_INT:
+                        return 4;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32B32A32_UINT:
+                        return 4;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32G32B32A32_FLOAT:
+                        return 4;
+                        break;
+                    default:
+                        return 0;
+                        break;
+                }
+            }
         };
 
         /* Vertex buffer layout describes the layout of the buffer data that is being uploaded to the GPU to be consumed by the Input Assembler */
@@ -80,13 +128,13 @@ namespace Razix {
             template <> void push<glm::ivec3>(const std::string& name, bool normalized);
             /* ivector4 */
             template <> void push<glm::ivec4>(const std::string& name, bool normalized);
-            /* mat3 */
-            template <> void push<glm::mat3>(const std::string& name, bool normalized);
-            /* mat4 */
-            template <> void push<glm::mat4>(const std::string& name, bool normalized);
+            ///* mat3 */
+            //template <> void push<glm::mat3>(const std::string& name, bool normalized);
+            ///* mat4 */
+            //template <> void push<glm::mat4>(const std::string& name, bool normalized);
 
             /* Gets the elements buffer layout information */
-            inline const std::vector<BufferLayoutElement> getElements() const { return m_Elements; }
+            inline std::vector<BufferLayoutElement>& getElements() { return m_Elements; }
             /* Gets the stride of the buffer layout */
             inline uint32_t getStride() const { return m_Stride; }
 
