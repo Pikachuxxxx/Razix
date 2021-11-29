@@ -93,10 +93,10 @@ namespace Razix
         static RZApplication& Get() { return *s_AppInstance; }
         
         /* Returns a reference to the application window */
-        inline RZWindow& GetWindow() { return *m_Window; }
+        inline RZWindow& getWindow() { return *m_Window; }
         /* Returns a reference to the Application instance */
         //inline static RZApplication& Get() { return *s_AppInstance; }
-        inline std::string GetAppName() const { return m_AppName; }
+        inline std::string getAppName() const { return m_AppName; }
 
         /* Application Serialization */
         template<class Archive>
@@ -139,9 +139,8 @@ namespace Razix
         }
 
     private:
-        //! Remove this shit! OpenGL testing code
-        unsigned int m_VAO = 0, m_VBO, m_IBO;
-        Graphics::RZSwapchain* swapchain;
+        // TODO: Move this to the renderer class soon!
+        Graphics::RZSwapchain*  swapchain;
 
         static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
@@ -150,9 +149,9 @@ namespace Razix
         uint32_t                m_RenderAPI;                            /* The Render API being used to render the application      */
         uint32_t                m_Frames        = 0;                    /* The number of frames per second                          */
         uint32_t                m_Updates       = 0;                    /* The number of updated per second                         */
-        UniqueRef<RZTimer>        m_Timer;                                /* The timer used to calculate the delta time and timesteps */
+        UniqueRef<RZTimer>      m_Timer;                                /* The timer used to calculate the delta time and timesteps */
         float                   m_SecondTimer   = 0;                    /* A secondary timer to count the ticks per second          */
-        RZTimestep                m_Timestep;                             /* The timesteps taken to update the application            */
+        RZTimestep              m_Timestep;                             /* The timesteps taken to update the application            */
         UniqueRef<RZWindow>     m_Window;                               /* The window that will be used to view graphics            */
         WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
 

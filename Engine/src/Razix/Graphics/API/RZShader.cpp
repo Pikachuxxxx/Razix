@@ -24,5 +24,35 @@ namespace Razix {
 
         }
 
+        void RZShader::ReflectShader(const ShaderSourceType& sourceType)
+        {
+
+        }
+
+        void RZShader::ReflectGLSLShader()
+        {
+
+        }
+
+        void RZShader::ReflectSPIRVShader()
+        {
+
+        }
+
+        void RZShader::ReflectHLSLShader()
+        {
+
+        }
+
+        void RZShader::ReflectPSSLShader()
+        {
+
+        }
+
+        void RZShader::ReflectCgShader()
+        {
+
+        }
+
     }
 }

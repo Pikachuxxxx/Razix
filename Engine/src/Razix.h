@@ -26,10 +26,17 @@
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
-// Graphics/API
+// Graphics API
+#include "Razix/Graphics/API/RZCommandBuffer.h"
+#include "Razix/Graphics/API/RZDescriptorSet.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/API/RZIndexBuffer.h"
+#include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/API/RZUniformBuffer.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/API/RZVertexBufferLayout.h"
 
 // Utilities
 #include "Razix/Utilities/RZCommandLineParser.h"
