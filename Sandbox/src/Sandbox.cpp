@@ -29,7 +29,12 @@ public:
             0.0f,  0.5f, 0.0f,
         };
 
+        // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
+        bufferLayout.push<glm::vec3>("Position");
+
         triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 9, vertices, Graphics::BufferUsage::STATIC);
+        triVBO->AddBufferLayout(bufferLayout);
+
         cmdBuffer = Graphics::RZCommandBuffer::Create();
         cmdBuffer->Init();
     }
@@ -45,7 +50,7 @@ public:
 
             cmdBuffer->BeginRecording();
             {   
-                // Renderer draw command are recorded here
+                cmdBuffer->Draw(3, 0, 0, 0);
             }
             cmdBuffer->EndRecording();
 
@@ -57,6 +62,7 @@ public:
     }
 
 private:
+    Graphics::RZVertexBufferLayout bufferLayout;
     Graphics::RZVertexBuffer* triVBO;
     Graphics::RZCommandBuffer* cmdBuffer;
 };

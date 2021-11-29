@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Graphics/API/RZVertexBufferLayout.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -41,6 +43,8 @@ namespace Razix {
             virtual void Unbind() = 0;
             /* Sets the data with some offset */
             virtual void SetSubData(uint32_t size, const void* data, uint32_t offset) = 0;
+            /* Sets the vertex buffer layout */
+            virtual void AddBufferLayout(RZVertexBufferLayout& layout) = 0;
         protected:
             BufferUsage m_Usage;            
             uint32_t    m_Size;

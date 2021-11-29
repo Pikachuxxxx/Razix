@@ -43,5 +43,11 @@ namespace Razix {
             VKBuffer::setData(size, data);
             VKBuffer::unMap();
         }
+
+        void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
     }
 }
