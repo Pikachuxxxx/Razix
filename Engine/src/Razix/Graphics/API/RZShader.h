@@ -14,7 +14,11 @@ namespace Razix {
             RAZIX, GLSL, SPIRV, HLSL, PSSL, CG
         };
 
-        /* Razix Shader that will be passed to the GPU at various stages */
+        /* 
+         * Razix Shader that will be passed to the GPU at various stages 
+         * 
+         * Razix Shader Files Format/Convention ??????????????????
+         */
         class RZShader
         {
         public:
