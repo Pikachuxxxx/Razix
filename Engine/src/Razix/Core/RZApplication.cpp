@@ -85,12 +85,11 @@ namespace Razix
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::OPENGL);
         //-------------------------------------------------------------------------------------
 
 
         // The Razix Application Signature Name is generated here and passed to the window
-        // TODO: Add render API being used to the Signature dynamically
         std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
@@ -205,50 +204,12 @@ namespace Razix
         return m_CurrentState != AppState::Closing;
     }
 
-    void RZApplication::OnStart()
+    void RZApplication::OnStart() { }
+
+    void RZApplication::OnUpdate(const RZTimestep& dt) { }
+
+    void RZApplication::OnRender() 
     {
-        //! Testing Texture loading and other demo stuff REMOVE THIS!!!
-        Graphics::RZTexture::Filtering filtering = {};
-        filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
-        filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
-
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            glGenVertexArrays(1, &m_VAO);
-            glBindVertexArray(m_VAO);
-            glGenBuffers(1, &m_VBO);
-            glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-
-            float vertices[3 * 3] = {
-                -0.5f, -0.5f, 0.0f,
-                 0.5f, -0.5f, 0.0f,
-                 0.0f,  0.5f, 0.0f,
-            };
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
-
-            glViewport(0, 0, m_Window->getWidth(), m_Window->getHeight());
-
-            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachmentGLTest", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering); 
-        }
-        else if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
-            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachmentVKTest", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
-            logoTexture->Release();
-        }
-    }
-
-    void RZApplication::OnUpdate(const RZTimestep& dt) 
-    {
-
-    }
-
-    void RZApplication::OnRender() {
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) 
-        {
-            glClear(GL_COLOR_BUFFER_BIT);
-            glBindVertexArray(m_VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
     }
 
     void RZApplication::Quit()

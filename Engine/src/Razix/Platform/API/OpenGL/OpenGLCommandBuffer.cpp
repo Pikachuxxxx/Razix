@@ -12,13 +12,20 @@ namespace Razix {
 
         OpenGLCommandBuffer::~OpenGLCommandBuffer() { }
 
-        void OpenGLCommandBuffer::Init() { }
+        void OpenGLCommandBuffer::Init() { 
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
+        }
 
         void OpenGLCommandBuffer::BeginRecording() { }
 
         void OpenGLCommandBuffer::EndRecording() { }
 
-        void OpenGLCommandBuffer::Execute() { }
+        void OpenGLCommandBuffer::Execute() 
+        {
+            // TODO: Remove thiss!!!!!!!!
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
 
         void OpenGLCommandBuffer::Reset() { }
 
