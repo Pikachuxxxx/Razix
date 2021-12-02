@@ -16,8 +16,6 @@ namespace Razix {
 
         /* 
          * Razix Shader that will be passed to the GPU at various stages 
-         * 
-         * Razix Shader Files Format/Convention ??????????????????
          */
         class RZShader
         {
