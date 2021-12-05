@@ -4,7 +4,7 @@
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/OS/RZFileSystem.h"
-#include "Razix/Utilities/StringUtilities.h"
+#include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix
 {
