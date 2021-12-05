@@ -65,6 +65,7 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/glfw/premake5")
         require("Engine/vendor/imgui/premake5")
         require("Engine/vendor/spdlog/premake5")
+        require("Engine/vendor/SPIRVReflect/premake5")
     group ""
 
     -- Build Script for Razix Engine
