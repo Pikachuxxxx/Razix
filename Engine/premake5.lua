@@ -7,6 +7,9 @@ IncludeDir["ImGui"]     = "vendor/imgui/"
 IncludeDir["spdlog"]    = "vendor/spdlog/include"
 IncludeDir["stb"]       = "vendor/stb/"
 IncludeDir["glm"]       = "vendor/glm/"
+IncludeDir["SPIRVReflect"]       = "vendor/SPIRVReflect/"
+
+
 IncludeDir["Razix"]     = "src"
 IncludeDir["vendor"]    = "vendor/"
 
@@ -63,7 +66,9 @@ project "Razix"
         "content/Shaders/PSSL/*.h",
         "content/Shaders/PSSL/*.hs",
         -- Cg
-        "content/Shaders/CG/*.cg"
+        "content/Shaders/CG/*.cg",
+        -- Razix Shader Files
+        "content/Shaders/Razix/*.rzsf"
     }
 
     -- Lazily add the platform files based on OS config
@@ -88,6 +93,7 @@ project "Razix"
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related 
@@ -110,6 +116,7 @@ project "Razix"
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related 
@@ -121,11 +128,12 @@ project "Razix"
     {
         "glfw",
         "imgui",
-        "spdlog"
+        "spdlog",
+        "SPIRVReflect"
     }
   
     -- Don't build the shaders, they are compiled by the engine once and cached
-   filter { "files:**.glsl or **.hlsl or ***.pssl or **.cg"}
+   filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
         flags { "ExcludeFromBuild"}
 
     -- Build GLSL files based on their extension

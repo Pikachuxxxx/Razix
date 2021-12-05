@@ -41,7 +41,7 @@
 // Utilities
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/LoadImage.h"
-#include "Razix/Utilities/StringUtilities.h"
+#include "Razix/Utilities/RZStringUtilities.h"
 #include "Razix/Utilities/RZTimer.h"
 #include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"

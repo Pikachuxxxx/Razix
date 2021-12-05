@@ -1,0 +1,12 @@
+/*
+ * Razix Shader File 
+ * default.rzsf : Default shader that can be used to render any primitive geometry without any shading, uses vertex colors if provided or tex coords or renders pink if everything else fails
+ * Copyright Razix Engine 2021 by Pikachusxxxx (Phani Srikar)
+ */
+
+ #shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        Compiled/SPIRV/default.vert.spv
+    #endif
+#end
+
