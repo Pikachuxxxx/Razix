@@ -1,8 +1,8 @@
+#version 450
 /*
  * Razix Engine GLSL Vertex Shader File
  * Default Vertex Shader that can be used for rendering basic geometry with vertex colors and use a texture as well
  */
-#version 450
 // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
 #extension GL_ARB_separate_shader_objects : enable
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
