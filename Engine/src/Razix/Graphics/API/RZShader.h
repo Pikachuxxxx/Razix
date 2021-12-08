@@ -1,6 +1,7 @@
 #pragma once
 
 #include <spirv_reflect.h>
+#include <map>
 
 namespace Razix {
     namespace Graphics {
@@ -29,7 +30,7 @@ namespace Razix {
          * can compile and cache and do all the fookin possible cases on it's own in the most efficient cache-friendly
          * and also serialize reflection data for faster loading
          */
-        class RZShader
+        class RAZIX_API RZShader
         {
         public:
             RZShader() { }
@@ -44,6 +45,9 @@ namespace Razix {
 
             virtual void Bind() const = 0;
             virtual void Unbind() const = 0;
+
+            static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
+            static void CrossCompileShader(const std::string& source, ShaderSourceType srcType, ShaderSourceType dstType);
 
             /* Gets the stage of the pipeline that shader is bound/being used with */
             inline const ShaderStage& getStage() { return m_ShaderStage; }

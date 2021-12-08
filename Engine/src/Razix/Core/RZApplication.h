@@ -106,7 +106,7 @@ namespace Razix
             archive(cereal::make_nvp("Project Name", projectName));
             RAZIX_ASSERT_MESSAGE((projectName == m_AppName), "Project name doesn't match with Executable");
             /**
-             * Currently the project name will be verifies with the one given in the sandbox or game project
+             * Currently the project name will be verified with the one given in the sandbox or game project
              * If it doesn't match it updates the project name, it's not necessary that the name must match the 
              * executable name, since the Editor can load any *.razixproject file, this should also mean that
              * it should be able to load any project name since the project name is always mutable just all it's properties
