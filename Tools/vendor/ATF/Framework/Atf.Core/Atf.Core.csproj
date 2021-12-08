@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{971A234B-83E7-7D56-AC00-6CFE982CB3E4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Sce.Atf</RootNamespace>
+    <AssemblyName>Atf.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\bin\Debug-windows-x86_64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Debug-windows-x86_64\obj\Debug\Atf.Core\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\bin\Release-windows-x86_64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Release-windows-x86_64\obj\Release\Atf.Core\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\bin\Distribution-windows-x86_64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Distribution-windows-x86_64\obj\Distribution\Atf.Core\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Wws.LiveConnect" />
+    <Reference Include="libcrashreport_net" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActiveCollection.cs" />
+    <Compile Include="Adaptation\AdaptableActiveCollection.cs" />
+    <Compile Include="Adaptation\AdaptableCollection.cs" />
+    <Compile Include="Adaptation\AdaptableList.cs" />
+    <Compile Include="Adaptation\AdaptablePath.cs" />
+    <Compile Include="Adaptation\AdaptableSelection.cs" />
+    <Compile Include="Adaptation\AdaptationException.cs" />
+    <Compile Include="Adaptation\Adapter.cs" />
+    <Compile Include="Adaptation\AdapterCreator.cs" />
+    <Compile Include="Adaptation\Adapters.cs" />
+    <Compile Include="Adaptation\BindingAdapterObject.cs" />
+    <Compile Include="Adaptation\IAdaptable.cs" />
+    <Compile Include="Adaptation\IAdapter.cs" />
+    <Compile Include="Adaptation\IAdapterCreator.cs" />
+    <Compile Include="Adaptation\IDecoratable.cs" />
+    <Compile Include="ArgParser.cs" />
+    <Compile Include="AssemblyUtil.cs" />
+    <Compile Include="AtfPluginAttribute.cs" />
+    <Compile Include="AtfUsageLogger.cs" />
+    <Compile Include="AtfVersion.cs" />
+    <Compile Include="AttributeUtils.cs" />
+    <Compile Include="Cached.cs" />
+    <Compile Include="CollectionAdapter.cs" />
+    <Compile Include="ConsoleOutputWriter.cs" />
+    <Compile Include="CrashLogger.cs" />
+    <Compile Include="DependencySystem.cs" />
+    <Compile Include="DirectoryUtil.cs" />
+    <Compile Include="DisplayStringAttribute.cs" />
+    <Compile Include="Dom\AnnotationException.cs" />
+    <Compile Include="Dom\AttributeEventArgs.cs" />
+    <Compile Include="Dom\AttributeInfo.cs" />
+    <Compile Include="Dom\AttributeRule.cs" />
+    <Compile Include="Dom\AttributeType.cs" />
+    <Compile Include="Dom\AttributeTypes.cs" />
+    <Compile Include="Dom\CategoryUniqueIdValidator.cs" />
+    <Compile Include="Dom\ChildCountRule.cs" />
+    <Compile Include="Dom\ChildEventArgs.cs" />
+    <Compile Include="Dom\ChildInfo.cs" />
+    <Compile Include="Dom\ChildRule.cs" />
+    <Compile Include="Dom\CustomTypeDescriptorNodeAdapter.cs" />
+    <Compile Include="Dom\DataValidator.cs" />
+    <Compile Include="Dom\DependencyValidator.cs" />
+    <Compile Include="Dom\DomDocument.cs" />
+    <Compile Include="Dom\DomNode.cs" />
+    <Compile Include="Dom\DomNodeAdapter.cs" />
+    <Compile Include="Dom\DomNodeListAdapter.cs" />
+    <Compile Include="Dom\DomNodeSerializer.cs" />
+    <Compile Include="Dom\DomNodeType.cs" />
+    <Compile Include="Dom\DomResource.cs" />
+    <Compile Include="Dom\DomXmlReader.cs" />
+    <Compile Include="Dom\DomXmlWriter.cs" />
+    <Compile Include="Dom\ExtensionInfo.cs" />
+    <Compile Include="Dom\FieldMetadata.cs" />
+    <Compile Include="Dom\IdValidator.cs" />
+    <Compile Include="Dom\LockingValidator.cs" />
+    <Compile Include="Dom\NamedMetadata.cs" />
+    <Compile Include="Dom\NumericMaxRule.cs" />
+    <Compile Include="Dom\NumericMinRule.cs" />
+    <Compile Include="Dom\ObservableDomNodeAdapter.cs" />
+    <Compile Include="Dom\ObservableDomNodeListAdapter.cs" />
+    <Compile Include="Dom\ObservableDomPropertyAttribute.cs" />
+    <Compile Include="Dom\Observer.cs" />
+    <Compile Include="Dom\ReferenceEventArgs.cs" />
+    <Compile Include="Dom\ReferenceValidator.cs" />
+    <Compile Include="Dom\StringEnumRule.cs" />
+    <Compile Include="Dom\TransactionContext.cs" />
+    <Compile Include="Dom\TransactionReporter.cs" />
+    <Compile Include="Dom\TypeAdapterCreator.cs" />
+    <Compile Include="Dom\UniqueIdValidator.cs" />
+    <Compile Include="Dom\UniquePathIdValidator.cs" />
+    <Compile Include="Dom\Validator.cs" />
+    <Compile Include="Dom\XmlAttributeInfo.cs" />
+    <Compile Include="Dom\XmlAttributeType.cs" />
+    <Compile Include="Dom\XmlNodeReference.cs" />
+    <Compile Include="Dom\XmlSchemaTypeCollection.cs" />
+    <Compile Include="Dom\XmlSchemaTypeLoader.cs" />
+    <Compile Include="EmbeddedResourceStringLocalizer.cs" />
+    <Compile Include="EmptyArray.cs" />
+    <Compile Include="EmptyEnumerable.cs" />
+    <Compile Include="EnumUtil.cs" />
+    <Compile Include="EnumerableUtil.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="FileMoveInfo.cs" />
+    <Compile Include="FileMoveService.cs" />
+    <Compile Include="FileMoveType.cs" />
+    <Compile Include="FileStreamResolver.cs" />
+    <Compile Include="FileSystemResourceFolder.cs" />
+    <Compile Include="Global.cs" />
+    <Compile Include="ICrashLogger.cs" />
+    <Compile Include="IDocument.cs" />
+    <Compile Include="IEnumerableContext.cs" />
+    <Compile Include="IFileMoveService.cs" />
+    <Compile Include="IFileWatcherService.cs" />
+    <Compile Include="IInitializable.cs" />
+    <Compile Include="ILockingContext.cs" />
+    <Compile Include="IObservableCollection.cs" />
+    <Compile Include="IObservableContext.cs" />
+    <Compile Include="IOutputWriter.cs" />
+    <Compile Include="IPropertyValueValidator.cs" />
+    <Compile Include="IReference.cs" />
+    <Compile Include="IResource.cs" />
+    <Compile Include="IResourceFolder.cs" />
+    <Compile Include="IResourceReference.cs" />
+    <Compile Include="IResourceResolver.cs" />
+    <Compile Include="IResourceService.cs" />
+    <Compile Include="IServerLogger.cs" />
+    <Compile Include="ITransactionContext.cs" />
+    <Compile Include="IValidationContext.cs" />
+    <Compile Include="IntSet.cs" />
+    <Compile Include="InvalidTransactionException.cs" />
+    <Compile Include="ItemChangedEventArgs.cs" />
+    <Compile Include="ItemInsertedEventArgs.cs" />
+    <Compile Include="ItemRemovedEventArgs.cs" />
+    <Compile Include="ItemSelectedEventArgs.cs" />
+    <Compile Include="ItemsChangedEventArgs.cs" />
+    <Compile Include="Kernel32.cs" />
+    <Compile Include="LabelEditedEventArgs.cs" />
+    <Compile Include="Lazies.cs" />
+    <Compile Include="ListAdapter.cs" />
+    <Compile Include="LiveConnectService.cs" />
+    <Compile Include="LocalizedDescriptionAttribute.cs" />
+    <Compile Include="LocalizedNameAttribute.cs" />
+    <Compile Include="Localizer.cs" />
+    <Compile Include="MathUtil.cs" />
+    <Compile Include="MefUtil.cs" />
+    <Compile Include="Multimap.cs" />
+    <Compile Include="NumericUtil.cs" />
+    <Compile Include="OutputMessageType.cs" />
+    <Compile Include="Outputs.cs" />
+    <Compile Include="Pair.cs" />
+    <Compile Include="Path.cs" />
+    <Compile Include="PathUtil.cs" />
+    <Compile Include="PerformanceCounters.cs" />
+    <Compile Include="PerformanceTimers.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyChangedEventArgsCollection.cs" />
+    <Compile Include="ReentryGuard.cs" />
+    <Compile Include="Rendering\DomNodeUtil.cs" />
+    <Compile Include="Rendering\IAnim.cs" />
+    <Compile Include="Rendering\IAnimChannel.cs" />
+    <Compile Include="Rendering\IAnimClip.cs" />
+    <Compile Include="Rendering\IBinding.cs" />
+    <Compile Include="Rendering\ICustomData.cs" />
+    <Compile Include="Rendering\ICustomDataAttribute.cs" />
+    <Compile Include="Rendering\IDataset.cs" />
+    <Compile Include="Rendering\IJoint.cs" />
+    <Compile Include="Rendering\ILodGroup.cs" />
+    <Compile Include="Rendering\IMesh.cs" />
+    <Compile Include="Rendering\INameable.cs" />
+    <Compile Include="Rendering\INode.cs" />
+    <Compile Include="Rendering\IPose.cs" />
+    <Compile Include="Rendering\IPoseElement.cs" />
+    <Compile Include="Rendering\IPrimitiveSet.cs" />
+    <Compile Include="Rendering\IScene.cs" />
+    <Compile Include="Rendering\IShader.cs" />
+    <Compile Include="Rendering\ISubMesh.cs" />
+    <Compile Include="Rendering\ITexture.cs" />
+    <Compile Include="Rendering\IVisible.cs" />
+    <Compile Include="Rendering\IWorld.cs" />
+    <Compile Include="Requires.cs" />
+    <Compile Include="ResourceService.cs" />
+    <Compile Include="ResourceStreamResolver.cs" />
+    <Compile Include="SatelliteAssemblyStringLocalizer.cs" />
+    <Compile Include="SearchAndReplace\DomNodeNamePredicate.cs" />
+    <Compile Include="SearchAndReplace\DomNodePropertyMatch.cs" />
+    <Compile Include="SearchAndReplace\DomNodePropertyPredicate.cs" />
+    <Compile Include="SearchAndReplace\DomNodeQueryMatch.cs" />
+    <Compile Include="SearchAndReplace\DomNodeQueryable.cs" />
+    <Compile Include="SearchAndReplace\IQueryMatch.cs" />
+    <Compile Include="SearchAndReplace\IQueryPredicate.cs" />
+    <Compile Include="SearchAndReplace\IQueryableContext.cs" />
+    <Compile Include="SearchAndReplace\IQueryableReplaceContext.cs" />
+    <Compile Include="SearchAndReplace\IQueryableResultContext.cs" />
+    <Compile Include="SearchAndReplace\IReplacingQueryPattern.cs" />
+    <Compile Include="SearchAndReplace\LinqQueryPredicate.cs" />
+    <Compile Include="Selection.cs" />
+    <Compile Include="ServerLogger.cs" />
+    <Compile Include="Shell32.cs" />
+    <Compile Include="StringLocalizer.cs" />
+    <Compile Include="StringUtil.cs" />
+    <Compile Include="Tree.cs" />
+    <Compile Include="UniqueNamer.cs" />
+    <Compile Include="UriChangedEventArgs.cs" />
+    <Compile Include="VectorMath\AngleAxisF.cs" />
+    <Compile Include="VectorMath\BezierCurve.cs" />
+    <Compile Include="VectorMath\BezierCurve2F.cs" />
+    <Compile Include="VectorMath\BezierSpline.cs" />
+    <Compile Include="VectorMath\Box.cs" />
+    <Compile Include="VectorMath\Box2F.cs" />
+    <Compile Include="VectorMath\CircleF.cs" />
+    <Compile Include="VectorMath\EulerAngleChannels.cs" />
+    <Compile Include="VectorMath\EulerAngleLimits.cs" />
+    <Compile Include="VectorMath\EulerAngleOrder.cs" />
+    <Compile Include="VectorMath\EulerAngles.cs" />
+    <Compile Include="VectorMath\Frustum.cs" />
+    <Compile Include="VectorMath\Matrix3F.cs" />
+    <Compile Include="VectorMath\Matrix3x2F.cs" />
+    <Compile Include="VectorMath\Matrix4F.cs" />
+    <Compile Include="VectorMath\Plane3F.cs" />
+    <Compile Include="VectorMath\Polygon3F.cs" />
+    <Compile Include="VectorMath\QuatF.cs" />
+    <Compile Include="VectorMath\Ray2F.cs" />
+    <Compile Include="VectorMath\Ray3F.cs" />
+    <Compile Include="VectorMath\Seg2F.cs" />
+    <Compile Include="VectorMath\Sphere3F.cs" />
+    <Compile Include="VectorMath\Triangle3F.cs" />
+    <Compile Include="VectorMath\Vec2F.cs" />
+    <Compile Include="VectorMath\Vec3F.cs" />
+    <Compile Include="VectorMath\Vec4F.cs" />
+    <Compile Include="WeakKey.cs" />
+    <Compile Include="XmlStringLocalizer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
