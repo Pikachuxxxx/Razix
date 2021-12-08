@@ -37,6 +37,10 @@ public:
 
         cmdBuffer = Graphics::RZCommandBuffer::Create();
         cmdBuffer->Init();
+
+        // Create the shader
+        //Graphics::RZShader* shader = Graphics::RZShader::Create("Shaders/Razix/default.rzsf");
+        Graphics::RZShader::ParserzsfShader("//RazixContent/Shaders/Razix/default.rzsf");
     }
 
     void OnUpdate(const RZTimestep& dt) override 
