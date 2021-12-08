@@ -1,5 +1,5 @@
 #include "rzxpch.h"
-#include "Razix/Utilities/Timer.h"
+#include "Razix/Utilities/RZTimer.h"
 
 namespace Razix
 {
@@ -11,19 +11,19 @@ namespace Razix
 	}
 	const double freq = GetQueryPerformancePeriod();
 
-	TimeStamp Timer::Now()
+	TimeStamp RZTimer::Now()
 	{
 		TimeStamp temp;
 		QueryPerformanceCounter(&temp);
 		return temp;
 	}
 
-	double Timer::Duration(TimeStamp start, TimeStamp end, double timeResolution)
+	double RZTimer::Duration(TimeStamp start, TimeStamp end, double timeResolution)
 	{
 		return (end.QuadPart - start.QuadPart) * timeResolution * freq;
 	}
 
-	float Timer::Duration(TimeStamp start, TimeStamp end, float timeResolution)
+	float RZTimer::Duration(TimeStamp start, TimeStamp end, float timeResolution)
 	{
 		return static_cast<float>((end.QuadPart - start.QuadPart) * timeResolution * freq);
 	}

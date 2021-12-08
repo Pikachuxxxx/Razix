@@ -4,16 +4,16 @@
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/OS/RZFileSystem.h"
-#include "Razix/Utilities/StringUtilities.h"
+#include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix
 {
     // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class
     void RZVirtualFileSystem::StartUp()
     {
+        // Instance is automatically created once the system is Started Up
         RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
         Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
-        /// Instance is automatically created once the system is Started Up
     }
 
     void RZVirtualFileSystem::ShutDown()
@@ -23,6 +23,7 @@ namespace Razix
 
     void RZVirtualFileSystem::mount(const std::string& virtualPath, const std::string& physicalPath)
     {
+        RAZIX_CORE_TRACE("RZVirtualFileSystem::Mounting file path at : {0}", physicalPath);
         m_MountPoints[virtualPath].push_back(physicalPath);
     }
 
@@ -114,5 +115,4 @@ namespace Razix
 		std::string physicalPath;
         return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteTextFile(physicalPath, text) : false;
     }
-
 }

@@ -1,13 +1,15 @@
 -- Inlude paths for Sanbox
 IncludeDir = {}
-IncludeDir["GLFW"]      = "../Engine/vendor/glfw/include/"
-IncludeDir["Glad"]      = "../Engine/vendor/glad/include/"
-IncludeDir["ImGui"]     = "../Engine/vendor/imgui/"
-IncludeDir["spdlog"]    = "../Engine/vendor/spdlog/include"
-IncludeDir["cereal"]    = "../Engine/vendor/cereal/include"
-IncludeDir["stb"]       = "../Engine/vendor/stb/"
-IncludeDir["Razix"]     = "../Engine/src"
-IncludeDir["vendor"]    = "../Engine/vendor/"
+IncludeDir["GLFW"]          = "../Engine/vendor/glfw/include/"
+IncludeDir["Glad"]          = "../Engine/vendor/glad/include/"
+IncludeDir["ImGui"]         = "../Engine/vendor/imgui/"
+IncludeDir["spdlog"]        = "../Engine/vendor/spdlog/include"
+IncludeDir["cereal"]        = "../Engine/vendor/cereal/include"
+IncludeDir["stb"]           = "../Engine/vendor/stb/"
+IncludeDir["glm"]           = "../Engine/vendor/glm/"
+IncludeDir["SPIRVReflect"]  = "../Engine/vendor/SPIRVReflect/"
+IncludeDir["Razix"]         = "../Engine/src"
+IncludeDir["vendor"]        = "../Engine/vendor/"
 
 -- Sanbox Game project
 project "Sandbox"
@@ -28,9 +30,11 @@ project "Sandbox"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -42,9 +46,11 @@ project "Sandbox"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -55,7 +61,8 @@ project "Sandbox"
        "Razix", -- Razix DLL
        "glfw",
        "imgui",
-       "spdlog"
+       "spdlog",
+       "SPIRVReflect"
    }
 
    defines

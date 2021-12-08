@@ -53,7 +53,6 @@ Ex:
 
 Naming conventions in C++ & GLSL
 ================================
-
 **Public Variables and Member Functions including inline functions as well as getters and setters** are lower camelCase. Exception for `RZEngine` and `RZApplication` classes.
 
 	int someVariableA, someVariableB;
@@ -109,13 +108,17 @@ Naming conventions for files and directories
 
 **Filenames and directories should be PascalCase**. The extensions of the files are lowercase.
 
-All Razix Related files should start with *FIleName*. Only custom types use Razix prefix for file names ex. `RazixSingleton` etc.
+All Razix Related files should start with *RZ*. Only custom types use **`T/I`** (custom types and interfaces) prefix for file names ex. `TRZSingleton` and `IRZSystem` etc.
 
-    src/Razix/Core/Singleton.h
-
+    class RAZIX_API RZWindow
+    class RAZIX_API RZTexture
+    class RAZIX_API RZApplication
 
 C++ rules
 =========
+
+**All Classes start with `RZ` prefix**, while struts and enums have no such prefixes.
+
 
 **Always use strongly typed enums**.
 
@@ -133,18 +136,20 @@ C++ rules
 
 **Avoid using `auto`**. It's only allowed in some templates and in iterators. auto makes reading code difficult.
 
+**Avoid Raw pointers and always try to use UniqueRef and SharedRef provided by Razix**
+
 **Includes should always have the full file path in a alphabetical order of directories and file names**.
 
-    #include "Razix/Core/Core.h"
-    #include "Razix/Core/OS/Window.h"
-    #include "Razix/Core/SmartPointers.h"
+    #include "Razix/Core/RZCore.h"
+    #include "Razix/Core/OS/RZWindow.h"
+    #include "Razix/Core/RZSmartPointers.h"
 
-    #include "Razix/Events/ApplicationEvent.h"
-    #include "Razix/Events/KeyEvent.h"
-    #include "Razix/Events/MouseEvent.h"
+    #include "Razix/Events/RZApplicationEvent.h"
+    #include "Razix/Events/RZKeyEvent.h"
+    #include "Razix/Events/RZMouseEvent.h"
 
-    #include "Razix/Utilities/Timestep.h"
-    #include "Razix/Utilities/Timer.h"
+    #include "Razix/Utilities/RZTimestep.h"
+    #include "Razix/Utilities/RZTimer.h"
 
 **Access types in a class have a specified order**. First `public` then `protected` and last `private`. First Variables followed by Methods
 
@@ -162,7 +167,7 @@ C++ rules
 
 **Types/Macros declared in class should appear first under `public`**
 
-    class Texture
+    class RZTexture
            {
                // Texture Types
            public:
@@ -174,9 +179,9 @@ C++ rules
 
            public:
                 /* Default constructor, texture resource is done on demand */
-                Texture() = default;
+                RZTexture() = default;
                 /* Virtual destructor enables the API implementation to delete it's resources */
-                virtual ~Texture() {}
+                virtual ~RZTexture() {}
 
 Always **use `nullptr`**.
 
@@ -214,7 +219,7 @@ Always try to **comment parts of the source code in header with Doxygen style an
 
 **Empty functions have braces on same line with a single space**
 
-    MyClass::SomeFunction() {}
+    void VKIndexBuffer::Unbind() { }
 
 Special Cases
 ======================

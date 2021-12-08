@@ -33,7 +33,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # RoadMap
 
 ## V 1.0.0 - RC
-![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0.png)
+![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0RC.png)
 
 # Contributing
 More information will be update on creating PRs and other ways to contribute to Razix Engine.
