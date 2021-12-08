@@ -15,35 +15,35 @@ namespace Razix
 
     bool GLFWInput::IsKeyPressedImpl(int keycode)
     {
-        auto window = static_cast<GLFWwindow*>(RZApplication::Get().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow().GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_PRESS;
     }
 
     bool GLFWInput::IsKeyReleasedImpl(int keycode)
     {
-        auto window = static_cast<GLFWwindow*>(RZApplication::Get().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow().GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_RELEASE;
     }
 
     bool GLFWInput::IsIsKeyHeldImpl(int keycode)
     {
-        auto window = static_cast<GLFWwindow*>(RZApplication::Get().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow().GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_PRESS || keyState == GLFW_REPEAT;
     }
 
     bool GLFWInput::IsMouseButtonPressedImpl(int button)
     {
-        auto window = static_cast<GLFWwindow*>(RZApplication::Get().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow().GetNativeWindow());
         int buttonState = glfwGetMouseButton(window, button);
         return buttonState == GLFW_PRESS;
     }
 
     std::pair<float, float> GLFWInput::GetMousePositionImpl()
     {
-        auto window = static_cast<GLFWwindow*>(RZApplication::Get().GetWindow().GetNativeWindow());
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow().GetNativeWindow());
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 

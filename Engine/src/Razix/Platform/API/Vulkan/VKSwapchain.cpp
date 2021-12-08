@@ -66,7 +66,7 @@ namespace Razix {
 
         void VKSwapchain::Flip()
         {
-
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void VKSwapchain::querySwapSurfaceProperties()

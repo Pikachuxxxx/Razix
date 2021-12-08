@@ -42,21 +42,26 @@ namespace Razix {
             inline const VkBufferUsageFlags& getUsage() const { return m_UsageFlags; }
             /* Sets the usage of the buffer */
             inline void setUsage(VkBufferUsageFlags flags) { m_UsageFlags = flags; }
+            /* Gets the size of the buffer */
+            inline VkDeviceSize getSize() const { return m_BufferSize; }
+            /* Sets the size of the buffer */
+            inline void setSize(uint32_t size) { m_BufferSize = (VkDeviceSize) size; }
 
-        private:
+        protected:
             VkBuffer                m_Buffer;               /* handle to the Vulkan buffer          */
-            VkDeviceMemory          m_Memory;               /* Handle to the buffer memory          */
-            VkDeviceSize            m_Size;                 /* The size of the buffer               */
+            VkDeviceMemory          m_BufferMemory;         /* Handle to the buffer memory          */
+            VkDeviceSize            m_BufferSize;           /* The size of the buffer               */
             VkDescriptorBufferInfo  m_DesciptorBufferInfo;  /* The buffer description info          */
             VkBufferUsageFlags      m_UsageFlags;           /* Buffer usage description             */
             void*                   m_Mapped = nullptr;     /* The HOST mapped region of the buffer */
 
-        private:
+        protected:
             /**
              * Initializes the buffer with the given size, usage and data
              * 
              * @param data The data with which the buffer will be filled with
              */
+            // TODO: Refactor this signature to take the size and usage
             void init(const void* data);
         };
 

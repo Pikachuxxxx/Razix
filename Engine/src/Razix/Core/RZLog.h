@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/Core.h"
+#include "Razix/Core/RZCore.h"
 
 #pragma warning(push, 0)
 #pragma warning( disable : 26812)
@@ -25,11 +25,11 @@ namespace Razix {
             static void Shutdown();
             
             /* Returns the shared pointer to the engine core logger */
-			inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+            inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
             /* Returns the shared pointer to the engine application logger */
-			inline static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
+            inline static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
         private:
-			static std::shared_ptr<spdlog::logger> s_CoreLogger;
+            static std::shared_ptr<spdlog::logger> s_CoreLogger;
             static std::shared_ptr<spdlog::logger> s_ApplicationLogger;
         };
     }

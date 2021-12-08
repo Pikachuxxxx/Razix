@@ -16,37 +16,22 @@
 #include "Razix/Graphics/API/RZTexture.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include <glad/glad.h>
-#endif
-
 namespace Razix
 {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
-    RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(Timestep(0.0f))
+    RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/) : m_AppName(appName), m_Timestep(RZTimestep(0.0f))
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
         s_AppInstance = this;
 
         // Set the Application root path and Load the project settings
-        const std::string& razixRoot = STRINGIZE(RAZIX_ROOT_DIR);
+        const std::string& razixRoot = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
-        // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored to use the installed Engine as Root directory
-        m_AppFilePath = razixRoot + projectRoot + appName + std::string(".razixproject");
-        RAZIX_CORE_TRACE("Application file path : {0}", m_AppFilePath);
-
-        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labor work)
-        // Project root directory
-        RZVirtualFileSystem::Get().mount("Project", razixRoot + projectRoot);
-        
-        RZVirtualFileSystem::Get().mount("Assets", razixRoot + projectRoot + std::string("Assets"));
-        RZVirtualFileSystem::Get().mount("Meshes", razixRoot + projectRoot + std::string("Assets/Meshes"));
-        RZVirtualFileSystem::Get().mount("Scenes", razixRoot + projectRoot + std::string("Assets/Scenes"));
-        RZVirtualFileSystem::Get().mount("Scripts", razixRoot + projectRoot + std::string("Assets/Scripts"));
-        RZVirtualFileSystem::Get().mount("Sounds", razixRoot + projectRoot + std::string("Assets/Sounds"));
-        RZVirtualFileSystem::Get().mount("Textures", razixRoot + projectRoot + std::string("Assets/Textures"));
+        // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored to use the proper project path to resolve the VFS to mount the project Assets
+        m_AppFilePath = razixRoot + projectRoot;
+        RAZIX_CORE_TRACE("Project file path : {0}", m_AppFilePath);
     }
 
     void RZApplication::Init()
@@ -58,10 +43,14 @@ namespace Razix
             std::string fullPath = RZEngine::Get().commandLineParser.getValueAsString("project filename");
             RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
             AppStream.open(fullPath, std::ifstream::in);
-            m_AppFilePath = fullPath;// .substr(0, fullPath.find_last_of("\\/"));
+            m_AppFilePath = fullPath.substr(0, fullPath.find_last_of("\\/")) + "/";
         }
-        else
-            AppStream.open(m_AppFilePath, std::ifstream::in);
+        else {
+            // TODO: If command line is not provided or doesn't use engine default sandbox project we need some way to resolve the project root directory, make this agnostic we need not redirect to sandbox by default it must be provided as a placeholder value instead as a fall back
+            //m_AppFilePath = ??
+            std::string projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+            AppStream.open(projectFullPath, std::ifstream::in);
+        }
 
         // Check the command line arguments for the rendering api
         if (RZEngine::Get().commandLineParser.isSet("rendering api"))
@@ -74,19 +63,33 @@ namespace Razix
             inputArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
+        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labor work)
+        // First the default sandbox or sample project is loaded that is provided by the engine that resides with the engine 
+        // Next it checks the command line for the project file directory
+        // Project root directory
+        RAZIX_CORE_TRACE("Mounting file systems... for Project at : {0}", m_AppFilePath);
+        
+        RZVirtualFileSystem::Get().mount("Project", m_AppFilePath);
+
+        RZVirtualFileSystem::Get().mount("Assets",      m_AppFilePath + std::string("Assets"));
+        RZVirtualFileSystem::Get().mount("Meshes",      m_AppFilePath + std::string("Assets/Meshes"));
+        RZVirtualFileSystem::Get().mount("Scenes",      m_AppFilePath + std::string("Assets/Scenes"));
+        RZVirtualFileSystem::Get().mount("Scripts",     m_AppFilePath + std::string("Assets/Scripts"));
+        RZVirtualFileSystem::Get().mount("Sounds",      m_AppFilePath + std::string("Assets/Sounds"));
+        RZVirtualFileSystem::Get().mount("Textures",    m_AppFilePath + std::string("Assets/Textures"));
+        
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::OPENGL);
         //-------------------------------------------------------------------------------------
 
 
         // The Razix Application Signature Name is generated here and passed to the window
-        // TODO: Add render API being used to the Signature dynamically
-        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
-        m_Timer = CreateUniqueRef<Timer>();
+        m_Timer = CreateUniqueRef<RZTimer>();
 
         // Set the window properties and create the timer
         m_WindowProperties.Title = SignatureTitle;
@@ -118,13 +121,13 @@ namespace Razix
         m_Window->SetVSync(true);
     }
 
-    void RZApplication::OnEvent(Event& event)
+    void RZApplication::OnEvent(RZEvent& event)
     {
-        EventDispatcher dispatcher(event);
+        RZEventDispatcher dispatcher(event);
         // Window close event
         dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
         // Window resize event
-        dispatcher.Dispatch<WindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
+        dispatcher.Dispatch<RZWindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
     }
 
     bool RZApplication::OnWindowClose(WindowCloseEvent& e)
@@ -133,7 +136,7 @@ namespace Razix
         return true;
     }
 
-    bool RZApplication::OnWindowResize(WindowResizeEvent& e)
+    bool RZApplication::OnWindowResize(RZWindowResizeEvent& e)
     {
         return true;
     }
@@ -197,51 +200,11 @@ namespace Razix
         return m_CurrentState != AppState::Closing;
     }
 
-    void RZApplication::OnStart()
-    {
-        //! Testing Texture loading and other demo stuff REMOVE THIS!!!
-        Graphics::RZTexture::Filtering filtering = {};
-        filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
-        filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
+    void RZApplication::OnStart() { }
 
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            glGenVertexArrays(1, &m_VAO);
-            glBindVertexArray(m_VAO);
-            glGenBuffers(1, &m_VBO);
-            glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    void RZApplication::OnUpdate(const RZTimestep& dt) { }
 
-            float vertices[3 * 3] = {
-                -0.5f, -0.5f, 0.0f,
-                 0.5f, -0.5f, 0.0f,
-                 0.0f,  0.5f, 0.0f,
-            };
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW);
-
-            glViewport(0, 0, m_Window->getWidth(), m_Window->getHeight());
-
-            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering); 
-        }
-        else if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
-            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachment", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
-            logoTexture->Release();
-        }
-    }
-
-    void RZApplication::OnUpdate(const Timestep& dt) 
-    {
-
-    }
-
-    void RZApplication::OnRender() {
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) 
-        {
-            glClear(GL_COLOR_BUFFER_BIT);
-            glBindVertexArray(m_VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
-    }
+    void RZApplication::OnRender() { }
 
     void RZApplication::Quit()
     {

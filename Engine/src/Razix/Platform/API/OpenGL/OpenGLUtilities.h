@@ -8,6 +8,7 @@
 #include "Razix/Core/RZLog.h"
 
 #include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/API/RZVertexBufferLayout.h"
 
 namespace Razix {
     namespace Graphics {
@@ -41,7 +42,7 @@ namespace Razix {
             }
 
             //TODO: USe macros to generate this code automatically
-            uint32_t TextureFormatToGL(const RZTexture::Format format, bool srgb)
+            static uint32_t TextureFormatToGL(const RZTexture::Format format, bool srgb)
             {
                 switch (format) {
                     case RZTexture::Format::R8:
@@ -84,7 +85,7 @@ namespace Razix {
                 }
             }
 
-            uint32_t TextureWrapToGL(const RZTexture::Wrapping wrap)
+            static uint32_t TextureWrapToGL(const RZTexture::Wrapping wrap)
             {
                 switch (wrap) {
                     case RZTexture::Wrapping::REPEAT:
@@ -107,7 +108,7 @@ namespace Razix {
                 }
             }
 
-            uint32_t TextureFormatToInternalFormat(uint32_t format)
+            static uint32_t TextureFormatToInternalFormat(uint32_t format)
             {
                 switch (format) {
                     case GL_SRGB8:
@@ -142,6 +143,86 @@ namespace Razix {
                         return 0;
                 }
             }
+
+            static uint32_t BufferFormatToGL(BufferFormat format)
+            {
+                switch (format) {
+                    default:
+                        return 0;
+                        break;
+                    case BufferFormat::R8_INT:
+                        return GL_R8;
+                        break;
+                    case BufferFormat::R8_UINT:
+                        return GL_R8;
+                        break;
+                    case BufferFormat::R32_INT:
+                        return GL_R32I;
+                        break;
+                    case BufferFormat::R32_UINT:
+                        return GL_R32UI;
+                        break;
+                    case BufferFormat::R32_FLOAT:
+                        return GL_R32F;
+                        break;
+                    case BufferFormat::R32G32_INT:
+                        return GL_RG32I;
+                        break;
+                    case BufferFormat::R32G32_UINT:
+                        return GL_RG32UI;
+                        break;
+                    case BufferFormat::R32G32_FLOAT:
+                        return GL_RG32F;
+                        break;
+                    case BufferFormat::R32G32B32_INT:
+                        return GL_RGB32I;
+                        break;
+                    case BufferFormat::R32G32B32_UINT:
+                        return GL_RGB32UI;
+                        break;
+                    case BufferFormat::R32G32B32_FLOAT:
+                        return GL_RGB32F;
+                        break;
+                    case BufferFormat::R32G32B32A32_INT:
+                        return GL_RGB32I;
+                        break;
+                    case BufferFormat::R32G32B32A32_UINT:
+                        return GL_RGB32UI;
+                        break;
+                    case BufferFormat::R32G32B32A32_FLOAT:
+                        return GL_RGBA32F;
+                        break;
+                }
+            }
+
+            static uint32_t BufferFormatToGLType(BufferFormat format)
+            {
+                switch (format) {
+                    case Razix::Graphics::BufferFormat::R8_INT:
+                    case Razix::Graphics::BufferFormat::R32_INT:
+                    case Razix::Graphics::BufferFormat::R32G32_INT:
+                    case Razix::Graphics::BufferFormat::R32G32B32_INT:
+                    case Razix::Graphics::BufferFormat::R32G32B32A32_INT:
+                        return GL_INT;
+                        break;
+                    case Razix::Graphics::BufferFormat::R8_UINT:
+                    case Razix::Graphics::BufferFormat::R32_UINT:
+                    case Razix::Graphics::BufferFormat::R32G32_UINT:
+                    case Razix::Graphics::BufferFormat::R32G32B32_UINT:
+                    case Razix::Graphics::BufferFormat::R32G32B32A32_UINT:
+                        return GL_UNSIGNED_INT;
+                        break;
+                    case Razix::Graphics::BufferFormat::R32_FLOAT:
+                    case Razix::Graphics::BufferFormat::R32G32_FLOAT:
+                    case Razix::Graphics::BufferFormat::R32G32B32_FLOAT:
+                    case Razix::Graphics::BufferFormat::R32G32B32A32_FLOAT:
+                        return GL_FLOAT;
+                    default:
+                        return 0;
+                        break;
+                }
+            }
+
         }
     }
 }
