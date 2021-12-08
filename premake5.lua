@@ -89,6 +89,11 @@ workspace ( settings.workspace_name )
             include "Tools/Building/RazixVersion/premake5"
     group ""
 
+    -- Engine related tools
+    group "Tools"
+            -- Razix CodeEditor project
+            include "Tools/RazixCodeEditor/premake5"
+    group ""
     --------------------------------------------------------------------------------
     -- TODO: Tests (recrusively projects are added)
     -- TODO: Samples
