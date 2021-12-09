@@ -64,6 +64,8 @@ namespace Razix {
                     std::string compiledShader = RZVirtualFileSystem::Get().readTextFile("//RazixContent/Shaders/" + str);
                 }
             }
+
+            return shaders;
         }
 
         void RZShader::CrossCompileShader(const std::string& source, ShaderSourceType srcType, ShaderSourceType dst)

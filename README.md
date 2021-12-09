@@ -30,6 +30,15 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Future support for Falcor and Render Graph Editor
 - Data drive pipeline architecture
 
+# Tools
+Razix also provides a rich set of GUI and Commmand Line [**Tools**](https://github.com/Pikachuxxxx/Razix/tree/master/Tools) along with the Editor for various purposes such as
+- [**Razix Code Editor**](https://github.com/Pikachuxxxx/RazixCodeEditor) - Shaders and Scripts code editor for Razix Engine
+### TODO
+    - Blender exporter and Importer for model and navmesh formats
+    - Razix Asset packer
+    - Blender Integration
+    - Script debugger
+
 # RoadMap
 
 ## V 1.0.0 - RC

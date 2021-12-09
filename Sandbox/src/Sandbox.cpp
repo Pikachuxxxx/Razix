@@ -40,13 +40,13 @@ public:
 
         // Create the shader
         //Graphics::RZShader* shader = Graphics::RZShader::Create("Shaders/Razix/default.rzsf");
-        Graphics::RZShader::ParserzsfShader("//RazixContent/Shaders/Razix/default.rzsf");
-    }
+        //Graphics::RZShader::ParseRZSF("//RazixContent/Shaders/Razix/default.rzsf");
+     }
 
     void OnUpdate(const RZTimestep& dt) override 
     {
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.97f, 0.58f, 0.25f);
+            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
             cmdBuffer->UpdateViewport(RZApplication::Get().getWindow().getWidth(), RZApplication::Get().getWindow().getHeight());
 
