@@ -1,10 +1,11 @@
 ﻿/*
  * Razix Shader File 
- * default.rzsf : Default shader that can be used to render any primitive geometry without any shading, uses vertex colors if provided or tex coords or renders pink if everything else fails
+ * default.rzsf : Default shader that can be used to render any primitive geometry without any shading, uses vertex colors if provided or tex coords or renders pink if everything else fails (Only for Vertex and Fragment stages)
  * Copyright Razix Engine 2021 by Pikachuxxxx (Phani Srikar)
  */
 
-// Including the default vertex shader based on the API (ofc these can always be cross compiled but in some situation you need to spearate them and also it looks neat this way)
+// Including the default vertex shader based on the API (ofc these can always be cross compiled but in some situations you need to spearately include them and also it looks more readable this way)
+// Here #include doesn't mean that it will be copied but rather interpreted as a keyword that it's a file that needs to be read/included into to the shader read stream for reading the byte code
 #shader vertex
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
         #include Compiled/SPIRV/default.vert.spv
