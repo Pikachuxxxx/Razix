@@ -68,6 +68,16 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/SPIRVReflect/premake5")
     group ""
 
+    framework "4.0"
+    group "Dependencies/ATF"
+        -- SCE ATF Dependencies
+        require("Tools/vendor/ATF/Framework/Atf.Core/premake5")
+        require("Tools/vendor/ATF/Framework/Atf.Gui/premake5")
+        require("Tools/vendor/ATF/Framework/Atf.Gui.WinForms/premake5")
+        require("Tools/vendor/ATF/Framework/Atf.IronPython/premake5")
+        require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
+    group ""
+
     -- Build Script for Razix Engine
     --------------------------------------------------------------------------------
     group "Engine"
@@ -82,6 +92,11 @@ workspace ( settings.workspace_name )
 
     --------------------------------------------------------------------------------
     -- Engine related tools
+    group "Tools"
+            -- Razix CodeEditor project
+            include "Tools/RazixCodeEditor/premake5"
+    group ""
+
     group "Tools/Build"
             -- premake scripts Utility project for in IDE management
             include "Tools/Building/premake/premake5"
@@ -90,10 +105,6 @@ workspace ( settings.workspace_name )
     group ""
 
     -- Engine related tools
-    group "Tools"
-            -- Razix CodeEditor project
-            include "Tools/RazixCodeEditor/premake5"
-    group ""
     --------------------------------------------------------------------------------
     -- TODO: Tests (recrusively projects are added)
     -- TODO: Samples
