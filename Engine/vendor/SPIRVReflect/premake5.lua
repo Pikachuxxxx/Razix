@@ -2,13 +2,6 @@ project "SPIRVReflect"
     kind "StaticLib"
     language "C"
 
-    configurations
-    {
-        "Debug",
-        "Release",
-        "Dist"
-    }
-
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
