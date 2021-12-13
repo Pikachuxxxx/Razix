@@ -1,17 +1,16 @@
 -- Razix Include Directories
 IncludeDir = {}
-IncludeDir["cereal"]    = "vendor/cereal/include"
-IncludeDir["Glad"]      = "vendor/glad/include/"
-IncludeDir["GLFW"]      = "vendor/glfw/include/"
-IncludeDir["ImGui"]     = "vendor/imgui/"
-IncludeDir["spdlog"]    = "vendor/spdlog/include"
-IncludeDir["stb"]       = "vendor/stb/"
-IncludeDir["glm"]       = "vendor/glm/"
-IncludeDir["SPIRVReflect"]       = "vendor/SPIRVReflect/"
-
-
-IncludeDir["Razix"]     = "src"
-IncludeDir["vendor"]    = "vendor/"
+IncludeDir["cereal"]            = "vendor/cereal/include"
+IncludeDir["Glad"]              = "vendor/glad/include/"
+IncludeDir["GLFW"]              = "vendor/glfw/include/"
+IncludeDir["ImGui"]             = "vendor/imgui/"
+IncludeDir["spdlog"]            = "vendor/spdlog/include"
+IncludeDir["stb"]               = "vendor/stb/"
+IncludeDir["glm"]               = "vendor/glm/"
+IncludeDir["SPIRVReflect"]      = "vendor/SPIRVReflect/"
+IncludeDir["SPIRVCross"]        = "vendor/SPIRVCross/include"
+IncludeDir["Razix"]             = "src"
+IncludeDir["vendor"]            = "vendor/"
 
 -- Vulkan SDK
 VulkanSDK = os.getenv("VULKAN_SDK")
@@ -94,6 +93,7 @@ project "Razix"
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related 
@@ -117,6 +117,7 @@ project "Razix"
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related 
@@ -129,7 +130,8 @@ project "Razix"
         "glfw",
         "imgui",
         "spdlog",
-        "SPIRVReflect"
+        "SPIRVReflect",
+        "SPIRVCross"
     }
   
     -- Don't build the shaders, they are compiled by the engine once and cached

@@ -8,6 +8,7 @@ IncludeDir["cereal"]        = "../Engine/vendor/cereal/include"
 IncludeDir["stb"]           = "../Engine/vendor/stb/"
 IncludeDir["glm"]           = "../Engine/vendor/glm/"
 IncludeDir["SPIRVReflect"]  = "../Engine/vendor/SPIRVReflect/"
+IncludeDir["SPIRVCross"]    = "../Engine/vendor/SPIRVCross/include"
 IncludeDir["Razix"]         = "../Engine/src"
 IncludeDir["vendor"]        = "../Engine/vendor/"
 
@@ -35,6 +36,7 @@ project "Sandbox"
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -51,6 +53,7 @@ project "Sandbox"
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -62,7 +65,8 @@ project "Sandbox"
        "glfw",
        "imgui",
        "spdlog",
-       "SPIRVReflect"
+       "SPIRVReflect",
+        "SPIRVCross"
    }
 
    defines

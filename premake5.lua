@@ -66,6 +66,7 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/imgui/premake5")
         require("Engine/vendor/spdlog/premake5")
         require("Engine/vendor/SPIRVReflect/premake5")
+        require("Engine/vendor/SPIRVCross/premake5")
     group ""
 
     framework "4.0"
