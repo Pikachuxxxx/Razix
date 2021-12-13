@@ -39,9 +39,8 @@ public:
         cmdBuffer->Init();
 
         // Create the shader
-        //Graphics::RZShader* shader = Graphics::RZShader::Create("Shaders/Razix/default.rzsf");
-        //Graphics::RZShader::ParseRZSF("//RazixContent/Shaders/Razix/default.rzsf");
-     }
+        Graphics::RZShader* shader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
+    }
 
     void OnUpdate(const RZTimestep& dt) override 
     {

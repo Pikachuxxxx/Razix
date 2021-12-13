@@ -40,6 +40,7 @@ namespace Razix {
 
             for (uint32_t i = 0; i < lines.size(); i++) {
                 std::string str = std::string(lines[i]);
+                str = Utilities::RemoveTabs(str);
 
                 if (Razix::Utilities::StartsWith(str, "#shader")) {
                     if (Razix::Utilities::StringContains(str, "vertex")) {
@@ -53,24 +54,18 @@ namespace Razix {
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     }
                 }
-                else if (Razix::Utilities::StringContains(str, "#ifdef")) {
+                else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
                     std::string rem = "#ifdef ";
-                    str.erase(0, str.find_first_not_of(" \t\n\r\f\v"));
+                    str = Utilities::RemoveStringRange(str, 0, 7);
+                    str = Razix::Utilities::RemoveSpaces(str);
+                    std::vector<std::string> defines = Razix::Utilities::SplitString(str, "||");
                 }
-                else if(Razix::Utilities::StringContains(str, "#include")){
-                    str.erase(0, str.find_first_not_of(" \t\n\r\f\v"));
-                    RAZIX_CORE_TRACE("Loading compiled shader : {0}", str);
-                    str = str.erase(0, 9);
-                    std::string compiledShader = RZVirtualFileSystem::Get().readTextFile("//RazixContent/Shaders/" + str);
+                else if(Razix::Utilities::StartsWith(str, "#include")){
+                    str = Utilities::RemoveStringRange(str, 0, 9);
+                    shaders.at(stage).append(str);
                 }
             }
-
             return shaders;
-        }
-
-        void RZShader::CrossCompileShader(const std::string& source, ShaderSourceType srcType, ShaderSourceType dst)
-        {
-
         }
     }
 }

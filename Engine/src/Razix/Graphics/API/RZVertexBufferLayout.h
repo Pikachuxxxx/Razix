@@ -40,44 +40,24 @@ namespace Razix {
             {
                 switch (format) {
                     case Razix::Graphics::BufferFormat::R8_INT:
-                        return 1;
-                        break;
                     case Razix::Graphics::BufferFormat::R8_UINT:
-                        return 1;
-                        break;
                     case Razix::Graphics::BufferFormat::R32_INT:
-                        return 1;
-                        break;
                     case Razix::Graphics::BufferFormat::R32_UINT:
-                        return 1;
-                        break;
                     case Razix::Graphics::BufferFormat::R32_FLOAT:
                         return 1;
                         break;
                     case Razix::Graphics::BufferFormat::R32G32_INT:
-                        return 2;
-                        break;
                     case Razix::Graphics::BufferFormat::R32G32_UINT:
-                        return 2;
-                        break;
                     case Razix::Graphics::BufferFormat::R32G32_FLOAT:
                         return 2;
                         break;
                     case Razix::Graphics::BufferFormat::R32G32B32_INT:
-                        return 3;
-                        break;
                     case Razix::Graphics::BufferFormat::R32G32B32_UINT:
-                        return 3;
-                        break;
                     case Razix::Graphics::BufferFormat::R32G32B32_FLOAT:
                         return 3;
                         break;
                     case Razix::Graphics::BufferFormat::R32G32B32A32_INT:
-                        return 4;
-                        break;
                     case Razix::Graphics::BufferFormat::R32G32B32A32_UINT:
-                        return 4;
-                        break;
                     case Razix::Graphics::BufferFormat::R32G32B32A32_FLOAT:
                         return 4;
                         break;
