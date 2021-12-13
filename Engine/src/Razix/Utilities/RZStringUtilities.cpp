@@ -142,6 +142,12 @@ namespace Razix
             return result.erase(start, length);
         }
 
+        std::string RemoveTabs(const std::string& string)
+        {
+            std::string result = string;
+            return result.erase(0, string.find_first_not_of(" \t\n\r\f\v"));
+        }
+
         std::string GetBlock(const char* str, const char** outPosition)
         {
             const char* end = strstr(str, "}");

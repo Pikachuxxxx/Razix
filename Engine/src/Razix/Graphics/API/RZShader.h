@@ -3,13 +3,15 @@
 #include <spirv_reflect.h>
 #include <map>
 
+#include "Razix/Graphics/API/RZDescriptorSet.h"
+
 namespace Razix {
     namespace Graphics {
 
         /* The stage which the shader corresponds to in the graphics pipeline */
-        enum class ShaderStage
+        enum class ShaderStage : int32_t
         {
-            NONE, VERTEX, PIXEL, GEOMETRY, TCS, TES, COMPUTE
+            NONE = -1, VERTEX, PIXEL, GEOMETRY, TCS, TES, COMPUTE
         };
 
         /* Used the engine to find the right shader cache based on shader file name, forward declaring future API feature */
@@ -45,19 +47,19 @@ namespace Razix {
 
             virtual void Bind() const = 0;
             virtual void Unbind() const = 0;
+            virtual void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) = 0;
 
             static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
-            static void CrossCompileShader(const std::string& source, ShaderSourceType srcType, ShaderSourceType dstType);
 
             /* Gets the stage of the pipeline that shader is bound/being used with */
             inline const ShaderStage& getStage() { return m_ShaderStage; }
 
         protected:
-            ShaderStage         m_ShaderStage = ShaderStage::NONE;          /* The shader stage to which the shader will be bound to    */
-            ShaderSourceType    m_SourceType = ShaderSourceType::SPIRV;     /* The source type of the shader                            */
-            std::string         m_ShaderFilePath;                           /* Virtual file location of the shader file                 */
-            std::string         m_Name;                                     /* The name of the shader                                   */
-            std::string         m_Source;                                   /* The source content of the shader                         */
+            ShaderStage                         m_ShaderStage = ShaderStage::NONE;          /* The shader stage to which the shader will be bound to    */
+            ShaderSourceType                    m_SourceType = ShaderSourceType::SPIRV;     /* The source type of the shader                            */
+            std::string                         m_ShaderFilePath;                           /* Virtual file location of the shader file                 */
+            std::string                         m_Name;                                     /* The name of the shader                                   */
+            std::map<ShaderStage, std::string>  m_ParsedRZSF;                               /* The razix shader file that was parsed                    */
         };
     
     } 
