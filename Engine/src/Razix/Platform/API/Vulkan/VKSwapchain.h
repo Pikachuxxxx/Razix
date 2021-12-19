@@ -12,8 +12,6 @@
 namespace Razix {
     namespace Graphics {
 
-#define MAX_FRAMES_IN_FLIGHT 2
-
         class VKSwapchain : public RZSwapchain
         {
         public:

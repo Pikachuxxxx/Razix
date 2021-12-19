@@ -46,8 +46,7 @@ namespace Razix {
 
         void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            RAZIX_UNIMPLEMENTED_METHOD_MARK
         }
-
     }
 }
