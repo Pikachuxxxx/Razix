@@ -23,10 +23,10 @@ namespace Razix {
         private:
             uint32_t                m_ProgramID;    /* OpenGL ID for the shader program that will bind to the pipeline  */
             RZVertexBufferLayout    m_Layout;       /* The layout of the vertex buffer and it's attributes              */
-            std::vector<DescriptorBindingLayout> m_BindingLayouts;  /* The uniform and sampler binding layout information */
+            std::vector<DescriptorLayoutBinding> m_BindingLayouts;  /* The uniform and sampler binding layout information */
 
         private:
-            void Init();
+            void init();
         };
     }
 }
