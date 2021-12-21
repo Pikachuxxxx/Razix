@@ -40,6 +40,7 @@ public:
 
         // Create the shader
         Graphics::RZShader* shader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
+        std::cout << "Hmm" << std::endl;
     }
 
     void OnUpdate(const RZTimestep& dt) override 

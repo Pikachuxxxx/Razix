@@ -31,7 +31,7 @@ namespace Razix {
             // TODO: Make this shit dynamic!
             CrossCompileShaders(m_ParsedRZSF, ShaderSourceType::SPIRV);
 
-            Init();
+            init();
         }
 
         OpenGLShader::~OpenGLShader()
@@ -58,7 +58,7 @@ namespace Razix {
             }
         }
 
-        void OpenGLShader::Init()
+        void OpenGLShader::init()
         {
             for (auto& source : m_ParsedRZSF) {
 
@@ -105,9 +105,8 @@ namespace Razix {
                     // Some arbitrary remapping if we want (WTF is this???)
                     glsl.set_decoration(resource.id, spv::DecorationBinding, set * 16 + binding);
 
-                    DescriptorBindingLayout bindingLayout = {};
+                    DescriptorLayoutBinding bindingLayout = {};
                     bindingLayout.binding   = binding;
-                    bindingLayout.setID     = set;
                     bindingLayout.count     = 1;
                     bindingLayout.stage     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
                     bindingLayout.type      = DescriptorType::IMAGE_SAMPLER;

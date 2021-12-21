@@ -11,14 +11,18 @@
 #include "Razix/Platform/API/OpenGL/OpenGLShader.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_VULKAN
+#include "Razix/Platform/API/Vulkan/VKShader.h"
+#endif
+
 namespace Razix {
     namespace Graphics {
 
         RZShader* RZShader::Create(const std::string& filePath)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL:       return new OpenGLShader(filePath); break;
-                case Razix::Graphics::RenderAPI::VULKAN:
+                case Razix::Graphics::RenderAPI::OPENGL:        return new OpenGLShader(filePath); break;
+                case Razix::Graphics::RenderAPI::VULKAN:        return new VKShader(filePath); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

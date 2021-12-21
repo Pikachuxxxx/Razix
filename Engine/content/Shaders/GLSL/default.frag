@@ -19,6 +19,7 @@
  //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
 layout(set = 1, binding = 0) uniform sampler2D texSampler;
+layout(set = 1, binding = 2) uniform sampler2D texSampler2;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outColor;
