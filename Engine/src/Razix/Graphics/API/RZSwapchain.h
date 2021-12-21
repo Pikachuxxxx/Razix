@@ -8,13 +8,16 @@
 namespace Razix {
     namespace Graphics {
 
-        /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented */
-        #define MAX_FRAMES_IN_FLIGHT 2
         /* Triple buffering is enabled by default */
-        #define ENABLE_TRIPLE_BUFFERING
-        /* The total number of images that the swapchan can render/present to */
-        #define SWAP_IMAGES_COUNT 3
-
+        #define RAZIX_ENABLE_TRIPLE_BUFFERING
+        /* The total number of images that the swapchan can render/present to, by default we use triple buffering, defaults to double buffering if disabled */
+#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
+        /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
+        #define RAZIX_MAX_FRAMES_IN_FLIGHT 2
+        #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
+#elif 
+        #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
+#endif
         /* Forward decelerations */
         class RZTexture;            /* The texture2D to which the swap images are stored as */
         class RZCommandBuffer;      /* The command buffer that will be submitted for execution */  
@@ -38,7 +41,7 @@ namespace Razix {
             virtual void Init() = 0;
             /* Destroys the swapchain and it's resources */
             virtual void Destroy() = 0;
-            /* Flips the swapchain images for presentation, typically used while foing double/triple buffered rendering */
+            /* Flips the swapchain images for presentation, typically used while doing double/triple buffered rendering */
             virtual void Flip() = 0;
 
             /* Gets the swapchain image at the given index */

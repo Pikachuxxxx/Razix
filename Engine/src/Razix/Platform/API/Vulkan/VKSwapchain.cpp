@@ -235,9 +235,9 @@ namespace Razix {
         {
             VkSemaphoreCreateInfo semaphoreInfo{};
             semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-            m_RenderingFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-            m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+            m_ImageAvailableSemaphores.resize(RAZIX_MAX_FRAMES_IN_FLIGHT);
+            m_RenderingFinishedSemaphores.resize(RAZIX_MAX_FRAMES_IN_FLIGHT);
+            m_InFlightFences.resize(RAZIX_MAX_FRAMES_IN_FLIGHT);
             m_ImagesInFlight.resize(m_SwapchainImageCount);
         }
 

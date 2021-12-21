@@ -47,7 +47,35 @@ namespace Razix {
             return 0;
         }
 
-        static VkShaderStageFlags EngineToVulkanhaderStage(ShaderStage stage)
+
+        static uint32_t pushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout)
+        {
+            // TODO: Add buffer layout for all supported types
+            switch (format) {
+                case VK_FORMAT_R8_SINT:
+                    layout.push<int>(name);
+                    break;
+                case VK_FORMAT_R32_SFLOAT:
+                    layout.push<float>(name);
+                    break;
+                case VK_FORMAT_R32G32_SFLOAT:
+                    layout.push<glm::vec2>(name);
+                    break;
+                case VK_FORMAT_R32G32B32_SFLOAT:
+                    layout.push<glm::vec3>(name);
+                    break;
+                case VK_FORMAT_R32G32B32A32_SFLOAT:
+                    layout.push<glm::vec4>(name);
+                    break;
+                default:
+                    RAZIX_CORE_ERROR("Unsupported Format {0}", format);
+                    return 0;
+            }
+
+            return 0;
+        }
+
+        static VkShaderStageFlagBits EngineToVulkanhaderStage(ShaderStage stage)
         {
             switch (stage) {
                 case Razix::Graphics::ShaderStage::NONE:
@@ -102,7 +130,11 @@ namespace Razix {
             // TODO: Make this shit dynamic!
             CrossCompileShaders(m_ParsedRZSF, ShaderSourceType::SPIRV);
 
-            init();
+            // Reflect the shaders using SPIR-V Reflect to extract the necessary information about descriptors and inputs to the shaders
+            reflectShader();
+
+            // Create the shader modules and the pipeline shader stage create infos that will be bound to the pipeline
+            createShaderModules();
         }
 
         VKShader::~VKShader() { }
@@ -123,7 +155,7 @@ namespace Razix {
                 return;
         }
 
-        void VKShader::init()
+        void VKShader::reflectShader()
         {
             // Reflect the SPIR-V shader to extract all the necessary information
             for (const auto& spvSource : m_ParsedRZSF) {
@@ -169,6 +201,9 @@ namespace Razix {
                         m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc);
 
                         m_VertexInputStride += GetStrideFromVulkanFormat((VkFormat) inputVar->format);
+
+                        // Create the buffer layout for Razix engine
+                        pushBufferLayout((VkFormat) inputVar->format, inputVar->name, m_BufferLayout);
                     }
                 }
 
@@ -237,6 +272,35 @@ namespace Razix {
                 if (VK_CHECK_RESULT(vkCreateDescriptorSetLayout(VKDevice::Get().getDevice(), &layoutInfo, nullptr, &setLayout)))
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor set layout!");
                 else RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
+            }
+
+            // Create the descriptors for Razix Engine with all the necessary information per set
+
+        }
+
+        void VKShader::createShaderModules()
+        {
+            for (const auto& spvSource : m_ParsedRZSF) {
+
+                std::string outPath, virtualPath;
+                virtualPath = "//RazixContent/Shaders/" + spvSource.second;
+                RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, outPath);
+                int64_t fileSize = RZFileSystem::GetFileSize(outPath);
+
+                const uint32_t* spvByteCode = reinterpret_cast<uint32_t*>(RZVirtualFileSystem::Get().readFile(virtualPath));
+
+                VkShaderModuleCreateInfo shaderModuleCI = {};
+                shaderModuleCI.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                shaderModuleCI.codeSize = fileSize;
+                shaderModuleCI.pCode = spvByteCode;
+
+                m_ShaderCreateInfos[spvSource.first].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+                m_ShaderCreateInfos[spvSource.first].pName = "main"; // TODO: Extract this from shader later
+                m_ShaderCreateInfos[spvSource.first].stage = EngineToVulkanhaderStage(spvSource.first);
+
+                if(VK_CHECK_RESULT(vkCreateShaderModule(VKDevice::Get().getDevice(), &shaderModuleCI, nullptr, &m_ShaderCreateInfos[spvSource.first].module)))
+                    RAZIX_CORE_ERROR("[Vulkan] Failed to create shader module!");
+                else RAZIX_CORE_TRACE("[Vulkan] Successfully created shader module");
             }
         }
     }
