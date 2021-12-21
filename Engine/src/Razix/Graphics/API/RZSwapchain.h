@@ -8,6 +8,13 @@
 namespace Razix {
     namespace Graphics {
 
+        /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented */
+        #define MAX_FRAMES_IN_FLIGHT 2
+        /* Triple buffering is enabled by default */
+        #define ENABLE_TRIPLE_BUFFERING
+        /* The total number of images that the swapchan can render/present to */
+        #define SWAP_IMAGES_COUNT 3
+
         /* Forward decelerations */
         class RZTexture;            /* The texture2D to which the swap images are stored as */
         class RZCommandBuffer;      /* The command buffer that will be submitted for execution */  

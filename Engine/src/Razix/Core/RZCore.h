@@ -3,6 +3,7 @@
 /****************************************************************************************************
  *                                      Settings based on OS                                        *
  ****************************************************************************************************/
+// TODO: Use inline macros such as RAZIX_INLINE to enable special optimizations of inline function based on OS
 // Settings for Windows OS
 #ifdef RAZIX_PLATFORM_WINDOWS
     
@@ -99,11 +100,30 @@
     RAZIX_DEBUG_BREAK();                                                            \
 }
 
+#define RAZIX_UNIMPLEMENTED_METHOD_MARK                                             \
+{                                                                                   \
+    RAZIX_CORE_ERROR("Manchidi...!!! Unimplemented : {0} : {1}", __FILE__, __LINE__);              \
+}
+
 // Make the Class/Struct Object Non-Copyable/Assignable
 #define RAZIX_NONCOPYABLE_CLASS(type_identifier)                                \
     type_identifier(const type_identifier&) = delete;               \
     type_identifier& operator=(const type_identifier&) = delete;
 
+// Deprecation error macros
+#ifdef _MSC_VER
+#define RAZIX_DEPRECATED(msg_str) __declspec(deprecated("This symbol is deprecated by Razix Engine. Details: " msg_str))
+#elif defined(__clang__)
+#define RAZIX_DEPRECATED(msg_str) __attribute__((deprecated(msg_str)))
+#elif defined(__GNUC__)
+#if GCC_VERSION >= 40500
+#define RAZIX_DEPRECATED(msg_str) __attribute__((deprecated(msg_str)))
+#else
+#define RAZIX_DEPRECATED(msg_str) __attribute__((deprecated))
+#endif
+#else
+#define RAZIX_DEPRECATED(msg_str)
+#endif
 
 // TODO: Add Safe memory delete and unloading macros
 
