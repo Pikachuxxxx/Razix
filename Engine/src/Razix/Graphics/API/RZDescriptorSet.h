@@ -87,7 +87,7 @@ namespace Razix {
 
         // TODO: Add support for texture arrays
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
-        struct Descriptor
+        struct RZDescriptor
         {
             std::string                             name;
             RZUniformBuffer*                        uniformBuffer;
@@ -102,7 +102,7 @@ namespace Razix {
         struct DescriptorSetInfo
         {
             uint32_t                                setID;          /* The set number to which the descriptors correspond to */
-            std::vector<Descriptor>                 descriptors;    /* The descriptors that will be bound to this set and passed to the GPU */
+            std::vector<RZDescriptor>                 descriptors;    /* The descriptors that will be bound to this set and passed to the GPU */
         };
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
@@ -115,10 +115,10 @@ namespace Razix {
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(const std::vector<Descriptor>& descriptors);
+            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors);
 
             /* Updates the descriptor set with the given descriptors */
-            virtual void UpdateSet(const std::vector<Descriptor>& descriptors) = 0;
+            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
         };
     }
 }

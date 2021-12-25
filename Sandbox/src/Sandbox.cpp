@@ -4,6 +4,13 @@ using namespace Razix;
 
 class Sandbox : public Razix::RZApplication
 {
+private:
+    struct ViewProjectionUniformBuffer
+    {
+        alignas(16)glm::mat4 view       = glm::mat4(1.0f);
+        alignas(16)glm::mat4 projection = glm::mat4(1.0f);
+    };
+
 public:
     Sandbox() : RZApplication("/Sandbox/","Sandbox")
     {
@@ -34,6 +41,10 @@ public:
 
         triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 9, vertices, Graphics::BufferUsage::STATIC);
         triVBO->AddBufferLayout(bufferLayout);
+
+        ViewProjectionUniformBuffer viewProjUBOData{};
+
+        viewProjUniformBuffer = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
         cmdBuffer = Graphics::RZCommandBuffer::Create();
         cmdBuffer->Init();
@@ -68,6 +79,7 @@ public:
 private:
     Graphics::RZVertexBufferLayout bufferLayout;
     Graphics::RZVertexBuffer* triVBO;
+    Graphics::RZUniformBuffer* viewProjUniformBuffer;
     Graphics::RZCommandBuffer* cmdBuffer;
 };
 
