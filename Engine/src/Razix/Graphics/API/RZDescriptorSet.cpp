@@ -10,7 +10,7 @@
 namespace Razix {
     namespace Graphics {
     
-        RZDescriptorSet* RZDescriptorSet::Create(const std::vector<Descriptor>& descriptors)
+        RZDescriptorSet* RZDescriptorSet::Create(const std::vector<RZDescriptor>& descriptors)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:   
