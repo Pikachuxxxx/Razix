@@ -218,8 +218,19 @@ namespace Razix {
                 result = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, pp_descriptor_bindings);
 
                 //std::cout << "---------------------------------------------" << std::endl;
+                DescriptorSetInfo* setInfo = new DescriptorSetInfo;
+
                 for (uint32_t i = 0; i < descriptors_count; i++) {
                     SpvReflectDescriptorBinding* descriptor = pp_descriptor_bindings[i];
+
+                    for (size_t i = 0; i < m_DescriptorSetInfos.size(); i++) {
+                        if (m_DescriptorSetInfos[i].setID == descriptor->set)
+                            setInfo = &m_DescriptorSetInfos[i];
+                    }
+
+                    RZDescriptor rzDescriptor;
+
+  
                     //std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
                     //std::cout << "UBO Name                  : " << descriptor->name << std::endl;
                     //std::cout << "Binding                   : " << descriptor->binding << std::endl;
@@ -254,8 +265,27 @@ namespace Razix {
                     bindingInfo.type    = VKToEngineDescriptorType(descriptor->descriptor_type);
                     bindingInfo.stage   = spvSource.first;
 
-                    m_SetLayoutBindings[descriptor->set].push_back(bindingInfo);
+                    rzDescriptor.bindingInfo = bindingInfo;
+                    rzDescriptor.name = descriptor->name;
+                    rzDescriptor.offset = descriptor->block.offset;
+                    rzDescriptor.size = descriptor->block.size;
+
+                    for (size_t i = 0; i < descriptor->block.member_count; i++) {
+                        UniformBufferMemberInfo memberInfo;
+                        memberInfo.fullName = rzDescriptor.name + "." + descriptor->block.members[i].name;
+                        memberInfo.name = descriptor->block.members[i].name;
+                        memberInfo.offset = descriptor->block.members[i].offset;
+                        memberInfo.size = descriptor->block.members[i].size;
+                        // TODO: properly reflect the type of the member
+                        //memberInfo.type = descriptor->block.members[i].type_description;
+                        rzDescriptor.uboMembers.push_back(memberInfo);
+                    }
+
+                    setInfo->setID = descriptor->set;
+                    setInfo->descriptors.push_back(rzDescriptor);
+
                 }
+                m_DescriptorSetInfos.push_back(*setInfo);
                 // Destroy the reflection data when no longer required
                 spvReflectDestroyShaderModule(&module);
             }
@@ -273,9 +303,6 @@ namespace Razix {
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor set layout!");
                 else RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
             }
-
-            // Create the descriptors for Razix Engine with all the necessary information per set
-
         }
 
         void VKShader::createShaderModules()

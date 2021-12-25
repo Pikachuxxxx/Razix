@@ -4,6 +4,7 @@
 #include <map>
 
 #include "Razix/Graphics/API/RZDescriptorSet.h"
+#include "Razix/Graphics/API/RZVertexBufferLayout.h"
 
 namespace Razix {
     namespace Graphics {
@@ -55,13 +56,14 @@ namespace Razix {
             inline const ShaderStage& getStage() { return m_ShaderStage; }
 
         protected:
-            ShaderStage                         m_ShaderStage = ShaderStage::NONE;          /* The shader stage to which the shader will be bound to    */
-            ShaderSourceType                    m_SourceType = ShaderSourceType::SPIRV;     /* The source type of the shader                            */
-            std::string                         m_ShaderFilePath;                           /* Virtual file location of the shader file                 */
-            std::string                         m_Name;                                     /* The name of the shader                                   */
-            std::map<ShaderStage, std::string>  m_ParsedRZSF;                               /* The razix shader file that was parsed                    */
+            ShaderStage                         m_ShaderStage = ShaderStage::NONE;          /* The shader stage to which the shader will be bound to                                                    */
+            ShaderSourceType                    m_SourceType = ShaderSourceType::SPIRV;     /* The source type of the shader                                                                            */
+            std::string                         m_ShaderFilePath;                           /* Virtual file location of the shader file                                                                 */
+            std::string                         m_Name;                                     /* The name of the shader                                                                                   */
+            std::map<ShaderStage, std::string>  m_ParsedRZSF;                               /* The razix shader file that was parsed                                                                    */
+            RZVertexBufferLayout                m_BufferLayout;                             /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
+            std::vector<DescriptorSetInfo>      m_DescriptorSetInfos;                       /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
         };
-    
     } 
 }
 

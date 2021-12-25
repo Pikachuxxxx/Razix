@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<Descriptor>& descriptors)
+        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             // Descriptor sets can't be created directly, they must be allocated from a pool like command buffers i.e. use a descriptor pool to allocate the descriptor sets
@@ -36,7 +36,7 @@ namespace Razix {
 
         VKDescriptorSet::~VKDescriptorSet() { }
 
-        void VKDescriptorSet::UpdateSet(const std::vector<Descriptor>& descriptors)
+        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
         {
            
         }
