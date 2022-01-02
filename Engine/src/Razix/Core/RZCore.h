@@ -94,20 +94,20 @@
 
 
 // Unimplemented Function Breaker
-#define RAZIX_UNIMPLEMENTED_METHOD                                                               \
-{                                                                                   \
-    RAZIX_CORE_ERROR("Unimplemented : {0} : {1}", __FILE__, __LINE__);              \
-    RAZIX_DEBUG_BREAK();                                                            \
+#define RAZIX_UNIMPLEMENTED_METHOD                                                                                  \
+{                                                                                                                   \
+    RAZIX_CORE_ERROR("Unimplemented : {0} : {1} : {2}", __func__ , __FILE__, __LINE__);                             \
+    RAZIX_DEBUG_BREAK();                                                                                            \
 }
 
-#define RAZIX_UNIMPLEMENTED_METHOD_MARK                                             \
-{                                                                                   \
-    RAZIX_CORE_ERROR("Manchidi...!!! Unimplemented : {0} : {1}", __FILE__, __LINE__);              \
+#define RAZIX_UNIMPLEMENTED_METHOD_MARK                                                                             \
+{                                                                                                                   \
+    RAZIX_CORE_ERROR("Manchidi...!!! Unimplemented : {0} : {1} : {2}", __func__ , __FILE__, __LINE__);              \
 }
 
 // Make the Class/Struct Object Non-Copyable/Assignable
-#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                                \
-    type_identifier(const type_identifier&) = delete;               \
+#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                                                                    \
+    type_identifier(const type_identifier&) = delete;                                                               \
     type_identifier& operator=(const type_identifier&) = delete;
 
 // Deprecation error macros
@@ -126,5 +126,4 @@
 #endif
 
 // TODO: Add Safe memory delete and unloading macros
-
 /****************************************************************************************************/
