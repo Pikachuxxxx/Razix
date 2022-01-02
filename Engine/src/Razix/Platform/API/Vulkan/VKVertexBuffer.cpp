@@ -29,7 +29,7 @@ namespace Razix {
         {
             VkDeviceSize offsets[1] = {0};
             if (cmdBuffer)
-                vkCmdBindVertexBuffers(static_cast<VKCommandBuffer*>(cmdBuffer)->getVKCmdBuffer(), 0, 1, &m_Buffer, offsets);
+                vkCmdBindVertexBuffers(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &m_Buffer, offsets);
         }
 
         void VKVertexBuffer::Unbind()

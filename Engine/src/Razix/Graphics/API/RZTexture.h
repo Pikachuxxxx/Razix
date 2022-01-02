@@ -28,7 +28,8 @@ namespace Razix {
                 R8, RG8, RGB8, RGBA8,
                 RGB16, RGBA16,
                 RGB32, RGBA32, RGBA32F,
-                RGB, RGBA
+                RGB, RGBA,
+                DEPTH, STENCIL, DEPTH_STENCIL, SCREEN
             };
 
             /* Wrap mode for the texture texels */

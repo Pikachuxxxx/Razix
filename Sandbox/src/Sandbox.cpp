@@ -42,8 +42,6 @@ public:
         triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 9, vertices, Graphics::BufferUsage::STATIC);
         triVBO->AddBufferLayout(bufferLayout);
 
-        ViewProjectionUniformBuffer viewProjUBOData{};
-
         viewProjUniformBuffer = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
         cmdBuffer = Graphics::RZCommandBuffer::Create();
@@ -51,18 +49,29 @@ public:
 
         // Create the shader
         Graphics::RZShader* shader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
-        std::cout << "Hmm" << std::endl;
+        std::cout << "Hmmmmmmm" << std::endl;
     }
 
     void OnUpdate(const RZTimestep& dt) override 
     {
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
+            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
+        }
+        else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
+            // Set the view port
             cmdBuffer->UpdateViewport(RZApplication::Get().getWindow().getWidth(), RZApplication::Get().getWindow().getHeight());
 
+            // Update the uniform buffer data
+            viewProjUBOData.view = glm::mat4(1.0f);
+            viewProjUBOData.projection = glm::mat4(1.0f);
+            viewProjUniformBuffer->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
+
+            // Bind the Vertex and Index buffers
             triVBO->Bind(cmdBuffer);
 
+            // Record the draw commands to be submitted
             cmdBuffer->BeginRecording();
             {   
                 cmdBuffer->Draw(3, 0, 0, 0);
@@ -77,10 +86,11 @@ public:
     }
 
 private:
-    Graphics::RZVertexBufferLayout bufferLayout;
-    Graphics::RZVertexBuffer* triVBO;
-    Graphics::RZUniformBuffer* viewProjUniformBuffer;
-    Graphics::RZCommandBuffer* cmdBuffer;
+    Graphics::RZVertexBufferLayout  bufferLayout;
+    Graphics::RZVertexBuffer*       triVBO;
+    Graphics::RZUniformBuffer*      viewProjUniformBuffer;
+    ViewProjectionUniformBuffer     viewProjUBOData{};
+    Graphics::RZCommandBuffer*      cmdBuffer;
 };
 
 Razix::RZApplication* Razix::CreateApplication()
