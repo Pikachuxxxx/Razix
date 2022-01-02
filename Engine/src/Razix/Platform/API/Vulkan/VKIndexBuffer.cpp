@@ -25,7 +25,7 @@ namespace Razix {
 
         void VKIndexBuffer::Bind(RZCommandBuffer* commandBuffer /*= nullptr*/)
         {
-            vkCmdBindIndexBuffer(static_cast<VKCommandBuffer*>(commandBuffer)->getVKCmdBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
         }
 
         void VKIndexBuffer::Unbind() { }

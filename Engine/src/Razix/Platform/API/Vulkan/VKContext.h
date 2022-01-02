@@ -1,13 +1,15 @@
 #pragma once
 
+#include "Razix/Core/RZSmartPointers.h"
+
 #include "Razix/Core/OS/RZWindow.h"
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN 
 
-#include "Razix/Core/RZSmartPointers.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKSwapchain.h"
 
 #include <vulkan/vulkan.h>
 
@@ -29,6 +31,8 @@ namespace Razix {
             /* Gets the underlying Vulkan context object */
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }
             
+            Ref<VKSwapchain>& getSwapchain() { return m_Swapchain; }
+
             /* Gets the reference to the Vulkan instance handle */
             inline const VkInstance& getInstance() const { return m_Instance; }
             /* Gets the vulkan KHR surface object handle */
@@ -48,7 +52,7 @@ namespace Razix {
             VkDebugUtilsMessengerCreateInfoEXT  m_DebugCI;                          /* Debug callback handle creation struct                */
             VkSurfaceKHR                        m_Surface;                          /* The WSI Surface to which Vulkan presents to          */
             UniqueRef<VKDevice>                 m_Device;                           /* The handle to the Vulkan Device and Physical device  */
-
+            Ref<VKSwapchain>                    m_Swapchain;                        /* Handle to the Razix-Vulkan swapchain abstraction     */
         private:
             /* Creates a VkInstance to interface with the Vulkan library */
             void createInstance();

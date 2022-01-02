@@ -45,7 +45,8 @@ namespace Razix {
             // Create the Logical Device
             VKDevice::Get().init();
 
-
+            // Create the swapchain (will be auto initialized)
+            m_Swapchain = CreateRef<VKSwapchain>(m_Window->getWidth(), m_Window->getHeight());
         }
 
         void VKContext::Destroy() {

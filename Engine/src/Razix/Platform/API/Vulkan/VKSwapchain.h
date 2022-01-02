@@ -43,6 +43,8 @@ namespace Razix {
             size_t GetSwapchainImageCount() override  {return m_SwapchainImageCount;}
             RZCommandBuffer* GetCurrentCommandBuffer() override  {return nullptr;}
 
+            inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
+
         private:
              VkSwapchainKHR             m_Swapchain;                    /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos  */
              SwapSurfaceProperties      m_SwapSurfaceProperties;        /* Swapchain surface properties                                                                     */
@@ -56,6 +58,7 @@ namespace Razix {
              std::vector<VkSemaphore>   m_RenderingFinishedSemaphores;  /* Semaphore to tell when the rendering to a particular swapchain image is done                     */
              std::vector<VKFence>       m_InFlightFences;               /* Use to synchronize the GPU-CPU so that they draw onto the right image in flight                  */
              std::vector<VKFence>       m_ImagesInFlight;               /* Used to verify that the images being used to render onto is not being presented                  */
+             VkFormat                   m_ColorFormat;                  /* Color format of the screen                                                                       */
 
         private:
             /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */

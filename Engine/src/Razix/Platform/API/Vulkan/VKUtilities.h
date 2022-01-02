@@ -110,8 +110,12 @@ namespace Razix {
             VkCommandBuffer BeginSingleTimeCommandBuffer();
             /* Ends the recording of the single time command buffer */
             void EndSingleTimeCommandBuffer(VkCommandBuffer commandBuffer);
-
-
+            
+            //-----------------------------------------------------------------------------------
+            // Format Utility
+            //-----------------------------------------------------------------------------------
+            VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+            VkFormat FindDepthFormat();
         }
     }
 }
