@@ -210,7 +210,7 @@ namespace Razix {
                 // Uniform Buffers + Samplers
                 // Descriptor Bindings : These bindings describe where and what kind of resources are bound to the shaders at various stages, they also store the information of the nature of resource data that is bound
                 // Uniform variables usually have members and samplers none
-
+                // TODO: Use spvReflectEnumerateDescriptorSets instead to fill in the vulkan descriptor sets quickly
                 uint32_t descriptors_count = 0;
                 result = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, nullptr);
                 RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect descriptor bindings from SPIRV shader - ({0})", virtualPath);
@@ -286,6 +286,21 @@ namespace Razix {
 
                 }
                 m_DescriptorSetInfos.push_back(*setInfo);
+
+                // Get info about push constants
+                uint32_t push_constants_count = 0;
+                spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, nullptr);
+                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect push constants from shader - ({0})", virtualPath);
+                SpvReflectBlockVariable** pp_push_constant_blocks =(SpvReflectBlockVariable**) malloc(var_count * sizeof(SpvReflectBlockVariable*));
+                spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, pp_push_constant_blocks);
+
+                for (uint32_t i = 0; i < push_constants_count; i++) {
+                    SpvReflectBlockVariable* pushConstant = pp_push_constant_blocks[i];
+                    std::cout << "Name      : " << pushConstant->name << std::endl;
+                    std::cout << "Size      : " << pushConstant->size << std::endl;
+                    std::cout << "Offset    : " << pushConstant->offset << std::endl;
+                }
+
                 // Destroy the reflection data when no longer required
                 spvReflectDestroyShaderModule(&module);
             }
@@ -303,6 +318,11 @@ namespace Razix {
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor set layout!");
                 else RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
             }
+
+            // TODO: Create Push constants and store info about it
+
+            
+            // TODO: Create the Pipeline layout
         }
 
         void VKShader::createShaderModules()
