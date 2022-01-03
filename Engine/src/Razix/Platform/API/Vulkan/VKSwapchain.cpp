@@ -20,10 +20,7 @@ namespace Razix {
             Init();
         }
 
-        VKSwapchain::~VKSwapchain()
-        {
-
-        }
+        VKSwapchain::~VKSwapchain() { }
 
         void VKSwapchain::Init()
         {
