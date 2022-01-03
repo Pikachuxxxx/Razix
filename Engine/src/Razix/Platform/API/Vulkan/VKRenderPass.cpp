@@ -11,16 +11,19 @@
 namespace Razix {
     namespace Graphics {
 
-        VKRenderPass::VKRenderPass(const RenderPassInfo& renderPassCI)
+        VKRenderPass::VKRenderPass(const RenderPassInfo& renderPassInfo)
             : m_RenderPass(VK_NULL_HANDLE), m_ClearValue(nullptr), m_DepthOnly(false), m_ClearDepth(false)
         {
             m_AttachmentsCount = 0;
             m_ColorAttachmentsCount = 0;
+
+            init(renderPassInfo);
         }
 
         VKRenderPass::~VKRenderPass()
         {
-
+            delete[] m_ClearValue;
+            vkDestroyRenderPass(VKDevice::Get().getDevice(), m_RenderPass, nullptr);
         }
 
         void VKRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height)
@@ -39,8 +42,6 @@ namespace Razix {
             if (m_ClearDepth)
                 m_ClearValue[m_AttachmentsCount - 1].depthStencil = VkClearDepthStencilValue{ 1.0f, 0 };
 
-            RAZIX_UNIMPLEMENTED_METHOD
-            // TODO: Implement framebuffer to create render pass 
             VkRenderPassBeginInfo rpBegin{};
             rpBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             rpBegin.pNext = NULL;
@@ -66,7 +67,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        bool VKRenderPass::init(const RenderPassInfo& renderpassCI)
+        bool VKRenderPass::init(const RenderPassInfo& renderpassInfo)
         {
             VkSubpassDependency dependency = {};
             dependency.srcSubpass       = VK_SUBPASS_EXTERNAL;
@@ -83,26 +84,26 @@ namespace Razix {
             std::vector<VkAttachmentReference> colourAttachmentReferences;
             std::vector<VkAttachmentReference> depthAttachmentReferences;
 
-            // WTFFFF??????
+            // These will be enabled based on the type of the attachments available
             m_DepthOnly = true;
             m_ClearDepth = false;
 
-            for (int i = 0; i < renderpassCI.attachmentCount; i++) {
-                attachments.push_back(getAttachmentDescription(renderpassCI.textureType[i], renderpassCI.clear));
+            for (int i = 0; i < renderpassInfo.attachmentCount; i++) {
+                attachments.push_back(getAttachmentDescription(renderpassInfo.textureType[i], renderpassInfo.clear));
 
-                if (renderpassCI.textureType[i].type == RZTexture::Type::COLOR) {
+                if (renderpassInfo.textureType[i].type == RZTexture::Type::COLOR) {
                     VkAttachmentReference colourAttachmentRef = {};
                     colourAttachmentRef.attachment = uint32_t(i);
                     colourAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     colourAttachmentReferences.push_back(colourAttachmentRef);
                     m_DepthOnly = false;
                 }
-                else if (renderpassCI.textureType[i].type == RZTexture::Type::DEPTH) {
+                else if (renderpassInfo.textureType[i].type == RZTexture::Type::DEPTH) {
                     VkAttachmentReference depthAttachmentRef = {};
                     depthAttachmentRef.attachment = uint32_t(i);
                     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                     depthAttachmentReferences.push_back(depthAttachmentRef);
-                    m_ClearDepth = renderpassCI.clear;
+                    m_ClearDepth = renderpassInfo.clear;
                 }
 
                 VkSubpassDescription subpass{};
@@ -115,7 +116,7 @@ namespace Razix {
 
                 VkRenderPassCreateInfo vkRenderpassCI{};
                 vkRenderpassCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-                vkRenderpassCI.attachmentCount = uint32_t(renderpassCI.attachmentCount);
+                vkRenderpassCI.attachmentCount = uint32_t(renderpassInfo.attachmentCount);
                 vkRenderpassCI.pAttachments = attachments.data();
                 vkRenderpassCI.subpassCount = 1;
                 vkRenderpassCI.pSubpasses = &subpass;
@@ -123,11 +124,11 @@ namespace Razix {
                 vkRenderpassCI.pDependencies = nullptr; //&dependency;
 
                 if (VK_CHECK_RESULT(vkCreateRenderPass(VKDevice::Get().getDevice(), &vkRenderpassCI, nullptr, &m_RenderPass)))
-                    RAZIX_CORE_TRACE("[Vulkan] Successfully created render pass : {0}", renderpassCI.name);
-                else RAZIX_CORE_WARN("[Vulkan] Cannot create ({0}) render pass", renderpassCI.name);
+                    RAZIX_CORE_TRACE("[Vulkan] Successfully created render pass : {0}", renderpassInfo.name);
+                else RAZIX_CORE_WARN("[Vulkan] Cannot create ({0}) render pass", renderpassInfo.name);
 
-                m_ClearValue = new VkClearValue[renderpassCI.attachmentCount];
-                m_AttachmentsCount = renderpassCI.attachmentCount;
+                m_ClearValue = new VkClearValue[renderpassInfo.attachmentCount];
+                m_AttachmentsCount = renderpassInfo.attachmentCount;
                 return true;
             }
         }

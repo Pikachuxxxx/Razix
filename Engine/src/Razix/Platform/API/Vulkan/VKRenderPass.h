@@ -14,7 +14,7 @@ namespace Razix {
         {
         public:
             /* Creates a Vulkan render pass object with the given information */
-            VKRenderPass(const RenderPassInfo& renderPassCI);
+            VKRenderPass(const RenderPassInfo& renderPassInfo);
             ~VKRenderPass();
 
             /* Begins the Vulkan render pass */
@@ -24,7 +24,7 @@ namespace Razix {
             /* Adds any attachments to the render pass */
             void AddAttachment() override;
 
-            bool init(const RenderPassInfo& renderpassCI);
+            bool init(const RenderPassInfo& renderpassInfo);
             VkAttachmentDescription getAttachmentDescription(AttachmentInfo info, bool clear = true);
         private:
             VkRenderPass    m_RenderPass;   /* The handle to the vulkan render pass object                              */

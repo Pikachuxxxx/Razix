@@ -9,7 +9,8 @@ private:
     {
         alignas(16)glm::mat4 view       = glm::mat4(1.0f);
         alignas(16)glm::mat4 projection = glm::mat4(1.0f);
-    };
+
+    }viewProjUBOData;
 
 public:
     Sandbox() : RZApplication("/Sandbox/","Sandbox")
@@ -48,7 +49,7 @@ public:
         cmdBuffer->Init();
 
         // Create the shader
-        Graphics::RZShader* shader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
+        defaultShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
         std::cout << "Hmmmmmmm" << std::endl;
     }
 
@@ -89,8 +90,15 @@ private:
     Graphics::RZVertexBufferLayout  bufferLayout;
     Graphics::RZVertexBuffer*       triVBO;
     Graphics::RZUniformBuffer*      viewProjUniformBuffer;
-    ViewProjectionUniformBuffer     viewProjUBOData{};
     Graphics::RZCommandBuffer*      cmdBuffer;
+    Graphics::RZShader*             defaultShader;
+    // TODO: 1. Create Descriptor sets + UBO binding
+    // TODO: 2. Shader binding to sets and UBO
+    // TODO: 3. Create Render pass
+    // TODO: 4. Create Framebuffer
+    // TODO: 5. Create Pipeline
+    // TODO: 6. Assemble everything together
+    // TODO: 7. Submit commands and render stuff + sync check
 };
 
 Razix::RZApplication* Razix::CreateApplication()
