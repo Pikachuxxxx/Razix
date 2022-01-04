@@ -26,6 +26,7 @@ namespace Razix {
 
             bool init(const RenderPassInfo& renderpassInfo);
             VkAttachmentDescription getAttachmentDescription(AttachmentInfo info, bool clear = true);
+            inline const VkRenderPass& getVKRenderPass() const { return m_RenderPass; }
         private:
             VkRenderPass    m_RenderPass;   /* The handle to the vulkan render pass object                              */
             VkClearValue*   m_ClearValue;   /* The clear value with which the color attachments will be cleared with    */

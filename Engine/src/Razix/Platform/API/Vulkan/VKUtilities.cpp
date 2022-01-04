@@ -1,6 +1,7 @@
 #include "rzxpch.h"
 #include "VKUtilities.h"
 
+#include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 namespace Razix {
@@ -287,6 +288,10 @@ namespace Razix {
                 vkFreeCommandBuffers(VKDevice::Get().getDevice(), VKDevice::Get().getCommandPool()->getVKPool(), 1, &commandBuffer);
             }
 
+            //-----------------------------------------------------------------------------------
+            // Format Utility
+            //-----------------------------------------------------------------------------------
+
             VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
             {
                 for (VkFormat format : candidates) {
@@ -311,6 +316,69 @@ namespace Razix {
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
             }
 
+            //-----------------------------------------------------------------------------------
+            // Enum Conversions
+            //-----------------------------------------------------------------------------------
+
+            VkPrimitiveTopology DrawTypeToVK(Razix::Graphics::DrawType type)
+            {
+                switch (type) {
+                    case Razix::Graphics::DrawType::POINT:
+                        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+                        break;
+                    case Razix::Graphics::DrawType::TRIANGLE:
+                        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+                        break;
+                    case Razix::Graphics::DrawType::LINES:
+                        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+                        break;
+                    default:
+                        RAZIX_CORE_WARN("Unknown Draw Type! using triangle list to draw the geometry");
+                        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+                        break;
+                }
+            }
+
+            VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode)
+            {
+                switch (cullMode) {
+                    case Razix::Graphics::CullMode::FRONT:
+                        return VK_CULL_MODE_FRONT_BIT;
+                        break;
+                    case Razix::Graphics::CullMode::BACK:
+                        return VK_CULL_MODE_BACK_BIT;
+                        break;
+                    case Razix::Graphics::CullMode::FRONTANDBACK:
+                        return VK_CULL_MODE_FRONT_AND_BACK;
+                        break;
+                    case Razix::Graphics::CullMode::NONE:
+                        return VK_CULL_MODE_NONE;
+                        break;
+                    default:
+                        RAZIX_CORE_WARN("Unknown Cull Mode! Using Back Face Culling by default");
+                        return VK_CULL_MODE_BACK_BIT;
+                        break;
+                }
+            }
+
+            VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode)
+            {
+                switch (polygonMode) {
+                    case Razix::Graphics::PolygonMode::FILL:
+                        return VK_POLYGON_MODE_FILL;
+                        break;
+                    case Razix::Graphics::PolygonMode::LINE:
+                        return VK_POLYGON_MODE_LINE;
+                        break;
+                    case Razix::Graphics::PolygonMode::POINT:
+                        return VK_POLYGON_MODE_POINT;
+                        break;
+                    default:
+                        RAZIX_CORE_WARN("Unknown polygon mode! Using fill by default");
+                        return VK_POLYGON_MODE_FILL;
+                        break;
+                }
+            }
         }
     }
 }

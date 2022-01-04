@@ -15,12 +15,15 @@ namespace Razix {
 
             void Bind(RZCommandBuffer* commandBuffer) override;
 
+            void init(const PipelineInfo& pipelineInfo);
+
             inline const VkPipeline& getPipeline() const { return m_Pipeline; }
 
         private:
             Ref<RZShader>       m_Shader;
             VkPipelineLayout    m_PipelineLayout;
             VkPipeline          m_Pipeline;
+
         };
     }
 }
