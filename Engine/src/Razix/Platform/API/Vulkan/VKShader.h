@@ -24,13 +24,17 @@ namespace Razix  {
             inline const std::vector<VkVertexInputAttributeDescription>& getVertexAttribDescriptions() const { return m_VertexInputAttributeDescriptions; }
             /* Gets Descriptor set info that is used to create the descriptor sets */
             inline const std::vector<DescriptorSetInfo>& getDescriptorSetInfos() const { return m_DescriptorSetInfos; }
-        private:
-            uint32_t                                                                m_VertexInputStride = 0;            /* The stride of the vertex data that is extracted from the information                                     */
-            std::vector<VkVertexInputAttributeDescription>                          m_VertexInputAttributeDescriptions; /* Vulkan handle for vertex input attribute description that is used by IA/VS for understating vertex data  */
-            std::unordered_map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> m_VKSetBindingLayouts;              /* Vulkan handle for descriptor layout binding information per descriptor set location                      */
-            std::unordered_map<uint32_t, VkDescriptorSetLayout>                     m_SetLayouts;                       /* Descriptor set layouts and their corresponding set IDs                                                   */
-            std::unordered_map<ShaderStage, VkPipelineShaderStageCreateInfo>        m_ShaderCreateInfos;                /* Shader module abstractions that will be used while creating the pipeline to bind the shaders             */
+            /* Gets the pipeline layout that encapsulates the descriptor sets and push constants information while creating the graphics pipeline */
+            inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
 
+            std::vector<VkPipelineShaderStageCreateInfo> getShaderStages();
+        private:
+            std::vector<VkVertexInputAttributeDescription>                          m_VertexInputAttributeDescriptions; /* Vulkan handle for vertex input attribute description that is used by IA/VS for understating vertex data              */
+            std::unordered_map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> m_VKSetBindingLayouts;              /* Vulkan handle for descriptor layout binding information per descriptor set location                                  */
+            std::unordered_map<uint32_t, VkDescriptorSetLayout>                     m_PerSetLayouts;                    /* Descriptor set layouts and their corresponding set IDs                                                               */
+            std::unordered_map<ShaderStage, VkPipelineShaderStageCreateInfo>        m_ShaderCreateInfos;                /* Shader module abstractions that will be used while creating the pipeline to bind the shaders                         */
+            std::vector<VkPushConstantRange>                                        m_VKPushConstants;                  /* Encapsulates the push constants in the shaders                                                                       */
+            VkPipelineLayout                                                        m_PipelineLayout;                   /* Pipeline layout encapsulates the descriptor sets and push constants information while creating the graphics pipeline */
         private:
             void reflectShader();
             void createShaderModules();

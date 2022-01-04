@@ -105,7 +105,7 @@ namespace Razix {
                     // Some arbitrary remapping if we want (WTF is this???)
                     glsl.set_decoration(resource.id, spv::DecorationBinding, set * 16 + binding);
 
-                    DescriptorLayoutBinding bindingLayout = {};
+                    RZDescriptorLayoutBinding bindingLayout = {};
                     bindingLayout.binding   = binding;
                     bindingLayout.count     = 1;
                     bindingLayout.stage     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
