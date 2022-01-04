@@ -155,6 +155,15 @@ namespace Razix {
                 return;
         }
 
+        std::vector<VkPipelineShaderStageCreateInfo> VKShader::getShaderStages()
+        {
+            std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+            for (std::unordered_map<ShaderStage, VkPipelineShaderStageCreateInfo>::iterator it = m_ShaderCreateInfos.begin(); it != m_ShaderCreateInfos.end(); ++it) {
+                shaderStages.push_back(it->second);
+            }
+            return shaderStages;
+        }
+
         void VKShader::reflectShader()
         {
             // Reflect the SPIR-V shader to extract all the necessary information
@@ -258,7 +267,7 @@ namespace Razix {
                     m_VKSetBindingLayouts[descriptor->set].push_back(setLayoutBindingInfo);
 
                     // -->Also store all this data for the engine as well.
-                    DescriptorLayoutBinding bindingInfo;
+                    RZDescriptorLayoutBinding bindingInfo;
                     bindingInfo.binding = descriptor->binding;
                     bindingInfo.count   = 1;
                     bindingInfo.name    = descriptor->name;
@@ -271,7 +280,7 @@ namespace Razix {
                     rzDescriptor.size = descriptor->block.size;
 
                     for (size_t i = 0; i < descriptor->block.member_count; i++) {
-                        UniformBufferMemberInfo memberInfo;
+                        RZShaderBufferMemberInfo memberInfo;
                         memberInfo.fullName = rzDescriptor.name + "." + descriptor->block.members[i].name;
                         memberInfo.name = descriptor->block.members[i].name;
                         memberInfo.offset = descriptor->block.members[i].offset;
@@ -294,13 +303,15 @@ namespace Razix {
                 SpvReflectBlockVariable** pp_push_constant_blocks =(SpvReflectBlockVariable**) malloc(var_count * sizeof(SpvReflectBlockVariable*));
                 spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, pp_push_constant_blocks);
 
+                // Create Push constants and store info about it
                 for (uint32_t i = 0; i < push_constants_count; i++) {
                     SpvReflectBlockVariable* pushConstant = pp_push_constant_blocks[i];
                     std::cout << "Name      : " << pushConstant->name << std::endl;
                     std::cout << "Size      : " << pushConstant->size << std::endl;
                     std::cout << "Offset    : " << pushConstant->offset << std::endl;
-                }
 
+                    m_PushConstants.push_back(RZPushConstant(pushConstant->name, spvSource.first, nullptr, pushConstant->size, pushConstant->offset));
+                }
                 // Destroy the reflection data when no longer required
                 spvReflectDestroyShaderModule(&module);
             }
@@ -313,16 +324,37 @@ namespace Razix {
                 layoutInfo.bindingCount = setLayouts.second.size();
                 layoutInfo.pBindings = setLayouts.second.data();
 
-                VkDescriptorSetLayout& setLayout = m_SetLayouts[setLayouts.first];
+                VkDescriptorSetLayout& setLayout = m_PerSetLayouts[setLayouts.first];
                 if (VK_CHECK_RESULT(vkCreateDescriptorSetLayout(VKDevice::Get().getDevice(), &layoutInfo, nullptr, &setLayout)))
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor set layout!");
                 else RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
             }
 
-            // TODO: Create Push constants and store info about it
+            std::vector<VkDescriptorSetLayout> descriptorLayouts;
+            for (std::unordered_map<uint32_t, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {
+                descriptorLayouts.push_back(it->second);
+            }
 
-            
-            // TODO: Create the Pipeline layout
+            // Create Push constants for vulkan
+            for (auto& pushConst : m_PushConstants) {
+                VkPushConstantRange pushConstantRange{};
+                pushConstantRange.stageFlags = EngineToVulkanhaderStage(pushConst.shaderStage);
+                pushConstantRange.offset = pushConst.offset;
+                pushConstantRange.size = pushConst.size;
+                m_VKPushConstants.push_back(pushConstantRange);
+            }
+
+            VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+            pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorLayouts.size());
+            pipelineLayoutCreateInfo.pSetLayouts = descriptorLayouts.data();
+
+            pipelineLayoutCreateInfo.pushConstantRangeCount = uint32_t(m_VKPushConstants.size());
+            pipelineLayoutCreateInfo.pPushConstantRanges = m_VKPushConstants.data();
+
+            if (VK_CHECK_RESULT(vkCreatePipelineLayout(VKDevice::Get().getDevice(), &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &m_PipelineLayout)))
+                RAZIX_CORE_ERROR("[Vulkan] Failed to create pipeline layout!");
+            else RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
         }
 
         void VKShader::createShaderModules()
