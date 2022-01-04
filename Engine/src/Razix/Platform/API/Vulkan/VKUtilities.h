@@ -10,6 +10,12 @@
 
 namespace Razix { 
     namespace Graphics {
+
+        // Forward Declarations for reducing cyclic dependency
+        enum class DrawType;
+        enum class CullMode;
+        enum class PolygonMode;
+
         namespace VKUtilities {
 
             //-----------------------------------------------------------------------------------
@@ -116,6 +122,25 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
             VkFormat FindDepthFormat();
+
+            //-----------------------------------------------------------------------------------
+            // Enum Conversions
+            //-----------------------------------------------------------------------------------
+
+            // PipelineInfo
+            /**
+             * Converts the draw type that is used to draw geometry into Vulkan enum value
+             * for the pipeline
+             * 
+             * @param type The primitive draw type, value is one of POINT, TRIANGLES and LINE
+             * 
+             * @returns Vulkan equivalent value of primitive topology 
+             */
+            VkPrimitiveTopology DrawTypeToVK(Razix::Graphics::DrawType type);
+
+            VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode);
+
+            VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode);
         }
     }
 }
