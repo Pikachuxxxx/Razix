@@ -92,6 +92,10 @@ private:
     Graphics::RZUniformBuffer*      viewProjUniformBuffer;
     Graphics::RZCommandBuffer*      cmdBuffer;
     Graphics::RZShader*             defaultShader;
+    Graphics::RZDescriptorSet*      descripotrSets;
+    Graphics::RZRenderPass*         renderpass;
+    Graphics::RZFramebuffer*        framebuffer;
+    Graphics::RZPipeline*           pipeline;
     // TODO: 1. Create Descriptor sets + UBO binding
     // TODO: 2. Shader binding to sets and UBO
     // TODO: 3. Create Render pass

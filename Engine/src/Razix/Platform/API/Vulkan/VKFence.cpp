@@ -26,14 +26,8 @@ namespace Razix {
         {
             if (m_IsSignaled)
                 return true;
-            else {
-                const VkResult result = vkGetFenceStatus(VKDevice::Get().getDevice(), m_Fence);
-                if (result == VK_SUCCESS) {
-                    m_IsSignaled = true;
-                    return true;
-                }
-                return false;
-            }
+            else 
+                return checkState();
         }
 
         bool VKFence::wait()
@@ -57,6 +51,29 @@ namespace Razix {
                 VK_CHECK_RESULT(vkResetFences(VKDevice::Get().getDevice(), 1, &m_Fence));
 
             m_IsSignaled = false;
+        }
+
+        bool VKFence::checkState()
+        {
+            RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is signalled!");
+
+            // Waits until the fence is signaled
+            const VkResult result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT32_MAX);
+
+            VK_CHECK_RESULT(result);
+            if (result == VK_SUCCESS) {
+                m_IsSignaled = true;
+                return false;
+            }
+            return true;
+        }
+
+        void VKFence::waitAndReset()
+        {
+            if(!isSignaled())
+                wait();
+
+            reset();
         }
     }
 }

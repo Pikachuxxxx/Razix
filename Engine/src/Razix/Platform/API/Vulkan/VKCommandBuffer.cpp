@@ -8,7 +8,8 @@ namespace Razix {
     namespace Graphics {
 
         VKCommandBuffer::VKCommandBuffer()
-            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE)
+            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE), m_State(CommandBufferState::Idle)
+
         { }
 
         VKCommandBuffer::~VKCommandBuffer()
@@ -30,8 +31,23 @@ namespace Razix {
             VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
         }
 
+        void VKCommandBuffer::Init(bool primary /*= true*/, VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
+        {
+            VkCommandBufferAllocateInfo cmdBufferCI = {};
+
+            m_CommandPool = cmdPool;
+
+            cmdBufferCI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            cmdBufferCI.commandBufferCount = 1;
+            cmdBufferCI.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            cmdBufferCI.commandPool = m_CommandPool;
+
+            VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
+        }
+
         void VKCommandBuffer::BeginRecording()
         {
+            m_State = CommandBufferState::Recording;
             VkCommandBufferBeginInfo beginCI{};
             beginCI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginCI.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -40,11 +56,15 @@ namespace Razix {
 
         void VKCommandBuffer::EndRecording()
         {
+            RAZIX_ASSERT(m_State == CommandBufferState::Recording, "CommandBuffer ended before started recording");
             VK_CHECK_RESULT(vkEndCommandBuffer(m_CommandBuffer));
+            m_State = CommandBufferState::Ended;
         }
 
         void VKCommandBuffer::Execute()
         {
+            RAZIX_ASSERT(m_State == CommandBufferState::Ended, "CommandBuffer executed before ended recording");
+            // TODO: Attach to the synchronization primitives
             VkSubmitInfo submitInfo = {};
             submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.pNext                = VK_NULL_HANDLE;
@@ -57,6 +77,7 @@ namespace Razix {
             submitInfo.pSignalSemaphores    = nullptr;
 
             VK_CHECK_RESULT(vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE));
+            m_State = CommandBufferState::Submitted;
         }
 
         void VKCommandBuffer::Reset()
