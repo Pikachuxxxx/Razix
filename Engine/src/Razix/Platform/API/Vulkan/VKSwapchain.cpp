@@ -50,6 +50,9 @@ namespace Razix {
                 VKTexture2D* swapImageTexture = new VKTexture2D(images[i], imageView[i]);
                 m_SwapchainImageTextures.push_back(swapImageTexture);
             }
+
+            // Create the sync primitives for each frame
+            createFrameData();
         }
 
         void VKSwapchain::Destroy()
@@ -61,10 +64,7 @@ namespace Razix {
             vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
         }
 
-        void VKSwapchain::Flip()
-        {
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
+        void VKSwapchain::Flip() { }
 
         void VKSwapchain::querySwapSurfaceProperties()
         {
@@ -240,6 +240,135 @@ namespace Razix {
             m_ImagesInFlight.resize(m_SwapchainImageCount);
         }
 
+        void VKSwapchain::createFrameData()
+        {
+            for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+                if (!m_Frames[i].renderFence) {
+
+                    VkSemaphoreCreateInfo semaphoreInfo = {};
+                    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+                    semaphoreInfo.pNext = nullptr;
+
+                    if (m_Frames[i].presentSemaphore == VK_NULL_HANDLE)
+                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].presentSemaphore));
+                    if (m_Frames[i].renderSemaphore == VK_NULL_HANDLE)
+                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].renderSemaphore));
+
+                    m_Frames[i].renderFence = CreateRef<VKFence>(true);
+                    m_Frames[i].commandPool = CreateRef<VKCommandPool>(VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT);
+
+                    m_Frames[i].mainCommandBuffer = CreateRef<VKCommandBuffer>();
+                    m_Frames[i].mainCommandBuffer->Init(true, m_Frames[i].commandPool->getVKPool());
+                }
+            }
+        }
+
+        void VKSwapchain::acquireNextImage()
+        {
+            uint32_t nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
+            {
+                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_Frames[nextCmdBufferIndex].presentSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
+                if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+                    RAZIX_CORE_TRACE("[Vulkan] Acquire Image result : {0}", result == VK_ERROR_OUT_OF_DATE_KHR ? "Out of Date" : "SubOptimal");
+
+                    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+                        OnResize(m_Width, m_Height, true);
+                        acquireNextImage();
+                    }
+                    return;
+                }
+                else if (result != VK_SUCCESS) {
+                    RAZIX_CORE_ERROR("[Vulkan] Failed to acquire swap chain image!");
+                }
+
+                m_CurrentBuffer = nextCmdBufferIndex;
+                return;
+            }
+
+        }
+
+        void VKSwapchain::queueSubmit()
+        {
+            auto& frameData = getCurrentFrameData();
+            auto cmdBuffer = frameData.mainCommandBuffer->getBuffer();
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = VK_NULL_HANDLE;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &cmdBuffer;
+            VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+            submitInfo.pWaitDstStageMask = &waitStage;
+
+            submitInfo.waitSemaphoreCount = 1;
+            submitInfo.pWaitSemaphores = &frameData.presentSemaphore;
+
+            submitInfo.signalSemaphoreCount = 1;
+            submitInfo.pSignalSemaphores = &frameData.renderSemaphore;
+
+            frameData.renderFence->reset();
+
+            {
+                VK_CHECK_RESULT(vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence()));
+            }
+
+            frameData.renderFence->wait(); //TODO: Remove this? - causes flickering if removed. Sync issue
+            frameData.commandPool->reset();
+        }
+
+        void VKSwapchain::OnResize(uint32_t width, uint32_t height, bool forceResize /*= false*/)
+        {
+            if (!forceResize && m_Width == width && m_Height == height)
+                return;
+
+            VKContext::Get()->waitIdle();
+
+            m_Width = width;
+            m_Height = height;
+
+            for (uint32_t i = 0; i < m_SwapchainImageCount; i++)
+                delete m_SwapchainImageTextures[i];
+
+            m_SwapchainImageTextures.clear();
+            m_OldSwapChain = m_Swapchain;
+
+            m_Swapchain = VK_NULL_HANDLE;
+        }
+
+        void VKSwapchain::begin()
+        {
+            if (getCurrentFrameData().mainCommandBuffer->getState() == CommandBufferState::Submitted)
+                getCurrentFrameData().renderFence->wait();
+            getCurrentFrameData().mainCommandBuffer->BeginRecording();
+        }
+
+        void VKSwapchain::end()
+        {
+            getCurrentCommandBuffer()->EndRecording();
+        }
+
+        void VKSwapchain::present()
+        {
+            auto& frameData = getCurrentFrameData();
+
+            VkPresentInfoKHR present;
+            present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+            present.pNext = VK_NULL_HANDLE;
+            present.swapchainCount = 1;
+            present.pSwapchains = &m_Swapchain;
+            present.pImageIndices = &m_AcquireImageIndex;
+            present.waitSemaphoreCount = 1;
+            present.pWaitSemaphores = &frameData.renderSemaphore;
+            present.pResults = VK_NULL_HANDLE;
+            auto error = vkQueuePresentKHR(VKDevice::Get().getPresentQueue(), &present);
+
+            if (error == VK_ERROR_OUT_OF_DATE_KHR)
+                RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
+            else if (error == VK_SUBOPTIMAL_KHR)
+                RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
+            else
+                VK_CHECK_RESULT(error);
+        }
     }
 }
 

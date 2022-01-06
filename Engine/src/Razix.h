@@ -29,8 +29,11 @@
 // Graphics API
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZDescriptorSet.h"
+#include "Razix/Graphics/API/RZFramebuffer.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 #include "Razix/Graphics/API/RZIndexBuffer.h"
+#include "Razix/Graphics/API/RZPipeline.h"
+#include "Razix/Graphics/API/RZRenderPass.h"
 #include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
