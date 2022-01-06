@@ -18,7 +18,7 @@ namespace Razix {
             void init(const PipelineInfo& pipelineInfo);
 
             inline const VkPipeline& getPipeline() const { return m_Pipeline; }
-
+            inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
         private:
             Ref<RZShader>       m_Shader;
             VkPipelineLayout    m_PipelineLayout;
