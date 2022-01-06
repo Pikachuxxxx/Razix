@@ -30,6 +30,8 @@ namespace Razix {
             // TODO: Remove this and use a method on the RZGraphicsContext side to retrieve this!
             /* Gets the underlying Vulkan context object */
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }
+
+            void waitIdle() const { vkDeviceWaitIdle(m_Device->getDevice()); }
             
             Ref<VKSwapchain>& getSwapchain() { return m_Swapchain; }
 

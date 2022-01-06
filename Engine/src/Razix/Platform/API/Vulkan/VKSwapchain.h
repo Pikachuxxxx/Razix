@@ -1,16 +1,30 @@
 #pragma once
 
+#include "Razix/Core/RZSmartPointers.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN 
 
+#include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+#include "Razix/Platform/API/Vulkan/VKCommandPool.h"
 #include "Razix/Platform/API/Vulkan/VKFence.h"
 
 #include <vulkan/vulkan.h>
 
 namespace Razix {
     namespace Graphics {
+
+        #define MAX_SWAPCHAIN_BUFFERS 3
+
+        struct FrameData
+        {
+            VkSemaphore presentSemaphore = VK_NULL_HANDLE, renderSemaphore = VK_NULL_HANDLE;
+
+            Ref<VKFence> renderFence;
+            Ref<VKCommandPool> commandPool;
+            Ref<VKCommandBuffer> mainCommandBuffer;
+        };
 
         class VKSwapchain : public RZSwapchain
         {
@@ -30,23 +44,38 @@ namespace Razix {
             void Init() override;
             void Destroy() override;
             void Flip() override;
-
+            
             // Flip related functions
 
             /* Present the swapchain for presentation onto the window surface */
             void presentSwapchain(VkCommandBuffer& commandBuffer);
             /* Creates synchronization primitives such as semaphores and fence for queue submit and present sync, basically syncs triple buffering */
             void createSynchronizationPrimitives();
+            void createFrameData();
+            void acquireNextImage();
+            void queueSubmit();
+            void OnResize(uint32_t width, uint32_t height, bool forceResize = false);
+            void begin();
+            void end();
+            void present();
 
             RZTexture* GetImage(uint32_t index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }
             RZTexture* GetCurrentImage() override { return static_cast<RZTexture*>(m_SwapchainImageTextures[m_AcquireImageIndex]); }
             size_t GetSwapchainImageCount() override  {return m_SwapchainImageCount;}
             RZCommandBuffer* GetCurrentCommandBuffer() override  {return nullptr;}
+            FrameData& getCurrentFrameData()
+            {
+                RAZIX_ASSERT(m_CurrentBuffer < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
+                return m_Frames[m_CurrentBuffer];
+            }
+
+            RZCommandBuffer* getCurrentCommandBuffer() { return getCurrentFrameData().mainCommandBuffer.get(); }
 
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
 
         private:
              VkSwapchainKHR             m_Swapchain;                    /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos  */
+             VkSwapchainKHR m_OldSwapChain;
              SwapSurfaceProperties      m_SwapSurfaceProperties;        /* Swapchain surface properties                                                                     */
              VkSurfaceFormatKHR         m_SurfaceFormat;                /* Selected Swapchain image format and color space of the swapchain image                           */
              VkPresentModeKHR           m_PresentMode;                  /* The presentation mode for the swapchain images                                                   */
@@ -58,7 +87,10 @@ namespace Razix {
              std::vector<VkSemaphore>   m_RenderingFinishedSemaphores;  /* Semaphore to tell when the rendering to a particular swapchain image is done                     */
              std::vector<VKFence>       m_InFlightFences;               /* Use to synchronize the GPU-CPU so that they draw onto the right image in flight                  */
              std::vector<VKFence>       m_ImagesInFlight;               /* Used to verify that the images being used to render onto is not being presented                  */
-             VkFormat                   m_ColorFormat;                  /* Color format of the screen                                                                       */
+             VkFormat                   m_ColorFormat;                  /* Color format of the screen                             // Cache the reference to the Vulkan context to avoid frequent calling
+            m_Context = VKContext::Get();                                                      */
+             FrameData m_Frames[MAX_SWAPCHAIN_BUFFERS];
+             uint32_t m_CurrentBuffer = 0;  /* Index of the current buffer being submitted for execution */
 
         private:
             /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */
