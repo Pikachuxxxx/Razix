@@ -25,11 +25,11 @@ namespace Razix {
             RZAPIRenderer() = default;
             virtual ~RZAPIRenderer() = default;
 
-            static RZAPIRenderer* Create(uint32_t width, uint32_t height);
+            static void Create(uint32_t width, uint32_t height);
 
             inline static void Init() { s_APIInstance->InitAPIImpl(); }
-            inline static void Begin() { s_APIInstance->Begin(); }
-            inline static void Present(RZCommandBuffer* cmdBuffer) { s_APIInstance->Present(cmdBuffer); }
+            inline static void Begin() { s_APIInstance->BeginAPIImpl(); }
+            inline static void Present(RZCommandBuffer* cmdBuffer) { s_APIInstance->PresentAPIImple(cmdBuffer); }
             inline static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) { s_APIInstance->BindDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets); }
             inline static void Draw(RZCommandBuffer* cmdBuffer, uint32_t count, DataType dataType = DataType::UNSIGNED_INT) { s_APIInstance->DrawAPIImpl(cmdBuffer, count, dataType); }
 
@@ -46,7 +46,6 @@ namespace Razix {
             std::string             m_RendererTitle;    /* The name of the renderer API that is being used */
             uint32_t                m_Width;
             uint32_t                m_Height;
-
         };
     }
 }

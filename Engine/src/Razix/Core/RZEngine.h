@@ -18,6 +18,7 @@ namespace Razix
 			uint32_t UpdatesPerSecond = 0;
 			uint32_t FramesPerSecond = 0;
 			float FrameTime = 0;
+            uint32_t NumDrawCalls = 0;
 		};
 
     public:
@@ -47,12 +48,8 @@ namespace Razix
 		/// </summary>
 		void ResetStats()
 		{
-			//m_Stats.NumRenderedObjects = 0;
 			m_Stats.FrameTime = 0.0f;
-			//m_Stats.UsedGPUMemory = 0.0f;
-			//m_Stats.UsedRam = 0.0f;
-			//m_Stats.NumDrawCalls = 0;
-			//m_Stats.TotalGPUMemory = 0.0f;
+			m_Stats.NumDrawCalls = 0;
 		}
 
 		/// <summary>
