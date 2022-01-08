@@ -23,7 +23,7 @@ namespace Razix {
         class RZCommandBuffer;      /* The command buffer that will be submitted for execution */  
 
         /* The swapchain that consists of multiple render targets and framebuffer attachments to render to the surface */
-        class RZSwapchain
+        class RAZIX_API RZSwapchain
         {
         public:
             /* Virtual destructor RZSwapchain */
@@ -51,7 +51,7 @@ namespace Razix {
             /* Gets the count of total number of images in the swapchain */
             virtual size_t GetSwapchainImageCount() = 0;
             /* Gets the current command buffer being executed for rendering onto the swapchain */
-            virtual RZCommandBuffer* GetCurrentCommandBuffer() = 0;
+            virtual RZCommandBuffer* getCurrentCommandBuffer() = 0;
 
             /* Gets the width of the swapchain */
             inline uint32_t getWidth() { return m_Width; }

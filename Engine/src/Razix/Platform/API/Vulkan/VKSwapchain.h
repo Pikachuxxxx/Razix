@@ -62,15 +62,12 @@ namespace Razix {
             RZTexture* GetImage(uint32_t index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }
             RZTexture* GetCurrentImage() override { return static_cast<RZTexture*>(m_SwapchainImageTextures[m_AcquireImageIndex]); }
             size_t GetSwapchainImageCount() override  {return m_SwapchainImageCount;}
-            RZCommandBuffer* GetCurrentCommandBuffer() override  {return nullptr;}
+            RZCommandBuffer* getCurrentCommandBuffer() override { return getCurrentFrameData().mainCommandBuffer.get(); }
             FrameData& getCurrentFrameData()
             {
                 RAZIX_ASSERT(m_CurrentBuffer < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
                 return m_Frames[m_CurrentBuffer];
             }
-
-            RZCommandBuffer* getCurrentCommandBuffer() { return getCurrentFrameData().mainCommandBuffer.get(); }
-
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
 
         private:

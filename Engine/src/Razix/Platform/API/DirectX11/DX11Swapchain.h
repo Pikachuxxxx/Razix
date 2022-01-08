@@ -22,7 +22,7 @@ namespace Razix {
             RZTexture* GetImage(uint32_t index) override;
             RZTexture* GetCurrentImage() override;
             size_t GetSwapchainImageCount() override;
-            RZCommandBuffer* GetCurrentCommandBuffer() override;
+            RZCommandBuffer* getCurrentCommandBuffer() override;
 
             inline Microsoft::WRL::ComPtr<IDXGISwapChain>& getSwapchain() { return m_Swapchain; }
             inline Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& getRenderTarget() { return m_Target; }
