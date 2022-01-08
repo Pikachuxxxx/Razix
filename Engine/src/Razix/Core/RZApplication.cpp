@@ -78,13 +78,6 @@ namespace Razix
         RZVirtualFileSystem::Get().mount("Sounds",      m_AppFilePath + std::string("Assets/Sounds"));
         RZVirtualFileSystem::Get().mount("Textures",    m_AppFilePath + std::string("Assets/Textures"));
         
-
-        //-------------------------------------------------------------------------------------
-        // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
-        //-------------------------------------------------------------------------------------
-
-
         // The Razix Application Signature Name is generated here and passed to the window
         std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
 
@@ -97,13 +90,6 @@ namespace Razix
         // Create the Window
         m_Window = UniqueRef<RZWindow>(RZWindow::Create(m_WindowProperties));
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
-
-        //-------------------------------------------------------------------------------------
-        // Creating the Graphics Context and Swapchain and Initialize it
-        Graphics::RZGraphicsContext::Create(m_WindowProperties, m_Window.get());
-        Graphics::RZGraphicsContext::GetContext()->Init();
-        //swapchain = Graphics::RZSwapchain::Create(m_Window->getWidth(), m_Window->getHeight());
-        //-------------------------------------------------------------------------------------
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
