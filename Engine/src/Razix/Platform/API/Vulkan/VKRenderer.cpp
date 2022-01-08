@@ -3,6 +3,7 @@
 
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKDescriptorSet.h"
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
@@ -50,6 +51,8 @@ namespace Razix {
         {
             // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = VKContext::Get();
+            m_Context->Init();
+
         }
 
         void VKRenderer::BeginAPIImpl()
@@ -89,5 +92,11 @@ namespace Razix {
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             vkCmdDraw(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0);
         }
+
+        Razix::Ref<Razix::Graphics::RZSwapchain> VKRenderer::GetSwapchainImpl()
+        {
+            return Ref<RZSwapchain>(static_cast<VKSwapchain*>(VKContext::Get()->getSwapchain().get()));
+        }
+
     }
 }

@@ -15,7 +15,10 @@ private:
 public:
     Sandbox() : RZApplication("/Sandbox/","Sandbox")
     {
-
+        //-------------------------------------------------------------------------------------
+        // Override the Graphics API here! for testing
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::OPENGL);
+        //-------------------------------------------------------------------------------------
     }
 
     ~Sandbox()              
@@ -25,85 +28,100 @@ public:
 
     void OnStart() override
     {
-        Graphics::RZTexture::Filtering filtering = {};
-        filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
-        filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::OPENGL);
+        Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
-        Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachmentGLTest", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
 
-        float vertices[3 * 3] = {
-           -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f,  0.5f, 0.0f,
-        };
+            Graphics::RZTexture::Filtering filtering = {};
+            filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
+            filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
 
-        // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
-        bufferLayout.push<glm::vec3>("Position");
+            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachmentGLTest", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
 
-        triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 9, vertices, Graphics::BufferUsage::STATIC);
-        triVBO->AddBufferLayout(bufferLayout);
+            float vertices[3 * 3] = {
+               -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f,
+                0.0f,  0.5f, 0.0f,
+            };
 
-        viewProjUniformBuffer = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
+            // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
+            bufferLayout.push<glm::vec3>("Position");
 
-        // Create the shader
-        defaultShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
+            triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 9, vertices, Graphics::BufferUsage::STATIC);
+            triVBO->AddBufferLayout(bufferLayout);
 
-        // get the descriptor infos to create the descriptor sets
-        auto setInfos = defaultShader->getSetInfos();
+            viewProjUniformBuffer = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
-        for (auto setInfo : setInfos) {
-            auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
-            descripotrSets.push_back(descSet);
+            // Create the shader
+            defaultShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
+
+            // get the descriptor infos to create the descriptor sets
+            auto setInfos = defaultShader->getSetInfos();
+
+            for (auto setInfo : setInfos) {
+                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+                descripotrSets.push_back(descSet);
+            }
+
+            // Create the render pass
+            Graphics::AttachmentInfo textureTypes[2] = {
+                   { Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::RGBA8 },
+                   { Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH }
+            };
+
+            Graphics::RenderPassInfo renderPassInfo{};
+            renderPassInfo.attachmentCount = 2;
+            renderPassInfo.textureType = textureTypes;
+            renderPassInfo.name = "screen clear";
+            renderPassInfo.clear = true;
+
+            renderpass = Graphics::RZRenderPass::Create(renderPassInfo);
+
+            // Create the graphics pipeline
+            Graphics::PipelineInfo pipelineInfo{};
+            pipelineInfo.cullMode = Graphics::CullMode::BACK;
+            pipelineInfo.depthBiasEnabled = false;
+            pipelineInfo.drawType = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.renderpass = Ref<Graphics::RZRenderPass>(renderpass);
+            pipelineInfo.shader = Ref<Graphics::RZShader>(defaultShader);
+            pipelineInfo.transparencyEnabled = false;
+
+            pipeline = Graphics::RZPipeline::Create(pipelineInfo);
+
+            // Create the framebuffer
+            Graphics::RZTexture::Type attachmentTypes[2];
+            attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
+            attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
+
+            Graphics::RZTexture* attachments[2];
+
+            Graphics::FramebufferInfo frameBufInfo{};
+            frameBufInfo.width = getWindow()->getWidth();
+            frameBufInfo.height = getWindow()->getHeight();
+            frameBufInfo.attachmentCount = 2;
+            frameBufInfo.renderPass = renderpass;
+
+            //attachments[1] = dynamic_cast<RZTexture*>(RZAPIRenderer::get);
+            frameBufInfo.attachmentTypes = attachmentTypes;
+            frameBufInfo.attachments = attachments;
+
+            framebuffer = Graphics::RZFramebuffer::Create(frameBufInfo);
+            
+            Graphics::RZAPIRenderer::Init();
+        }
+        else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+            swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
         }
 
-        // Create the render pass
-        Graphics::AttachmentInfo textureTypes[2] = {
-               { Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::RGBA8 },
-               { Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH }
-        };
-
-        Graphics::RenderPassInfo renderPassInfo{};
-        renderPassInfo.attachmentCount = 2;
-        renderPassInfo.textureType = textureTypes;
-        renderPassInfo.name = "screen clear";
-        renderPassInfo.clear = true;
-
-        renderpass = Graphics::RZRenderPass::Create(renderPassInfo);
-
-        // Create the graphics pipeline
-        Graphics::PipelineInfo pipelineInfo{};
-        pipelineInfo.cullMode = Graphics::CullMode::BACK;
-        pipelineInfo.depthBiasEnabled = false;
-        pipelineInfo.drawType = Graphics::DrawType::TRIANGLE;
-        pipelineInfo.renderpass = Ref<Graphics::RZRenderPass>(renderpass);
-        pipelineInfo.shader = Ref<Graphics::RZShader>(defaultShader);
-        pipelineInfo.transparencyEnabled = false;
-
-        pipeline = Graphics::RZPipeline::Create(pipelineInfo);
-
-        // Create the framebuffer
-        Graphics::RZTexture::Type attachmentTypes[2];
-        attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
-        attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
-
-        Graphics::RZTexture* attachments[2];
-
-        Graphics::FramebufferInfo frameBufInfo{};
-        frameBufInfo.width = getWindow().getWidth();
-        frameBufInfo.height = getWindow().getHeight();
-        frameBufInfo.attachmentCount = 2;
-        frameBufInfo.renderPass = Ref<Graphics::RZRenderPass>(renderpass);
-
-        attachments[1] = dynamic_cast<RZTexture*>(RZAPIRenderer::get);
-
-       
-        
     }
 
     void OnUpdate(const RZTimestep& dt) override 
     {
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
+            
+            swapchain->Flip();
         }
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
@@ -116,9 +134,11 @@ public:
             viewProjUniformBuffer->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
             // Bind the Vertex and Index buffers
-            triVBO->Bind();
+            triVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-
+            Graphics::RZAPIRenderer::Begin();
+            Graphics::RZAPIRenderer::Draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 3, Graphics::DataType::FLOAT);
+            Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
         }
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
@@ -133,6 +153,7 @@ private:
     Graphics::RZRenderPass*                     renderpass;
     Graphics::RZFramebuffer*                    framebuffer;
     Graphics::RZPipeline*                       pipeline;
+    Graphics::RZSwapchain* swapchain;
     // TODO: 1. Create Descriptor sets + UBO binding
     // TODO: 2. Shader binding to sets and UBO
     // TODO: 3. Create Render pass

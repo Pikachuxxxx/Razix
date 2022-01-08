@@ -93,10 +93,11 @@ namespace Razix
         static RZApplication& Get() { return *s_AppInstance; }
         
         /* Returns a reference to the application window */
-        inline RZWindow& getWindow() { return *m_Window; }
+        inline RZWindow* getWindow() { return m_Window.get(); }
         /* Returns a reference to the Application instance */
         //inline static RZApplication& Get() { return *s_AppInstance; }
         inline std::string getAppName() const { return m_AppName; }
+        inline WindowProperties& getWindowProps() { return m_WindowProperties; }
 
         /* Application Serialization */
         template<class Archive>
