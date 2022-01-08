@@ -24,22 +24,26 @@ namespace Razix {
 
         Razix::Graphics::RZTexture* DX11Swapchain::GetImage(uint32_t index)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            RAZIX_UNIMPLEMENTED_METHOD
+                return nullptr;
         }
 
         Razix::Graphics::RZTexture* DX11Swapchain::GetCurrentImage()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            RAZIX_UNIMPLEMENTED_METHOD
+                return nullptr;
         }
 
         size_t DX11Swapchain::GetSwapchainImageCount()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            RAZIX_UNIMPLEMENTED_METHOD
+                return NULL;
         }
 
-        RZCommandBuffer* DX11Swapchain::GetCurrentCommandBuffer()
+        RZCommandBuffer* DX11Swapchain::getCurrentCommandBuffer()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            RAZIX_UNIMPLEMENTED_METHOD
+                return nullptr;
         }
     }
 }
