@@ -27,6 +27,7 @@ namespace Razix {
         {
             glViewport(0, 0, width, height);
         }
+        /*
 
         void OpenGLCommandBuffer::Draw(uint32_t verticexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
         {
@@ -38,7 +39,7 @@ namespace Razix {
             //TODO: How to send index data here?
             glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_BYTE, nullptr);
         }
-
+        */
     }
 }
 #endif

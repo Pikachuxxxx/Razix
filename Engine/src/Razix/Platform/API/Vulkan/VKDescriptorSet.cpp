@@ -4,6 +4,7 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKSwapchain.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
+#include "Razix/Platform/API/Vulkan/VKRenderer.h"
 
 namespace Razix {
     namespace Graphics {
@@ -11,6 +12,7 @@ namespace Razix {
         VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
+            /*
             // Descriptor sets can't be created directly, they must be allocated from a pool like command buffers i.e. use a descriptor pool to allocate the descriptor sets
             // We first need to describe which descriptor types our descriptor sets are going to contain and how many of them, we allocate a pool for each type of descriptor
             // So we hardcode to create only 2 pools as of now, one for UNIFOR_BUFFER and other for IMAGE_SAMPLER, they can allocate a max of 3 sets so as to facilitate triple buffering
@@ -29,16 +31,32 @@ namespace Razix {
             poolInfo.pPoolSizes     = poolSizes.data();
             poolInfo.maxSets        = static_cast<uint32_t>(RAZIX_MAX_SWAP_IMAGES_COUNT);
 
+
             if (VK_CHECK_RESULT(vkCreateDescriptorPool(VKDevice::Get().getDevice(), &poolInfo, nullptr, &m_DescriptorPool)))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor Pool!");
             else RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor Pool");
+            */
+            RAZIX_UNIMPLEMENTED_METHOD_MARK
+            //////////////////////////////////////////////////////////////////////////
+            VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
+            descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            descriptorSetAllocateInfo.descriptorPool = VKRenderer::GetVKRenderer()->getDescriptorPool();
+            descriptorSetAllocateInfo.descriptorSetCount = 1;// static_cast<uint32_t>(RAZIX_MAX_SWAP_IMAGES_COUNT);
+            //descriptorSetAllocateInfo.pSetLayouts = descriptors.
+
+            UpdateSet(descriptors);
         }
 
         VKDescriptorSet::~VKDescriptorSet() { }
 
         void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
         {
-           
+            RAZIX_UNIMPLEMENTED_METHOD_MARK
+            int descriptorWritesCount = 0;
+            {
+                int imageIndex = 0;
+                int index = 0;
+            }
         }
 
     }
