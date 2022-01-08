@@ -29,8 +29,8 @@ void main()
 	vec4 texColour = texture(texSampler, fs_in.fragTexCoord);
 
     // Force alpha rejection
-    if(texColour.w < 0.1)
-		discard;
+    //if(texColour.w < 0.1)
+	//	discard;
 
     //outColor = texColour; // * vec4(fragColor, 1.0f);
     outColor = vec4(fs_in.fragColor, 1.0f);

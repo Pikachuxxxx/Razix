@@ -41,6 +41,8 @@
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 #include "Razix/Graphics/API/RZVertexBufferLayout.h"
 
+#include "Razix/Graphics/API/RZAPIRenderer.h"
+
 // Utilities
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/LoadImage.h"

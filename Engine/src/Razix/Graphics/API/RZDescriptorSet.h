@@ -92,8 +92,8 @@ namespace Razix {
             std::string                             name;
             RZUniformBuffer*                        uniformBuffer;
             RZTexture*                              texture;
-            std::vector<RZShaderBufferMemberInfo>    uboMembers;
-            RZDescriptorLayoutBinding                 bindingInfo;
+            std::vector<RZShaderBufferMemberInfo>   uboMembers;
+            RZDescriptorLayoutBinding               bindingInfo;
             uint32_t                                size;  //? The size of the descriptor data, can also be extracted from UBO/Texture??
             uint32_t                                offset; //? I don't think this is needed
         };
@@ -130,8 +130,8 @@ namespace Razix {
         /* Encapsulating the descriptors of a set along with the setID */
         struct DescriptorSetInfo
         {
-            uint32_t                                setID;          /* The set number to which the descriptors correspond to */
-            std::vector<RZDescriptor>                 descriptors;    /* The descriptors that will be bound to this set and passed to the GPU */
+            uint32_t                                    setID;          /* The set number to which the descriptors correspond to */
+            std::vector<RZDescriptor>                   descriptors;    /* The descriptors that will be bound to this set and passed to the GPU */
         };
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */

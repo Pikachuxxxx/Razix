@@ -55,6 +55,8 @@ namespace Razix {
             /* Gets the stage of the pipeline that shader is bound/being used with */
             inline const ShaderStage& getStage() { return m_ShaderStage; }
             inline const uint32_t& getInputStride() const { return m_VertexInputStride; }
+            inline const std::vector<DescriptorSetInfo>& getSetInfos() const { return m_DescriptorSetInfos; }
+            inline const std::vector<RZPushConstant>& getPushConstants() const { return m_PushConstants; }
         protected:
             ShaderStage                         m_ShaderStage = ShaderStage::NONE;          /* The shader stage to which the shader will be bound to                                                    */
             ShaderSourceType                    m_SourceType = ShaderSourceType::SPIRV;     /* The source type of the shader                                                                            */

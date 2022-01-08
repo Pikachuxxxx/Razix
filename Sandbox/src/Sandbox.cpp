@@ -45,12 +45,59 @@ public:
 
         viewProjUniformBuffer = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
-        cmdBuffer = Graphics::RZCommandBuffer::Create();
-        cmdBuffer->Init();
-
         // Create the shader
         defaultShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
-        std::cout << "Hmmmmmmm" << std::endl;
+
+        // get the descriptor infos to create the descriptor sets
+        auto setInfos = defaultShader->getSetInfos();
+
+        for (auto setInfo : setInfos) {
+            auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+            descripotrSets.push_back(descSet);
+        }
+
+        // Create the render pass
+        Graphics::AttachmentInfo textureTypes[2] = {
+               { Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::RGBA8 },
+               { Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH }
+        };
+
+        Graphics::RenderPassInfo renderPassInfo{};
+        renderPassInfo.attachmentCount = 2;
+        renderPassInfo.textureType = textureTypes;
+        renderPassInfo.name = "screen clear";
+        renderPassInfo.clear = true;
+
+        renderpass = Graphics::RZRenderPass::Create(renderPassInfo);
+
+        // Create the graphics pipeline
+        Graphics::PipelineInfo pipelineInfo{};
+        pipelineInfo.cullMode = Graphics::CullMode::BACK;
+        pipelineInfo.depthBiasEnabled = false;
+        pipelineInfo.drawType = Graphics::DrawType::TRIANGLE;
+        pipelineInfo.renderpass = Ref<Graphics::RZRenderPass>(renderpass);
+        pipelineInfo.shader = Ref<Graphics::RZShader>(defaultShader);
+        pipelineInfo.transparencyEnabled = false;
+
+        pipeline = Graphics::RZPipeline::Create(pipelineInfo);
+
+        // Create the framebuffer
+        Graphics::RZTexture::Type attachmentTypes[2];
+        attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
+        attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
+
+        Graphics::RZTexture* attachments[2];
+
+        Graphics::FramebufferInfo frameBufInfo{};
+        frameBufInfo.width = getWindow().getWidth();
+        frameBufInfo.height = getWindow().getHeight();
+        frameBufInfo.attachmentCount = 2;
+        frameBufInfo.renderPass = Ref<Graphics::RZRenderPass>(renderpass);
+
+        attachments[1] = dynamic_cast<RZTexture*>(RZAPIRenderer::get);
+
+       
+        
     }
 
     void OnUpdate(const RZTimestep& dt) override 
@@ -62,7 +109,6 @@ public:
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
             // Set the view port
-            cmdBuffer->UpdateViewport(RZApplication::Get().getWindow().getWidth(), RZApplication::Get().getWindow().getHeight());
 
             // Update the uniform buffer data
             viewProjUBOData.view = glm::mat4(1.0f);
@@ -70,16 +116,8 @@ public:
             viewProjUniformBuffer->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
             // Bind the Vertex and Index buffers
-            triVBO->Bind(cmdBuffer);
+            triVBO->Bind();
 
-            // Record the draw commands to be submitted
-            cmdBuffer->BeginRecording();
-            {   
-                cmdBuffer->Draw(3, 0, 0, 0);
-            }
-            cmdBuffer->EndRecording();
-
-            cmdBuffer->Execute();
 
         }
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
@@ -87,15 +125,14 @@ public:
     }
 
 private:
-    Graphics::RZVertexBufferLayout  bufferLayout;
-    Graphics::RZVertexBuffer*       triVBO;
-    Graphics::RZUniformBuffer*      viewProjUniformBuffer;
-    Graphics::RZCommandBuffer*      cmdBuffer;
-    Graphics::RZShader*             defaultShader;
-    Graphics::RZDescriptorSet*      descripotrSets;
-    Graphics::RZRenderPass*         renderpass;
-    Graphics::RZFramebuffer*        framebuffer;
-    Graphics::RZPipeline*           pipeline;
+    Graphics::RZVertexBufferLayout              bufferLayout;
+    Graphics::RZVertexBuffer*                   triVBO;
+    Graphics::RZUniformBuffer*                  viewProjUniformBuffer;
+    Graphics::RZShader*                         defaultShader;
+    std::vector<Graphics::RZDescriptorSet*>     descripotrSets;
+    Graphics::RZRenderPass*                     renderpass;
+    Graphics::RZFramebuffer*                    framebuffer;
+    Graphics::RZPipeline*                       pipeline;
     // TODO: 1. Create Descriptor sets + UBO binding
     // TODO: 2. Shader binding to sets and UBO
     // TODO: 3. Create Render pass

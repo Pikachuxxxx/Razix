@@ -17,10 +17,12 @@ namespace Razix {
             ~VKDescriptorSet();
 
             void UpdateSet(const std::vector<RZDescriptor>& descriptors) override;
+            inline const VkDescriptorSet& getDescriptorSets() const { return m_DescriptorSet; }
+
 
         private:
             VkDescriptorPool                m_DescriptorPool;   /* The descriptor pool from which the descriptor sets will be allocated from                                */
-            std::vector<VkDescriptorSet>    m_DescriptorSets;   /* Each frame gets a descriptor set that helps in mapping the necessary data to the shader slots            */
+            VkDescriptorSet                 m_DescriptorSet;   /* Each frame gets a descriptor set that helps in mapping the necessary data to the shader slots            */
 
         };
 
