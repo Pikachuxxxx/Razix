@@ -139,9 +139,6 @@ namespace Razix
         }
 
     private:
-        // TODO: Move this to the renderer class soon!
-        Graphics::RZSwapchain*  swapchain;
-
         static RZApplication*   s_AppInstance;                          /* The singleton instance of the application                */
         AppState                m_CurrentState  = AppState::Loading;    /* The current state of the application                     */
         std::string             m_AppName;                              /* The name of the application                              */

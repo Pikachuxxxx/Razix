@@ -103,6 +103,7 @@ namespace Razix {
             vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
         }
 
+        /*
         void VKCommandBuffer::Draw(uint32_t verticexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
         {
             vkCmdDraw(m_CommandBuffer, verticexCount, instanceCount, firstInstance, firstInstance);
@@ -112,5 +113,6 @@ namespace Razix {
         {
             vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstInstance, vertexOffset, firstInstance);
         }
+        */
     }
 }

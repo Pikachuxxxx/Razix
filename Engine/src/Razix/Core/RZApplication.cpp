@@ -102,7 +102,7 @@ namespace Razix
         // Creating the Graphics Context and Swapchain and Initialize it
         Graphics::RZGraphicsContext::Create(m_WindowProperties, m_Window.get());
         Graphics::RZGraphicsContext::GetContext()->Init();
-        swapchain = Graphics::RZSwapchain::Create(m_Window->getWidth(), m_Window->getHeight());
+        //swapchain = Graphics::RZSwapchain::Create(m_Window->getWidth(), m_Window->getHeight());
         //-------------------------------------------------------------------------------------
 
         // Create a default project file file if nothing exists
@@ -181,7 +181,7 @@ namespace Razix
         m_Window->OnWindowUpdate();
 
         // FLip the swapchain to present the rendered image
-        swapchain->Flip();
+        //swapchain->Flip();
 
         // Record the FPS
         if (now - m_SecondTimer > 1.0f)
@@ -197,6 +197,7 @@ namespace Razix
             m_Updates = 0;
         }
 
+        RZEngine::Get().ResetStats();
         return m_CurrentState != AppState::Closing;
     }
 
@@ -209,7 +210,7 @@ namespace Razix
     void RZApplication::Quit()
     {
         // TODO: Release the Graphics context at the right place
-        swapchain->Destroy();
+        //swapchain->Destroy();
         Graphics::RZGraphicsContext::Release();
 
         // Save the app data before closing
