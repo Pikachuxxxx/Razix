@@ -22,6 +22,9 @@ namespace Razix {
             size_t GetSwapchainImageCount() override { return 0; }
             RZCommandBuffer* getCurrentCommandBuffer() override {return nullptr;}
 
+
+            uint32_t getCurrentImageIndex() override { return 0; }
+
         private:
             uint32_t m_Width;
             uint32_t m_Height;

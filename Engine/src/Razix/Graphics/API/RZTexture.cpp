@@ -81,5 +81,23 @@ namespace Razix {
             return nullptr;
         }
 
+        //-----------------------------------------------------------------------------------
+        // Depth Texture
+        //-----------------------------------------------------------------------------------
+
+        RZDepthTexture* RZDepthTexture::Create(uint32_t width, uint32_t height)
+        {
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+                case Razix::Graphics::RenderAPI::OPENGL:    break;
+                case Razix::Graphics::RenderAPI::VULKAN:    return new VKDepthTexture(width, height); break;
+                case Razix::Graphics::RenderAPI::DIRECTX11:
+                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::GXM:
+                case Razix::Graphics::RenderAPI::GCM:
+                default: return nullptr;  break;
+            }
+            return nullptr;
+        }
+
     }
 }

@@ -51,8 +51,6 @@ namespace Razix {
         {
             // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = VKContext::Get();
-            m_Context->Init();
-
         }
 
         void VKRenderer::BeginAPIImpl()
@@ -93,9 +91,9 @@ namespace Razix {
             vkCmdDraw(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0);
         }
 
-        Razix::Ref<Razix::Graphics::RZSwapchain> VKRenderer::GetSwapchainImpl()
+        RZSwapchain* VKRenderer::GetSwapchainImpl()
         {
-            return Ref<RZSwapchain>(static_cast<VKSwapchain*>(VKContext::Get()->getSwapchain().get()));
+            return static_cast<VKSwapchain*>(VKContext::Get()->getSwapchain().get());
         }
 
     }

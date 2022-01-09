@@ -13,7 +13,7 @@ namespace Razix {
         VKPipeline::VKPipeline(const PipelineInfo& pipelineInfo)
         {
             m_Shader = pipelineInfo.shader;
-            m_PipelineLayout = static_cast<VKShader*>(m_Shader.get())->getPipelineLayout();
+            m_PipelineLayout = static_cast<VKShader*>(m_Shader)->getPipelineLayout();
 
             init(pipelineInfo);
         }
@@ -39,7 +39,7 @@ namespace Razix {
             vertexBindingDescription.stride                 = m_Shader->getInputStride();
 
             // Get the input description information from the shader reflection
-            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*>(m_Shader.get())->getVertexAttribDescriptions();
+            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*>(m_Shader)->getVertexAttribDescriptions();
 
             VkPipelineVertexInputStateCreateInfo vertexInputSCI{};
             vertexInputSCI.sType                            = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -197,9 +197,10 @@ namespace Razix {
             graphicsPipelineCI.pDynamicState = &dynamicStateCI;
             graphicsPipelineCI.pViewportState = &viewportSCI;
             graphicsPipelineCI.pDepthStencilState = &depthStencilSCI;
-            graphicsPipelineCI.pStages = static_cast<VKShader*>(m_Shader.get())->getShaderStages().data();
+            std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(m_Shader)->getShaderStages();
+            graphicsPipelineCI.pStages = shaderStages.data();
             graphicsPipelineCI.stageCount = 2; // TODO: Make this dynamic--> Cuurrently only Vertex and Pixel shader stages
-            graphicsPipelineCI.renderPass = static_cast<VKRenderPass*>(pipelineInfo.renderpass.get())->getVKRenderPass();
+            graphicsPipelineCI.renderPass = static_cast<VKRenderPass*>(pipelineInfo.renderpass)->getVKRenderPass();
 
             // TODO: use pipeline cache
             if (VK_CHECK_RESULT(vkCreateGraphicsPipelines(VKDevice::Get().getDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineCI, nullptr, &m_Pipeline)))

@@ -36,14 +36,14 @@ namespace Razix {
             inline static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) { s_APIInstance->BindDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets); }
             inline static void Draw(RZCommandBuffer* cmdBuffer, uint32_t count, DataType dataType = DataType::UNSIGNED_INT) { s_APIInstance->DrawAPIImpl(cmdBuffer, count, dataType); }
 
-            inline static Ref<RZSwapchain> getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
+            inline static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
         protected:
             virtual void InitAPIImpl() = 0;
             virtual void BeginAPIImpl() = 0;
             virtual void PresentAPIImple(RZCommandBuffer* cmdBuffer) = 0;
             virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) = 0;
             virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) = 0;
-            virtual Ref<RZSwapchain> GetSwapchainImpl() = 0;
+            virtual RZSwapchain* GetSwapchainImpl() = 0;
         protected:
             static RZAPIRenderer*   s_APIInstance;
 

@@ -195,8 +195,6 @@ namespace Razix
 
     void RZApplication::Quit()
     {
-        // TODO: Release the Graphics context at the right place
-        //swapchain->Destroy();
         Graphics::RZGraphicsContext::Release();
 
         // Save the app data before closing
