@@ -78,9 +78,9 @@ namespace Razix
         Date    m_ReleaseDate;      /* Current version release date             */
     };
 
-    /* The Engine's current Version and release status */
+    /* The Engine's current Version and release status [Date format : DD/MM/YYYY]*/
     ////-----------------------------------------------------------------------------------------------------------////
-    /**/ const Version RazixVersion = Version(0, 16, 0, Version::Stage::Development, Version::Date(15, 9, 2021));
+    /**/ const Version RazixVersion = Version(0, 20, 0, Version::Stage::Development, Version::Date(9, 1, 2022));
     ////-----------------------------------------------------------------------------------------------------------////
 
 }
