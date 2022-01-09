@@ -238,5 +238,58 @@ namespace Razix {
 
             return true;
         }
+
+        //-----------------------------------------------------------------------------------
+        // Depth Texture
+        //-----------------------------------------------------------------------------------
+
+
+        VKDepthTexture::VKDepthTexture(uint32_t width, uint32_t height)
+            : m_ImageView(VK_NULL_HANDLE), m_ImageSampler(VK_NULL_HANDLE)
+        {
+            m_Name = "Depth Texture";
+            m_Width = width;
+            m_Height = height;
+
+            init();
+        }
+
+        VKDepthTexture::~VKDepthTexture() { }
+
+        void VKDepthTexture::Resize(uint32_t width, uint32_t height) { }
+
+        void VKDepthTexture::Release(bool deleteImage /*= true*/) { }
+
+        void VKDepthTexture::Bind(uint32_t slot) { }
+
+        void VKDepthTexture::Unbind(uint32_t slot) { }
+
+        void* VKDepthTexture::GetHandle() const
+        {
+            return (void*) &m_Descriptor;
+        }
+
+        void VKDepthTexture::init()
+        {
+            VkFormat depthFormat = VKUtilities::FindDepthFormat();
+
+            VKTexture2D::CreateImage(m_Width, m_Height, 1, depthFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0);
+
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, depthFormat, 1, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+
+            VKUtilities::TransitionImageLayout(m_Image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+            m_ImageSampler = VKTexture2D::CreateImageSampler(VK_FILTER_LINEAR, VK_FILTER_LINEAR, 0.0f, 1.0f, true, VKDevice::Get().getPhysicalDevice()->getProperties().limits.maxSamplerAnisotropy, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+
+            // Update the Image descriptor with the created view and sampler
+            updateDescriptor();
+        }
+
+        void VKDepthTexture::updateDescriptor()
+        {
+            m_Descriptor.sampler = m_ImageSampler;
+            m_Descriptor.imageView = m_ImageView;
+            m_Descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
     }
 }

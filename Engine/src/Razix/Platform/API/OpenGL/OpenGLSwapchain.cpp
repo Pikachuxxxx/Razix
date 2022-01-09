@@ -17,7 +17,6 @@ namespace Razix {
         {
             glfwSwapBuffers(OpenGLContext::Get()->getGLFWWindow());
         }
-
     }
 }
 #endif

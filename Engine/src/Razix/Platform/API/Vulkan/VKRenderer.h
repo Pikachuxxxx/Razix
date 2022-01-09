@@ -23,7 +23,7 @@ namespace Razix {
             void PresentAPIImple(RZCommandBuffer* cmdBuffer) override;
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) override;
             void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) override;
-            Ref<RZSwapchain> GetSwapchainImpl() override;
+            RZSwapchain* GetSwapchainImpl() override;
 
         private:
             VKContext* m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */

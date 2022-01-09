@@ -139,6 +139,15 @@ namespace Razix {
              */
             virtual void SetData(const void* pixels) = 0;
         };
+
+        class RAZIX_API RZDepthTexture : public RZTexture
+        {
+        public:
+
+            static RZDepthTexture* Create(uint32_t width, uint32_t height);
+
+            virtual void Resize(uint32_t width, uint32_t height) = 0;
+        };
         
     }
 }

@@ -120,7 +120,8 @@ namespace Razix
             //archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", m_RenderAPI));
             // Set the render API from the De-serialized data
-            Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI)m_RenderAPI);
+            if(Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::NONE)
+                Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI)m_RenderAPI);
             archive(cereal::make_nvp("Width", m_WindowProperties.Width));
             archive(cereal::make_nvp("Height", m_WindowProperties.Height));
         }

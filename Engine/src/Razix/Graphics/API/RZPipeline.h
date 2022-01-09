@@ -38,8 +38,8 @@ namespace Razix {
         /* Information necessary to create the pipeline */
         struct PipelineInfo
         {
-            Ref<RZRenderPass>   renderpass;                     
-            Ref<RZShader>       shader;
+            RZRenderPass*       renderpass;
+            RZShader*           shader;
 
             CullMode            cullMode    = CullMode::BACK;
             PolygonMode         polygonMode = PolygonMode::FILL;
