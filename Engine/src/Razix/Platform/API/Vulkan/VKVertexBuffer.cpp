@@ -44,9 +44,6 @@ namespace Razix {
             VKBuffer::unMap();
         }
 
-        void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout)
-        {
-            RAZIX_UNIMPLEMENTED_METHOD_MARK
-        }
+        void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout) { }
     }
 }

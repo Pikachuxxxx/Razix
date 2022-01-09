@@ -58,7 +58,7 @@ namespace Razix {
             /* Gets the height of the swapchain */
             inline uint32_t getHeight() { return m_Height; }
             /* Gets the index of the current image that is ready for rendering */
-            inline uint32_t getCurrentImageIndex() { return m_CurrentImageIndex; }
+            virtual inline uint32_t getCurrentImageIndex() = 0;
         protected:
             uint32_t m_Width;                   /* The width of the swapchain extent */
             uint32_t m_Height;                  /* The height of the swapchain extent */

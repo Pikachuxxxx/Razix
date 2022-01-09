@@ -12,6 +12,7 @@ namespace Razix
         /* The Render API to use for rendering the application */
         enum class RenderAPI
         {
+            NONE = -1,
             OPENGL = 0,
             VULKAN = 1,
             DIRECTX11 = 2,

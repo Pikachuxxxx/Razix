@@ -37,6 +37,9 @@ namespace Razix {
                 std::vector<VkPresentModeKHR> presentModes;
             };
 
+
+            uint32_t getCurrentImageIndex() override { return m_CurrentBuffer; }
+
         public:
             VKSwapchain(uint32_t width, uint32_t height);
             ~VKSwapchain();

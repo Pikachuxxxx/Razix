@@ -26,6 +26,9 @@ namespace Razix {
 
             inline Microsoft::WRL::ComPtr<IDXGISwapChain>& getSwapchain() { return m_Swapchain; }
             inline Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& getRenderTarget() { return m_Target; }
+
+            uint32_t getCurrentImageIndex() override;
+
         private:
             /* DirectX handle to swapchain */
             Microsoft::WRL::ComPtr<IDXGISwapChain>          m_Swapchain;

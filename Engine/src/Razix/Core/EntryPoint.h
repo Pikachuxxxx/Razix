@@ -43,7 +43,6 @@ int main(int argc, char** argv)
     // Create the OS Instance
     auto windowsOS = new Razix::WindowsOS();
     Razix::RZOS::SetInstance(windowsOS);
-    windowsOS->Init();
 
     //-------------------------------//
     //        Engine Ignition        //
@@ -57,6 +56,8 @@ int main(int argc, char** argv)
 
     // Application auto Initialization by the Engine
     Razix::CreateApplication();
+
+    windowsOS->Init();
 
     // Run the  Application with the master controlled given to the OS
     windowsOS->Run();

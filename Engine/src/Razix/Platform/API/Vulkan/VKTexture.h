@@ -136,6 +136,31 @@ namespace Razix {
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
             bool load();
         };
+
+        class VKDepthTexture : public RZDepthTexture
+        {
+        public:
+            VKDepthTexture(uint32_t width, uint32_t height);
+            ~VKDepthTexture();
+
+            void Resize(uint32_t width, uint32_t height) override;
+            void Release(bool deleteImage = true) override;
+            void Bind(uint32_t slot) override;
+            void Unbind(uint32_t slot) override;
+            void* GetHandle() const override;
+            
+        private:
+            VkImage                 m_Image;                                        /* Vulkan image handle for the Texture object                               */
+            VkDeviceMemory          m_ImageMemory;                                  /* Memory for the Vulkan image                                              */
+            VkImageView             m_ImageView;                                    /* Image view for the image, all images need a view to look into the image  */
+            VkSampler               m_ImageSampler;                                 /* Sampler information used by shaders to sample the texture                */
+            VkDescriptorImageInfo   m_Descriptor;                                   /* Descriptor info encapsulation the image, view and the sampler            */
+
+        private:
+            void init();
+            /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
+            void updateDescriptor();
+        };
     }
 }
 

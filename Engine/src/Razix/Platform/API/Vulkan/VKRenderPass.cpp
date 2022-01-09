@@ -22,8 +22,8 @@ namespace Razix {
 
         VKRenderPass::~VKRenderPass()
         {
-            delete[] m_ClearValue;
-            vkDestroyRenderPass(VKDevice::Get().getDevice(), m_RenderPass, nullptr);
+            //delete[] m_ClearValue;
+            //vkDestroyRenderPass(VKDevice::Get().getDevice(), m_RenderPass, nullptr);
         }
 
         void VKRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height)
@@ -105,32 +105,32 @@ namespace Razix {
                     depthAttachmentReferences.push_back(depthAttachmentRef);
                     m_ClearDepth = renderpassInfo.clear;
                 }
-
-                VkSubpassDescription subpass{};
-                subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-                subpass.colorAttachmentCount = static_cast<uint32_t>(colourAttachmentReferences.size());
-                subpass.pColorAttachments = colourAttachmentReferences.data();
-                subpass.pDepthStencilAttachment = depthAttachmentReferences.data();
-
-                m_ColorAttachmentsCount = int(colourAttachmentReferences.size());
-
-                VkRenderPassCreateInfo vkRenderpassCI{};
-                vkRenderpassCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-                vkRenderpassCI.attachmentCount = uint32_t(renderpassInfo.attachmentCount);
-                vkRenderpassCI.pAttachments = attachments.data();
-                vkRenderpassCI.subpassCount = 1;
-                vkRenderpassCI.pSubpasses = &subpass;
-                vkRenderpassCI.dependencyCount = 0; //1;
-                vkRenderpassCI.pDependencies = nullptr; //&dependency;
-
-                if (VK_CHECK_RESULT(vkCreateRenderPass(VKDevice::Get().getDevice(), &vkRenderpassCI, nullptr, &m_RenderPass)))
-                    RAZIX_CORE_TRACE("[Vulkan] Successfully created render pass : {0}", renderpassInfo.name);
-                else RAZIX_CORE_WARN("[Vulkan] Cannot create ({0}) render pass", renderpassInfo.name);
-
-                m_ClearValue = new VkClearValue[renderpassInfo.attachmentCount];
-                m_AttachmentsCount = renderpassInfo.attachmentCount;
-                return true;
             }
+
+            VkSubpassDescription subpass{};
+            subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+            subpass.colorAttachmentCount = static_cast<uint32_t>(colourAttachmentReferences.size());
+            subpass.pColorAttachments = colourAttachmentReferences.data();
+            subpass.pDepthStencilAttachment = depthAttachmentReferences.data();
+
+            m_ColorAttachmentsCount = int(colourAttachmentReferences.size());
+
+            VkRenderPassCreateInfo vkRenderpassCI{};
+            vkRenderpassCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+            vkRenderpassCI.attachmentCount = uint32_t(renderpassInfo.attachmentCount);
+            vkRenderpassCI.pAttachments = attachments.data();
+            vkRenderpassCI.subpassCount = 1;
+            vkRenderpassCI.pSubpasses = &subpass;
+            vkRenderpassCI.dependencyCount = 1;
+            vkRenderpassCI.pDependencies = &dependency;
+
+            if (VK_CHECK_RESULT(vkCreateRenderPass(VKDevice::Get().getDevice(), &vkRenderpassCI, nullptr, &m_RenderPass)))
+                RAZIX_CORE_ERROR("[Vulkan] Cannot create ({0}) render pass ", renderpassInfo.name);
+            else RAZIX_CORE_TRACE("[Vulkan] Successfully created render pass : {0}", renderpassInfo.name);
+
+            m_ClearValue = new VkClearValue[renderpassInfo.attachmentCount];
+            m_AttachmentsCount = renderpassInfo.attachmentCount;
+            return true;
         }
 
         VkAttachmentDescription VKRenderPass::getAttachmentDescription(AttachmentInfo info, bool clear /*= true*/)
