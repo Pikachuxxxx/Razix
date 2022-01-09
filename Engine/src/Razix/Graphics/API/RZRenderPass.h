@@ -64,9 +64,9 @@ namespace Razix {
             virtual void AddAttachment() = 0;
 
             /* Get the total number of color attachments with the given render pass */
-            inline uint32_t getColorAttachmentsCount() const { return m_AttachmentsCount; }
+            inline uint32_t getColorAttachmentsCount() const { return m_ColorAttachmentsCount; }
             /* Gets the total number of attachments (color/depths/other) to the given render pass */
-            inline uint32_t getAttachmentsCount() const { return m_ColorAttachmentsCount; }
+            inline uint32_t getAttachmentsCount() const { return m_AttachmentsCount; }
 
         protected:
             uint32_t m_AttachmentsCount         = 0;    /* The total number of attachments bounded to the render pass       */

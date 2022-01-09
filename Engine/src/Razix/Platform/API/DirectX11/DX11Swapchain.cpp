@@ -45,6 +45,12 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
                 return nullptr;
         }
+
+        uint32_t DX11Swapchain::getCurrentImageIndex()
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
     }
 }
 #endif
