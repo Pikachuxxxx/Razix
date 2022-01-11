@@ -85,11 +85,17 @@ workspace ( settings.workspace_name )
         include "Engine/premake5"
     group ""
 
+    -- Build Script for Razix Editor
+    --------------------------------------------------------------------------------
+    group "Editor"
+        include "Editor/premake5"
+    group ""
+
     --------------------------------------------------------------------------------
     -- Build script for Sandbox
-    --group "Sandbox"
+    group "Sandbox"
         include "Sandbox/premake5"
-    --group ""
+    group ""
 
     --------------------------------------------------------------------------------
     -- Engine related tools
