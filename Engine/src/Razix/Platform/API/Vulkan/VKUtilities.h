@@ -15,6 +15,8 @@ namespace Razix {
         enum class DrawType;
         enum class CullMode;
         enum class PolygonMode;
+        enum class ShaderStage;
+        enum class DescriptorType;
 
         namespace VKUtilities {
 
@@ -141,6 +143,11 @@ namespace Razix {
             VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode);
 
             VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode);
+
+            VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType);
+
+            VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage);
+
         }
     }
 }

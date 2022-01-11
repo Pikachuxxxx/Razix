@@ -1,8 +1,11 @@
 #include "rzxpch.h"
 #include "VKUtilities.h"
 
+#include "Razix/Graphics/API/RZDescriptorSet.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Graphics/API/RZIndexBuffer.h"
+#include "Razix/Graphics/API/RZShader.h"
 
 namespace Razix {
     namespace Graphics {
@@ -379,6 +382,52 @@ namespace Razix {
                         break;
                 }
             }
+
+            VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType)
+            {
+                switch (descriptorType) {
+                    case Razix::Graphics::DescriptorType::UNIFORM_BUFFER:
+                        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                        break;
+                    case Razix::Graphics::DescriptorType::IMAGE_SAMPLER:
+                        return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                        break;
+                    default:
+                        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                        break;
+                }
+            }
+
+            VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage)
+            {
+                switch (stage) {
+                    case Razix::Graphics::ShaderStage::NONE:
+                        return VK_SHADER_STAGE_ALL;
+                        break;
+                    case Razix::Graphics::ShaderStage::VERTEX:
+                        return VK_SHADER_STAGE_VERTEX_BIT;
+                        break;
+                    case Razix::Graphics::ShaderStage::PIXEL:
+                        return VK_SHADER_STAGE_FRAGMENT_BIT;
+                        break;
+                    case Razix::Graphics::ShaderStage::GEOMETRY:
+                        return VK_SHADER_STAGE_GEOMETRY_BIT;
+                        break;
+                    case Razix::Graphics::ShaderStage::TCS:
+                        return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+                        break;
+                    case Razix::Graphics::ShaderStage::TES:
+                        return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+                        break;
+                    case Razix::Graphics::ShaderStage::COMPUTE:
+                        return VK_SHADER_STAGE_COMPUTE_BIT;
+                        break;
+                    default:
+                        return VK_SHADER_STAGE_ALL_GRAPHICS;
+                        break;
+                }
+            }
+
         }
     }
 }

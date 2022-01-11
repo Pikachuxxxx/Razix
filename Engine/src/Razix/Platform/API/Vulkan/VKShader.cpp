@@ -75,36 +75,6 @@ namespace Razix {
             return 0;
         }
 
-        static VkShaderStageFlagBits EngineToVulkanhaderStage(ShaderStage stage)
-        {
-            switch (stage) {
-                case Razix::Graphics::ShaderStage::NONE:
-                    return VK_SHADER_STAGE_ALL;
-                    break;
-                case Razix::Graphics::ShaderStage::VERTEX:
-                    return VK_SHADER_STAGE_VERTEX_BIT;
-                    break;
-                case Razix::Graphics::ShaderStage::PIXEL:
-                    return VK_SHADER_STAGE_FRAGMENT_BIT;
-                    break;
-                case Razix::Graphics::ShaderStage::GEOMETRY:
-                    return VK_SHADER_STAGE_GEOMETRY_BIT;
-                    break;
-                case Razix::Graphics::ShaderStage::TCS:
-                    return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-                    break;
-                case Razix::Graphics::ShaderStage::TES:
-                    return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-                    break;
-                case Razix::Graphics::ShaderStage::COMPUTE:
-                    return VK_SHADER_STAGE_COMPUTE_BIT;
-                    break;
-                default:
-                    return VK_SHADER_STAGE_ALL_GRAPHICS;
-                    break;
-            }
-        }
-
         static DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type)
         {
             switch (type) {
@@ -228,13 +198,17 @@ namespace Razix {
 
                 //std::cout << "---------------------------------------------" << std::endl;
                 DescriptorSetInfo* setInfo = new DescriptorSetInfo;
+                setInfo->setID = -1;
+                bool oldSet = false;
 
                 for (uint32_t i = 0; i < descriptors_count; i++) {
                     SpvReflectDescriptorBinding* descriptor = pp_descriptor_bindings[i];
 
                     for (size_t i = 0; i < m_DescriptorSetInfos.size(); i++) {
-                        if (m_DescriptorSetInfos[i].setID == descriptor->set)
+                        if (m_DescriptorSetInfos[i].setID == descriptor->set) {
                             setInfo = &m_DescriptorSetInfos[i];
+                            oldSet = true;
+                        }
                     }
 
                     RZDescriptor rzDescriptor;
@@ -262,7 +236,7 @@ namespace Razix {
                     setLayoutBindingInfo.binding = descriptor->binding;
                     setLayoutBindingInfo.descriptorCount = 1; // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                     setLayoutBindingInfo.descriptorType = (VkDescriptorType)descriptor->descriptor_type;
-                    setLayoutBindingInfo.stageFlags = EngineToVulkanhaderStage(spvSource.first);
+                    setLayoutBindingInfo.stageFlags = VKUtilities::ShaderStageToVK(spvSource.first);
 
                     m_VKSetBindingLayouts[descriptor->set].push_back(setLayoutBindingInfo);
 
@@ -285,8 +259,7 @@ namespace Razix {
                         memberInfo.name = descriptor->block.members[i].name;
                         memberInfo.offset = descriptor->block.members[i].offset;
                         memberInfo.size = descriptor->block.members[i].size;
-                        // TODO: properly reflect the type of the member
-                        //memberInfo.type = descriptor->block.members[i].type_description;
+
                         rzDescriptor.uboMembers.push_back(memberInfo);
                     }
 
@@ -294,7 +267,8 @@ namespace Razix {
                     setInfo->descriptors.push_back(rzDescriptor);
 
                 }
-                m_DescriptorSetInfos.push_back(*setInfo);
+                if(!oldSet)
+                    m_DescriptorSetInfos.push_back(*setInfo);
 
                 // Get info about push constants
                 uint32_t push_constants_count = 0;
@@ -338,7 +312,7 @@ namespace Razix {
             // Create Push constants for vulkan
             for (auto& pushConst : m_PushConstants) {
                 VkPushConstantRange pushConstantRange{};
-                pushConstantRange.stageFlags = EngineToVulkanhaderStage(pushConst.shaderStage);
+                pushConstantRange.stageFlags = VKUtilities::ShaderStageToVK(pushConst.shaderStage);
                 pushConstantRange.offset = pushConst.offset;
                 pushConstantRange.size = pushConst.size;
                 m_VKPushConstants.push_back(pushConstantRange);
@@ -375,7 +349,7 @@ namespace Razix {
 
                 m_ShaderCreateInfos[spvSource.first].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
                 m_ShaderCreateInfos[spvSource.first].pName = "main"; // TODO: Extract this from shader later
-                m_ShaderCreateInfos[spvSource.first].stage = EngineToVulkanhaderStage(spvSource.first);
+                m_ShaderCreateInfos[spvSource.first].stage = VKUtilities::ShaderStageToVK(spvSource.first);
 
                 if(VK_CHECK_RESULT(vkCreateShaderModule(VKDevice::Get().getDevice(), &shaderModuleCI, nullptr, &m_ShaderCreateInfos[spvSource.first].module)))
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create shader module!");
