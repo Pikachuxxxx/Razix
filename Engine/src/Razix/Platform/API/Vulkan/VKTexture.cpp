@@ -113,6 +113,7 @@ namespace Razix {
 
             bool loadResult = load();
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", name);
+            updateDescriptor();
         }
 
         VKTexture2D::VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
@@ -124,6 +125,7 @@ namespace Razix {
 
             bool loadResult = load();
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0} at location : {1}", name, filePath);
+            updateDescriptor();
         }
 
         VKTexture2D::VKTexture2D(VkImage image, VkImageView imageView)

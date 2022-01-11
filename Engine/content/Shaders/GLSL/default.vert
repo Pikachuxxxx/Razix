@@ -16,11 +16,10 @@ layout(location = 2) in vec2 inTexCoord;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
 // Thew view projection matrix
-layout(set = 0,binding = 0) uniform ViewProjectionUniformBufferObject
+layout(set = 0, binding = 0) uniform ViewProjectionUniformBufferObject
 {
 	mat4 proj;
     mat4 view;
-
 } view_proj_ubo;
 
 // The model push constant
@@ -43,7 +42,7 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = vec4(inPosition, 1.0);//view_proj_ubo.proj * view_proj_ubo.view * model_pc_data.model * vec4(inPosition, 1.0);
+    gl_Position = view_proj_ubo.proj * view_proj_ubo.view * model_pc_data.model * vec4(inPosition, 1.0);//vec4(inPosition, 1.0);//view_proj_ubo.proj * view_proj_ubo.view *//
 
     // Out from vertex shader
     vs_out.fragColor     = inColor;
