@@ -43,10 +43,10 @@ public:
             Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_512.png", "TextureAttachment2", Graphics::RZTexture::Wrapping::REPEAT, filtering);
 
             float vertices[8 * 4] = {
-               -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-                0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-               -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
+               -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+                0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+               -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
             };
 
             uint32_t indices[6] = {
@@ -181,8 +181,7 @@ public:
 
             // Update the uniform buffer data
             viewProjUBOData.view = glm::mat4(1.0f);
-            viewProjUBOData.projection = glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 100.0f);
-            viewProjUBOData.projection[1][1] *= -1;
+            viewProjUBOData.projection = glm::mat4(1.0f);
             viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
