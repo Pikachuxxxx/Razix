@@ -9,6 +9,8 @@
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace Razix {
     namespace Graphics {
 
@@ -76,13 +78,11 @@ namespace Razix {
             for (auto descriptorSet : descriptorSets) {
                 if (descriptorSet) {
                     auto vkDescSet = static_cast<VKDescriptorSet*>(descriptorSet);
-                    // TODO: Bind the sets properly
-
+                    m_DescriptorSetPool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
             }
-            RAZIX_UNIMPLEMENTED_METHOD_MARK
-            //vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, )
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
         }
 
         void VKRenderer::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
@@ -91,10 +91,31 @@ namespace Razix {
             vkCmdDraw(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0);
         }
 
+        void VKRenderer::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start /*= 0*/)
+        {
+            RZEngine::Get().GetStatistics().NumDrawCalls++;
+            vkCmdDrawIndexed(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0, 0);
+        }
+
         RZSwapchain* VKRenderer::GetSwapchainImpl()
         {
             return static_cast<VKSwapchain*>(VKContext::Get()->getSwapchain().get());
         }
 
+        void VKRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)
+        {
+            //for (auto pushConstant : pushConstants) {
+
+            struct DefaultPushConstantData
+            {
+                alignas(16) glm::mat4 model;
+            }modelPCData;
+
+
+            modelPCData.model = glm::rotate(glm::mat4(1.0f), (float) glm::radians(45.0f * 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+            vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pipeline)->getPipelineLayout(),  VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(DefaultPushConstantData), &modelPCData);
+            //}
+        }
     }
 }
