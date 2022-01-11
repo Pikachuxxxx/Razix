@@ -26,9 +26,6 @@ namespace Razix {
             void Init(const void* data) override;
             void SetData(uint32_t size, const void* data) override;
             void Destroy() override;
-
-            inline const VkBuffer* const getBuffer() const { return &m_Buffer; }
-            inline const VkDeviceMemory* const getMemory() const { return &m_BufferMemory; }
         };
     }
 }

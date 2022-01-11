@@ -98,7 +98,7 @@ namespace Razix
         //inline static RZApplication& Get() { return *s_AppInstance; }
         inline std::string getAppName() const { return m_AppName; }
         inline WindowProperties& getWindowProps() { return m_WindowProperties; }
-
+        inline RZTimer getTimer() { return *m_Timer.get(); }
         /* Application Serialization */
         template<class Archive>
         void load(Archive& archive) 

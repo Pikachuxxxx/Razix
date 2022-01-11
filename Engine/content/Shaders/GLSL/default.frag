@@ -18,21 +18,18 @@
 
  //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
-layout(set = 1, binding = 0) uniform sampler2D texSampler;
-layout(set = 1, binding = 2) uniform sampler2D texSampler2;
+layout(set = 0, binding = 1) uniform sampler2D texSampler;
+layout(set = 0, binding = 2) uniform sampler2D texSampler2;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outColor;
 //------------------------------------------------------------------------------
 void main()
 {
-	vec4 texColour = texture(texSampler, fs_in.fragTexCoord);
-
-    // Force alpha rejection
-    //if(texColour.w < 0.1)
-	//	discard;
-
-    //outColor = texColour; // * vec4(fragColor, 1.0f);
     outColor = vec4(fs_in.fragColor, 1.0f);
+     if(gl_FragCoord.x < 400)
+        outColor = texture(texSampler, fs_in.fragTexCoord);
+    else
+        outColor = texture(texSampler2, fs_in.fragTexCoord);
 }
 //------------------------------------------------------------------------------
