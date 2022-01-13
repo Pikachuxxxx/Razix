@@ -43,6 +43,9 @@
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
+// Graphics/Cameras
+#include "Razix/Graphics/Cameras/Camera3D.h"
+
 // Utilities
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/LoadImage.h"

@@ -14,6 +14,9 @@ namespace Razix
         bool IsIsKeyHeldImpl(int keycode) override;
 
         bool IsMouseButtonPressedImpl(int button) override;
+        bool IsMouseButtonReleasedImpl(int button) override;
+        bool IsMouseButtonHeldImpl(int button) override;
+
         std::pair<float, float> GetMousePositionImpl() override;
         float GetMouseXImpl() override;
         float GetMouseYImpl() override;
