@@ -27,9 +27,9 @@ layout(location = 0) out vec4 outColor;
 void main()
 {
     outColor = vec4(fs_in.fragColor, 1.0f);
-     if(gl_FragCoord.x < 400)
+     //if(gl_FragCoord.x < 400)
         outColor = texture(texSampler, fs_in.fragTexCoord);
-    else
+    //else
         outColor = texture(texSampler2, fs_in.fragTexCoord);
 }
 //------------------------------------------------------------------------------

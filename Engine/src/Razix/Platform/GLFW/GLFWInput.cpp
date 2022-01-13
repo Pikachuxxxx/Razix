@@ -36,6 +36,30 @@ namespace Razix
 
     bool GLFWInput::IsMouseButtonPressedImpl(int button)
     {
+        bool isPressed = false;
+        static int oldState = GLFW_RELEASE;
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
+        int newState  = glfwGetMouseButton(window, button);
+        if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
+            isPressed = true;
+        oldState = newState;
+        return isPressed;
+    }
+
+    bool GLFWInput::IsMouseButtonReleasedImpl(int button)
+    {
+        bool isPressed = false;
+        static int oldState = GLFW_RELEASE;
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
+        int newState = glfwGetMouseButton(window, button);
+        if (newState == GLFW_RELEASE && oldState == GLFW_PRESS)
+            isPressed = true;
+        oldState = newState;
+        return isPressed;
+    }
+
+    bool GLFWInput::IsMouseButtonHeldImpl(int button)
+    {
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
         int buttonState = glfwGetMouseButton(window, button);
         return buttonState == GLFW_PRESS;
