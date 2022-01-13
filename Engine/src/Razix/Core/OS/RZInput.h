@@ -25,6 +25,10 @@ namespace Razix
 
         /* Tells if a mouse button was being pressed */
         inline static bool IsMouseButtonPressed(Razix::KeyCode::MouseKey button) { return sInstance->IsMouseButtonPressedImpl(int(button)); }
+        /* Tells if a mouse button is released after a press */
+        inline static bool IsMouseButtonReleased(Razix::KeyCode::MouseKey button) { return sInstance->IsMouseButtonReleasedImpl(int(button)); }
+        /* Tells if a mouse button is being help */
+        inline static bool IsMouseButtonHeld(Razix::KeyCode::MouseKey button) { return sInstance->IsMouseButtonHeldImpl(int(button)); }
 
         /* Gets the current position of the mouse */
         inline static std::pair<float, float> GetMousePosition() { return sInstance->GetMousePositionImpl(); }
@@ -55,6 +59,18 @@ namespace Razix
          * This should be Implementation per OS
          */
         virtual bool IsMouseButtonPressedImpl(int button) = 0;
+
+        /**
+         * OS/API specific Implementation for the mouse button release
+         * This should be Implementation per OS
+         */
+        virtual bool IsMouseButtonReleasedImpl(int button) = 0;
+
+        /**
+         * OS/API specific implementation for if the mouse button is being held
+         * This should be implemented per OS
+         */
+        virtual bool IsMouseButtonHeldImpl(int button) = 0;
 
         /**
          * OS/API specific Implementation for the mouse position

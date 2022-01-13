@@ -12,10 +12,9 @@ namespace Razix {
         {
         public:
             CameraInput() = default;
-            ~CameraInput() = default;
+            virtual ~CameraInput() = default;
 
         private:
         };
     }
 }
-

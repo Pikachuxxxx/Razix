@@ -43,10 +43,10 @@ public:
             Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_512.png", "TextureAttachment2", Graphics::RZTexture::Wrapping::REPEAT, filtering);
 
             float vertices[8 * 4] = {
-               -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-                0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-               -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
+               -2.5f, -2.5f, -2.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                2.5f, -2.5f, -2.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+                2.5f,  2.5f, -2.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+               -2.5f,  2.5f, -2.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
             };
 
             uint32_t indices[6] = {
@@ -111,7 +111,7 @@ public:
 
             // Create the graphics pipeline
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode = Graphics::CullMode::BACK;
+            pipelineInfo.cullMode = Graphics::CullMode::NONE;
             pipelineInfo.depthBiasEnabled = false;
             pipelineInfo.drawType = Graphics::DrawType::TRIANGLE;
             pipelineInfo.renderpass = renderpass;
@@ -127,6 +127,8 @@ public:
 
             auto swaoImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
             auto depthImage = Graphics::RZDepthTexture::Create(getWindow()->getWidth(), getWindow()->getHeight());
+
+            //testPassTexture = Graphics::RZTexture2D::Create("test", 1200, 720, nullptr, Graphics::RZTexture::Format::SCREEN, Graphics::RZTexture::Wrapping::REPEAT, filtering);
 
             for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
                 Graphics::RZTexture* attachments[2];
@@ -146,10 +148,14 @@ public:
 
             Graphics::RZAPIRenderer::Init();
         }
+        
     }
 
     void OnUpdate(const RZTimestep& dt) override 
     {
+        // Update the camera
+        m_Camera.update(dt.GetTimestepMs());
+
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
             swapchain->Flip();
@@ -157,10 +163,16 @@ public:
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
+            if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonRight))
+                RAZIX_TRACE("Mouse right is pressed");
+            if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonLeft))
+                RAZIX_TRACE("Mouse left is held");
+
             // Bind the Vertex and Index buffers
             Graphics::RZAPIRenderer::Begin();
 
             //RAZIX_TRACE("Elapsed time : {0}", getTimer().GetElapsed());
+            //RAZIX_TRACE("FPS : {0}", RZEngine::Get().GetStatistics().FramesPerSecond);
 
             renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(1.0f, 0.5f, abs(sin(getTimer().GetElapsed())), 1.0f), framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
 
@@ -169,7 +181,7 @@ public:
             Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
 
             //auto shaderPushConstants = defaultShader->getPushConstants();
-
+            // TODO: Fix this!
             Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
             triVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -180,8 +192,9 @@ public:
             renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
             // Update the uniform buffer data
-            viewProjUBOData.view = glm::mat4(1.0f);
-            viewProjUBOData.projection = glm::mat4(1.0f);
+            viewProjUBOData.view = m_Camera.getViewMatrix();//glm::mat4(1.0f);//
+            viewProjUBOData.projection = glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 100.0f);
+            viewProjUBOData.projection[1][1] *= -1;
             viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -191,17 +204,20 @@ public:
     }
 
 private:
-    Graphics::RZVertexBufferLayout              bufferLayout;
-    Graphics::RZVertexBuffer*                   triVBO;
-    Graphics::RZIndexBuffer*                    triIBO;
-    Graphics::RZUniformBuffer*                  viewProjUniformBuffers[3];
-    Graphics::RZShader*                         defaultShader;
-    std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>     descripotrSets;
-    Graphics::RZRenderPass*                     renderpass;
-    std::vector<Graphics::RZFramebuffer*>       framebuffers;
-    Graphics::RZPipeline*                       pipeline;
-    Graphics::RZSwapchain* swapchain;
-    // TODO: Create a descriptor set for each frame and also use 3 uniform buffers and update them accordingly
+    Graphics::RZVertexBufferLayout                                              bufferLayout;
+    Graphics::RZVertexBuffer*                                                   triVBO;
+    Graphics::RZIndexBuffer*                                                    triIBO;
+    Graphics::RZUniformBuffer*                                                  viewProjUniformBuffers[3];  // We also use 3 UBOs wrt to swap chain frames
+    Graphics::RZShader*                                                         defaultShader;
+    std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       descripotrSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuf being recorded
+    Graphics::RZRenderPass*                                                     renderpass;
+    std::vector<Graphics::RZFramebuffer*>                                       framebuffers; // 3 FRAMEBU8FEFRS
+    Graphics::RZPipeline*                                                       pipeline;
+    Graphics::RZSwapchain*                                                      swapchain;
+
+    Graphics::Camera3D                                                          m_Camera;
+
+    Graphics::RZTexture2D* testPassTexture;
 };
 
 Razix::RZApplication* Razix::CreateApplication()
