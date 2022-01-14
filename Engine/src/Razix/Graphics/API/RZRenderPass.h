@@ -63,6 +63,8 @@ namespace Razix {
             /* Adds another attachment to the render pass for additional pass read/writes */
             virtual void AddAttachment() = 0;
 
+            virtual void Destroy() = 0;
+
             /* Get the total number of color attachments with the given render pass */
             inline uint32_t getColorAttachmentsCount() const { return m_ColorAttachmentsCount; }
             /* Gets the total number of attachments (color/depths/other) to the given render pass */

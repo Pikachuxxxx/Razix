@@ -12,6 +12,8 @@ namespace Razix {
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;
             void Unbind() override;
+            void Destroy() override {}
+
         private:
             uint32_t m_IBO;
         };

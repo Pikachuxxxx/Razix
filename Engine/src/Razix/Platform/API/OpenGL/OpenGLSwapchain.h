@@ -13,7 +13,7 @@ namespace Razix {
         public:
             OpenGLSwapchain(uint32_t width, uint32_t height);
 
-            void Init() override{}
+            void Init(uint32_t width, uint32_t height) override{}
             void Destroy() override {}
             void Flip() override;
 

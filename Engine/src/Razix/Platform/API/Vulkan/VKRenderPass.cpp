@@ -67,6 +67,12 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
+        void VKRenderPass::Destroy()
+        {
+            delete[] m_ClearValue;
+            vkDestroyRenderPass(VKDevice::Get().getDevice(), m_RenderPass, nullptr);
+        }
+
         bool VKRenderPass::init(const RenderPassInfo& renderpassInfo)
         {
             VkSubpassDependency dependency = {};

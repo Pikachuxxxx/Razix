@@ -125,6 +125,16 @@ namespace Razix {
                 return;
         }
 
+        void VKShader::Destroy()
+        {
+            // Destroy the pipeline layout
+            vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
+
+            // Destroy the shader modules
+            for (const auto& spvSource : m_ParsedRZSF)
+                vkDestroyShaderModule(VKDevice::Get().getDevice(), m_ShaderCreateInfos[spvSource.first].module, nullptr);
+        }
+
         std::vector<VkPipelineShaderStageCreateInfo> VKShader::getShaderStages()
         {
             std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
@@ -329,6 +339,10 @@ namespace Razix {
             if (VK_CHECK_RESULT(vkCreatePipelineLayout(VKDevice::Get().getDevice(), &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &m_PipelineLayout)))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create pipeline layout!");
             else RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
+
+            for (size_t i = 0; i < descriptorLayouts.size(); i++) {
+                vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), descriptorLayouts[i], nullptr);
+            }
         }
 
         void VKShader::createShaderModules()

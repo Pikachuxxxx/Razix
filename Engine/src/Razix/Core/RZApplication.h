@@ -80,6 +80,9 @@ namespace Razix
          * Begins the frame and submits the rendergraph to final display
          */
         virtual void OnRender();
+
+        virtual void OnQuit() {}
+
         /**
          * Gets the Events from the engine, window and OS
          * 
@@ -160,7 +163,7 @@ namespace Razix
          *
          * @param e The window close event
          *
-         * @returns  True, if the window was closed successfully
+         * @returns True, if the window was closed successfully
          */
         bool OnWindowClose(WindowCloseEvent& e);
         /**
@@ -168,7 +171,7 @@ namespace Razix
          *
          * @param e The window resize event
          *
-         * @returns  True, if the window was resized successfully
+         * @returns True, if the window was resized successfully
          */
         bool OnWindowResize(RZWindowResizeEvent& e);
 

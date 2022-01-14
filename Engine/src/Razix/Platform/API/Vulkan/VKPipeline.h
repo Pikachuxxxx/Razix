@@ -11,9 +11,10 @@ namespace Razix {
         {
         public:
             VKPipeline(const PipelineInfo& pipelineInfo);
-            ~VKPipeline();
+            ~VKPipeline() {}
 
             void Bind(RZCommandBuffer* commandBuffer) override;
+            void Destroy() override;
 
             void init(const PipelineInfo& pipelineInfo);
 

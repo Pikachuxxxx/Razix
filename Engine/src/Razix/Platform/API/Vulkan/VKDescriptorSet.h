@@ -21,8 +21,9 @@ namespace Razix {
             ~VKDescriptorSet();
 
             void UpdateSet(const std::vector<RZDescriptor>& descriptors) override;
-            inline const VkDescriptorSet& getDescriptorSet() const { return m_DescriptorSet; }
+            void Destroy() override;
 
+            inline const VkDescriptorSet& getDescriptorSet() const { return m_DescriptorSet; }
 
         private:
             VkDescriptorPool                m_DescriptorPool;   /* The descriptor pool from which the descriptor sets will be allocated from                                */
@@ -30,6 +31,8 @@ namespace Razix {
             VkDescriptorBufferInfo*         m_BufferInfoPool = nullptr;
             VkDescriptorImageInfo*          m_ImageInfoPool = nullptr;
             VkWriteDescriptorSet*           m_WriteDescriptorSetPool = nullptr;
+            VkDescriptorSetLayout setLayout;
+
         };
 
     }

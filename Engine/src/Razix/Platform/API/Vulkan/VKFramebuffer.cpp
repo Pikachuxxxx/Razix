@@ -48,7 +48,9 @@ namespace Razix {
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created framebuffer!");
         }
 
-        VKFramebuffer::~VKFramebuffer()
+        VKFramebuffer::~VKFramebuffer() { }
+
+        void VKFramebuffer::Destroy()
         {
             vkDestroyFramebuffer(VKDevice::Get().getDevice(), m_Framebuffer, VK_NULL_HANDLE);
         }
