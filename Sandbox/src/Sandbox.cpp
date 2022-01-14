@@ -2,6 +2,8 @@
 
 using namespace Razix;
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 class Sandbox : public Razix::RZApplication
 {
 private:
@@ -171,6 +173,8 @@ public:
             // Bind the Vertex and Index buffers
             Graphics::RZAPIRenderer::Begin();
 
+            Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
+
             //RAZIX_TRACE("Elapsed time : {0}", getTimer().GetElapsed());
             //RAZIX_TRACE("FPS : {0}", RZEngine::Get().GetStatistics().FramesPerSecond);
 
@@ -193,7 +197,7 @@ public:
 
             // Update the uniform buffer data
             viewProjUBOData.view = m_Camera.getViewMatrix();//glm::mat4(1.0f);//
-            viewProjUBOData.projection = glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 100.0f);
+            viewProjUBOData.projection = glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 1000.0f);
             viewProjUBOData.projection[1][1] *= -1;
             viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
