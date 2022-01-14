@@ -367,7 +367,20 @@ namespace Razix {
 
         void VKDepthTexture::Resize(uint32_t width, uint32_t height) { }
 
-        void VKDepthTexture::Release(bool deleteImage /*= true*/) { }
+        void VKDepthTexture::Release(bool deleteImage /*= true*/)
+        {
+            if (m_ImageSampler != VK_NULL_HANDLE)
+                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
+
+            if (m_ImageView != VK_NULL_HANDLE)
+                vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageView, nullptr);
+
+            if (deleteImage)
+                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
+
+            if (m_ImageMemory != VK_NULL_HANDLE)
+                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+        }
 
         void VKDepthTexture::Bind(uint32_t slot) { }
 

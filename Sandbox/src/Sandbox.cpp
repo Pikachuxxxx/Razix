@@ -41,8 +41,8 @@ public:
             filtering.minFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
             filtering.magFilter = Graphics::RZTexture::Filtering::FilterMode::LINEAR;
 
-            Graphics::RZTexture2D* testTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_256.png", "TextureAttachment1", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
-            Graphics::RZTexture2D* logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_512.png", "TextureAttachment2", Graphics::RZTexture::Wrapping::REPEAT, filtering);
+            testTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_256.png", "TextureAttachment1", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE, filtering);
+            logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_512.png", "TextureAttachment2", Graphics::RZTexture::Wrapping::REPEAT, filtering);
 
             float vertices[8 * 4] = {
                -2.5f, -2.5f, -2.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -64,6 +64,7 @@ public:
             triVBO->AddBufferLayout(bufferLayout);
 
             triIBO = Graphics::RZIndexBuffer::Create(indices, 6, Graphics::BufferUsage::STATIC);
+
 
             // Create the shader
             defaultShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
@@ -128,7 +129,7 @@ public:
             attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
 
             auto swaoImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
-            auto depthImage = Graphics::RZDepthTexture::Create(getWindow()->getWidth(), getWindow()->getHeight());
+            depthImage = Graphics::RZDepthTexture::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
             //testPassTexture = Graphics::RZTexture2D::Create("test", 1200, 720, nullptr, Graphics::RZTexture::Format::SCREEN, Graphics::RZTexture::Wrapping::REPEAT, filtering);
 
@@ -207,7 +208,44 @@ public:
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
     }
 
+    void OnQuit() override
+    {
+        // Delete the textures
+        logoTexture->Release();
+        testTexture->Release();
+        depthImage->Release();
+
+        triVBO->Destroy();
+        triIBO->Destroy();
+        
+        for (size_t i = 0; i < 3; i++) {
+            viewProjUniformBuffers[i]->Destroy();
+        }
+
+        for (auto sets : descripotrSets) {
+            auto set = sets.second;
+            for (size_t i = 0; i < set.size(); i++) {
+                set[i]->Destroy();
+            }
+        }
+
+        defaultShader->Destroy();
+
+        // Free the command buffers
+        for (auto frameBuf : framebuffers)
+            frameBuf->Destroy();
+        
+        pipeline->Destroy();
+
+        renderpass->Destroy();
+
+        Graphics::RZAPIRenderer::Release();
+    }
+
 private:
+    Graphics::RZTexture2D*                                                      testTexture;
+    Graphics::RZTexture2D*                                                      logoTexture;
+    Graphics::RZDepthTexture*                                                   depthImage;
     Graphics::RZVertexBufferLayout                                              bufferLayout;
     Graphics::RZVertexBuffer*                                                   triVBO;
     Graphics::RZIndexBuffer*                                                    triIBO;
@@ -221,7 +259,6 @@ private:
 
     Graphics::Camera3D                                                          m_Camera;
 
-    Graphics::RZTexture2D* testPassTexture;
 };
 
 Razix::RZApplication* Razix::CreateApplication()
@@ -229,3 +266,31 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new Sandbox();
 }
+
+
+// TODO: Vulkan + Graphics API CleanUp and Window Resize workflow + design
+/**
+ * CleanUp + Resize Mechanism
+ * 
+ * CleanUp Swapchain:-
+ *  1. Framebuffer
+ *  2. Free the command buffers
+ *  3. Destroy pipeline, it's layout and render pass
+ *  4. Destroy the SwapImageviews and Images and the swapchain itself
+ * 
+ * Resize Swapchain:-
+ *  1. Wait for the device to be done executing all the commands
+ *  2. CleanUp Swapchain
+ *  3. Create Swapchain and it's images and image views
+ *  4. create renderpass
+ *  5. create framebuffers
+ *  6. create graphics pipeline
+ *  7. create command buffers
+ * 
+ * Clean Up:-
+ *  1. CleanUp Swapchain
+ *  2. Destroy sync primitives
+ *  3. Destroy command pool
+ *  4. Destroy buffers and sets and textures
+ *  5. destroy Context
+ */

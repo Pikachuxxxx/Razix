@@ -18,14 +18,14 @@ namespace Razix {
             init(pipelineInfo);
         }
 
-        VKPipeline::~VKPipeline()
-        {
-            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
-        }
-
         void VKPipeline::Bind(RZCommandBuffer* commandBuffer)
         {
             vkCmdBindPipeline(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+        }
+
+        void VKPipeline::Destroy()
+        {
+            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
         }
 
         void VKPipeline::init(const PipelineInfo& pipelineInfo)

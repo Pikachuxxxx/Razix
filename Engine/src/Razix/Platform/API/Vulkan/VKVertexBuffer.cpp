@@ -16,14 +16,7 @@ namespace Razix {
             VKBuffer::setUsage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         }
 
-        VKVertexBuffer::~VKVertexBuffer()
-        {
-            if (m_IsBufferMapped) {
-                VKBuffer::flush(m_Size);
-                VKBuffer::unMap();
-                m_IsBufferMapped = false;
-            }
-        }
+        VKVertexBuffer::~VKVertexBuffer() { }
 
         void VKVertexBuffer::Bind(RZCommandBuffer* cmdBuffer)
         {
@@ -45,5 +38,17 @@ namespace Razix {
         }
 
         void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout) { }
+
+        void VKVertexBuffer::Destroy()
+        {
+            if (m_IsBufferMapped) {
+                VKBuffer::flush(m_Size);
+                VKBuffer::unMap();
+                m_IsBufferMapped = false;
+            }
+
+            VKBuffer::destroy();
+        }
+
     }
 }

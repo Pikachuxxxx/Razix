@@ -40,7 +40,6 @@ namespace Razix {
             // So even though they are already created in VKShader doing it again will not cause any binding issues, also cause 
             // of this Shader and Descriptors API can stay decoupled which is a super good thing in terms of design which can spiral
             // into cyclic dependency real quick especially shaders and sets
-            VkDescriptorSetLayout setLayout;
             if (VK_CHECK_RESULT(vkCreateDescriptorSetLayout(VKDevice::Get().getDevice(), &layoutInfo, nullptr, &setLayout)))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor set layout!");
             else RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
@@ -122,5 +121,11 @@ namespace Razix {
 
             vkUpdateDescriptorSets(VKDevice::Get().getDevice(), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);
         }
+
+        void VKDescriptorSet::Destroy()
+        {
+            vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), setLayout, nullptr);
+        }
+
     }
 }

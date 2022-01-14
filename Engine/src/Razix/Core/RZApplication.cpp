@@ -124,6 +124,9 @@ namespace Razix
 
     bool RZApplication::OnWindowResize(RZWindowResizeEvent& e)
     {
+        // What should be done? Resize should be called on GraphicsContext or the APIRenderer?
+
+
         return true;
     }
 
@@ -195,7 +198,8 @@ namespace Razix
 
     void RZApplication::Quit()
     {
-        Graphics::RZGraphicsContext::Release();
+        // Client side quit customisation
+        OnQuit();
 
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");

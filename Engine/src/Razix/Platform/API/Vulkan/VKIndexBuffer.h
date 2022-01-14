@@ -14,6 +14,8 @@ namespace Razix {
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;
             void Unbind() override;
+            void Destroy() override;
+
         private:
             bool m_IsBufferMapped = false;
 

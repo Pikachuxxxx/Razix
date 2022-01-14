@@ -45,6 +45,9 @@ namespace Razix {
             virtual void SetSubData(uint32_t size, const void* data, uint32_t offset) = 0;
             /* Sets the vertex buffer layout */
             virtual void AddBufferLayout(RZVertexBufferLayout& layout) = 0;
+            /* Destroys the buffer and it's resources allocated by the underlying API */
+            virtual void Destroy() = 0;
+
         protected:
             BufferUsage m_Usage;            
             uint32_t    m_Size;

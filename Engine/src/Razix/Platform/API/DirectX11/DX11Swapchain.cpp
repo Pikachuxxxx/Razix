@@ -6,9 +6,9 @@
 namespace Razix {
     namespace Graphics {
 
-        void DX11Swapchain::Init()
+        void DX11Swapchain::Init(uint32_t width, uint32_t height)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX11Swapchain::Destroy()
@@ -48,7 +48,8 @@ namespace Razix {
 
         uint32_t DX11Swapchain::getCurrentImageIndex()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            RAZIX_UNIMPLEMENTED_METHOD
+                return 0;
         }
 
     }
