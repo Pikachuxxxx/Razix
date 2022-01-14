@@ -129,8 +129,7 @@ namespace Razix
 #ifdef RAZIX_RENDER_API_VULKAN
         if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-            // TODO: Enable this later
-            glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         }
 
 #endif

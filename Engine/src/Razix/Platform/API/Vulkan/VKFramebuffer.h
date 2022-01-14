@@ -15,6 +15,8 @@ namespace Razix {
             VKFramebuffer(const FramebufferInfo& frameBufInfo);
             ~VKFramebuffer();
 
+            void Destroy() override;
+
             /* Gets the handle to the Vulkan framebuffer object */
             inline const VkFramebuffer& getVkFramebuffer() const { return m_Framebuffer; }
         private:

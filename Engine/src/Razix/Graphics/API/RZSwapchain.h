@@ -38,7 +38,7 @@ namespace Razix {
             static RZSwapchain* Create(uint32_t width, uint32_t height);
             
             /* Initializes the swapchain and it's resources */
-            virtual void Init() = 0;
+            virtual void Init(uint32_t width, uint32_t height) = 0;
             /* Destroys the swapchain and it's resources */
             virtual void Destroy() = 0;
             /* Flips the swapchain images for presentation, typically used while doing double/triple buffered rendering */

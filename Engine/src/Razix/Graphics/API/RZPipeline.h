@@ -59,6 +59,7 @@ namespace Razix {
             static RZPipeline* Create(const PipelineInfo& pipelineInfo);
 
             virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
+            virtual void Destroy() = 0;
 
         protected:
 

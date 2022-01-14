@@ -32,5 +32,15 @@ namespace Razix {
                 default: s_APIInstance = nullptr;  break;
             }
         }
+
+        void RZAPIRenderer::Release()
+        {
+            s_APIInstance->DestroyAPIImpl();
+            delete s_APIInstance;
+
+            // Release the context at last
+            Graphics::RZGraphicsContext::GetContext()->Release();
+        }
+
     }
 }

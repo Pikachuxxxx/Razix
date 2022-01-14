@@ -17,12 +17,12 @@ namespace Razix {
             m_Height = height;
 
             // Initialize the swapchain
-            Init();
+            Init(m_Width, m_Height);
         }
 
         VKSwapchain::~VKSwapchain() { }
 
-        void VKSwapchain::Init()
+        void VKSwapchain::Init(uint32_t width, uint32_t height)
         {
             // Query the swapchain surface properties
             querySwapSurfaceProperties();
@@ -57,6 +57,15 @@ namespace Razix {
 
         void VKSwapchain::Destroy()
         {
+            // Delete the frame data
+            for (auto frame : m_Frames) {
+                frame.mainCommandBuffer->Reset();
+                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.presentSemaphore, nullptr);
+                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderSemaphore, nullptr);
+                frame.commandPool->destroy();
+                vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
+            }
+
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
                auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                tex->Release(false);

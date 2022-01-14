@@ -31,6 +31,7 @@ namespace Razix {
             virtual ~RZAPIRenderer() = default;
 
             static void Create(uint32_t width, uint32_t height);
+            static void Release();
 
             inline static void Init() { s_APIInstance->InitAPIImpl(); }
             inline static void Begin() { s_APIInstance->BeginAPIImpl(); }
@@ -41,6 +42,7 @@ namespace Razix {
             inline static void DrawIndexed(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) { s_APIInstance->DrawIndexedAPIImpl(cmdBuffer, count, start); }
 
             inline static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
+
         protected:
             virtual void InitAPIImpl() = 0;
             virtual void BeginAPIImpl() = 0;
@@ -49,6 +51,8 @@ namespace Razix {
             virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer) = 0;
             virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) = 0;
             virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) = 0;
+            virtual void DestroyAPIImpl() = 0;
+
             virtual RZSwapchain* GetSwapchainImpl() = 0;
         protected:
             static RZAPIRenderer*   s_APIInstance;

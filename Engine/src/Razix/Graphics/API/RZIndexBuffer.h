@@ -27,6 +27,8 @@ namespace Razix {
             virtual void Bind(RZCommandBuffer* commandBuffer = nullptr) = 0;
             /* Unbinds the index buffer */
             virtual void Unbind() = 0;
+            /* Destroys the buffer and it's resources allocated by the underlying API */
+            virtual void Destroy() = 0;
             
             /* Gets the index count of the index buffer */
             inline uint32_t getCount() const { return m_IndexCount; }
