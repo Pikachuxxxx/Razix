@@ -16,11 +16,7 @@ namespace Razix {
 
         VKIndexBuffer::~VKIndexBuffer()
         {
-            if (m_IsBufferMapped) {
-                VKBuffer::flush(m_Size);
-                VKBuffer::unMap();
-                m_IsBufferMapped = false;
-            }
+            
         }
 
         void VKIndexBuffer::Bind(RZCommandBuffer* commandBuffer /*= nullptr*/)
@@ -29,5 +25,16 @@ namespace Razix {
         }
 
         void VKIndexBuffer::Unbind() { }
+
+        void VKIndexBuffer::Destroy()
+        {
+            if (m_IsBufferMapped) {
+                VKBuffer::flush(m_Size);
+                VKBuffer::unMap();
+                m_IsBufferMapped = false;
+            }
+            VKBuffer::destroy();
+        }
+
     }
 }

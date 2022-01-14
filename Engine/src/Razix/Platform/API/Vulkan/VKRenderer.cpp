@@ -97,6 +97,12 @@ namespace Razix {
             vkCmdDrawIndexed(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0, 0);
         }
 
+        void VKRenderer::DestroyAPIImpl()
+        {
+            // Destroy the descriptor pool
+            vkDestroyDescriptorPool(VKDevice::Get().getDevice(), m_DescriptorPool, nullptr);
+        }
+
         RZSwapchain* VKRenderer::GetSwapchainImpl()
         {
             return static_cast<VKSwapchain*>(VKContext::Get()->getSwapchain().get());

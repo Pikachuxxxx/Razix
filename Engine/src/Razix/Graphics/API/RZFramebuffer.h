@@ -41,6 +41,8 @@ namespace Razix {
              */
             static RZFramebuffer* Create(const FramebufferInfo& frameBufInfo);
 
+            virtual void Destroy() = 0;
+
             /* Gets the width of the framebuffer */
             inline const uint32_t& getWidht() const { return m_Width; }
             /* Gets the Height of the framebuffer */

@@ -24,6 +24,8 @@ namespace Razix {
             /* Adds any attachments to the render pass */
             void AddAttachment() override;
 
+            void Destroy() override;
+
             bool init(const RenderPassInfo& renderpassInfo);
             VkAttachmentDescription getAttachmentDescription(AttachmentInfo info, bool clear = true);
             inline const VkRenderPass& getVKRenderPass() const { return m_RenderPass; }

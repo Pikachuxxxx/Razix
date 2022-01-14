@@ -148,6 +148,7 @@ namespace Razix {
 
             /* Updates the descriptor set with the given descriptors */
             virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
+            virtual void Destroy() = 0;
         };
     }
 }

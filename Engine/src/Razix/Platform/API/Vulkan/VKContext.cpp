@@ -50,6 +50,8 @@ namespace Razix {
         }
 
         void VKContext::Destroy() {
+            // Destroy the swapchain
+            m_Swapchain->Destroy();
             // Destroy the logical device
             VKDevice::Get().destroy();
             // Destroy the surface

@@ -16,6 +16,7 @@ namespace Razix {
 
             void Bind() const override;
             void Unbind() const override;
+            void Destroy() override {}
             void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
 
             void pushTypeToBuffer(const spirv_cross::SPIRType type, Graphics::RZVertexBufferLayout& layout, const std::string& name);
