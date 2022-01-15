@@ -59,50 +59,44 @@ namespace Razix
         void Run();
 
         /**
-         * Renders the frame and displays the graphics and updates the window
-         * 
-         * @returns True, if the frame was successfully rendered by checking the state
-         */
-        bool OnFrame();
-        /**
          * Called before the application starts rendering
          * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
          */
-        virtual void OnStart();
+        virtual void OnStart() {}
         /**
          * Updates the Engine systems for every engine timestep
          * 
          * @param dt The timestep taken for every frame
          */
-        virtual void OnUpdate(const RZTimestep& dt);
+        virtual void OnUpdate(const RZTimestep& dt) {}
         /**
          * Calls the engine sub-systems to render the stuff calculated in OnFrame()
          * Begins the frame and submits the rendergraph to final display
          */
-        virtual void OnRender();
-
+        virtual void OnRender() {}
+        /**
+         * Called before the application is quit
+         */
         virtual void OnQuit() {}
 
-        /**
-         * Gets the Events from the engine, window and OS
-         * 
-         * @param event  The event received from all the sub-systems
-         */
-        void OnEvent(RZEvent& event);
+        // Event callbacks for client
+        virtual void OnResize(uint32_t width, uint32_t height) {}
 
-        /* Quits the application and releases any resources held by it */
-        void Quit();
-
-        static RZApplication& Get() { return *s_AppInstance; }
+        /* Gets the static reference to the application instance */
+        inline static RZApplication& Get() { return *s_AppInstance; }
         
         /* Returns a reference to the application window */
         inline RZWindow* getWindow() { return m_Window.get(); }
         /* Returns a reference to the Application instance */
-        //inline static RZApplication& Get() { return *s_AppInstance; }
         inline std::string getAppName() const { return m_AppName; }
+        /* Gets the window properties */
         inline WindowProperties& getWindowProps() { return m_WindowProperties; }
+        /* Gets the application render loop timer */
         inline RZTimer getTimer() { return *m_Timer.get(); }
+
         /* Application Serialization */
+
+        // Load mechanism for the RZApplication class
         template<class Archive>
         void load(Archive& archive) 
         {
@@ -129,6 +123,7 @@ namespace Razix
             archive(cereal::make_nvp("Height", m_WindowProperties.Height));
         }
 
+        // Save mechanism for the RZApplication class
         template<class Archive>
         void save(Archive& archive) const
         {
@@ -159,6 +154,29 @@ namespace Razix
 
     private:
         /**
+         * Renders the frame and displays the graphics and updates the window
+         * 
+         * @returns True, if the frame was successfully rendered by checking the state
+         */
+        bool RenderFrame();
+        /* Starts the application */
+        void Start();
+        /* Updates the engine and application runtime systems */
+        void Update(const RZTimestep& dt);
+        /* Renders the application and Engine rendering commands */
+        void Render();
+        /* Quits the application and releases any resources held by it */
+        void Quit();
+
+        // Event callbacks
+        /**
+         * Gets the Events from the engine, window and OS
+         * 
+         * @param event  The event received from all the sub-systems
+         */
+        void OnEvent(RZEvent& event);
+
+        /**
          * Called when the application is about to be closed
          *
          * @param e The window close event
@@ -173,7 +191,7 @@ namespace Razix
          *
          * @returns True, if the window was resized successfully
          */
-        bool OnWindowResize(RZWindowResizeEvent& e);
+        virtual bool OnWindowResize(RZWindowResizeEvent& e);
 
         RAZIX_NONCOPYABLE_CLASS(RZApplication);
     };
