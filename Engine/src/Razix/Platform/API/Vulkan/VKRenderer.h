@@ -26,6 +26,8 @@ namespace Razix {
             void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) override;
             void DestroyAPIImpl() override;
 
+            void OnResizeAPIImpl(uint32_t width, uint32_t height) override;
+
             RZSwapchain* GetSwapchainImpl() override;
 
 

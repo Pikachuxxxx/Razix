@@ -103,9 +103,15 @@ namespace Razix {
             vkDestroyDescriptorPool(VKDevice::Get().getDevice(), m_DescriptorPool, nullptr);
         }
 
+        void VKRenderer::OnResizeAPIImpl(uint32_t width, uint32_t height)
+        {
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+            m_Context->getSwapchain().get()->OnResize(width, height);
+        }
+
         RZSwapchain* VKRenderer::GetSwapchainImpl()
         {
-            return static_cast<VKSwapchain*>(VKContext::Get()->getSwapchain().get());
+            return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get());
         }
 
         void VKRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)

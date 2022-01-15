@@ -47,17 +47,15 @@ namespace Razix {
             void Init(uint32_t width, uint32_t height) override;
             void Destroy() override;
             void Flip() override;
-            
-            // Flip related functions
+            void OnResize(uint32_t width, uint32_t height) override;
 
-            /* Present the swapchain for presentation onto the window surface */
-            void presentSwapchain(VkCommandBuffer& commandBuffer);
+            // Flip related functions
             /* Creates synchronization primitives such as semaphores and fence for queue submit and present sync, basically syncs triple buffering */
-            void createSynchronizationPrimitives();
+            void createSynchronizationPrimitives() {}
             void createFrameData();
             void acquireNextImage();
             void queueSubmit();
-            void OnResize(uint32_t width, uint32_t height, bool forceResize = false);
+            //void OnResize(uint32_t width, uint32_t height, bool forceResize = false);
             void begin();
             void end();
             void present();
@@ -74,8 +72,8 @@ namespace Razix {
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
 
         private:
-             VkSwapchainKHR             m_Swapchain;                    /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos  */
-             VkSwapchainKHR m_OldSwapChain;
+             VkSwapchainKHR             m_Swapchain = VK_NULL_HANDLE;                    /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos  */
+             VkSwapchainKHR             m_OldSwapChain = VK_NULL_HANDLE;
              SwapSurfaceProperties      m_SwapSurfaceProperties;        /* Swapchain surface properties                                                                     */
              VkSurfaceFormatKHR         m_SurfaceFormat;                /* Selected Swapchain image format and color space of the swapchain image                           */
              VkPresentModeKHR           m_PresentMode;                  /* The presentation mode for the swapchain images                                                   */
@@ -83,14 +81,11 @@ namespace Razix {
              uint32_t                   m_SwapchainImageCount;          /* Total number of swapchain images being used                                                      */
              std::vector<RZTexture2D*>  m_SwapchainImageTextures;       /* Swapchain images stored as engine 2D texture                                                     */
              uint32_t                   m_AcquireImageIndex;            /* Currently acquired image index of the swapchain that is being rendered to                        */
-             std::vector<VkSemaphore>   m_ImageAvailableSemaphores;     /* Semaphore to tell when an image is free to use to draw onto (GPU-GPU)                            */
-             std::vector<VkSemaphore>   m_RenderingFinishedSemaphores;  /* Semaphore to tell when the rendering to a particular swapchain image is done                     */
-             std::vector<VKFence>       m_InFlightFences;               /* Use to synchronize the GPU-CPU so that they draw onto the right image in flight                  */
-             std::vector<VKFence>       m_ImagesInFlight;               /* Used to verify that the images being used to render onto is not being presented                  */
              VkFormat                   m_ColorFormat;                  /* Color format of the screen                             // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = VKContext::Get();                                                      */
              FrameData m_Frames[MAX_SWAPCHAIN_BUFFERS];
              uint32_t m_CurrentBuffer = 0;  /* Index of the current buffer being submitted for execution */
+             bool m_IsResized = false;
 
         private:
             /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */

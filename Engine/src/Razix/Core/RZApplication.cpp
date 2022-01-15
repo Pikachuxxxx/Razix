@@ -124,20 +124,18 @@ namespace Razix
 
     bool RZApplication::OnWindowResize(RZWindowResizeEvent& e)
     {
-        // What should be done? Resize should be called on GraphicsContext or the APIRenderer?
-
-
+        OnResize(e.GetWidth(), e.GetHeight());
         return true;
     }
 
     void RZApplication::Run()
     {
-        OnStart();
-        while (OnFrame()) { }
+        Start();
+        while (RenderFrame()) { }
         Quit();
     }
 
-    bool RZApplication::OnFrame()
+    bool RZApplication::RenderFrame()
     {
         // Calculate the delta time
         float now = m_Timer->GetElapsedS();
@@ -159,11 +157,11 @@ namespace Razix
             return false;
 
         // Update the Engine systems
-        OnUpdate(m_Timestep);
+        Update(m_Timestep);
         m_Updates++;
 
         // Render the Graphics
-        OnRender();
+        Render();
         m_Frames++;
 
         // Update the window and it's surface/video out
@@ -190,15 +188,24 @@ namespace Razix
         return m_CurrentState != AppState::Closing;
     }
 
-    void RZApplication::OnStart() { }
+    void RZApplication::Start() 
+    {
+        OnStart();
+    }
 
-    void RZApplication::OnUpdate(const RZTimestep& dt) { }
+    void RZApplication::Update(const RZTimestep& dt) 
+    {
+        OnUpdate(dt);
+    }
 
-    void RZApplication::OnRender() { }
+    void RZApplication::Render() 
+    {
+        OnRender();
+    }
 
     void RZApplication::Quit()
     {
-        // Client side quit customisation
+        // Client side quit customization
         OnQuit();
 
         // Save the app data before closing
