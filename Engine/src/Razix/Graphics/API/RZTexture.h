@@ -43,8 +43,8 @@ namespace Razix {
             struct Filtering
             {
                 enum class FilterMode{LINEAR, NEAREST};
-                FilterMode minFilter;
-                FilterMode magFilter;
+                FilterMode minFilter = FilterMode::LINEAR;
+                FilterMode magFilter = FilterMode::LINEAR;
             };
 
         public:
@@ -119,7 +119,7 @@ namespace Razix {
              * @param filterMode    The filtering mode of the texture
              * @returns Pointer to Texture object of the underlying API
              */
-            static RZTexture2D* Create(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode);
+            static RZTexture2D* Create(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode = Filtering{});
             /**
              * Create a 2D texture resource from the given file
              * 
@@ -130,7 +130,7 @@ namespace Razix {
              * @param filterMode    The filtering mode of the texture
              * @returns Pointer to Texture object of the underlying API
              */
-            static RZTexture2D* CreateFromFile(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            static RZTexture2D* CreateFromFile(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode = Filtering{});
 
             /**
              * Sets the pixel data for the 2D Texture 
@@ -140,6 +140,10 @@ namespace Razix {
             virtual void SetData(const void* pixels) = 0;
         };
 
+        //-----------------------------------------------------------------------------------
+        // Depth Texture
+        //-----------------------------------------------------------------------------------
+
         class RAZIX_API RZDepthTexture : public RZTexture
         {
         public:
@@ -148,6 +152,18 @@ namespace Razix {
 
             virtual void Resize(uint32_t width, uint32_t height) = 0;
         };
+
+        //-----------------------------------------------------------------------------------
+        // Render Texture
+        //-----------------------------------------------------------------------------------
         
+        class RAZIX_API RZRenderTexture : public RZTexture
+        {
+        public:
+
+            static RZRenderTexture* Create(uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
+
+            virtual void Resize(uint32_t width, uint32_t height) = 0;
+        };
     }
 }
