@@ -31,5 +31,8 @@ void main()
         outColor = texture(texSampler, fs_in.fragTexCoord);
     else
         outColor = texture(texSampler2, fs_in.fragTexCoord);
+
+    outColor = texture(texSampler, fs_in.fragTexCoord);
+
 }
 //------------------------------------------------------------------------------
