@@ -219,6 +219,10 @@ namespace Razix {
             m_VirtualPath = "";
             m_data = static_cast<uint8_t*>(data);
 
+            // Build a render target texture here if the data is nullptr 
+
+
+
             bool loadResult = load();
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", name);
             updateDescriptor();
@@ -367,7 +371,10 @@ namespace Razix {
 
         VKDepthTexture::~VKDepthTexture() { }
 
-        void VKDepthTexture::Resize(uint32_t width, uint32_t height) { }
+        void VKDepthTexture::Resize(uint32_t width, uint32_t height) 
+        {
+            RAZIX_UNIMPLEMENTED_METHOD
+        }
 
         void VKDepthTexture::Release(bool deleteImage /*= true*/)
         {
@@ -415,5 +422,93 @@ namespace Razix {
             m_Descriptor.imageView = m_ImageView;
             m_Descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         }
+
+        //-----------------------------------------------------------------------------------
+        // Render Texture
+        //-----------------------------------------------------------------------------------
+
+        VKRenderTexture::VKRenderTexture(uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode)
+        {
+            m_Name = "Render Target";
+            m_Width = width;
+            m_Height = height;
+            m_Format = format;
+            m_FilterMode = filterMode;
+            m_WrapMode = wrapMode;
+            m_VirtualPath = "";
+            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+            init();
+        }
+
+        VKRenderTexture::VKRenderTexture(VkImage image, VkImageView imageView)
+            : m_Image(image), m_ImageView(imageView), m_ImageSampler(VK_NULL_HANDLE), m_ImageMemory(VK_NULL_HANDLE)
+        {
+            m_Name = "Render Target";
+            m_VirtualPath = "";
+            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+            updateDescriptor();
+        }
+
+        void VKRenderTexture::Resize(uint32_t width, uint32_t height)
+        {
+            m_Width = width;
+            m_Height = height;
+
+            Release();
+
+            init();
+        }
+
+        void VKRenderTexture::Release(bool deleteImage /*= true*/)
+        {
+            if (m_ImageSampler != VK_NULL_HANDLE)
+                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
+
+            if (m_ImageView != VK_NULL_HANDLE)
+                vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageView, nullptr);
+
+            if (deleteImage)
+                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
+
+            if (m_ImageMemory != VK_NULL_HANDLE)
+                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+        }
+
+        void VKRenderTexture::Bind(uint32_t slot) { }
+
+        void VKRenderTexture::Unbind(uint32_t slot) { }
+
+        void* VKRenderTexture::GetHandle() const
+        {
+            return (void*) &m_Descriptor;
+        }
+
+        void VKRenderTexture::init()
+        {
+            uint32_t mipLevels = 1;// static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;// 
+
+            // Create the Vulkan Image and it's memory and Bind them together
+            // We use a simple optimal tiling options
+            VKTexture2D::CreateImage(m_Width, m_Height, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,  VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0);
+
+            // Create the Image view for the Vulkan image (uses color bit)
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+
+            // Create a sampler view for the image
+            auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
+            m_ImageSampler = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<float>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode));
+
+            updateDescriptor();
+        }
+
+        void VKRenderTexture::updateDescriptor()
+        {
+            m_Descriptor.imageView      = m_ImageView;
+            m_Descriptor.sampler        = m_ImageSampler;
+            m_Descriptor.imageLayout    = m_ImageLayout;
+        }
+
     }
 }
