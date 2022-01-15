@@ -23,7 +23,7 @@ namespace Razix {
         RZSwapchain* RZSwapchain::Create(uint32_t width, uint32_t height) {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLSwapchain(width, height); break;
-                case Razix::Graphics::RenderAPI::VULKAN:    return dynamic_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get()); //return new VKSwapchain(width, height); break;
+                case Razix::Graphics::RenderAPI::VULKAN:    return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get()); //return new VKSwapchain(width, height); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11: return DX11Context::Get()->getSwapchain(); break;
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

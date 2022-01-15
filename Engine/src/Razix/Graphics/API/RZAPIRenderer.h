@@ -41,6 +41,8 @@ namespace Razix {
             inline static void Draw(RZCommandBuffer* cmdBuffer, uint32_t count, DataType dataType = DataType::UNSIGNED_INT) { s_APIInstance->DrawAPIImpl(cmdBuffer, count, dataType); }
             inline static void DrawIndexed(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) { s_APIInstance->DrawIndexedAPIImpl(cmdBuffer, count, start); }
 
+            inline static void OnResize(uint32_t width, uint32_t height) { s_APIInstance->OnResizeAPIImpl(width, height); }
+
             inline static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
 
         protected:
@@ -52,6 +54,8 @@ namespace Razix {
             virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) = 0;
             virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) = 0;
             virtual void DestroyAPIImpl() = 0;
+
+            virtual void OnResizeAPIImpl(uint32_t width, uint32_t height) = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
         protected:
