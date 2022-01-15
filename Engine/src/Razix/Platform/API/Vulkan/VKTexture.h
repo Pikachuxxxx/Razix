@@ -139,6 +139,10 @@ namespace Razix {
             bool load();
         };
 
+        //-----------------------------------------------------------------------------------
+        // Depth Texture
+        //-----------------------------------------------------------------------------------
+
         class VKDepthTexture : public RZDepthTexture
         {
         public:
@@ -162,6 +166,39 @@ namespace Razix {
             void init();
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
             void updateDescriptor();
+        };
+
+        //-----------------------------------------------------------------------------------
+        // Render Texture
+        //-----------------------------------------------------------------------------------
+
+        class VKRenderTexture : public RZRenderTexture
+        {
+        public:
+            VKRenderTexture(uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
+            VKRenderTexture(VkImage image, VkImageView imageView);
+            ~VKRenderTexture() {}
+
+            void Resize(uint32_t width, uint32_t height) override;
+            void Release(bool deleteImage = true) override;
+            void Bind(uint32_t slot) override;
+            void Unbind(uint32_t slot) override;
+            void* GetHandle() const override;
+
+        private:
+            VkImage                 m_Image;                                        /* Vulkan image handle for the Texture object                               */
+            VkDeviceMemory          m_ImageMemory;                                  /* Memory for the Vulkan image                                              */
+            VkImageView             m_ImageView;                                    /* Image view for the image, all images need a view to look into the image  */
+            VkImageLayout           m_ImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;    /* Layout aka usage description of the image                                */
+            VkSampler               m_ImageSampler;                                 /* Sampler information used by shaders to sample the texture                */
+            VkDescriptorImageInfo   m_Descriptor;                                   /* Descriptor info encapsulation the image, view and the sampler            */
+
+        private:
+            /* recreates the render texture */
+            void init();
+            /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
+            void updateDescriptor();
+
         };
     }
 }

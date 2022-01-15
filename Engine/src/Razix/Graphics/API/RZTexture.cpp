@@ -99,5 +99,23 @@ namespace Razix {
             return nullptr;
         }
 
+        //-----------------------------------------------------------------------------------
+        // Render Texture
+        //-----------------------------------------------------------------------------------
+
+        RZRenderTexture* RZRenderTexture::Create(uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode)
+        {
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+                case Razix::Graphics::RenderAPI::OPENGL:    break;
+                case Razix::Graphics::RenderAPI::VULKAN:    return new VKRenderTexture(width, height, format, wrapMode, filterMode); break;
+                case Razix::Graphics::RenderAPI::DIRECTX11:
+                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::GXM:
+                case Razix::Graphics::RenderAPI::GCM:
+                default: return nullptr;  break;
+            }
+            return nullptr;
+        }
+
     }
 }

@@ -305,9 +305,8 @@ namespace Razix {
                     }
                     return;
                 }
-                else if (result != VK_SUCCESS) {
+                else if (result != VK_SUCCESS)
                     RAZIX_CORE_ERROR("[Vulkan] Failed to acquire swap chain image!");
-                }
 
                 m_CurrentBuffer = nextCmdBufferIndex;
                 return;
