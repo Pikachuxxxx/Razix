@@ -43,6 +43,8 @@ namespace Razix {
             virtual void Destroy() = 0;
             /* Flips the swapchain images for presentation, typically used while doing double/triple buffered rendering */
             virtual void Flip() = 0;
+            /* Recreates the swapchain on window resize or for offline rendering */
+            virtual void OnResize(uint32_t width, uint32_t height) = 0;
 
             /* Gets the swapchain image at the given index */
             virtual RZTexture* GetImage(uint32_t index) = 0;

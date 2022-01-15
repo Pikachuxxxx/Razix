@@ -45,7 +45,8 @@ namespace Razix {
             // Create image view for the retrieved swapchain images
             std::vector<VkImageView> imageView = createSwapImageViews(images);
 
-            // Encapsulate the swapchain images and image views in a RZTExture2D
+            // Encapsulate the swapchain images and image views in a RZTexture2D
+            m_SwapchainImageTextures.clear();
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
                 VKTexture2D* swapImageTexture = new VKTexture2D(images[i], imageView[i]);
                 m_SwapchainImageTextures.push_back(swapImageTexture);
@@ -70,10 +71,43 @@ namespace Razix {
                auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                tex->Release(false);
             }
+            m_SwapchainImageTextures.clear();
             vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
         }
 
         void VKSwapchain::Flip() { }
+
+        void VKSwapchain::OnResize(uint32_t width, uint32_t height)
+        {
+            if (m_Width == width && m_Height == height)
+                return;
+
+            m_IsResized = true;
+
+            //  Wait for the device to be done executing all the commands
+            //VKContext::Get()->waitIdle();
+
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+
+            m_Width = width;
+            m_Height = height;
+
+            m_OldSwapChain = m_Swapchain;
+
+            for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+                auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+                tex->Release(false);
+                delete m_SwapchainImageTextures[i];
+            }
+            m_SwapchainImageTextures.clear();
+            //vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
+
+            m_Swapchain = VK_NULL_HANDLE;
+
+            Init(width, height);
+
+            //VKContext::Get()->setSwapchain(this);
+        }
 
         void VKSwapchain::querySwapSurfaceProperties()
         {
@@ -175,13 +209,18 @@ namespace Razix {
             swcCI.preTransform = m_SwapSurfaceProperties.capabilities.currentTransform;
             swcCI.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
             swcCI.clipped = VK_TRUE;
-            swcCI.oldSwapchain = VK_NULL_HANDLE;
+            swcCI.oldSwapchain = m_OldSwapChain;
 
             // Now actually create the swapchainManager
             if (VK_CHECK_RESULT(vkCreateSwapchainKHR(VKDevice::Get().getDevice(), &swcCI, nullptr, &m_Swapchain)))
                 RAZIX_CORE_ERROR("[Vulkan] Cannot create swapchain!");
             else
                 RAZIX_CORE_TRACE("[Vulkan] Swapchain created successfully!");
+
+            if (m_OldSwapChain != VK_NULL_HANDLE) {
+                vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_OldSwapChain, VK_NULL_HANDLE);
+                m_OldSwapChain = VK_NULL_HANDLE;
+            }
         }
 
         std::vector<VkImage> VKSwapchain::retrieveSwapchainImages()
@@ -229,26 +268,6 @@ namespace Razix {
             return swapchainImageViews;
         }
 
-        void VKSwapchain::presentSwapchain(VkCommandBuffer& commandBuffer)
-        {
-            vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentImageIndex], m_InFlightFences[m_CurrentImageIndex].getVKFence(), &m_CurrentImageIndex);
-
-            VkPresentInfoKHR presentInfo = {};
-            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-            presentInfo.swapchainCount = m_SwapchainImageCount;
-            presentInfo.waitSemaphoreCount = 1;
-        }
-
-        void VKSwapchain::createSynchronizationPrimitives()
-        {
-            VkSemaphoreCreateInfo semaphoreInfo{};
-            semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            m_ImageAvailableSemaphores.resize(RAZIX_MAX_FRAMES_IN_FLIGHT);
-            m_RenderingFinishedSemaphores.resize(RAZIX_MAX_FRAMES_IN_FLIGHT);
-            m_InFlightFences.resize(RAZIX_MAX_FRAMES_IN_FLIGHT);
-            m_ImagesInFlight.resize(m_SwapchainImageCount);
-        }
-
         void VKSwapchain::createFrameData()
         {
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
@@ -281,7 +300,7 @@ namespace Razix {
                     RAZIX_CORE_TRACE("[Vulkan] Acquire Image result : {0}", result == VK_ERROR_OUT_OF_DATE_KHR ? "Out of Date" : "SubOptimal");
 
                     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-                        OnResize(m_Width, m_Height, true);
+                        OnResize(m_Width, m_Height);
                         acquireNextImage();
                     }
                     return;
@@ -325,25 +344,6 @@ namespace Razix {
             frameData.commandPool->reset();
         }
 
-        void VKSwapchain::OnResize(uint32_t width, uint32_t height, bool forceResize /*= false*/)
-        {
-            if (!forceResize && m_Width == width && m_Height == height)
-                return;
-
-            VKContext::Get()->waitIdle();
-
-            m_Width = width;
-            m_Height = height;
-
-            for (uint32_t i = 0; i < m_SwapchainImageCount; i++)
-                delete m_SwapchainImageTextures[i];
-
-            m_SwapchainImageTextures.clear();
-            m_OldSwapChain = m_Swapchain;
-
-            m_Swapchain = VK_NULL_HANDLE;
-        }
-
         void VKSwapchain::begin()
         {
             if (getCurrentFrameData().mainCommandBuffer->getState() == CommandBufferState::Submitted)
@@ -371,12 +371,27 @@ namespace Razix {
             present.pResults = VK_NULL_HANDLE;
             auto error = vkQueuePresentKHR(VKDevice::Get().getPresentQueue(), &present);
 
-            if (error == VK_ERROR_OUT_OF_DATE_KHR)
-                RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
-            else if (error == VK_SUBOPTIMAL_KHR)
-                RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
-            else
-                VK_CHECK_RESULT(error);
+            //if (error == VK_ERROR_OUT_OF_DATE_KHR || error == VK_SUBOPTIMAL_KHR || m_IsResized) {
+            //    m_IsResized = !m_IsResized;
+            //    //VKContext::Get()->waitIdle();
+            //    vkDeviceWaitIdle(VKDevice::Get().getDevice());
+            //    for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+            //        auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+            //        tex->Release(false);
+            //        delete m_SwapchainImageTextures[i];
+            //    }
+            //    m_SwapchainImageTextures.clear();
+            //    vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
+            //    Init(m_Width, m_Height);
+            //    return;
+            //}
+
+             if (error == VK_ERROR_OUT_OF_DATE_KHR)
+                 RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
+             else if (error == VK_SUBOPTIMAL_KHR)
+                 RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
+             else
+                 VK_CHECK_RESULT(error);
         }
     }
 }

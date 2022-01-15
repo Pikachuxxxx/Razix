@@ -166,10 +166,13 @@ public:
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
-            if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonRight))
-                RAZIX_TRACE("Mouse right is pressed");
-            if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonLeft))
-                RAZIX_TRACE("Mouse left is held");
+            //if (getWindow()->getWidth() < 1000)
+            //    return;
+
+            //if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonRight))
+            //    RAZIX_TRACE("Mouse right is pressed");
+            //if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonLeft))
+            //    RAZIX_TRACE("Mouse left is held");
 
             // Bind the Vertex and Index buffers
             Graphics::RZAPIRenderer::Begin();
@@ -242,6 +245,79 @@ public:
         Graphics::RZAPIRenderer::Release();
     }
 
+    void OnResize(uint32_t width, uint32_t height) override
+    {
+        RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", width, height);
+
+        depthImage->Release(true);
+        
+        for (auto frameBuf : framebuffers)
+            frameBuf->Destroy();
+
+        pipeline->Destroy();
+
+        renderpass->Destroy();
+        Graphics::RZAPIRenderer::OnResize(width, height);
+
+
+        // Create the render pass
+        Graphics::AttachmentInfo textureTypes[2] = {
+               { Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN },
+               { Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH }
+        };
+
+        Graphics::RenderPassInfo renderPassInfo{};
+        renderPassInfo.attachmentCount = 2;
+        renderPassInfo.textureType = textureTypes;
+        renderPassInfo.name = "screen clear";
+        renderPassInfo.clear = true;
+
+        renderpass = Graphics::RZRenderPass::Create(renderPassInfo);
+
+        // Create the graphics pipeline
+        Graphics::PipelineInfo pipelineInfo{};
+        pipelineInfo.cullMode = Graphics::CullMode::NONE;
+        pipelineInfo.depthBiasEnabled = false;
+        pipelineInfo.drawType = Graphics::DrawType::TRIANGLE;
+        pipelineInfo.renderpass = renderpass;
+        pipelineInfo.shader = defaultShader;
+        pipelineInfo.transparencyEnabled = false;
+
+        pipeline = Graphics::RZPipeline::Create(pipelineInfo);
+
+        // Create the framebuffer
+        Graphics::RZTexture::Type attachmentTypes[2];
+        attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
+        attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
+
+        Graphics::RZSwapchain* swapchain = Graphics::RZAPIRenderer::getSwapchain();
+
+        auto swaoImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
+        depthImage = Graphics::RZDepthTexture::Create(getWindow()->getWidth(), getWindow()->getHeight());
+
+        //testPassTexture = Graphics::RZTexture2D::Create("test", 1200, 720, nullptr, Graphics::RZTexture::Format::SCREEN, Graphics::RZTexture::Wrapping::REPEAT, filtering);
+
+        framebuffers.clear();
+        for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
+            Graphics::RZTexture* attachments[2];
+            attachments[0] = Graphics::RZAPIRenderer::getSwapchain()->GetImage(i);
+            attachments[1] = depthImage;
+
+            Graphics::FramebufferInfo frameBufInfo{};
+            frameBufInfo.width = getWindow()->getWidth();
+            frameBufInfo.height = getWindow()->getHeight();
+            frameBufInfo.attachmentCount = 2;
+            frameBufInfo.renderPass = renderpass;
+            frameBufInfo.attachmentTypes = attachmentTypes;
+            frameBufInfo.attachments = attachments;
+
+            framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
+        }
+
+        //depthImage->Release(false);
+
+    }
+
 private:
     Graphics::RZTexture2D*                                                      testTexture;
     Graphics::RZTexture2D*                                                      logoTexture;
@@ -249,9 +325,9 @@ private:
     Graphics::RZVertexBufferLayout                                              bufferLayout;
     Graphics::RZVertexBuffer*                                                   triVBO;
     Graphics::RZIndexBuffer*                                                    triIBO;
-    Graphics::RZUniformBuffer*                                                  viewProjUniformBuffers[3];  // We also use 3 UBOs wrt to swap chain frames
+    Graphics::RZUniformBuffer*                                                  viewProjUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
     Graphics::RZShader*                                                         defaultShader;
-    std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       descripotrSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuf being recorded
+    std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       descripotrSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuff being recorded
     Graphics::RZRenderPass*                                                     renderpass;
     std::vector<Graphics::RZFramebuffer*>                                       framebuffers; // 3 FRAMEBU8FEFRS
     Graphics::RZPipeline*                                                       pipeline;
@@ -285,7 +361,7 @@ Razix::RZApplication* Razix::CreateApplication()
  *  4. create renderpass
  *  5. create framebuffers
  *  6. create graphics pipeline
- *  7. create command buffers
+ *  7. create command buffers --> will de done by swapchain while creating the frame data
  * 
  * Clean Up:-
  *  1. CleanUp Swapchain

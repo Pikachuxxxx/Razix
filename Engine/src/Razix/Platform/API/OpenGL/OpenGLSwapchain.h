@@ -16,6 +16,7 @@ namespace Razix {
             void Init(uint32_t width, uint32_t height) override{}
             void Destroy() override {}
             void Flip() override;
+            void OnResize(uint32_t width, uint32_t height) override {}
 
             RZTexture* GetCurrentImage() override { return nullptr; }
             RZTexture * GetImage(uint32_t index) override {return nullptr;}
