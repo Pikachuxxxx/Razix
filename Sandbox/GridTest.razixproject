@@ -1,0 +1,11 @@
+{
+    "Razix Application": {
+        "Project Name": "GridTest",
+        "Engine Version": "0.20.0",
+        "Project Version": 0,
+        "Render API": 1,
+        "Width": 200,
+        "Height": 255,
+        "Project Path": "C:\\Dev\\Game Engines\\Razix\\Sandbox/"
+    }
+}

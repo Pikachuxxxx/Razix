@@ -1,22 +1,23 @@
-/*
+#pragma once
+
 #include <Razix.h>
 
 using namespace Razix;
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-class Sandbox : public Razix::RZApplication
+class GridTest : public Razix::RZApplication
 {
 private:
     struct ViewProjectionUniformBuffer
     {
-        alignas(16)glm::mat4 view       = glm::mat4(1.0f);
+        alignas(16)glm::mat4 view = glm::mat4(1.0f);
         alignas(16)glm::mat4 projection = glm::mat4(1.0f);
 
     }viewProjUBOData;
 
 public:
-    Sandbox() : RZApplication("/Sandbox/","Sandbox")
+    GridTest() : RZApplication("/Sandbox/", "GridTest")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
@@ -24,7 +25,7 @@ public:
         //-------------------------------------------------------------------------------------
     }
 
-    ~Sandbox() { }
+    ~GridTest() {}
 
     void OnStart() override
     {
@@ -34,7 +35,7 @@ public:
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-          offscreen_swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
+            offscreen_swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
         }
         else  if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
 
@@ -45,7 +46,7 @@ public:
         }
     }
 
-    void OnUpdate(const RZTimestep& dt) override 
+    void OnUpdate(const RZTimestep& dt) override
     {
         // Update the camera
         m_Camera.update(dt.GetTimestepMs());
@@ -96,7 +97,7 @@ public:
 
             //////////////////////////////////////////////////////////////////////////
             //Graphics::RZAPIRenderer::OnResize(width, height);
-            
+
             // Bind the Vertex and Index buffers
             //Graphics::RZAPIRenderer::Begin();
             {
@@ -132,7 +133,7 @@ public:
         triVBO->Destroy();
         triIBO->Destroy();
         quadVBO->Destroy();
-        
+
         for (size_t i = 0; i < 3; i++) {
             viewProjUniformBuffers[i]->Destroy();
         }
@@ -176,36 +177,36 @@ public:
     }
 
 private:
-    Graphics::RZTexture2D*                                                      testTexture;
-    Graphics::RZTexture2D*                                                      logoTexture;
-    Graphics::RZDepthTexture*                                                   depthImage;
+    Graphics::RZTexture2D* testTexture;
+    Graphics::RZTexture2D* logoTexture;
+    Graphics::RZDepthTexture* depthImage;
     Graphics::RZVertexBufferLayout                                              bufferLayout;
-    Graphics::RZVertexBuffer*                                                   triVBO;
-    Graphics::RZIndexBuffer*                                                    triIBO;
+    Graphics::RZVertexBuffer* triVBO;
+    Graphics::RZIndexBuffer* triIBO;
     Graphics::RZVertexBuffer* quadVBO;
-    Graphics::RZUniformBuffer*                                                  viewProjUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
-    Graphics::RZShader*                                                         defaultShader;
-    Graphics::RZShader*                                                         quadShader;
-    Graphics::RZShader*                                                         gridShader;
+    Graphics::RZUniformBuffer* viewProjUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
+    Graphics::RZShader* defaultShader;
+    Graphics::RZShader* quadShader;
+    Graphics::RZShader* gridShader;
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       offscreen_descripotrSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuff being recorded
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       descripotrSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuff being recorded
 
-    Graphics::RZRenderPass*                                                     offscreen_renderpass;
+    Graphics::RZRenderPass* offscreen_renderpass;
     std::vector<Graphics::RZFramebuffer*>                                       offscreen_framebuffers; // 3 FRAMEBU8FEFRS
-    Graphics::RZPipeline*                                                       offscreen_pipeline;
-    Graphics::RZSwapchain*                                                      offscreen_swapchain;
+    Graphics::RZPipeline* offscreen_pipeline;
+    Graphics::RZSwapchain* offscreen_swapchain;
 
-    Graphics::RZRenderPass*                                                     renderpass;
+    Graphics::RZRenderPass* renderpass;
     std::vector<Graphics::RZFramebuffer*>                                       framebuffers; // 3 FRAMEBU8FEFRS
-    Graphics::RZPipeline*                                                       pipeline;
-    Graphics::RZSwapchain*                                                      swapchain;
+    Graphics::RZPipeline* pipeline;
+    Graphics::RZSwapchain* swapchain;
 
     uint32_t                                                                    width, height;
 
-    
+
     Graphics::Camera3D                                                          m_Camera;
 
-    Graphics::RZRenderTexture*                                                  offscreenRT;
+    Graphics::RZRenderTexture* offscreenRT;
 
 private:
     void buildPipelineResources()
@@ -344,7 +345,7 @@ private:
         depthImage = Graphics::RZDepthTexture::Create(width, height);
 
         offscreenRT->Resize(width, height);
-      
+
         offscreen_framebuffers.clear();
         for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
             Graphics::RZTexture* attachments[2];
@@ -453,6 +454,5 @@ private:
 Razix::RZApplication* Razix::CreateApplication()
 {
     RAZIX_INFO("Creating Razix Sandbox Application");
-    return new Sandbox();
+    return new GridTest();
 }
-*/

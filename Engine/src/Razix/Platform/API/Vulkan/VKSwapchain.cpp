@@ -316,6 +316,11 @@ namespace Razix {
 
         void VKSwapchain::queueSubmit()
         {
+
+            //if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+            //    vkWaitForFences(VKDevice::Get().getDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+            //imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+
             auto& frameData = getCurrentFrameData();
             auto cmdBuffer = frameData.mainCommandBuffer->getBuffer();
             VkSubmitInfo submitInfo = {};
@@ -339,7 +344,7 @@ namespace Razix {
                 VK_CHECK_RESULT(vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence()));
             }
 
-            frameData.renderFence->wait(); //TODO: Remove this? - causes flickering if removed. Sync issue
+            frameData.renderFence->wait();
             frameData.commandPool->reset();
         }
 

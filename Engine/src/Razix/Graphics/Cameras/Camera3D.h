@@ -11,8 +11,8 @@ namespace Razix {
         // Default camera values
         const float YAW = -90.0f;
         const float PITCH = 0.0f;
-        const float SPEED = 0.025f;
-        const float SENSITIVTY = 0.50f;
+        const float SPEED = 0.25f;
+        const float SENSITIVTY = 0.25f;
         const float ZOOM = 45.0f;
 
         // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
