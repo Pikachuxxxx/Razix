@@ -94,7 +94,8 @@ namespace Razix
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
             RAZIX_CORE_ERROR("Project File does not exist!");
-            std::ofstream opAppStream(m_AppFilePath);
+            std::string projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+            std::ofstream opAppStream(projectFullPath);
             cereal::JSONOutputArchive defArchive(opAppStream);
             RAZIX_CORE_TRACE("Creating a default Project file...");
             defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
@@ -210,7 +211,8 @@ namespace Razix
 
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
-        std::ofstream opAppStream(m_AppFilePath);
+        std::string projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+        std::ofstream opAppStream(projectFullPath);
         cereal::JSONOutputArchive saveArchive(opAppStream);
         saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
 

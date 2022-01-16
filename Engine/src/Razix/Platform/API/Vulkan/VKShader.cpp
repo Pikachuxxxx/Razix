@@ -180,6 +180,9 @@ namespace Razix {
                     for (size_t i = 0; i < var_count; i++) {
                         SpvReflectInterfaceVariable* inputVar = input_vars[i];
 
+                        if (std::string(inputVar->name) == "gl_VertexIndex")
+                            break;
+
                         // Fill the vulkan input variables attribute information
                         VkVertexInputAttributeDescription verextInputattribDesc = {};
                         verextInputattribDesc.binding   = 0;
@@ -277,7 +280,7 @@ namespace Razix {
                     setInfo->descriptors.push_back(rzDescriptor);
 
                 }
-                if(!oldSet)
+                if(!oldSet && setInfo->setID != -1)
                     m_DescriptorSetInfos.push_back(*setInfo);
 
                 // Get info about push constants

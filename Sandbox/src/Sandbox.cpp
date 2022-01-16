@@ -1,3 +1,4 @@
+/*
 #include <Razix.h>
 
 using namespace Razix;
@@ -56,6 +57,8 @@ public:
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
+            //RAZIX_TRACE("FPS : {0}", RZEngine::Get().GetStatistics().FramesPerSecond);
+
             //////////////////////////////////////////////////////////////////////////
             // Offscreen pass
             // Bind the Vertex and Index buffers
@@ -64,7 +67,6 @@ public:
                 Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
 
                 //RAZIX_TRACE("Elapsed time : {0}", getTimer().GetElapsed());
-                //RAZIX_TRACE("FPS : {0}", RZEngine::Get().GetStatistics().FramesPerSecond);
 
                 offscreen_renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(1.0f, 0.5f, abs(sin(getTimer().GetElapsed())), 1.0f), offscreen_framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
 
@@ -100,31 +102,19 @@ public:
             {
                 Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
 
-                //RAZIX_TRACE("Elapsed time : {0}", getTimer().GetElapsed());
-                //RAZIX_TRACE("FPS : {0}", RZEngine::Get().GetStatistics().FramesPerSecond);
-
                 renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(1.0f, 0.5f, 1.0f, 1.0f), framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
 
-                // TODO: Fix this!
-                //auto shaderPushConstants = defaultShader->getPushConstants();
-                Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-
-                triVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                quadVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 triIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                // Update the uniform buffer data
-                viewProjUBOData.view = m_Camera.getViewMatrix();
-                viewProjUBOData.projection = glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 1000.0f);
-                viewProjUBOData.projection[1][1] *= -1;
-                viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
             }
             // Present the frame by executing the recorded commands
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -141,6 +131,7 @@ public:
 
         triVBO->Destroy();
         triIBO->Destroy();
+        quadVBO->Destroy();
         
         for (size_t i = 0; i < 3; i++) {
             viewProjUniformBuffers[i]->Destroy();
@@ -160,12 +151,10 @@ public:
             }
         }
 
-        for (size_t i = 0; i < 3; i++) {
-            offscreenRTs[i]->Release(true);
-        }
-        offscreenRTs.clear();
+        offscreenRT->Release(true);
 
         defaultShader->Destroy();
+        quadShader->Destroy();
 
         destroyCommandPipeline();
 
@@ -193,8 +182,11 @@ private:
     Graphics::RZVertexBufferLayout                                              bufferLayout;
     Graphics::RZVertexBuffer*                                                   triVBO;
     Graphics::RZIndexBuffer*                                                    triIBO;
+    Graphics::RZVertexBuffer* quadVBO;
     Graphics::RZUniformBuffer*                                                  viewProjUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
     Graphics::RZShader*                                                         defaultShader;
+    Graphics::RZShader*                                                         quadShader;
+    Graphics::RZShader*                                                         gridShader;
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       offscreen_descripotrSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuff being recorded
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       descripotrSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuff being recorded
 
@@ -213,7 +205,7 @@ private:
     
     Graphics::Camera3D                                                          m_Camera;
 
-    std::vector<Graphics::RZRenderTexture*>                                     offscreenRTs;
+    Graphics::RZRenderTexture*                                                  offscreenRT;
 
 private:
     void buildPipelineResources()
@@ -222,16 +214,20 @@ private:
         logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_512.png", "TextureAttachment2", Graphics::RZTexture::Wrapping::REPEAT);
 
         // Create the render targets as the same size of the resize cause it's fookin less code
-        offscreenRTs.resize(3);
-        for (uint32_t i = 0; i < 3; ++i) {
-            offscreenRTs[i] = Graphics::RZRenderTexture::Create(width, height, Graphics::RZTexture::Format::RGBA);
-        }
+        offscreenRT = Graphics::RZRenderTexture::Create(width, height, Graphics::RZTexture::Format::RGBA);
 
         float vertices[8 * 4] = {
            -2.5f, -2.5f, -2.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             2.5f, -2.5f, -2.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-            2.5f,  2.5f, -2.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-           -2.5f,  2.5f, -2.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
+            2.5f, -2.5f,  2.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+           -2.5f, -2.5f,  2.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
+        };
+
+        float quad_vertices[5 * 4] = {
+           -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+           -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
         };
 
         uint32_t indices[6] = {
@@ -245,11 +241,17 @@ private:
 
         triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 8 * 4, vertices, Graphics::BufferUsage::STATIC);
         triVBO->AddBufferLayout(bufferLayout);
-
         triIBO = Graphics::RZIndexBuffer::Create(indices, 6, Graphics::BufferUsage::STATIC);
+
+        Graphics::RZVertexBufferLayout quadBufferLayout;
+        quadBufferLayout.push<glm::vec3>("Position");
+        quadBufferLayout.push<glm::vec2>("TexCoord");
+        quadVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 5 * 4, quad_vertices, Graphics::BufferUsage::STATIC);
+        quadVBO->AddBufferLayout(quadBufferLayout);
 
         // Create the shader
         defaultShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
+        quadShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/quad_vignette.rzsf");
 
         for (size_t i = 0; i < 3; i++) {
             viewProjUniformBuffers[i] = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
@@ -280,14 +282,14 @@ private:
 
         for (size_t i = 0; i < 3; i++) {
             // get the descriptor infos to create the descriptor sets
-            auto setInfos = defaultShader->getSetInfos();
+            auto setInfos = quadShader->getSetInfos();
             int j = 0;
             for (auto& setInfo : setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor : setInfo.descriptors) {
                     if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
                         if (!j) {
-                            descriptor.texture = offscreenRTs[i];
+                            descriptor.texture = offscreenRT;
                             j++;
                         }
                         else
@@ -341,44 +343,12 @@ private:
         auto swaoImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
         depthImage = Graphics::RZDepthTexture::Create(width, height);
 
-        for (uint32_t i = 0; i < 3; ++i)
-            offscreenRTs[i]->Resize(width, height);
-
-        for (auto sets : descripotrSets) {
-            auto set = sets.second;
-            for (size_t i = 0; i < set.size(); i++) {
-                set[i]->Destroy();
-            }
-        }
-        descripotrSets.clear();
-        for (size_t i = 0; i < 3; i++) {
-            // get the descriptor infos to create the descriptor sets
-            auto setInfos = defaultShader->getSetInfos();
-            int j = 0;
-            for (auto& setInfo : setInfos) {
-                // Fill the descriptors with buffers and textures
-                for (auto& descriptor : setInfo.descriptors) {
-                    if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
-                        if (!j) {
-                            descriptor.texture = offscreenRTs[i];
-                            j++;
-                        }
-                        else
-                            descriptor.texture = logoTexture;
-                    }
-                    else {
-                        descriptor.uniformBuffer = viewProjUniformBuffers[i];
-                    }
-                }
-                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
-                descripotrSets[i].push_back(descSet);
-            }
-        }
-
+        offscreenRT->Resize(width, height);
+      
         offscreen_framebuffers.clear();
         for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
             Graphics::RZTexture* attachments[2];
-            attachments[0] = offscreenRTs[i];
+            attachments[0] = offscreenRT;
             attachments[1] = depthImage;
 
             Graphics::FramebufferInfo frameBufInfo{};
@@ -395,6 +365,37 @@ private:
         //////////////////////////////////////////////////////////////////////////
         // Prepare the on screen pipeline
 
+        for (auto sets : descripotrSets) {
+            auto set = sets.second;
+            for (size_t i = 0; i < set.size(); i++) {
+                set[i]->Destroy();
+            }
+        }
+        descripotrSets.clear();
+        for (size_t i = 0; i < 3; i++) {
+            // get the descriptor infos to create the descriptor sets
+            auto setInfos = quadShader->getSetInfos();
+            int j = 0;
+            for (auto& setInfo : setInfos) {
+                // Fill the descriptors with buffers and textures
+                for (auto& descriptor : setInfo.descriptors) {
+                    if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
+                        if (!j) {
+                            descriptor.texture = offscreenRT;
+                            j++;
+                        }
+                        else
+                            descriptor.texture = logoTexture;
+                    }
+                    else {
+                        descriptor.uniformBuffer = viewProjUniformBuffers[i];
+                    }
+                }
+                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+                descripotrSets[i].push_back(descSet);
+            }
+        }
+
         // Create the render pass
         textureTypes[0].format = Graphics::RZTexture::Format::SCREEN;
 
@@ -406,6 +407,7 @@ private:
 
         // Create the graphics pipeline
         pipelineInfo.renderpass = renderpass;
+        pipelineInfo.shader = quadShader;
         pipeline = Graphics::RZPipeline::Create(pipelineInfo);
 
         // Create the framebuffer
@@ -431,11 +433,6 @@ private:
     {
         depthImage->Release(true);
 
-        //for (size_t i = 0; i < 3; i++) {
-        //    offscreenRTs[i]->Release(true);
-        //}
-        //offscreenRTs.clear();
-
         for (auto frameBuf : offscreen_framebuffers)
             frameBuf->Destroy();
 
@@ -458,3 +455,4 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new Sandbox();
 }
+*/

@@ -119,22 +119,24 @@ namespace Razix
             // Set the render API from the De-serialized data
             if(Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::NONE)
                 Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI)m_RenderAPI);
-            archive(cereal::make_nvp("Width", m_WindowProperties.Width));
-            archive(cereal::make_nvp("Height", m_WindowProperties.Height));
+            uint32_t Width, Height;
+            archive(cereal::make_nvp("Width", Width));
+            archive(cereal::make_nvp("Height", Height));
+            m_WindowProperties.Width = Width;
+            m_WindowProperties.Height = Height;
         }
 
         // Save mechanism for the RZApplication class
         template<class Archive>
         void save(Archive& archive) const
         {
-            Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::DIRECTX11);
-
+            RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}",  m_Window.get()->getWidth(),  m_Window.get()->getHeight());
             archive(cereal::make_nvp("Project Name", m_AppName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
             archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", (uint32_t)Graphics::RZGraphicsContext::GetRenderAPI()));
-            archive(cereal::make_nvp("Width", m_Window->getWidth()));
-            archive(cereal::make_nvp("Height", m_Window->getHeight()));
+            archive(cereal::make_nvp("Width", m_Window.get()->getWidth()));
+            archive(cereal::make_nvp("Height",  m_Window.get()->getHeight()));
             archive(cereal::make_nvp("Project Path", m_AppFilePath)); // Why am I even serializing this?
         }
 

@@ -45,7 +45,7 @@ namespace Razix {
             PolygonMode         polygonMode = PolygonMode::FILL;
             DrawType            drawType    = DrawType::TRIANGLE;
 
-            bool                transparencyEnabled;
+            bool                transparencyEnabled = true;
             bool                depthBiasEnabled = false;
         };
 
