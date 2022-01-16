@@ -72,20 +72,21 @@ namespace Razix {
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
 
         private:
-             VkSwapchainKHR             m_Swapchain = VK_NULL_HANDLE;                    /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos  */
+             VkSwapchainKHR             m_Swapchain = VK_NULL_HANDLE;                       /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos  */
              VkSwapchainKHR             m_OldSwapChain = VK_NULL_HANDLE;
-             SwapSurfaceProperties      m_SwapSurfaceProperties;        /* Swapchain surface properties                                                                     */
-             VkSurfaceFormatKHR         m_SurfaceFormat;                /* Selected Swapchain image format and color space of the swapchain image                           */
-             VkPresentModeKHR           m_PresentMode;                  /* The presentation mode for the swapchain images                                                   */
-             VkExtent2D                 m_SwapchainExtent;              /* The extent of the swapchain images                                                               */
-             uint32_t                   m_SwapchainImageCount;          /* Total number of swapchain images being used                                                      */
-             std::vector<RZTexture2D*>  m_SwapchainImageTextures;       /* Swapchain images stored as engine 2D texture                                                     */
-             uint32_t                   m_AcquireImageIndex;            /* Currently acquired image index of the swapchain that is being rendered to                        */
-             VkFormat                   m_ColorFormat;                  /* Color format of the screen                             // Cache the reference to the Vulkan context to avoid frequent calling
+             SwapSurfaceProperties      m_SwapSurfaceProperties;                            /* Swapchain surface properties                                                                     */
+             VkSurfaceFormatKHR         m_SurfaceFormat;                                    /* Selected Swapchain image format and color space of the swapchain image                           */
+             VkPresentModeKHR           m_PresentMode;                                      /* The presentation mode for the swapchain images                                                   */
+             VkExtent2D                 m_SwapchainExtent;                                  /* The extent of the swapchain images                                                               */
+             uint32_t                   m_SwapchainImageCount;                              /* Total number of swapchain images being used                                                      */
+             std::vector<RZTexture2D*>  m_SwapchainImageTextures;                           /* Swapchain images stored as engine 2D texture                                                     */
+             uint32_t                   m_AcquireImageIndex;                                /* Currently acquired image index of the swapchain that is being rendered to                        */
+             VkFormat                   m_ColorFormat;                                      /* Color format of the screen                             
+            // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = VKContext::Get();                                                      */
-             FrameData m_Frames[MAX_SWAPCHAIN_BUFFERS];
-             uint32_t m_CurrentBuffer = 0;  /* Index of the current buffer being submitted for execution */
-             bool m_IsResized = false;
+            FrameData m_Frames[MAX_SWAPCHAIN_BUFFERS];
+            uint32_t m_CurrentBuffer = 0;  /* Index of the current buffer being submitted for execution */
+            bool m_IsResized = false;
 
         private:
             /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */

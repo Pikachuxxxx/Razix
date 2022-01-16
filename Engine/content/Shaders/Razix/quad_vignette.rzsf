@@ -1,6 +1,6 @@
 ﻿/*
  * Razix Shader File 
- * quad.rzsf : Quad shader that can be used to render a screen space quad, useful for post processing effects and multipass shaders for deferred erndedring etc.
+ * default.rzsf : Shader that can be used to render a screen space quad with the attached render texture
  * Copyright Razix Engine 2021 by Pikachuxxxx (Phani Srikar)
  */
 
@@ -8,13 +8,13 @@
 // Here #include doesn't mean that it will be copied but rather interpreted as a keyword that it's a file that needs to be read/included into to the shader read stream for reading the byte code
 #shader vertex
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/default.vert.spv
+        #include Compiled/SPIRV/quad.vert.spv
     #endif
 #end
 
 // Including the default fragment shader
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/default.frag.spv
+        #include Compiled/SPIRV/vignette.frag.spv
     #endif
 #end

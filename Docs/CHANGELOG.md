@@ -1,7 +1,16 @@
 # Razix Engine Changelog
 
+## Version - 0.20.1 [Development] - 16/01/2022
+![](../Branding/DemoImages/ReleaseNotes/RazixV0.2.0.Dev.GridTest.png)
+- Added test grid shaders in rzsf language + fixed minor sync and resizing issues
+- Fixed minor issues with descriptor set API and Uniform binding
+- Added Render targets for off screen rendering simplification + Post processing
+    - Added vignette shader + example
+- Fixed minor bug with project path serialization and de-serialization
+- Identified some critical swap images tearing bug
+
 #### Version - 0.20.0 [Development] - 09/01/2022
-    - Developed First draft of Engine Graphics API 
+    - Developed First draft of Engine Graphics API
     - Created Razix Code Editor tool for editing Shaders and scripts files + SonyWWS ATF as vendor for tools and editor
     - Added Vulkan Renderer and Graphips API abstractions for it (such as Descriptor sets, render passes, textures, framebuffers, etc)
     - Created Razix Shader File (*.rzsf) convention for cross compiling shaders (First draft)
