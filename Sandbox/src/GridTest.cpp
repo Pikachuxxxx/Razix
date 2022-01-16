@@ -73,6 +73,7 @@ public:
             //////////////////////////////////////////////////////////////////////////
             // Offscreen pass
             // Bind the Vertex and Index buffers
+
             Graphics::RZAPIRenderer::Begin();
             {
                 Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
@@ -184,10 +185,10 @@ private:
         logoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_512.png", "TextureAttachment2", Graphics::RZTexture::Wrapping::REPEAT);
 
         float vertices[8 * 4] = {
-           -200.5f, -2.5f, -200.5f, 0.0f, 0.0f,
-            200.5f, -2.5f, -200.5f, 1.0f, 0.0f,
-            200.5f, -2.5f,  200.5f, 1.0f, 1.0f,
-           -200.5f, -2.5f,  200.5f, 0.0f, 1.0f
+           -2000.5f, -2.5f, -2000.5f, 0.0f, 0.0f,
+            2000.5f, -2.5f, -2000.5f, 1.0f, 0.0f,
+            2000.5f, -2.5f,  2000.5f, 1.0f, 1.0f,
+           -2000.5f, -2.5f,  2000.5f, 0.0f, 1.0f
         };
 
         uint32_t indices[6] = {
