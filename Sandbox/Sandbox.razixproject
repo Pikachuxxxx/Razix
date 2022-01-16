@@ -1,11 +1,11 @@
 {
     "Razix Application": {
         "Project Name": "Sandbox",
-        "Engine Version": "0.16.0",
+        "Engine Version": "0.20.0",
         "Project Version": 0,
-        "Render API": 2,
-        "Width": 886,
-        "Height": 464,
-        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/Sandbox.razixproject"
+        "Render API": 1,
+        "Width": 1280,
+        "Height": 720,
+        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/"
     }
 }

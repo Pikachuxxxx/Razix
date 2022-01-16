@@ -1,6 +1,6 @@
 ﻿/*
  * Razix Shader File 
- * default.rzsf : Default shader that can be used to render any primitive geometry without any shading, uses vertex colors if provided or tex coords or renders pink if everything else fails (Only for Vertex and Fragment stages)
+ * default.rzsf : Shader that can be used to render a screen space quad with the attached render texture
  * Copyright Razix Engine 2021 by Pikachuxxxx (Phani Srikar)
  */
 
