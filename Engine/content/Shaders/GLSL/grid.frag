@@ -17,18 +17,16 @@
  }fs_in;
  //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
-layout(set = 0, binding = 1) uniform sampler2D texSampler;
-layout(set = 0, binding = 2) uniform GridUniform
+layout(set = 0, binding = 1) uniform GridUniform
 {
-	vec4  CameraPos;
-	float Scale;
-	float Res;
-	float MaxDistance;
+	vec3	CameraPos;
+	float _padding;
+	float	Scale;
+	float	Res;
+	float	MaxDistance;
+	float _padding2;
 }grid_ubo;
 
-            //float m_GridRes = 1.0f;
-            //float m_GridSize = 1.0f;
-            //float m_MaxDistance = 600.0f;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments 
 layout(location = 0) out vec4 outColor;
@@ -53,7 +51,6 @@ vec4 Grid(float divisions)
 // main
 void main()
 {
-
 	vec3 pseudoViewPos = vec3(grid_ubo.CameraPos.x, fs_in.fragPosition.y, grid_ubo.CameraPos.z);
 	float distanceToCamera = max(distance(fs_in.fragPosition, pseudoViewPos) - abs(grid_ubo.CameraPos.y), 0);
 
@@ -63,5 +60,7 @@ void main()
 
 	outColor = Grid(divs) + Grid(divs / subdivisions);
 	outColor.a *= clamp((decreaseDistance - distanceToCamera) / decreaseDistance, 0.0f, 1.0f);
+
+	//outColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
 //------------------------------------------------------------------------------
