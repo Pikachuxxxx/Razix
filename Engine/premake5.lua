@@ -159,7 +159,7 @@ project "Razix"
     -- Razix Project settings for Windows
     filter "system:windows"
         cppdialect "C++17"
-        staticruntime "on"
+        staticruntime "off"
         systemversion "latest"
         disablewarnings { 4307 }
         characterset ("MBCS")

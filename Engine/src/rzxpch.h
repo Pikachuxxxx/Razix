@@ -12,6 +12,9 @@
 #include <functional>
 #include <sstream>
 #include <fstream>
+#include <random>
+#include <limits>
+#include <cstdint>
 
 //-----Data Structures-----//
 #include <string>
@@ -23,5 +26,10 @@
 
 //-----Engine-----//
 #include "Razix/Core/RZLog.h"
+
+//-----Intrinsics-----//
+#include <emmintrin.h>
+#include <smmintrin.h>
+#include <immintrin.h>
 
 //-----3rd Party-----//

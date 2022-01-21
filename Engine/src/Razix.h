@@ -11,6 +11,8 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/RZSmartPointers.h"
+#include "Razix/Core/RZUUID.h"
+#include "Razix/Core/RZUUIDGenerator.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZKeyCodes.h"
