@@ -33,6 +33,32 @@ public:
         // Override the Graphics API here! for testing
         Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
+
+        // Test Razix UUID Generation Here
+        RZUUIDGenerator<std::mt19937_64> uuidGenerator;
+        RZUUID uuid = uuidGenerator.generateUUID();
+
+        std::string bytes = uuid.bytes();
+
+        RAZIX_TRACE("UUID (16byte string): {0}", bytes);
+
+        std::string s = uuid.str();
+
+        RAZIX_TRACE("UUID (36 byte string): {0}", s);
+
+        std::cout << std::numeric_limits<uint64_t>::min() << " | " << std::numeric_limits<uint64_t>::max() << std::endl;
+
+        for (size_t i = 0; i < 100; ++i) {
+            RZUUID uuid = uuidGenerator.generateUUID();
+            std::string s = uuid.str();
+            std::cout << "UUID: " << s << std::endl;
+        }
+
+        //RZUUID uuid_read(bytes);
+
+        // Test by generating a UUID for project ID, generate it once and test serialization and de-serialization comparison
+
+
     }
 
     ~GridTest() {}
@@ -160,15 +186,15 @@ public:
     }
 
 private:
-    Graphics::RZTexture2D* testTexture;
-    Graphics::RZTexture2D* logoTexture;
-    Graphics::RZDepthTexture* depthImage;
+    Graphics::RZTexture2D*                                                      testTexture;
+    Graphics::RZTexture2D*                                                      logoTexture;
+    Graphics::RZDepthTexture*                                                   depthImage;
     Graphics::RZVertexBufferLayout                                              bufferLayout;
-    Graphics::RZVertexBuffer* gridVBO;
-    Graphics::RZIndexBuffer* gridIBO;
-    Graphics::RZUniformBuffer* viewProjUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
-    Graphics::RZUniformBuffer* gridUniformBuffers[3];
-    Graphics::RZShader* gridShader;
+    Graphics::RZVertexBuffer*                                                   gridVBO;
+    Graphics::RZIndexBuffer*                                                    gridIBO;
+    Graphics::RZUniformBuffer*                                                  viewProjUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
+    Graphics::RZUniformBuffer*                                                  gridUniformBuffers[3];
+    Graphics::RZShader*                                                         gridShader;
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>       grid_descriptorSets; // We use a single set per frame, so each frame has many sets that will be bind as a static sate with the cmdbuff being recorded
 
     Graphics::RZRenderPass*                                                     renderpass;

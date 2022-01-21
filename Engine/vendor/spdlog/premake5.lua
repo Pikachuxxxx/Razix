@@ -2,7 +2,7 @@ project "spdlog"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "On"
+	staticruntime "off"
 
 	disablewarnings {
 		"4251",

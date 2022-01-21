@@ -2,7 +2,7 @@ project "ImGui"
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
-    staticruntime "On"
+    staticruntime "off"
 
     files
     {
@@ -22,7 +22,7 @@ project "ImGui"
     filter "system:windows"
         systemversion "latest"
         cppdialect "C++17"
-        staticruntime "On"
+        staticruntime "off"
 
     filter "configurations:Debug"
         runtime "Debug"
