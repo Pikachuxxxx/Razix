@@ -3,6 +3,7 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/OS/RZWindow.h"
 #include "Razix/Core/RZSmartPointers.h"
+#include "Razix/Core/RZUUIDGenerator.h"
 
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/RZKeyEvent.h"
@@ -97,6 +98,7 @@ namespace Razix
         /* Application Serialization */
 
         // Load mechanism for the RZApplication class
+        // TODO: Make this look more neat
         template<class Archive>
         void load(Archive& archive) 
         {
@@ -124,6 +126,11 @@ namespace Razix
             archive(cereal::make_nvp("Height", Height));
             m_WindowProperties.Width = Width;
             m_WindowProperties.Height = Height;
+
+            // Extract the project UUID as as string and convert it back to the RZUUID
+            std::string uuid_string;
+            archive(cereal::make_nvp("Project ID", uuid_string));
+            m_ProjectID = RZUUID::FromStrFactory(uuid_string);
         }
 
         // Save mechanism for the RZApplication class
@@ -133,7 +140,7 @@ namespace Razix
             RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}",  m_Window.get()->getWidth(),  m_Window.get()->getHeight());
             archive(cereal::make_nvp("Project Name", m_AppName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
-            archive(cereal::make_nvp("Project Version", 0));
+            archive(cereal::make_nvp("Project ID", m_ProjectID.str()));
             archive(cereal::make_nvp("Render API", (uint32_t)Graphics::RZGraphicsContext::GetRenderAPI()));
             archive(cereal::make_nvp("Width", m_Window.get()->getWidth()));
             archive(cereal::make_nvp("Height",  m_Window.get()->getHeight()));
@@ -153,6 +160,7 @@ namespace Razix
         RZTimestep              m_Timestep;                             /* The timesteps taken to update the application            */
         UniqueRef<RZWindow>     m_Window;                               /* The window that will be used to view graphics            */
         WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
+        RZUUID                  m_ProjectID;                            /* Project ID is a UUID to uniquely identify project        */
 
     private:
         /**

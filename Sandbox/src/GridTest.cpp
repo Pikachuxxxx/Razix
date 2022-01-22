@@ -53,12 +53,6 @@ public:
             std::string s = uuid.str();
             std::cout << "UUID: " << s << std::endl;
         }
-
-        //RZUUID uuid_read(bytes);
-
-        // Test by generating a UUID for project ID, generate it once and test serialization and de-serialization comparison
-
-
     }
 
     ~GridTest() {}
