@@ -5,7 +5,7 @@
 namespace Razix {
     
     /**
-     *  Implementation from : Copyright (c) 2018 Xavier "Crashoz" Launey [https://github.com/crashoz/uuid_v4]
+     *  Implementation from : Copyright (c) 2018 Xavier "Crashoz" Launey [https://github.com/crashoz/uuid_v4] MIT license.
      * 
      * "Razix Universally Unique Identifier" or RZUUID. Creates a random V4 style RZUUID as per the format (RFC-4122) described here : https://datatracker.ietf.org/doc/html/rfc4122
      *
@@ -40,7 +40,8 @@ namespace Razix {
      * Thus, the probability to find a duplicate within 103 trillion version-4 UUIDs is one in a billion.
      */
 
-    // TODO: read more about generators, show we persist them(their seeding or would it be fine with using every time the engine/game is fired up) or can it be randomly generated as well
+    // TODO: 1. Tidy up the class as per Razix style guide
+    // TODO: 2. read more about generators, show we persist them(their seeding or would it be fine with using every time the engine/game is fired up) or can it be randomly generated as well
     class RAZIX_API RZUUID
     {
     public: 
