@@ -9,6 +9,7 @@ IncludeDir["stb"]               = "vendor/stb/"
 IncludeDir["glm"]               = "vendor/glm/"
 IncludeDir["SPIRVReflect"]      = "vendor/SPIRVReflect/"
 IncludeDir["SPIRVCross"]        = "vendor/SPIRVCross/include"
+IncludeDir["entt"]              = "vendor/entt/include"
 IncludeDir["Razix"]             = "src"
 IncludeDir["vendor"]            = "vendor/"
 
@@ -94,6 +95,7 @@ project "Razix"
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related 
@@ -118,6 +120,7 @@ project "Razix"
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related 
