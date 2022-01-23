@@ -100,8 +100,7 @@ namespace Razix
             RAZIX_CORE_TRACE("Creating a default Project file...");
 
             // Assign a UUID for the new project file
-            RZUUIDGenerator<std::mt19937_64> uuidGenerator;
-            m_ProjectID = uuidGenerator.generateUUID();
+            m_ProjectID = RZUUIDGenerator::generateUUID();
 
             defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }

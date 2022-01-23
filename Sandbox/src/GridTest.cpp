@@ -35,8 +35,7 @@ public:
         //-------------------------------------------------------------------------------------
 
         // Test Razix UUID Generation Here
-        RZUUIDGenerator<std::mt19937_64> uuidGenerator;
-        RZUUID uuid = uuidGenerator.generateUUID();
+        RZUUID uuid = RZUUIDGenerator::generateUUID();
 
         std::string bytes = uuid.bytes();
 
@@ -46,12 +45,10 @@ public:
 
         RAZIX_TRACE("UUID (36 byte string): {0}", s);
 
-        std::cout << std::numeric_limits<uint64_t>::min() << " | " << std::numeric_limits<uint64_t>::max() << std::endl;
-
         for (size_t i = 0; i < 100; ++i) {
-            RZUUID uuid = uuidGenerator.generateUUID();
+            RZUUID uuid = RZUUIDGenerator::generateUUID();
             std::string s = uuid.str();
-            std::cout << "UUID: " << s << std::endl;
+            std::cout << "RZUUID: " << s << std::endl;
         }
     }
 

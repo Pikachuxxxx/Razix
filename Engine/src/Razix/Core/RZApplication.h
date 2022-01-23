@@ -49,51 +49,51 @@ namespace Razix
          * @param projectRoot   The root location of the application
          * @param appName       The name of the Razix application
          */
-        RZApplication(const std::string& projectRoot , const std::string& appName = "Razix App");
+        RAZIX_CALL RZApplication(const std::string& projectRoot , const std::string& appName = "Razix App");
         /* Simple Virtual destructor */
         virtual ~RZApplication() {}
 
         /* Initializes the application and other runtime systems */
-        void Init();
+        void RAZIX_CALL Init();
 
         /* Starts the Engine Runtime systems */
-        void Run();
+        void RAZIX_CALL Run();
 
         /**
          * Called before the application starts rendering
          * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
          */
-        virtual void OnStart() {}
+        virtual void RAZIX_CALL OnStart() {}
         /**
          * Updates the Engine systems for every engine timestep
          * 
          * @param dt The timestep taken for every frame
          */
-        virtual void OnUpdate(const RZTimestep& dt) {}
+        virtual void RAZIX_CALL OnUpdate(const RZTimestep& dt) {}
         /**
          * Calls the engine sub-systems to render the stuff calculated in OnFrame()
          * Begins the frame and submits the rendergraph to final display
          */
-        virtual void OnRender() {}
+        virtual void RAZIX_CALL OnRender() {}
         /**
          * Called before the application is quit
          */
-        virtual void OnQuit() {}
+        virtual void RAZIX_CALL OnQuit() {}
 
         // Event callbacks for client
-        virtual void OnResize(uint32_t width, uint32_t height) {}
+        virtual void RAZIX_CALL OnResize(uint32_t width, uint32_t height) {}
 
         /* Gets the static reference to the application instance */
-        inline static RZApplication& Get() { return *s_AppInstance; }
+        inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
         
         /* Returns a reference to the application window */
-        inline RZWindow* getWindow() { return m_Window.get(); }
+        inline RZWindow* RAZIX_CALL getWindow() { return m_Window.get(); }
         /* Returns a reference to the Application instance */
-        inline std::string getAppName() const { return m_AppName; }
+        inline std::string RAZIX_CALL getAppName() const { return m_AppName; }
         /* Gets the window properties */
-        inline WindowProperties& getWindowProps() { return m_WindowProperties; }
+        inline WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
         /* Gets the application render loop timer */
-        inline RZTimer getTimer() { return *m_Timer.get(); }
+        inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
 
         /* Application Serialization */
 

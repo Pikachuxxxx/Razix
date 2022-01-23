@@ -2,12 +2,12 @@
 
 #include "Razix/Core/RZCore.h"
 
-#pragma warning(push, 0)
-#pragma warning( disable : 26812)
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/fmt/ostr.h>
-#pragma warning(pop)
+RAZIX_WARNING_PUSH()
+    #pragma warning( disable : 26812)
+    #include <spdlog/spdlog.h>
+    #include <spdlog/sinks/stdout_color_sinks.h>
+    #include <spdlog/fmt/ostr.h>
+RAZIX_WARNING_POP()
 
 namespace Razix {
     namespace Debug
@@ -25,9 +25,9 @@ namespace Razix {
             static void Shutdown();
             
             /* Returns the shared pointer to the engine core logger */
-            inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+            RAZIX_FORCE_INLINE static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
             /* Returns the shared pointer to the engine application logger */
-            inline static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
+            RAZIX_FORCE_INLINE static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
         private:
             static std::shared_ptr<spdlog::logger> s_CoreLogger;
             static std::shared_ptr<spdlog::logger> s_ApplicationLogger;
