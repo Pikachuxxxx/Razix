@@ -52,7 +52,7 @@ Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 # Architecture
 
 #### :warning: Still a work in progress
-![](./Docs/Architecture/RazixEngine-Architecture.png)
+![](./Docs/Architecture/RazixEngine-Architecture-V.1.0.0.RC.png)
 
 **For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
 
