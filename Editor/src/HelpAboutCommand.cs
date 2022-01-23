@@ -32,9 +32,9 @@ namespace Razix
                 "Razix.Resources.AboutRazixEditor.rtf");
             richTextBox.LoadFile(textFileStream, RichTextBoxStreamType.RichText);
 
-            string appURL = "https://github.com/Pikachuxxxx/RazixCodeEditor";
+            string appURL = "https://github.com/Pikachuxxxx/Razix";
 
-            // logo, crtedits, addinfo
+            // logo, credits, add info
             IList<string> strings = new List<string> { "Razix Engine by Pikachuxxxx aka Phani Srikar \n\n" };
 
             AboutDialog dialog = new AboutDialog(
