@@ -9,6 +9,7 @@ IncludeDir["stb"]           = "../Engine/vendor/stb/"
 IncludeDir["glm"]           = "../Engine/vendor/glm/"
 IncludeDir["SPIRVReflect"]  = "../Engine/vendor/SPIRVReflect/"
 IncludeDir["SPIRVCross"]    = "../Engine/vendor/SPIRVCross/include"
+IncludeDir["entt"]    = "../Engine/vendor/entt/include"
 IncludeDir["Razix"]         = "../Engine/src"
 IncludeDir["vendor"]        = "../Engine/vendor/"
 
@@ -37,6 +38,7 @@ project "Sandbox"
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -54,6 +56,7 @@ project "Sandbox"
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
