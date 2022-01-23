@@ -35,7 +35,7 @@ public:
         //-------------------------------------------------------------------------------------
 
         // Test Razix UUID Generation Here
-        RZUUID uuid = RZUUIDGenerator::generateUUID();
+        RZUUID uuid;
 
         std::string bytes = uuid.bytes();
 
@@ -45,11 +45,20 @@ public:
 
         RAZIX_TRACE("UUID (36 byte string): {0}", s);
 
-        for (size_t i = 0; i < 100; ++i) {
-            RZUUID uuid = RZUUIDGenerator::generateUUID();
-            std::string s = uuid.str();
-            std::cout << "RZUUID: " << s << std::endl;
+        //for (size_t i = 0; i < 100; ++i) {
+        //    RZUUID uuid;
+        //    std::string s = uuid.str();
+        //    std::cout << "RZUUID: " << s << std::endl;
+        //}
+
+        std::vector<RZEntity> entities;
+        for (int i = 0; i< 100; ++i) {
+            RZEntity entity = m_ActiveScene.createEntity(std::to_string(i));
+            RAZIX_TRACE("Entity name : {0} | UUID : {1}", entity.GetComponent<TagComponent>().Tag, entity.GetComponent<IDComponent>().UUID);
+            entities.push_back(entity);
         }
+
+        std::cout << "Entities count in scene : " << entities.size() << std::endl;
     }
 
     ~GridTest() {}
@@ -194,6 +203,8 @@ private:
     Graphics::RZSwapchain*                                                      swapchain;
     uint32_t                                                                    width, height;
     Graphics::Camera3D                                                          m_Camera;
+
+    RZScene m_ActiveScene;
 
 private:
     void buildPipelineResources()
