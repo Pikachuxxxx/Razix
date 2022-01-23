@@ -70,7 +70,7 @@ namespace Razix
             //var image = GdiUtil.GetImage("Razix.Resources.RazixCodeEditorLogo.ico");
             //mainForm.Icon = GdiUtil.CreateIcon(image, 32, true);
 
-            mainForm.Text = "Razix Editor".Localize();
+            mainForm.Text = "Razix Engine Editor".Localize();
 
             var batch = new CompositionBatch();
             batch.AddPart(mainForm);
