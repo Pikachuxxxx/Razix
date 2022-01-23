@@ -56,6 +56,8 @@ namespace Razix {
             char    node[6];
         } rzuuid_format;
 
+        RAZIX_DEPRECATED_TYPE(rzuuid_format)
+
     public:
         RZUUID() = default;
         RZUUID(const RZUUID& other);

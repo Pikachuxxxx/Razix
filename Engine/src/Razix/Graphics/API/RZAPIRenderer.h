@@ -33,17 +33,17 @@ namespace Razix {
             static void Create(uint32_t width, uint32_t height);
             static void Release();
 
-            inline static void Init() { s_APIInstance->InitAPIImpl(); }
-            inline static void Begin() { s_APIInstance->BeginAPIImpl(); }
-            inline static void Present(RZCommandBuffer* cmdBuffer) { s_APIInstance->PresentAPIImple(cmdBuffer); }
-            inline static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets, uint32_t setIndex) { s_APIInstance->BindDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets); }
-            inline static void BindPushConstants(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer) { s_APIInstance->BindPushConstantsAPIImpl(pipeline, cmdBuffer); }
-            inline static void Draw(RZCommandBuffer* cmdBuffer, uint32_t count, DataType dataType = DataType::UNSIGNED_INT) { s_APIInstance->DrawAPIImpl(cmdBuffer, count, dataType); }
-            inline static void DrawIndexed(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) { s_APIInstance->DrawIndexedAPIImpl(cmdBuffer, count, start); }
+            RAZIX_FORCE_INLINE static void Init() { s_APIInstance->InitAPIImpl(); }
+            RAZIX_FORCE_INLINE static void Begin() { s_APIInstance->BeginAPIImpl(); }
+            RAZIX_FORCE_INLINE static void Present(RZCommandBuffer* cmdBuffer) { s_APIInstance->PresentAPIImple(cmdBuffer); }
+            RAZIX_FORCE_INLINE static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets, uint32_t setIndex) { s_APIInstance->BindDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets); }
+            RAZIX_FORCE_INLINE static void BindPushConstants(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer) { s_APIInstance->BindPushConstantsAPIImpl(pipeline, cmdBuffer); }
+            RAZIX_FORCE_INLINE static void Draw(RZCommandBuffer* cmdBuffer, uint32_t count, DataType dataType = DataType::UNSIGNED_INT) { s_APIInstance->DrawAPIImpl(cmdBuffer, count, dataType); }
+            RAZIX_FORCE_INLINE static void DrawIndexed(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) { s_APIInstance->DrawIndexedAPIImpl(cmdBuffer, count, start); }
 
-            inline static void OnResize(uint32_t width, uint32_t height) { s_APIInstance->OnResizeAPIImpl(width, height); }
+            RAZIX_FORCE_INLINE static void OnResize(uint32_t width, uint32_t height) { s_APIInstance->OnResizeAPIImpl(width, height); }
 
-            inline static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
+            RAZIX_FORCE_INLINE static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
 
         protected:
             virtual void InitAPIImpl() = 0;
