@@ -5,6 +5,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 namespace Razix {
     namespace Graphics {
@@ -42,14 +43,39 @@ namespace Razix {
             // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
             void processMouseScroll(float yoffset);
 
-            inline const glm::vec3& getPosition() const { return Position; }
-            inline const glm::vec3& getForward() const { return Front; }
+            RAZIX_INLINE const glm::vec3& getPosition() const { return Position; }
+            void setPosition(glm::vec3 vector) { Position = vector; updateCameraVectors(); }
 
-            void setSpeed(float speed) { MovementSpeed = speed; }
-            void setSensitivity(float sensitivity) { MouseSensitivity = sensitivity; }
+            RAZIX_INLINE const glm::vec3& getForward() const { return Front; }
+            void setForward(glm::vec3 vector) { Front = vector; updateCameraVectors(); }
+
+            RAZIX_INLINE const glm::vec3& getUp() const { return Up; }
+            void setUp(glm::vec3 vector) { Up = vector; updateCameraVectors(); }
+
+            RAZIX_INLINE const glm::vec3& getRight() const { return Right; }
+            void setRight(glm::vec3 vector) { Right = vector; updateCameraVectors(); }
+
+            RAZIX_INLINE const glm::vec3& getWorldUp() const { return WorldUp; }
+            void setWorldUp(glm::vec3 vector) { WorldUp = vector; updateCameraVectors(); }
+
+            RAZIX_INLINE const float& getYaw() const { return Yaw; }
+            void setYaw(float value) { Yaw = value; updateCameraVectors(); }
+
+            RAZIX_INLINE const float& getPitch() const { return Pitch; }
+            void setPitch(float value) { Pitch = value; updateCameraVectors(); }
+
+            RAZIX_INLINE const float& getZoom() const { return Zoom; }
+            void setZoom(float value) { Zoom = value; updateCameraVectors(); }
+
+            RAZIX_INLINE const float& getSpeed() const { return MovementSpeed; }
+            void setSpeed(float speed) { MovementSpeed = speed; updateCameraVectors(); }
+
+            RAZIX_INLINE const float& getSensitivity() const { return MouseSensitivity; }
+            void setSensitivity(float sensitivity) { MouseSensitivity = sensitivity; updateCameraVectors(); }
 
             // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
-            glm::mat4 getViewMatrix();
+            RAZIX_FORCE_INLINE glm::mat4 getViewMatrix();
+
             glm::mat4 getViewMatrixLH();
             glm::mat4 getViewMatrixRH();
 

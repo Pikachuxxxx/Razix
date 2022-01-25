@@ -1,0 +1,82 @@
+{
+    "Razix Scene": {
+        "SceneName": "Grid Test Scene"
+    },
+    "value0": 1,
+    "value1": 0,
+    "value2": 1,
+    "value3": 0,
+    "value4": {
+        "UUID": "f1854253-c2e0-4802-8e5a-23f0ba6d518d"
+    },
+    "value5": 1,
+    "value6": 0,
+    "value7": {
+        "Tag": "Camera"
+    },
+    "value8": 1,
+    "value9": 0,
+    "value10": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value11": 1,
+    "value12": 0,
+    "value13": {
+        "isPrimary": true,
+        "Camera": {
+            "Position": {
+                "x": 77.07554626464844,
+                "y": 53.03339767456055,
+                "z": 89.18756103515625
+            },
+            "Front": {
+                "x": -0.9700108766555786,
+                "y": -0.237685889005661,
+                "z": 0.050836145877838138
+            },
+            "Up": {
+                "x": -0.2373601347208023,
+                "y": 0.9713420271873474,
+                "z": 0.012439523823559285
+            },
+            "Right": {
+                "x": -0.052335988730192187,
+                "y": 0.0,
+                "z": -0.9986295700073242
+            },
+            "WorldUp": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Yaw": -183.0,
+            "Pitch": -13.75,
+            "Zoom": 45.0,
+            "MovementSpeed": 0.02500000037252903,
+            "MouseSensitivity": 0.25,
+            "ProjectionType": 0,
+            "PerspectiveFOV": 0.7853981852531433,
+            "PerspectiveNearClip": 0.009999999776482582,
+            "PerspectiveFarClip": 1000.0,
+            "OrthographicSize": 10.0,
+            "OrthographicNearClip": -1.0,
+            "OrthographicFarClip": 1.0,
+            "AspectRatio": 1.8934426307678223
+        }
+    },
+    "value14": 0
+}
