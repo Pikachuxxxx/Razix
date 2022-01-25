@@ -1,13 +1,44 @@
 #pragma once
 
 #include "Razix/Core/RZUUID.h"
+#include "Razix/Scene/RZSceneCamera.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <cereal/archives/json.hpp>
+
+namespace glm {
+    template<class Archive> void serialize(Archive& archive, glm::vec2& v) { archive(v.x, v.y); }
+    template<class Archive> void serialize(Archive& archive, glm::vec3& v) { archive(cereal::make_nvp("x", v.x), cereal::make_nvp("y", v.y), cereal::make_nvp("z", v.z)); }
+    template<class Archive> void serialize(Archive& archive, glm::vec4& v) { archive(v.x, v.y, v.z, v.w); }
+    template<class Archive> void serialize(Archive& archive, glm::ivec2& v) { archive(v.x, v.y); }
+    template<class Archive> void serialize(Archive& archive, glm::ivec3& v) { archive(v.x, v.y, v.z); }
+    template<class Archive> void serialize(Archive& archive, glm::ivec4& v) { archive(v.x, v.y, v.z, v.w); }
+    template<class Archive> void serialize(Archive& archive, glm::uvec2& v) { archive(v.x, v.y); }
+    template<class Archive> void serialize(Archive& archive, glm::uvec3& v) { archive(v.x, v.y, v.z); }
+    template<class Archive> void serialize(Archive& archive, glm::uvec4& v) { archive(v.x, v.y, v.z, v.w); }
+    template<class Archive> void serialize(Archive& archive, glm::dvec2& v) { archive(v.x, v.y); }
+    template<class Archive> void serialize(Archive& archive, glm::dvec3& v) { archive(v.x, v.y, v.z); }
+    template<class Archive> void serialize(Archive& archive, glm::dvec4& v) { archive(v.x, v.y, v.z, v.w); }
+
+    // glm matrices
+    template<class Archive> void serialize(Archive& archive, glm::mat2& m) { archive(m[0], m[1]); }
+    template<class Archive> void serialize(Archive& archive, glm::dmat2& m) { archive(m[0], m[1]); }
+    template<class Archive> void serialize(Archive& archive, glm::mat3& m) { archive(m[0], m[1], m[2]); }
+    template<class Archive> void serialize(Archive& archive, glm::mat4& m) { archive(m[0], m[1], m[2], m[3]); }
+    template<class Archive> void serialize(Archive& archive, glm::dmat4& m) { archive(m[0], m[1], m[2], m[3]); }
+
+    template<class Archive> void serialize(Archive& archive, glm::quat& q) { archive(q.x, q.y, q.z, q.w); }
+    template<class Archive> void serialize(Archive& archive, glm::dquat& q) { archive(q.x, q.y, q.z, q.w); }
+}
+
 namespace Razix {
+
+    // TODO: Add serialization
 
     /**
      * Components are various classes that are added to the entities to provide functionality in a decoupled way
@@ -23,6 +54,20 @@ namespace Razix {
 
         IDComponent() = default;
         IDComponent(const IDComponent&) = default;
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            std::string uuid_string;
+            archive(cereal::make_nvp("UUID", uuid_string));
+            UUID = RZUUID::FromStrFactory(uuid_string);
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("UUID", UUID.str()));
+        }
     };
 
     struct TagComponent
@@ -33,6 +78,12 @@ namespace Razix {
         TagComponent(const TagComponent&) = default;
         TagComponent(const std::string& tag)
             : Tag(tag) {}
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Tag", Tag));
+        }
     };
 
     struct TransformComponent
@@ -54,6 +105,53 @@ namespace Razix {
                 * rotation
                 * glm::scale(glm::mat4(1.0f), Scale);
         }
+
+        template <typename Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Translation", Translation), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale));
+        }
     };
 
+    struct CameraComponent
+    {
+        RZSceneCamera Camera;
+        bool Primary = true; // TODO: think about moving to Scene
+
+        CameraComponent() = default;
+        CameraComponent(const CameraComponent&) = default;
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("isPrimary", Primary));
+            archive(cereal::make_nvp("Camera", Camera));
+        }
+    };
+
+    struct ActiveComponent
+    {
+        bool Active = true;
+
+        ActiveComponent()
+        {
+            Active = true;
+        }
+
+        ActiveComponent(bool act)
+        {
+            Active = act;
+        }
+
+        ActiveComponent(const ActiveComponent&) = default;
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("isActive", Active));
+        }
+    };
+
+    // List of all components that razix implements that is used while serialization
+#define RAZIX_COMPONENTS IDComponent, TagComponent, TransformComponent, CameraComponent, ActiveComponent
 }
