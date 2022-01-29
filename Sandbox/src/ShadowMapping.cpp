@@ -6,6 +6,8 @@ using namespace Razix;
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+// TODO: cleanup/destroy descriptor sets created again for with depth map texture attachment for the second pass
+
 class Sandbox : public Razix::RZApplication
 {
 private:
@@ -29,6 +31,7 @@ public:
 
     void OnStart() override
     {
+        // Load scene
         m_ActiveScene.DeSerialiseScene("//Scenes/shadows.rzscn");
 
         auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
@@ -55,6 +58,10 @@ public:
             buildCommandPipeline();
 
             Graphics::RZAPIRenderer::Init();
+
+            // Load resources
+            armadilloModel = new Graphics::RZModel("//Meshes/armadillo.obj");
+            //sphereMesh = Graphics::CreatePrimitive(Graphics::MeshPrimitive::Sphere);
         }
     }
 
@@ -95,10 +102,19 @@ public:
                 //auto shaderPushConstants = defaultShader->getPushConstants();
                 Graphics::RZAPIRenderer::BindPushConstants(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                planeVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                quadIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                //planeVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                //quadIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                //Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
 
-                Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
+                auto meshes = armadilloModel->getMeshes();
+
+                for (auto mesh : meshes)
+                {
+                    mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                    mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+                    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
+                }
 
                 offscreen_renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
@@ -145,6 +161,8 @@ public:
 
         m_ActiveScene.SerialiseScene("//Scenes/shadows.rzscn");
 
+        armadilloModel->Destroy();
+
         // Delete the textures
         testTexture->Release();
 
@@ -157,13 +175,6 @@ public:
         }
 
         for (auto sets : offscreen_descriptorSets) {
-            auto set = sets.second;
-            for (size_t i = 0; i < set.size(); i++) {
-                set[i]->Destroy();
-            }
-        }
-
-        for (auto sets : quad_descriptorSets) {
             auto set = sets.second;
             for (size_t i = 0; i < set.size(); i++) {
                 set[i]->Destroy();
@@ -223,6 +234,10 @@ private:
 
     uint32_t                                                                    width, height;
     RZScene                                                                     m_ActiveScene;
+
+    Graphics::RZModel*                                                          armadilloModel;
+
+    Graphics::RZMesh*                                                           sphereMesh;
 
 private:
     void buildPipelineResources()
@@ -317,6 +332,13 @@ private:
     {
         shadow_depth_map->Release(true);
         depthImageQuad->Release(true);
+
+        for (auto sets : quad_descriptorSets) {
+            auto set = sets.second;
+            for (size_t i = 0; i < set.size(); i++) {
+                set[i]->Destroy();
+            }
+        }
 
         for (auto frameBuf : offscreen_framebuffers)
             frameBuf->Destroy();

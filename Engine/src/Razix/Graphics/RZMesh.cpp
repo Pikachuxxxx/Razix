@@ -18,8 +18,8 @@ namespace Razix {
 
         }
 
-        RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer)
-            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer)
+        RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, uint32_t vtxcount, uint32_t idxcount)
+            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
         {
 
         }
@@ -59,5 +59,12 @@ namespace Razix {
             layout.push<glm::vec3>("Tangent");
             m_VertexBuffer->AddBufferLayout(layout);
         }
+
+        void RZMesh::Destroy()
+        {
+            m_VertexBuffer->Destroy();
+            m_IndexBuffer->Destroy();
+        }
+
     }
 }

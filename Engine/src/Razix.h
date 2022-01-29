@@ -47,6 +47,11 @@
 // Graphics/Cameras
 #include "Razix/Graphics/Cameras/Camera3D.h"
 
+// Graphics
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZMeshFactory.h"
+
 // Scene
 #include "Razix/Scene/RZComponents.h"
 #include "Razix/Scene/RZScene.h"
