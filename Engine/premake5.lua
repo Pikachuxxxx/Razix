@@ -98,7 +98,7 @@ project "Razix"
         "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
-        -- API related 
+        -- API related
         "%{VulkanSDK}"
     }
 
@@ -123,7 +123,7 @@ project "Razix"
         "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
-        -- API related 
+        -- API related
         "%{VulkanSDK}"
     }
 
@@ -134,9 +134,11 @@ project "Razix"
         "imgui",
         "spdlog",
         "SPIRVReflect",
-        "SPIRVCross"
+        "SPIRVCross",
+        "meshoptimizer",
+        "OpenFBX"
     }
-  
+
     -- Don't build the shaders, they are compiled by the engine once and cached
    filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
         flags { "ExcludeFromBuild"}
@@ -158,7 +160,7 @@ project "Razix"
      -- Disable warning for vendor
     filter { "files:vendor/**"}
         warnings "Off"
-            
+
     -- Razix Project settings for Windows
     filter "system:windows"
         cppdialect "C++17"

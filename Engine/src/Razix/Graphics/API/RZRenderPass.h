@@ -69,10 +69,12 @@ namespace Razix {
             inline uint32_t getColorAttachmentsCount() const { return m_ColorAttachmentsCount; }
             /* Gets the total number of attachments (color/depths/other) to the given render pass */
             inline uint32_t getAttachmentsCount() const { return m_AttachmentsCount; }
-
+            /* Gets the attachments types info */
+            RAZIX_INLINE AttachmentInfo* getAttachmentTypes() { return m_AttachmentTypes; }
         protected:
-            uint32_t m_AttachmentsCount         = 0;    /* The total number of attachments bounded to the render pass       */
-            uint32_t m_ColorAttachmentsCount    = 0;    /* The total number of color attachments bounded to the render pass */
+            uint32_t        m_AttachmentsCount         = 0;     /* The total number of attachments bounded to the render pass                       */
+            uint32_t        m_ColorAttachmentsCount    = 0;     /* The total number of color attachments bounded to the render pass                 */
+            AttachmentInfo* m_AttachmentTypes;                  /* Types of attachments for the framebuffer that will be used by the render pass    */
         };
     }
 }

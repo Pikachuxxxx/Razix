@@ -1,0 +1,82 @@
+{
+    "Razix Scene": {
+        "SceneName": "shadows"
+    },
+    "value0": 1,
+    "value1": 0,
+    "value2": 1,
+    "value3": 0,
+    "value4": {
+        "UUID": "155f4917-2959-4b28-aac9-5eb3e08c42ad"
+    },
+    "value5": 1,
+    "value6": 0,
+    "value7": {
+        "Tag": "Camera"
+    },
+    "value8": 0,
+    "value9": 1,
+    "value10": 0,
+    "value11": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value12": 1,
+    "value13": 0,
+    "value14": {
+        "isPrimary": true,
+        "Camera": {
+            "Position": {
+                "x": -28.821510314941408,
+                "y": 30.183271408081056,
+                "z": 24.032472610473634
+            },
+            "Front": {
+                "x": 0.5238701105117798,
+                "y": -0.6977904438972473,
+                "z": -0.48851677775382998
+            },
+            "Up": {
+                "x": 0.5103316307067871,
+                "y": 0.7163019776344299,
+                "z": -0.47589194774627688
+            },
+            "Right": {
+                "x": 0.6819983720779419,
+                "y": -0.0,
+                "z": 0.7313537001609802
+            },
+            "WorldUp": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Yaw": -43.0,
+            "Pitch": -44.25,
+            "Zoom": 45.0,
+            "MovementSpeed": 0.02500000037252903,
+            "MouseSensitivity": 0.25,
+            "ProjectionType": 0,
+            "PerspectiveFOV": 0.7853981852531433,
+            "PerspectiveNearClip": 0.10000000149011612,
+            "PerspectiveFarClip": 100.0,
+            "OrthographicSize": 10.0,
+            "OrthographicNearClip": -1.0,
+            "OrthographicFarClip": 1.0,
+            "AspectRatio": 1.7777777910232545
+        }
+    }
+}

@@ -45,6 +45,8 @@ namespace Razix {
 
             RAZIX_FORCE_INLINE static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
 
+            RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer) { return s_APIInstance->SetDepthBiasImpl(cmdBuffer); }
+
         protected:
             virtual void InitAPIImpl() = 0;
             virtual void BeginAPIImpl() = 0;
@@ -58,6 +60,8 @@ namespace Razix {
             virtual void OnResizeAPIImpl(uint32_t width, uint32_t height) = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
+
+            virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer) = 0;
         protected:
             static RZAPIRenderer*   s_APIInstance;
 

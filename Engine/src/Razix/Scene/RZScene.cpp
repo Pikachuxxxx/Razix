@@ -48,10 +48,14 @@ namespace Razix {
     void RZScene::SerialiseScene(const std::string& filePath)
     {
         std::string fullFilePath;
-        RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);
+        bool nope = RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);
         RAZIX_CORE_WARN("Saving scene to - {0} ({1})", filePath, fullFilePath);
 
-        // TODO: Create the scene file if it doesn't exist!
+        if (!nope) {
+            std::string path = "//Scenes/";
+            bool nope = RZVirtualFileSystem::Get().resolvePhysicalPath(path, fullFilePath, true);
+            fullFilePath += (m_SceneName + std::string(".rzscn"));
+        }
 
         std::ofstream opAppStream(fullFilePath);
         cereal::JSONOutputArchive defArchive(opAppStream);

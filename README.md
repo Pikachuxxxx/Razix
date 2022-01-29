@@ -17,7 +17,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
 - 3D audio using OpenAL.
 - Rendering 3D models with deferred PBR shading.
-- Editor GUI using SonyWWS ATF.
+- Editor using Dear ImGui.
 - Multi Physics engine support.
 - 3D physics using PhysX, Bullet and Havok.
 - 2D physic using Box2D.

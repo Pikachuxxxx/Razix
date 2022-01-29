@@ -11,7 +11,11 @@
 
 #include <cereal/archives/json.hpp>
 
+#include <entt.hpp>
+
+// TODO: Move this to utilities + Make them look pretty
 namespace glm {
+    // glm vectors
     template<class Archive> void serialize(Archive& archive, glm::vec2& v) { archive(v.x, v.y); }
     template<class Archive> void serialize(Archive& archive, glm::vec3& v) { archive(cereal::make_nvp("x", v.x), cereal::make_nvp("y", v.y), cereal::make_nvp("z", v.z)); }
     template<class Archive> void serialize(Archive& archive, glm::vec4& v) { archive(v.x, v.y, v.z, v.w); }
@@ -32,14 +36,12 @@ namespace glm {
     template<class Archive> void serialize(Archive& archive, glm::mat4& m) { archive(m[0], m[1], m[2], m[3]); }
     template<class Archive> void serialize(Archive& archive, glm::dmat4& m) { archive(m[0], m[1], m[2], m[3]); }
 
+    // glm quats
     template<class Archive> void serialize(Archive& archive, glm::quat& q) { archive(q.x, q.y, q.z, q.w); }
     template<class Archive> void serialize(Archive& archive, glm::dquat& q) { archive(q.x, q.y, q.z, q.w); }
 }
 
 namespace Razix {
-
-    // TODO: Add serialization
-
     /**
      * Components are various classes that are added to the entities to provide functionality in a decoupled way
      * They have no info about entities at all
@@ -50,6 +52,7 @@ namespace Razix {
      */
     struct IDComponent
     {
+        /* Used to uniquely identify the entity */
         RZUUID UUID;
 
         IDComponent() = default;
@@ -70,8 +73,12 @@ namespace Razix {
         }
     };
 
+    /**
+     * A Tag components allows an entity to have a name
+     */
     struct TagComponent
     {
+        /* Name of the entity */
         std::string Tag;
 
         TagComponent() = default;
@@ -86,6 +93,29 @@ namespace Razix {
         }
     };
 
+    /**
+     * Active component is used to tell whether the component is active or inactive in the scene
+     */
+    struct ActiveComponent
+    {
+        bool Active = true;
+
+        ActiveComponent()
+            : Active(true) { }
+        ActiveComponent(bool act)
+            : Active(act) { }
+        ActiveComponent(const ActiveComponent&) = default;
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("isActive", Active));
+        }
+    };
+
+    /**
+     * A transform components represents the transformation of the entity in the game world
+     */
     struct TransformComponent
     {
         glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
@@ -95,8 +125,9 @@ namespace Razix {
         TransformComponent() = default;
         TransformComponent(const TransformComponent&) = default;
         TransformComponent(const glm::vec3& translation)
-            : Translation(translation) {}
+            : Translation(translation) { }
 
+        /* Gets the transformation matrix */
         glm::mat4 GetTransform() const
         {
             glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
@@ -113,6 +144,9 @@ namespace Razix {
         }
     };
 
+    /**
+     * The camera component is attaches a camera to the entity that can be used to view the world from
+     */
     struct CameraComponent
     {
         RZSceneCamera Camera;
@@ -129,29 +163,34 @@ namespace Razix {
         }
     };
 
-    struct ActiveComponent
+    /**
+     * Establishes a hierarchical relationship between the entities in a scene
+     */
+    // TODO: WIP
+    struct HierarchyComponent
     {
-        bool Active = true;
+        entt::entity Parent = entt::null;
+        entt::entity Root = entt::null;
+        entt::entity Next = entt::null;
+        entt::entity Prev = entt::null;
 
-        ActiveComponent()
+        HierarchyComponent(entt::entity p)
+            : Parent(p)
         {
-            Active = true;
+            Root = entt::null;
+            Next = entt::null;
+            Prev = entt::null;
         }
+        HierarchyComponent(const HierarchyComponent&) = default;
 
-        ActiveComponent(bool act)
-        {
-            Active = act;
-        }
-
-        ActiveComponent(const ActiveComponent&) = default;
-
-        template<class Archive>
+        template <typename Archive>
         void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp("isActive", Active));
+            archive(cereal::make_nvp("Root", Root), cereal::make_nvp("Next", Next), cereal::make_nvp("Previous", Prev), cereal::make_nvp("Parent", Parent));
         }
     };
 
     // List of all components that razix implements that is used while serialization
-#define RAZIX_COMPONENTS IDComponent, TagComponent, TransformComponent, CameraComponent, ActiveComponent
+    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent
+
 }
