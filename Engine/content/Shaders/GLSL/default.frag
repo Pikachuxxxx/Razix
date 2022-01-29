@@ -12,8 +12,9 @@
  // Vertex Input
  layout(location = 0) in VSOutput
  {
-     vec3 fragColor;
+     vec4 fragColor;
      vec2 fragTexCoord;
+     vec3 fragNormal;
  }fs_in;
 
  //------------------------------------------------------------------------------
@@ -26,7 +27,7 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-    outColor = vec4(fs_in.fragColor, 1.0f);
+    outColor = vec4(fs_in.fragColor);
     //if(gl_FragCoord.x < 400)
     //    outColor = texture(texSampler, fs_in.fragTexCoord);
     //else

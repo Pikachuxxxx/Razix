@@ -11,8 +11,9 @@
 //------------------------------------------------------------------------------
 // Vertex Input
 layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec3 inColor;
+layout(location = 1) in vec4 inColor;
 layout(location = 2) in vec2 inTexCoord;
+layout(location = 3) in vec3 inNormal;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
 // Thew view projection matrix
@@ -30,8 +31,9 @@ layout (push_constant) uniform ModelPushConstantData{
 // Vertex Shader Stage Output
 layout(location = 0) out VSOutput
 {
-    vec3 fragColor;
-    vec2 fragTexCoord;
+     vec4 fragColor;
+     vec2 fragTexCoord;
+     vec3 fragNormal;
 }vs_out;
 
 out gl_PerVertex
@@ -47,5 +49,6 @@ void main()
     // Out from vertex shader
     vs_out.fragColor     = inColor;
 	vs_out.fragTexCoord  = inTexCoord;
+    vs_out.fragNormal  = inNormal;
 }
 //------------------------------------------------------------------------------
