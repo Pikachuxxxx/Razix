@@ -64,7 +64,19 @@ namespace Razix {
             m_Scene->m_Registry.remove<T>(m_Entity);
         }
 
-        // TODO: Add active component to check if the entity is active or not in the editor/world/runtime etc.
+        //bool IsActive()
+        //{
+        //    if (HasComponent<ActiveComponent>())
+        //        return m_Scene->m_Registry.get<ActiveComponent>(m_Entity).Active;
+        //
+        //    return true;
+        //}
+
+        //void SetActive(bool isActive)
+        //{
+        //    GetOrAddComponent<ActiveComponent>().Active = isActive;
+        //}
+
         // TODO: Add Hierarchy model
         // TODO: Add operator overloads and getter/setters
 

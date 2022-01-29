@@ -21,7 +21,8 @@ namespace Razix {
             uint32_t                msaaLevel;              /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
             bool                    screenFBO   = false;    /* Is this a final screen FBO or a render target pass                                   */
             RZTexture**             attachments;            /* Pointer to all the attachments of the framebuffer                                    */
-            RZTexture::Type*        attachmentTypes;        /* The types of the attachments                                                         */
+            // TODO: resolve this from the render pass that is provided
+            //RZTexture::Type*        attachmentTypes;        /* The types of the attachments                                                         */
             Graphics::RZRenderPass* renderPass;             /* The render passes that will performed on the contents of the framebuffer             */
         };
 

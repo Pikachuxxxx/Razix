@@ -69,7 +69,9 @@ project "Sandbox"
        "imgui",
        "spdlog",
        "SPIRVReflect",
-        "SPIRVCross"
+       "SPIRVCross",
+       "meshoptimizer",
+       "OpenFBX"
    }
 
    defines
