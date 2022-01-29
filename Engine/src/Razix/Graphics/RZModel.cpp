@@ -13,6 +13,12 @@ namespace Razix {
              loadModel(m_FilePath);
         }
 
+        void RZModel::Destroy()
+        {
+            for (auto& mesh : m_Meshes)
+                mesh->Destroy();
+        }
+
         void RZModel::loadModel(const std::string& path)
         {
             std::string physicalPath;

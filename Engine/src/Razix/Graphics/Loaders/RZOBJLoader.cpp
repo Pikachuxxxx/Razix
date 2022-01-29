@@ -94,12 +94,13 @@ namespace Razix {
                 layout.push<glm::vec4>("Color");
                 layout.push<glm::vec2>("TexCoords");
                 layout.push<glm::vec3>("Normal");
-                layout.push<glm::vec3>("Tangent");
+                //layout.push<glm::vec3>("Tangent");
                 vb->AddBufferLayout(layout);
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(indices, numIndices);
 
-                RZMesh* mesh = new RZMesh(vb, ib);
+                RZMesh* mesh = new RZMesh(vb, ib, numVertices, numIndices);
+                mesh->setIndexCount(numIndices);
                 m_Meshes.push_back(mesh);
 
                 delete[] vertices;

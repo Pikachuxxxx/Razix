@@ -12,13 +12,15 @@ namespace Razix {
          * Note: Only loads OBJ, GLTF and FBX files
          * Collada and other format support will be added later
          */
-        class RZModel
+        class RAZIX_API RZModel
         {
         public:
             RZModel() = default;
             RZModel(const std::string & filePath);
 
             ~RZModel() = default;
+
+            void Destroy();
 
             template <typename Archive>
             void load(Archive& archive)
