@@ -74,7 +74,6 @@ namespace Razix
 
             var batch = new CompositionBatch();
             batch.AddPart(mainForm);
-            //batch.AddPart(new WebHelpCommands("https://github.com/SonyWWS/ATF/wiki/ATF-Code-Editor-Sample".Localize()));
             container.Compose(batch);
 
             // To make the tab commands (e.g., "Copy Full Path", "Open Containing Folder") available, we have to change

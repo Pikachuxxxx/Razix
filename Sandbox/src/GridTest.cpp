@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include <Razix.h>
@@ -367,3 +368,4 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new GridTest();
 }
+#endif

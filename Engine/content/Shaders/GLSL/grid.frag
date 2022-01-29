@@ -1,6 +1,6 @@
 /*
  * Razix Engine Shader File
- * Shader that can be used to render a grid, can be used in Editor and for visualization
+ * Shader that can be used to render a grid, can be used in Editor and for visualization with a texture
  */
  #version 450
  // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders

@@ -16,9 +16,10 @@ namespace Razix {
             m_AttachmentCount   = frameBufInfo.attachmentCount;
 
             std::vector<VkImageView> attachments;
+            AttachmentInfo* attachmentTypes = frameBufInfo.renderPass->getAttachmentTypes();
             for (uint32_t i = 0; i < m_AttachmentCount; i++) {
 
-                switch (frameBufInfo.attachmentTypes[i]) {
+                switch (attachmentTypes[i].type) {
                     case RZTexture::Type::COLOR:
                         attachments.push_back(static_cast<VKTexture2D*>(frameBufInfo.attachments[i])->getImageView());
                         break;
