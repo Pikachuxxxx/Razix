@@ -230,11 +230,11 @@ private:
         // Create the render targets as the same size of the resize cause it's fookin less code
         offscreenRT = Graphics::RZRenderTexture::Create(width, height, Graphics::RZTexture::Format::RGBA);
 
-        float vertices[8 * 4] = {
-           -2.5f, 0.0f, -2.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            2.5f, 0.0f, -2.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-            2.5f, 0.0f,  2.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-           -2.5f, 0.0f,  2.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
+        float vertices[12 * 4] = {
+           -2.5f, 0.0f, -2.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            2.5f, 0.0f, -2.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            2.5f, 0.0f,  2.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+           -2.5f, 0.0f,  2.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f
         };
 
         float quad_vertices[5 * 4] = {
@@ -250,10 +250,12 @@ private:
 
         // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
         bufferLayout.push<glm::vec3>("Position");
-        bufferLayout.push<glm::vec3>("Color");
+        bufferLayout.push<glm::vec4>("Color");
         bufferLayout.push<glm::vec2>("TexCoord");
+        bufferLayout.push<glm::vec3>("Normals");
 
-        triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 8 * 4, vertices, Graphics::BufferUsage::STATIC);
+
+        triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 12 * 4, vertices, Graphics::BufferUsage::STATIC);
         triVBO->AddBufferLayout(bufferLayout);
         triIBO = Graphics::RZIndexBuffer::Create(indices, 6, Graphics::BufferUsage::STATIC);
 

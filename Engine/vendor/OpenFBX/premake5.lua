@@ -4,7 +4,7 @@ project "OpenFBX"
 	cppdialect "C++17"
 	staticruntime "off"
 
-    files { "*.h", "*.cpp" }
+    files { "*.h", "*.cpp", "*.c" }
 
     filter "configurations:Debug"
         runtime "Debug"
