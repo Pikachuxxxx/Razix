@@ -9,7 +9,7 @@ IncludeDir["stb"]           = "../Engine/vendor/stb/"
 IncludeDir["glm"]           = "../Engine/vendor/glm/"
 IncludeDir["SPIRVReflect"]  = "../Engine/vendor/SPIRVReflect/"
 IncludeDir["SPIRVCross"]    = "../Engine/vendor/SPIRVCross/include"
-IncludeDir["entt"]    = "../Engine/vendor/entt/include"
+IncludeDir["entt"]          = "../Engine/vendor/entt/include"
 IncludeDir["Razix"]         = "../Engine/src"
 IncludeDir["vendor"]        = "../Engine/vendor/"
 
@@ -64,19 +64,12 @@ project "Sandbox"
    -- Razix Application linkage libraries
    links
    {
-       "Razix", -- Razix DLL
-       "glfw",
-       "imgui",
-       "spdlog",
-       "SPIRVReflect",
-       "SPIRVCross",
-       "meshoptimizer",
-       "OpenFBX"
+       "Razix" -- Razix DLL
    }
 
    defines
    {
-       "SPDLOG_COMPILED_LIB"
+       --"SPDLOG_COMPILED_LIB"
    }
 
    -- Disable warning for vendor
@@ -108,11 +101,6 @@ project "Sandbox"
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
-        }
-
-        links
-        {
-            "OpenGL32"
         }
 
         disablewarnings { 4307 }

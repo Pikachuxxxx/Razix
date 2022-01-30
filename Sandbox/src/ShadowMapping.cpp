@@ -6,8 +6,6 @@ using namespace Razix;
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-// TODO: cleanup/destroy descriptor sets created again for with depth map texture attachment for the second pass
-
 class Sandbox : public Razix::RZApplication
 {
 private:
@@ -61,6 +59,8 @@ public:
 
             // Load resources
             armadilloModel = new Graphics::RZModel("//Meshes/armadillo.obj");
+            teapotModel = new Graphics::RZModel("//Meshes/teapot.fbx");
+            avacadoModel = new Graphics::RZModel("//Meshes/Avocado.gltf");
             //sphereMesh = Graphics::CreatePrimitive(Graphics::MeshPrimitive::Sphere);
         }
     }
@@ -106,7 +106,7 @@ public:
                 //quadIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 //Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
 
-                auto meshes = armadilloModel->getMeshes();
+                auto meshes = avacadoModel->getMeshes();
 
                 for (auto mesh : meshes)
                 {
@@ -162,6 +162,8 @@ public:
         m_ActiveScene.SerialiseScene("//Scenes/shadows.rzscn");
 
         armadilloModel->Destroy();
+        teapotModel->Destroy();
+        avacadoModel->Destroy();
 
         // Delete the textures
         testTexture->Release();
@@ -236,8 +238,10 @@ private:
     RZScene                                                                     m_ActiveScene;
 
     Graphics::RZModel*                                                          armadilloModel;
+    Graphics::RZModel*                                                          teapotModel;
+    Graphics::RZModel*                                                          avacadoModel;
 
-    Graphics::RZMesh*                                                           sphereMesh;
+    //Graphics::RZMesh*                                                           sphereMesh;
 
 private:
     void buildPipelineResources()

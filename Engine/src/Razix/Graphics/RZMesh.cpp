@@ -32,6 +32,9 @@ namespace Razix {
             size_t indexCount = indices.size();
             size_t target_index_count = size_t(indices.size() * optimiseThreshold);
 
+            m_IndexCount = indices.size();
+            m_VertexCount = vertices.size();
+
             float target_error = 1e-3f;
             float* resultError = nullptr;
 
@@ -56,7 +59,7 @@ namespace Razix {
             layout.push<glm::vec4>("Color");
             layout.push<glm::vec2>("TexCoords");
             layout.push<glm::vec3>("Normal");
-            layout.push<glm::vec3>("Tangent");
+            //layout.push<glm::vec3>("Tangent");
             m_VertexBuffer->AddBufferLayout(layout);
         }
 
