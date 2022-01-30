@@ -49,6 +49,7 @@ namespace Razix {
             RZMesh();
             /* Copy constructor for Razix Mesh */
             RZMesh(const RZMesh& mesh);
+            // TODO: Remove the last 2 arguments
             /**
              * Creates mesh with the given Razix vertex and Index buffer
              * 

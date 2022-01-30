@@ -293,9 +293,9 @@ namespace Razix {
                 // Create Push constants and store info about it
                 for (uint32_t i = 0; i < push_constants_count; i++) {
                     SpvReflectBlockVariable* pushConstant = pp_push_constant_blocks[i];
-                    std::cout << "Name      : " << pushConstant->name << std::endl;
-                    std::cout << "Size      : " << pushConstant->size << std::endl;
-                    std::cout << "Offset    : " << pushConstant->offset << std::endl;
+                    //std::cout << "Name      : " << pushConstant->name << std::endl;
+                    //std::cout << "Size      : " << pushConstant->size << std::endl;
+                    //std::cout << "Offset    : " << pushConstant->offset << std::endl;
 
                     m_PushConstants.push_back(RZPushConstant(pushConstant->name, spvSource.first, nullptr, pushConstant->size, pushConstant->offset));
                 }
