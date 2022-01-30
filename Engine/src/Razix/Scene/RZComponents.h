@@ -50,7 +50,7 @@ namespace Razix {
     /**
      * An ID component contains an UUID that helps us to identify the entity uniquely in a scene
      */
-    struct IDComponent
+    struct RAZIX_API IDComponent
     {
         /* Used to uniquely identify the entity */
         RZUUID UUID;
@@ -76,7 +76,7 @@ namespace Razix {
     /**
      * A Tag components allows an entity to have a name
      */
-    struct TagComponent
+    struct RAZIX_API TagComponent
     {
         /* Name of the entity */
         std::string Tag;
@@ -96,7 +96,7 @@ namespace Razix {
     /**
      * Active component is used to tell whether the component is active or inactive in the scene
      */
-    struct ActiveComponent
+    struct RAZIX_API ActiveComponent
     {
         bool Active = true;
 
@@ -116,7 +116,7 @@ namespace Razix {
     /**
      * A transform components represents the transformation of the entity in the game world
      */
-    struct TransformComponent
+    struct RAZIX_API TransformComponent
     {
         glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
         glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
@@ -147,7 +147,7 @@ namespace Razix {
     /**
      * The camera component is attaches a camera to the entity that can be used to view the world from
      */
-    struct CameraComponent
+    struct RAZIX_API CameraComponent
     {
         RZSceneCamera Camera;
         bool Primary = true; // TODO: think about moving to Scene
@@ -167,7 +167,7 @@ namespace Razix {
      * Establishes a hierarchical relationship between the entities in a scene
      */
     // TODO: WIP
-    struct HierarchyComponent
+    struct RAZIX_API HierarchyComponent
     {
         entt::entity Parent = entt::null;
         entt::entity Root = entt::null;

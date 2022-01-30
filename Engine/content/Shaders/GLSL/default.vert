@@ -47,8 +47,8 @@ void main()
     gl_Position = view_proj_ubo.proj * view_proj_ubo.view * model_pc_data.model * vec4(inPosition, 1.0);//vec4(inPosition, 1.0);//view_proj_ubo.proj * view_proj_ubo.view *//
 
     // Out from vertex shader
-    vs_out.fragColor     = inColor;
-	vs_out.fragTexCoord  = inTexCoord;
-    vs_out.fragNormal  = inNormal;
+    vs_out.fragColor    = inColor;
+	vs_out.fragTexCoord = inTexCoord;
+    vs_out.fragNormal   = inNormal;
 }
 //------------------------------------------------------------------------------
