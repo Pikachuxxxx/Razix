@@ -20,7 +20,7 @@
 layout(set = 0, binding = 0) uniform sampler2D texSampler;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 
 float LinearizeDepth(float depth)
@@ -33,14 +33,10 @@ float LinearizeDepth(float depth)
 
 void main()
 {
-    //if(gl_FragCoord.x < 400)
-    //    outColor = texture(texSampler, fs_in.fragTexCoord);
-    //else
-    //    outColor = texture(texSampler2, fs_in.fragTexCoord);
+    //outFragColor = texture(texSampler, fs_in.fragTexCoord);
 
+    // Visualizing the depth texture
     float depth = texture(texSampler, fs_in.fragTexCoord).r;
-	outColor = vec4(vec3(1.0-LinearizeDepth(depth)), 1.0);
-    //outColor = vec4(vec3(depth), 1.0);
-
+	outFragColor = vec4(vec3(1.0-LinearizeDepth(depth)), 1.0);
 }
 //------------------------------------------------------------------------------

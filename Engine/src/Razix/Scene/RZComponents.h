@@ -1,7 +1,12 @@
 #pragma once
 
 #include "Razix/Core/RZUUID.h"
+
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
+
 #include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Scene/RZComponents.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -147,7 +152,7 @@ namespace Razix {
     /**
      * The camera component is attaches a camera to the entity that can be used to view the world from
      */
-    struct RAZIX_API CameraComponent
+    struct CameraComponent
     {
         RZSceneCamera Camera;
         bool Primary = true; // TODO: think about moving to Scene
@@ -190,7 +195,56 @@ namespace Razix {
         }
     };
 
+    //-----------------------------------------------------------------------------------------------------
+    // Engine components
+    
+    // TODO: Move camera controller under here
+
+    /**
+     * Mesh renderer component references a mesh that will taken by the render to render a mesh on the 3D scene
+     * It holds the reference to a 3D model or a primitive mesh to be rendered, so if a model is instantiated as
+     * a Entity in the scene, each of it's children(which are also entities) will have a mesh renderer component
+     *  will be instantiated as entities in the scene with a Hierarchy, Transform,Tag, Active and default components
+     * attached to them, these all meshes are taken at once by the Renderer and rendered to the scene, any additional
+     *  information required to rendered can be inferred as needed
+     */
+    struct RAZIX_API MeshRendererComponent
+    {
+        Graphics::RZMesh* Mesh;
+
+        MeshRendererComponent()
+            : Mesh(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Cube)) {}
+        MeshRendererComponent(Graphics::MeshPrimitive primitive)
+            : Mesh(Graphics::MeshFactory::CreatePrimitive(primitive)) {}
+        MeshRendererComponent(Graphics::RZMesh* mesh)
+            : Mesh(mesh) { }
+        MeshRendererComponent(const MeshRendererComponent&) = default;
+        
+        //template <typename Archive>
+        //void serialize(Archive& archive)
+        //{
+        //    //archive(cereal::make_nvp("MeshRendererComponent", *Mesh));
+        //}
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            if (Mesh) {
+                std::string meshName;
+                archive(cereal::make_nvp("MeshName", meshName));
+                Mesh->setName(meshName);
+            }
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            if(Mesh)
+                archive(cereal::make_nvp("MeshName", Mesh->getName()));
+        }
+    };
+
     // List of all components that razix implements that is used while serialization
-    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent
+    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, MeshRendererComponent
 
 }

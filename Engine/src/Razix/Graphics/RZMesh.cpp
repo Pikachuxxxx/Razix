@@ -7,22 +7,13 @@ namespace Razix {
     namespace Graphics {
 
         RZMesh::RZMesh()
-            : m_VertexBuffer(nullptr), m_IndexBuffer(nullptr), m_Indices(), m_Vertices()
-        {
-
-        }
+            : m_VertexBuffer(nullptr), m_IndexBuffer(nullptr), m_Indices(), m_Vertices() { }
 
         RZMesh::RZMesh(const RZMesh& mesh)
-            : m_VertexBuffer(mesh.m_VertexBuffer), m_IndexBuffer(mesh.m_IndexBuffer), m_Indices(mesh.m_Indices), m_Vertices(mesh.m_Vertices)
-        {
-
-        }
+            : m_VertexBuffer(mesh.m_VertexBuffer), m_IndexBuffer(mesh.m_IndexBuffer), m_Indices(mesh.m_Indices), m_Vertices(mesh.m_Vertices) { }
 
         RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, uint32_t vtxcount, uint32_t idxcount)
-            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
-        {
-
-        }
+            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount) { }
 
         RZMesh::RZMesh(const std::vector<uint32_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold /*= 1.0f*/)
         {
@@ -68,6 +59,5 @@ namespace Razix {
             m_VertexBuffer->Destroy();
             m_IndexBuffer->Destroy();
         }
-
     }
 }

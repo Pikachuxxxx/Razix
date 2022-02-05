@@ -29,7 +29,7 @@ layout(set = 0, binding = 1) uniform GridUniform
 
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // Constants and defines
 const float step = 100.0f;
@@ -58,9 +58,9 @@ void main()
 
 	float decreaseDistance = grid_ubo.MaxDistance * 1.5;
 
-	outColor = Grid(divs) + Grid(divs / subdivisions);
-	outColor.a *= clamp((decreaseDistance - distanceToCamera) / decreaseDistance, 0.0f, 1.0f);
+	outFragColor = Grid(divs) + Grid(divs / subdivisions);
+	outFragColor.a *= clamp((decreaseDistance - distanceToCamera) / decreaseDistance, 0.0f, 1.0f);
 
-	//outColor = vec4(1.0, 0.0, 0.0, 1.0);
+	//outFragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
 //------------------------------------------------------------------------------

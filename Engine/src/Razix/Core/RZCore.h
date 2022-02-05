@@ -89,7 +89,7 @@
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&RZApplication::x, this, std::placeholders::_1)
 
 // right bit shift (useful for converting integer based color to hex)
-#define BIT(x) (1 << x) 
+#define RZ_BIT_SHIFT(x) (1 << x) 
 
 // Convert hex to character
 #define HEX2CHR(m_hex) ((m_hex >= '0' && m_hex <= '9') ? (m_hex - '0') : ((m_hex >= 'A' && m_hex <= 'F') ? (10 + m_hex - 'A') : ((m_hex >= 'a' && m_hex <= 'f') ? (10 + m_hex - 'a') : 0)))
@@ -133,28 +133,30 @@
 // Functions Calling Conventions for Razix Engine depending on the OS and compiler configuration
 // On Windows we use __cdecl by default however __stdcall might be necessary for interop API with Razix Engine and C#
 // TODO: Use build system macros to choose the function calling convention, also check with compilers and versions before choosing the appropriate function calling convention
-
 #define RAZIX_CALLEE
 #define RAZIX_CALLER
-
 #undef RAZIX_CALLEE
-
 #ifdef RAZIX_CALLEE
     #define RAZIX_CALLING_CONVENTION __stdcall
 #endif 
-
 #ifdef RAZIX_CALLER 
     #define RAZIX_CALLING_CONVENTION __cdecl
 #endif
-
 #define RAZIX_CALL RAZIX_CALLING_CONVENTION
 
+// Inline macros
 #define RAZIX_INLINE inline 
 #define RAZIX_FORCE_INLINE __forceinline
 
+#ifdef RAZIX_DISTRIBUTION
+    #define RAZIX_INLINE RAZIX_FORCE_INLINE
+#endif
+
+// Release for API convention consistency
 #define RAZIX_RELEASE( x )		    { if ( x ) { (x)->Release(); }; }
 #define RAZIX_SAFE_RELEASE( x )		{ if ( x ) { (x)->Release(); }; x = nullptr; }
 
+// Warning push/pop as per compiler convention
 #define RAZIX_WARNING_PUSH() __pragma( warning( push ) )
 #define RAZIX_WARNING_POP()	__pragma( warning( pop ) )
 //#define RAZIX_WARNING_DISABLE( x )  #pragma warning( disable : x) 
