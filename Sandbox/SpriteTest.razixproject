@@ -1,11 +1,11 @@
 {
     "Razix Application": {
-        "Project Name": "Shadow Mapping",
+        "Project Name": "SpriteTest",
         "Engine Version": "0.20.1",
-        "Project ID": "a427670d-bd3b-4934-b8d7-efa799f943f2",
+        "Project ID": "972918ed-a50c-4c18-9708-57b1721b21ce",
         "Render API": 1,
-        "Width": 1216,
-        "Height": 715,
+        "Width": 1280,
+        "Height": 720,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/"
     }
 }

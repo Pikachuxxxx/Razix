@@ -113,7 +113,7 @@ workspace ( settings.workspace_name )
             include "Tools/Building/RazixVersion/premake5"
     group ""
 
-    -- Engine related tools
+    -- Razix Engine Samples and Tests
     --------------------------------------------------------------------------------
     -- TODO: Tests (recrusively projects are added)
     -- TODO: Samples

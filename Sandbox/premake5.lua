@@ -62,9 +62,17 @@ project "Sandbox"
     }
 
    -- Razix Application linkage libraries
+          -- vendors (Tf am I linking these)
    links
    {
-       "Razix" -- Razix DLL
+       "Razix", -- Razix DLL
+        "glfw",
+        "imgui",
+        "spdlog",
+        "SPIRVReflect",
+        "SPIRVCross",
+        "meshoptimizer",
+        "OpenFBX"
    }
 
    defines

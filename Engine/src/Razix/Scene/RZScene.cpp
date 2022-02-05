@@ -77,5 +77,4 @@ namespace Razix {
         //inputArchive(*this);
         entt::snapshot_loader{ m_Registry }.entities(inputArchive).component<RAZIX_COMPONENTS>(inputArchive);
     }
-
 }
