@@ -1,4 +1,4 @@
-#if 1
+#if 0
 
 #include <Razix.h>
 
@@ -61,7 +61,8 @@ public:
             armadilloModel = new Graphics::RZModel("//Meshes/armadillo.obj");
             teapotModel = new Graphics::RZModel("//Meshes/teapot.fbx");
             avacadoModel = new Graphics::RZModel("//Meshes/Avocado.gltf");
-            //sphereMesh = Graphics::CreatePrimitive(Graphics::MeshPrimitive::Sphere);
+            
+            sphereMesh = Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Sphere);
         }
     }
 
@@ -106,8 +107,8 @@ public:
                 //quadIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 //Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
 
-                auto meshes = avacadoModel->getMeshes();
-
+                // Draw a loaded 3D model
+                auto meshes = armadilloModel->getMeshes();
                 for (auto mesh : meshes)
                 {
                     mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -115,6 +116,12 @@ public:
 
                     Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
                 }
+
+                // Draw a sphere
+                //sphereMesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                //sphereMesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                //
+                //Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sphereMesh->getIndexCount());
 
                 offscreen_renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
@@ -161,6 +168,7 @@ public:
 
         m_ActiveScene.SerialiseScene("//Scenes/shadows.rzscn");
 
+        sphereMesh->Destroy();
         armadilloModel->Destroy();
         teapotModel->Destroy();
         avacadoModel->Destroy();
@@ -241,7 +249,7 @@ private:
     Graphics::RZModel*                                                          teapotModel;
     Graphics::RZModel*                                                          avacadoModel;
 
-    //Graphics::RZMesh*                                                           sphereMesh;
+    Graphics::RZMesh*                                                           sphereMesh;
 
 private:
     void buildPipelineResources()
