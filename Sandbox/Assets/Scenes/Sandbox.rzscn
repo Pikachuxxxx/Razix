@@ -7,7 +7,7 @@
     "value2": 1,
     "value3": 0,
     "value4": {
-        "UUID": "9fc9be2e-b066-4fb5-a1ef-eaf8fe03978d"
+        "UUID": "d0d2b83e-2310-4c74-ae79-37dac9a2d766"
     },
     "value5": 1,
     "value6": 0,
@@ -76,7 +76,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.7777777910232545
+            "AspectRatio": 1.9188361167907715
         }
     },
     "value15": 0

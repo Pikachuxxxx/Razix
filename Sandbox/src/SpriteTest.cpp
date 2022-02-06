@@ -66,6 +66,10 @@ public:
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
+            // Update the sprite's color
+            razixLogoSprite->setColour(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+            razixLogoSprite->setRotation(sin(getTimer().GetElapsed()));
+
             Graphics::RZAPIRenderer::Begin();
             {
                 Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
@@ -95,8 +99,12 @@ public:
 
     void OnQuit() override
     {
-
         m_ActiveScene.SerialiseScene("//Scenes/Sandbox.rzscn");
+
+        razixLogoSprite->destroy();
+
+        destroyCommandPipeline();
+
         Graphics::RZAPIRenderer::Release();
     }
 
@@ -130,10 +138,13 @@ private:
     Graphics::Camera3D                                                          m_Camera;
     RZScene                                                                     m_ActiveScene;
 
+    Graphics::RZTexture2D*                                                      testTexture;
+
 private:
     void buildPipelineResources()
     {
-        razixLogoSprite = new Graphics::RZSprite(glm::vec2(0.2, 0.2), 20.0f, glm::vec2(2.0f, 2.0f), glm::vec4(0.254, 0.45, 0.78, 1.0f));
+        //testTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_256.png", "TextureAttachment1", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        razixLogoSprite = new Graphics::RZSprite(glm::vec2(0.2, 0.2), 20.0f, glm::vec2(200.0f, 200.0f), glm::vec4(0.254, 0.45, 0.78, 1.0f));
     }
 
     void buildCommandPipeline()
@@ -191,8 +202,6 @@ private:
     void destroyCommandPipeline()
     {
         depthImage->Release(true);
-
-        razixLogoSprite->destroy();
 
         for (auto OnframeBuf : framebuffers)
             OnframeBuf->Destroy();
