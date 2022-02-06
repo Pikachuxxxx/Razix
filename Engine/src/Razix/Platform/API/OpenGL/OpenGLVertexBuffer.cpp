@@ -52,11 +52,12 @@ namespace Razix {
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
         }
 
-        void OpenGLVertexBuffer::SetSubData(uint32_t size, const void* data, uint32_t offset)
+        void OpenGLVertexBuffer::SetData(uint32_t size, const void* dataoffset)
         {
             m_Size = size;
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-            GLCall(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
+            //GLCall(glBufferData(GL_ARRAY_BUFFER, size, data));
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void OpenGLVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout)
