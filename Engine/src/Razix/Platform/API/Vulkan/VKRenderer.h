@@ -36,6 +36,9 @@ namespace Razix {
 
             void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer) override;
 
+
+            void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets) override;
+
         private:
             VKContext* m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
             VkDescriptorSet m_DescriptorSetPool[16];

@@ -26,10 +26,9 @@ namespace Razix {
         RZSprite::RZSprite(RZTexture2D* texture, const glm::vec2& position, const float& rotation, const glm::vec2& scale)
             : m_Position(position), m_Rotation(rotation), m_Scale(scale), m_Color(glm::vec4(1.0f)), m_Texture(texture)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
             m_IsTextured = true;
             m_UVs = GetDefaultUVs();
-            m_TexturedSpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/textured_sprite.rzsf");
+            m_TexturedSpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite_textured.rzsf");
             
             // Create the vertex buffer and index buffer
             createBuffers();
@@ -45,11 +44,13 @@ namespace Razix {
             if(m_Texture != nullptr)
                 m_Texture->Release(true);
 
-            m_SpriteShader->Destroy();
-            //m_SpriteSheetShader->Destroy();
-            //m_TexturedSpriteShader->Destroy();
+            if(m_IsTextured)
+                m_TexturedSpriteShader->Destroy();
+            else
+                m_SpriteShader->Destroy();
 
-            if (m_TexturedSpriteDescriptorSets.size() > 0 && m_SpriteSheetDescriptorSets.size() > 0) {
+
+            if (m_TexturedSpriteDescriptorSets.size() > 0 && m_IsTextured) {
                 for (size_t i = 0; i < 3; i++) {
                     //m_SimpleSpriteDescriptorSets[i]->Destroy();
                     //m_SpriteSheetDescriptorSets[i]->Destroy();
@@ -83,22 +84,26 @@ namespace Razix {
             return results;
         }
 
-        void RZSprite::setSpriteSheet(RZTexture2D* texture, const glm::vec2& index, const glm::vec2& cellSize, const glm::vec2& spriteSize)
+        void RZSprite::setSpriteSheet(const glm::vec2& cellIndex, const glm::vec2& sheetDimension)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
             m_IsAnimated = true;
-            m_Texture = texture;
-            glm::vec2 min = { (index.x * cellSize.x) / texture->getWidth(), (index.y * cellSize.y) / texture->getHeight() };
-            glm::vec2 max = { ((index.x + spriteSize.x) * cellSize.x) / texture->getWidth(), ((index.y + spriteSize.y) * cellSize.y) / texture->getHeight() };
+            //glm::vec2 min = { (index.x * cellSize.x) / m_Texture->getWidth(), (index.y * cellSize.y) / m_Texture->getHeight() };
+            //glm::vec2 max = { ((index.x + spriteSize.x) * cellSize.x) / m_Texture->getWidth(), ((index.y + spriteSize.y) * cellSize.y) / m_Texture->getHeight() };
 
-            m_UVs = GetUVs(min, max);
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+            float x = (int)(cellIndex.x - 1) % (int) sheetDimension.x;
+            float y = -(cellIndex.y - 1) / (int) sheetDimension.x;
+            float frameWidth = m_Texture->getWidth() / sheetDimension.x;
+            float frameHeight = m_Texture->getHeight() / sheetDimension.y;
 
-            m_SpriteSheetShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite_sheet.rzsf");
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // Update the sets with the sprite sheet
-            updateDescriptorSets();
+            //m_UVs = GetUVs(min, max);
 
-            glm::mat4 view = glm::ortho(-RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getWidth(), -RZApplication::Get().getWindow()->getHeight(), RZApplication::Get().getWindow()->getHeight());
+            double x_range = (double) RZApplication::Get().getWindow()->getWidth();
+            double y_range = (double) RZApplication::Get().getWindow()->getHeight();
+
+            glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
             glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 
             // Update the vertex data
@@ -114,13 +119,26 @@ namespace Razix {
                 vertices[2].Color = m_Color;
                 vertices[3].Color = m_Color;
 
-                vertices[0].UV = m_UVs[0];
-                vertices[1].UV = m_UVs[1];
-                vertices[2].UV = m_UVs[2];
-                vertices[3].UV = m_UVs[3];
+                vertices[0].UV = glm::vec2((x * frameWidth) / m_Texture->getWidth(), (y * frameHeight) / m_Texture->getHeight());
+                vertices[1].UV = glm::vec2(((x + 1) * frameWidth) / m_Texture->getWidth(), (y	* frameHeight) / m_Texture->getHeight());
+                vertices[2].UV = glm::vec2(((x + 1) * frameWidth) / m_Texture->getWidth(), ((y + 1) * frameHeight) / m_Texture->getHeight());	
+                vertices[3].UV = glm::vec2((x * frameWidth) / m_Texture->getWidth(), ((y + 1) * frameHeight) / m_Texture->getHeight());
             }
-
             m_VBO->SetData(sizeof(RZVeretx2D) * 4, vertices.data());
+        }
+
+        RZShader* RZSprite::getShader()
+        {
+            if (m_IsTextured)
+                return m_TexturedSpriteShader;
+            else return m_SpriteShader;
+        }
+
+        RZDescriptorSet* RZSprite::getDescriptorSet(uint32_t index)
+        {
+            if (m_IsTextured)
+                return m_TexturedSpriteDescriptorSets[index];
+            else return nullptr;
         }
 
         void RZSprite::createBuffers()
@@ -203,15 +221,18 @@ namespace Razix {
         void RZSprite::updateDescriptorSets()
         {
             // TODO: Delete them only if they have been allocated not in a batched way as below
-            if (m_TexturedSpriteDescriptorSets.size() > 0 && m_SpriteSheetDescriptorSets.size() > 0) {
+            if (m_TexturedSpriteDescriptorSets.size() > 0) {
                 for (size_t i = 0; i < 3; i++) {
-                    m_SimpleSpriteDescriptorSets[i]->Destroy();
                     m_TexturedSpriteDescriptorSets[i]->Destroy();
-                    m_SpriteSheetDescriptorSets[i]->Destroy();
                 }
             }
+            //if (m_SpriteSheetDescriptorSets.size() > 0) {
+            //    for (size_t i = 0; i < 3; i++) {
+            //        m_SpriteSheetDescriptorSets[i]->Destroy();
+            //    }
+            //}
             m_TexturedSpriteDescriptorSets.clear();
-            m_SpriteSheetDescriptorSets.clear();
+            //m_SpriteSheetDescriptorSets.clear();
   
             // Create the descriptor sets for normal sprite
             if (m_IsTextured) {
@@ -229,21 +250,21 @@ namespace Razix {
                     }
                 }
             }
-            else if (m_IsAnimated) {
-                auto setInfos = m_SpriteSheetShader->getSetInfos();
-
-                for (size_t i = 0; i < 3; i++) {
-                    for (auto& setInfo : setInfos) {
-                        // Fill the descriptors with buffers and textures
-                        for (auto& descriptor : setInfo.descriptors) {
-                            if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
-                                descriptor.texture = m_Texture;
-                        }
-                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
-                        m_SpriteSheetDescriptorSets.push_back(descSet);
-                    }
-                }
-            }
+            //else if (m_IsAnimated) {
+            //    auto setInfos = m_SpriteSheetShader->getSetInfos();
+            //
+            //    for (size_t i = 0; i < 3; i++) {
+            //        for (auto& setInfo : setInfos) {
+            //            // Fill the descriptors with buffers and textures
+            //            for (auto& descriptor : setInfo.descriptors) {
+            //                if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+            //                    descriptor.texture = m_Texture;
+            //            }
+            //            auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+            //            m_SpriteSheetDescriptorSets.push_back(descSet);
+            //        }
+            //    }
+            //}
         }
     }
 }

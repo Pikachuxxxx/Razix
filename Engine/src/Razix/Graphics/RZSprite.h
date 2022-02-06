@@ -52,7 +52,7 @@ namespace Razix {
             /* Gets the UV values given the minimum and maximum dimensions/range, useful while generating sprite sheet UVs */
             static const std::array<glm::vec2, 4>& RZSprite::GetUVs(const glm::vec2& min, const glm::vec2& max);
 
-            void setSpriteSheet(RZTexture2D* texture, const glm::vec2& index, const glm::vec2& cellSize, const glm::vec2& spriteSize);
+            void setSpriteSheet(const glm::vec2& cellIndex, const glm::vec2& sheetDimension);
             
             RZTexture2D* getTexture() const { return m_Texture; }
             RAZIX_INLINE void setTexture(RZTexture2D* texture) { m_Texture = texture; }
@@ -67,10 +67,23 @@ namespace Razix {
             RAZIX_INLINE const std::array<glm::vec2, 4>& getUVs() const { return m_UVs; }
 
             // getter for shader, buffers and sets
-            RZShader* getSimpleShader() { return m_SpriteShader; }
             RZVertexBuffer* getVertexBuffer() { return m_VBO; }
             RZIndexBuffer* getIndexBuffer() { return m_IBO; }
-            RZDescriptorSet* getTexturedSpriteSet(uint32_t index) { return m_TexturedSpriteDescriptorSets[index]; }
+
+            RZShader* getShader();
+            RZDescriptorSet* getDescriptorSet(uint32_t index);
+
+            //template<class Archive>
+            //void load(Archive& archive)
+            //{
+            //   
+            //}
+            //
+            //template<class Archive>
+            //void save(Archive& archive) const
+            //{
+            //    archive(cereal::make_nvp("MeshName", Mesh->getName()));
+            //}
 
         private:
             RZTexture2D*                    m_Texture;
@@ -84,13 +97,12 @@ namespace Razix {
 
             RZShader*                       m_SpriteShader;
             RZShader*                       m_TexturedSpriteShader;
-            RZShader*                       m_SpriteSheetShader;
+            //RZShader*                       m_SpriteSheetShader;
 
             RZVertexBuffer*                 m_VBO;
             RZIndexBuffer*                  m_IBO;
-            std::vector<RZDescriptorSet*>   m_SimpleSpriteDescriptorSets;
             std::vector<RZDescriptorSet*>   m_TexturedSpriteDescriptorSets;
-            std::vector<RZDescriptorSet*>   m_SpriteSheetDescriptorSets;
+            //std::vector<RZDescriptorSet*>   m_SpriteSheetDescriptorSets;
 
         private:
             void createBuffers();

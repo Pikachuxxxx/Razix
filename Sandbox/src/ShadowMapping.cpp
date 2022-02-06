@@ -97,7 +97,7 @@ public:
 
                 offscreen_pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                Graphics::RZAPIRenderer::BindDescriptorSets(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), offscreen_descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                Graphics::RZAPIRenderer::BindDescriptorSets(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), offscreen_descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
                 // TODO: Fix this!
                 //auto shaderPushConstants = defaultShader->getPushConstants();
@@ -145,7 +145,7 @@ public:
             
                 quad_pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
             
-                Graphics::RZAPIRenderer::BindDescriptorSets(quad_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), quad_descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                Graphics::RZAPIRenderer::BindDescriptorSets(quad_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), quad_descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
             
                 quadVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 quadIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
