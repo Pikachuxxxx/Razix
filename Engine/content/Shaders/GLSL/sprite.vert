@@ -10,12 +10,11 @@
 
 //------------------------------------------------------------------------------
 // Vertex Input
-layout(location = 0) in vec2 inPosition;
+layout(location = 0) in vec4 inPosition;
 layout(location = 1) in vec4 inColor;
 layout(location = 2) in vec2 inTexCoord;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
-// The model push constant
 
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
@@ -33,7 +32,7 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = vec4(inPosition, 0.0f, 1.0);
+    gl_Position = vec4(inPosition);
 
     // Out from vertex shader
     vs_out.fragColor    = inColor;

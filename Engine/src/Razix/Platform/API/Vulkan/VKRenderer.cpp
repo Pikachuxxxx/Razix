@@ -85,6 +85,22 @@ namespace Razix {
             vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
         }
 
+        void VKRenderer::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)
+        {
+            uint32_t numDynamicDescriptorSets = 0;
+            uint32_t numDesciptorSets = 0;
+
+            for (uint32_t i = 0; i < totalSets; i++) {
+                auto set = descriptorSets[i];
+                if (set) {
+                    auto vkDescSet = static_cast<VKDescriptorSet*>(set);
+                    m_DescriptorSetPool[numDesciptorSets] = vkDescSet->getDescriptorSet();
+                    numDesciptorSets++;
+                }
+            }
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
+        }
+
         void VKRenderer::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RZEngine::Get().GetStatistics().NumDrawCalls++;
