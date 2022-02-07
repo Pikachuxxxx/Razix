@@ -66,6 +66,15 @@ public:
         else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
+            // Update the sprite's color
+            static int x = 1, y = 1;
+
+            razixLogoSprite->setColour(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+            razixLogoSprite->setSpriteSheet(glm::vec2(x, 1), glm::vec2(12, 1));
+            x++;
+            if (x >= 12)
+                x = 1;
+
             Graphics::RZAPIRenderer::Begin();
             {
                 Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
@@ -74,7 +83,8 @@ public:
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-               // Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                auto set = razixLogoSprite->getDescriptorSet(Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), &(set), 1);
 
                 razixLogoSprite->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 razixLogoSprite->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -95,8 +105,12 @@ public:
 
     void OnQuit() override
     {
+        m_ActiveScene.SerialiseScene("//Scenes/SpriteTest.rzscn");
 
-        m_ActiveScene.SerialiseScene("//Scenes/Sandbox.rzscn");
+        razixLogoSprite->destroy();
+
+        destroyCommandPipeline();
+
         Graphics::RZAPIRenderer::Release();
     }
 
@@ -130,10 +144,12 @@ private:
     Graphics::Camera3D                                                          m_Camera;
     RZScene                                                                     m_ActiveScene;
 
+    Graphics::RZTexture2D*                                                      testTexture;
 private:
     void buildPipelineResources()
     {
-        razixLogoSprite = new Graphics::RZSprite(glm::vec2(0.2, 0.2), 20.0f, glm::vec2(2.0f, 2.0f), glm::vec4(0.254, 0.45, 0.78, 1.0f));
+        testTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/piggy_spritesheet.png", "TextureAttachment1", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        razixLogoSprite = new Graphics::RZSprite(testTexture, glm::vec2(0.2, 0.2), 0.0f, glm::vec2(200.0f, 200.0f));
     }
 
     void buildCommandPipeline()
@@ -160,7 +176,7 @@ private:
         pipelineInfo.cullMode = Graphics::CullMode::NONE;
         pipelineInfo.drawType = Graphics::DrawType::TRIANGLE;
         pipelineInfo.renderpass = renderpass;
-        pipelineInfo.shader = razixLogoSprite->getSimpleShader();
+        pipelineInfo.shader = razixLogoSprite->getShader();
         pipelineInfo.transparencyEnabled = true;
         pipelineInfo.depthBiasEnabled = false;
 
@@ -191,8 +207,6 @@ private:
     void destroyCommandPipeline()
     {
         depthImage->Release(true);
-
-        razixLogoSprite->destroy();
 
         for (auto OnframeBuf : framebuffers)
             OnframeBuf->Destroy();

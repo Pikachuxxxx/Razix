@@ -30,11 +30,11 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void VKVertexBuffer::SetSubData(uint32_t size, const void* data, uint32_t offset)
+        void VKVertexBuffer::SetData(uint32_t size, const void* data)
         {
-            VKBuffer::map(size, offset);
+            //VKBuffer::map(size, offset);
             VKBuffer::setData(size, data);
-            VKBuffer::unMap();
+            //VKBuffer::unMap();
         }
 
         void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout) { }

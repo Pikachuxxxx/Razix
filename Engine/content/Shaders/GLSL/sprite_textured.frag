@@ -1,6 +1,6 @@
 /*
  * Razix Engine Shader File
- * Default Fragment Shader that can be used for rendering basic geometry with vertex colors and use a texture as well
+ * Sprite shader used to render textured sprites and sprite sheet animations
  */
  #version 450
  // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
@@ -14,12 +14,10 @@
  {
      vec4 fragColor;
      vec2 fragTexCoord;
-     vec3 fragNormal;
  }fs_in;
-
- //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
-layout(set = 1, binding = 0) uniform sampler2D texSampler;
+layout(set = 0, binding = 0) uniform sampler2D texSampler;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
@@ -27,15 +25,7 @@ layout(location = 0) out vec4 outFragColor;
 
 void main()
 {
-    outFragColor = vec4(fs_in.fragColor);
-    //if(gl_FragCoord.x < 400)
-    //    outFragColor = texture(texSampler, fs_in.fragTexCoord);
-    //else
-    //    outFragColor = texture(texSampler2, fs_in.fragTexCoord);
-
     outFragColor = texture(texSampler, fs_in.fragTexCoord);
-    //outFragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        outFragColor = vec4(fs_in.fragColor.xyz, 1.0F);
-
+    //outFragColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
 }
 //------------------------------------------------------------------------------
