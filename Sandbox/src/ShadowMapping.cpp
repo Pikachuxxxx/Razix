@@ -37,7 +37,7 @@ public:
             RZEntity& camera = m_ActiveScene.createEntity("Camera");
             camera.AddComponent<CameraComponent>();
             if (camera.HasComponent<CameraComponent>()) {
-                CameraComponent& cc = camera.GetComponent<CameraComponent>();
+                CameraComponent& cc = camera.GetComponent<SpriteRendererComponent, TransformComponent>();
                 cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
             }
         }

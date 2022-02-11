@@ -4,22 +4,22 @@
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Graphics/RZSprite.h"
 
 #include "Razix/Scene/RZSceneCamera.h"
 #include "Razix/Scene/RZComponents.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 #include <cereal/archives/json.hpp>
 
 #include <entt.hpp>
 
-// TODO: Move this to utilities + Make them look pretty
 namespace glm {
+    // TODO: Move this to utilities + Make them look pretty
     // glm vectors
     template<class Archive> void serialize(Archive& archive, glm::vec2& v) { archive(v.x, v.y); }
     template<class Archive> void serialize(Archive& archive, glm::vec3& v) { archive(cereal::make_nvp("x", v.x), cereal::make_nvp("y", v.y), cereal::make_nvp("z", v.z)); }
@@ -150,7 +150,7 @@ namespace Razix {
     };
 
     /**
-     * The camera component is attaches a camera to the entity that can be used to view the world from
+     * The camera component attaches a camera to the entity that can be used to view the world from
      */
     struct CameraComponent
     {
@@ -244,7 +244,52 @@ namespace Razix {
         }
     };
 
-    // List of all components that razix implements that is used while serialization
-    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, MeshRendererComponent
+    /**
+     * Renders a sprite in the Screen space, currently can be rendered only as a 2D entity within the view
+     */
+    struct RAZIX_API SpriteRendererComponent
+    {
+        Graphics::RZSprite* Sprite;
 
+        SpriteRendererComponent()
+        {
+            Sprite = new Graphics::RZSprite;
+        }
+        SpriteRendererComponent(TransformComponent transformComponent)
+        {
+            Sprite = new Graphics::RZSprite(transformComponent.Translation, transformComponent.Rotation.z, transformComponent.Scale, glm::vec4(1.0f));
+        }
+        SpriteRendererComponent(TransformComponent transformComponent, glm::vec4 color)
+        {
+            Sprite = new Graphics::RZSprite(transformComponent.Translation, transformComponent.Rotation.z, transformComponent.Scale, color);
+        }
+        SpriteRendererComponent(TransformComponent transformComponent, Graphics::RZTexture2D* texture)
+        {
+            Sprite = new Graphics::RZSprite(texture, transformComponent.Translation, transformComponent.Rotation.z, transformComponent.Scale);
+        }
+        SpriteRendererComponent(const SpriteRendererComponent&) = default;
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            Sprite = new Graphics::RZSprite;
+            std::string texturePath;
+            archive(cereal::make_nvp("TexturePath", texturePath));
+            Graphics::RZTexture2D* texture = Graphics::RZTexture2D::Create(texturePath, "sprite", )
+            archive(cereal::make_nvp("Sprite", *Sprite));
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("TexturePath", Sprite->getTexture()->getPath()));
+            archive(cereal::make_nvp("Position", Sprite->getPosition()));
+            archive(cereal::make_nvp("Rotation", Sprite->getRotation()));
+            archive(cereal::make_nvp("Scale", Sprite->setScale()));
+            archive(cereal::make_nvp("Color", Sprite->getColour()));
+        }
+    };
+
+    // List of all components that razix implements that is used while serialization
+    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, MeshRendererComponent, SpriteRendererComponent
 }
