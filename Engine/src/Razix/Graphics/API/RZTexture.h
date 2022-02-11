@@ -76,6 +76,8 @@ namespace Razix {
             uint32_t getSize() const { return m_Size; }
             /* Returns the internal format of the texture */
             Format getFormat() const { return m_Format; }
+            /* Returns the virtual path of the texture resource */
+            std::string getPath() const { return m_VirtualPath; }
 
             /* Binds the Texture resource to the Pipeline */
             virtual void Bind(uint32_t slot) = 0;
