@@ -9,8 +9,8 @@
 namespace Razix {
     namespace Graphics {
 
-        RZSprite::RZSprite(const glm::vec2& position /*= glm::vec2(0.0f, 0.0f)*/, const float& rotation /*= 0.0f*/, const glm::vec2& scale /*= glm::vec2(1.0f, 1.0f)*/, const glm::vec4& color /*= glm::vec4(1.0f)*/)
-            : m_Position(position), m_Rotation(rotation), m_Scale(scale), m_Color(color), m_Texture(nullptr)
+        RZSprite::RZSprite(const glm::vec4& color /*= glm::vec4(1.0f)*/)
+            : m_Color(color), m_Texture(nullptr)
         {
             m_UVs = GetDefaultUVs();
 
@@ -23,8 +23,8 @@ namespace Razix {
             updateDescriptorSets();
         }
 
-        RZSprite::RZSprite(RZTexture2D* texture, const glm::vec2& position, const float& rotation, const glm::vec2& scale)
-            : m_Position(position), m_Rotation(rotation), m_Scale(scale), m_Color(glm::vec4(1.0f)), m_Texture(texture)
+        RZSprite::RZSprite(RZTexture2D* texture)
+            : m_Color(glm::vec4(1.0f)), m_Texture(texture)
         {
             m_IsTextured = true;
             m_UVs = GetDefaultUVs();
@@ -104,7 +104,7 @@ namespace Razix {
             double y_range = (double) RZApplication::Get().getWindow()->getHeight();
 
             glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
-            glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+            glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 
             // Update the vertex data
             static std::array<RZVeretx2D, 4> vertices;

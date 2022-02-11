@@ -86,7 +86,6 @@ namespace Razix {
 
     private:
         entt::entity    m_Entity{entt::null};
-        RZUUID*         m_UUID;
         RZScene*        m_Scene = nullptr;
     };
 }
