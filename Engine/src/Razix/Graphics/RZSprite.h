@@ -26,6 +26,7 @@ namespace Razix {
         class RAZIX_API RZSprite
         {
         public:
+            RZSprite();
             /**
              * Creates an sprite with a given color
              * 
@@ -34,7 +35,7 @@ namespace Razix {
              * @param scale The dimensions of the sprite
              * @parma color The color of the sprite
              */
-            RZSprite(const glm::vec4& color = glm::vec4(1.0f));
+            RZSprite(const glm::vec4& color);
             /**
              * Crates a sprite with a given texture
              * 
@@ -44,6 +45,7 @@ namespace Razix {
              * @param scale The dimensions of the sprite
              */
             RZSprite(RZTexture2D* texture);
+
             virtual ~RZSprite() = default;
 
             void destroy();
@@ -51,7 +53,7 @@ namespace Razix {
             /* Gets the default UV values that is common for any sprite */
             static const std::array<glm::vec2, 4>& GetDefaultUVs();
             /* Gets the UV values given the minimum and maximum dimensions/range, useful while generating sprite sheet UVs */
-            static const std::array<glm::vec2, 4>& RZSprite::GetUVs(const glm::vec2& min, const glm::vec2& max);
+            static const std::array<glm::vec2, 4>& GetUVs(const glm::vec2& min, const glm::vec2& max);
 
             void setSpriteSheet(const glm::vec2& cellIndex, const glm::vec2& sheetDimension);
             
@@ -75,15 +77,15 @@ namespace Razix {
             bool                                    m_IsAnimated = false;
             bool                                    m_IsTextured = false;
 
-            static RZShader*                        m_SpriteShader;
-            static RZShader*                        m_TexturedSpriteShader;
+            RZShader* m_SpriteShader;
+            RZShader* m_TexturedSpriteShader;
 
-            static RZVertexBuffer*                  m_VBO;
-            static RZIndexBuffer*                   m_IBO;
-            static std::vector<RZDescriptorSet*>    m_TexturedSpriteDescriptorSets;
+            RZVertexBuffer*                  m_VBO;
+            RZIndexBuffer*                   m_IBO;
+            std::vector<RZDescriptorSet*>    m_TexturedSpriteDescriptorSets;
 
         private:
-            static void createBuffers();
+            void createBuffers();
             void updateVertexData();
             void updateDescriptorSets();
         };

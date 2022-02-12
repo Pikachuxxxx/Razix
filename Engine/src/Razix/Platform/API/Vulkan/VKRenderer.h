@@ -31,7 +31,7 @@ namespace Razix {
             RZSwapchain* GetSwapchainImpl() override;
 
 
-            void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer) override;
+            void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, TransformComponent tc) override;
 
 
             void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer) override;

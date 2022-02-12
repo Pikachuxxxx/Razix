@@ -36,6 +36,20 @@ namespace Razix {
             updateDescriptorSets();
         }
 
+        RZSprite::RZSprite()
+            : m_Color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)), m_Texture(nullptr)
+        {
+            m_UVs = GetDefaultUVs();
+
+            // Load the shaders before hand
+            m_SpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf");
+
+            // Create the vertex buffer and index buffer
+            createBuffers();
+            // Create the sets
+            updateDescriptorSets();
+        }
+
         void RZSprite::destroy()
         {
             // Destroy all the sets
@@ -104,15 +118,14 @@ namespace Razix {
             double y_range = (double) RZApplication::Get().getWindow()->getHeight();
 
             glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
-            glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 
             // Update the vertex data
             static std::array<RZVeretx2D, 4> vertices;
             {
-                vertices[0].Position = view * rotMat * glm::vec4(m_Position.x - (m_Scale.x / 1), m_Position.y + (m_Scale.y / 1), 0.0f, 1.0f);  // v1 top left
-                vertices[1].Position = view * rotMat * glm::vec4(m_Position.x + (m_Scale.x / 1), m_Position.y + (m_Scale.y / 1), 0.0f, 1.0f);  // v2 top right
-                vertices[2].Position = view * rotMat * glm::vec4(m_Position.x + (m_Scale.x / 1), m_Position.y - (m_Scale.y / 1), 0.0f, 1.0f);  // v3 bottom right
-                vertices[3].Position = view * rotMat * glm::vec4(m_Position.x - (m_Scale.x / 1), m_Position.y - (m_Scale.y / 1), 0.0f, 1.0f);  // v4 bottom left
+                vertices[0].Position = view * glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);  // v1 top left
+                vertices[1].Position = view * glm::vec4(1.0f, -1.0f, 0.0f, 1.0f);  // v2 top right
+                vertices[2].Position = view * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);  // v3 bottom right
+                vertices[3].Position = view * glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f);  // v4 bottom left
 
                 vertices[0].Color = m_Color;
                 vertices[1].Color = m_Color;
@@ -154,12 +167,10 @@ namespace Razix {
                  glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
                  std::cout << "Ortho matrix : " << glm::to_string(view) << std::endl;
 
-                 glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-
-                 vertices[0].Position = view * rotMat * glm::vec4(m_Position.x - (m_Scale.x / 1), m_Position.y + (m_Scale.y / 1), 0.0f, 1.0f);  // v1 top left
-                 vertices[1].Position = view * rotMat * glm::vec4(m_Position.x + (m_Scale.x / 1), m_Position.y + (m_Scale.y / 1), 0.0f, 1.0f);  // v2 top right
-                 vertices[2].Position = view * rotMat * glm::vec4(m_Position.x + (m_Scale.x / 1), m_Position.y - (m_Scale.y / 1), 0.0f, 1.0f);  // v3 bottom right
-                 vertices[3].Position = view * rotMat * glm::vec4(m_Position.x - (m_Scale.x / 1), m_Position.y - (m_Scale.y / 1), 0.0f, 1.0f);  // v4 bottom left
+                 vertices[0].Position = view * glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);  // v1 top left
+                 vertices[1].Position = view * glm::vec4(1.0f, -1.0f, 0.0f, 1.0f);  // v2 top right
+                 vertices[2].Position = view * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);  // v3 bottom right
+                 vertices[3].Position = view * glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f);  // v4 bottom left
 
                  vertices[0].Color = m_Color;
                  vertices[1].Color = m_Color;
@@ -195,14 +206,12 @@ namespace Razix {
 
             glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
 
-            glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-
             static std::array<RZVeretx2D, 4> vertices;
             {
-                vertices[0].Position = view * rotMat * glm::vec4(m_Position.x - (m_Scale.x / 2), m_Position.y + (m_Scale.y / 2), 0.0f, 1.0f);  // v1 top left
-                vertices[1].Position = view * rotMat * glm::vec4(m_Position.x + (m_Scale.x / 2), m_Position.y + (m_Scale.y / 2), 0.0f, 1.0f);  // v2 top right
-                vertices[2].Position = view * rotMat * glm::vec4(m_Position.x + (m_Scale.x / 2), m_Position.y - (m_Scale.y / 2), 0.0f, 1.0f);  // v3 bottom right
-                vertices[3].Position = view * rotMat * glm::vec4(m_Position.x - (m_Scale.x / 2), m_Position.y - (m_Scale.y / 2), 0.0f, 1.0f);  // v4 bottom left
+                vertices[0].Position = view * glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);  // v1 top left
+                vertices[1].Position = view * glm::vec4(1.0f, -1.0f, 0.0f, 1.0f);  // v2 top right
+                vertices[2].Position = view * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);  // v3 bottom right
+                vertices[3].Position = view * glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f);  // v4 bottom left
 
                 vertices[0].Color = m_Color;
                 vertices[1].Color = m_Color;
