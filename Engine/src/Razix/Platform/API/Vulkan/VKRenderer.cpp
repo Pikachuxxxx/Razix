@@ -130,7 +130,7 @@ namespace Razix {
             return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get());
         }
 
-        void VKRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)
+        void VKRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, TransformComponent tc)
         {
             //for (auto pushConstant : pushConstants) {
 
@@ -140,8 +140,7 @@ namespace Razix {
             }modelPCData;
 
             //modelPCData.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -100.0f, 0.0f));
-            modelPCData.model = glm::rotate(glm::mat4(1.0f), (float) glm::radians(0.0f * 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            modelPCData.model *= glm::scale(modelPCData.model, glm::vec3(1.0f));
+            modelPCData.model = tc.GetTransform();
 
             vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pipeline)->getPipelineLayout(),  VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(DefaultPushConstantData), &modelPCData);
             //}
