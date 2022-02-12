@@ -152,7 +152,7 @@ namespace Razix {
     /**
      * The camera component attaches a camera to the entity that can be used to view the world from
      */
-    struct CameraComponent
+    struct RAZIX_API CameraComponent
     {
         RZSceneCamera Camera;
         bool Primary = true; // TODO: think about moving to Scene
@@ -219,12 +219,6 @@ namespace Razix {
         MeshRendererComponent(Graphics::RZMesh* mesh)
             : Mesh(mesh) { }
         MeshRendererComponent(const MeshRendererComponent&) = default;
-        
-        //template <typename Archive>
-        //void serialize(Archive& archive)
-        //{
-        //    //archive(cereal::make_nvp("MeshRendererComponent", *Mesh));
-        //}
 
         template<class Archive>
         void load(Archive& archive)
@@ -252,44 +246,46 @@ namespace Razix {
         Graphics::RZSprite* Sprite;
 
         SpriteRendererComponent()
+            : Sprite(new Graphics::RZSprite) { }
+        SpriteRendererComponent(glm::vec4 color)
         {
-            Sprite = new Graphics::RZSprite;
+            Sprite = new Graphics::RZSprite(color);
         }
-        SpriteRendererComponent(TransformComponent transformComponent)
+        SpriteRendererComponent(Graphics::RZTexture2D* texture)
         {
-            Sprite = new Graphics::RZSprite(transformComponent.Translation, transformComponent.Rotation.z, transformComponent.Scale, glm::vec4(1.0f));
-        }
-        SpriteRendererComponent(TransformComponent transformComponent, glm::vec4 color)
-        {
-            Sprite = new Graphics::RZSprite(transformComponent.Translation, transformComponent.Rotation.z, transformComponent.Scale, color);
-        }
-        SpriteRendererComponent(TransformComponent transformComponent, Graphics::RZTexture2D* texture)
-        {
-            Sprite = new Graphics::RZSprite(texture, transformComponent.Translation, transformComponent.Rotation.z, transformComponent.Scale);
+            Sprite = new Graphics::RZSprite(texture);
         }
         SpriteRendererComponent(const SpriteRendererComponent&) = default;
 
         template<class Archive>
         void load(Archive& archive)
         {
-            Sprite = new Graphics::RZSprite;
+            //Sprite = new Graphics::RZSprite;
             std::string texturePath;
             archive(cereal::make_nvp("TexturePath", texturePath));
-            Graphics::RZTexture2D* texture = Graphics::RZTexture2D::Create(texturePath, "sprite", )
-            archive(cereal::make_nvp("Sprite", *Sprite));
+            if (!texturePath.empty()) {
+                Graphics::RZTexture2D* texture = Graphics::RZTexture2D::CreateFromFile(texturePath, "sprite", Graphics::RZTexture2D::Wrapping::CLAMP_TO_EDGE);
+                Sprite = new Graphics::RZSprite(texture);
+            }
+            else {
+                glm::vec4 color;
+                archive(cereal::make_nvp("Color", color));
+                Sprite = new Graphics::RZSprite(color);
+            }
+            //archive(cereal::make_nvp("Sprite", *Sprite));
         }
 
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("TexturePath", Sprite->getTexture()->getPath()));
-            archive(cereal::make_nvp("Position", Sprite->getPosition()));
-            archive(cereal::make_nvp("Rotation", Sprite->getRotation()));
-            archive(cereal::make_nvp("Scale", Sprite->setScale()));
+            if(Sprite->getTexture() != nullptr)
+                archive(cereal::make_nvp("TexturePath", Sprite->getTexture()->getPath()));
             archive(cereal::make_nvp("Color", Sprite->getColour()));
         }
+
+        // TODO: Serialize the graphics resources such as Buffer, Shaders and DescriptorSets
     };
 
     // List of all components that razix implements that is used while serialization
-    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, MeshRendererComponent, SpriteRendererComponent
+    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent
 }

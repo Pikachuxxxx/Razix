@@ -2,22 +2,31 @@
     "Razix Scene": {
         "SceneName": "SpriteTest"
     },
-    "value0": 1,
+    "value0": 2,
     "value1": 0,
     "value2": 1,
-    "value3": 0,
-    "value4": {
-        "UUID": "d81cb60c-5e42-4296-ad25-9274278bf30c"
+    "value3": 2,
+    "value4": 0,
+    "value5": {
+        "UUID": "f15bd6ad-7577-42e9-83d0-d6bed5f918a4"
     },
-    "value5": 1,
-    "value6": 0,
+    "value6": 1,
     "value7": {
+        "UUID": "c393ddb4-b8cb-4c59-9ca4-379d0ed16d4a"
+    },
+    "value8": 2,
+    "value9": 0,
+    "value10": {
         "Tag": "Camera"
     },
-    "value8": 0,
-    "value9": 1,
-    "value10": 0,
-    "value11": {
+    "value11": 1,
+    "value12": {
+        "Tag": "Flowers"
+    },
+    "value13": 0,
+    "value14": 2,
+    "value15": 0,
+    "value16": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -34,9 +43,27 @@
             "z": 1.0
         }
     },
-    "value12": 1,
-    "value13": 0,
-    "value14": {
+    "value17": 1,
+    "value18": {
+        "Translation": {
+            "x": 0.5,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 200.0,
+            "y": 200.0,
+            "z": 1.0
+        }
+    },
+    "value19": 1,
+    "value20": 0,
+    "value21": {
         "isPrimary": true,
         "Camera": {
             "Position": {
@@ -79,5 +106,16 @@
             "AspectRatio": 1.9028741121292115
         }
     },
-    "value15": 0
+    "value22": 1,
+    "value23": 1,
+    "value24": {
+        "TexturePath": "//Textures/RazixLogo.png",
+        "Color": {
+            "value0": 1.0,
+            "value1": 1.0,
+            "value2": 1.0,
+            "value3": 1.0
+        }
+    },
+    "value25": 0
 }
