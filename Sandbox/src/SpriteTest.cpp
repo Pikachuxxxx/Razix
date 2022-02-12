@@ -23,18 +23,18 @@ public:
 
     void OnStart() override
     {
-        m_ActiveScene.SerialiseScene("//Scenes/SpriteTest.rzscn");
-        m_ActiveScene.DeSerialiseScene("//Scenes/SpriteTest.rzscn");
+        //m_ActiveScene.SerialiseScene("//Scenes/SpriteTest.rzscn");
 
-        auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
-        if (!cameras.size()) {
-            RZEntity& camera = m_ActiveScene.createEntity("Camera");
-            camera.AddComponent<CameraComponent>();
-            if (camera.HasComponent<CameraComponent>()) {
-                CameraComponent& cc = camera.GetComponent<CameraComponent>();
-                cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
-            }
-        }
+        //auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
+        //if (!cameras.size()) {
+        //    RZEntity& camera = m_ActiveScene.createEntity("Camera");
+        //    camera.AddComponent<CameraComponent>();
+        //    if (camera.HasComponent<CameraComponent>()) {
+        //        CameraComponent& cc = camera.GetComponent<CameraComponent>();
+        //        cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
+        //    }
+        //}
+
 
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
@@ -46,6 +46,7 @@ public:
         }
         else  if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
 
+            m_ActiveScene.DeSerialiseScene("//Scenes/SpriteTest.rzscn");
             buildPipelineResources();
             buildCommandPipeline();
 
@@ -68,29 +69,41 @@ public:
 
             // Update the sprite's color
             static int x = 1, y = 1;
+            //razixLogoSprite->setSpriteSheet(glm::vec2(x, 1), glm::vec2(12, 1));
+            //x++;
+            //if (x >= 12)
+            //    x = 1;
 
-            razixLogoSprite->setColour(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-            razixLogoSprite->setSpriteSheet(glm::vec2(x, 1), glm::vec2(12, 1));
-            x++;
-            if (x >= 12)
-                x = 1;
+            // Get the FlowerCanvas entity along with it's transform and sprite renderer components and recreate the RZEntity
+            auto group = m_ActiveScene.getRegistry().group<const SpriteRendererComponent>(entt::get<const TransformComponent>);
 
             Graphics::RZAPIRenderer::Begin();
             {
                 Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
 
-                renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(1.0f, 0.5f, 1.0f, 1.0f), framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
+                renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                auto set = razixLogoSprite->getDescriptorSet(Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
-                Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), &(set), 1);
+                //Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), );
 
-                razixLogoSprite->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                razixLogoSprite->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                //auto set = razixLogoSprite->getDescriptorSet(Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                //Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), &(set), 1);
 
-                Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
+                for (auto entity : group) {
+                    RZEntity entity_reconstructed(entity, &m_ActiveScene);
+                    RAZIX_TRACE("Reconstructed Entity Tag : {0}", entity_reconstructed.GetComponent<TagComponent>().Tag);
+                    const auto& [sprite, trans] = group.get<const SpriteRendererComponent, const TransformComponent>(entity);
 
+                    Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), trans);
+                    auto set = sprite.Sprite->getDescriptorSet(Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                    Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), &(set), 1);
+
+                    sprite.Sprite->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                    sprite.Sprite->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+                    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
+                }
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
             }
@@ -107,7 +120,7 @@ public:
     {
         m_ActiveScene.SerialiseScene("//Scenes/SpriteTest.rzscn");
 
-        razixLogoSprite->destroy();
+        //razixLogoSprite->destroy();
 
         destroyCommandPipeline();
 
@@ -129,7 +142,7 @@ public:
     }
 
 private:
-    Graphics::RZSprite*                                                         razixLogoSprite;
+    //Graphics::RZSprite*                                                         razixLogoSprite;
 
     Graphics::RZDepthTexture*                                                   depthImage;
     Graphics::RZRenderPass*                                                     renderpass;
@@ -145,11 +158,21 @@ private:
     RZScene                                                                     m_ActiveScene;
 
     Graphics::RZTexture2D*                                                      testTexture;
+    Graphics::RZTexture2D*                                                      flower_painting_texture;
+    RZEntity                                                                    FlowerCanvas;
 private:
     void buildPipelineResources()
     {
-        testTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/piggy_spritesheet.png", "TextureAttachment1", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
-        razixLogoSprite = new Graphics::RZSprite(testTexture, glm::vec2(0.2, 0.2), 0.0f, glm::vec2(200.0f, 200.0f));
+        testTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/piggy_spritesheet.png", "TextureAttachment0", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        //razixLogoSprite = new Graphics::RZSprite;
+
+         // Create an Entity with sprite renderer component
+        //flower_painting_texture = Graphics::RZTexture2D::CreateFromFile("//Textures/RazixLogo.png", "TextureAttachment1", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        //FlowerCanvas = m_ActiveScene.createEntity("Flowers");
+        //FlowerCanvas.AddComponent<SpriteRendererComponent>(flower_painting_texture);
+        //auto& tc = FlowerCanvas.GetComponent<TransformComponent>();
+        //tc.Scale = glm::vec3(200, 200, 1.0f);
+        //tc.Translation = glm::vec3(50.0f, 0, 0);
     }
 
     void buildCommandPipeline()
@@ -172,11 +195,13 @@ private:
         renderpass = Graphics::RZRenderPass::Create(renderPassInfo);
 
         // Create the graphics pipeline
+        auto& sprites = m_ActiveScene.GetComponentsOfType<SpriteRendererComponent>();
+
         Graphics::PipelineInfo pipelineInfo{};
         pipelineInfo.cullMode = Graphics::CullMode::NONE;
         pipelineInfo.drawType = Graphics::DrawType::TRIANGLE;
         pipelineInfo.renderpass = renderpass;
-        pipelineInfo.shader = razixLogoSprite->getShader();
+        pipelineInfo.shader = sprites[0].Sprite->getShader();
         pipelineInfo.transparencyEnabled = true;
         pipelineInfo.depthBiasEnabled = false;
 

@@ -15,7 +15,9 @@ layout(location = 1) in vec4 inColor;
 layout(location = 2) in vec2 inTexCoord;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
-
+layout (push_constant) uniform ModelPushConstantData{
+    mat4 model;
+}model_pc_data;
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
 layout(location = 0) out VSOutput
@@ -32,7 +34,7 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = vec4(inPosition);
+    gl_Position = model_pc_data.model * vec4(inPosition);
 
     // Out from vertex shader
     vs_out.fragColor    = inColor;
