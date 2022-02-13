@@ -77,4 +77,13 @@ namespace Razix {
         //inputArchive(*this);
         entt::snapshot_loader{ m_Registry }.entities(inputArchive).component<RAZIX_COMPONENTS>(inputArchive);
     }
+
+    template<typename T>
+    void RZScene::OnComponentAdded(RZEntity entity, T& component, bool enable)
+    {
+        if (enable)
+            m_Registry.on_construct<T>().connect<&T::OnConstruct>();
+        else
+            m_Registry.on_construct<T>().disconnect<&T::OnConstruct>();
+    }
 }

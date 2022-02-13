@@ -29,14 +29,25 @@ public:
 
     void OnStart() override
     {
-        m_ActiveScene.DeSerialiseScene("//Scenes/Sandbox.rzscn");
-
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
 
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
-        cornellBoxModel = new Graphics::RZModel("//Meshes/CornellBox.gltf");
+        m_ActiveScene.SerialiseScene("//Scenes/Sandbox.rzscn");
+        m_ActiveScene.DeSerialiseScene("//Scenes/Sandbox.rzscn");
+
+        auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
+        if (!cameras.size()) {
+            RZEntity& camera = m_ActiveScene.createEntity("Camera");
+            camera.AddComponent<CameraComponent>();
+            if (camera.HasComponent<CameraComponent>()) {
+                CameraComponent& cc = camera.GetComponent<CameraComponent>();
+                cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
+            }
+        }
+
+        cornellBoxModel = new Graphics::RZModel("//Meshes/TeapotVC.gltf");
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
           offscreen_swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
@@ -47,6 +58,7 @@ public:
             buildCommandPipeline();
 
             Graphics::RZAPIRenderer::Init();
+
         }
     }
 
@@ -83,9 +95,8 @@ public:
 
                 Graphics::RZAPIRenderer::BindDescriptorSets(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), offscreen_descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
-                // TODO: Fix this!
                 //auto shaderPushConstants = defaultShader->getPushConstants();
-                Graphics::RZAPIRenderer::BindPushConstants(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                Graphics::RZAPIRenderer::BindPushConstants(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), TransformComponent());
 
                 triVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 triIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
