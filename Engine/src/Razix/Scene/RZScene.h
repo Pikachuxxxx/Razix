@@ -56,7 +56,7 @@ namespace Razix {
         //}
 
         RAZIX_INLINE const std::string& getSceneName() const { return m_SceneName; }
-        RAZIX_INLINE const entt::registry& getRegistry() { return m_Registry; }
+        RAZIX_INLINE entt::registry& getRegistry() { return m_Registry; }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -75,5 +75,9 @@ namespace Razix {
         std::string m_SceneName = "default";
 
         friend class RZEntity;
+
+    private:
+        template<typename T>
+        void OnComponentAdded(RZEntity entity, T& component, bool enable);
     };
 }

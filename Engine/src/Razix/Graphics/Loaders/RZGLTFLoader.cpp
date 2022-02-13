@@ -53,6 +53,16 @@ namespace Razix {
             { TINYGLTF_COMPONENT_TYPE_FLOAT, 4 }
         };
 
+        struct Vector4Simple
+        {
+            float x, y, z, w;
+        };
+
+        inline glm::vec4 ToVector(const Vector4Simple& vec)
+        {
+            return glm::vec4(vec.x, vec.y, vec.z, vec.w);
+        }
+
         std::vector<Graphics::RZMesh*> LoadMesh(tinygltf::Model& model, tinygltf::Mesh& mesh)
         {
             std::vector<Graphics::RZMesh*> meshes;
@@ -112,12 +122,12 @@ namespace Razix {
                     }
 
                     // -------- Colour attribute -----------
-
+                
                     else if (attribute.first == "COLOR_0") {
                         size_t uvCount = accessor.count;
-                        glm::vec4* colours = reinterpret_cast<glm::vec4*>(data.data());
+                        Vector4Simple* colours = reinterpret_cast<Vector4Simple*>(data.data());
                         for (auto p = 0; p < uvCount; ++p) {
-                            vertices[p].Color = colours[p];
+                            vertices[p].Color = ToVector(colours[p]);
                         }
                     }
 
