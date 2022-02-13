@@ -93,14 +93,14 @@ public:
                 for (auto entity : group) {
                     RZEntity entity_reconstructed(entity, &m_ActiveScene);
                     RAZIX_TRACE("Reconstructed Entity Tag : {0}", entity_reconstructed.GetComponent<TagComponent>().Tag);
-                    const auto& [sprite, trans] = group.get<const SpriteRendererComponent, const TransformComponent>(entity);
+                    const auto& [src, tc] = group.get<const SpriteRendererComponent, const TransformComponent>(entity);
 
-                    Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), trans);
-                    auto set = sprite.Sprite->getDescriptorSet(Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                    Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), tc);
+                    auto set = src.Sprite->getDescriptorSet(Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
                     Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), &(set), 1);
 
-                    sprite.Sprite->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    sprite.Sprite->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                    src.Sprite->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                    src.Sprite->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                     Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
                 }
