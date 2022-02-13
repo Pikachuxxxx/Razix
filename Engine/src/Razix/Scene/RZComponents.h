@@ -150,6 +150,106 @@ namespace Razix {
     };
 
     /**
+     * Establishes a hierarchical relationship between the entities in a scene
+     */
+    struct RAZIX_API HierarchyComponent
+    {
+        entt::entity First = entt::null;
+        entt::entity Parent = entt::null;
+        entt::entity Prev = entt::null;
+        entt::entity Next = entt::null;
+
+        HierarchyComponent(entt::entity p)
+            : Parent(p)
+        {
+            First = entt::null;
+            Next = entt::null;
+            Prev = entt::null;
+        }
+        HierarchyComponent() = default;
+        HierarchyComponent(const HierarchyComponent&) = default;
+
+        /* update hierarchy components when hierarchy component is added */
+        static void OnConstruct(entt::registry& registry, entt::entity entity)
+        {
+            auto& hierarchy = registry.get<HierarchyComponent>(entity);
+            if (hierarchy.Parent != entt::null) {
+                auto& parent_hierarchy = registry.get_or_emplace<HierarchyComponent>(hierarchy.Parent);
+
+                if (parent_hierarchy.First == entt::null) {
+                    parent_hierarchy.First = entity;
+                }
+                else {
+                    // get last children
+                    auto prev_ent = parent_hierarchy.First;
+                    auto current_hierarchy = registry.try_get<HierarchyComponent>(prev_ent);
+                    while (current_hierarchy != nullptr && current_hierarchy->Next != entt::null) {
+                        prev_ent = current_hierarchy->Next;
+                        current_hierarchy = registry.try_get<HierarchyComponent>(prev_ent);
+                    }
+                    // add new
+                    current_hierarchy->Next = entity;
+                    hierarchy.Prev = prev_ent;
+                }
+            }
+        }
+        // update hierarchy components when hierarchy component is removed
+        static void OnDestroy(entt::registry& registry, entt::entity entity)
+        {
+            auto& hierarchy = registry.get<HierarchyComponent>(entity);
+            // if is the first child
+            if (hierarchy.Prev == entt::null || !registry.valid(hierarchy.Prev)) {
+                if (hierarchy.Parent != entt::null && registry.valid(hierarchy.Parent)) {
+                    auto parent_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.Parent);
+                    if (parent_hierarchy != nullptr) {
+                        parent_hierarchy->First = hierarchy.Next;
+                        if (hierarchy.Next != entt::null) {
+                            auto next_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.Next);
+                            if (next_hierarchy != nullptr) {
+                                next_hierarchy->Prev = entt::null;
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                auto prev_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.Prev);
+                if (prev_hierarchy != nullptr) {
+                    prev_hierarchy->Next = hierarchy.Next;
+                }
+                if (hierarchy.Next != entt::null) {
+                    auto next_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.Next);
+                    if (next_hierarchy != nullptr) {
+                        next_hierarchy->Prev = hierarchy.Prev;
+                    }
+                }
+            }
+        }
+        static void Reparent(entt::entity entity, entt::entity parent, entt::registry& registry, HierarchyComponent& hierarchy)
+        {
+            HierarchyComponent::OnDestroy(registry, entity);
+
+            hierarchy.Parent = entt::null;
+            hierarchy.Next = entt::null;
+            hierarchy.Prev = entt::null;
+
+            if (parent != entt::null) {
+                hierarchy.Parent = parent;
+                HierarchyComponent::OnConstruct(registry, entity);
+            }
+        }
+
+        template <typename Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("First", First), cereal::make_nvp("Next", Next), cereal::make_nvp("Previous", Prev), cereal::make_nvp("Parent", Parent));
+        }
+    };
+
+    //-----------------------------------------------------------------------------------------------------
+    // Engine components
+    
+    /**
      * The camera component attaches a camera to the entity that can be used to view the world from
      */
     struct RAZIX_API CameraComponent
@@ -167,38 +267,6 @@ namespace Razix {
             archive(cereal::make_nvp("Camera", Camera));
         }
     };
-
-    /**
-     * Establishes a hierarchical relationship between the entities in a scene
-     */
-    // TODO: WIP
-    struct RAZIX_API HierarchyComponent
-    {
-        entt::entity Parent = entt::null;
-        entt::entity Root = entt::null;
-        entt::entity Next = entt::null;
-        entt::entity Prev = entt::null;
-
-        HierarchyComponent(entt::entity p)
-            : Parent(p)
-        {
-            Root = entt::null;
-            Next = entt::null;
-            Prev = entt::null;
-        }
-        HierarchyComponent(const HierarchyComponent&) = default;
-
-        template <typename Archive>
-        void serialize(Archive& archive)
-        {
-            archive(cereal::make_nvp("Root", Root), cereal::make_nvp("Next", Next), cereal::make_nvp("Previous", Prev), cereal::make_nvp("Parent", Parent));
-        }
-    };
-
-    //-----------------------------------------------------------------------------------------------------
-    // Engine components
-    
-    // TODO: Move camera controller under here
 
     /**
      * Mesh renderer component references a mesh that will taken by the render to render a mesh on the 3D scene
