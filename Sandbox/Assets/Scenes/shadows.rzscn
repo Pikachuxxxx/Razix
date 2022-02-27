@@ -2,22 +2,31 @@
     "Razix Scene": {
         "SceneName": "shadows"
     },
-    "value0": 1,
+    "value0": 2,
     "value1": 0,
     "value2": 1,
-    "value3": 0,
-    "value4": {
-        "UUID": "3ed49013-e1f9-4989-b306-002b508c8e93"
+    "value3": 2,
+    "value4": 0,
+    "value5": {
+        "UUID": "afbec9d2-7a59-42e9-bc9c-58bb340eaf4e"
     },
-    "value5": 1,
-    "value6": 0,
+    "value6": 1,
     "value7": {
+        "UUID": "48f9cc8d-0349-4174-b301-0206ce035753"
+    },
+    "value8": 2,
+    "value9": 0,
+    "value10": {
         "Tag": "Camera"
     },
-    "value8": 0,
-    "value9": 1,
-    "value10": 0,
-    "value11": {
+    "value11": 1,
+    "value12": {
+        "Tag": "Armadillo Model"
+    },
+    "value13": 0,
+    "value14": 2,
+    "value15": 0,
+    "value16": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -34,38 +43,56 @@
             "z": 1.0
         }
     },
-    "value12": 1,
-    "value13": 0,
-    "value14": {
+    "value17": 1,
+    "value18": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value19": 1,
+    "value20": 0,
+    "value21": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": -0.8222277164459229,
-                "y": 1.160768985748291,
-                "z": -3.078457832336426
+                "x": 2.912686586380005,
+                "y": 2.5993945598602297,
+                "z": -0.7672122120857239
             },
             "Front": {
-                "x": 0.2764429450035095,
-                "y": -0.32556813955307009,
-                "z": 0.9042038917541504
+                "x": -0.7317221164703369,
+                "y": -0.6658816337585449,
+                "z": 0.1455485224723816
             },
             "Up": {
-                "x": 0.09518693387508393,
-                "y": 0.9455186128616333,
-                "z": 0.31134235858917239
+                "x": -0.6530869603157044,
+                "y": 0.7460574507713318,
+                "z": 0.12990702688694
             },
             "Right": {
-                "x": -0.9563047289848328,
+                "x": -0.19509024918079377,
                 "y": 0.0,
-                "z": 0.2923717796802521
+                "z": -0.9807853102684021
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": 73.0,
-            "Pitch": -19.0,
+            "Yaw": -191.25,
+            "Pitch": -41.75,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -76,8 +103,14 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.9034391641616822
+            "AspectRatio": 1.7006993293762208
         }
     },
-    "value15": 0
+    "value22": 0,
+    "value23": 0,
+    "value24": 1,
+    "value25": 1,
+    "value26": {
+        "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/armadillo.obj"
+    }
 }
