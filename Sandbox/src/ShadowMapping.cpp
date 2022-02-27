@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <Razix.h>
 
@@ -29,6 +29,9 @@ public:
 
     void OnStart() override
     {
+
+        Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
+
         // Load scene
         m_ActiveScene.DeSerialiseScene("//Scenes/shadows.rzscn");
 
@@ -37,15 +40,15 @@ public:
             RZEntity& camera = m_ActiveScene.createEntity("Camera");
             camera.AddComponent<CameraComponent>();
             if (camera.HasComponent<CameraComponent>()) {
-                CameraComponent& cc = camera.GetComponent<SpriteRendererComponent, TransformComponent>();
+                CameraComponent& cc = camera.GetComponent<CameraComponent>();
                 cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
             }
         }
 
+
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
 
-        Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
@@ -56,6 +59,13 @@ public:
             buildCommandPipeline();
 
             Graphics::RZAPIRenderer::Init();
+
+            // Testing temporary model component
+            auto& modelEnitties = m_ActiveScene.GetComponentsOfType<Graphics::RZModel>();
+            if (!modelEnitties.size()) {
+                auto& armadilloModelEntity = m_ActiveScene.createEntity("Armadillo Model");
+                armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/armadillo.obj");
+            }
 
             // Load resources
             armadilloModel = new Graphics::RZModel("//Meshes/armadillo.obj");
@@ -101,21 +111,26 @@ public:
 
                 // TODO: Fix this!
                 //auto shaderPushConstants = defaultShader->getPushConstants();
-                Graphics::RZAPIRenderer::BindPushConstants(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                Graphics::RZAPIRenderer::BindPushConstants(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), TransformComponent());
 
                 //planeVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 //quadIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 //Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
 
                 // Draw a loaded 3D model
-                auto meshes = armadilloModel->getMeshes();
-                for (auto mesh : meshes)
-                {
-                    mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+         
+                auto& mcs = m_ActiveScene.GetComponentsOfType<Graphics::RZModel>();
+                for (auto mc : mcs) {
 
-                    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
+                    auto meshes = mc.getMeshes();
+                    for (auto mesh : meshes) {
+                        mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                        mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+                        Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
+                    }
                 }
+
 
                 // Draw a sphere
                 //sphereMesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
