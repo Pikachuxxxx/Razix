@@ -2,9 +2,12 @@
 
 #include "Razix/Core/RZUUID.h"
 
+
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Graphics/RZSprite.h"
+
+#include "Razix/Graphics/RZModel.h"
 
 #include "Razix/Scene/RZSceneCamera.h"
 #include "Razix/Scene/RZComponents.h"
@@ -274,7 +277,7 @@ namespace Razix {
      * a Entity in the scene, each of it's children(which are also entities) will have a mesh renderer component
      *  will be instantiated as entities in the scene with a Hierarchy, Transform,Tag, Active and default components
      * attached to them, these all meshes are taken at once by the Renderer and rendered to the scene, any additional
-     *  information required to rendered can be inferred as needed
+     * information required to rendered can be inferred as needed
      */
     struct RAZIX_API MeshRendererComponent
     {
@@ -340,7 +343,6 @@ namespace Razix {
                 archive(cereal::make_nvp("Color", color));
                 Sprite = new Graphics::RZSprite(color);
             }
-            //archive(cereal::make_nvp("Sprite", *Sprite));
         }
 
         template<class Archive>
@@ -350,10 +352,8 @@ namespace Razix {
                 archive(cereal::make_nvp("TexturePath", Sprite->getTexture()->getPath()));
             archive(cereal::make_nvp("Color", Sprite->getColour()));
         }
-
-        // TODO: Serialize the graphics resources such as Buffer, Shaders and DescriptorSets
     };
 
     // List of all components that razix implements that is used while serialization
-    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent
+    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent, Graphics::RZModel // The model component is a temporary hack, which will be replaced by MeshRenderer component soon
 }
