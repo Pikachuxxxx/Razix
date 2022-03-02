@@ -12,7 +12,7 @@ namespace Razix
     void RZVirtualFileSystem::StartUp()
     {
         // Instance is automatically created once the system is Started Up
-        RAZIX_CORE_INFO("Starting Up Virtual File Sytem");
+        RAZIX_CORE_INFO("[Virtual File System] Starting Up Virtual File Sytem");
         Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
     }
 
@@ -23,7 +23,7 @@ namespace Razix
 
     void RZVirtualFileSystem::mount(const std::string& virtualPath, const std::string& physicalPath)
     {
-        RAZIX_CORE_TRACE("RZVirtualFileSystem::Mounting file path at : {0}", physicalPath);
+        RAZIX_CORE_TRACE("[Virtual File System] Mounting file path at : {0}", physicalPath);
         m_MountPoints[virtualPath].push_back(physicalPath);
     }
 

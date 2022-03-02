@@ -65,6 +65,8 @@ public:
             if (!modelEnitties.size()) {
                 auto& armadilloModelEntity = m_ActiveScene.createEntity("Armadillo Model");
                 armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/armadillo.obj");
+                auto& avocadoModelEntity = m_ActiveScene.createEntity("Avocado Model");
+                avocadoModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
             }
 
             // Load resources
@@ -118,19 +120,18 @@ public:
                 //Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
 
                 // Draw a loaded 3D model
-         
+                // Load the transform here too
                 auto& mcs = m_ActiveScene.GetComponentsOfType<Graphics::RZModel>();
-                for (auto mc : mcs) {
+                for (auto& mc : mcs) {
 
-                    auto meshes = mc.getMeshes();
-                    for (auto mesh : meshes) {
+                    auto& meshes = mc.getMeshes();
+                    for (auto& mesh : meshes) {
                         mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                         mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                         Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
                     }
                 }
-
 
                 // Draw a sphere
                 //sphereMesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());

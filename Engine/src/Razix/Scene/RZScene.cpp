@@ -49,7 +49,7 @@ namespace Razix {
     {
         std::string fullFilePath;
         bool nope = RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);
-        RAZIX_CORE_WARN("Saving scene to - {0} ({1})", filePath, fullFilePath);
+        RAZIX_CORE_WARN("[Scene] Saving scene to - {0} ({1})", filePath, fullFilePath);
 
         if (!nope) {
             std::string path = "//Scenes/";
@@ -68,7 +68,7 @@ namespace Razix {
     {
         std::string fullFilePath;
         RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);
-        RAZIX_CORE_WARN("Saving scene to - {0} ({1})", filePath, fullFilePath);
+        RAZIX_CORE_WARN("[Scene] Loading scene from - {0} ({1})", filePath, fullFilePath);
 
         std::ifstream AppStream;
         AppStream.open(fullFilePath, std::ifstream::in);
@@ -76,6 +76,13 @@ namespace Razix {
         inputArchive(cereal::make_nvp("Razix Scene", *this));
         //inputArchive(*this);
         entt::snapshot_loader{ m_Registry }.entities(inputArchive).component<RAZIX_COMPONENTS>(inputArchive);
+    }
+
+    CameraComponent& RZScene::getSceneCamera()
+    {
+        auto& view = m_Registry.view<CameraComponent>();
+        for (auto& entity : view)
+            return view.get<CameraComponent>(entity);
     }
 
     template<typename T>
