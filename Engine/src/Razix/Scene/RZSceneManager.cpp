@@ -10,6 +10,10 @@ namespace Razix {
     void RZSceneManager::enqueScene(RZScene* scene)
     {
         m_LoadedScenes.push_back(scene);
+        // TODO: serialize this scene and add it's path to the list
+        std::string scenePath = "//Scenes/" + scene->getSceneName() + ".rzscn";
+        m_LoadedSceneFilePaths.push_back(scenePath);
+        scene->serialiseScene(scenePath);
         RAZIX_CORE_INFO("[Scene Manager] - Enqueued Scene Index : {0}, Name : {1}", scene->getSceneName(), m_QueuedSceneIndexToLoad);
     }
 
@@ -20,8 +24,9 @@ namespace Razix {
         auto name = Utilities::RemoveFilePathExtension(Utilities::GetFileName(sceneFilePath));
         auto scene = new RZScene(name);
         // Once loaded to memory De-Serialize it
-        scene->DeSerialiseScene(sceneFilePath);
-        enqueScene(scene);
+        scene->deSerialiseScene(sceneFilePath);
+        m_LoadedScenes.push_back(scene);
+        RAZIX_CORE_INFO("[Scene Manager] - Enqueued Scene Index : {0}, Name : {1}", scene->getSceneName(), m_QueuedSceneIndexToLoad);
     }
 
     void RZSceneManager::loadScene()
@@ -33,6 +38,8 @@ namespace Razix {
     {
         m_QueuedSceneIndexToLoad = index;
         m_IsSwitchingScenes = true;
+
+        loadSceneSettings();
     }
 
     void RZSceneManager::loadScene(const std::string& sceneName)
@@ -82,10 +89,10 @@ namespace Razix {
         // Load and resume other paused/exited engine systems related to scene functionality\
 
         // Deserialize the scene
-        std::string physicalPath;
-        if (Razix::RZVirtualFileSystem::Get().resolvePhysicalPath("//Scenes/" + m_CurrentScene->getSceneName() + ".rzscn", physicalPath)) {
-        }
-        m_CurrentScene->DeSerialiseScene(physicalPath);
+        //std::string physicalPath;
+        //if (Razix::RZVirtualFileSystem::Get().resolvePhysicalPath("//Scenes/" + m_CurrentScene->getSceneName() + ".rzscn", physicalPath)) {
+        //}
+        //m_CurrentScene->deSerialiseScene(physicalPath);
 
         RAZIX_CORE_INFO("[Scene Manager] - Scene switched to : {0}", m_CurrentScene->getSceneName().c_str());
 
@@ -98,4 +105,21 @@ namespace Razix {
             loadScene(filePath);
         }
     }
+
+    void RZSceneManager::saveAllScenes()
+    {
+        for (size_t i = 0; i < m_LoadedSceneFilePaths.size(); i++) {
+            auto path = m_LoadedSceneFilePaths[i];
+            auto scene = m_LoadedScenes[i];
+            scene->serialiseScene(path);
+        }
+    }
+
+    void RZSceneManager::saveCurrentScene()
+    {
+        // TODO: This isn't right
+        std::string scenePath = "//Scenes/" + m_CurrentScene->getSceneName() + ".rzscn";
+        m_CurrentScene->serialiseScene(scenePath);
+    }
+
 }

@@ -209,12 +209,13 @@ namespace Razix {
                 SpvReflectDescriptorBinding** pp_descriptor_bindings = (SpvReflectDescriptorBinding**) malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
                 result = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, pp_descriptor_bindings);
 
-                //std::cout << "---------------------------------------------" << std::endl;
-                DescriptorSetInfo* setInfo = new DescriptorSetInfo;
-                setInfo->setID = -1;
-                bool oldSet = false;
-
                 for (uint32_t i = 0; i < descriptors_count; i++) {
+
+                    std::cout << "---------------------------------------------" << std::endl;
+                    DescriptorSetInfo* setInfo = new DescriptorSetInfo;
+                    setInfo->setID = -1;
+                    bool oldSet = false;
+
                     SpvReflectDescriptorBinding* descriptor = pp_descriptor_bindings[i];
 
                     for (size_t i = 0; i < m_DescriptorSetInfos.size(); i++) {
@@ -227,13 +228,13 @@ namespace Razix {
                     RZDescriptor rzDescriptor;
 
   
-                    //std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
-                    //std::cout << "UBO Name                  : " << descriptor->name << std::endl;
-                    //std::cout << "Binding                   : " << descriptor->binding << std::endl;
-                    //std::cout << "Set                       : " << descriptor->set << std::endl;
-                    //std::cout << "Count                     : " << descriptor->count << std::endl;
-                    //std::cout << "Descriptor Type           : " << ToStringDescriptorType(descriptor->descriptor_type) << std::endl;
-                    //std::cout << "Member Count              : " << descriptor->block.member_count << std::endl;
+                    std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
+                    std::cout << "UBO Name                  : " << descriptor->name << std::endl;
+                    std::cout << "Binding                   : " << descriptor->binding << std::endl;
+                    std::cout << "Set                       : " << descriptor->set << std::endl;
+                    std::cout << "Count                     : " << descriptor->count << std::endl;
+                    std::cout << "Descriptor Type           : " << ToStringDescriptorType(descriptor->descriptor_type) << std::endl;
+                    std::cout << "Member Count              : " << descriptor->block.member_count << std::endl;
                     //
                     //for (size_t i = 0; i < descriptor->block.member_count; i++) {
                     //
@@ -279,9 +280,11 @@ namespace Razix {
                     setInfo->setID = descriptor->set;
                     setInfo->descriptors.push_back(rzDescriptor);
 
+                    if (!oldSet && setInfo->setID != -1)
+                        m_DescriptorSetInfos.push_back(*setInfo);
                 }
-                if(!oldSet && setInfo->setID != -1)
-                    m_DescriptorSetInfos.push_back(*setInfo);
+                //if(!oldSet && setInfo->setID != -1)
+                //    m_DescriptorSetInfos.push_back(*setInfo);
 
                 // Get info about push constants
                 uint32_t push_constants_count = 0;

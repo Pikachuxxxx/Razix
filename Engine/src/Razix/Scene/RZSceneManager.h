@@ -12,6 +12,7 @@ namespace Razix {
     {
     public:
         RZSceneManager() {}
+
         virtual ~RZSceneManager() {}
 
         /**
@@ -51,6 +52,14 @@ namespace Razix {
          * Loads/re-loads all the scenes that are stored through file paths and load lists
          */
         void loadAllScenes();
+
+        void saveAllScenes();
+
+        const std::vector<std::string>& getSceneFilePaths() const { return m_LoadedSceneFilePaths; }
+
+        RAZIX_INLINE uint32_t getCurrentSceneIndex() const { return m_CurrentSceneIdx; }
+        RAZIX_INLINE RZScene* getCurrentScene() { return m_CurrentScene; }
+        void saveCurrentScene();
 
     private:
         uint32_t                    m_CurrentSceneIdx           = 0;            /* The current index of the scene that is being presented by the engine */
