@@ -314,10 +314,9 @@ namespace Razix {
      */
     struct RAZIX_API SpriteRendererComponent
     {
-        Graphics::RZSprite* Sprite;
+        Graphics::RZSprite* Sprite =  nullptr;
 
-        SpriteRendererComponent()
-            : Sprite(new Graphics::RZSprite) { }
+        SpriteRendererComponent() { }
         SpriteRendererComponent(glm::vec4 color)
         {
             Sprite = new Graphics::RZSprite(color);

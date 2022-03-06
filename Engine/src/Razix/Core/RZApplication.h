@@ -17,6 +17,7 @@
 
 // Cereal
 #pragma warning(push, 0)
+#include <cereal/types/vector.hpp>
 #include <cereal/archives/json.hpp>
 #pragma warning(pop)
 
@@ -131,6 +132,12 @@ namespace Razix
             std::string uuid_string;
             archive(cereal::make_nvp("Project ID", uuid_string));
             m_ProjectID = RZUUID::FromStrFactory(uuid_string);
+
+            // Load the scenes from the project file for the engine to load and present
+            RAZIX_CORE_TRACE("Loading Scenes...");
+            archive(cereal::make_nvp("Scenes", sceneFilePaths));
+            for (auto& sceneFilePath : sceneFilePaths)
+                RAZIX_CORE_TRACE("\t scene : {0}", sceneFilePath);
         }
 
         // Save mechanism for the RZApplication class
@@ -145,6 +152,15 @@ namespace Razix
             archive(cereal::make_nvp("Width", m_Window.get()->getWidth()));
             archive(cereal::make_nvp("Height",  m_Window.get()->getHeight()));
             archive(cereal::make_nvp("Project Path", m_AppFilePath)); // Why am I even serializing this?
+
+            auto paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
+            std::vector<std::string> newPaths;
+            for (auto& path : paths) {
+                std::string newPath;
+                RZVirtualFileSystem::Get().absolutePathToVFS(path, newPath);
+                newPaths.push_back(path);
+            }
+            archive(cereal::make_nvp("Scenes", newPaths));
         }
 
     private:
@@ -161,6 +177,8 @@ namespace Razix
         UniqueRef<RZWindow>     m_Window;                               /* The window that will be used to view graphics            */
         WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
         RZUUID                  m_ProjectID;                            /* Project ID is a UUID to uniquely identify project        */
+
+        std::vector<std::string> sceneFilePaths;
 
     private:
         /**

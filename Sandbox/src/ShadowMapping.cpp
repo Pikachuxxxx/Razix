@@ -1,4 +1,4 @@
-#if 1
+#if 0
 
 #include <Razix.h>
 
@@ -29,11 +29,10 @@ public:
 
     void OnStart() override
     {
-
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
         // Load scene
-        m_ActiveScene.DeSerialiseScene("//Scenes/shadows.rzscn");
+        m_ActiveScene.deSerialiseScene("//Scenes/shadows.rzscn");
 
         auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
         if (!cameras.size()) {
@@ -45,10 +44,8 @@ public:
             }
         }
 
-
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
-
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
@@ -70,11 +67,11 @@ public:
             }
 
             // Load resources
-            armadilloModel = new Graphics::RZModel("//Meshes/armadillo.obj");
-            teapotModel = new Graphics::RZModel("//Meshes/teapot.fbx");
-            avacadoModel = new Graphics::RZModel("//Meshes/Avocado.gltf");
+            //armadilloModel = new Graphics::RZModel("//Meshes/armadillo.obj");
+            //teapotModel = new Graphics::RZModel("//Meshes/teapot.fbx");
+            //avacadoModel = new Graphics::RZModel("//Meshes/Avocado.gltf");
             
-            sphereMesh = Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Sphere);
+            sphereMesh = Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Plane);
         }
     }
 
@@ -82,7 +79,7 @@ public:
     {
         // Update the camera
         auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
-        m_ActiveScene.GetSceneCamera().Camera.update(dt.GetTimestepMs());
+        m_ActiveScene.getSceneCamera().Camera.update(dt.GetTimestepMs());
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
@@ -134,18 +131,19 @@ public:
                 }
 
                 // Draw a sphere
-                //sphereMesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                //sphereMesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                //
-                //Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sphereMesh->getIndexCount());
+                sphereMesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                sphereMesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sphereMesh->getIndexCount());
 
-                offscreen_renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 // Update the uniform buffer data
                 viewProjUBOData.view = cameras[0].Camera.getViewMatrix();
                 viewProjUBOData.projection = cameras[0].Camera.getProjection();
                 viewProjUBOData.projection[1][1] *= -1;
                 viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
+
+                offscreen_renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
             }
             
             // Present the frame by executing the recorded commands
@@ -181,13 +179,15 @@ public:
 
     void OnQuit() override
     {
+        // TODO: Call destructor for all entities and it's components
 
-        m_ActiveScene.SerialiseScene("//Scenes/shadows.rzscn");
+
+        m_ActiveScene.serialiseScene("//Scenes/shadows.rzscn");
 
         sphereMesh->Destroy();
-        armadilloModel->Destroy();
-        teapotModel->Destroy();
-        avacadoModel->Destroy();
+        //armadilloModel->Destroy();
+        //teapotModel->Destroy();
+        //avacadoModel->Destroy();
 
         // Delete the textures
         testTexture->Release();

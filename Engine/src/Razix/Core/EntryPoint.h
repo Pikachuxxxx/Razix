@@ -54,6 +54,8 @@ int main(int argc, char** argv)
     if(argc > 1)
         Razix::RZEngine::Get().commandLineParser.parse(args);
 
+    Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
+
     // Application auto Initialization by the Engine
     Razix::CreateApplication();
 

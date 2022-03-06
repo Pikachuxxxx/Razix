@@ -28,14 +28,14 @@ namespace Razix {
             glm::vec4 Color;
             glm::vec2 TexCoords;
             glm::vec3 Normal;
-            //glm::vec3 Tangent;
+            glm::vec3 Tangent;
 
             RZVertex()
-                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), TexCoords(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)) {}//, Tangent(glm::vec3(0.0f)) { }
+                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), TexCoords(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)) { }
 
             bool operator==(const RZVertex& other) const
             {
-                return Position == other.Position && TexCoords == other.TexCoords && Color == other.Color && Normal == other.Normal;//&& Tangent == other.Tangent;
+                return Position == other.Position && TexCoords == other.TexCoords && Color == other.Color && Normal == other.Normal && Tangent == other.Tangent;
             }
         };
         
@@ -67,6 +67,9 @@ namespace Razix {
             RZMesh(const std::vector<uint32_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold = 1.0f);
     
             virtual ~RZMesh() { }
+
+            static void GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount);
+            static void GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount);
 
             void Destroy();
 

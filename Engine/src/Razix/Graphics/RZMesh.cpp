@@ -54,6 +54,98 @@ namespace Razix {
             m_VertexBuffer->AddBufferLayout(layout);
         }
 
+        void RZMesh::GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount)
+        {
+            glm::vec3* normals = new glm::vec3[vertexCount];
+
+            for (uint32_t i = 0; i < vertexCount; ++i)
+                normals[i] = glm::vec3();
+
+            if (indices) {
+                for (uint32_t i = 0; i < indexCount; i += 3) {
+                    const int a = indices[i];
+                    const int b = indices[i + 1];
+                    const int c = indices[i + 2];
+
+                    const glm::vec3 _normal = glm::cross((vertices[b].Position - vertices[a].Position), (vertices[c].Position - vertices[a].Position));
+
+                    normals[a] += _normal;
+                    normals[b] += _normal;
+                    normals[c] += _normal;
+                }
+            }
+            else {
+                // It's just a list of triangles, so generate face normals
+                for (uint32_t i = 0; i < vertexCount; i += 3) {
+                    glm::vec3& a = vertices[i].Position;
+                    glm::vec3& b = vertices[i + 1].Position;
+                    glm::vec3& c = vertices[i + 2].Position;
+
+                    const glm::vec3 _normal = glm::cross(b - a, c - a);
+
+                    normals[i] = _normal;
+                    normals[i + 1] = _normal;
+                    normals[i + 2] = _normal;
+                }
+            }
+
+            for (uint32_t i = 0; i < vertexCount; ++i)
+                vertices[i].Normal = glm::normalize(normals[i]);
+
+            delete[] normals;
+        }
+
+        static glm::vec3 GenerateTangent(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec2& ta, const glm::vec2& tb, const glm::vec2& tc)
+        {
+            const glm::vec2 coord1 = tb - ta;
+            const glm::vec2 coord2 = tc - ta;
+
+            const glm::vec3 vertex1 = b - a;
+            const glm::vec3 vertex2 = c - a;
+
+            const glm::vec3 axis = glm::vec3(vertex1 * coord2.y - vertex2 * coord1.y);
+
+            const float factor = 1.0f / (coord1.x * coord2.y - coord2.x * coord1.y);
+
+            return axis * factor;
+        }
+
+        void RZMesh::GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount)
+        {
+            glm::vec3* tangents = new glm::vec3[vertexCount];
+
+            for (uint32_t i = 0; i < vertexCount; ++i)
+                tangents[i] = glm::vec3();
+
+            if (indices) {
+                for (uint32_t i = 0; i < indexCount; i += 3) {
+                    int a = indices[i];
+                    int b = indices[i + 1];
+                    int c = indices[i + 2];
+
+                    const glm::vec3 tangent = GenerateTangent(vertices[a].Position, vertices[b].Position, vertices[c].Position, vertices[a].TexCoords, vertices[b].TexCoords, vertices[c].TexCoords);
+
+                    tangents[a] += tangent;
+                    tangents[b] += tangent;
+                    tangents[c] += tangent;
+                }
+            }
+            else {
+                for (uint32_t i = 0; i < vertexCount; i += 3) {
+                    const glm::vec3 tangent = GenerateTangent(vertices[i].Position, vertices[i + 1].Position, vertices[i + 2].Position, vertices[i].TexCoords, vertices[i + 1].TexCoords,
+                        vertices[i + 2].TexCoords);
+
+                    tangents[i] += tangent;
+                    tangents[i + 1] += tangent;
+                    tangents[i + 2] += tangent;
+                }
+            }
+            for (uint32_t i = 0; i < vertexCount; ++i)
+                vertices[i].Tangent = glm::normalize(tangents[i]);
+
+                delete[] tangents;
+        }
+
         void RZMesh::Destroy()
         {
             m_VertexBuffer->Destroy();
