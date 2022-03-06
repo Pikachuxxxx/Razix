@@ -82,8 +82,14 @@ namespace Razix {
                     vertexCount++;
                 }
 
-                // TODO: Generate normal if they doesn't exist
-                // TODO: Generate tangents
+                // Generate normal if they doesn't exist
+                if(attrib.normals.empty())
+                    Graphics::RZMesh::GenerateNormals(vertices, vertexCount, indices, numIndices);
+
+                // Generate tangents
+                Graphics::RZMesh::GenerateTangents(vertices, vertexCount, indices, numIndices);
+
+
                 // TODO: Query and retrieve the materials information, use a pre-defined shader to create the material and fill in the necessary info
 
                 // Create the meshes
@@ -94,7 +100,7 @@ namespace Razix {
                 layout.push<glm::vec4>("Color");
                 layout.push<glm::vec2>("TexCoords");
                 layout.push<glm::vec3>("Normal");
-                //layout.push<glm::vec3>("Tangent");
+                layout.push<glm::vec3>("Tangent");
                 vb->AddBufferLayout(layout);
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(indices, numIndices);

@@ -130,7 +130,7 @@ namespace Razix {
         /* Encapsulating the descriptors of a set along with the setID */
         struct DescriptorSetInfo
         {
-            uint32_t                                    setID;          /* The set number to which the descriptors correspond to */
+            int32_t                                     setID;          /* The set number to which the descriptors correspond to */
             std::vector<RZDescriptor>                   descriptors;    /* The descriptors that will be bound to this set and passed to the GPU */
         };
 
