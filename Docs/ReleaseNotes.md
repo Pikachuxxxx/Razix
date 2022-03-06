@@ -1,7 +1,7 @@
 # Razix Engine Release Notes
 
 ## Version - 0.30.0 [Development] - 06/03/2022
-    ![](../Branding/DemoImages/ReleaseNotes/RazixV0.3.0.Dev.SceneTest.png)
+![](../Branding/DemoImages/ReleaseNotes/RazixV0.3.0.Dev.SceneTest.png)
     - Added Entity Component System with entities
     - Added Robust Scene System and Scene Manager
     - Added multiple components such as Transform, Tag, ID, Camera, Meshrenderer, Sprite Renderer etc.
