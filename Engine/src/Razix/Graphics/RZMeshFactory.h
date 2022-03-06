@@ -37,7 +37,7 @@ namespace Razix {
             RZMesh* CreateSphere(uint32_t xSegments = 64, uint32_t ySegments = 64);
             RZMesh* CreateIcoSphere(uint32_t radius = 1, uint32_t subdivision = 64);
             RZMesh* CreateCapsule(float radius = 1.0f, float midHeight = 1.0f, int radialSegments = 64, int rings = 8);
-            RZMesh* CreatePlane(float width, float height, const glm::vec3& normal);
+            RZMesh* CreatePlane(float width = 10.0f, float height = 10.0f, const glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
             RZMesh* CreateCylinder(float bottomRadius = 1.0f, float topRadius = 1.0f, float height = 1.0f, int radialSegments = 64, int rings = 8);
         }
     }

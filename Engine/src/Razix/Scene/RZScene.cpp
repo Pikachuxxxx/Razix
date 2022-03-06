@@ -45,7 +45,7 @@ namespace Razix {
         m_Registry.destroy(entity);
     }
 
-    void RZScene::SerialiseScene(const std::string& filePath)
+    void RZScene::serialiseScene(const std::string& filePath)
     {
         std::string fullFilePath;
         bool nope = RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);
@@ -64,7 +64,7 @@ namespace Razix {
         entt::snapshot{m_Registry}.entities(defArchive).component<RAZIX_COMPONENTS>(defArchive);
     }
 
-    void RZScene::DeSerialiseScene(const std::string& filePath)
+    void RZScene::deSerialiseScene(const std::string& filePath)
     {
         std::string fullFilePath;
         RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);

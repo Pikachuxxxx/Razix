@@ -34,9 +34,9 @@ namespace Razix {
         void destroyEntity(RZEntity entity);
 
         /* Serialize the scene to the given file path */
-        void SerialiseScene(const std::string& filePath);
+        void serialiseScene(const std::string& filePath);
         /* De-Serialize the scene from the given file path */
-        void DeSerialiseScene(const std::string& filePath);
+        void deSerialiseScene(const std::string& filePath);
 
         /**
          * Gets the scene camera component with which the world is rendered (if exists)
@@ -77,14 +77,17 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("uuid", m_SceneUUID));
+            archive(cereal::make_nvp("UUID", m_SceneUUID.str()));
             archive(cereal::make_nvp("SceneName", m_SceneName));
+            archive(cereal::make_nvp("Total Entities", (uint32_t)m_Registry.alive()));
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            archive(cereal::make_nvp("uuid", m_SceneUUID));
+            std::string uuid_string;
+            archive(cereal::make_nvp("UUID", uuid_string));
+            m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
             archive(cereal::make_nvp("SceneName", m_SceneName));
         }
 
