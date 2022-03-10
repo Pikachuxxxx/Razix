@@ -1,4 +1,5 @@
-/*
+#if 0
+
 #include <Razix.h>
 
 using namespace Razix;
@@ -16,7 +17,7 @@ private:
     }viewProjUBOData;
 
 public:
-    Sandbox() : RZApplication("/Sandbox/","Sandbox")
+    Sandbox() : RZApplication("/Sandbox/","Sandbox"), m_ActiveScene("Sandbox")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
@@ -33,6 +34,21 @@ public:
 
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
+        m_ActiveScene.SerialiseScene("//Scenes/Sandbox.rzscn");
+        m_ActiveScene.DeSerialiseScene("//Scenes/Sandbox.rzscn");
+
+        auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
+        if (!cameras.size()) {
+            RZEntity& camera = m_ActiveScene.createEntity("Camera");
+            camera.AddComponent<CameraComponent>();
+            if (camera.HasComponent<CameraComponent>()) {
+                CameraComponent& cc = camera.GetComponent<CameraComponent>();
+                cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
+            }
+        }
+
+        cornellBoxModel = new Graphics::RZModel("//Meshes/TeapotVC.gltf");
+
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
           offscreen_swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
         }
@@ -42,13 +58,16 @@ public:
             buildCommandPipeline();
 
             Graphics::RZAPIRenderer::Init();
+
         }
     }
 
     void OnUpdate(const RZTimestep& dt) override 
     {
         // Update the camera
-        m_Camera.update(dt.GetTimestepMs());
+        //m_Camera.update(dt.GetTimestepMs());
+        auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
+        m_ActiveScene.GetSceneCamera().Camera.update(dt.GetTimestepMs());
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
@@ -70,24 +89,36 @@ public:
 
                 offscreen_renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(1.0f, 0.5f, abs(sin(getTimer().GetElapsed())), 1.0f), offscreen_framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
 
+                //Graphics::RZAPIRenderer::SetDepthBias(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
                 offscreen_pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                Graphics::RZAPIRenderer::BindDescriptorSets(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), offscreen_descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                Graphics::RZAPIRenderer::BindDescriptorSets(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), offscreen_descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
-                // TODO: Fix this!
                 //auto shaderPushConstants = defaultShader->getPushConstants();
-                Graphics::RZAPIRenderer::BindPushConstants(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                Graphics::RZAPIRenderer::BindPushConstants(offscreen_pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), TransformComponent());
 
                 triVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 triIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
+                Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(width, height);
+
                 Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
+
+                auto meshes = cornellBoxModel->getMeshes();
+                for (auto mesh : meshes) {
+                    mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                    mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+                    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
+                }
+
 
                 offscreen_renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 // Update the uniform buffer data
-                viewProjUBOData.view = m_Camera.getViewMatrix();
-                viewProjUBOData.projection = glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 1000.0f);
+                viewProjUBOData.view = cameras[0].Camera.getViewMatrix();
+                viewProjUBOData.projection = cameras[0].Camera.getProjection();
                 viewProjUBOData.projection[1][1] *= -1;
                 viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
             }
@@ -106,7 +137,7 @@ public:
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex());
+                Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descripotrSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
                 quadVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                 triIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -125,6 +156,9 @@ public:
 
     void OnQuit() override
     {
+
+        m_ActiveScene.SerialiseScene("//Scenes/Sandbox.rzscn");
+
         // Delete the textures
         logoTexture->Release();
         testTexture->Release();
@@ -207,6 +241,10 @@ private:
 
     Graphics::RZRenderTexture*                                                  offscreenRT;
 
+    RZScene                                                                     m_ActiveScene;
+
+    Graphics::RZModel*                                                          cornellBoxModel;
+
 private:
     void buildPipelineResources()
     {
@@ -216,11 +254,11 @@ private:
         // Create the render targets as the same size of the resize cause it's fookin less code
         offscreenRT = Graphics::RZRenderTexture::Create(width, height, Graphics::RZTexture::Format::RGBA);
 
-        float vertices[8 * 4] = {
-           -2.5f, -2.5f, -2.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            2.5f, -2.5f, -2.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-            2.5f, -2.5f,  2.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-           -2.5f, -2.5f,  2.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
+        float vertices[12 * 4] = {
+           -2.5f, 0.0f, -2.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            2.5f, 0.0f, -2.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            2.5f, 0.0f,  2.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+           -2.5f, 0.0f,  2.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f
         };
 
         float quad_vertices[5 * 4] = {
@@ -236,10 +274,12 @@ private:
 
         // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
         bufferLayout.push<glm::vec3>("Position");
-        bufferLayout.push<glm::vec3>("Color");
+        bufferLayout.push<glm::vec4>("Color");
         bufferLayout.push<glm::vec2>("TexCoord");
+        bufferLayout.push<glm::vec3>("Normals");
 
-        triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 8 * 4, vertices, Graphics::BufferUsage::STATIC);
+
+        triVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 12 * 4, vertices, Graphics::BufferUsage::STATIC);
         triVBO->AddBufferLayout(bufferLayout);
         triIBO = Graphics::RZIndexBuffer::Create(indices, 6, Graphics::BufferUsage::STATIC);
 
@@ -356,7 +396,6 @@ private:
             frameBufInfo.height = height;
             frameBufInfo.attachmentCount = 2;
             frameBufInfo.renderPass = offscreen_renderpass;
-            frameBufInfo.attachmentTypes = attachmentTypes;
             frameBufInfo.attachments = attachments;
 
             offscreen_framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
@@ -422,7 +461,6 @@ private:
             frameBufInfo.height = height;
             frameBufInfo.attachmentCount = 2;
             frameBufInfo.renderPass = renderpass;
-            frameBufInfo.attachmentTypes = attachmentTypes;
             frameBufInfo.attachments = on_screenattachments;
 
             framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
@@ -455,4 +493,4 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new Sandbox();
 }
-*/
+#endif

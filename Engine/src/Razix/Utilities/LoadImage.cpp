@@ -18,6 +18,7 @@ namespace Razix
 		int texWidth = 0, texHeight = 0, texChannels = 0;
 		stbi_uc* pixels = nullptr;
 	
+        stbi_set_flip_vertically_on_load(false);
 		pixels = stbi_load(physicalPath.c_str(), &texWidth, &texHeight, &texChannels, 0);
 
 		RAZIX_CORE_ASSERT((pixels != nullptr), "Could not load image from : {0}", physicalPath);

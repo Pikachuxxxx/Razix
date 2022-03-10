@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include <Razix.h>
@@ -27,7 +28,7 @@ private:
     }gridData{};
 
 public:
-    GridTest() : RZApplication("/Sandbox/", "GridTest")
+    GridTest() : RZApplication("/Sandbox/", "GridTest"), m_ActiveScene("Grid Test Scene")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
@@ -35,7 +36,7 @@ public:
         //-------------------------------------------------------------------------------------
 
         // Test Razix UUID Generation Here
-        RZUUID uuid = RZUUIDGenerator::generateUUID();
+        RZUUID uuid;
 
         std::string bytes = uuid.bytes();
 
@@ -45,17 +46,47 @@ public:
 
         RAZIX_TRACE("UUID (36 byte string): {0}", s);
 
-        for (size_t i = 0; i < 100; ++i) {
-            RZUUID uuid = RZUUIDGenerator::generateUUID();
-            std::string s = uuid.str();
-            std::cout << "RZUUID: " << s << std::endl;
-        }
+        //for (size_t i = 0; i < 100; ++i) {
+        //    RZUUID uuid;
+        //    std::string s = uuid.str();
+        //    std::cout << "RZUUID: " << s << std::endl;
+        //}
+
+        //std::vector<RZEntity> entities;
+        //for (int i = 0; i < 100; i++) {
+        //    RZEntity entity = m_ActiveScene.createEntity("Camera");
+        //    RAZIX_TRACE("Entity name : {0} | UUID : {1}", entity.GetComponent<TagComponent>().Tag, entity.GetComponent<IDComponent>().UUID);
+        //    //entities.push_back(entity);
+        //}
     }
 
     ~GridTest() {}
 
     void OnStart() override
     {
+        m_ActiveScene.DeSerialiseScene("//Scenes/gridtest.rzscn");
+
+        // TODO: Get the components as references, such that If I update the camera it should update it's contents basically it should work!!! (dumb comment but describes the bug well)
+
+        //RZEntity& camera = m_ActiveScene.createEntity("Camera");
+        //camera.AddComponent<CameraComponent>();
+
+        //RAZIX_TRACE("Does have camera : {0}", camera.HasComponent<CameraComponent>());
+
+        //if (camera.HasComponent<CameraComponent>()) {
+        //    CameraComponent& trans = camera.GetComponent<CameraComponent>();
+        //    trans.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
+        //}
+
+        //std::cout << "Entities count in scene : " << entities.size() << std::endl;
+
+        auto& uuids = m_ActiveScene.GetComponentsOfType<CameraComponent>();
+        for (size_t i = 0; i < uuids.size(); i++) {
+            //RAZIX_TRACE("Entity name : {0}", uuids[i].Tag);
+            //RAZIX_TRACE("Camera Position : {0}", glm::to_string(uuids[i].Camera.getPosition()));
+            //std::cout << uuids[i].Primary;
+        }
+
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
 
@@ -76,7 +107,17 @@ public:
     void OnUpdate(const RZTimestep& dt) override
     {
         // Update the camera
-        m_Camera.update(dt.GetTimestepMs());
+        //m_Camera.update(dt.GetTimestepMs());
+
+        auto& uuids = m_ActiveScene.GetComponentsOfType<CameraComponent>();
+        for (size_t i = 0; i < uuids.size(); i++) {
+            //RAZIX_TRACE("Entity name : {0}", uuids[i].Tag);
+            RAZIX_TRACE("Camera Position : {0}", glm::to_string(uuids[i].Camera.getPosition()));
+            //std::cout << uuids[i].Primary;
+        }
+
+        //uuids[0].Camera.update(dt.GetTimestepMs());
+        m_ActiveScene.GetSceneCamera().Camera.update(dt.GetTimestepMs());
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
@@ -115,8 +156,8 @@ public:
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 // Update the uniform buffer data
-                viewProjUBOData.view = m_Camera.getViewMatrix();
-                viewProjUBOData.projection = glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 1000.0f);
+                viewProjUBOData.view = uuids[0].Camera.getViewMatrix(); //m_Camera.getViewMatrix();//
+                viewProjUBOData.projection = uuids[0].Camera.getProjection();// glm::perspective(glm::radians(45.0f), (float) getWindow()->getWidth() / getWindow()->getHeight(), 0.01f, 1000.0f); //
                 viewProjUBOData.projection[1][1] *= -1;
                 viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
@@ -136,13 +177,15 @@ public:
 
     void OnQuit() override
     {
+        m_ActiveScene.SerialiseScene("//Scenes/gridtest.rzscn");
+
         // Delete the textures
         logoTexture->Release();
         testTexture->Release();
 
         gridVBO->Destroy();
         gridIBO->Destroy();
-
+         
         for (size_t i = 0; i < 3; i++) {
             viewProjUniformBuffers[i]->Destroy();
             gridUniformBuffers[i]->Destroy();
@@ -195,6 +238,8 @@ private:
     uint32_t                                                                    width, height;
     Graphics::Camera3D                                                          m_Camera;
 
+    RZScene                                                                     m_ActiveScene;
+    CameraComponent                                                             m_SceneCameraComponent;
 private:
     void buildPipelineResources()
     {
@@ -323,3 +368,4 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new GridTest();
 }
+#endif

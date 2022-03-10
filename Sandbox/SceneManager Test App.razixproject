@@ -1,0 +1,15 @@
+{
+    "Razix Application": {
+        "Project Name": "SceneManager Test App",
+        "Engine Version": "0.30.0",
+        "Project ID": "6b12ca79-84bc-4493-9590-17ea93344970",
+        "Render API": 1,
+        "Width": 1920,
+        "Height": 1009,
+        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
+        "Scenes": [
+            "//Scenes/SceneManagerTest.rzscn",
+            "//Scenes/SceneManagerTest_Alt.rzscn"
+        ]
+    }
+}

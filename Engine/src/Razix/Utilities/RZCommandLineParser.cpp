@@ -7,6 +7,7 @@ namespace Razix
     {
         AddCommand("help", { "--help" }, 0, "Show help");
         AddCommand("project filename", { "-f", "--project-file" }, 1, "The project file to start the application with");
+        AddCommand("project filename", { "-s", "--scene" }, 1, "The scene file to load when the engine is fired");
         AddCommand("engine config filename", { "-cf", "--config-file" }, 1, "The engine config file to for the engine runtime settings");
         AddCommand("rendering api", { "-a", "--api" }, 1, "The Rendering API to use");
         AddCommand("validation", { "-v", "--validation" }, 0, "Enable Graphics API validation layers");

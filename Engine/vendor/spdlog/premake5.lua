@@ -1,4 +1,4 @@
-project "spdlog"
+project "meshoptimizer"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"

@@ -199,7 +199,7 @@ namespace Razix {
             graphicsPipelineCI.pDepthStencilState = &depthStencilSCI;
             std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(m_Shader)->getShaderStages();
             graphicsPipelineCI.pStages = shaderStages.data();
-            graphicsPipelineCI.stageCount = 2; // TODO: Make this dynamic--> Cuurrently only Vertex and Pixel shader stages
+            graphicsPipelineCI.stageCount = shaderStages.size();
             graphicsPipelineCI.renderPass = static_cast<VKRenderPass*>(pipelineInfo.renderpass)->getVKRenderPass();
 
             // TODO: use pipeline cache

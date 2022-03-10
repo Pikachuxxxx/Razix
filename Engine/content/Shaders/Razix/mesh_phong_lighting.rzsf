@@ -1,0 +1,17 @@
+﻿/*
+ * Razix Shader File 
+ * phong_lightmaps.rzsf : Phong shader that can be used to render the scene with basic lighting using light maps (albedo, roughness, normal etc.)
+ * Copyright Razix Engine 2021 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/mesh.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/mesh_phong_lighting.frag.spv
+    #endif
+#end

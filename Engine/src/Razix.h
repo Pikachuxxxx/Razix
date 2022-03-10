@@ -12,7 +12,6 @@
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/RZSmartPointers.h"
 #include "Razix/Core/RZUUID.h"
-#include "Razix/Core/RZUUIDGenerator.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZKeyCodes.h"
@@ -47,6 +46,17 @@
 
 // Graphics/Cameras
 #include "Razix/Graphics/Cameras/Camera3D.h"
+
+// Graphics
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Graphics/RZSprite.h"
+
+// Scene
+#include "Razix/Scene/RZComponents.h"
+#include "Razix/Scene/RZScene.h"
+#include "Razix/Scene/RZEntity.h"
 
 // Utilities
 #include "Razix/Utilities/RZCommandLineParser.h"

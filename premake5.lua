@@ -67,6 +67,8 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/spdlog/premake5")
         require("Engine/vendor/SPIRVReflect/premake5")
         require("Engine/vendor/SPIRVCross/premake5")
+        require("Engine/vendor/meshoptimizer/premake5")
+        require("Engine/vendor/OpenFBX/premake5")
     group ""
 
     framework "4.0"
@@ -111,7 +113,7 @@ workspace ( settings.workspace_name )
             include "Tools/Building/RazixVersion/premake5"
     group ""
 
-    -- Engine related tools
+    -- Razix Engine Samples and Tests
     --------------------------------------------------------------------------------
     -- TODO: Tests (recrusively projects are added)
     -- TODO: Samples
