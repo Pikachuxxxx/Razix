@@ -9,6 +9,7 @@ IncludeDir["stb"]               = "vendor/stb/"
 IncludeDir["glm"]               = "vendor/glm/"
 IncludeDir["SPIRVReflect"]      = "vendor/SPIRVReflect/"
 IncludeDir["SPIRVCross"]        = "vendor/SPIRVCross/include"
+IncludeDir["entt"]              = "vendor/entt/include"
 IncludeDir["Razix"]             = "src"
 IncludeDir["vendor"]            = "vendor/"
 
@@ -94,9 +95,10 @@ project "Razix"
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
-        -- API related 
+        -- API related
         "%{VulkanSDK}"
     }
 
@@ -118,9 +120,10 @@ project "Razix"
         "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
-        -- API related 
+        -- API related
         "%{VulkanSDK}"
     }
 
@@ -131,9 +134,11 @@ project "Razix"
         "imgui",
         "spdlog",
         "SPIRVReflect",
-        "SPIRVCross"
+        "SPIRVCross",
+        "meshoptimizer",
+        "OpenFBX"
     }
-  
+
     -- Don't build the shaders, they are compiled by the engine once and cached
    filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
         flags { "ExcludeFromBuild"}
@@ -155,7 +160,7 @@ project "Razix"
      -- Disable warning for vendor
     filter { "files:vendor/**"}
         warnings "Off"
-            
+
     -- Razix Project settings for Windows
     filter "system:windows"
         cppdialect "C++17"
@@ -244,17 +249,14 @@ project "Razix"
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG" }
         symbols "On"
-        runtime "Debug"
         optimize "Off"
 
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
-        runtime "Release"
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
-        runtime "Release"

@@ -17,6 +17,8 @@ namespace Razix {
             m_AttachmentsCount = 0;
             m_ColorAttachmentsCount = 0;
 
+            m_AttachmentTypes = renderPassInfo.textureType;
+
             init(renderPassInfo);
         }
 
@@ -74,15 +76,7 @@ namespace Razix {
         }
 
         bool VKRenderPass::init(const RenderPassInfo& renderpassInfo)
-        {
-            VkSubpassDependency dependency = {};
-            dependency.srcSubpass       = VK_SUBPASS_EXTERNAL;
-            dependency.dstSubpass       = 0;
-            dependency.srcStageMask     = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependency.srcAccessMask    = 0;
-            dependency.dstStageMask     = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependency.dstAccessMask    = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            
+        {            
             // List of attachments that will be attached to the render pass
             std::vector<VkAttachmentDescription> attachments;
 
@@ -121,14 +115,50 @@ namespace Razix {
 
             m_ColorAttachmentsCount = int(colourAttachmentReferences.size());
 
+            std::vector<VkSubpassDependency> dependencies;
+
+            if (!m_DepthOnly) {
+                VkSubpassDependency dependency = {};
+                dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+                dependency.dstSubpass = 0;
+                dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                dependency.srcAccessMask = 0;
+                dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                dependencies.push_back(dependency);
+            }
+            else {
+                // We use 2 sub passes for a depth only render pass, especially for shadow mapping and early fragments tests
+                std::array<VkSubpassDependency, 2> dependencies_array;
+
+                dependencies_array[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+                dependencies_array[0].dstSubpass = 0;
+                dependencies_array[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                dependencies_array[0].dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+                dependencies_array[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                dependencies_array[0].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                dependencies_array[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+                dependencies_array[1].srcSubpass = 0;
+                dependencies_array[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+                dependencies_array[1].srcStageMask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                dependencies_array[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                dependencies_array[1].srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                dependencies_array[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                dependencies_array[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+                
+                dependencies.push_back(dependencies_array[0]);
+                dependencies.push_back(dependencies_array[1]);
+            }
+
             VkRenderPassCreateInfo vkRenderpassCI{};
-            vkRenderpassCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-            vkRenderpassCI.attachmentCount = uint32_t(renderpassInfo.attachmentCount);
-            vkRenderpassCI.pAttachments = attachments.data();
-            vkRenderpassCI.subpassCount = 1;
-            vkRenderpassCI.pSubpasses = &subpass;
-            vkRenderpassCI.dependencyCount = 1;
-            vkRenderpassCI.pDependencies = &dependency;
+            vkRenderpassCI.sType            = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+            vkRenderpassCI.attachmentCount  = uint32_t(renderpassInfo.attachmentCount);
+            vkRenderpassCI.pAttachments     = attachments.data();
+            vkRenderpassCI.subpassCount     = 1;
+            vkRenderpassCI.pSubpasses       = &subpass;
+            vkRenderpassCI.dependencyCount  = dependencies.size();
+            vkRenderpassCI.pDependencies    = dependencies.data();
 
             if (VK_CHECK_RESULT(vkCreateRenderPass(VKDevice::Get().getDevice(), &vkRenderpassCI, nullptr, &m_RenderPass)))
                 RAZIX_CORE_ERROR("[Vulkan] Cannot create ({0}) render pass ", renderpassInfo.name);
@@ -148,7 +178,7 @@ namespace Razix {
             }
             else if (info.type == RZTexture::Type::DEPTH) {
                 attachment.format = VKUtilities::FindDepthFormat();
-                attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+                attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             }
             else {
                 RAZIX_CORE_WARN("[Vulkan] Unsupported texture type : {0}", static_cast<int>(info.type));
@@ -161,8 +191,8 @@ namespace Razix {
                 attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             }
             else {
-                attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+                attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                 attachment.initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
 

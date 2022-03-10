@@ -1,0 +1,13 @@
+﻿/*
+ * Razix Shader File 
+ * shadow.rzsf : Used for rendering shadows, generates a single depth map with early fragment testing, doesn't require a fragment shader and the out depth map from this can
+ * be used for various things like Shadow Mapping, pre-z filtering and cascaded shadow maps etc.
+ * Copyright Razix Engine 2021 by Pikachuxxxx (Phani Srikar)
+ */
+
+// Only a single vertex shader that is needed to render the scene as usual, we use a default shader to render the scene from the light POV
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/default.vert.spv
+    #endif
+#end

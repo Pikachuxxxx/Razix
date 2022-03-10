@@ -4,6 +4,8 @@
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
+#include "razix/Scene/RZSceneManager.h"
+
 //! The style guide rules are waved off for RZEngine class
 namespace Razix
 {
@@ -23,6 +25,10 @@ namespace Razix
 
     public:
 		RZCommandLineParser commandLineParser;	/* Command line parser for that helps in setting Engine and Application options */
+
+		// Engine Systems
+	private:
+		RZSceneManager		m_SceneManager;
 
 	public:
 		/* Starts up the Engine and it's sub-systems */
@@ -63,8 +69,11 @@ namespace Razix
 		/// <param name="targetFPS"> The targeted FPS for the engine </param>
 		void setTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
 
+		// TODO: Use a template method to get the systems automatically, hence use a system registration design with IRZSystem as parent
+		RZSceneManager& getSceneManager() { return m_SceneManager; }
+
 	private:
-		Stats m_Stats;										/* Current frame basic statistics */
-		float m_MaxFramesPerSecond = 1000.0f / 60.0f;		/* Maximum frames per second that will be rendered by the Engine */
+		Stats m_Stats;										/* Current frame basic statistics									*/
+		float m_MaxFramesPerSecond = 1000.0f / 60.0f;		/* Maximum frames per second that will be rendered by the Engine	*/
 	};
 }

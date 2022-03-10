@@ -28,6 +28,6 @@ void main()
 {
     gl_Position = vec4(inPosition, 1.0);
     // Out from vertex shader
-	vs_out.fragTexCoord  = inTexCoord;
+	vs_out.fragTexCoord     = inTexCoord;
 }
 //------------------------------------------------------------------------------

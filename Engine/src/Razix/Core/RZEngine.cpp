@@ -52,7 +52,7 @@ namespace Razix
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Destroy the splash screen since the engine has Ignited successfully!
-        Razix::RZSplashScreen::Get().destroy();
+        //Razix::RZSplashScreen::Get().destroy();
         
         // TODO: Log the time take to initialize engine using Profiling macros
         auto stop = std::chrono::high_resolution_clock::now();

@@ -23,7 +23,7 @@
 layout(set = 0, binding = 0) uniform sampler2D texSampler;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 void main()
 {
@@ -36,8 +36,8 @@ void main()
     
     vig = pow(vig, 0.25); // change pow for modifying the extend of the  vignette
 
-    outColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
-    outColor = texture(texSampler, fs_in.fragTexCoord) * vec4(vec3(vig), 1.0f);
+    outFragColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
+    outFragColor = texture(texSampler, fs_in.fragTexCoord) * vec4(vec3(vig), 1.0f);
 
 }
 //------------------------------------------------------------------------------

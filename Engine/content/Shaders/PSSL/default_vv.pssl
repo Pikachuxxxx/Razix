@@ -13,19 +13,19 @@ struct VS_INPUT
 
 VS_OUTPUT main( VS_INPUT input )
 {
-	VS_OUTPUT Output;
-	// Transform the position from object space to homogeneous projection space
-	Output.Position = mul( float4(input.Position.xyz,1), m_modelViewProjection );
-	
-	float3 vN = normalize(mul(float4(input.Normal,0), m_modelView).xyz);
-	float3 vT = normalize(mul(float4(input.Tangent.xyz,0), m_modelView).xyz);
-	Output.vPosInView = mul( float4(input.Position.xyz,1), m_modelView ).xyz;
+    VS_OUTPUT Output;
+    // Transform the position from object space to homogeneous projection space
+    Output.Position = mul( float4(input.Position.xyz,1), m_modelViewProjection );
+    
+    float3 vN = normalize(mul(float4(input.Normal,0), m_modelView).xyz);
+    float3 vT = normalize(mul(float4(input.Tangent.xyz,0), m_modelView).xyz);
+    Output.vPosInView = mul( float4(input.Position.xyz,1), m_modelView ).xyz;
 
-	Output.vNorm = vN;
-	Output.vTang = float4(vT, input.Tangent.w);
+    Output.vNorm = vN;
+    Output.vTang = float4(vT, input.Tangent.w);
 
-	// Just copy the texture coordinate through
-	Output.TextureUV = input.TextureUV;
+    // Just copy the texture coordinate through
+    Output.TextureUV = input.TextureUV;
 
-	return Output;    
+    return Output;    
 }

@@ -42,6 +42,7 @@ namespace Razix {
 
     // TODO: 1. Tidy up the class as per Razix style guide
     // TODO: 2. read more about generators, show we persist them(their seeding or would it be fine with using every time the engine/game is fired up) or can it be randomly generated as well
+    // TODO: 3. Add cereal Serialization Functions
     class RAZIX_API RZUUID
     {
     public: 
@@ -56,14 +57,14 @@ namespace Razix {
             char    node[6];
         } rzuuid_format;
 
-        RAZIX_DEPRECATED_TYPE(rzuuid_format)
-
     public:
-        RZUUID() = default;
-        RZUUID(const RZUUID& other);
 
         /* Builds a 128-bits RZUUID */
+        RZUUID();
+        RZUUID(const RZUUID& other);
+
         RZUUID(__m128i uuid);
+
         RZUUID(uint64_t x, uint64_t y);
         RZUUID(const uint8_t* bytes);
         /* Builds an RZUUID from a byte string (16 bytes long) */
@@ -74,6 +75,7 @@ namespace Razix {
         /* Static factory to parse an RZUUID from its string representation */
         static RZUUID FromStrFactory(const std::string& s);
         static RZUUID FromStrFactory(const char* raw);
+
         void FromStr(const char* raw);
 
         RZUUID& operator=(const RZUUID& other)
@@ -140,7 +142,7 @@ namespace Razix {
 
 
     private:
-        alignas(128) uint8_t data[16];
+       uint8_t data[16];
 
     private:
         /*

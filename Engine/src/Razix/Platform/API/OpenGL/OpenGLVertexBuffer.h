@@ -13,7 +13,7 @@ namespace Razix {
             void Bind(RZCommandBuffer* cmdBuffer) override;
             void Unbind() override;
             void Destroy() override {}
-            void SetSubData(uint32_t size, const void* data, uint32_t offset) override;
+            void SetData(uint32_t size, const void* data) override;
             void AddBufferLayout(RZVertexBufferLayout& layout) override;
         private:
             uint32_t m_VAO;

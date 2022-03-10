@@ -23,11 +23,11 @@ namespace Razix {
     enum class EventCategory
     {
         None						= 0,
-        EventCategoryApplication	= BIT(0),
-        EventCategoryInput			= BIT(1),
-        EventCategoryKeyboard		= BIT(2),
-        EventCategoryMouse			= BIT(3),
-        EventCategoryMouseButton	= BIT(4)
+        EventCategoryApplication	= RZ_BIT_SHIFT(0),
+        EventCategoryInput			= RZ_BIT_SHIFT(1),
+        EventCategoryKeyboard		= RZ_BIT_SHIFT(2),
+        EventCategoryMouse			= RZ_BIT_SHIFT(3),
+        EventCategoryMouseButton	= RZ_BIT_SHIFT(4)
     };
 
     #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
