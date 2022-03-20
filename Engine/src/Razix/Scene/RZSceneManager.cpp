@@ -2,10 +2,26 @@
 #include "RZSceneManager.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Scene/RZScene.h"
 #include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix {
+
+    void RZSceneManager::StartUp()
+    {
+        // Instance is automatically created once the system is Started Up
+        RAZIX_CORE_INFO("[Scene Manager] Starting Up Scene Manager");
+        //Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION : Starting Scene Manager...");
+        Razix::RZSplashScreen::Get().setLogString("Starting Scene Manager...");
+        // TODO: Load scenes from memory --> Static initialization using macros while building it as a game
+    }
+
+    void RZSceneManager::ShutDown()
+    {
+        // TODO: Unload everything from the memory and shut things property
+        RAZIX_CORE_ERROR("[Scene Manager] Shutting Down Scene Manager");
+    }
 
     void RZSceneManager::enqueScene(RZScene* scene)
     {

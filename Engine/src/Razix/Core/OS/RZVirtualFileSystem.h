@@ -5,6 +5,8 @@
 
 #include "Razix/Utilities/TRZSingleton.h"
 
+#include <unordered_map>
+
 namespace Razix
 {
 	/* Cross - Platform Virtual File System for the Engine */
