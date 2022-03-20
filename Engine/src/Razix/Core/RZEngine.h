@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Razix/Core/RazixVersion.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
@@ -8,6 +10,8 @@
 
 //! The style guide rules are waved off for RZEngine class
 namespace Razix
+
+	// TODO: Engine will also manage the Grpahics Context and API Renderer initialization ==> Window and app context (in consoles) must be given to the OS abstraction rather than the Application class
 {
 	/* The Engine class that Starts and Manages all the Engine back end and runtime systems */
 	class RAZIX_API RZEngine : public RZSingleton<RZEngine>
@@ -28,6 +32,7 @@ namespace Razix
 
 		// Engine Systems
 	private:
+		RZVirtualFileSystem m_VirtualFileSystem;
 		RZSceneManager		m_SceneManager;
 
 	public:
