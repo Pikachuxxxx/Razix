@@ -13,12 +13,19 @@ namespace Razix
     {
         // Instance is automatically created once the system is Started Up
         RAZIX_CORE_INFO("[Virtual File System] Starting Up Virtual File Sytem");
+        //Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION : Starting VFS...");
         Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
+
+        // Static Initialization load basic paths + root paths in consoles
+        //  1.1. Mount engine specific Paths
+        RZVirtualFileSystem::Get().mount("RazixRoot", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
+        RZVirtualFileSystem::Get().mount("RazixSource", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
+        RZVirtualFileSystem::Get().mount("RazixContent", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
     }
 
     void RZVirtualFileSystem::ShutDown()
     {
-		RAZIX_CORE_ERROR("Shutting Down Virtual File System");
+		RAZIX_CORE_ERROR("[Virtual File System] Shutting Down Virtual File System");
     }
 
     void RZVirtualFileSystem::mount(const std::string& virtualPath, const std::string& physicalPath)

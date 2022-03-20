@@ -1,7 +1,6 @@
 #include "rzxpch.h"
 #include "RZEngine.h"
 
-#include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/RazixVersion.h"
 #include "Razix/Core/RZSplashScreen.h"
 
@@ -37,10 +36,10 @@ namespace Razix
         // TODO: Temp code remove this!!!
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        //  1.1. Mount engine specific Paths
-        RZVirtualFileSystem::Get().mount("RazixRoot", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
-        RZVirtualFileSystem::Get().mount("RazixSource", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
-        RZVirtualFileSystem::Get().mount("RazixContent", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
+        // 2. Scene Manager
+        RZSceneManager::Get().StartUp();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
@@ -67,6 +66,8 @@ namespace Razix
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
+        // Shutdonw the Scene Manager
+        RZSceneManager::Get().ShutDown();
         // Shutdown the VFS last
         RZVirtualFileSystem::ShutDown();
 

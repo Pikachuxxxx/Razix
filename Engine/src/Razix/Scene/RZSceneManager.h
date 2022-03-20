@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Utilities/TRZSingleton.h"
+
 namespace Razix {
     
     // Forward declaration
@@ -8,12 +10,13 @@ namespace Razix {
     /**
      * The Scene Manager loads the scenes and manages switching mechanism and other scene related functionalities
      */
-    class RAZIX_API RZSceneManager
+    class RAZIX_API RZSceneManager :  public RZSingleton<RZSceneManager>
     {
     public:
-        RZSceneManager() {}
-
-        virtual ~RZSceneManager() {}
+        /* Initializes the VFS */
+        static void StartUp();
+        /* Shuts down the VFSand releases any resources hold by this */
+        static void ShutDown();
 
         /**
          * Adds a scene on the queue to be presented when requested
@@ -68,9 +71,6 @@ namespace Razix {
         std::vector<std::string>    m_LoadedSceneFilePaths;                     /* List of files paths of the scenes that were loaded into memory       */
         bool                        m_IsSwitchingScenes         = false;        /* Is the scene switching is in progress or not                         */
         uint32_t                    m_QueuedSceneIndexToLoad    = -1;           /* The next scene index to which it will switch to                      */
-
-    private:
-        RAZIX_NONCOPYABLE_CLASS(RZSceneManager)
     };
 }
 
