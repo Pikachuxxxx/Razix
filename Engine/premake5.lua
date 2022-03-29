@@ -23,7 +23,9 @@ else
     print("Vulkan SDK found at : " .. VulkanSDK)
 end
 
+--------------------------------------------------------------------------------
 -- Razix project
+--------------------------------------------------------------------------------
 project "Razix"
     kind "SharedLib"
     language "C++"
@@ -157,11 +159,17 @@ project "Razix"
     filter 'files:vendor/**.c'
         flags  { 'NoPCH' }
 
+    filter 'files:src/Razix/**.m'
+        flags  { 'NoPCH' }
+    filter 'files:src/Razix/**.mm'
+        flags  { 'NoPCH' }
+
      -- Disable warning for vendor
     filter { "files:vendor/**"}
         warnings "Off"
 
     -- Razix Project settings for Windows
+    ----------------------------------------------------------------------------
     filter "system:windows"
         cppdialect "C++17"
         staticruntime "off"
@@ -220,7 +228,7 @@ project "Razix"
         -- Windows specific incldue directories
         includedirs
         {
-             VulkanSDK .. "/include"
+            VulkanSDK .. "/include"
         }
 
         -- Windows specific library directories
@@ -245,7 +253,77 @@ project "Razix"
             "/MP", "/bigobj"
         }
 
-    -- Cinfig settings for Razix Engine project
+    ---- Macos OS Build Settings
+    --------------------------------------------------------------------------------
+    filter "system:macosx"
+        cppdialect "C++17"
+        staticruntime "off"
+        systemversion "latest"
+
+        pchheader "rzxpch.h"
+        pchsource "src/rzxpch.cpp"
+
+        defines
+        {
+        -- OS Defines for Engine
+            "RAZIX_PLATFORM_MACOS",
+        -- Render API supported by the OS
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+        -- Engine Features
+            "RAZIX_USE_GLFW_WINDOWS" -- Use GLFW Winodws instead of native cocoa window until Metal support is added
+        -- MacOS specific build settings
+        }
+
+        -- Windows specific source files for compilation
+        files
+        {
+            -- platform sepecific implementatioon
+            "src/Razix/Platform/MacOS/*.h",
+            "src/Razix/Platform/MacOS/*.cpp",
+
+            "src/Razix/Platform/GLFW/*.h",
+            "src/Razix/Platform/GLFW/*.cpp",
+
+            -- Platform supported Graphics API implementatioon
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
+
+            "src/Razix/Platform/API/Metal/*.h",
+            "src/Razix/Platform/API/Metal/*.cpp",
+
+            -- Vendor source files
+            "vendor/glad/src/glad.c"
+        }
+
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/macOS/include"
+        }
+
+        -- Windows specific library directories
+        libdirs
+        {
+            VulkanSDK .. "/macOS/lib"
+        }
+
+        -- MacOS specific linkage libraries (Metal and other stuff)
+        links
+        {
+            -- Render API
+            "vulkan",
+            "Metal.framework",
+            "MetalKit.framework",
+            "Cocoa.framework",
+            "IOKit.framework",
+            "QuartzCore.framework",
+        	"CoreFoundation.framework",
+        }
+
+    -- TODO: Add support for iOS
+
+    -- Config settings for Razix Engine project
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG" }
         symbols "On"
