@@ -272,8 +272,10 @@ namespace Razix {
         {
             uint8_t* pixels = nullptr;
 
-            if (m_data != nullptr)
+            if (m_data != nullptr) {
                 pixels = reinterpret_cast<uint8_t*>(m_data);
+                m_Size = VkDeviceSize(m_Width * m_Height * 4);
+            }
             else {
                 if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
                     uint32_t bpp;
@@ -282,7 +284,7 @@ namespace Razix {
                     // Here the format for the texture is extracted based on bits per pixel
                     m_Format = Razix::Graphics::RZTexture::bitsToTextureFormat(bpp);
                     // Size of the texture
-                    m_Size = m_Width * m_Height * bpp;
+                    m_Size = m_Width * m_Height * bpp / 8;
                 }
             }
 

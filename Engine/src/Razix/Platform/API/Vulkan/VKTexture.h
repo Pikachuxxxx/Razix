@@ -115,7 +115,7 @@ namespace Razix {
             /* Sets the vulkan image layout */
             void setImageLayout(VkImageLayout layout) { m_ImageLayout = layout; updateDescriptor(); }
             /* Gets the descriptor info about the Vulkan Texture object */
-            VkDescriptorImageInfo& getDescriptor() { return m_Descriptor; }
+            VkDescriptorImageInfo getDescriptor() { return m_Descriptor; }
             /* Gets the vulkan image object */
             VkImage getImage() const { return m_Image;};
             /* Gets the Vulkan image memory handle */

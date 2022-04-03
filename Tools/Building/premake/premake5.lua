@@ -7,7 +7,8 @@ project "Premake"
 	{
 		"**.lua",
 		"**premake5.lua",
-		"%{wks.location}../../**premake5.lua"
+		"%{wks.location}../../**premake5.lua",
+		"%{wks.location}../../**.lua" -- This works for different names
 	}
 
 	postbuildmessage "Regenerating project files with Premake5!"
