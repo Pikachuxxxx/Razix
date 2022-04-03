@@ -45,6 +45,9 @@ namespace Razix {
                 enum class FilterMode{LINEAR, NEAREST};
                 FilterMode minFilter = FilterMode::LINEAR;
                 FilterMode magFilter = FilterMode::LINEAR;
+
+                Filtering() {}
+                Filtering(FilterMode min, FilterMode max) : minFilter(min), magFilter(max) {}
             };
 
         public:

@@ -80,6 +80,9 @@ project "Sandbox"
        --"SPDLOG_COMPILED_LIB"
    }
 
+    filter { "system:Prospero" }
+        targetextension ".elf"
+
    -- Disable warning for vendor
    filter { "files:vendor/**"}
        warnings "Off"

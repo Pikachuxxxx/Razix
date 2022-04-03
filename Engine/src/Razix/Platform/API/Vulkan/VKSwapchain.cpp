@@ -59,7 +59,7 @@ namespace Razix {
         void VKSwapchain::Destroy()
         {
             // Delete the frame data
-            for (auto frame : m_Frames) {
+            for (auto& frame : m_Frames) {
                 frame.mainCommandBuffer->Reset();
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.presentSemaphore, nullptr);
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderSemaphore, nullptr);
@@ -364,7 +364,7 @@ namespace Razix {
         {
             auto& frameData = getCurrentFrameData();
 
-            VkPresentInfoKHR present;
+            VkPresentInfoKHR present{};
             present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
             present.pNext = VK_NULL_HANDLE;
             present.swapchainCount = 1;

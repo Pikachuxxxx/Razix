@@ -1,6 +1,25 @@
 -- Configuration settings
 require 'Scripts/premake-config'
 
+-- System overrides to support PS4/PS5 and other hardware systems
+require 'Tools/Building/premake/modules/system-overides'
+
+
+local vstudio = premake.vstudio
+
+if vstudio.vs2010_architectures ~= nil then
+    vstudio.vs2010_architectures.ORBIS   = "ORBIS"
+    vstudio.vs2010_architectures.Prospero = "Prospero"
+    vsstudio.vs2010_architectures.PSVita = "PSVita"
+    vsstudio.vs2010_architectures.PS3 = "PS3"
+
+
+    premake.api.addAllowed("system", "ORBIS")
+	premake.api.addAllowed("system", "Prospero")
+    premake.api.addAllowed("system", "PSVita")
+	premake.api.addAllowed("system", "PS3")
+end
+
 -- Workspace Settings
 settings = { }
 settings.workspace_name     = 'Razix'
@@ -84,33 +103,33 @@ workspace ( settings.workspace_name )
     -- Build Script for Razix Engine
     --------------------------------------------------------------------------------
     group "Engine"
-        include "Engine/premake5"
+        include "Engine/razix_engine.lua"
     group ""
 
     -- Build Script for Razix Editor
     --------------------------------------------------------------------------------
     group "Editor"
-        include "Editor/premake5"
+        include "Editor/razix_editor.lua"
     group ""
 
     --------------------------------------------------------------------------------
     -- Build script for Sandbox
     group "Sandbox"
-        include "Sandbox/premake5"
+        include "Sandbox/sandbox.lua"
     group ""
 
     --------------------------------------------------------------------------------
     -- Engine related tools
     group "Tools"
             -- Razix CodeEditor project
-            include "Tools/RazixCodeEditor/premake5"
+            include "Tools/RazixCodeEditor/razix_tool_code_editor.lua"
     group ""
 
     group "Tools/Build"
             -- premake scripts Utility project for in IDE management
             include "Tools/Building/premake/premake5"
             -- Gets the version of the Engine for Build workflows
-            include "Tools/Building/RazixVersion/premake5"
+            include "Tools/Building/RazixVersion/razix_tool_version.lua"
     group ""
 
     -- Razix Engine Samples and Tests

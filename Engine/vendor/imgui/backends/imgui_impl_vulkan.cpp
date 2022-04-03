@@ -104,6 +104,8 @@ static bool                     g_FunctionsLoaded = false;
 static bool                     g_FunctionsLoaded = true;
 #endif
 
+static std::map<ImTextureID, VkDescriptorSet> g_DescriptorSets;
+
 // Font data
 static VkSampler                g_FontSampler = VK_NULL_HANDLE;
 static VkDeviceMemory           g_FontMemory = VK_NULL_HANDLE;
@@ -998,6 +1000,16 @@ bool    ImGui_ImplVulkan_LoadFunctions(PFN_vkVoidFunction(*loader_func)(const ch
     return true;
 }
 
+IMGUI_IMPL_API void ImGui_ImplVulkan_AddTexture(ImTextureID id, VkDescriptorSet sets)
+{
+    g_DescriptorSets[id] = sets;
+}
+
+IMGUI_IMPL_API void ImGui_ImplVulkan_ClearDescriptors()
+{
+    g_DescriptorSets.clear();
+}
+
 bool    ImGui_ImplVulkan_Init(ImGui_ImplVulkan_InitInfo* info, VkRenderPass render_pass)
 {
     IM_ASSERT(g_FunctionsLoaded && "Need to call ImGui_ImplVulkan_LoadFunctions() if IMGUI_IMPL_VULKAN_NO_PROTOTYPES or VK_NO_PROTOTYPES are set!");
@@ -1209,6 +1221,11 @@ int ImGui_ImplVulkanH_GetMinImageCountFromPresentMode(VkPresentModeKHR present_m
         return 1;
     IM_ASSERT(0);
     return 1;
+}
+
+VkDescriptorSet ImGui_ImplVulkanH_GetFontDescriptor()
+{
+    return g_DescriptorSet;
 }
 
 // Also destroy old swap chain and in-flight frames data, if any.
