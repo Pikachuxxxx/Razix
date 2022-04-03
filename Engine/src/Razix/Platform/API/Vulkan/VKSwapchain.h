@@ -70,7 +70,7 @@ namespace Razix {
                 return m_Frames[m_CurrentBuffer];
             }
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
-
+            VkSwapchainKHR getSwapchain() const { return m_Swapchain; }
         private:
              VkSwapchainKHR             m_Swapchain = VK_NULL_HANDLE;                       /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos  */
              VkSwapchainKHR             m_OldSwapChain = VK_NULL_HANDLE;
