@@ -120,6 +120,11 @@ namespace Razix
 
         // Enable V-Sync
         m_Window->SetVSync(true);
+
+        ImGui::CreateContext();
+        ImGui::StyleColorsDark();
+
+        m_ImGuiRenderer = Graphics::RZImGuiRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
     }
 
     void RZApplication::OnEvent(RZEvent& event)
@@ -152,6 +157,7 @@ namespace Razix
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
         Start();
+        m_ImGuiRenderer->Init();
         while (RenderFrame()) { }
         Quit();
     }
@@ -177,6 +183,10 @@ namespace Razix
         if (m_CurrentState == AppState::Closing)
             return false;
 
+        ImGuiIO& io = ImGui::GetIO();
+        io.DisplaySize = ImVec2(static_cast<float>(getWindow()->getWidth()), static_cast<float>(getWindow()->getHeight()));
+        m_ImGuiRenderer->NewFrame();
+
         // Update the Engine systems
         Update(m_Timestep);
         m_Updates++;
@@ -190,6 +200,7 @@ namespace Razix
 
         // FLip the swapchain to present the rendered image
         //swapchain->Flip();
+        m_ImGuiRenderer->EndFrame();
 
         // Record the FPS
         if (now - m_SecondTimer > 1.0f)
@@ -216,6 +227,7 @@ namespace Razix
 
     void RZApplication::Update(const RZTimestep& dt) 
     {
+        ImGui::ShowDemoWindow();
         OnUpdate(dt);
     }
 

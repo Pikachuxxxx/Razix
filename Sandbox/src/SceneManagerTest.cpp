@@ -149,6 +149,8 @@ public:
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
+                getImGuiRenderer()->Render(nullptr);
+
                 // Update the uniform buffer data
                 viewProjUBOData.view = cameras[0].Camera.getViewMatrix();
                 viewProjUBOData.projection = cameras[0].Camera.getProjection();

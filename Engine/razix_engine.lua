@@ -139,6 +139,7 @@ project "Razix"
         "OpenFBX"
     }
 
+    -- TODO Add as rules, every shader file type will have it's own rule
     -- Don't build the shaders, they are compiled by the engine once and cached
    filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
         flags { "ExcludeFromBuild"}
@@ -245,7 +246,7 @@ project "Razix"
             "/MP", "/bigobj"
         }
 
-    -- Cinfig settings for Razix Engine project
+    -- Config settings for Razix Engine project
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG" }
         symbols "On"
