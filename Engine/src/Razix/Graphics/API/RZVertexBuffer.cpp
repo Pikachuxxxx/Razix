@@ -14,11 +14,11 @@
 namespace Razix {
     namespace Graphics {
 
-        RZVertexBuffer* RZVertexBuffer::Create(uint32_t size, const void* data, BufferUsage usage)
+        RZVertexBuffer* RZVertexBuffer::Create(uint32_t size, const void* data, BufferUsage usage, const std::string& name)
         {
             switch (RZGraphicsContext::GetRenderAPI()) { 
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLVertexBuffer(size, data, usage); break;
-                case Razix::Graphics::RenderAPI::VULKAN:    return new VKVertexBuffer(size, data, usage); break;
+                case Razix::Graphics::RenderAPI::VULKAN:    return new VKVertexBuffer(size, data, usage, name); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

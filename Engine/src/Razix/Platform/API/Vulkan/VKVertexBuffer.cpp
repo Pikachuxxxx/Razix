@@ -7,8 +7,8 @@
 namespace Razix {
     namespace Graphics {
 
-        VKVertexBuffer::VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage) 
-            : VKBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data)
+        VKVertexBuffer::VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage, const std::string& name)
+            : VKBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data, name)
         {
             m_Usage = usage;
             m_Size = 0;

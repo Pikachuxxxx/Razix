@@ -21,7 +21,7 @@ namespace Razix {
              * 
              * @returns The pointer to the underlying API implementation
              */
-            static RZIndexBuffer* Create(uint32_t* data, uint32_t count, BufferUsage bufferUsage = BufferUsage::STATIC);
+            static RZIndexBuffer* Create(uint32_t* data, uint32_t count, const std::string& name, BufferUsage bufferUsage = BufferUsage::STATIC);
 
             /* Binds the Index buffer to the pipeline and the command buffer that is recorded and binded with */
             virtual void Bind(RZCommandBuffer* commandBuffer = nullptr) = 0;

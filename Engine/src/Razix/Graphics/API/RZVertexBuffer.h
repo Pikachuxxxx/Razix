@@ -31,7 +31,7 @@ namespace Razix {
              * @param usage The usage Description of the buffer
              * @returns Returns a RZVertexBuffer pointer to the underlying Graphics API implementation
              */
-            static RZVertexBuffer* Create(uint32_t size, const void* data, BufferUsage usage);
+            static RZVertexBuffer* Create(uint32_t size, const void* data, BufferUsage usage, const std::string& name);
 
             /**
              * Binds the given Vertex buffer to the graphics pipeline before a draw command is issued

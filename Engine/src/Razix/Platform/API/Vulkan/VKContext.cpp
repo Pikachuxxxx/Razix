@@ -125,7 +125,7 @@ namespace Razix {
             RAZIX_CORE_TRACE("[Vulkan] GLFW loaded extensions count : {0}", glfwExtensionsCount);
 
             // This is just for information and Querying purpose
-#ifdef RAZIX_DEBUGgg
+#ifdef RAZIX_DEBUG
             // Get the total list of supported Extension by Vulkan
             uint32_t supportedExtensionCount = 0;
             vkEnumerateInstanceExtensionProperties(nullptr, &supportedExtensionCount, nullptr);
@@ -181,9 +181,15 @@ namespace Razix {
             if (!message_severity)
                 return VK_FALSE;
 
+            for (size_t i = 0; i < callback_data->objectCount; i++) {
+                if(callback_data->pObjects[i].pObjectName)
+                    RAZIX_CORE_ERROR("[VULKAN] OBJECT HANDLE NAME : {0}", callback_data->pObjects[i].pObjectName);
+            }
+
             if (message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
                 std::cout << "\033[1;31m ***************************************************************** \033[0m" << std::endl;
                 std::cout << "\033[1;32m[VULKAN] \033[1;31m - Validation ERROR : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
+
                 std::cout << "\033[1;31m ***************************************************************** \033[0m" << std::endl;
             };
             // Warnings may hint at unexpected / non-spec API usage

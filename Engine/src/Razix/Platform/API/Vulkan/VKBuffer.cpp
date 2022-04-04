@@ -2,16 +2,28 @@
 #include "VKBuffer.h"
 
 #include "VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKContext.h"
 
 #include "VKUtilities.h"
 
+#include "vulkan/vulkan_core.h"
+
 namespace Razix {
     namespace Graphics {
-    
-        VKBuffer::VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data)
+
+        VkResult CreateDebugObjName(VkDevice device, const VkDebugUtilsObjectNameInfoEXT* pNameInfo)
+        {
+            auto func = (PFN_vkSetDebugUtilsObjectNameEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkSetDebugUtilsObjectNameEXT");
+            if (func != nullptr)
+                return func(device, pNameInfo);
+            else
+                return VK_ERROR_EXTENSION_NOT_PRESENT;
+        }
+
+        VKBuffer::VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data, const std::string& bufferName)
             : m_UsageFlags(usage), m_BufferSize(size)
         {
-            init(data);
+            init(data, bufferName);
         }
 
         VKBuffer::VKBuffer()
@@ -59,7 +71,7 @@ namespace Razix {
             unMap();
         }
 
-        void VKBuffer::init(const void* data)
+        void VKBuffer::init(const void* data, const std::string& bufferName)
         {
             VkBufferCreateInfo bufferInfo = {};
             bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -88,6 +100,15 @@ namespace Razix {
             //! Set the Data
             if (data != nullptr)
                 setData((uint32_t)m_BufferSize, data);
+
+            // Set name for the Buffer
+            VkDebugUtilsObjectNameInfoEXT bufferObjNameInfo{};
+            bufferObjNameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+            bufferObjNameInfo.pObjectName = bufferName.c_str();
+            bufferObjNameInfo.objectType = VK_OBJECT_TYPE_BUFFER;
+            bufferObjNameInfo.objectHandle = (uint64_t)m_Buffer;
+
+            CreateDebugObjName(VKDevice::Get().getDevice(), &bufferObjNameInfo);
         }
     }
 }
