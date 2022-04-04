@@ -4,4 +4,5 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 #include <imgui/backends/imgui_impl_vulkan.cpp>
+#include <imgui/backends/imgui_impl_glfw.cpp>
 #endif

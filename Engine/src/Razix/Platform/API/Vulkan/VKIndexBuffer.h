@@ -9,7 +9,7 @@ namespace Razix {
         class VKIndexBuffer : public RZIndexBuffer, public VKBuffer
         {
         public:
-            VKIndexBuffer(uint32_t* data, uint32_t count, BufferUsage bufferUsage);
+            VKIndexBuffer(uint32_t* data, uint32_t count, BufferUsage bufferUsage, const std::string& name);
             ~VKIndexBuffer();
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;

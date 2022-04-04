@@ -42,8 +42,8 @@ namespace Razix {
 
             RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", indexCount, m_Vertices.size(), newIndexCount, newVertexCount);
 
-            m_IndexBuffer = Graphics::RZIndexBuffer::Create(m_Indices.data(), (uint32_t) newIndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * newVertexCount, m_Vertices.data(), BufferUsage::STATIC);
+            m_IndexBuffer = Graphics::RZIndexBuffer::Create(m_Indices.data(), (uint32_t) newIndexCount, m_Name);
+            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * newVertexCount, m_Vertices.data(), BufferUsage::STATIC, m_Name);
             // TODO: Add buffer layout from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");

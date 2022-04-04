@@ -163,7 +163,7 @@ namespace Razix {
                     data[i * 4 + 3].TexCoords = glm::vec2(0.0f, 1.0f);
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data,BufferUsage::STATIC);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data,BufferUsage::STATIC, "Cube");
                 delete[] data;
 
                 uint32_t indices[36]{
@@ -181,7 +181,7 @@ namespace Razix {
                     20, 22, 23
                 };
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 36);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 36, "Cube");
 
                 return new RZMesh(vb, ib, 24, 36);
             }
@@ -223,7 +223,7 @@ namespace Razix {
                     }
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC, "Sphere");
 
                 std::vector<uint32_t> indices;
                 uint32_t k1, k2;
@@ -249,7 +249,7 @@ namespace Razix {
                     }
                 }
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()));
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()), "Sphere");
 
                 return new RZMesh(vb, ib, data.size(), indices.size());
             }
@@ -280,7 +280,7 @@ namespace Razix {
                 data[3].TexCoords = glm::vec2(1.0f, 0.0f);
                 data[3].Normal = normal;
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
                 delete[] data;
 
                 uint32_t indices[6]{
@@ -288,7 +288,7 @@ namespace Razix {
                     2, 3, 0
                 };
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6, "Plane");
 
                 return new RZMesh(vb, ib, 4, 6);
             }

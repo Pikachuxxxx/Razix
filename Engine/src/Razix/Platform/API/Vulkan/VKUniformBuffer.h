@@ -20,10 +20,10 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer is filled with
              */
-            VKUniformBuffer(uint32_t size, const void* data);
+            VKUniformBuffer(uint32_t size, const void* data, const std::string& name);
             ~VKUniformBuffer() {}
 
-            void Init(const void* data) override;
+            void Init(const void* data, const std::string& name) override;
             void SetData(uint32_t size, const void* data) override;
             void Destroy() override;
         };

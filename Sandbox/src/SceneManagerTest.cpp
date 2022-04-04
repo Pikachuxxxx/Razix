@@ -78,15 +78,15 @@ public:
             Graphics::RZAPIRenderer::Init();
 
             // Add some model entities
-            auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
-            if (!modelEnitties.size()) {
-                // Avocado
-                auto& avocadoModelEntity = activeScene->createEntity("Avocado Angle Model");
-                avocadoModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
-                // Plane
-                auto& planeEntity = activeScene->createEntity("Ground");
-                planeEntity.AddComponent<MeshRendererComponent>(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Plane));
-            }
+            //auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
+            //if (!modelEnitties.size()) {
+            //    // Avocado
+            //    auto& avocadoModelEntity = activeScene->createEntity("Avocado Angle Model");
+            //    avocadoModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
+            //    // Plane
+            //    auto& planeEntity = activeScene->createEntity("Ground");
+            //    planeEntity.AddComponent<MeshRendererComponent>(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Plane));
+            //}
         }
     }
 
@@ -144,12 +144,9 @@ public:
                     
                         Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
-
                 }
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-
-                getImGuiRenderer()->Render(nullptr);
 
                 // Update the uniform buffer data
                 viewProjUBOData.view = cameras[0].Camera.getViewMatrix();
@@ -178,8 +175,28 @@ public:
         // Save the current scene
         Razix::RZEngine::Get().getSceneManager().saveAllScenes();
 
+        RAZIX_TRACE("Current Active Scene index : {0}", Razix::RZEngine::Get().getSceneManager().getCurrentSceneIndex());
         // Delete the models
+        auto& mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
+        for (Graphics::RZModel model : mcs)
+            model.Destroy();
 
+        auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        for (auto& mesh : mrcs)
+            mesh.Mesh->Destroy();
+
+        Razix::RZEngine::Get().getSceneManager().loadScene(0);
+        activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+        mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
+        for (Graphics::RZModel model : mcs)
+            model.Destroy();
+
+        mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        for (auto& mesh : mrcs) {
+            if(mesh.Mesh)
+                mesh.Mesh->Destroy();
+        }
+        
         // Delete the textures
         albedoTexture->Release(true);
         roughness_metallicTexture->Release(true);
@@ -254,10 +271,10 @@ private:
 
         descriptorSets.clear();
         for (size_t i = 0; i < 3; i++) {
-            viewProjUniformBuffers[i] = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
+            viewProjUniformBuffers[i] = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData, "ViewProjectionUBO");
             viewProjUniformBuffers[i]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
-            dirLightUniformBuffers[i] = Graphics::RZUniformBuffer::Create(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
+            dirLightUniformBuffers[i] = Graphics::RZUniformBuffer::Create(sizeof(DirectionalLightUniformBuffer), &directional_light_data, "LightUBO");
             dirLightUniformBuffers[i]->SetData(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
 
             // get the descriptor infos to create the descriptor sets
@@ -345,8 +362,6 @@ private:
 
         for (auto frameBuf : framebuffers)
             frameBuf->Destroy();
-
-        // Destroy desc sets???
 
         renderpass->Destroy();
 

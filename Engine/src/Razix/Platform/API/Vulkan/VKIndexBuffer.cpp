@@ -6,8 +6,8 @@
 namespace Razix {
     namespace Graphics {
 
-        VKIndexBuffer::VKIndexBuffer(uint32_t* data, uint32_t count, BufferUsage bufferUsage)
-            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(uint32_t), data)
+        VKIndexBuffer::VKIndexBuffer(uint32_t* data, uint32_t count, BufferUsage bufferUsage, const std::string& name)
+            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(uint32_t), data, name)
         {
             m_Size = count * sizeof(uint32_t);
             m_Usage = bufferUsage;

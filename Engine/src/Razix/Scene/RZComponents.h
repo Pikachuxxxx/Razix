@@ -284,7 +284,7 @@ namespace Razix {
         Graphics::RZMesh* Mesh;
 
         MeshRendererComponent()
-            : Mesh(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Cube)) {}
+            : Mesh(nullptr) {}
         MeshRendererComponent(Graphics::MeshPrimitive primitive)
             : Mesh(Graphics::MeshFactory::CreatePrimitive(primitive)) {}
         MeshRendererComponent(Graphics::RZMesh* mesh)

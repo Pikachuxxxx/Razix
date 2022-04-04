@@ -11,6 +11,11 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKRenderer.h"
 
+#include "Razix/Core/RZApplication.h"
+
+#include <imgui/backends/imgui_impl_glfw.h>
+
+
 static ImGui_ImplVulkanH_Window g_WindowData;
 static VkAllocationCallbacks* g_Allocator = nullptr;
 static VkDescriptorPool g_DescriptorPool = VK_NULL_HANDLE;
@@ -159,10 +164,13 @@ namespace Razix {
 
                 //ImGui_ImplVulkan_InvalidateFontUploadObjects();
             }
+
+            ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
         }
 
         void VKImGuiRenderer::NewFrame()
         {
+            ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
         }
 

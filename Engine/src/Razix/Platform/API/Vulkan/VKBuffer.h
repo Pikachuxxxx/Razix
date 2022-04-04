@@ -18,7 +18,7 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer will be filled with
              */
-            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data);
+            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data, const std::string& bufferName);
             /* Creates an empty buffer to be mapped with data later */
             VKBuffer();
             ~VKBuffer() {}
@@ -62,7 +62,7 @@ namespace Razix {
              * @param data The data with which the buffer will be filled with
              */
             // TODO: Refactor this signature to take the size and usage
-            void init(const void* data);
+            void init(const void* data, const std::string& bufferName);
         };
 
     }
