@@ -15,7 +15,7 @@ namespace Razix {
         RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, uint32_t vtxcount, uint32_t idxcount)
             : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount) { }
 
-        RZMesh::RZMesh(const std::vector<uint32_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold /*= 1.0f*/)
+        RZMesh::RZMesh(const std::vector<uint16_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold /*= 1.0f*/)
         {
             m_Indices = indices;
             m_Vertices = vertices;
@@ -33,7 +33,7 @@ namespace Razix {
 
             auto newVertexCount = meshopt_optimizeVertexFetch( // return vertices (not vertex attribute values)
                (m_Vertices.data()),
-               (unsigned int*) (m_Indices.data()),
+               (unsigned short*) (m_Indices.data()),
                newIndexCount, // total new indices (not faces)
                (m_Vertices.data()),
                (size_t) m_Vertices.size(), // total vertices (not vertex attribute values)
@@ -42,8 +42,8 @@ namespace Razix {
 
             RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", indexCount, m_Vertices.size(), newIndexCount, newVertexCount);
 
-            m_IndexBuffer = Graphics::RZIndexBuffer::Create(m_Indices.data(), (uint32_t) newIndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * newVertexCount, m_Vertices.data(), BufferUsage::STATIC);
+            m_IndexBuffer = Graphics::RZIndexBuffer::Create(m_Indices.data(), (uint16_t) newIndexCount, m_Name);
+            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * newVertexCount, m_Vertices.data(), BufferUsage::STATIC, m_Name);
             // TODO: Add buffer layout from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");
@@ -54,7 +54,7 @@ namespace Razix {
             m_VertexBuffer->AddBufferLayout(layout);
         }
 
-        void RZMesh::GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount)
+        void RZMesh::GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount)
         {
             glm::vec3* normals = new glm::vec3[vertexCount];
 
@@ -110,7 +110,7 @@ namespace Razix {
             return axis * factor;
         }
 
-        void RZMesh::GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount)
+        void RZMesh::GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount)
         {
             glm::vec3* tangents = new glm::vec3[vertexCount];
 

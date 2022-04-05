@@ -42,7 +42,7 @@ namespace Razix {
 
                 Graphics::RZVertex* vertices = new Graphics::RZVertex[numVertices];
 
-                uint32_t* indices = new uint32_t[numIndices];
+                uint16_t* indices = new uint16_t[numIndices];
                 std::unordered_map<Graphics::RZVertex, uint32_t> uniqueVertices;
 
                 // for vertex in vertices in the submesh
@@ -93,7 +93,7 @@ namespace Razix {
                 // TODO: Query and retrieve the materials information, use a pre-defined shader to create the material and fill in the necessary info
 
                 // Create the meshes
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * numVertices, vertices, BufferUsage::STATIC);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * numVertices, vertices, BufferUsage::STATIC, name);
                 // TODO: Add buffer layout from the shader
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec3>("Position");
@@ -103,7 +103,7 @@ namespace Razix {
                 layout.push<glm::vec3>("Tangent");
                 vb->AddBufferLayout(layout);
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, numIndices);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, numIndices, name);
 
                 RZMesh* mesh = new RZMesh(vb, ib, numVertices, numIndices);
                 mesh->setIndexCount(numIndices);

@@ -64,12 +64,12 @@ namespace Razix {
              * @param vertices The vertices that comprises the mesh
              * optimiseThreshold The default threshold to be set for mesh optimizer to optimize the vertex data
              */
-            RZMesh(const std::vector<uint32_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold = 1.0f);
+            RZMesh(const std::vector<uint16_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold = 1.0f);
     
             virtual ~RZMesh() { }
 
-            static void GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount);
-            static void GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint32_t* indices, uint32_t indexCount);
+            static void GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
+            static void GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
 
             void Destroy();
 
@@ -87,7 +87,7 @@ namespace Razix {
         private:
             std::string             m_Name;             /* The name of the mesh                                 */
             std::vector<RZVertex>   m_Vertices;         /* The vertex data with which the mesh is made of       */
-            std::vector<uint32_t>   m_Indices;          /* The indices with which the mesh will be attached     */
+            std::vector<uint16_t>   m_Indices;          /* The indices with which the mesh will be attached     */
             RZVertexBuffer*         m_VertexBuffer;     /* The Vertex Buffer that will be uploaded to the GPU   */
             RZIndexBuffer*          m_IndexBuffer;      /* The Index Buffer that will be uploaded to the GPU    */
             uint32_t                m_IndexCount;

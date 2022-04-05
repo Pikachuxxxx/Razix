@@ -15,7 +15,7 @@ namespace Razix {
             // Texture Utility Functions
             //-----------------------------------------------------------------------------------
 
-            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb /*= true*/)
+            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb /*= false*/)
             {
                 if (srgb) {
                     switch (format) {

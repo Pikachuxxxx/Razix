@@ -7,12 +7,13 @@ namespace Razix {
         class OpenGLIndexBuffer : public RZIndexBuffer
         {
         public:
-            OpenGLIndexBuffer(uint32_t* data, uint32_t count, BufferUsage bufferUsage);
+            OpenGLIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage);
             ~OpenGLIndexBuffer();
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;
             void Unbind() override;
             void Destroy() override {}
+            void Resize(uint32_t size, const void* data) override;
 
         private:
             uint32_t m_IBO;

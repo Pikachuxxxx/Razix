@@ -87,7 +87,7 @@ namespace Razix {
         }
 
         if (m_QueuedSceneIndexToLoad < 0 || m_QueuedSceneIndexToLoad >= static_cast<int>(m_LoadedScenes.size())) {
-            RAZIX_CORE_ERROR("[SceneManager] - Invalid Scene Index : {0}", m_QueuedSceneIndexToLoad);
+            RAZIX_CORE_ERROR("[Scene Manager] - Invalid Scene Index : {0}", m_QueuedSceneIndexToLoad);
             m_QueuedSceneIndexToLoad = 0;
         }
 

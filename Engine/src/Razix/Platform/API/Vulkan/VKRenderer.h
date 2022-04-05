@@ -23,7 +23,7 @@ namespace Razix {
             void PresentAPIImple(RZCommandBuffer* cmdBuffer) override;
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) override;
             void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) override;
-            void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start = 0) override;
+            void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount = 1, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) override;
             void DestroyAPIImpl() override;
 
             void OnResizeAPIImpl(uint32_t width, uint32_t height) override;
@@ -31,7 +31,7 @@ namespace Razix {
             RZSwapchain* GetSwapchainImpl() override;
 
 
-            void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, TransformComponent tc) override;
+            void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data) override;
 
 
             void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer) override;

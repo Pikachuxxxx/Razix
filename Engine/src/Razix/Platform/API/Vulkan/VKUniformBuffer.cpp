@@ -4,17 +4,17 @@
 namespace Razix {
     namespace Graphics {
 
-        VKUniformBuffer::VKUniformBuffer(uint32_t size, const void* data)
+        VKUniformBuffer::VKUniformBuffer(uint32_t size, const void* data, const std::string& name)
         {
             // Create the uniform buffer
             setUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
             setSize(size);
-            Init(data);
+            Init(data, name);
         }
 
-        void VKUniformBuffer::Init(const void* data)
+        void VKUniformBuffer::Init(const void* data, const std::string& name)
         {
-            VKBuffer::init(data);
+            VKBuffer::init(data, name);
         }
 
         void VKUniformBuffer::SetData(uint32_t size, const void* data)

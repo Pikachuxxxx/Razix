@@ -12,13 +12,14 @@ namespace Razix {
         class VKVertexBuffer : public RZVertexBuffer, public VKBuffer
         {
         public:
-            VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage);
+            VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage, const std::string& name);
             ~VKVertexBuffer();
 
             void Bind(RZCommandBuffer* cmdBuffer) override;
             void Unbind() override;
 
             void SetData(uint32_t size, const void* data) override;
+            void Resize(uint32_t size, const void* data) override;
             void AddBufferLayout(RZVertexBufferLayout& layout) override;
 
             void Destroy() override;

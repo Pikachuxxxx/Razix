@@ -57,7 +57,7 @@ namespace Razix {
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
-                case Razix::Graphics::RenderAPI::VULKAN:
+                case Razix::Graphics::RenderAPI::VULKAN:    return new VKTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
