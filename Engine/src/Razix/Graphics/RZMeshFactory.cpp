@@ -166,7 +166,7 @@ namespace Razix {
                 RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data,BufferUsage::STATIC, "Cube");
                 delete[] data;
 
-                uint32_t indices[36]{
+                uint16_t indices[36]{
                     0, 1, 2,
                     0, 2, 3,
                     4, 5, 6,
@@ -225,13 +225,13 @@ namespace Razix {
 
                 RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC, "Sphere");
 
-                std::vector<uint32_t> indices;
-                uint32_t k1, k2;
-                for (uint32_t i = 0; i < stackCount; ++i) {
-                    k1 = i * (static_cast<uint32_t>(sectorCount) + 1U); // beginning of current stack
-                    k2 = k1 + static_cast<uint32_t>(sectorCount) + 1U; // beginning of next stack
+                std::vector<uint16_t> indices;
+                uint16_t k1, k2;
+                for (uint16_t i = 0; i < stackCount; ++i) {
+                    k1 = i * (static_cast<uint16_t>(sectorCount) + 1U); // beginning of current stack
+                    k2 = k1 + static_cast<uint16_t>(sectorCount) + 1U; // beginning of next stack
 
-                    for (uint32_t j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+                    for (uint16_t j = 0; j < sectorCount; ++j, ++k1, ++k2) {
                         // 2 triangles per sector excluding first and last stacks
                         // k1 => k2 => k1+1
                         if (i != 0) {
@@ -283,7 +283,7 @@ namespace Razix {
                 RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
                 delete[] data;
 
-                uint32_t indices[6]{
+                uint16_t indices[6]{
                     0, 1, 2,
                     2, 3, 0
                 };

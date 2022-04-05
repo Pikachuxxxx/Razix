@@ -42,7 +42,7 @@ namespace Razix {
 
                 Graphics::RZVertex* vertices = new Graphics::RZVertex[numVertices];
 
-                uint32_t* indices = new uint32_t[numIndices];
+                uint16_t* indices = new uint16_t[numIndices];
                 std::unordered_map<Graphics::RZVertex, uint32_t> uniqueVertices;
 
                 // for vertex in vertices in the submesh

@@ -34,7 +34,9 @@ namespace Razix {
             void flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
             
             /* Sets the buffer with new given data */
-            void setData(uint32_t size, const void* data);         
+            void setData(uint32_t size, const void* data);
+            /* Resizes the buffer */
+            void resize(uint32_t size, const void* data);
 
             /* Gets the reference to the Vulkan buffer object */
             inline const VkBuffer& getBuffer() const { return m_Buffer; }
@@ -54,6 +56,7 @@ namespace Razix {
             VkDescriptorBufferInfo  m_DesciptorBufferInfo;  /* The buffer description info          */
             VkBufferUsageFlags      m_UsageFlags;           /* Buffer usage description             */
             void*                   m_Mapped = nullptr;     /* The HOST mapped region of the buffer */
+            std::string m_BufferName;
 
         protected:
             /**

@@ -116,3 +116,8 @@ namespace ImGui
     void MyFunction(const char* name, const MyMatrix44& v);
 }
 */
+
+// refer https://github.com/ocornut/imgui/pull/914 and https://github.com/ocornut/imgui/issues/1641 for why this is done
+#ifndef ImTextureID
+#define ImTextureID void*
+#endif

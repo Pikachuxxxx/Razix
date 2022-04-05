@@ -10,7 +10,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZIndexBuffer* RZIndexBuffer::Create(uint32_t* data, uint32_t count, const std::string& name, BufferUsage bufferUsage /*= BufferUsage::STATIC*/)
+        RZIndexBuffer* RZIndexBuffer::Create(uint16_t* data, uint32_t count, const std::string& name, BufferUsage bufferUsage /*= BufferUsage::STATIC*/)
         {
             switch (RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLIndexBuffer(data, count, bufferUsage); break;
