@@ -183,7 +183,7 @@ namespace Razix {
                  vertices[3].UV = m_UVs[3];
              }
 
-             uint32_t indices[6] = {
+             uint16_t indices[6] = {
                  0, 1, 2, 2, 3, 0
              };
 

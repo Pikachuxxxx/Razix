@@ -69,10 +69,20 @@ namespace Razix {
             map(size, 0);
             memcpy(m_Mapped, data, size);
             unMap();
+
+            //flush();
+        }
+
+        void VKBuffer::resize(uint32_t size, const void* data)
+        {
+            //destroy();
+            m_BufferSize = size;
+            init(data, m_BufferName);
         }
 
         void VKBuffer::init(const void* data, const std::string& bufferName)
         {
+            m_BufferName = bufferName;
             VkBufferCreateInfo bufferInfo = {};
             bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
             bufferInfo.size = m_BufferSize;

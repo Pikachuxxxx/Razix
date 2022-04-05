@@ -107,10 +107,10 @@ namespace Razix {
             vkCmdDraw(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0);
         }
 
-        void VKRenderer::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, uint32_t start /*= 0*/)
+        void VKRenderer::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
         {
             RZEngine::Get().GetStatistics().NumDrawCalls++;
-            vkCmdDrawIndexed(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0, 0);
+            vkCmdDrawIndexed(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
         void VKRenderer::DestroyAPIImpl()
@@ -130,19 +130,19 @@ namespace Razix {
             return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get());
         }
 
-        void VKRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, TransformComponent tc)
+        void VKRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data)
         {
             //for (auto pushConstant : pushConstants) {
 
-            struct DefaultPushConstantData
-            {
-                alignas(16) glm::mat4 model;
-            }modelPCData;
+            //struct DefaultPushConstantData
+            //{
+            //    alignas(16) glm::mat4 model;
+            //}modelPCData;
 
-            //modelPCData.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -100.0f, 0.0f));
-            modelPCData.model = tc.GetTransform();
+            ////modelPCData.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -100.0f, 0.0f));
+            //modelPCData.model = tc.GetTransform();
 
-            vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pipeline)->getPipelineLayout(),  VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(DefaultPushConstantData), &modelPCData);
+            vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pipeline)->getPipelineLayout(),  VK_SHADER_STAGE_VERTEX_BIT, 0, blockSize, data);
             //}
         }
 

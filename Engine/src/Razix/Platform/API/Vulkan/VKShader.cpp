@@ -39,6 +39,8 @@ namespace Razix {
                     return sizeof(glm::uvec3);
                 case VK_FORMAT_R32G32B32A32_UINT:
                     return sizeof(glm::uvec4); //Need uintvec?
+                case  VK_FORMAT_R32_UINT:
+                    return sizeof(unsigned int);
                 default:
                     RAZIX_CORE_ERROR("Unsupported Format {0}", format);
                     return 0;

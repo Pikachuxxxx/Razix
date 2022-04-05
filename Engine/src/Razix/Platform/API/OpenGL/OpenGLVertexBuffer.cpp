@@ -60,6 +60,11 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
+        void OpenGLVertexBuffer::Resize(uint32_t size, const void* data)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD
+        }
+
         void OpenGLVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout)
         {
             Bind(nullptr);

@@ -37,7 +37,13 @@ namespace Razix {
             //VKBuffer::unMap();
         }
 
-        void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout) { }
+        void VKVertexBuffer::Resize(uint32_t size, const void* data)
+        {
+            Destroy();
+            VKBuffer::resize(size, data);
+        }
+
+        void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout) {}
 
         void VKVertexBuffer::Destroy()
         {

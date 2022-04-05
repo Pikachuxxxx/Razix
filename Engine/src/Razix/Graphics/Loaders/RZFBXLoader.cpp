@@ -195,7 +195,7 @@ namespace Razix {
 
                 // Filling in the Razix vertex data to create Razix Mesh
                 Graphics::RZVertex* tempvertices = new Graphics::RZVertex[vertex_count];
-                uint32_t* indicesArray = new uint32_t[numIndices];
+                uint16_t* indicesArray = new uint16_t[numIndices];
 
                 // IDK wtf is this
                 auto indices = geom->getFaceIndices();

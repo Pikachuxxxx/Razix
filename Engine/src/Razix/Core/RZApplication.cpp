@@ -18,6 +18,8 @@
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
+#include <backends/imgui_impl_glfw.h>
+
 namespace Razix
 {
     RZApplication* RZApplication::s_AppInstance = nullptr;
@@ -149,6 +151,8 @@ namespace Razix
         for (auto& sceneFilePath : sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
+        m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+
         Start();
         while (RenderFrame()) { }
         Quit();
@@ -215,6 +219,16 @@ namespace Razix
 
     void RZApplication::Update(const RZTimestep& dt) 
     {
+        ImGuiIO& io = ImGui::GetIO(); (void) io;
+        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+
+        ImGui::Render();
+
         OnUpdate(dt);
     }
 

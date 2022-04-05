@@ -43,6 +43,8 @@ namespace Razix {
             virtual void Unbind() = 0;
             /* Sets the data with some offset */
             virtual void SetData(uint32_t size, const void* data) = 0;
+            /* Resizes and sets the buffer with new data */
+            virtual void Resize(uint32_t size, const void* data) = 0;
             /* Sets the vertex buffer layout */
             virtual void AddBufferLayout(RZVertexBufferLayout& layout) = 0;
             /* Destroys the buffer and it's resources allocated by the underlying API */

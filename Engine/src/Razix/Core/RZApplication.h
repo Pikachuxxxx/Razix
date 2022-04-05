@@ -98,6 +98,8 @@ namespace Razix
         /* Gets the application render loop timer */
         inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
 
+        Graphics::RZImGuiRenderer* getImGuiRenderer() { return m_ImGuiRenderer; }
+
         /* Application Serialization */
 
         // Load mechanism for the RZApplication class
@@ -181,7 +183,7 @@ namespace Razix
         RZUUID                  m_ProjectID;                            /* Project ID is a UUID to uniquely identify project        */
 
         std::vector<std::string> sceneFilePaths;
-
+        Graphics::RZImGuiRenderer* m_ImGuiRenderer;
     private:
         /**
          * Renders the frame and displays the graphics and updates the window

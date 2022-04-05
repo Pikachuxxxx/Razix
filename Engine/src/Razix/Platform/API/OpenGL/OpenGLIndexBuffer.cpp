@@ -20,15 +20,15 @@ namespace Razix {
             return 0;
         }
 
-        OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* data, uint32_t count, BufferUsage bufferUsage)
+        OpenGLIndexBuffer::OpenGLIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage)
             : m_IBO(0)
         {
-            m_Size = count * sizeof(uint32_t);
+            m_Size = count * sizeof(uint16_t);
             m_Usage = bufferUsage;
             m_IndexCount = count;
             GLCall(glGenBuffers(1, &m_IBO));
             GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
-            GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, BufferUsageToOpenGL(m_Usage)));
+            GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint16_t), data, BufferUsageToOpenGL(m_Usage)));
         }
 
         OpenGLIndexBuffer::~OpenGLIndexBuffer()
@@ -44,6 +44,11 @@ namespace Razix {
         void OpenGLIndexBuffer::Unbind()
         {
             GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        }
+
+        void OpenGLIndexBuffer::Resize(uint32_t size, const void* data)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
     }
 }

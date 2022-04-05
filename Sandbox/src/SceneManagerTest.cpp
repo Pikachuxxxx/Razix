@@ -77,6 +77,9 @@ public:
 
             Graphics::RZAPIRenderer::Init();
 
+            getImGuiRenderer()->init();
+            getImGuiRenderer()->createPipeline(*renderpass);
+
             // Add some model entities
             //auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
             //if (!modelEnitties.size()) {
@@ -92,6 +95,7 @@ public:
 
     void OnUpdate(const RZTimestep& dt) override
     {
+
         if (Razix::RZInput::IsKeyPressed(KeyCode::Key::P)) {
             Razix::RZEngine::Get().getSceneManager().loadScene(1);
             activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
@@ -119,7 +123,8 @@ public:
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), TransformComponent());
+                auto tc = TransformComponent().GetTransform();
+                Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sizeof(TransformComponent), &tc);
                 Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
                 // draw related buffer bindings + Draw commands here
@@ -137,14 +142,17 @@ public:
                     }
 
                     // Draw the meshes
-                    auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-                    for (auto& mrc : mrcs) {
-                        mrc.Mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                        mrc.Mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    
-                        Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
-                    }
+                    //auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
+                    //for (auto& mrc : mrcs) {
+                    //    mrc.Mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                    //    mrc.Mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                    //
+                    //    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                    //}
                 }
+
+                if (getImGuiRenderer()->update(dt))
+                    getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
