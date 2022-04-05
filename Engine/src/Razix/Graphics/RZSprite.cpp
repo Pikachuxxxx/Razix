@@ -183,12 +183,12 @@ namespace Razix {
                  vertices[3].UV = m_UVs[3];
              }
 
-             uint32_t indices[6] = {
+             uint16_t indices[6] = {
                  0, 1, 2, 2, 3, 0
              };
 
              // Create the vertex buffer
-             m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::DYNAMIC);
+             m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::DYNAMIC, "Sprite");
              RZVertexBufferLayout layout;
              layout.push<glm::vec4>("Position");
              layout.push<glm::vec4>("Color");
@@ -196,7 +196,7 @@ namespace Razix {
              m_VBO->AddBufferLayout(layout);
 
              // Create the index buffer
-             m_IBO = RZIndexBuffer::Create(indices, 6, BufferUsage::STATIC);
+             m_IBO = RZIndexBuffer::Create(indices, 6, "Sprite", BufferUsage::STATIC);
         }
 
         void RZSprite::updateVertexData()

@@ -18,6 +18,8 @@
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
+#include <backends/imgui_impl_glfw.h>
+
 namespace Razix
 {
     RZApplication* RZApplication::s_AppInstance = nullptr;
@@ -109,9 +111,6 @@ namespace Razix
             cereal::JSONOutputArchive defArchive(opAppStream);
             RAZIX_CORE_TRACE("Creating a default Project file...");
 
-            // Assign a UUID for the new project file
-            //m_ProjectID = RZUUID();
-
             defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
@@ -120,11 +119,6 @@ namespace Razix
 
         // Enable V-Sync
         m_Window->SetVSync(true);
-
-        ImGui::CreateContext();
-        ImGui::StyleColorsDark();
-
-        m_ImGuiRenderer = Graphics::RZImGuiRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
     }
 
     void RZApplication::OnEvent(RZEvent& event)
@@ -153,11 +147,13 @@ namespace Razix
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
+        // Now the scenes are loaded onto the scene maneger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath : sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
+        m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+
         Start();
-        m_ImGuiRenderer->Init();
         while (RenderFrame()) { }
         Quit();
     }
@@ -182,11 +178,7 @@ namespace Razix
 
         if (m_CurrentState == AppState::Closing)
             return false;
-
-        ImGuiIO& io = ImGui::GetIO();
-        io.DisplaySize = ImVec2(static_cast<float>(getWindow()->getWidth()), static_cast<float>(getWindow()->getHeight()));
-        m_ImGuiRenderer->NewFrame();
-
+ 
         // Update the Engine systems
         Update(m_Timestep);
         m_Updates++;
@@ -200,7 +192,7 @@ namespace Razix
 
         // FLip the swapchain to present the rendered image
         //swapchain->Flip();
-        m_ImGuiRenderer->EndFrame();
+     
 
         // Record the FPS
         if (now - m_SecondTimer > 1.0f)
@@ -227,7 +219,16 @@ namespace Razix
 
     void RZApplication::Update(const RZTimestep& dt) 
     {
+        ImGuiIO& io = ImGui::GetIO(); (void) io;
+        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         ImGui::ShowDemoWindow();
+
+        ImGui::Render();
+
         OnUpdate(dt);
     }
 

@@ -90,12 +90,15 @@ namespace Razix {
             /* Gets the handle to the underlying API texture instance */
             virtual void* GetHandle() const = 0;
 
+            /* Generates the descriptor set for the  */
+            virtual void GenerateDescriptorSet() {}
+
         protected:
             std::string     m_Name;             /* The name of the texture resource         */
             std::string     m_VirtualPath;      /* The virtual path of the texture          */
             uint32_t        m_Width;            /* The width of the texture                 */
             uint32_t        m_Height;           /* The height of the texture                */
-            uint32_t        m_Size;             /* The size of the texture resource         */
+            uint64_t        m_Size;             /* The size of the texture resource         */
             Type            m_TextureType;      /* The type of this texture                 */
             Format          m_Format;           /* The internal format of the texture data  */
             Wrapping        m_WrapMode;         /* Wrap mode of the texture                 */

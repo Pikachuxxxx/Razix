@@ -182,11 +182,8 @@ namespace Razix
         WindowProperties        m_WindowProperties;                     /* The properties of the window to create with              */
         RZUUID                  m_ProjectID;                            /* Project ID is a UUID to uniquely identify project        */
 
-        // ImGui Test
-        Graphics::RZImGuiRenderer* m_ImGuiRenderer;
-
         std::vector<std::string> sceneFilePaths;
-
+        Graphics::RZImGuiRenderer* m_ImGuiRenderer;
     private:
         /**
          * Renders the frame and displays the graphics and updates the window

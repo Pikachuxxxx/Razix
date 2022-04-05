@@ -195,7 +195,7 @@ namespace Razix {
 
                 // Filling in the Razix vertex data to create Razix Mesh
                 Graphics::RZVertex* tempvertices = new Graphics::RZVertex[vertex_count];
-                uint32_t* indicesArray = new uint32_t[numIndices];
+                uint16_t* indicesArray = new uint16_t[numIndices];
 
                 // IDK wtf is this
                 auto indices = geom->getFaceIndices();
@@ -236,10 +236,10 @@ namespace Razix {
                 }
 
                 // Create the vertex buffer to hold the vertex data of the mesh
-                Graphics::RZVertexBuffer* vb = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * vertex_count, tempvertices, BufferUsage::STATIC);
+                Graphics::RZVertexBuffer* vb = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * vertex_count, tempvertices, BufferUsage::STATIC, name);
 
                 // Create the Index buffer to hold the index data
-                Graphics::RZIndexBuffer* ib = Graphics::RZIndexBuffer::Create(indicesArray, numIndices);
+                Graphics::RZIndexBuffer* ib = Graphics::RZIndexBuffer::Create(indicesArray, numIndices, name);
 
                 // TODO: Query and iterate through the materials and create mat+ texture resources
 

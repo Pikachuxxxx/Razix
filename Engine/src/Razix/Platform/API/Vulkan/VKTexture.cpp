@@ -274,7 +274,7 @@ namespace Razix {
 
             if (m_data != nullptr) {
                 pixels = reinterpret_cast<uint8_t*>(m_data);
-                m_Size = VkDeviceSize(m_Width * m_Height * 4);
+                m_Size = VkDeviceSize(m_Width * m_Height * 4); // TODO: Get the Bits per pixel from the format
             }
             else {
                 if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
@@ -284,7 +284,7 @@ namespace Razix {
                     // Here the format for the texture is extracted based on bits per pixel
                     m_Format = Razix::Graphics::RZTexture::bitsToTextureFormat(bpp);
                     // Size of the texture
-                    m_Size = m_Width * m_Height * bpp / 8;
+                    m_Size = m_Width * m_Height * bpp; // Divided by 8 cause char* is 8 bits and size is in bytes
                 }
             }
 
@@ -294,7 +294,7 @@ namespace Razix {
             VkDeviceSize imageSize = VkDeviceSize(m_Size);
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory 
-            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixels);
+            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixels, "Staging Buffer VKTexture");
 
             uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;// 
 

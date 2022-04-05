@@ -25,10 +25,10 @@ namespace Razix {
              * @parma data The data being stored in the uniform buffer
              * @returns The pointer handle to underlying Uniform buffer API implementation
              */
-            static RZUniformBuffer* Create(uint32_t size, const void* data);
+            static RZUniformBuffer* Create(uint32_t size, const void* data, const std::string& name);
             
             /* Initializes the uniform buffer */
-            virtual void Init(const void* data) = 0;
+            virtual void Init(const void* data, const std::string& name) = 0;
             /**
              * Sets the data contents of the uniform buffer
              * 

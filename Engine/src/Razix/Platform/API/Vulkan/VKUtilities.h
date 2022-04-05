@@ -87,7 +87,7 @@ namespace Razix {
              * @param sRGB Whether or not to convert it to sRGB format
              * @returns Vulkan texture format
              */
-            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb = true);
+            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb = false);
 
             /**
              * Engine wrap mode to Vulkan conversion

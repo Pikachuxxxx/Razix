@@ -163,10 +163,10 @@ namespace Razix {
                     data[i * 4 + 3].TexCoords = glm::vec2(0.0f, 1.0f);
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data,BufferUsage::STATIC);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data,BufferUsage::STATIC, "Cube");
                 delete[] data;
 
-                uint32_t indices[36]{
+                uint16_t indices[36]{
                     0, 1, 2,
                     0, 2, 3,
                     4, 5, 6,
@@ -181,7 +181,7 @@ namespace Razix {
                     20, 22, 23
                 };
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 36);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 36, "Cube");
 
                 return new RZMesh(vb, ib, 24, 36);
             }
@@ -223,15 +223,15 @@ namespace Razix {
                     }
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC, "Sphere");
 
-                std::vector<uint32_t> indices;
-                uint32_t k1, k2;
-                for (uint32_t i = 0; i < stackCount; ++i) {
-                    k1 = i * (static_cast<uint32_t>(sectorCount) + 1U); // beginning of current stack
-                    k2 = k1 + static_cast<uint32_t>(sectorCount) + 1U; // beginning of next stack
+                std::vector<uint16_t> indices;
+                uint16_t k1, k2;
+                for (uint16_t i = 0; i < stackCount; ++i) {
+                    k1 = i * (static_cast<uint16_t>(sectorCount) + 1U); // beginning of current stack
+                    k2 = k1 + static_cast<uint16_t>(sectorCount) + 1U; // beginning of next stack
 
-                    for (uint32_t j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+                    for (uint16_t j = 0; j < sectorCount; ++j, ++k1, ++k2) {
                         // 2 triangles per sector excluding first and last stacks
                         // k1 => k2 => k1+1
                         if (i != 0) {
@@ -249,7 +249,7 @@ namespace Razix {
                     }
                 }
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()));
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()), "Sphere");
 
                 return new RZMesh(vb, ib, data.size(), indices.size());
             }
@@ -280,15 +280,15 @@ namespace Razix {
                 data[3].TexCoords = glm::vec2(1.0f, 0.0f);
                 data[3].Normal = normal;
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
                 delete[] data;
 
-                uint32_t indices[6]{
+                uint16_t indices[6]{
                     0, 1, 2,
                     2, 3, 0
                 };
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6, "Plane");
 
                 return new RZMesh(vb, ib, 4, 6);
             }

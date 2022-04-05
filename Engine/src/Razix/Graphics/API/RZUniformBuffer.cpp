@@ -8,11 +8,11 @@
 namespace Razix {
     namespace Graphics {
 
-        RZUniformBuffer* RZUniformBuffer::Create(uint32_t size, const void* data)
+        RZUniformBuffer* RZUniformBuffer::Create(uint32_t size, const void* data, const std::string& name)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    break;
-                case Razix::Graphics::RenderAPI::VULKAN:    return new VKUniformBuffer(size, data); break;
+                case Razix::Graphics::RenderAPI::VULKAN:    return new VKUniformBuffer(size, data, name); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

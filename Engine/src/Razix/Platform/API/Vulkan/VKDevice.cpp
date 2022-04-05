@@ -45,7 +45,7 @@ namespace Razix {
             RAZIX_CORE_INFO("[Vulkan] Device Type        : {0}", std::string(getPhysicalDeviceTypeString(m_PhysicalDeviceProperties.deviceType)));
             RAZIX_CORE_INFO("[Vulkan] Driver Version     : {0}.{1}.{2}", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
 
-            /*
+            
             // Verify the supported device extension supported by the GPU
             uint32_t extCount = 0;
             vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &extCount, nullptr);
@@ -59,7 +59,7 @@ namespace Razix {
                     }
                 }
             }
-            */
+            
 
             // Query Queue information + store it for the Physical Device
             uint32_t queueFamilyCount;
@@ -180,6 +180,9 @@ namespace Razix {
 
             if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 deviceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+            if (m_PhysicalDevice->isExtensionSupported("VK_EXT_debug_marker"))
+                deviceExtensions.push_back("VK_EXT_debug_marker");
 
 #if defined(RAZIX_PLATFORM_MACOS)
             // https://vulkan.lunarg.com/doc/view/1.2.162.0/mac/1.2-extensions/vkspec.html#VUID-VkDeviceCreateInfo-pProperties-04451
