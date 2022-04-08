@@ -31,7 +31,7 @@ namespace Razix {
 
         void VKBuffer::destroy()
         {
-            if (m_Buffer) {
+            if (m_Buffer != VK_NULL_HANDLE) {
                 vkDestroyBuffer(VKDevice::Get().getDevice(), m_Buffer, nullptr);
 
                 if (m_BufferMemory) {
@@ -57,11 +57,15 @@ namespace Razix {
 
         void VKBuffer::flush(VkDeviceSize size /*= VK_WHOLE_SIZE*/, VkDeviceSize offset /*= 0*/)
         {
-            VkMappedMemoryRange mappedRange = {};
-            mappedRange.memory = m_BufferMemory;
-            mappedRange.offset = offset;
-            mappedRange.size = size;
-            vkFlushMappedMemoryRanges(VKDevice::Get().getDevice(), 1, &mappedRange);
+            // Flush only if the buffer exists
+            if (m_Buffer) {
+                VkMappedMemoryRange mappedRange = {};
+                mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+                mappedRange.memory = m_BufferMemory;
+                mappedRange.offset = offset;
+                mappedRange.size = size;
+                vkFlushMappedMemoryRanges(VKDevice::Get().getDevice(), 1, &mappedRange);
+            }
         }
 
         void VKBuffer::setData(uint32_t size, const void* data)
@@ -104,13 +108,12 @@ namespace Razix {
 
             VK_CHECK_RESULT(vkAllocateMemory(VKDevice::Get().getDevice(), &allocInfo, nullptr, &m_BufferMemory));
 
-            // Bind the buffer to it's memory
-            vkBindBufferMemory(VKDevice::Get().getDevice(), m_Buffer, m_BufferMemory, 0);
-
             //! Set the Data
             if (data != nullptr)
                 setData((uint32_t)m_BufferSize, data);
 
+            // Bind the buffer to it's memory
+            vkBindBufferMemory(VKDevice::Get().getDevice(), m_Buffer, m_BufferMemory, 0);
             // Set name for the Buffer
             VkDebugUtilsObjectNameInfoEXT bufferObjNameInfo{};
             bufferObjNameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;

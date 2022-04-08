@@ -32,6 +32,10 @@ namespace Razix {
             /* Resizes the buffer with new data */
             virtual void Resize(uint32_t size, const void* data) = 0;;
 
+            virtual void Map(uint32_t size = 0, uint32_t offset = 0) = 0;
+            virtual void UnMap() = 0;
+            virtual void* GetMappedBuffer() = 0;
+            virtual void Flush() = 0;
             
             /* Gets the index count of the index buffer */
             inline uint32_t getCount() const { return m_IndexCount; }

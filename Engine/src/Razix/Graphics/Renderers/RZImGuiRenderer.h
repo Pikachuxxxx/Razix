@@ -52,6 +52,7 @@ namespace Razix {
             void createPipeline(RZRenderPass& renderpass);
             bool update(const RZTimestep& dt);
             void draw(RZCommandBuffer* cmdBuffer);
+            void destroy();
 
         private:
             RZShader*           m_UIShader;                 /* The ImGui shader that is used by ImGui to render the UI elements */

@@ -10,6 +10,9 @@
 
 #include <imgui/backends/imgui_impl_glfw.h>
 
+#ifdef RAZIX_RENDER_API_VULKAN
+#include <vulkan/vulkan.h>
+#endif
 
 namespace Razix {
     namespace Graphics {
@@ -75,11 +78,15 @@ namespace Razix {
             }
 
             ImFontAtlas* atlas = io.Fonts;
-            // As ocornut mentioned we pass an engine abstracted object and bind it when doing stuff outselves
-            ImTextureID set = &m_FontAtlasDescriptorSet;
+            // As ocornut mentioned we pass an engine abstracted object and bind it when doing stuff ourselves
+            ImTextureID set = m_FontAtlasDescriptorSet;
             atlas->SetTexID(set);
 
             ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
+            m_ImGuiVBO = RZVertexBuffer::Create(10, nullptr, BufferUsage::DYNAMIC, "ImGUi VBO");
+            //m_ImGuiVBO->Destroy();
+            m_ImGuiIBO = RZIndexBuffer::Create(nullptr, 10, "ImGui IBO");
+            //m_ImGuiIBO->Destroy();
         }
 
         void RZImGuiRenderer::createPipeline(RZRenderPass& renderpass)
@@ -125,53 +132,96 @@ namespace Razix {
             if (!imDrawData) { return false; };
 
             size_t vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
-            size_t indexBufferSize = imDrawData->TotalIdxCount;
+            size_t indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
 
             // Update buffers only if vertex or index count has been changed compared to current buffer size
             if ((vertexBufferSize == 0) || (indexBufferSize == 0))
                 return false;
 
-            //ImDrawVert* vtxDst = new ImDrawVert[vertexBufferSize];
-            //ImDrawIdx* idxDst = new ImDrawIdx[indexBufferSize];
+ #if 1
+           /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
+                m_ImGuiVBO->UnMap();
+                m_ImGuiVBO->Destroy();
+                m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC, "ImGUi VBO");
+                //vertexCount = imDrawData->TotalVtxCount;
+                //m_ImGuiVBO->UnMap();
+                m_ImGuiVBO->Map();
+                updateCmdBuffers = true;
+            //}
 
-            m_VertexData.clear();
-            //m_VertexData.resize(imDrawData->TotalVtxCount);
-            m_IndexData.clear();
-            m_IndexData.resize(indexBufferSize);
+            //if ((dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->getBuffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
+                m_ImGuiIBO->UnMap();
+                m_ImGuiIBO->Destroy();
+                m_ImGuiIBO = RZIndexBuffer::Create(nullptr, imDrawData->TotalIdxCount, "ImGui IBO", BufferUsage::DYNAMIC);
+                //indexCount = imDrawData->TotalIdxCount;
+                //m_ImGuiIBO->UnMap();
+                m_ImGuiIBO->Map();
+                updateCmdBuffers = true;
+            //}`
+
+            // Upload vertex and index data to the GPU
+            ImDrawVert* vtxDst = (ImDrawVert*) m_ImGuiVBO->GetMappedBuffer();
+            ImDrawIdx* idxDst = (ImDrawIdx*)m_ImGuiIBO->GetMappedBuffer();
+
+
             for (int n = 0; n < imDrawData->CmdListsCount; n++) {
                 const ImDrawList* cmd_list = imDrawData->CmdLists[n];
 
-                //memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-                //memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
-                //vtxDst += cmd_list->VtxBuffer.Size;
-                //idxDst += cmd_list->IdxBuffer.Size;
-
-                // Get the vertex and index data from here
-                //memcpy(&m_VertexData[0], cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-
-                for (size_t i = 0; i < cmd_list->VtxBuffer.Size; i++) {
-                    ImGuiVertex vtx{};
-                    vtx.pos = glm::vec2(cmd_list->VtxBuffer.Data[i].pos.x, cmd_list->VtxBuffer.Data[i].pos.y);
-                    vtx.uv = glm::vec2(cmd_list->VtxBuffer.Data[i].uv.x, cmd_list->VtxBuffer.Data[i].uv.y);
-                    vtx.color = U32ColorToRGBA(cmd_list->VtxBuffer.Data[i].col);
-                    m_VertexData.push_back(vtx);
-                }
-                memcpy(&m_IndexData[0], cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+                memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+                memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+                vtxDst += cmd_list->VtxBuffer.Size;
+                idxDst += cmd_list->IdxBuffer.Size;
             }
 
-            if (vertexCount != imDrawData->TotalVtxCount) {
-                if(m_ImGuiVBO)
-                    m_ImGuiVBO->Destroy();
-                m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, &m_VertexData[0], BufferUsage::STATIC, "ImGUi VBO");
+            m_ImGuiVBO->Flush();
+            m_ImGuiIBO->Flush();
+
+#endif
+
+#undef VULF_IMGUI_IMPL
+#ifdef VULF_IMGUI_IMPL
+
+            // Vertex buffer
+            if ((m_ImGuiVBO.get_buffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {
+                m_ImGuiVBO.unmap();
+                // Destroy the buffer here before creating a new one
+                VKLogicalDevice::Get()->createBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &m_ImGuiVBO, vertexBufferSize);
+
+                vertexCount = imDrawData->TotalVtxCount;
+                m_ImGuiVBO.unmap();
+                m_ImGuiVBO.map();
                 updateCmdBuffers = true;
             }
 
-            if (indexCount != imDrawData->TotalIdxCount) {
-                if (m_ImGuiIBO)
-                    m_ImGuiIBO->Destroy();
-                m_ImGuiIBO = RZIndexBuffer::Create(&m_IndexData[0], indexBufferSize, "ImGui IBO");
+
+            // Index  buffer
+            if ((m_ImGuiIBO.get_buffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
+                m_ImGuiIBO.unmap();
+                // Destroy the buffer here before creating a new one
+                VKLogicalDevice::Get()->createBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &m_ImGuiIBO, indexBufferSize);
+
+                indexCount = imDrawData->TotalIdxCount;
+                m_ImGuiIBO.unmap();
+                m_ImGuiIBO.map();
                 updateCmdBuffers = true;
             }
+
+            // Upload vertex and index data to the GPU
+            ImDrawVert* vtxDst = (ImDrawVert*) m_ImGuiVBO.get_mapped();
+            ImDrawIdx* idxDst = (ImDrawIdx*) m_ImGuiIBO.get_mapped();
+
+            for (int n = 0; n < imDrawData->CmdListsCount; n++) {
+                const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+                memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+                memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+                vtxDst += cmd_list->VtxBuffer.Size;
+                idxDst += cmd_list->IdxBuffer.Size;
+            }
+
+            m_ImGuiVBO.flush();
+            m_ImGuiIBO.flush();
+
+#endif
 
             return updateCmdBuffers;
         }
@@ -208,20 +258,34 @@ namespace Razix {
                 for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
-                    /*
-                    VkRect2D scissorRect{};
-                    scissorRect.offset.x = std::max((int32_t) (pcmd->ClipRect.x), 0);
-                    scissorRect.offset.y = std::max((int32_t) (pcmd->ClipRect.y), 0);
-                    scissorRect.extent.width = (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x);
-                    scissorRect.extent.height = (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y);
-                    vkCmdSetScissor(commandBuffer, 0, 1, &scissorRect);
-                    */
-                    //vkCmdDrawIndexed(commandBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-                    RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+                    RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
+                    RZAPIRenderer::BindDescriptorSets(m_ImGuiPipeline, cmdBuffer, &set, 1);
+                    // TODO: Fix this for Vulkan
+                    VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
+                   
+                    // See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
+                    // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled, 
+                    // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
+                    // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
+                    RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+#ifdef RAZIX_RENDER_API_VULKAN
+                    vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+#endif
+                    //RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
                     indexOffset += pcmd->ElemCount;
                 }
                 vertexOffset += cmd_list->VtxBuffer.Size;
             }
+        }
+
+        void RZImGuiRenderer::destroy()
+        {
+            m_UIShader->Destroy();
+            m_FontAtlasDescriptorSet->Destroy();
+            m_FontAtlasTexture->Release(true);
+            m_ImGuiVBO->Destroy();
+            m_ImGuiIBO->Destroy();
+            m_ImGuiPipeline->Destroy();
         }
 
         void RZImGuiRenderer::uploadUIFont(const std::string& fontPath)

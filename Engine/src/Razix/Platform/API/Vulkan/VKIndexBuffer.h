@@ -17,6 +17,18 @@ namespace Razix {
             void Destroy() override;
             void Resize(uint32_t size, const void* data) override;
 
+
+            void Map(uint32_t size = 0, uint32_t offset = 0) override;
+
+
+            void UnMap() override;
+
+
+            void* GetMappedBuffer() override;
+
+
+            void Flush() override;
+
         private:
             bool m_IsBufferMapped = false;
 
