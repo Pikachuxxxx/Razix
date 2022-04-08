@@ -72,7 +72,7 @@ namespace Razix {
             DescriptorType                          type;           /* The type of the Descriptor, either a buffer or an texture image that is being consumed in the shader     */
             ShaderStage                             stage;          /* The shader stage to which the descriptor is bound to                                                     */
             uint32_t                                binding = 0;    /* The binding index of the shader                                                                          */
-            uint32_t                                count = 1;    /* The number of descriptors that are sent to the same binding slot, ex. used for Joint Transforms[N_BONES] */
+            uint32_t                                count = 1;      /* The number of descriptors that are sent to the same binding slot, ex. used for Joint Transforms[N_BONES] */
         };
 
         /* Information about the uniform buffer members */
