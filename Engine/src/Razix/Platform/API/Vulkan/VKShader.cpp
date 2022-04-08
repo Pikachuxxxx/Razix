@@ -11,6 +11,8 @@
 #include <SPIRVReflect/common/output_stream.h>
 #include <glm/glm.hpp>
 
+#include <imgui/imgui.h>
+
 namespace Razix {
     namespace Graphics {
 
@@ -198,6 +200,42 @@ namespace Razix {
 
                         // Create the buffer layout for Razix engine
                         pushBufferLayout((VkFormat) inputVar->format, inputVar->name, m_BufferLayout);
+                    }
+
+                    if (spvSource.second == "Compiled/SPIRV/imgui.vert.spv") {
+
+                        struct ImDrawVert
+                        {
+                            ImVec2  pos;
+                            ImVec2  uv;
+                            ImU32   col;
+                        };
+
+                        m_VertexInputAttributeDescriptions.clear();
+                        VkVertexInputAttributeDescription verextInputattribDesc1 = {};
+                        verextInputattribDesc1.binding = 0;
+                        verextInputattribDesc1.location = 0;
+                        verextInputattribDesc1.format = VK_FORMAT_R32G32_SFLOAT;
+                        verextInputattribDesc1.offset = offsetof(ImDrawVert, pos);
+
+                        VkVertexInputAttributeDescription verextInputattribDesc2 = {};
+                        verextInputattribDesc2.binding = 0;
+                        verextInputattribDesc2.location = 1;
+                        verextInputattribDesc2.format = VK_FORMAT_R32G32_SFLOAT;
+                        verextInputattribDesc2.offset = offsetof(ImDrawVert, uv);
+
+                        VkVertexInputAttributeDescription verextInputattribDesc3 = {};
+                        verextInputattribDesc3.binding = 0;
+                        verextInputattribDesc3.location = 2;
+                        verextInputattribDesc3.format = VK_FORMAT_R8G8B8A8_UNORM;
+                        verextInputattribDesc3.offset = offsetof(ImDrawVert, col);
+
+
+                        m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc1);
+                        m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc2);
+                        m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc3);
+
+                        m_VertexInputStride = 20;
                     }
                 }
 

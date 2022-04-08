@@ -147,7 +147,7 @@ namespace Razix
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
-        // Now the scenes are loaded onto the scene maneger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
+        // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath : sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
@@ -226,6 +226,11 @@ namespace Razix
         ImGui::NewFrame();
 
         ImGui::ShowDemoWindow();
+        if (ImGui::Begin("Razix Engine"))             
+        {
+            ImGui::Text("Indeed it is!");
+        }
+        ImGui::End();
 
         ImGui::Render();
 

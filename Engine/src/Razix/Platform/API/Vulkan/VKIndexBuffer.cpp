@@ -41,5 +41,25 @@ namespace Razix {
             Destroy();
             VKBuffer::resize(size, data);
         }
+
+        void VKIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
+        {
+            VKBuffer::map(size == 0 ? VK_WHOLE_SIZE : size, offset);
+        }
+
+        void VKIndexBuffer::UnMap()
+        {
+            VKBuffer::unMap();
+        }
+
+        void* VKIndexBuffer::GetMappedBuffer()
+        {
+            return VKBuffer::getMappedRegion();
+        }
+
+        void VKIndexBuffer::Flush()
+        {
+            VKBuffer::flush();
+        }
     }
 }

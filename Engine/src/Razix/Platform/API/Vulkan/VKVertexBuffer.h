@@ -24,6 +24,11 @@ namespace Razix {
 
             void Destroy() override;
 
+            virtual void Map(uint32_t size = 0, uint32_t offset = 0) override;
+            virtual void UnMap() override;
+            virtual void* GetMappedBuffer() override;
+            virtual void Flush() override;
+
         private:
             bool m_IsBufferMapped = false;
         };
