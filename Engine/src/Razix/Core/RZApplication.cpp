@@ -154,6 +154,10 @@ namespace Razix
         m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
 
         Start();
+
+        albedoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        albedoTexture->generateDescriptorSet();
+
         while (RenderFrame()) { }
         Quit();
     }
@@ -230,6 +234,8 @@ namespace Razix
         ImGui::ShowDemoWindow();
         if (ImGui::Begin("Razix Engine")) {
             ImGui::Text("Indeed it is!");
+
+            ImGui::Image((void*)albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
         }
         ImGui::End();
 
