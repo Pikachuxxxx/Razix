@@ -38,6 +38,8 @@ namespace Razix {
 
             /* Updates the viewport dynamically with the given width and height */
             virtual void UpdateViewport(uint32_t width, uint32_t height) = 0;
+
+            virtual void* getAPIBuffer() { return nullptr; }
         };
 
     }

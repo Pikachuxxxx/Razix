@@ -32,9 +32,7 @@ namespace Razix {
 
         void VKVertexBuffer::SetData(uint32_t size, const void* data)
         {
-            //VKBuffer::map(size, offset);
             VKBuffer::setData(size, data);
-            //VKBuffer::unMap();
         }
 
         void VKVertexBuffer::Resize(uint32_t size, const void* data)
@@ -56,5 +54,24 @@ namespace Razix {
             VKBuffer::destroy();
         }
 
+        void VKVertexBuffer::Map(uint32_t size, uint32_t offset)
+        {
+            VKBuffer::map(size == 0 ? VK_WHOLE_SIZE : size, offset);
+        }
+
+        void VKVertexBuffer::UnMap()
+        {
+            VKBuffer::unMap();
+        }
+
+        void* VKVertexBuffer::GetMappedBuffer()
+        {
+            return VKBuffer::getMappedRegion();
+        }
+
+        void VKVertexBuffer::Flush()
+        {
+            VKBuffer::flush();
+        }
     }
 }

@@ -16,6 +16,18 @@ namespace Razix {
             void SetData(uint32_t size, const void* data) override;
             void Resize(uint32_t size, const void* data) override;
             void AddBufferLayout(RZVertexBufferLayout& layout) override;
+
+            void Map(uint32_t size = 0, uint32_t offset = 0) override;
+
+
+            void UnMap() override;
+
+
+            void* GetMappedBuffer() override;
+
+
+            void Flush() override;
+
         private:
             uint32_t m_VAO;
             uint32_t m_VBO;

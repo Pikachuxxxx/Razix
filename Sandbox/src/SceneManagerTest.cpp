@@ -123,8 +123,8 @@ public:
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                auto tc = TransformComponent().GetTransform();
-                Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sizeof(TransformComponent), &tc);
+                glm::mat4 tc = TransformComponent().GetTransform();
+                Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sizeof(glm::mat4), &tc);
                 Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
                 // draw related buffer bindings + Draw commands here
@@ -182,6 +182,8 @@ public:
     {
         // Save the current scene
         Razix::RZEngine::Get().getSceneManager().saveAllScenes();
+
+        getImGuiRenderer()->destroy();
 
         RAZIX_TRACE("Current Active Scene index : {0}", Razix::RZEngine::Get().getSceneManager().getCurrentSceneIndex());
         // Delete the models

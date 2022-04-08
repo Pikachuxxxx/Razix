@@ -50,5 +50,26 @@ namespace Razix {
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
+
+        void OpenGLIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        void OpenGLIndexBuffer::UnMap()
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        void* OpenGLIndexBuffer::GetMappedBuffer()
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        void OpenGLIndexBuffer::Flush()
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
     }
 }
