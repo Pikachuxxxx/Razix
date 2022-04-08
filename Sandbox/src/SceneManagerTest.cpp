@@ -244,6 +244,11 @@ public:
         buildCommandPipeline();
     }
 
+    void OnImGui() override
+    {
+
+    }
+
 private:
     Graphics::RZTexture2D* albedoTexture;
     Graphics::RZTexture2D* roughness_metallicTexture;

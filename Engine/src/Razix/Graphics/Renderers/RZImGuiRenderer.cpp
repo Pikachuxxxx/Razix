@@ -10,10 +10,9 @@
 
 #include <imgui/backends/imgui_impl_glfw.h>
 
-// TODO: Remove this!
+#ifdef RAZIX_RENDER_API_VULKAN
 #include <vulkan/vulkan.h>
-#include "Razix/Platform/API/Vulkan/VKVertexBuffer.h"
-#include "Razix/Platform/API/Vulkan/VKIndexBuffer.h"
+#endif
 
 namespace Razix {
     namespace Graphics {
@@ -80,7 +79,7 @@ namespace Razix {
 
             ImFontAtlas* atlas = io.Fonts;
             // As ocornut mentioned we pass an engine abstracted object and bind it when doing stuff ourselves
-            ImTextureID set = &m_FontAtlasDescriptorSet;
+            ImTextureID set = m_FontAtlasDescriptorSet;
             atlas->SetTexID(set);
 
             ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
@@ -140,29 +139,29 @@ namespace Razix {
                 return false;
 
  #if 1
-            if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {
-                dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->unMap();
+           /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
+                m_ImGuiVBO->UnMap();
                 m_ImGuiVBO->Destroy();
                 m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC, "ImGUi VBO");
                 //vertexCount = imDrawData->TotalVtxCount;
-                dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->unMap();
-                dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->map();
+                //m_ImGuiVBO->UnMap();
+                m_ImGuiVBO->Map();
                 updateCmdBuffers = true;
-            }
+            //}
 
-            if ((dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->getBuffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
-                dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->unMap();
+            //if ((dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->getBuffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
+                m_ImGuiIBO->UnMap();
                 m_ImGuiIBO->Destroy();
                 m_ImGuiIBO = RZIndexBuffer::Create(nullptr, imDrawData->TotalIdxCount, "ImGui IBO", BufferUsage::DYNAMIC);
                 //indexCount = imDrawData->TotalIdxCount;
-                dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->unMap();
-                dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->map();
+                //m_ImGuiIBO->UnMap();
+                m_ImGuiIBO->Map();
                 updateCmdBuffers = true;
-            }
+            //}`
 
             // Upload vertex and index data to the GPU
-            ImDrawVert* vtxDst = (ImDrawVert*)  dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->GetMappedBuffer();
-            ImDrawIdx* idxDst = (ImDrawIdx*) dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->GetMappedBuffer();
+            ImDrawVert* vtxDst = (ImDrawVert*) m_ImGuiVBO->GetMappedBuffer();
+            ImDrawIdx* idxDst = (ImDrawIdx*)m_ImGuiIBO->GetMappedBuffer();
 
 
             for (int n = 0; n < imDrawData->CmdListsCount; n++) {
@@ -174,8 +173,8 @@ namespace Razix {
                 idxDst += cmd_list->IdxBuffer.Size;
             }
 
-            dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->flush();
-            dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->flush();
+            m_ImGuiVBO->Flush();
+            m_ImGuiIBO->Flush();
 
 #endif
 
@@ -259,16 +258,19 @@ namespace Razix {
                 for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
-                    
-                    VkRect2D scissorRect{};
-                    scissorRect.offset.x = std::max((int32_t) (pcmd->ClipRect.x), 0);
-                    scissorRect.offset.y = std::max((int32_t) (pcmd->ClipRect.y), 0);
-                    scissorRect.extent.width = (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x);
-                    scissorRect.extent.height = (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y);
-                    VkCommandBuffer* cmdBuf = (VkCommandBuffer*)(cmdBuffer->getAPIBuffer());
-                    vkCmdSetScissor(*cmdBuf, 0, 1, &scissorRect);
-                    
+                    RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
+                    RZAPIRenderer::BindDescriptorSets(m_ImGuiPipeline, cmdBuffer, &set, 1);
+                    // TODO: Fix this for Vulkan
+                    VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
+                   
+                    // See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
+                    // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled, 
+                    // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
+                    // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
+                    RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+#ifdef RAZIX_RENDER_API_VULKAN
                     vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+#endif
                     //RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
                     indexOffset += pcmd->ElemCount;
                 }
