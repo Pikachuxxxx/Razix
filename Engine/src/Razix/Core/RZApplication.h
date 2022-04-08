@@ -188,6 +188,7 @@ namespace Razix
 
         std::vector<std::string> sceneFilePaths;
         Graphics::RZImGuiRenderer* m_ImGuiRenderer;
+        Graphics::RZTexture2D* albedoTexture;
     private:
         /**
          * Renders the frame and displays the graphics and updates the window

@@ -11,6 +11,8 @@
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #endif
 
+#include "Razix/Graphics/API/RZShader.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -47,6 +49,22 @@ namespace Razix {
                     RAZIX_CORE_ASSERT(false, "[Texture] Unsupported image bit-depth! ({0})", bits);
                     return RZTexture::Format::RGB8;
             }
+        }
+
+        void RZTexture::generateDescriptorSet()
+        {
+            DescriptorSetInfo setInfo{};
+            setInfo.setID                   = 0;
+            RZDescriptor descriptor{};
+            descriptor.name                 = m_Name;
+            descriptor.bindingInfo.binding  = 0;
+            descriptor.bindingInfo.count    = 1;
+            descriptor.bindingInfo.stage    = ShaderStage::PIXEL;
+            descriptor.bindingInfo.type     = DescriptorType::IMAGE_SAMPLER;
+            descriptor.texture              = (RZTexture2D*)this;
+            setInfo.descriptors.push_back(descriptor);
+
+            m_DescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
         }
 
         //-----------------------------------------------------------------------------------
@@ -116,6 +134,5 @@ namespace Razix {
             }
             return nullptr;
         }
-
     }
 }
