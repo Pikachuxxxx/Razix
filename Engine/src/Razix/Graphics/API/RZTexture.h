@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZLog.h"
 
+#include "Razix/Graphics/API/RZDescriptorSet.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -90,21 +92,23 @@ namespace Razix {
             /* Gets the handle to the underlying API texture instance */
             virtual void* GetHandle() const = 0;
 
-            /* Generates the descriptor set for the  */
-            virtual void GenerateDescriptorSet() {}
+            /* Generates the descriptor set for the texture */
+            void generateDescriptorSet();
+            RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
 
         protected:
-            std::string     m_Name;             /* The name of the texture resource         */
-            std::string     m_VirtualPath;      /* The virtual path of the texture          */
-            uint32_t        m_Width;            /* The width of the texture                 */
-            uint32_t        m_Height;           /* The height of the texture                */
-            uint64_t        m_Size;             /* The size of the texture resource         */
-            Type            m_TextureType;      /* The type of this texture                 */
-            Format          m_Format;           /* The internal format of the texture data  */
-            Wrapping        m_WrapMode;         /* Wrap mode of the texture                 */
-            Filtering       m_FilterMode;       /* Filtering mode of the texture data       */
-            bool            m_FlipX;            /* Flip the texture on X-axis during load   */
-            bool            m_FlipY;            /* Flip the texture on Y-axis during load   */
+            std::string         m_Name;             /* The name of the texture resource         */
+            std::string         m_VirtualPath;      /* The virtual path of the texture          */
+            uint32_t            m_Width;            /* The width of the texture                 */
+            uint32_t            m_Height;           /* The height of the texture                */
+            uint64_t            m_Size;             /* The size of the texture resource         */
+            Type                m_TextureType;      /* The type of this texture                 */
+            Format              m_Format;           /* The internal format of the texture data  */
+            Wrapping            m_WrapMode;         /* Wrap mode of the texture                 */
+            Filtering           m_FilterMode;       /* Filtering mode of the texture data       */
+            bool                m_FlipX;            /* Flip the texture on X-axis during load   */
+            bool                m_FlipY;            /* Flip the texture on Y-axis during load   */
+            RZDescriptorSet*    m_DescriptorSet;    /* Descriptor set for the image             */
         };
 
         //-----------------------------------------------------------------------------------
