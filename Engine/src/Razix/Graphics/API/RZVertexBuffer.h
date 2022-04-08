@@ -50,10 +50,22 @@ namespace Razix {
             /* Destroys the buffer and it's resources allocated by the underlying API */
             virtual void Destroy() = 0;
 
+            virtual void Map(uint32_t size = 0, uint32_t offset = 0) = 0;
+            virtual void UnMap() = 0;
+            /**
+             * Gets the region on the HOST to which the device memory was mapped to
+             * 
+             * @returns The buffer to copy contents onto
+             */
+            virtual void* GetMappedBuffer() = 0;
+            virtual void Flush() = 0;
+
+            RAZIX_INLINE bool isBufferMaped() const { return m_Mapped; }
+
         protected:
-            BufferUsage m_Usage;            
-            uint32_t    m_Size;
-            bool        m_Mapped = false;
+            BufferUsage m_Usage     = BufferUsage::STATIC;            
+            uint32_t    m_Size      = 0;
+            bool        m_Mapped    = false;
         };
 
     } 

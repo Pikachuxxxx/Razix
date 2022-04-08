@@ -101,6 +101,17 @@ namespace Razix {
             vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
         }
 
+        void VKRenderer::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)
+        {
+            VkRect2D scissorRect{};
+            scissorRect.offset.x = x;
+            scissorRect.offset.y = y;
+            scissorRect.extent.width = width;
+            scissorRect.extent.height = height;
+
+            vkCmdSetScissor(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &scissorRect);
+        }
+
         void VKRenderer::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RZEngine::Get().GetStatistics().NumDrawCalls++;

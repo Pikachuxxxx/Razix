@@ -38,6 +38,8 @@ namespace Razix {
             /* Resizes the buffer */
             void resize(uint32_t size, const void* data);
 
+            /* Gets the HOST mapped buffer */
+            inline void* getMappedRegion() { return m_Mapped; }
             /* Gets the reference to the Vulkan buffer object */
             inline const VkBuffer& getBuffer() const { return m_Buffer; }
             /* Tells how the buffer is being used currently */

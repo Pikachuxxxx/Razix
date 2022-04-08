@@ -29,16 +29,10 @@ namespace Razix {
             void OnResizeAPIImpl(uint32_t width, uint32_t height) override;
 
             RZSwapchain* GetSwapchainImpl() override;
-
-
             void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data) override;
-
-
             void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer) override;
-
-
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets) override;
-
+            void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) override;
         private:
             VKContext* m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
             VkDescriptorSet m_DescriptorSetPool[16];
