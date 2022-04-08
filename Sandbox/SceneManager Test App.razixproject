@@ -4,8 +4,8 @@
         "Engine Version": "0.30.0",
         "Project ID": "6b12ca79-84bc-4493-9590-17ea93344970",
         "Render API": 1,
-        "Width": 1260,
-        "Height": 750,
+        "Width": 1354,
+        "Height": 790,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
         "Scenes": [
             "//Scenes/SceneManagerTest.rzscn",

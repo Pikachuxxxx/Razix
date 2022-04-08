@@ -82,6 +82,10 @@ namespace Razix
          * Called before the application is quit
          */
         virtual void RAZIX_CALL OnQuit() {}
+        /**
+         * Called for Rendering ImGui UI
+         */
+        virtual void RAZIX_CALL OnImGui() {}
 
         // Event callbacks for client
         virtual void RAZIX_CALL OnResize(uint32_t width, uint32_t height) {}

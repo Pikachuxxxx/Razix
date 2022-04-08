@@ -225,9 +225,10 @@ namespace Razix
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        OnImGui();
+
         ImGui::ShowDemoWindow();
-        if (ImGui::Begin("Razix Engine"))             
-        {
+        if (ImGui::Begin("Razix Engine")) {
             ImGui::Text("Indeed it is!");
         }
         ImGui::End();
