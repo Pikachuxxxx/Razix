@@ -4,3 +4,6 @@
 [submodule "Engine/vendor/RZSTL"]
 	path = Engine/vendor/RZSTL
 	url = https://github.com/Pikachuxxxx/RZSTL.git
+[submodule "Tool"]
+	path = Tools/RazixAssetPacker
+	url = https://github.com/Pikachuxxxx/RazixAssetPacker.git
