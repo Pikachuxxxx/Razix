@@ -251,6 +251,8 @@ namespace Razix
 
     void RZApplication::Quit()
     {
+        albedoTexture->getDescriptorSet()->Destroy();
+        albedoTexture->Release(true);
         // Client side quit customization
         OnQuit();
 
