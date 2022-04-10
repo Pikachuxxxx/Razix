@@ -10,6 +10,7 @@ IncludeDir["glm"]               = "vendor/glm/"
 IncludeDir["SPIRVReflect"]      = "vendor/SPIRVReflect/"
 IncludeDir["SPIRVCross"]        = "vendor/SPIRVCross/include"
 IncludeDir["entt"]              = "vendor/entt/include"
+IncludeDir["lua"]               = "vendor/lua/src"
 IncludeDir["Razix"]             = "src"
 IncludeDir["vendor"]            = "vendor/"
 
@@ -96,6 +97,7 @@ project "Razix"
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
@@ -121,6 +123,7 @@ project "Razix"
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
@@ -136,7 +139,8 @@ project "Razix"
         "SPIRVReflect",
         "SPIRVCross",
         "meshoptimizer",
-        "OpenFBX"
+        "OpenFBX", 
+        "lua"
     }
 
     -- TODO Add as rules, every shader file type will have it's own rule
