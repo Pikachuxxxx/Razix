@@ -10,6 +10,7 @@ IncludeDir["glm"]           = "../Engine/vendor/glm/"
 IncludeDir["SPIRVReflect"]  = "../Engine/vendor/SPIRVReflect/"
 IncludeDir["SPIRVCross"]    = "../Engine/vendor/SPIRVCross/include"
 IncludeDir["entt"]          = "../Engine/vendor/entt/include"
+IncludeDir["lua"]          = "../Engine/vendor/lua/src"
 IncludeDir["Razix"]         = "../Engine/src"
 IncludeDir["vendor"]        = "../Engine/vendor/"
 
@@ -39,6 +40,7 @@ project "Sandbox"
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -57,6 +59,7 @@ project "Sandbox"
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -72,7 +75,8 @@ project "Sandbox"
         "SPIRVReflect",
         "SPIRVCross",
         "meshoptimizer",
-        "OpenFBX"
+        "OpenFBX",
+        "lua"
    }
 
    defines

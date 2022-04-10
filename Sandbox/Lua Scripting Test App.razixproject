@@ -1,0 +1,14 @@
+{
+    "Razix Application": {
+        "Project Name": "Lua Scripting Test App",
+        "Engine Version": "0.30.0",
+        "Project ID": "b541770a-8d6f-4fff-af10-fb9dba365545",
+        "Render API": 1,
+        "Width": 1280,
+        "Height": 720,
+        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
+        "Scenes": [
+            "//Scenes/ScriptingTest.rzscn"
+        ]
+    }
+}
