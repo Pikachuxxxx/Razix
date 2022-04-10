@@ -66,10 +66,10 @@ namespace Razix
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
-        // Shutdonw the Scene Manager
+        // Shutdown the Scene Manager
         RZSceneManager::Get().ShutDown();
         // Shutdown the VFS last
-        RZVirtualFileSystem::ShutDown();
+        RZVirtualFileSystem::Get().ShutDown();
 
         // Log the completion of engine shutdown
         RAZIX_CORE_ERROR("***********************************");

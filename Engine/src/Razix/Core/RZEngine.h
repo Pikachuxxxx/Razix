@@ -6,7 +6,9 @@
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "razix/Scene/RZSceneManager.h"
+#include "Razix/Scene/RZSceneManager.h"
+
+#include "Razix/Scripting/LuaScriptHandler.h"
 
 //! The style guide rules are waved off for RZEngine class
 namespace Razix
@@ -21,19 +23,20 @@ namespace Razix
 		/* Statistic about the current frame */
 		struct Stats
 		{
-			uint32_t UpdatesPerSecond = 0;
-			uint32_t FramesPerSecond = 0;
-			float FrameTime = 0;
-            uint32_t NumDrawCalls = 0;
+			uint32_t				UpdatesPerSecond = 0;
+			uint32_t				FramesPerSecond = 0;
+			float					FrameTime = 0;
+            uint32_t				NumDrawCalls = 0;
 		};
 
     public:
-		RZCommandLineParser commandLineParser;	/* Command line parser for that helps in setting Engine and Application options */
+		RZCommandLineParser			commandLineParser;			/* Command line parser for that helps in setting Engine and Application options */
 
-		// Engine Systems
 	private:
-		RZVirtualFileSystem m_VirtualFileSystem;
-		RZSceneManager		m_SceneManager;
+		// Engine Systems
+		RZVirtualFileSystem			m_VirtualFileSystem;		/* The Virtual File Engine System for managing files								*/
+		RZSceneManager				m_SceneManagerSystem;		/* Scene Manager Engine System for managing scenes in game world					*/
+		Scripting::LuaScriptHandler m_LuaScriptHandlerSystem;	/* Lua Script Handling Engine System for managing and executing scrip components	*/
 
 	public:
 		/* Starts up the Engine and it's sub-systems */
@@ -75,7 +78,7 @@ namespace Razix
 		void setTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
 
 		// TODO: Use a template method to get the systems automatically, hence use a system registration design with IRZSystem as parent
-		RZSceneManager& getSceneManager() { return m_SceneManager; }
+		RZSceneManager& getSceneManager() { return m_SceneManagerSystem; }
 
 	private:
 		Stats m_Stats;										/* Current frame basic statistics									*/

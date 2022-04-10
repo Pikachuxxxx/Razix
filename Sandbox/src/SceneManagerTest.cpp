@@ -89,7 +89,7 @@ public:
             //    // Plane
             //    auto& planeEntity = activeScene->createEntity("Ground");
             //    planeEntity.AddComponent<MeshRendererComponent>(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Plane));
-            //}
+            //} 
         }
     }
 
@@ -123,8 +123,10 @@ public:
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                glm::mat4 tc = TransformComponent().GetTransform();
-                Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sizeof(glm::mat4), &tc);
+                auto tc = TransformComponent();
+                tc.Rotation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
+                glm::mat4 transform = tc.GetTransform();
+                Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sizeof(glm::mat4), &transform);
                 Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
                 // draw related buffer bindings + Draw commands here

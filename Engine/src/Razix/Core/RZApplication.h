@@ -95,6 +95,8 @@ namespace Razix
         
         /* Returns a reference to the application window */
         inline RZWindow* RAZIX_CALL getWindow() { return m_Window.get(); }
+        /* Gets the window size */
+        inline glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
         /* Returns a reference to the Application instance */
         inline std::string RAZIX_CALL getAppName() const { return m_AppName; }
         /* Gets the window properties */

@@ -14,9 +14,9 @@ namespace Razix {
     {
     public:
         /* Initializes the VFS */
-        static void StartUp();
+        void StartUp();
         /* Shuts down the VFSand releases any resources hold by this */
-        static void ShutDown();
+        void ShutDown();
 
         /**
          * Adds a scene on the queue to be presented when requested

@@ -15,9 +15,9 @@ namespace Razix
 	{
 	public:
 		/* Initializes the VFS */
-		static void StartUp();
+		void StartUp();
 		/* Shuts down the VFSand releases any resources hold by this */
-		static void ShutDown();
+		void ShutDown();
 
 		/**
          * Mounts the Virtual path along with it's actual physical path so as to resolve
