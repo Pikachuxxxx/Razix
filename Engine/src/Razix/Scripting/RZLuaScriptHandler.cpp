@@ -1,13 +1,17 @@
 #include "rzxpch.h"
-#include "LuaScriptHandler.h"
+#include "RZLuaScriptHandler.h"
 
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/RZApplication.h"
 
+#include "Razix/Scene/RZScene.h"
+
+#include "Razix/Scripting/LuaScriptComponent.h"
+
 namespace Razix {
     namespace Scripting {
 
-        void LuaScriptHandler::StartUp()
+        void RZLuaScriptHandler::StartUp()
         {
             // Instance is automatically created once the system is Started Up
             RAZIX_CORE_INFO("[Lua Handler] Starting Up Lua Script Handler");
@@ -23,12 +27,42 @@ namespace Razix {
             bindLoggingAPI();
         }
 
-        void LuaScriptHandler::ShutDown()
+        void RZLuaScriptHandler::ShutDown()
         {
              RAZIX_CORE_ERROR("[Lua Handler] Shutting Lua Script Handler");
         }
 
-        void LuaScriptHandler::bindApplicationAPI()
+        void RZLuaScriptHandler::OnStart(RZScene* scene)
+        {
+            auto& registry = scene->getRegistry();
+
+            auto view = registry.view<LuaScriptComponent>();
+
+            if (view.empty())
+                return;
+
+            for (auto entity : view) {
+                auto& luaScript = registry.get<LuaScriptComponent>(entity);
+                luaScript.OnStart();
+            }
+        }
+
+        void RZLuaScriptHandler::OnUpdate(RZScene* scene, RZTimestep dt)
+        {
+            auto& registry = scene->getRegistry();
+
+            auto view = registry.view<LuaScriptComponent>();
+
+            if (view.empty())
+                return;
+
+            for (auto entity : view) {
+                auto& luaScript = registry.get<LuaScriptComponent>(entity);
+                luaScript.OnUpdate(dt);
+            }
+        }
+
+        void RZLuaScriptHandler::bindApplicationAPI()
         {
             sol::usertype<RZApplication> appType = m_State.new_usertype<RZApplication>("RZApplication");
 
@@ -36,7 +70,7 @@ namespace Razix {
             m_State.set_function("GetAppInstance", &RZApplication::Get);
         }
 
-        void LuaScriptHandler::bindLoggingAPI()
+        void RZLuaScriptHandler::bindLoggingAPI()
         {
             auto log = m_State.create_table("RZLog");
 
@@ -53,17 +87,17 @@ namespace Razix {
             { RAZIX_ERROR(message); });
         }
 
-        void LuaScriptHandler::bindSceneManagerAPI()
+        void RZLuaScriptHandler::bindSceneManagerAPI()
         {
 
         }
 
-        void LuaScriptHandler::bindInputAPI()
+        void RZLuaScriptHandler::bindInputAPI()
         {
 
         }
 
-        void LuaScriptHandler::bindECSAPI()
+        void RZLuaScriptHandler::bindECSAPI()
         {
 
         }

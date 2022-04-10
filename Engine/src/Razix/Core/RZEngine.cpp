@@ -39,6 +39,9 @@ namespace Razix
         // 2. Scene Manager
         RZSceneManager::Get().StartUp();
 
+        // 3. Script Handler
+        Scripting::RZLuaScriptHandler::Get().StartUp();
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Log after all the Engine systems have been successfully Started Up
@@ -66,6 +69,8 @@ namespace Razix
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
+        // Shutdown the lua script handle
+        Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager
         RZSceneManager::Get().ShutDown();
         // Shutdown the VFS last

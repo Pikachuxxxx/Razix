@@ -1,13 +1,18 @@
 #pragma once
 
 #include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Utilities/RZTimestep.h"
 
 // Lua and c++ wrapper dependencies
 #include <sol/sol.hpp>
 #include <entt.hpp>
 
 namespace Razix {
+        
+    class RZScene;
+    
     namespace Scripting {
+
 
         // TODO: Derive this from the engine system and register to handle automatic startup and shutdown
         
@@ -16,7 +21,7 @@ namespace Razix {
          * 
          * This also a Engine system that will be managed by the engine class for startUp and shutdown
          */
-        class RAZIX_API LuaScriptHandler : public RZSingleton<LuaScriptHandler>
+        class RAZIX_API RZLuaScriptHandler : public RZSingleton<RZLuaScriptHandler>
         {
         public:
             /* Initializes the system */
@@ -24,8 +29,10 @@ namespace Razix {
             /* Shuts down the Lua handler system and releases any resources hold by this */
             void ShutDown();
 
-            //void onStart(Graphics::RZScene* scene);
-            //void onUpdate(RZTimestep dt);
+            void OnStart(RZScene* scene);
+            void OnUpdate(RZScene* scene, RZTimestep dt);
+
+            sol::state& getState() { return m_State; }
 
         private:
             sol::state m_State;     /* Manages the lua runtime state and executes scripts etc. */
