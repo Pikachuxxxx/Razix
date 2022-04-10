@@ -1,4 +1,3 @@
-#if 0
 #if 1
 
 #include <Razix.h>
@@ -28,7 +27,7 @@ private:
     } directional_light_data;
 
 public:
-    SceneManagerTestApp() : RZApplication("/Sandbox/", "SceneManager Test App")
+    SceneManagerTestApp() : RZApplication("/Sandbox/", "Lua Scripting Test App")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
@@ -42,17 +41,17 @@ public:
     {
 
         //Get the current active scene
-        Razix::RZEngine::Get().getSceneManager().loadScene(1);
+        //Razix::RZEngine::Get().getSceneManager().loadScene(1);
         activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
 
         if (!activeScene) {
             RAZIX_TRACE("Creatng new scene...");
-            RZScene* modelLightScene = new RZScene("SceneManagerTest_Alt");
-            Razix::RZEngine::Get().getSceneManager().enqueScene(modelLightScene);
+            RZScene* scriptingScene = new RZScene("ScriptingTest");
+            Razix::RZEngine::Get().getSceneManager().enqueScene(scriptingScene);
             Razix::RZEngine::Get().getSceneManager().loadScene();
             activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
         }
-       
+
         // Add entities to the scene programatically for the first time
         // Camera Entity
         auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
@@ -64,6 +63,18 @@ public:
                 cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
             }
         }
+
+        auto& scripts = activeScene->GetComponentsOfType<LuaScriptComponent>();
+        if(!scripts.size())
+        {
+            RZEntity& scriptableEntity = activeScene->createEntity("ScriptableEntity");
+            scriptableEntity.AddComponent<LuaScriptComponent>();
+            if (scriptableEntity.HasComponent<LuaScriptComponent>()) {
+                LuaScriptComponent& lsc = scriptableEntity.GetComponent<LuaScriptComponent>();
+                lsc.loadScript("//Scripts/hello_razix.lua");
+            }
+        }
+
 
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
@@ -130,30 +141,6 @@ public:
                 Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sizeof(glm::mat4), &transform);
                 Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
-                // draw related buffer bindings + Draw commands here
-                {
-                    // Draw the models
-                    auto& mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
-                    for (auto& mc : mcs) {
-                        auto& meshes = mc.getMeshes();
-                        for (auto& mesh : meshes) {
-                            mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                            mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-
-                            Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
-                        }
-                    }
-
-                    // Draw the meshes
-                    //auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-                    //for (auto& mrc : mrcs) {
-                    //    mrc.Mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    //    mrc.Mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    //
-                    //    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
-                    //}
-                }
-
                 if (getImGuiRenderer()->update(dt))
                     getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
@@ -206,10 +193,10 @@ public:
 
         mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
         for (auto& mesh : mrcs) {
-            if(mesh.Mesh)
+            if (mesh.Mesh)
                 mesh.Mesh->Destroy();
         }
-        
+
         // Delete the textures
         albedoTexture->Release(true);
         roughness_metallicTexture->Release(true);
@@ -249,7 +236,7 @@ public:
 
     void OnImGui() override
     {
-
+        // Not working
     }
 
 private:
@@ -265,12 +252,12 @@ private:
 
 
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>   descriptorSets;
-    Graphics::RZShader*                                                     phongLightingShader;
+    Graphics::RZShader* phongLightingShader;
 
     Graphics::RZSwapchain* swapchain;
 
-    Graphics::RZRenderPass*                                                 renderpass;
-    Graphics::RZPipeline*                                                   pipeline;
+    Graphics::RZRenderPass* renderpass;
+    Graphics::RZPipeline* pipeline;
 
     uint32_t                                                                width, height;
 
@@ -310,7 +297,7 @@ private:
                         else
                             descriptor.texture = roughness_metallicTexture;
                     }
-                    else if(setInfo.setID == 0 && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER)
+                    else if (setInfo.setID == 0 && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER)
                         descriptor.uniformBuffer = viewProjUniformBuffers[i];
                     else if (setInfo.setID == 1 && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER)
                         descriptor.uniformBuffer = dirLightUniformBuffers[i];
@@ -392,5 +379,4 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new SceneManagerTestApp();
 }
-#endif
 #endif

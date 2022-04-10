@@ -219,6 +219,8 @@ namespace Razix
     void RZApplication::Start() 
     {
         OnStart();
+
+        RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
     }
 
     void RZApplication::Update(const RZTimestep& dt) 
@@ -240,6 +242,8 @@ namespace Razix
         ImGui::End();
 
         ImGui::Render();
+
+        RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
 
         OnUpdate(dt);
     }
