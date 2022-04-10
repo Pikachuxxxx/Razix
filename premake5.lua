@@ -72,6 +72,7 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/SPIRVCross/premake5")
         require("Engine/vendor/meshoptimizer/premake5")
         require("Engine/vendor/OpenFBX/premake5")
+        require("Engine/vendor/lua/premake5")
     group ""
 
     framework "4.0"

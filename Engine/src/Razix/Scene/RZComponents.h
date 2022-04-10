@@ -10,7 +10,7 @@
 #include "Razix/Graphics/RZModel.h"
 
 #include "Razix/Scene/RZSceneCamera.h"
-#include "Razix/Scene/RZComponents.h"
+#include "Razix/Scripting/LuaScriptComponent.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -351,8 +351,12 @@ namespace Razix {
                 archive(cereal::make_nvp("TexturePath", Sprite->getTexture()->getPath()));
             archive(cereal::make_nvp("Color", Sprite->getColour()));
         }
+
+        //-----------------------------------------------------------------------------------------------------
+        // Scripting System
+
     };
 
     // List of all components that razix implements that is used while serialization
-    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent, Graphics::RZModel // The model component is a temporary hack, which will be replaced by MeshRenderer component soon
+    #define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent, Graphics::RZModel, LuaScriptComponent // The model component is a temporary hack, which will be replaced by MeshRenderer component soon
 }

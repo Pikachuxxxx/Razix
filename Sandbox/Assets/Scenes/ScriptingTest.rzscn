@@ -1,0 +1,119 @@
+{
+    "Razix Scene": {
+        "UUID": "6d9c6b99-8e19-4a8f-b437-e6ecd0f4abb2",
+        "SceneName": "ScriptingTest",
+        "Total Entities": 2
+    },
+    "value0": 2,
+    "value1": 0,
+    "value2": 1,
+    "value3": 2,
+    "value4": 0,
+    "value5": {
+        "UUID": "31de5c2a-8ea8-4e79-b938-d21e48e9c07f"
+    },
+    "value6": 1,
+    "value7": {
+        "UUID": "8cc1cc48-1196-4b1f-a4a6-56c760892281"
+    },
+    "value8": 2,
+    "value9": 0,
+    "value10": {
+        "Tag": "Camera"
+    },
+    "value11": 1,
+    "value12": {
+        "Tag": "ScriptableEntity"
+    },
+    "value13": 0,
+    "value14": 2,
+    "value15": 0,
+    "value16": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value17": 1,
+    "value18": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value19": 1,
+    "value20": 0,
+    "value21": {
+        "isPrimary": true,
+        "Camera": {
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Front": {
+                "x": 0.09100040048360825,
+                "y": 0.10452846437692642,
+                "z": -0.9903498291969299
+            },
+            "Up": {
+                "x": -0.009564528241753579,
+                "y": 0.994521975517273,
+                "z": 0.10408996045589447
+            },
+            "Right": {
+                "x": 0.9958049654960632,
+                "y": -0.0,
+                "z": 0.09150166064500809
+            },
+            "WorldUp": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Yaw": -84.75,
+            "Pitch": 6.0,
+            "Zoom": 45.0,
+            "MovementSpeed": 0.02500000037252903,
+            "MouseSensitivity": 0.25,
+            "ProjectionType": 0,
+            "PerspectiveFOV": 0.7853981852531433,
+            "PerspectiveNearClip": 0.10000000149011612,
+            "PerspectiveFarClip": 100.0,
+            "OrthographicSize": 10.0,
+            "OrthographicNearClip": -1.0,
+            "OrthographicFarClip": 1.0,
+            "AspectRatio": 1.7777777910232545
+        }
+    },
+    "value22": 0,
+    "value23": 0,
+    "value24": 0,
+    "value25": 1,
+    "value26": 1,
+    "value27": {
+        "FilePath": "//Scripts/hello_razix.lua"
+    }
+}
