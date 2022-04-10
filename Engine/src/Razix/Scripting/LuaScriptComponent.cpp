@@ -12,18 +12,20 @@ namespace Razix {
         m_Filepath = scriptPath;
         std::string physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(scriptPath, physicalPath)) {
-            RAZIX_CORE_ERROR("Failed to Load Lua script {0}", scriptPath);
+            RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Load Lua script {0}", scriptPath);
             m_Env = nullptr;
             return;
         }
+        else
+            RAZIX_CORE_INFO("[Lua Script Manager] Loading script from : {0}", m_Filepath);
 
         m_Env = std::make_shared<sol::environment>(Scripting::RZLuaScriptHandler::Get().getState(), sol::create, Scripting::RZLuaScriptHandler::Get().getState().globals());
 
         auto loadFileResult = Scripting::RZLuaScriptHandler::Get().getState().script_file(physicalPath, *m_Env, sol::script_pass_on_error);
         if (!loadFileResult.valid()) {
             sol::error err = loadFileResult;
-            RAZIX_CORE_ERROR("Failed to Execute Lua script {0}", physicalPath);
-            RAZIX_CORE_ERROR("Error : {0}", err.what());
+            RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Execute Lua script {0}", physicalPath);
+            RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", err.what());
             m_Errors.push_back(std::string(err.what()));
         }
 
