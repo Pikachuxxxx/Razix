@@ -8,5 +8,5 @@ function OnStart()
 end
 
 function OnUpdate(dt)
-    RZLog.Trace("OnUpdate called! :" .. dt)
+    --RZLog.Warn("OnUpdate called! :" .. dt)
 end

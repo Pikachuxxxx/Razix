@@ -238,13 +238,18 @@ namespace Razix
             ImGui::Text("Indeed it is!");
 
             ImGui::Image((void*)albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
+            static bool some;
+            if (ImGui::Checkbox("Tesy", &some)){
+                RAZIX_CORE_ERROR("Done!");
+            }
         }
         ImGui::End();
 
-        ImGui::Render();
-
+        // Run the OnUpdate for all the scripts
         RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
 
+        ImGui::Render();
+        
         OnUpdate(dt);
     }
 

@@ -49,6 +49,8 @@ namespace Razix {
             void bindSceneManagerAPI();
             void bindInputAPI();
             void bindECSAPI();
+            void bindImGui();
+            void bindglm();
         };
     }
 }
