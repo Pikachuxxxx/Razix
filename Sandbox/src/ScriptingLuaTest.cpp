@@ -40,8 +40,9 @@ public:
     void OnStart() override
     {
 
-        //Get the current active scene
-        //Razix::RZEngine::Get().getSceneManager().loadScene(1);
+        // Get the current active scene
+        // Someone or some system must load some scene manually
+        Razix::RZEngine::Get().getSceneManager().loadScene(0);
         activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
 
         if (!activeScene) {
@@ -73,7 +74,16 @@ public:
                 LuaScriptComponent& lsc = scriptableEntity.GetComponent<LuaScriptComponent>();
                 lsc.loadScript("//Scripts/hello_razix.lua");
             }
+
+            RZEntity& imguiEntity = activeScene->createEntity("guiEntity");
+            imguiEntity.AddComponent<LuaScriptComponent>();
+            if (imguiEntity.HasComponent<LuaScriptComponent>()) {
+                LuaScriptComponent& lsc = imguiEntity.GetComponent<LuaScriptComponent>();
+                lsc.loadScript("//Scripts/imgui_test.lua");
+            }
         }
+
+
 
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
