@@ -75,7 +75,6 @@ public:
             }
         }
 
-
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
 
