@@ -14,7 +14,7 @@ namespace Razix {
         void RZLuaScriptHandler::StartUp()
         {
             // Instance is automatically created once the system is Started Up
-            RAZIX_CORE_INFO("[Lua Handler] Starting Up Lua Script Handler");
+            RAZIX_CORE_INFO("[Lua Script Manager] Starting Up Lua Script Handler");
             Razix::RZSplashScreen::Get().setLogString("Starting Lua Script Handler...");
 
             // Load lua default libraries that can be used by the client
@@ -25,11 +25,14 @@ namespace Razix {
 
             // Bind the logging API that can be used by the user via scripts
             bindLoggingAPI();
+
+            // Bind the ImGui bindings
+            bindImGui();
         }
 
         void RZLuaScriptHandler::ShutDown()
         {
-             RAZIX_CORE_ERROR("[Lua Handler] Shutting Lua Script Handler");
+             RAZIX_CORE_ERROR("[Lua Script Manager] Shutting Lua Script Handler");
         }
 
         void RZLuaScriptHandler::OnStart(RZScene* scene)
