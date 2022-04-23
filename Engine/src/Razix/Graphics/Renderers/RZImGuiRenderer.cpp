@@ -263,7 +263,7 @@ namespace Razix {
                     // TODO: Fix this for Vulkan
                     VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
                    
-                    // See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
+                    // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
                     // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled, 
                     // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
                     // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
