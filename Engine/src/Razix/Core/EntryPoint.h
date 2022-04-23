@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZProfiling.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication();
@@ -26,6 +27,7 @@ extern Razix::RZApplication* Razix::CreateApplication();
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 int main(int argc, char** argv)
 {
+
     // Read the command line arguments
     static std::vector<const char*> args;
     for (int32_t i = 1; i < argc; i++) { 

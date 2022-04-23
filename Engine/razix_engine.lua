@@ -1,18 +1,5 @@
--- Razix Include Directories
-IncludeDir = {}
-IncludeDir["cereal"]            = "vendor/cereal/include"
-IncludeDir["Glad"]              = "vendor/glad/include/"
-IncludeDir["GLFW"]              = "vendor/glfw/include/"
-IncludeDir["ImGui"]             = "vendor/imgui/"
-IncludeDir["spdlog"]            = "vendor/spdlog/include"
-IncludeDir["stb"]               = "vendor/stb/"
-IncludeDir["glm"]               = "vendor/glm/"
-IncludeDir["SPIRVReflect"]      = "vendor/SPIRVReflect/"
-IncludeDir["SPIRVCross"]        = "vendor/SPIRVCross/include"
-IncludeDir["entt"]              = "vendor/entt/include"
-IncludeDir["lua"]               = "vendor/lua/src"
-IncludeDir["Razix"]             = "src"
-IncludeDir["vendor"]            = "vendor/"
+-- Razix Engine vendor Common Inlcudes 
+include 'Scripts/premake/common/vendor_includes.lua'
 
 -- Vulkan SDK
 VulkanSDK = os.getenv("VULKAN_SDK")
@@ -56,6 +43,8 @@ project "Razix"
         "src/**.c",
         "src/**.cpp",
         "src/**.inl",
+        -- vendor
+        "vendor/tracy/TracyClient.cpp",
         -- Shader files
         -- GLSL
         "content/Shaders/GLSL/*.vert",
@@ -78,32 +67,6 @@ project "Razix"
         "src/Razix/Platform/**"
     }
 
-    -- Include paths
-    includedirs
-    {
-        -- Engine
-        "./",
-        "../",
-        "src/",
-        "src/Razix",
-        -- Vendor
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        -- API related
-        "%{VulkanSDK}"
-    }
-
     -- For MacOS
     sysincludedirs
     {
@@ -124,6 +87,7 @@ project "Razix"
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",
         "%{IncludeDir.lua}",
+        "%{IncludeDir.tracy}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
@@ -154,7 +118,6 @@ project "Razix"
         buildmessage 'Compiling glsl shader : %{file.name}'
         buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{file.directory}/../Compiled/SPIRV/%{file.name}.spv" '
         buildoutputs "%{file.directory}/../Compiled/SPIRV/%{file.name }.spv"
-
 
     -- Disable PCH for vendors
     filter 'files:vendor/**.cpp'
@@ -252,12 +215,12 @@ project "Razix"
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG" }
+        defines { "RAZIX_DEBUG", "TRACY_ENABLE"}
         symbols "On"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG" }
+        defines { "RAZIX_RELEASE", "NDEBUG", "TRACY_ENABLE" }
         optimize "Speed"
         symbols "On"
 
