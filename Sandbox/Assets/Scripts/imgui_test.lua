@@ -11,7 +11,7 @@ local range = 0.0
 
 function get_value(res)
     value = res
-    RZLog.Info("isChecked : " .. tostring(res))
+    RZLog.Warn("isChecked : " .. tostring(res))
 end
 
 function get_dragFLoatVal(val)
