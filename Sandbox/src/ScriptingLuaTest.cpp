@@ -214,10 +214,10 @@ public:
         for (Graphics::RZModel model : mcs)
             model.Destroy();
 
-        auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh : mrcs)
-            mesh.Mesh->Destroy();
-
+        //auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        //for (auto& mesh : mrcs)
+        //    mesh.Mesh->Destroy();
+        //
         /*
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
         activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();

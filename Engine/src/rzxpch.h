@@ -33,3 +33,5 @@
 #include <immintrin.h>
 
 //-----3rd Party-----//
+// Profilers
+#include <Tracy.hpp>
