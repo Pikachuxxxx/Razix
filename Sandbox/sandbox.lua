@@ -23,7 +23,9 @@ project "Sandbox"
     files
     {
         "src/**.h",
-        "src/**.cpp"
+        "src/**.cpp",
+        -- Scripting files for test
+        "Assets/Scripts/**.lua"
     }
 
     -- Include paths
@@ -83,6 +85,9 @@ project "Sandbox"
    {
        --"SPDLOG_COMPILED_LIB"
    }
+
+   filter { "files:**.lua"}
+        flags { "ExcludeFromBuild"}
 
     filter { "system:Prospero" }
         targetextension ".elf"
