@@ -25,6 +25,8 @@ namespace Razix {
 
     void RZSceneManager::enqueScene(RZScene* scene)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         m_LoadedScenes.push_back(scene);
         // TODO: serialize this scene and add it's path to the list
         std::string scenePath = "//Scenes/" + scene->getSceneName() + ".rzscn";
@@ -35,6 +37,8 @@ namespace Razix {
 
     void RZSceneManager::enqueueSceneFromFile(const std::string& sceneFilePath)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         m_LoadedSceneFilePaths.push_back(sceneFilePath);
 
         auto name = Utilities::RemoveFilePathExtension(Utilities::GetFileName(sceneFilePath));
@@ -47,11 +51,15 @@ namespace Razix {
 
     void RZSceneManager::loadScene()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         loadScene((m_CurrentSceneIdx + 1) % m_LoadedScenes.size());
     }
 
     void RZSceneManager::loadScene(uint32_t index)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         m_QueuedSceneIndexToLoad = index;
         m_IsSwitchingScenes = true;
 
@@ -60,6 +68,8 @@ namespace Razix {
 
     void RZSceneManager::loadScene(const std::string& sceneName)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         bool found = false;
         m_IsSwitchingScenes = true;
         uint32_t idx = 0;
@@ -79,6 +89,8 @@ namespace Razix {
 
     void RZSceneManager::loadSceneSettings()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         if (m_IsSwitchingScenes == false) {
             if (m_CurrentScene)
                 return;
@@ -117,6 +129,8 @@ namespace Razix {
 
     void RZSceneManager::loadAllScenes()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         for (auto& filePath : m_LoadedSceneFilePaths) {
             loadScene(filePath);
         }
@@ -124,6 +138,8 @@ namespace Razix {
 
     void RZSceneManager::saveAllScenes()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         for (size_t i = 0; i < m_LoadedSceneFilePaths.size(); i++) {
             auto path = m_LoadedSceneFilePaths[i];
             auto scene = m_LoadedScenes[i];
@@ -133,6 +149,8 @@ namespace Razix {
 
     void RZSceneManager::saveCurrentScene()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         // TODO: This isn't right
         std::string scenePath = "//Scenes/" + m_CurrentScene->getSceneName() + ".rzscn";
         m_CurrentScene->serialiseScene(scenePath);

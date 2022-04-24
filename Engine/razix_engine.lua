@@ -88,6 +88,7 @@ project "Razix"
         "%{IncludeDir.entt}",
         "%{IncludeDir.lua}",
         "%{IncludeDir.tracy}",
+        "%{IncludeDir.optick}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
@@ -104,7 +105,8 @@ project "Razix"
         "SPIRVCross",
         "meshoptimizer",
         "OpenFBX", 
-        "lua"
+        "lua",
+        "optick"
     }
 
     -- TODO Add as rules, every shader file type will have it's own rule

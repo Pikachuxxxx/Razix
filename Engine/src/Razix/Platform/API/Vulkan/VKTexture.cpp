@@ -263,6 +263,8 @@ namespace Razix {
 
         void VKTexture2D::updateDescriptor()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_Descriptor.imageView      = m_ImageView;
             m_Descriptor.sampler        = m_ImageSampler;
             m_Descriptor.imageLayout    = m_ImageLayout;
@@ -270,6 +272,8 @@ namespace Razix {
 
         bool VKTexture2D::load()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             uint8_t* pixels = nullptr;
 
             if (m_data != nullptr) {
@@ -404,6 +408,8 @@ namespace Razix {
 
         void VKDepthTexture::init()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VkFormat depthFormat = VKUtilities::FindDepthFormat();
 
             VKTexture2D::CreateImage(m_Width, m_Height, 1, depthFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0);
@@ -489,6 +495,8 @@ namespace Razix {
 
         void VKRenderTexture::init()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             uint32_t mipLevels = 1;// static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;// 
 
             // Create the Vulkan Image and it's memory and Bind them together
@@ -507,6 +515,8 @@ namespace Razix {
 
         void VKRenderTexture::updateDescriptor()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_Descriptor.imageView      = m_ImageView;
             m_Descriptor.sampler        = m_ImageSampler;
             m_Descriptor.imageLayout    = m_ImageLayout;

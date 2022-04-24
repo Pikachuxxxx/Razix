@@ -12,6 +12,8 @@ namespace Razix {
 
         RZIndexBuffer* RZIndexBuffer::Create(uint16_t* data, uint32_t count, const std::string& name, BufferUsage bufferUsage /*= BufferUsage::STATIC*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLIndexBuffer(data, count, bufferUsage); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKIndexBuffer(data, count, bufferUsage, name); break;

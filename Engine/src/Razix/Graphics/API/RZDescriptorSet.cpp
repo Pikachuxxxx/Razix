@@ -12,6 +12,8 @@ namespace Razix {
     
         RZDescriptorSet* RZDescriptorSet::Create(const std::vector<RZDescriptor>& descriptors)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:   
                 case Razix::Graphics::RenderAPI::VULKAN:        return new VKDescriptorSet(descriptors); break;

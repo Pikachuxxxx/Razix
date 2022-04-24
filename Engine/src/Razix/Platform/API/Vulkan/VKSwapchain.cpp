@@ -24,6 +24,8 @@ namespace Razix {
 
         void VKSwapchain::Init(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Query the swapchain surface properties
             querySwapSurfaceProperties();
 
@@ -58,6 +60,8 @@ namespace Razix {
 
         void VKSwapchain::Destroy()
         {
+                        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Delete the frame data
             for (auto& frame : m_Frames) {
                 frame.mainCommandBuffer->Reset();
@@ -79,6 +83,8 @@ namespace Razix {
 
         void VKSwapchain::OnResize(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             if (m_Width == width && m_Height == height)
                 return;
 
@@ -111,6 +117,8 @@ namespace Razix {
 
         void VKSwapchain::querySwapSurfaceProperties()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Get the surface capabilities
             vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VKDevice::Get().getGPU(), VKContext::Get()->getSurface(), &m_SwapSurfaceProperties.capabilities);
 
@@ -129,6 +137,8 @@ namespace Razix {
 
         VkSurfaceFormatKHR VKSwapchain::chooseSurfaceFomat()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Get the right color space
             // Get the right image format for the swapchain images to present mode
             for (const auto& format : m_SwapSurfaceProperties.formats) {
@@ -142,6 +152,8 @@ namespace Razix {
 
         VkPresentModeKHR VKSwapchain::choosePresentMode()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Choose the right kind of image presentation mode for the  swapchain images
             for (const auto& presentMode : m_SwapSurfaceProperties.presentModes) {
                 if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
@@ -152,6 +164,8 @@ namespace Razix {
 
         VkExtent2D VKSwapchain::chooseSwapExtent()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // choose the best Swapchain resolution to present the image onto
             if (m_SwapSurfaceProperties.capabilities.currentExtent.width != UINT32_MAX)
                 return m_SwapSurfaceProperties.capabilities.currentExtent;
@@ -175,6 +189,8 @@ namespace Razix {
 
         void VKSwapchain::createSwapchain()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Get the swapchain image count
             m_SwapchainImageCount = m_SwapSurfaceProperties.capabilities.minImageCount + 1; // For triple buffering
             // Bound checking the swapchain image count only for triple buffer aka 2 frames in flight
@@ -225,6 +241,8 @@ namespace Razix {
 
         std::vector<VkImage> VKSwapchain::retrieveSwapchainImages()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             std::vector<VkImage> swapImages; 
             
             uint32_t swapImageCount = 0;
@@ -242,6 +260,8 @@ namespace Razix {
 
         std::vector<VkImageView> VKSwapchain::createSwapImageViews(std::vector<VkImage> swapImages)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             std::vector<VkImageView> swapchainImageViews;
 
             swapchainImageViews.resize(m_SwapchainImageCount);
@@ -270,6 +290,8 @@ namespace Razix {
 
         void VKSwapchain::createFrameData()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
                 if (!m_Frames[i].renderFence) {
 
@@ -293,6 +315,8 @@ namespace Razix {
 
         void VKSwapchain::acquireNextImage()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             uint32_t nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
             {
                 auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_Frames[nextCmdBufferIndex].presentSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
@@ -316,6 +340,8 @@ namespace Razix {
 
         void VKSwapchain::queueSubmit()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
 
             //if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
             //    vkWaitForFences(VKDevice::Get().getDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -350,6 +376,8 @@ namespace Razix {
 
         void VKSwapchain::begin()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             if (getCurrentFrameData().mainCommandBuffer->getState() == CommandBufferState::Submitted)
                 getCurrentFrameData().renderFence->wait();
             getCurrentFrameData().mainCommandBuffer->BeginRecording();
@@ -357,11 +385,15 @@ namespace Razix {
 
         void VKSwapchain::end()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             getCurrentCommandBuffer()->EndRecording();
         }
 
         void VKSwapchain::present()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             auto& frameData = getCurrentFrameData();
 
             VkPresentInfoKHR present{};

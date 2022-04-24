@@ -10,7 +10,9 @@ namespace Razix {
         VKCommandBuffer::VKCommandBuffer()
             : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE), m_State(CommandBufferState::Idle)
 
-        { }
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+        }
 
         VKCommandBuffer::~VKCommandBuffer()
         {
@@ -19,6 +21,8 @@ namespace Razix {
 
         void VKCommandBuffer::Init()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             VkCommandBufferAllocateInfo cmdBufferCI = {};
 
             m_CommandPool = VKDevice::Get().getCommandPool()->getVKPool();
@@ -33,6 +37,8 @@ namespace Razix {
 
         void VKCommandBuffer::Init(bool primary /*= true*/, VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             VkCommandBufferAllocateInfo cmdBufferCI = {};
 
             m_CommandPool = cmdPool;
@@ -47,6 +53,8 @@ namespace Razix {
 
         void VKCommandBuffer::BeginRecording()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             m_State = CommandBufferState::Recording;
             VkCommandBufferBeginInfo beginCI{};
             beginCI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -56,6 +64,8 @@ namespace Razix {
 
         void VKCommandBuffer::EndRecording()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             RAZIX_ASSERT(m_State == CommandBufferState::Recording, "CommandBuffer ended before started recording");
             VK_CHECK_RESULT(vkEndCommandBuffer(m_CommandBuffer));
             m_State = CommandBufferState::Ended;
@@ -63,6 +73,8 @@ namespace Razix {
 
         void VKCommandBuffer::Execute()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             RAZIX_ASSERT(m_State == CommandBufferState::Ended, "CommandBuffer executed before ended recording");
             // TODO: Attach to the synchronization primitives
             VkSubmitInfo submitInfo = {};
@@ -82,11 +94,15 @@ namespace Razix {
 
         void VKCommandBuffer::Reset()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             vkFreeCommandBuffers(VKDevice::Get().getDevice(), m_CommandPool, 1, &m_CommandBuffer);
         }
 
         void VKCommandBuffer::UpdateViewport(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             VkViewport viewport = {};
             viewport.x = 0.0f;
             viewport.y = 0.0f;

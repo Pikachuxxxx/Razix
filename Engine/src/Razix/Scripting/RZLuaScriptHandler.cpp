@@ -37,6 +37,8 @@ namespace Razix {
 
         void RZLuaScriptHandler::OnStart(RZScene* scene)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
+
             auto& registry = scene->getRegistry();
 
             auto view = registry.view<LuaScriptComponent>();
@@ -52,6 +54,8 @@ namespace Razix {
 
         void RZLuaScriptHandler::OnUpdate(RZScene* scene, RZTimestep dt)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
+
             auto& registry = scene->getRegistry();
 
             auto view = registry.view<LuaScriptComponent>();

@@ -16,6 +16,8 @@ namespace Razix {
 
         void RZAPIRenderer::Create(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_CORE_INFO("Creating API Renderer...");
             RAZIX_CORE_INFO("\t Backend API : {0}", Graphics::RZGraphicsContext::GetRenderAPIString());
             //-------------------------------------------------------------------------------------

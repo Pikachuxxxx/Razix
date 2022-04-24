@@ -10,6 +10,8 @@ namespace Razix {
         VKVertexBuffer::VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage, const std::string& name)
             : VKBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data, name)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_Usage = usage;
             m_Size = 0;
 
@@ -20,6 +22,8 @@ namespace Razix {
 
         void VKVertexBuffer::Bind(RZCommandBuffer* cmdBuffer)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VkDeviceSize offsets[1] = {0};
             if (cmdBuffer)
                 vkCmdBindVertexBuffers(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &m_Buffer, offsets);
@@ -27,16 +31,22 @@ namespace Razix {
 
         void VKVertexBuffer::Unbind()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void VKVertexBuffer::SetData(uint32_t size, const void* data)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VKBuffer::setData(size, data);
         }
 
         void VKVertexBuffer::Resize(uint32_t size, const void* data)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             Destroy();
             VKBuffer::resize(size, data);
         }
@@ -45,6 +55,8 @@ namespace Razix {
 
         void VKVertexBuffer::Destroy()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             if (m_IsBufferMapped) {
                 VKBuffer::flush(m_Size);
                 VKBuffer::unMap();
@@ -56,21 +68,29 @@ namespace Razix {
 
         void VKVertexBuffer::Map(uint32_t size, uint32_t offset)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VKBuffer::map(size == 0 ? VK_WHOLE_SIZE : size, offset);
         }
 
         void VKVertexBuffer::UnMap()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VKBuffer::unMap();
         }
 
         void* VKVertexBuffer::GetMappedBuffer()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             return VKBuffer::getMappedRegion();
         }
 
         void VKVertexBuffer::Flush()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VKBuffer::flush();
         }
     }

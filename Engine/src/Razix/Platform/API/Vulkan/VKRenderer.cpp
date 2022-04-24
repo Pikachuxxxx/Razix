@@ -18,6 +18,8 @@ namespace Razix {
 
         VKRenderer::VKRenderer(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_RendererTitle = "Vulkan";
             m_Width = width;
             m_Height = height;
@@ -51,12 +53,16 @@ namespace Razix {
 
         void VKRenderer::InitAPIImpl()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = VKContext::Get();
         }
 
         void VKRenderer::BeginAPIImpl()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage();
             // Begin recording to the command buffer
@@ -65,6 +71,8 @@ namespace Razix {
 
         void VKRenderer::PresentAPIImple(RZCommandBuffer* cmdBuffer)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_Context->getSwapchain()->end();
             m_Context->getSwapchain()->queueSubmit();
             m_Context->getSwapchain()->present();
@@ -72,6 +80,8 @@ namespace Razix {
 
         void VKRenderer::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             uint32_t numDynamicDescriptorSets = 0;
             uint32_t numDesciptorSets = 0;
 
@@ -87,6 +97,8 @@ namespace Razix {
 
         void VKRenderer::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             uint32_t numDynamicDescriptorSets = 0;
             uint32_t numDesciptorSets = 0;
 
@@ -103,6 +115,8 @@ namespace Razix {
 
         void VKRenderer::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VkRect2D scissorRect{};
             scissorRect.offset.x = x;
             scissorRect.offset.y = y;
@@ -114,24 +128,32 @@ namespace Razix {
 
         void VKRenderer::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             vkCmdDraw(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0);
         }
 
         void VKRenderer::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             vkCmdDrawIndexed(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
         void VKRenderer::DestroyAPIImpl()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Destroy the descriptor pool
             vkDestroyDescriptorPool(VKDevice::Get().getDevice(), m_DescriptorPool, nullptr);
         }
 
         void VKRenderer::OnResizeAPIImpl(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
             m_Context->getSwapchain().get()->OnResize(width, height);
         }
@@ -143,6 +165,8 @@ namespace Razix {
 
         void VKRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             //for (auto pushConstant : pushConstants) {
 
             //struct DefaultPushConstantData
@@ -159,6 +183,8 @@ namespace Razix {
 
         void VKRenderer::SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             float depthBiasConstant = 1.25f;
             // Slope depth bias factor, applied depending on polygon's slope
             float depthBiasSlope = 1.75f;
