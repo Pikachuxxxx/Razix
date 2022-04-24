@@ -20,16 +20,22 @@ namespace Razix {
 
         void VKPipeline::Bind(RZCommandBuffer* commandBuffer)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             vkCmdBindPipeline(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
         }
 
         void VKPipeline::Destroy()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
         }
 
         void VKPipeline::init(const PipelineInfo& pipelineInfo)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             //----------------------------
             // Vertex Input Layout Stage
             //----------------------------

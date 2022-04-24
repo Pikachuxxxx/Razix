@@ -1,18 +1,5 @@
--- Inlude paths for Sanbox
-IncludeDir = {}
-IncludeDir["GLFW"]          = "../Engine/vendor/glfw/include/"
-IncludeDir["Glad"]          = "../Engine/vendor/glad/include/"
-IncludeDir["ImGui"]         = "../Engine/vendor/imgui/"
-IncludeDir["spdlog"]        = "../Engine/vendor/spdlog/include"
-IncludeDir["cereal"]        = "../Engine/vendor/cereal/include"
-IncludeDir["stb"]           = "../Engine/vendor/stb/"
-IncludeDir["glm"]           = "../Engine/vendor/glm/"
-IncludeDir["SPIRVReflect"]  = "../Engine/vendor/SPIRVReflect/"
-IncludeDir["SPIRVCross"]    = "../Engine/vendor/SPIRVCross/include"
-IncludeDir["entt"]          = "../Engine/vendor/entt/include"
-IncludeDir["lua"]          = "../Engine/vendor/lua/src"
-IncludeDir["Razix"]         = "../Engine/src"
-IncludeDir["vendor"]        = "../Engine/vendor/"
+-- Razix Engine vendor Common Inlcudes 
+include 'Scripts/premake/common/vendor_includes.lua'
 
 -- Sanbox Game project
 project "Sandbox"
@@ -26,25 +13,6 @@ project "Sandbox"
         "src/**.cpp",
         -- Scripting files for test
         "Assets/Scripts/**.lua"
-    }
-
-    -- Include paths
-    includedirs
-    {
-        "../Engine/src/Razix",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}"
     }
 
     -- Macos include paths
@@ -62,6 +30,8 @@ project "Sandbox"
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",
         "%{IncludeDir.lua}",
+        "%{IncludeDir.tracy}",
+        "%{IncludeDir.optick}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -78,7 +48,8 @@ project "Sandbox"
         "SPIRVCross",
         "meshoptimizer",
         "OpenFBX",
-        "lua"
+        "lua",
+        "optick"
    }
 
    defines

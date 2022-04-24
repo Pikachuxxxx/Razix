@@ -123,6 +123,8 @@ namespace Razix
 
     void RZApplication::OnEvent(RZEvent& event)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         RZEventDispatcher dispatcher(event);
         // Window close event
         dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
@@ -132,12 +134,16 @@ namespace Razix
 
     bool RZApplication::OnWindowClose(WindowCloseEvent& e)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         m_CurrentState = AppState::Closing;
         return true;
     }
 
     bool RZApplication::OnWindowResize(RZWindowResizeEvent& e)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
     }
@@ -157,13 +163,16 @@ namespace Razix
 
         albedoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
         albedoTexture->generateDescriptorSet();
-
         while (RenderFrame()) { }
         Quit();
     }
 
     bool RZApplication::RenderFrame()
     {
+        RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
+
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         // Calculate the delta time
         float now = m_Timer->GetElapsedS();
         auto& stats = RZEngine::Get().GetStatistics();
@@ -197,27 +206,30 @@ namespace Razix
         // FLip the swapchain to present the rendered image
         //swapchain->Flip();
      
-
-        // Record the FPS
-        if (now - m_SecondTimer > 1.0f)
         {
-            m_SecondTimer += 1.0f;
+            RAZIX_PROFILE_SCOPEC("RZApplication::TimeStepUpdates", RZ_PROFILE_COLOR_APPLICATION);
 
-            stats.FramesPerSecond = m_Frames;
-            stats.UpdatesPerSecond = m_Updates;
-            //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
-            //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
+            // Record the FPS
+            if (now - m_SecondTimer > 1.0f) {
+                m_SecondTimer += 1.0f;
 
-            m_Frames = 0;
-            m_Updates = 0;
+                stats.FramesPerSecond = m_Frames;
+                stats.UpdatesPerSecond = m_Updates;
+                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
+
+                m_Frames = 0;
+                m_Updates = 0;
+            }
         }
-
         RZEngine::Get().ResetStats();
         return m_CurrentState != AppState::Closing;
     }
 
     void RZApplication::Start() 
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         OnStart();
 
         RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
@@ -225,6 +237,8 @@ namespace Razix
 
     void RZApplication::Update(const RZTimestep& dt) 
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         ImGuiIO& io = ImGui::GetIO(); (void) io;
         io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
 
@@ -255,6 +269,8 @@ namespace Razix
 
     void RZApplication::Render() 
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         OnRender();
     }
 

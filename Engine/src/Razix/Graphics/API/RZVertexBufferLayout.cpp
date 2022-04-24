@@ -9,6 +9,8 @@ namespace Razix {
 
         void RZVertexBufferLayout::pushImpl(const std::string& name, BufferFormat format, uint32_t size, bool Normalised)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_Elements.push_back({name, format, m_Stride, Normalised});
             m_Stride += size;
         }

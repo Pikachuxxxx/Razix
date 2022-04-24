@@ -15,6 +15,8 @@ namespace Razix
 
     bool GLFWInput::IsKeyPressedImpl(int keycode)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_PRESS;
@@ -22,6 +24,8 @@ namespace Razix
 
     bool GLFWInput::IsKeyReleasedImpl(int keycode)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_RELEASE;
@@ -29,6 +33,8 @@ namespace Razix
 
     bool GLFWInput::IsIsKeyHeldImpl(int keycode)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
         int keyState = glfwGetKey(window, keycode);
         return keyState == GLFW_PRESS || keyState == GLFW_REPEAT;
@@ -36,6 +42,8 @@ namespace Razix
 
     bool GLFWInput::IsMouseButtonPressedImpl(int button)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         bool isPressed = false;
         static int oldState = GLFW_RELEASE;
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
@@ -48,6 +56,8 @@ namespace Razix
 
     bool GLFWInput::IsMouseButtonReleasedImpl(int button)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         bool isPressed = false;
         static int oldState = GLFW_RELEASE;
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
@@ -60,6 +70,8 @@ namespace Razix
 
     bool GLFWInput::IsMouseButtonHeldImpl(int button)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
         int buttonState = glfwGetMouseButton(window, button);
         return buttonState == GLFW_PRESS;
@@ -67,6 +79,8 @@ namespace Razix
 
     std::pair<float, float> GLFWInput::GetMousePositionImpl()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
@@ -76,12 +90,16 @@ namespace Razix
 
     float GLFWInput::GetMouseXImpl()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         auto [x, y] = GetMousePositionImpl();
         return x;
     }
 
     float GLFWInput::GetMouseYImpl()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         auto [x, y] = GetMousePositionImpl();
         return y;
     }

@@ -42,6 +42,8 @@ namespace Razix {
 
         void VKBuffer::map(VkDeviceSize size /*= VK_WHOLE_SIZE*/, VkDeviceSize offset /*= 0*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             // Map the memory to the mapped buffer
             VkResult res = vkMapMemory(VKDevice::Get().getDevice(), m_BufferMemory, offset, size, 0, &m_Mapped);
             RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
@@ -49,6 +51,8 @@ namespace Razix {
 
         void VKBuffer::unMap()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             if (m_Mapped) {
                 vkUnmapMemory(VKDevice::Get().getDevice(), m_BufferMemory);
                 m_Mapped = nullptr;
@@ -57,6 +61,8 @@ namespace Razix {
 
         void VKBuffer::flush(VkDeviceSize size /*= VK_WHOLE_SIZE*/, VkDeviceSize offset /*= 0*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             // Flush only if the buffer exists
             if (m_Buffer) {
                 VkMappedMemoryRange mappedRange = {};
@@ -70,6 +76,8 @@ namespace Razix {
 
         void VKBuffer::setData(uint32_t size, const void* data)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             map(size, 0);
             memcpy(m_Mapped, data, size);
             unMap();
@@ -79,6 +87,8 @@ namespace Razix {
 
         void VKBuffer::resize(uint32_t size, const void* data)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             //destroy();
             m_BufferSize = size;
             init(data, m_BufferName);
@@ -86,6 +96,8 @@ namespace Razix {
 
         void VKBuffer::init(const void* data, const std::string& bufferName)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             m_BufferName = bufferName;
             VkBufferCreateInfo bufferInfo = {};
             bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

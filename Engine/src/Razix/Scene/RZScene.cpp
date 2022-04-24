@@ -15,16 +15,21 @@ namespace Razix {
         // 1. Default primary camera component entity
         // 2. Skybox entity with TODO components
         // 3. Environment settings entity with TODO components 
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
     }
 
     RZScene::RZScene(std::string sceneName)
         : m_SceneName(sceneName) 
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
     }
 
     RZEntity RZScene::createEntity(const std::string& name /*= std::string()*/)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         RZEntity entity = { m_Registry.create(), this };
         // By default an entity has 3 components
         // 1. ID Component - Automatically allocates a UUID to the entity
@@ -42,11 +47,15 @@ namespace Razix {
 
     void RZScene::destroyEntity(RZEntity entity)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         m_Registry.destroy(entity);
     }
 
     void RZScene::serialiseScene(const std::string& filePath)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         std::string fullFilePath;
         bool nope = RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);
         RAZIX_CORE_WARN("[Scene] Saving scene to - {0} ({1})", filePath, fullFilePath);
@@ -66,6 +75,8 @@ namespace Razix {
 
     void RZScene::deSerialiseScene(const std::string& filePath)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         std::string fullFilePath;
         RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);
         RAZIX_CORE_WARN("[Scene] Loading scene from - {0} ({1})", filePath, fullFilePath);
@@ -80,6 +91,8 @@ namespace Razix {
 
     CameraComponent& RZScene::getSceneCamera()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         auto& view = m_Registry.view<CameraComponent>();
         for (auto& entity : view)
             return view.get<CameraComponent>(entity);
@@ -88,6 +101,8 @@ namespace Razix {
     template<typename T>
     void RZScene::OnComponentAdded(RZEntity entity, T& component, bool enable)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         if (enable)
             m_Registry.on_construct<T>().connect<&T::OnConstruct>();
         else

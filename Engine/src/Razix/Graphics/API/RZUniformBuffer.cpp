@@ -10,6 +10,8 @@ namespace Razix {
 
         RZUniformBuffer* RZUniformBuffer::Create(uint32_t size, const void* data, const std::string& name)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKUniformBuffer(size, data, name); break;

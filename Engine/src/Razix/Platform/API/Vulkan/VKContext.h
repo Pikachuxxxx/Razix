@@ -31,7 +31,7 @@ namespace Razix {
             /* Gets the underlying Vulkan context object */
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }
 
-            void waitIdle() const { vkDeviceWaitIdle(m_Device->getDevice()); }
+            void waitIdle() const { vkDeviceWaitIdle( VKDevice::Get().getDevice()); }
             
             Ref<VKSwapchain>& getSwapchain() { return m_Swapchain; }
 
@@ -53,7 +53,7 @@ namespace Razix {
             VkDebugUtilsMessengerEXT            m_DebugCallbackHandle;              /* Debug callback handle to manage the Vulkan debug     */
             VkDebugUtilsMessengerCreateInfoEXT  m_DebugCI;                          /* Debug callback handle creation struct                */
             VkSurfaceKHR                        m_Surface;                          /* The WSI Surface to which Vulkan presents to          */
-            UniqueRef<VKDevice>                 m_Device;                           /* The handle to the Vulkan Device and Physical device  */
+            //UniqueRef<VKDevice>                 m_Device;                           /* The handle to the Vulkan Device and Physical device  */
             Ref<VKSwapchain>                    m_Swapchain;                        /* Handle to the Razix-Vulkan swapchain abstraction     */
         private:
             /* Creates a VkInstance to interface with the Vulkan library */

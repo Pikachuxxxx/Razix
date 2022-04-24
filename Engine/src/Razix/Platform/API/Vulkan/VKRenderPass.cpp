@@ -30,6 +30,8 @@ namespace Razix {
 
         void VKRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             commandBuffer->UpdateViewport(width, height);
 
             if (!m_DepthOnly) {
@@ -61,22 +63,30 @@ namespace Razix {
 
         void VKRenderPass::EndRenderPass(RZCommandBuffer* commandBuffer)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             vkCmdEndRenderPass(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer());
         }
 
         void VKRenderPass::AddAttachment()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void VKRenderPass::Destroy()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             delete[] m_ClearValue;
             vkDestroyRenderPass(VKDevice::Get().getDevice(), m_RenderPass, nullptr);
         }
 
         bool VKRenderPass::init(const RenderPassInfo& renderpassInfo)
         {            
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // List of attachments that will be attached to the render pass
             std::vector<VkAttachmentDescription> attachments;
 
@@ -171,6 +181,8 @@ namespace Razix {
 
         VkAttachmentDescription VKRenderPass::getAttachmentDescription(AttachmentInfo info, bool clear /*= true*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             VkAttachmentDescription attachment = {};
             if (info.type == RZTexture::Type::COLOR) {
                 attachment.format = info.format == RZTexture::Format::SCREEN ? VKContext::Get()->getSwapchain()->getColorFormat() : VKUtilities::TextureFormatToVK(info.format);

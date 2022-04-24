@@ -1,8 +1,8 @@
 -- Configuration settings
-include 'Scripts/premake-config.lua'
+include 'Scripts/premake/common/premake-config.lua'
 
 -- System overrides to support PS4/PS5 and other hardware systems
-include 'Tools/Building/premake/modules/system-overides.lua'
+include 'Scripts/premake/modules/system-overides.lua'
 
 -- Workspace Settings
 settings = { }
@@ -73,9 +73,12 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/meshoptimizer/premake5")
         require("Engine/vendor/OpenFBX/premake5")
         require("Engine/vendor/lua/premake5")
+        include 'Engine/vendor/optick/optick.lua'
     group ""
 
+    -- Uses .NET 4.0
     framework "4.0"
+    -- Sony WWS Authoring Tools Framework modules
     group "Dependencies/ATF"
         -- SCE ATF Dependencies
         require("Tools/vendor/ATF/Framework/Atf.Core/premake5")
