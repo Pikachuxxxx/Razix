@@ -4,6 +4,7 @@
 #include "Razix/Core/OS/RZWindow.h"
 #include "Razix/Core/RZSmartPointers.h"
 #include "Razix/Core/RZUUID.h"
+#include "Razix/Core/RZProfiling.h"
 
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/RZKeyEvent.h"

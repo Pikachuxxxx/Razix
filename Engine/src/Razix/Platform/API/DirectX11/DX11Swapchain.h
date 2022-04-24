@@ -19,6 +19,7 @@ namespace Razix {
             void Destroy() override;
             void Flip() override;
             void OnResize(uint32_t width, uint32_t height) override {}
+            void* GetAPIHandle() { return m_Swapchain.Get(); }
 
             RZTexture* GetImage(uint32_t index) override;
             RZTexture* GetCurrentImage() override;

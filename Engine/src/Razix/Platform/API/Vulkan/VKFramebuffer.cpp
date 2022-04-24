@@ -11,6 +11,8 @@ namespace Razix {
 
         VKFramebuffer::VKFramebuffer(const FramebufferInfo& frameBufInfo)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_Width             = frameBufInfo.width;
             m_Height            = frameBufInfo.height;
             m_AttachmentCount   = frameBufInfo.attachmentCount;

@@ -16,6 +16,8 @@ namespace Razix {
 
         RZVertexBuffer* RZVertexBuffer::Create(uint32_t size, const void* data, BufferUsage usage, const std::string& name)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (RZGraphicsContext::GetRenderAPI()) { 
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLVertexBuffer(size, data, usage); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKVertexBuffer(size, data, usage, name); break;

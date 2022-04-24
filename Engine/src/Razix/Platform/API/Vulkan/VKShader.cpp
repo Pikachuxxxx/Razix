@@ -18,6 +18,8 @@ namespace Razix {
 
         static uint32_t GetStrideFromVulkanFormat(VkFormat format)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (format) {
                 case VK_FORMAT_R8_SINT:
                     return sizeof(int);
@@ -54,6 +56,8 @@ namespace Razix {
 
         static uint32_t pushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // TODO: Add buffer layout for all supported types
             switch (format) {
                 case VK_FORMAT_R8_SINT:
@@ -81,6 +85,8 @@ namespace Razix {
 
         static DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (type) {
                 case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                     return DescriptorType::IMAGE_SAMPLER;
@@ -93,6 +99,8 @@ namespace Razix {
 
         VKShader::VKShader(const std::string& filePath)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_ShaderFilePath = filePath;
 
             m_Name = Razix::Utilities::GetFileName(filePath);
@@ -115,22 +123,30 @@ namespace Razix {
 
         void VKShader::Bind() const
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void VKShader::Unbind() const
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void VKShader::CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             if (srcType != ShaderSourceType::SPIRV)
                 return;
         }
 
         void VKShader::Destroy()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Destroy the pipeline layout
             vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
 
@@ -141,6 +157,8 @@ namespace Razix {
 
         std::vector<VkPipelineShaderStageCreateInfo> VKShader::getShaderStages()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
             for (std::unordered_map<ShaderStage, VkPipelineShaderStageCreateInfo>::iterator it = m_ShaderCreateInfos.begin(); it != m_ShaderCreateInfos.end(); ++it) {
                 shaderStages.push_back(it->second);
@@ -150,6 +168,8 @@ namespace Razix {
 
         void VKShader::reflectShader()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Reflect the SPIR-V shader to extract all the necessary information
             for (const auto& spvSource : m_ParsedRZSF) {
 
@@ -393,6 +413,8 @@ namespace Razix {
 
         void VKShader::createShaderModules()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             for (const auto& spvSource : m_ParsedRZSF) {
 
                 std::string outPath, virtualPath;

@@ -32,6 +32,8 @@ namespace Razix {
 
         bool VKFence::wait()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is Signaled!");
 
             // Waits until the fence is signaled
@@ -47,6 +49,8 @@ namespace Razix {
 
         void VKFence::reset()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             if (m_IsSignaled)
                 VK_CHECK_RESULT(vkResetFences(VKDevice::Get().getDevice(), 1, &m_Fence));
 
@@ -55,6 +59,8 @@ namespace Razix {
 
         bool VKFence::checkState()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is signalled!");
 
             // Waits until the fence is signaled
@@ -70,6 +76,8 @@ namespace Razix {
 
         void VKFence::waitAndReset()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             if(!isSignaled())
                 wait();
 

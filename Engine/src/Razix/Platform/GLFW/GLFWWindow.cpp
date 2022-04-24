@@ -37,6 +37,8 @@ namespace Razix
 
     void GLFWWindow::ProcessInput()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
 #if defined(RAZIX_RENDER_API_OPENGL) || defined(RAZIX_RENDER_API_VULKAN)
         if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL || Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
 		    glfwPollEvents();
@@ -94,6 +96,8 @@ namespace Razix
 
     void GLFWWindow::Init(const WindowProperties& properties)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
         m_Data.Title = properties.Title;
         m_Data.Width = properties.Width;
         m_Data.Height = properties.Height;

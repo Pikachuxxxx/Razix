@@ -22,6 +22,8 @@ namespace Razix {
 
         uint32_t RZTexture::calculateMipMapCount(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             //tex: The texture mip levels are $numLevels = 1 + floor(log2(max(w, h, d)))$
             uint32_t levels = 1;
             while ((width | height) >> levels)
@@ -32,6 +34,8 @@ namespace Razix {
 
         RZTexture::Format RZTexture::bitsToTextureFormat(uint32_t bits)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch ((bits * 8)) {
                 case 8:
                     return  RZTexture::Format::R8;
@@ -53,6 +57,8 @@ namespace Razix {
 
         void RZTexture::generateDescriptorSet()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             DescriptorSetInfo setInfo{};
             setInfo.setID                   = 0;
             RZDescriptor descriptor{};
@@ -73,6 +79,8 @@ namespace Razix {
 
         RZTexture2D* RZTexture2D::Create(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
@@ -87,6 +95,8 @@ namespace Razix {
 
         RZTexture2D* RZTexture2D::CreateFromFile(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLTexture2D(filePath, name, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKTexture2D(filePath, name, wrapMode, filterMode); break;
@@ -105,6 +115,8 @@ namespace Razix {
 
         RZDepthTexture* RZDepthTexture::Create(uint32_t width, uint32_t height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKDepthTexture(width, height); break;
@@ -123,6 +135,8 @@ namespace Razix {
 
         RZRenderTexture* RZRenderTexture::Create(uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKRenderTexture(width, height, format, wrapMode, filterMode); break;

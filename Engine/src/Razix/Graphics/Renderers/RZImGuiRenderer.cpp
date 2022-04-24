@@ -126,6 +126,8 @@ namespace Razix {
 
         bool RZImGuiRenderer::update(const RZTimestep& dt)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             ImDrawData* imDrawData = ImGui::GetDrawData();
             bool updateCmdBuffers = false;
 
@@ -228,6 +230,8 @@ namespace Razix {
 
         void RZImGuiRenderer::draw(RZCommandBuffer* cmdBuffer)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             ImDrawData* imDrawData = ImGui::GetDrawData();
             int32_t vertexOffset = 0;
             int32_t indexOffset = 0;

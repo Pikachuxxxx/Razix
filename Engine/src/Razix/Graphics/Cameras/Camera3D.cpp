@@ -27,6 +27,8 @@ namespace Razix {
 
         void Camera3D::update(double deltaTime)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Input management
             if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
                 processKeyboard(FORWARD, deltaTime);
@@ -54,6 +56,8 @@ namespace Razix {
 
         void Camera3D::processKeyboard(Camera_Movement_Direction direction, double deltaTime)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             float velocity = this->MovementSpeed * (float)deltaTime;
 
             if (direction == FORWARD)
@@ -72,6 +76,8 @@ namespace Razix {
 
         void Camera3D::processMouseMovement(float xoffset, float yoffset, bool constrainPitch /*= true*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             xoffset *= this->MouseSensitivity;
             yoffset *= this->MouseSensitivity;
 
@@ -92,6 +98,8 @@ namespace Razix {
 
         void Camera3D::processMouseScroll(float yoffset)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_UNIMPLEMENTED_METHOD
             if (this->Zoom >= 1.0f && this->Zoom <= 45.0f)
                 this->Zoom -= yoffset;
@@ -103,21 +111,29 @@ namespace Razix {
 
         glm::mat4 Camera3D::getViewMatrix()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
         }
 
         glm::mat4 Camera3D::getViewMatrixLH()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             return glm::lookAtLH(this->Position, this->Position + this->Front, this->Up);
         }
 
         glm::mat4 Camera3D::getViewMatrixRH()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             return glm::lookAtRH(this->Position, this->Position + this->Front, this->Up);
         }
 
         void Camera3D::updateCameraVectors()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Calculate the new Front vector
             glm::vec3 front;
             front.x = cos(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));

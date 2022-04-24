@@ -12,6 +12,8 @@ namespace Razix {
 
         RZPipeline* RZPipeline::Create(const PipelineInfo& pipelineInfo)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKPipeline(pipelineInfo); break;

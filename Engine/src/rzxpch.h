@@ -26,6 +26,8 @@
 
 //-----Engine-----//
 #include "Razix/Core/RZLog.h"
+#include "Razix/Core/RZProfiling.h"
+
 
 //-----Intrinsics-----//
 #include <emmintrin.h>
@@ -33,3 +35,5 @@
 #include <immintrin.h>
 
 //-----3rd Party-----//
+// Profilers
+#include <Tracy.hpp>

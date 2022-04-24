@@ -9,6 +9,8 @@ namespace Razix {
 
     void LuaScriptComponent::loadScript(const std::string& scriptPath)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
+
         m_Filepath = scriptPath;
         std::string physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(scriptPath, physicalPath)) {
@@ -41,6 +43,8 @@ namespace Razix {
 
     void LuaScriptComponent::OnStart()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
+
         if (m_OnStartFunc) {
             sol::protected_function_result result = m_OnStartFunc->call();
             if (!result.valid()) {
@@ -53,6 +57,8 @@ namespace Razix {
 
     void LuaScriptComponent::OnUpdate(RZTimestep dt)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
+
         if (m_UpdateFunc) {
             sol::protected_function_result result = m_UpdateFunc->call(dt.GetTimestepMs());
             if (!result.valid()) {
