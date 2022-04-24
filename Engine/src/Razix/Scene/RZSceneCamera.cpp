@@ -7,11 +7,15 @@ namespace Razix {
 
     RZSceneCamera::RZSceneCamera()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         recalculateProjection();
     }
 
     void RZSceneCamera::setPerspective(float verticalFOV, float nearClip, float farClip)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         m_ProjectionType = ProjectionType::Perspective;
         m_PerspectiveFOV = verticalFOV;
         m_PerspectiveNear = nearClip;
@@ -21,6 +25,8 @@ namespace Razix {
 
     void RZSceneCamera::setOrthographic(float size, float nearClip, float farClip)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         m_ProjectionType = ProjectionType::Orthographic;
         m_OrthographicSize = size;
         m_OrthographicNear = nearClip;
@@ -30,6 +36,8 @@ namespace Razix {
 
     void RZSceneCamera::setViewportSize(uint32_t width, uint32_t height)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         RAZIX_CORE_ASSERT((width > 0 && height > 0), "Invalid width and height set for the scene camera!");
         m_AspectRatio = (float) width / (float) height;
         recalculateProjection();
@@ -37,6 +45,8 @@ namespace Razix {
 
     void RZSceneCamera::recalculateProjection()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         if (m_ProjectionType == ProjectionType::Perspective) {
             m_Projection = glm::perspective(m_PerspectiveFOV, m_AspectRatio, m_PerspectiveNear, m_PerspectiveFar);
         }

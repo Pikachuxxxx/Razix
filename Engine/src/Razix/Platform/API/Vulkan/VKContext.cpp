@@ -5,6 +5,7 @@
 
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RazixVersion.h"
+#include "Razix/Core/RZProfiling.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -47,6 +48,18 @@ namespace Razix {
 
             // Create the swapchain (will be auto initialized)
             m_Swapchain = CreateRef<VKSwapchain>(m_Window->getWidth(), m_Window->getHeight());
+
+#ifndef RAZIX_DISTRIBUTION
+    #if RZ_PROFILER_OPTICK
+            auto device = VKDevice::Get().getDevice();
+            auto physicalDevice =  VKDevice::Get().getGPU();
+            auto queuefam =  VKDevice::Get().getGraphicsQueue();
+            uint32_t numQueues =  VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex();
+            OPTICK_GPU_INIT_VULKAN(&device, &physicalDevice, &queuefam, &numQueues, 1, nullptr);
+    #endif // RZ_PROFILER_OPTICK
+
+#endif // RAZIX_DISTRIBUTION
+
         }
 
         void VKContext::Destroy() {

@@ -16,8 +16,6 @@ namespace Razix
 {
 	void WindowsOS::Init()
 	{
-        RAZIX_PROFILE_FUNCTION(RZ_PROFILE_COLOR_CORE)
-
 		RAZIX_CORE_INFO("Creating Windows OS instance");
 		RAZIX_CORE_INFO("System OS : {0}", RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG));
 	#ifdef RAZIX_USE_GLFW_WINDOWS
@@ -34,7 +32,6 @@ namespace Razix
 
 	void WindowsOS::Run()
 	{
-        RAZIX_PROFILE_FUNCTION(RZ_PROFILE_COLOR_CORE)
 		// TODO: Implement the Application life cycle here! in a more Robust way
 		// Initialize the application with additional systems after application constructor is called with project name and VFS mounts
 		Razix::RZApplication::Get().Init();

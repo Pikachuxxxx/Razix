@@ -59,7 +59,6 @@ namespace Razix
 
     void RZApplication::Init()
     {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
         // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream;
@@ -151,8 +150,6 @@ namespace Razix
 
     void RZApplication::Run()
     {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
@@ -166,13 +163,14 @@ namespace Razix
 
         albedoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
         albedoTexture->generateDescriptorSet();
-
         while (RenderFrame()) { }
         Quit();
     }
 
     bool RZApplication::RenderFrame()
     {
+        RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
+
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
         // Calculate the delta time
@@ -224,9 +222,6 @@ namespace Razix
                 m_Updates = 0;
             }
         }
-
-        RAZIX_PROFILE_FRAMEMARKER();
-
         RZEngine::Get().ResetStats();
         return m_CurrentState != AppState::Closing;
     }

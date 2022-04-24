@@ -22,6 +22,8 @@ namespace Razix {
 
         void VKCommandPool::reset()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             VK_CHECK_RESULT(vkResetCommandPool(VKDevice::Get().getDevice(), m_CmdPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
         }
 

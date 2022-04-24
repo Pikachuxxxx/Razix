@@ -31,6 +31,7 @@ project "Sandbox"
         "%{IncludeDir.entt}",
         "%{IncludeDir.lua}",
         "%{IncludeDir.tracy}",
+        "%{IncludeDir.optick}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}"
     }
@@ -47,7 +48,8 @@ project "Sandbox"
         "SPIRVCross",
         "meshoptimizer",
         "OpenFBX",
-        "lua"
+        "lua",
+        "optick"
    }
 
    defines

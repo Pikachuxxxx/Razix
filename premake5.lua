@@ -73,6 +73,7 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/meshoptimizer/premake5")
         require("Engine/vendor/OpenFBX/premake5")
         require("Engine/vendor/lua/premake5")
+        include 'Engine/vendor/optick/optick.lua'
     group ""
 
     -- Uses .NET 4.0

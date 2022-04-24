@@ -26,6 +26,8 @@
 
 //-----Engine-----//
 #include "Razix/Core/RZLog.h"
+#include "Razix/Core/RZProfiling.h"
+
 
 //-----Intrinsics-----//
 #include <emmintrin.h>

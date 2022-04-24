@@ -16,6 +16,8 @@ namespace Razix {
 
         void RZModel::loadOBJ(const std::string& path)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             std::string resolvedPath = path;
             tinyobj::attrib_t attrib;
             std::string error;

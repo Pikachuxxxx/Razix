@@ -212,6 +212,8 @@ namespace Razix {
 
         void RZModel::loadGLTF(const std::string& path)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             tinygltf::Model model;
             tinygltf::TinyGLTF loader;
             std::string err;

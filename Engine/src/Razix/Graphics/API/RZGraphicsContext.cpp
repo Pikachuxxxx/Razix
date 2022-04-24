@@ -24,6 +24,8 @@ namespace Razix {
 
         void RZGraphicsContext::Create(const WindowProperties& properties, RZWindow* window) {
 
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL:    s_Context = new OpenGLContext((GLFWwindow*) window->GetNativeWindow()); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    s_Context = new VKContext(window);                                      break;
@@ -36,11 +38,15 @@ namespace Razix {
         }
 
         void RZGraphicsContext::Release() {
+
             s_Context->Destroy();
             delete s_Context;
         }
 
         RZGraphicsContext* RZGraphicsContext::GetContext() {
+
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return static_cast<OpenGLContext*> (s_Context); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return static_cast<VKContext*>     (s_Context); break;
@@ -54,6 +60,9 @@ namespace Razix {
         }
 
         const std::string Graphics::RZGraphicsContext::GetRenderAPIString() {
+
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return "OpenGL";            break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return "Vulkan";            break;

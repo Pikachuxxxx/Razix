@@ -48,6 +48,7 @@ namespace Razix {
             void Destroy() override;
             void Flip() override;
             void OnResize(uint32_t width, uint32_t height) override;
+            void* GetAPIHandle() override { return &m_Swapchain; }
 
             // Flip related functions
             /* Creates synchronization primitives such as semaphores and fence for queue submit and present sync, basically syncs triple buffering */

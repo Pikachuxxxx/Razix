@@ -134,6 +134,8 @@ namespace Razix {
 
         void RZModel::loadFBX(const std::string& path)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             std::string err;
             std::string pathCopy = path;
             pathCopy = Utilities::BackSlashesToSlashes(pathCopy);

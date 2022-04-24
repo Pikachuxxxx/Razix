@@ -13,6 +13,8 @@ namespace Razix {
         VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // Descriptor sets can't be created directly, they must be allocated from a pool like command buffers i.e. use a descriptor pool to allocate the descriptor sets
             // We first need to describe which descriptor types our descriptor sets are going to contain and how many of them, we allocate a pool for each type of descriptor
             // Also we use one set for each frame, because it binds the with command buffer state, we will need as many uniform buffers and textures and the same amount of
@@ -71,6 +73,8 @@ namespace Razix {
 
         void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             int descriptorWritesCount = 0;
             {
                 int imageIndex = 0;
@@ -126,6 +130,5 @@ namespace Razix {
         {
             vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), setLayout, nullptr);
         }
-
     }
 }

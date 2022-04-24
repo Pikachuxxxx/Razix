@@ -20,6 +20,8 @@ namespace Razix {
 
         RZShader* RZShader::Create(const std::string& filePath)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:        return new OpenGLShader(filePath); break;
                 case Razix::Graphics::RenderAPI::VULKAN:        return new VKShader(filePath); break;
@@ -33,6 +35,8 @@ namespace Razix {
 
         std::map<ShaderStage, std::string> RZShader::ParseRZSF(const std::string& filePath)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_CORE_TRACE("Parsing .rzsf shader : {0}", filePath);
 
             std::string rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);

@@ -16,6 +16,8 @@ namespace Razix {
 
         RZCommandBuffer* RZCommandBuffer::Create()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL:    return new OpenGLCommandBuffer(); break;
                 case Razix::Graphics::RenderAPI::VULKAN:    return new VKCommandBuffer(); break;
