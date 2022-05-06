@@ -12,12 +12,12 @@
 namespace Razix {
     namespace Graphics {
 
-        OpenGLSwapchain::OpenGLSwapchain (uint32_t width, uint32_t height)
-            : m_Width (width), m_Height (height) {}
+        OpenGLSwapchain::OpenGLSwapchain(uint32_t width, uint32_t height)
+            : m_Width(width), m_Height(height) {}
 
-        void OpenGLSwapchain::Flip ()
+        void OpenGLSwapchain::Flip()
         {
-            glfwSwapBuffers (OpenGLContext::Get ()->getGLFWWindow ());
+            glfwSwapBuffers(OpenGLContext::Get()->getGLFWWindow());
         }
     }    // namespace Graphics
 }    // namespace Razix

@@ -4,7 +4,7 @@
 #include "Razix/Core/RZProfiling.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
-extern Razix::RZApplication* Razix::CreateApplication ();
+extern Razix::RZApplication* Razix::CreateApplication();
 
 /********************************************************************************
  *                        Razix Engine Entry Point                              *
@@ -25,52 +25,52 @@ extern Razix::RZApplication* Razix::CreateApplication ();
 
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
-int main (int argc, char** argv)
+int main(int argc, char** argv)
 {
     // Read the command line arguments
     static std::vector<const char*> args;
     for (int32_t i = 1; i < argc; i++) {
-        args.push_back (argv[i]);
+        args.push_back(argv[i]);
     };
 
     // Splash Screen!
-    Razix::RZSplashScreen::Get ().init ();
-    Razix::RZSplashScreen::Get ().setVersionString ("Version : " + std::string (Razix::RazixVersion.getVersionString ()));
-    Razix::RZSplashScreen::Get ().setLogString ("Initializing Razix Engine...");
+    Razix::RZSplashScreen::Get().init();
+    Razix::RZSplashScreen::Get().setVersionString("Version : " + std::string(Razix::RazixVersion.getVersionString()));
+    Razix::RZSplashScreen::Get().setLogString("Initializing Razix Engine...");
 
     // 1.-> Logging System Initialization
-    Razix::Debug::RZLog::StartUp ();
+    Razix::Debug::RZLog::StartUp();
 
     // Create the OS Instance
-    auto windowsOS = new Razix::WindowsOS ();
-    Razix::RZOS::SetInstance (windowsOS);
+    auto windowsOS = new Razix::WindowsOS();
+    Razix::RZOS::SetInstance(windowsOS);
 
     //-------------------------------//
     //        Engine Ignition        //
     //-------------------------------//
-    Razix::RZEngine::Get ().Ignite ();
+    Razix::RZEngine::Get().Ignite();
     //-------------------------------//
 
     // Parse the command line arguments, if any
     if (argc > 1)
-        Razix::RZEngine::Get ().commandLineParser.parse (args);
+        Razix::RZEngine::Get().commandLineParser.parse(args);
 
-    Razix::RZSplashScreen::Get ().setLogString ("Loading Project file...");
+    Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
 
     // Application auto Initialization by the Engine
-    Razix::CreateApplication ();
+    Razix::CreateApplication();
 
-    windowsOS->Init ();
+    windowsOS->Init();
 
     // Run the  Application with the master controlled given to the OS
-    windowsOS->Run ();
+    windowsOS->Run();
     delete windowsOS;
 
     // Shutdown the Engine
-    Razix::RZEngine::Get ().ShutDown ();
+    Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
-    Razix::Debug::RZLog::Shutdown ();
+    Razix::Debug::RZLog::Shutdown();
 
     return EXIT_SUCCESS;
 }

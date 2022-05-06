@@ -25,14 +25,14 @@ namespace Razix {
         {
         public:
             /* Gets the windows message */
-            static const char* getName () noexcept;
+            static const char* getName() noexcept;
             /* Gets the Win32 windows instance */
-            static HINSTANCE getInstance () noexcept;
+            static HINSTANCE getInstance() noexcept;
 
         private:
             /* Abstracts the Windows window registration */
-            WindowClass () noexcept;
-            ~WindowClass ();
+            WindowClass() noexcept;
+            ~WindowClass();
 
             // Singleton instance
             static WindowClass           wndClass;
@@ -41,19 +41,19 @@ namespace Razix {
         };
 
     public:
-        RZSplashScreen ();
-        ~RZSplashScreen ();
+        RZSplashScreen();
+        ~RZSplashScreen();
 
-        void init ();
-        void destroy ();
+        void init();
+        void destroy();
 
         /* Set version string for the splash screen */
-        void setVersionString (const std::string& text);
+        void setVersionString(const std::string& text);
         /* Set the log string for the splash screen */
-        void setLogString (const std::string& text);
+        void setLogString(const std::string& text);
 
         /* Process the windows messages */
-        static std::optional<int> ProcessMessages ();
+        static std::optional<int> ProcessMessages();
 
     private:
         int         width;
@@ -69,9 +69,9 @@ namespace Razix {
         HWND        m_LogLabel;
 
     private:
-        static LRESULT CALLBACK HandleMsgSetup (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
-        static LRESULT CALLBACK HandleMsgThunk (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
-        LRESULT                 HandleMsg (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+        static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+        static LRESULT CALLBACK HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+        LRESULT                 HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
     };
 }    // namespace Razix
 #endif    // RAZIX_PLATFORM_WINDOWS

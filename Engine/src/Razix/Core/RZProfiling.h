@@ -30,16 +30,16 @@
         #include <Tracy.hpp>
 
         #if RZ_ENABLE_CALL_STACK_CAPTURE
-            #define RAZIX_PROFILE_SCOPE(name)         ZoneScopedNS (name, RZ_CALL_STACK_DEPTH)
-            #define RAZIX_PROFILE_SCOPEC(name, color) ZoneScopedNCS (name, color, RZ_CALL_STACK_DEPTH)
-            #define RAZIX_PROFILE_FUNCTION()          ZoneScopedS (RZ_CALL_STACK_DEPTH)
-            #define RAZIX_PROFILE_FUNCTIONC(color)    ZoneScopedCS (color, RZ_CALL_STACK_DEPTH)
+            #define RAZIX_PROFILE_SCOPE(name)         ZoneScopedNS(name, RZ_CALL_STACK_DEPTH)
+            #define RAZIX_PROFILE_SCOPEC(name, color) ZoneScopedNCS(name, color, RZ_CALL_STACK_DEPTH)
+            #define RAZIX_PROFILE_FUNCTION()          ZoneScopedS(RZ_CALL_STACK_DEPTH)
+            #define RAZIX_PROFILE_FUNCTIONC(color)    ZoneScopedCS(color, RZ_CALL_STACK_DEPTH)
             #define RAZIX_PROFILE_FRAMEMARKER(name)   FrameMark
         #else
-            #define RAZIX_PROFILE_SCOPE(name)         ZoneScopedN (name)
-            #define RAZIX_PROFILE_SCOPEC(name, color) ZoneScopedNC (name, color)
+            #define RAZIX_PROFILE_SCOPE(name)         ZoneScopedN(name)
+            #define RAZIX_PROFILE_SCOPEC(name, color) ZoneScopedNC(name, color)
             #define RAZIX_PROFILE_FUNCTION()          ZoneScoped
-            #define RAZIX_PROFILE_FUNCTIONC(color)    ZoneScopedC (color)
+            #define RAZIX_PROFILE_FUNCTIONC(color)    ZoneScopedC(color)
             #define RAZIX_PROFILE_FRAMEMARKER(name)   FrameMark
         #endif
 
@@ -51,9 +51,9 @@
         //#define  RAZIX_PROFILE_GPU_FUNCTION(color)
         #define RAZIX_PROFILE_GPU_FLIP(swapchain)
 
-        #define RAZIX_PROFILE_LOCK(type, var, name) TracyLockableN (type, var, name)
-        #define RAZIX_PROFILE_LOCKMARKER(var)       LockMark (var)
-        #define RAZIX_PROFILE_SETTHREADNAME(name)   tracy::SetThreadName (name)
+        #define RAZIX_PROFILE_LOCK(type, var, name) TracyLockableN(type, var, name)
+        #define RAZIX_PROFILE_LOCKMARKER(var)       LockMark(var)
+        #define RAZIX_PROFILE_SETTHREADNAME(name)   tracy::SetThreadName(name)
     #endif
 
     // OPTICK
@@ -63,22 +63,22 @@
         #define OPTICK_ENABLE_GPU
         #include <optick.h>
 
-        #define RAZIX_PROFILE_SCOPE(name)         OPTICK_EVENT (name)
-        #define RAZIX_PROFILE_SCOPEC(name, color) OPTICK_EVENT (name)
-        #define RAZIX_PROFILE_FUNCTION()          OPTICK_EVENT ()
-        #define RAZIX_PROFILE_FUNCTIONC(color)    OPTICK_EVENT ()    // TODO: Add options to choose optick category or pass custom color just like we can in tracy
-        #define RAZIX_PROFILE_FRAMEMARKER(name)   OPTICK_FRAME (name)
+        #define RAZIX_PROFILE_SCOPE(name)         OPTICK_EVENT(name)
+        #define RAZIX_PROFILE_SCOPEC(name, color) OPTICK_EVENT(name)
+        #define RAZIX_PROFILE_FUNCTION()          OPTICK_EVENT()
+        #define RAZIX_PROFILE_FUNCTIONC(color)    OPTICK_EVENT()    // TODO: Add options to choose optick category or pass custom color just like we can in tracy
+        #define RAZIX_PROFILE_FRAMEMARKER(name)   OPTICK_FRAME(name)
 
-        #define RAZIX_PROFILE_GPU_CONTEXT(context)    OPTICK_GPU_CONTEXT (context)
-        #define RAZIX_PROFILE_GPU_SCOPE(name)         OPTICK_GPU_EVENT (name)
-        #define RAZIX_PROFILE_GPU_SCOPEC(name, color) OPTICK_GPU_EVENT (name)
+        #define RAZIX_PROFILE_GPU_CONTEXT(context)    OPTICK_GPU_CONTEXT(context)
+        #define RAZIX_PROFILE_GPU_SCOPE(name)         OPTICK_GPU_EVENT(name)
+        #define RAZIX_PROFILE_GPU_SCOPEC(name, color) OPTICK_GPU_EVENT(name)
         //#define RAZIX_PROFILE_GPU_FUNCTION()            OPTICK_GPU_EVENT(__FUNCTION__)
         //#define RAZIX_PROFILE_GPU_FUNCTION(color)       OPTICK_GPU_EVENT(__FUNCTION__)
-        #define RAZIX_PROFILE_GPU_FLIP(swapchain) OPTICK_GPU_FLIP (swapchain)
+        #define RAZIX_PROFILE_GPU_FLIP(swapchain) OPTICK_GPU_FLIP(swapchain)
 
         #define RAZIX_PROFILE_LOCK(type, var, name)
         #define RAZIX_PROFILE_LOCKMARKER(var)
-        #define RAZIX_PROFILE_SETTHREADNAME(name) OPTICK_THREAD (name)
+        #define RAZIX_PROFILE_SETTHREADNAME(name) OPTICK_THREAD(name)
     #endif
 
 #else

@@ -27,7 +27,7 @@ namespace Razix {
         {
         public:
             /* Virtual destructor RZSwapchain */
-            virtual ~RZSwapchain () = default;
+            virtual ~RZSwapchain() = default;
 
             /**
              * Creates a swapchain for the render pipeline
@@ -35,34 +35,34 @@ namespace Razix {
              * @param width The Width of the swapchain extent
              * @param height The Height of the swapchain extent
              */
-            static RZSwapchain* Create (uint32_t width, uint32_t height);
+            static RZSwapchain* Create(uint32_t width, uint32_t height);
 
             /* Initializes the swapchain and it's resources */
-            virtual void Init (uint32_t width, uint32_t height) = 0;
+            virtual void Init(uint32_t width, uint32_t height) = 0;
             /* Destroys the swapchain and it's resources */
-            virtual void Destroy () = 0;
+            virtual void Destroy() = 0;
             /* Flips the swapchain images for presentation, typically used while doing double/triple buffered rendering */
-            virtual void Flip () = 0;
+            virtual void Flip() = 0;
             /* Recreates the swapchain on window resize or for offline rendering */
-            virtual void OnResize (uint32_t width, uint32_t height) = 0;
+            virtual void OnResize(uint32_t width, uint32_t height) = 0;
 
             /* Gets the swapchain image at the given index */
-            virtual RZTexture* GetImage (uint32_t index) = 0;
+            virtual RZTexture* GetImage(uint32_t index) = 0;
             /* Gets the current image that is ready for rendering */
-            virtual RZTexture* GetCurrentImage () = 0;
+            virtual RZTexture* GetCurrentImage() = 0;
             /* Gets the count of total number of images in the swapchain */
-            virtual size_t GetSwapchainImageCount () = 0;
+            virtual size_t GetSwapchainImageCount() = 0;
             /* Gets the current command buffer being executed for rendering onto the swapchain */
-            virtual RZCommandBuffer* getCurrentCommandBuffer () = 0;
+            virtual RZCommandBuffer* getCurrentCommandBuffer() = 0;
 
             /* Gets the width of the swapchain */
-            inline uint32_t getWidth () { return m_Width; }
+            inline uint32_t getWidth() { return m_Width; }
             /* Gets the height of the swapchain */
-            inline uint32_t getHeight () { return m_Height; }
+            inline uint32_t getHeight() { return m_Height; }
             /* Gets the index of the current image that is ready for rendering */
-            virtual inline uint32_t getCurrentImageIndex () = 0;
+            virtual inline uint32_t getCurrentImageIndex() = 0;
 
-            virtual void* GetAPIHandle () = 0;
+            virtual void* GetAPIHandle() = 0;
 
         protected:
             uint32_t m_Width;                 /* The width of the swapchain extent */

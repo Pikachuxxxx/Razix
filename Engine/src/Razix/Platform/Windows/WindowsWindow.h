@@ -2,8 +2,7 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
-namespace Razix
-{   /*
+namespace Razix { /*
     // TODO: Refactor this class to use WIN32 API and move this to OpenGLWindow Class
     class WindowsWindow : public Window
     {
@@ -28,4 +27,3 @@ namespace Razix
     };
     */
 }
-

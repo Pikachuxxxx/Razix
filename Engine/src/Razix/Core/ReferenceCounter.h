@@ -18,7 +18,7 @@ namespace Razix {
         /// <summary>
         /// Increases the reference count and returns whether or not the object is empty referenced
         /// </summary>
-        inline bool Ref ()
+        inline bool Ref()
         {
             count++;
             return count != 0;
@@ -27,7 +27,7 @@ namespace Razix {
         /// <summary>
         /// Increases the reference count and returns the value
         /// </summary>
-        inline int RefVal ()
+        inline int RefVal()
         {
             count++;
             return count;
@@ -36,7 +36,7 @@ namespace Razix {
         /// <summary>
         /// Dereferences the object dependency
         /// </summary>
-        inline int Unref ()
+        inline int Unref()
         {
             --count;
             bool deleted = count == 0;
@@ -46,11 +46,11 @@ namespace Razix {
         /// <summary>
         /// Gets the total reference count of the object
         /// </summary>
-        inline int GetRefCount () const { return count; }
+        inline int GetRefCount() const { return count; }
 
         /// <summary>
         /// Initializes the initial reference count
         /// </summary>
-        inline void InitRefCount (int p_value = 1) { count = p_value; }
+        inline void InitRefCount(int p_value = 1) { count = p_value; }
     };
 }    // namespace Razix

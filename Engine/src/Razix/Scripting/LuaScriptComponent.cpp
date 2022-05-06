@@ -19,8 +19,7 @@ namespace Razix {
             RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Load Lua script {0}", scriptPath);
             m_Env = nullptr;
             return;
-        }
-        else
+        } else
             RAZIX_CORE_INFO("[Lua Script Manager] Loading script from : {0}", m_Filepath);
 
         m_Env = std::make_shared<sol::environment>(Scripting::RZLuaScriptHandler::Get().getState(), sol::create, Scripting::RZLuaScriptHandler::Get().getState().globals());
@@ -40,7 +39,6 @@ namespace Razix {
         m_UpdateFunc = std::make_shared<sol::protected_function>((*m_Env)["OnUpdate"]);
         if (!m_UpdateFunc->valid())
             m_UpdateFunc.reset();
-
     }
 
     void LuaScriptComponent::OnStart()
@@ -70,4 +68,4 @@ namespace Razix {
             }
         }
     }
-}
+}    // namespace Razix

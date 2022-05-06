@@ -106,24 +106,24 @@ namespace Razix {
             uint32_t    size;
             uint32_t    offset = 0;
 
-            RZPushConstant (const std::string& name, ShaderStage stage, uint8_t* data, uint32_t size, uint32_t offset)
-                : name (name), shaderStage (stage), data (data), size (size), offset (offset) {}
+            RZPushConstant(const std::string& name, ShaderStage stage, uint8_t* data, uint32_t size, uint32_t offset)
+                : name(name), shaderStage(stage), data(data), size(size), offset(offset) {}
 
             std::vector<RZShaderBufferMemberInfo> m_Members;
 
-            void setValue (const std::string& name, void* value)
+            void setValue(const std::string& name, void* value)
             {
                 for (auto& member: m_Members) {
                     if (member.name == name) {
-                        memcpy (&data[member.offset], value, member.size);
+                        memcpy(&data[member.offset], value, member.size);
                         break;
                     }
                 }
             }
 
-            void setData (void* value)
+            void setData(void* value)
             {
-                memcpy (data, value, size);
+                memcpy(data, value, size);
             }
         };
 
@@ -144,11 +144,11 @@ namespace Razix {
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create (const std::vector<RZDescriptor>& descriptors);
+            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors);
 
             /* Updates the descriptor set with the given descriptors */
-            virtual void UpdateSet (const std::vector<RZDescriptor>& descriptors) = 0;
-            virtual void Destroy ()                                               = 0;
+            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
+            virtual void Destroy()                                               = 0;
         };
     }    // namespace Graphics
 }    // namespace Razix

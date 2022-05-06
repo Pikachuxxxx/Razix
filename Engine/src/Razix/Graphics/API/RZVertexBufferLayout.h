@@ -36,7 +36,7 @@ namespace Razix {
             uint32_t     offset     = 0;     /* Offset of the element from the first basically stride                    */
             bool         normalized = false; /* Whether or not the data is normalized or not                             */
 
-            uint32_t getCount ()
+            uint32_t getCount()
             {
                 switch (format) {
                     case Razix::Graphics::BufferFormat::R8_INT:
@@ -72,7 +72,7 @@ namespace Razix {
         class RAZIX_API RZVertexBufferLayout
         {
         public:
-            RZVertexBufferLayout ();
+            RZVertexBufferLayout();
 
             /**
              * Creates a layout entry for the buffer element
@@ -80,61 +80,61 @@ namespace Razix {
              * @note The element data type must be specified, don't use this method as type of the element is not specified 
              */
             template<typename T>
-            void push (const std::string& name, bool Normalised = false)
+            void push(const std::string& name, bool Normalised = false)
             {
-                RAZIX_ASSERT (false, "Unkown buffer element layout type!");
+                RAZIX_ASSERT(false, "Unkown buffer element layout type!");
             }
 
             /* Overriding/Customizing template implementations for the push method explicitly */
             /* 8-bit ASCII buffer element or char */
             template<>
-            void push<int8_t> (const std::string& name, bool normalized);
+            void push<int8_t>(const std::string& name, bool normalized);
             /* 8-bit unsigned int or unsigned char */
             template<>
-            void push<uint8_t> (const std::string& name, bool normalized);
+            void push<uint8_t>(const std::string& name, bool normalized);
             /* 32-bit integer */
             template<>
-            void push<int32_t> (const std::string& name, bool normalized);
+            void push<int32_t>(const std::string& name, bool normalized);
             /* 32-bit unsigned integer */
             template<>
-            void push<uint32_t> (const std::string& name, bool normalized);
+            void push<uint32_t>(const std::string& name, bool normalized);
             /* float */
             template<>
-            void push<float> (const std::string& name, bool normalized);
+            void push<float>(const std::string& name, bool normalized);
             /* vector2 */
             template<>
-            void push<glm::vec2> (const std::string& name, bool normalized);
+            void push<glm::vec2>(const std::string& name, bool normalized);
             /* vector3 */
             template<>
-            void push<glm::vec3> (const std::string& name, bool normalized);
+            void push<glm::vec3>(const std::string& name, bool normalized);
             /* vector4 */
             template<>
-            void push<glm::vec4> (const std::string& name, bool normalized);
+            void push<glm::vec4>(const std::string& name, bool normalized);
             /* ivector2 */
             template<>
-            void push<glm::ivec2> (const std::string& name, bool normalized);
+            void push<glm::ivec2>(const std::string& name, bool normalized);
             /* ivector3 */
             template<>
-            void push<glm::ivec3> (const std::string& name, bool normalized);
+            void push<glm::ivec3>(const std::string& name, bool normalized);
             /* ivector4 */
             template<>
-            void push<glm::ivec4> (const std::string& name, bool normalized);
+            void push<glm::ivec4>(const std::string& name, bool normalized);
             ///* mat3 */
             //template <> void push<glm::mat3>(const std::string& name, bool normalized);
             ///* mat4 */
             //template <> void push<glm::mat4>(const std::string& name, bool normalized);
 
             /* Gets the elements buffer layout information */
-            inline std::vector<BufferLayoutElement>& getElements () { return m_Elements; }
+            inline std::vector<BufferLayoutElement>& getElements() { return m_Elements; }
             /* Gets the stride of the buffer layout */
-            inline uint32_t getStride () const { return m_Stride; }
+            inline uint32_t getStride() const { return m_Stride; }
 
         private:
             std::vector<BufferLayoutElement> m_Elements; /* The elements comprising of the buffer data format                */
             uint32_t                         m_Stride;   /* Stride describes the frequency after which the elements repeat   */
 
         private:
-            void pushImpl (const std::string& name, BufferFormat format, uint32_t size, bool Normalised);
+            void pushImpl(const std::string& name, BufferFormat format, uint32_t size, bool Normalised);
         };
     }    // namespace Graphics
 }    // namespace Razix

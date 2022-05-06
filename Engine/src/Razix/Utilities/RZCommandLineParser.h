@@ -3,30 +3,29 @@
 #include "Razix/Core/RZCore.h"
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-namespace Razix
-{
+namespace Razix {
     /**
      * Parses the command line arguments for the Razix Application
      */
     class RAZIX_API RZCommandLineParser
     {
     public:
-        /* Command Line Option information */ 
+        /* Command Line Option information */
         struct CommandLineOption
         {
-            std::vector<std::string>    commandFlags;          /* The list of flags that can be used to call the command                               */
-            std::string                 value;                 /* The value passed along with the command flag                                         */
-            std::string                 helpDesc;              /* The description of the command                                                       */
-            bool                        set        = false;    /* A boolean to indicate whether the command was set or not                             */
-            bool                        hasValue   = false;    /* Boolean to check is the command has any value, if set true, it read the value passed */
+            std::vector<std::string> commandFlags;     /* The list of flags that can be used to call the command                               */
+            std::string              value;            /* The value passed along with the command flag                                         */
+            std::string              helpDesc;         /* The description of the command                                                       */
+            bool                     set      = false; /* A boolean to indicate whether the command was set or not                             */
+            bool                     hasValue = false; /* Boolean to check is the command has any value, if set true, it read the value passed */
         };
 
     public:
         RZCommandLineParser();
-        ~RZCommandLineParser(){}
+        ~RZCommandLineParser() {}
 
         /**
          * Parses all the list of arguments passed from the command line
@@ -38,7 +37,7 @@ namespace Razix
         /**
          * prints the description of all command available and their description
          */
-        void printHelp();  
+        void printHelp();
         /**
          * Tells whether or not if the options was passed in the command line or not
          * 
@@ -46,12 +45,12 @@ namespace Razix
          * 
          * @returns True, if the flag was set
          */
-        bool isSet(std::string name);
+        bool        isSet(std::string name);
         std::string getValueAsString(std::string name);
-        int32_t getValueAsInt(std::string name);
+        int32_t     getValueAsInt(std::string name);
 
     private:
-          std::unordered_map<std::string, CommandLineOption> m_CommandOptions;  /* The list of all command line options available, if passed via command line, it is set */
+        std::unordered_map<std::string, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */
 
     private:
         /**
@@ -64,5 +63,4 @@ namespace Razix
          */
         void AddCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help);
     };
-}
-
+}    // namespace Razix

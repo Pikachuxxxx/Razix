@@ -9,7 +9,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Converts the Buffer usage enum to OpenGL */
-        static uint32_t BufferUsageToOpenGL (const BufferUsage usage)
+        static uint32_t BufferUsageToOpenGL(const BufferUsage usage)
         {
             switch (usage) {
                 case BufferUsage::STATIC:
@@ -22,55 +22,55 @@ namespace Razix {
             return 0;
         }
 
-        OpenGLIndexBuffer::OpenGLIndexBuffer (uint16_t* data, uint32_t count, BufferUsage bufferUsage)
-            : m_IBO (0)
+        OpenGLIndexBuffer::OpenGLIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage)
+            : m_IBO(0)
         {
-            m_Size       = count * sizeof (uint16_t);
+            m_Size       = count * sizeof(uint16_t);
             m_Usage      = bufferUsage;
             m_IndexCount = count;
-            GLCall (glGenBuffers (1, &m_IBO));
-            GLCall (glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, m_IBO));
-            GLCall (glBufferData (GL_ELEMENT_ARRAY_BUFFER, count * sizeof (uint16_t), data, BufferUsageToOpenGL (m_Usage)));
+            GLCall(glGenBuffers(1, &m_IBO));
+            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
+            GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint16_t), data, BufferUsageToOpenGL(m_Usage)));
         }
 
-        OpenGLIndexBuffer::~OpenGLIndexBuffer ()
+        OpenGLIndexBuffer::~OpenGLIndexBuffer()
         {
-            GLCall (glDeleteBuffers (1, &m_IBO));
+            GLCall(glDeleteBuffers(1, &m_IBO));
         }
 
-        void OpenGLIndexBuffer::Bind (RZCommandBuffer* commandBuffer /*= nullptr*/)
+        void OpenGLIndexBuffer::Bind(RZCommandBuffer* commandBuffer /*= nullptr*/)
         {
-            GLCall (glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, m_IBO));
+            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
         }
 
-        void OpenGLIndexBuffer::Unbind ()
+        void OpenGLIndexBuffer::Unbind()
         {
-            GLCall (glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0));
+            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         }
 
-        void OpenGLIndexBuffer::Resize (uint32_t size, const void* data)
+        void OpenGLIndexBuffer::Resize(uint32_t size, const void* data)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void OpenGLIndexBuffer::Map (uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
+        void OpenGLIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
         {
-            throw std::logic_error ("The method or operation is not implemented.");
+            throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void OpenGLIndexBuffer::UnMap ()
+        void OpenGLIndexBuffer::UnMap()
         {
-            throw std::logic_error ("The method or operation is not implemented.");
+            throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void* OpenGLIndexBuffer::GetMappedBuffer ()
+        void* OpenGLIndexBuffer::GetMappedBuffer()
         {
-            throw std::logic_error ("The method or operation is not implemented.");
+            throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void OpenGLIndexBuffer::Flush ()
+        void OpenGLIndexBuffer::Flush()
         {
-            throw std::logic_error ("The method or operation is not implemented.");
+            throw std::logic_error("The method or operation is not implemented.");
         }
 
     }    // namespace Graphics

@@ -16,13 +16,13 @@
 namespace Razix {
     namespace Graphics {
 
-        RZCommandBuffer* RZCommandBuffer::Create ()
+        RZCommandBuffer* RZCommandBuffer::Create()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            switch (Graphics::RZGraphicsContext::GetRenderAPI ()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLCommandBuffer (); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKCommandBuffer (); break;
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLCommandBuffer(); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKCommandBuffer(); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
