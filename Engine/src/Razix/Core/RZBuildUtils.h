@@ -12,7 +12,9 @@ namespace Razix {
 
         enum class BuildConfig
         {
-            DEBUG, RELEASE, DISTRIBUTION
+            DEBUG,
+            RELEASE,
+            DISTRIBUTION
         };
 
         /* The platform in which the engine is being built for */
@@ -33,22 +35,23 @@ namespace Razix {
         };
 
         /* Gets the build configuration in which the engine was build */
-        BuildConfig getBuildConfig() {
+        BuildConfig getBuildConfig ()
+        {
 #ifdef RAZIX_DEBUG
             return BuildConfig::DEBUG;
 #elif RAZIX_RELEASE
             return BuildConfig::RELEASE;
 #elif RAZIX_DISTRIBUTION
             return BuildConfig::DISTRIBUTION;
-#endif 
+#endif
         }
 
-        Platform getPlatform()
+        Platform getPlatform ()
         {
 #ifdef RAZIX_PLATFORM_WINDOWS
             return Platform::WINDOWS;
 #endif
         }
-    }
+    }    // namespace BuildUtils
 
-}
+}    // namespace Razix

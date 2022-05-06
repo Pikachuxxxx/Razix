@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "DX11Swapchain.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX11

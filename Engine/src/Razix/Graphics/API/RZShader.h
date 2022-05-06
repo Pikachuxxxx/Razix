@@ -1,7 +1,7 @@
 #pragma once
 
-#include <spirv_reflect.h>
 #include <map>
+#include <spirv_reflect.h>
 
 #include "Razix/Graphics/API/RZDescriptorSet.h"
 #include "Razix/Graphics/API/RZVertexBufferLayout.h"
@@ -12,13 +12,24 @@ namespace Razix {
         /* The stage which the shader corresponds to in the graphics pipeline */
         enum class ShaderStage : int32_t
         {
-            NONE = -1, VERTEX, PIXEL, GEOMETRY, TCS, TES, COMPUTE
+            NONE = -1,
+            VERTEX,
+            PIXEL,
+            GEOMETRY,
+            TCS,
+            TES,
+            COMPUTE
         };
 
         /* Used the engine to find the right shader cache based on shader file name, forward declaring future API feature */
         enum class ShaderSourceType
         {
-            NONE, GLSL, SPIRV, HLSL, PSSL, CG
+            NONE,
+            GLSL,
+            SPIRV,
+            HLSL,
+            PSSL,
+            CG
         };
 
         /* 
@@ -36,39 +47,39 @@ namespace Razix {
         class RAZIX_API RZShader
         {
         public:
-            RZShader() { }
-            virtual ~RZShader() {}
+            RZShader () {}
+            virtual ~RZShader () {}
 
             /**
              * Creates a shader resource from the given file
              * 
              * @param filePath The Virtual/absolute path to the compiled binary shader file
              */
-            static RZShader* Create(const std::string& filePath);
+            static RZShader* Create (const std::string& filePath);
 
-            virtual void Bind() const = 0;
-            virtual void Unbind() const = 0;
-            virtual void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) = 0;
-            virtual void Destroy() = 0;
+            virtual void Bind () const                                                                                     = 0;
+            virtual void Unbind () const                                                                                   = 0;
+            virtual void CrossCompileShaders (const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) = 0;
+            virtual void Destroy ()                                                                                        = 0;
 
-            static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
+            static std::map<ShaderStage, std::string> ParseRZSF (const std::string& filePath);
 
             /* Gets the stage of the pipeline that shader is bound/being used with */
-            inline const ShaderStage& getStage() { return m_ShaderStage; }
-            inline const uint32_t& getInputStride() const { return m_VertexInputStride; }
-            inline std::vector<DescriptorSetInfo>& getSetInfos() { return m_DescriptorSetInfos; }
-            inline std::vector<RZPushConstant>& getPushConstants() { return m_PushConstants; }
-        protected:
-            ShaderStage                         m_ShaderStage = ShaderStage::NONE;          /* The shader stage to which the shader will be bound to                                                    */
-            ShaderSourceType                    m_SourceType = ShaderSourceType::SPIRV;     /* The source type of the shader                                                                            */
-            std::string                         m_ShaderFilePath;                           /* Virtual file location of the shader file                                                                 */
-            std::string                         m_Name;                                     /* The name of the shader                                                                                   */
-            std::map<ShaderStage, std::string>  m_ParsedRZSF;                               /* The razix shader file that was parsed                                                                    */
-            RZVertexBufferLayout                m_BufferLayout;                             /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
-            std::vector<DescriptorSetInfo>      m_DescriptorSetInfos;                       /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
-            std::vector<RZPushConstant>         m_PushConstants;                            /* The list of the the push constants                                                                       */
-            uint32_t                            m_VertexInputStride = 0;                    /* The stride of the vertex data that is extracted from the information                                     */
-        };
-    } 
-}
+            inline const ShaderStage&              getStage () { return m_ShaderStage; }
+            inline const uint32_t&                 getInputStride () const { return m_VertexInputStride; }
+            inline std::vector<DescriptorSetInfo>& getSetInfos () { return m_DescriptorSetInfos; }
+            inline std::vector<RZPushConstant>&    getPushConstants () { return m_PushConstants; }
 
+        protected:
+            ShaderStage                        m_ShaderStage = ShaderStage::NONE;       /* The shader stage to which the shader will be bound to                                                    */
+            ShaderSourceType                   m_SourceType  = ShaderSourceType::SPIRV; /* The source type of the shader                                                                            */
+            std::string                        m_ShaderFilePath;                        /* Virtual file location of the shader file                                                                 */
+            std::string                        m_Name;                                  /* The name of the shader                                                                                   */
+            std::map<ShaderStage, std::string> m_ParsedRZSF;                            /* The razix shader file that was parsed                                                                    */
+            RZVertexBufferLayout               m_BufferLayout;                          /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
+            std::vector<DescriptorSetInfo>     m_DescriptorSetInfos;                    /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
+            std::vector<RZPushConstant>        m_PushConstants;                         /* The list of the the push constants                                                                       */
+            uint32_t                           m_VertexInputStride = 0;                 /* The stride of the vertex data that is extracted from the information                                     */
+        };
+    }    // namespace Graphics
+}    // namespace Razix

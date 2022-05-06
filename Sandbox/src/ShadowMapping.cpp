@@ -1,10 +1,10 @@
 #if 0
 
-#include <Razix.h>
+    #include <Razix.h>
 
 using namespace Razix;
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+    #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 class Sandbox : public Razix::RZApplication
 {
@@ -152,8 +152,8 @@ public:
             //////////////////////////////////////////////////////////////////////////
             // On screen pass
             //Graphics::RZAPIRenderer::Begin();
-            
-#if 1
+
+    #if 1
             {
                 quad_renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(1.0f, 0.5f, abs(sin(getTimer().GetElapsed())), 1.0f), quad_framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
             
@@ -168,7 +168,7 @@ public:
             
                 quad_renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
             }
-#endif
+    #endif
             
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 

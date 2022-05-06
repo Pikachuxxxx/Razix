@@ -4,8 +4,8 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-#include "Razix/Platform/API/Vulkan/VKDevice.h"
-#include "Razix/Platform/API/Vulkan/VKBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 namespace Razix {
     namespace Graphics {
@@ -20,13 +20,13 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer is filled with
              */
-            VKUniformBuffer(uint32_t size, const void* data, const std::string& name);
-            ~VKUniformBuffer() {}
+            VKUniformBuffer (uint32_t size, const void* data, const std::string& name);
+            ~VKUniformBuffer () {}
 
-            void Init(const void* data, const std::string& name) override;
-            void SetData(uint32_t size, const void* data) override;
-            void Destroy() override;
+            void Init (const void* data, const std::string& name) override;
+            void SetData (uint32_t size, const void* data) override;
+            void Destroy () override;
         };
-    }
-}
+    }    // namespace Graphics
+}    // namespace Razix
 #endif

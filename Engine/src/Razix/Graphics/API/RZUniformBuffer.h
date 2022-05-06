@@ -16,7 +16,7 @@ namespace Razix {
         {
         public:
             /* The API is responsible for deallocating any resources */
-            virtual ~RZUniformBuffer() = default;
+            virtual ~RZUniformBuffer () = default;
 
             /**
              * Creates a uniform buffer that can be used to send data to the shaders using the underlying Graphics API
@@ -25,20 +25,19 @@ namespace Razix {
              * @parma data The data being stored in the uniform buffer
              * @returns The pointer handle to underlying Uniform buffer API implementation
              */
-            static RZUniformBuffer* Create(uint32_t size, const void* data, const std::string& name);
-            
+            static RZUniformBuffer* Create (uint32_t size, const void* data, const std::string& name);
+
             /* Initializes the uniform buffer */
-            virtual void Init(const void* data, const std::string& name) = 0;
+            virtual void Init (const void* data, const std::string& name) = 0;
             /**
              * Sets the data contents of the uniform buffer
              * 
              * @param size The size of the uniform buffer
              * @param data The data being stored in the uniform buffer
-             */ 
-            virtual void SetData(uint32_t size, const void* data) = 0;
+             */
+            virtual void SetData (uint32_t size, const void* data) = 0;
             /* Destroys the uniform buffer and frees the buffer and other resources it's holds such as memory etc. */
-            virtual void Destroy() = 0;
+            virtual void Destroy () = 0;
         };
-    }    
-}
-
+    }    // namespace Graphics
+}    // namespace Razix

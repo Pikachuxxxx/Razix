@@ -1,7 +1,7 @@
 #if 0
-#if 1
+    #if 1
 
-#include <Razix.h>
+        #include <Razix.h>
 
 using namespace Razix;
 
@@ -392,5 +392,5 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new SceneManagerTestApp();
 }
-#endif
+    #endif
 #endif
