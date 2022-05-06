@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "RZScene.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"

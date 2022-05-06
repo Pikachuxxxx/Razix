@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "Razix/Core/OS/RZFileSystem.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS

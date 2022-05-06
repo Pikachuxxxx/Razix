@@ -2,28 +2,30 @@
 
 #ifdef RAZIX_RENDER_API_OPENGL
 
-#include <glad/glad.h>
-#include <glfw/glfw3.h>
+    #include <glad/glad.h>
+    #include <glfw/glfw3.h>
 
-#include "Razix/Core/RZLog.h"
+    #include "Razix/Core/RZLog.h"
 
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZVertexBufferLayout.h"
+    #include "Razix/Graphics/API/RZTexture.h"
+    #include "Razix/Graphics/API/RZVertexBufferLayout.h"
 
 namespace Razix {
     namespace Graphics {
         // TODO: Move implementation to .cpp file
         namespace OpenGLUtilities {
 
-            /* Check the OpenGL functions for any errors and reports them */
-            #define GLCall(x)   ::Razix::Graphics::OpenGLUtilities::GLClearError();\
-                                (x);\
-                                RAZIX_CORE_ASSERT(::Razix::Graphics::OpenGLUtilities::GLLogCall(#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
+    /* Check the OpenGL functions for any errors and reports them */
+    #define GLCall(x)                                        \
+        ::Razix::Graphics::OpenGLUtilities::GLClearError (); \
+        (x);                                                 \
+        RAZIX_CORE_ASSERT (::Razix::Graphics::OpenGLUtilities::GLLogCall (#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
 
             /* Checks for any OpenGL errors */
-            static void GLClearError()
+            static void GLClearError ()
             {
-                while (glGetError() != GL_NO_ERROR);
+                while (glGetError () != GL_NO_ERROR)
+                    ;
             }
 
             /** Logs any error reported by OpenGL Functions
@@ -32,17 +34,17 @@ namespace Razix {
              * @param file The file in which the function is
              * @param line The line of the function
              */
-            static bool GLLogCall(const char* functionName, const char* file, int line)
+            static bool GLLogCall (const char* functionName, const char* file, int line)
             {
-                while (GLenum error = glGetError()) {
-                    RAZIX_CORE_ERROR("[OpenGL] - ERROR - {0}, (Function : {1} at Line : {2}, in File : {3})", error, functionName, line, file);
+                while (GLenum error = glGetError ()) {
+                    RAZIX_CORE_ERROR ("[OpenGL] - ERROR - {0}, (Function : {1} at Line : {2}, in File : {3})", error, functionName, line, file);
                     return false;
                 }
                 return true;
             }
 
             //TODO: USe macros to generate this code automatically
-            static uint32_t TextureFormatToGL(const RZTexture::Format format, bool srgb)
+            static uint32_t TextureFormatToGL (const RZTexture::Format format, bool srgb)
             {
                 switch (format) {
                     case RZTexture::Format::R8:
@@ -52,7 +54,7 @@ namespace Razix {
                         return GL_RG8;
                         break;
                     case RZTexture::Format::RGB8:
-                        return  srgb ? GL_SRGB8 : GL_RGB8;
+                        return srgb ? GL_SRGB8 : GL_RGB8;
                         break;
                     case RZTexture::Format::RGB16:
                         return GL_RGB16;
@@ -68,7 +70,7 @@ namespace Razix {
                         break;
                     case RZTexture::Format::RGBA32:
                         return GL_RGBA;
-                        break;                 
+                        break;
                     case RZTexture::Format::RGBA32F:
                         return GL_RGBA32F;
                         break;
@@ -79,13 +81,13 @@ namespace Razix {
                         return srgb ? GL_SRGB_ALPHA : GL_RGBA;
                         break;
                     default:
-                        RAZIX_CORE_WARN("Unsupported Texture format");
+                        RAZIX_CORE_WARN ("Unsupported Texture format");
                         return 0;
                         break;
                 }
             }
 
-            static uint32_t TextureWrapToGL(const RZTexture::Wrapping wrap)
+            static uint32_t TextureWrapToGL (const RZTexture::Wrapping wrap)
             {
                 switch (wrap) {
                     case RZTexture::Wrapping::REPEAT:
@@ -102,13 +104,13 @@ namespace Razix {
                         break;
 
                     default:
-                        RAZIX_CORE_WARN("Unsupported Texture Wrappign mode");
+                        RAZIX_CORE_WARN ("Unsupported Texture Wrappign mode");
                         return 0;
                         break;
                 }
             }
 
-            static uint32_t TextureFormatToInternalFormat(uint32_t format)
+            static uint32_t TextureFormatToInternalFormat (uint32_t format)
             {
                 switch (format) {
                     case GL_SRGB8:
@@ -139,12 +141,12 @@ namespace Razix {
                         return GL_RGBA;
 
                     default:
-                        RAZIX_CORE_WARN("[OpenGL] Unsupported Texture Format");
+                        RAZIX_CORE_WARN ("[OpenGL] Unsupported Texture Format");
                         return 0;
                 }
             }
 
-            static uint32_t BufferFormatToGL(BufferFormat format)
+            static uint32_t BufferFormatToGL (BufferFormat format)
             {
                 switch (format) {
                     default:
@@ -195,7 +197,7 @@ namespace Razix {
                 }
             }
 
-            static uint32_t BufferFormatToGLType(BufferFormat format)
+            static uint32_t BufferFormatToGLType (BufferFormat format)
             {
                 switch (format) {
                     case Razix::Graphics::BufferFormat::R8_INT:
@@ -223,7 +225,7 @@ namespace Razix {
                 }
             }
 
-        }
-    }
-}
+        }    // namespace OpenGLUtilities
+    }        // namespace Graphics
+}    // namespace Razix
 #endif

@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "RZCommandLineParser.h"
 
 namespace Razix
