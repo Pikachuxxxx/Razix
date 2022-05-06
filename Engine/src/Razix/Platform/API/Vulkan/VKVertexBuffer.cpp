@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "VKVertexBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"

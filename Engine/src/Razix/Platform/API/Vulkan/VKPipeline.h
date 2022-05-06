@@ -10,22 +10,21 @@ namespace Razix {
         class VKPipeline : public RZPipeline
         {
         public:
-            VKPipeline(const PipelineInfo& pipelineInfo);
-            ~VKPipeline() {}
+            VKPipeline (const PipelineInfo& pipelineInfo);
+            ~VKPipeline () {}
 
-            void Bind(RZCommandBuffer* commandBuffer) override;
-            void Destroy() override;
+            void Bind (RZCommandBuffer* commandBuffer) override;
+            void Destroy () override;
 
-            void init(const PipelineInfo& pipelineInfo);
+            void init (const PipelineInfo& pipelineInfo);
 
-            inline const VkPipeline& getPipeline() const { return m_Pipeline; }
-            inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
+            inline const VkPipeline&       getPipeline () const { return m_Pipeline; }
+            inline const VkPipelineLayout& getPipelineLayout () const { return m_PipelineLayout; }
+
         private:
-            RZShader*           m_Shader;
-            VkPipelineLayout    m_PipelineLayout;
-            VkPipeline          m_Pipeline;
-
+            RZShader*        m_Shader;
+            VkPipelineLayout m_PipelineLayout;
+            VkPipeline       m_Pipeline;
         };
-    }
-}
-
+    }    // namespace Graphics
+}    // namespace Razix

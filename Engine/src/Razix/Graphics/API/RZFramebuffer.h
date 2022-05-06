@@ -14,24 +14,24 @@ namespace Razix {
         // TODO: Replace the pointers with  rzstl::SharedRef(s)
         struct FramebufferInfo
         {
-            uint32_t                width;                  /* The initial width with which the framebuffer will be constructed with                */   
-            uint32_t                height;                 /* The initial height with which the framebuffer will be constructed with               */   
-            uint32_t                layer       = 0;        /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
-            uint32_t                attachmentCount;        /* Total number of attachments to the framebuffer                                       */
-            uint32_t                msaaLevel;              /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
-            bool                    screenFBO   = false;    /* Is this a final screen FBO or a render target pass                                   */
-            RZTexture**             attachments;            /* Pointer to all the attachments of the framebuffer                                    */
+            uint32_t    width;             /* The initial width with which the framebuffer will be constructed with                */
+            uint32_t    height;            /* The initial height with which the framebuffer will be constructed with               */
+            uint32_t    layer = 0;         /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
+            uint32_t    attachmentCount;   /* Total number of attachments to the framebuffer                                       */
+            uint32_t    msaaLevel;         /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
+            bool        screenFBO = false; /* Is this a final screen FBO or a render target pass                                   */
+            RZTexture** attachments;       /* Pointer to all the attachments of the framebuffer                                    */
             // TODO: resolve this from the render pass that is provided
             //RZTexture::Type*        attachmentTypes;        /* The types of the attachments                                                         */
-            Graphics::RZRenderPass* renderPass;             /* The render passes that will performed on the contents of the framebuffer             */
+            Graphics::RZRenderPass* renderPass; /* The render passes that will performed on the contents of the framebuffer             */
         };
 
         /* Framebuffer is what the swapchain images and command are executed onto to be used by the GPU to read and present from */
         class RAZIX_API RZFramebuffer
         {
         public:
-            RZFramebuffer() = default;
-            virtual ~RZFramebuffer() {}
+            RZFramebuffer () = default;
+            virtual ~RZFramebuffer () {}
 
             /**
              * Creates a framebuffer pointer with the underlying API implementation
@@ -40,23 +40,23 @@ namespace Razix {
              * 
              * @returns The pointer to the API implementation of the Framebuffer class
              */
-            static RZFramebuffer* Create(const FramebufferInfo& frameBufInfo);
+            static RZFramebuffer* Create (const FramebufferInfo& frameBufInfo);
 
-            virtual void Destroy() = 0;
+            virtual void Destroy () = 0;
 
             /* Gets the width of the framebuffer */
-            inline const uint32_t& getWidht() const { return m_Width; }
+            inline const uint32_t& getWidht () const { return m_Width; }
             /* Gets the Height of the framebuffer */
-            inline const uint32_t& getHeight() const { return m_Height; }
+            inline const uint32_t& getHeight () const { return m_Height; }
 
             /* Sets the color with which the framebuffer will be cleared with */
-            void setClearColor(const glm::vec4& color) { m_ClearColor = color; }
+            void setClearColor (const glm::vec4& color) { m_ClearColor = color; }
 
         protected:
-            uint32_t    m_Width;            /* The Width of the framebuffer                                     */
-            uint32_t    m_Height;           /* The Height of the framebuffer                                    */
-            uint32_t    m_AttachmentCount;  /* Number of framebuffer texture attachments                        */
-            glm::vec4   m_ClearColor;       /* The clear color with which the framebuffer will be cleared with  */
+            uint32_t  m_Width;           /* The Width of the framebuffer                                     */
+            uint32_t  m_Height;          /* The Height of the framebuffer                                    */
+            uint32_t  m_AttachmentCount; /* Number of framebuffer texture attachments                        */
+            glm::vec4 m_ClearColor;      /* The clear color with which the framebuffer will be cleared with  */
         };
-    }
-}
+    }    // namespace Graphics
+}    // namespace Razix

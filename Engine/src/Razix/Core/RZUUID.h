@@ -3,7 +3,7 @@
 #include <random>
 
 namespace Razix {
-    
+
     /**
      *  Implementation from : Copyright (c) 2018 Xavier "Crashoz" Launey [https://github.com/crashoz/uuid_v4] MIT license.
      * 
@@ -45,59 +45,58 @@ namespace Razix {
     // TODO: 3. Add cereal Serialization Functions
     class RAZIX_API RZUUID
     {
-    public: 
+    public:
         /* Defining the format type of RZUUID (we will use a union with bytes for easier calculation)*/
         typedef struct
         {
-            uint32_t  time_low;
-            uint16_t  time_mid;
-            uint16_t  time_hi_and_version;
-            uint8_t   clock_seq_hi_and_reserved;
-            uint8_t   clock_seq_low;
-            char    node[6];
+            uint32_t time_low;
+            uint16_t time_mid;
+            uint16_t time_hi_and_version;
+            uint8_t  clock_seq_hi_and_reserved;
+            uint8_t  clock_seq_low;
+            char     node[6];
         } rzuuid_format;
 
     public:
-
         /* Builds a 128-bits RZUUID */
-        RZUUID();
-        RZUUID(const RZUUID& other);
+        RZUUID ();
+        RZUUID (const RZUUID& other);
 
-        RZUUID(__m128i uuid);
+        RZUUID (__m128i uuid);
 
-        RZUUID(uint64_t x, uint64_t y);
-        RZUUID(const uint8_t* bytes);
+        RZUUID (uint64_t x, uint64_t y);
+        RZUUID (const uint8_t* bytes);
         /* Builds an RZUUID from a byte string (16 bytes long) */
-        explicit RZUUID(const std::string& bytes);
+        explicit RZUUID (const std::string& bytes);
 
-        ~RZUUID() = default;
+        ~RZUUID () = default;
 
         /* Static factory to parse an RZUUID from its string representation */
-        static RZUUID FromStrFactory(const std::string& s);
-        static RZUUID FromStrFactory(const char* raw);
+        static RZUUID FromStrFactory (const std::string& s);
+        static RZUUID FromStrFactory (const char* raw);
 
-        void FromStr(const char* raw);
+        void FromStr (const char* raw);
 
-        RZUUID& operator=(const RZUUID& other)
+        RZUUID& operator= (const RZUUID& other)
         {
             if (&other == this) {
                 return *this;
             }
-            __m128i x = _mm_load_si128((__m128i*)other.data);
-            _mm_store_si128((__m128i*)data, x);
+            __m128i x = _mm_load_si128 ((__m128i*) other.data);
+            _mm_store_si128 ((__m128i*) data, x);
             return *this;
         }
 
-        friend bool operator==(const RZUUID& lhs, const RZUUID& rhs)
+        friend bool operator== (const RZUUID& lhs, const RZUUID& rhs)
         {
-            __m128i x = _mm_load_si128((__m128i*)lhs.data);
-            __m128i y = _mm_load_si128((__m128i*)rhs.data);
+            __m128i x = _mm_load_si128 ((__m128i*) lhs.data);
+            __m128i y = _mm_load_si128 ((__m128i*) rhs.data);
 
-            __m128i neq = _mm_xor_si128(x, y);
-            return _mm_test_all_zeros(neq, neq);
+            __m128i neq = _mm_xor_si128 (x, y);
+            return _mm_test_all_zeros (neq, neq);
         }
 
-        friend bool operator<(const RZUUID& lhs, const RZUUID& rhs)
+        friend bool operator< (const RZUUID& lhs, const RZUUID& rhs)
         {
             // There are no trivial 128-bits comparisons in SSE/AVX
             // It's faster to compare two uint64_t
@@ -106,66 +105,65 @@ namespace Razix {
             return *x < *y || (*x == *y && *(x + 1) < *(y + 1));
         }
 
-        friend bool operator!=(const RZUUID& lhs, const RZUUID& rhs) { return !(lhs == rhs); }
+        friend bool operator!= (const RZUUID& lhs, const RZUUID& rhs) { return !(lhs == rhs); }
         friend bool operator> (const RZUUID& lhs, const RZUUID& rhs) { return rhs < lhs; }
-        friend bool operator<=(const RZUUID& lhs, const RZUUID& rhs) { return !(lhs > rhs); }
-        friend bool operator>=(const RZUUID& lhs, const RZUUID& rhs) { return !(lhs < rhs); }
+        friend bool operator<= (const RZUUID& lhs, const RZUUID& rhs) { return !(lhs > rhs); }
+        friend bool operator>= (const RZUUID& lhs, const RZUUID& rhs) { return !(lhs < rhs); }
 
         /* Serializes the uuid to a byte string (16 bytes) */
-        std::string bytes() const;
+        std::string bytes () const;
 
-        void bytes(std::string& out) const;
+        void bytes (std::string& out) const;
 
-        void bytes(char* bytes) const;
+        void bytes (char* bytes) const;
 
         /* Converts the uuid to its string representation */
-        std::string str() const;
+        std::string str () const;
 
-        void str(std::string& s) const;
+        void str (std::string& s) const;
 
-        void str(char* res) const;
+        void str (char* res) const;
 
         friend std::ostream& operator<< (std::ostream& stream, const RZUUID& uuid)
         {
-            return stream << uuid.str();
+            return stream << uuid.str ();
         }
 
         friend std::istream& operator>> (std::istream& stream, RZUUID& uuid)
         {
             std::string s;
             stream >> s;
-            uuid = FromStrFactory(s);
+            uuid = FromStrFactory (s);
             return stream;
         }
 
-        size_t hash() const;
-
+        size_t hash () const;
 
     private:
-       uint8_t data[16];
+        uint8_t data[16];
 
     private:
         /*
           Converts a 128-bits unsigned int to an UUIDv4 string representation.
           Uses SIMD via Intel's AVX2 instruction set.
          */
-        static void inline m128itos(__m128i x, char* mem);
-        
+        static void inline m128itos (__m128i x, char* mem);
+
         /*
         Converts an UUIDv4 string representation to a 128-bits unsigned int.
         Uses SIMD via Intel's AVX2 instruction set.
         */
-        static __m128i inline stom128i(const char* mem);
+        static __m128i inline stom128i (const char* mem);
     };
-}
-
+}    // namespace Razix
 
 namespace std {
-    template <> struct hash<Razix::RZUUID>
+    template<>
+    struct hash<Razix::RZUUID>
     {
-        size_t operator()(const Razix::RZUUID& uuid) const
+        size_t operator() (const Razix::RZUUID& uuid) const
         {
-            return uuid.hash();
+            return uuid.hash ();
         }
     };
-}
+}    // namespace std

@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "WindowsOS.h"
 
 #include "Razix/Core/RZApplication.h"

@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "RZLuaScriptHandler.h"
 
 #include "Razix/Core/RZSplashScreen.h"

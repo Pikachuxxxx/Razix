@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "RZSceneCamera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
