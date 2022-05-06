@@ -1,11 +1,11 @@
 #if 0
-#pragma once
+    #pragma once
 
-#include <Razix.h>
+    #include <Razix.h>
 
 using namespace Razix;
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+    #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 class GridTest : public Razix::RZApplication
 {

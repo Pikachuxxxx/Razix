@@ -1,10 +1,10 @@
 #if 0
 
-#include <Razix.h>
+    #include <Razix.h>
 
 using namespace Razix;
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+    #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 class SpriteTest : public Razix::RZApplication
 {

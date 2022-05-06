@@ -1,4 +1,6 @@
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
 #include "GLFWWindow.h"
 
 #include "Razix/Embedded/RazixLogo32.inl"
