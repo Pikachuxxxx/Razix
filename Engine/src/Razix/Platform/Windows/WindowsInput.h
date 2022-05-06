@@ -2,8 +2,7 @@
 
 #include "Razix/Core/OS/RZInput.h"
 
-namespace Razix
-{
+namespace Razix {
     // The Input implementation by the Win32 API
     //class WindowsInput : public Input
     //{
@@ -20,4 +19,3 @@ namespace Razix
     //};
 
 }
-

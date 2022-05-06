@@ -50,7 +50,7 @@ SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeCpp11BracedList: 'false'
 SpaceBeforeCtorInitializerColon: 'true'
 SpaceBeforeInheritanceColon: 'true'
-SpaceBeforeParens: Always
+SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: 'false'
 SpaceInEmptyParentheses: 'false'
 SpacesBeforeTrailingComments: '4'

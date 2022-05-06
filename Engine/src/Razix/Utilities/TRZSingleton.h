@@ -2,14 +2,13 @@
 
 #include "Razix/Core/RZCore.h"
 
-namespace Razix
-{
+namespace Razix {
     /**
      * A Singleton type class template
      * @brief We return a static const reference instead of a lazy heap creation
      * @note [Design Suggested in Game Engine Architecture by Jason Gregory at p.199-201]
      */
-    template <class T>
+    template<class T>
     class RZSingleton
     {
     public:
@@ -19,9 +18,11 @@ namespace Razix
             static T instance;
             return instance;
         }
+
     protected:
         RZSingleton() {}
         ~RZSingleton() {}
+
     private:
         RAZIX_NONCOPYABLE_CLASS(RZSingleton);
     };
@@ -50,4 +51,4 @@ namespace Razix
         RAZIX_NONCOPYABLE_CLASS(RZThreadSafeSingleton);
     };
     */
-}
+}    // namespace Razix

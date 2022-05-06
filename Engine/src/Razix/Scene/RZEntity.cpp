@@ -3,8 +3,8 @@
 // clang-format on
 #include "RZEntity.h"
 
-#include "Razix/Scene/RZScene.h"
 #include "Razix/Scene/RZComponents.h"
+#include "Razix/Scene/RZScene.h"
 
 namespace Razix {
 
@@ -37,12 +37,11 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        bool acceptable = false;
+        bool acceptable         = false;
         auto hierarchyComponent = TryGetComponent<HierarchyComponent>();
         if (hierarchyComponent != nullptr) {
             acceptable = entity.m_Entity != m_Entity && (!entity.IsParent(*this)) && (hierarchyComponent->Parent != m_Entity);
-        }
-        else
+        } else
             acceptable = entity.m_Entity != m_Entity;
 
         if (!acceptable)
@@ -70,7 +69,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
         std::vector<RZEntity> children;
-        auto hierarchyComponent = TryGetComponent<HierarchyComponent>();
+        auto                  hierarchyComponent = TryGetComponent<HierarchyComponent>();
         if (hierarchyComponent) {
             entt::entity child = hierarchyComponent->First;
             while (child != entt::null && m_Scene->getRegistry().valid(child)) {
@@ -94,14 +93,13 @@ namespace Razix {
             while (parent != entt::null) {
                 if (parent == potentialParent.m_Entity) {
                     return true;
-                }
-                else {
+                } else {
                     nodeHierarchyComponent = m_Scene->getRegistry().try_get<HierarchyComponent>(parent);
-                    parent = nodeHierarchyComponent ? nodeHierarchyComponent->Parent : entt::null;
+                    parent                 = nodeHierarchyComponent ? nodeHierarchyComponent->Parent : entt::null;
                 }
             }
         }
 
         return false;
     }
-}
+}    // namespace Razix

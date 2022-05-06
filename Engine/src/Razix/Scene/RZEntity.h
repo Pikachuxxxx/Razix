@@ -5,7 +5,7 @@
 #include <entt.hpp>
 
 namespace Razix {
-    
+
     // Forward declaration
     class RZScene;
 
@@ -26,13 +26,13 @@ namespace Razix {
             //m_Scene->OnComponentAdded<T>(*this, component);
         }
 
-        template <typename T, typename... Args>
+        template<typename T, typename... Args>
         T& GetOrAddComponent(Args&&... args)
         {
             return m_Scene->m_Registry.get_or_emplace<T>(m_Entity, std::forward<Args>(args)...);
         }
 
-        template <typename T, typename... Args>
+        template<typename T, typename... Args>
         void AddOrReplaceComponent(Args&&... args)
         {
             m_Scene->m_Registry.emplace_or_replace<T>(m_Entity, std::forward<Args>(args)...);
@@ -45,7 +45,7 @@ namespace Razix {
             return m_Scene->m_Registry.get<T>(m_Entity);
         }
 
-        template <typename T>
+        template<typename T>
         T* TryGetComponent()
         {
             return m_Scene->m_Registry.try_get<T>(m_Entity);
@@ -67,21 +67,19 @@ namespace Razix {
         bool IsActive();
         void SetActive(bool isActive);
 
-        void SetParent(RZEntity entity);
-        RZEntity GetParent();
+        void                  SetParent(RZEntity entity);
+        RZEntity              GetParent();
         std::vector<RZEntity> GetChildren();
-        bool IsParent(RZEntity potentialParent);
-        
+        bool                  IsParent(RZEntity potentialParent);
 
-        operator bool() const { return m_Entity != entt::null; }
-        operator entt::entity() const { return m_Entity; }
-        operator uint32_t() const { return (uint32_t) m_Entity; }
+             operator bool() const { return m_Entity != entt::null; }
+             operator entt::entity() const { return m_Entity; }
+             operator uint32_t() const { return (uint32_t) m_Entity; }
         bool operator==(const RZEntity& other) const { return m_Entity == other.m_Entity && m_Scene == other.m_Scene; }
         bool operator!=(const RZEntity& other) const { return !(*this == other); }
 
     private:
-        entt::entity    m_Entity{entt::null};
-        RZScene*        m_Scene = nullptr;
+        entt::entity m_Entity{entt::null};
+        RZScene*     m_Scene = nullptr;
     };
-}
-
+}    // namespace Razix

@@ -5,7 +5,7 @@
 
 #include "Razix/Platform/GLFW/GLFWInput.h"
 
-void Razix::RZInput::SelectGLFWInputManager ()
+void Razix::RZInput::SelectGLFWInputManager()
 {
     sInstance = new GLFWInput;
 }

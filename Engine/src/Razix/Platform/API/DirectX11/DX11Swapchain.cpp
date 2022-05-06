@@ -27,33 +27,33 @@ namespace Razix {
         Razix::Graphics::RZTexture* DX11Swapchain::GetImage(uint32_t index)
         {
             RAZIX_UNIMPLEMENTED_METHOD
-                return nullptr;
+            return nullptr;
         }
 
         Razix::Graphics::RZTexture* DX11Swapchain::GetCurrentImage()
         {
             RAZIX_UNIMPLEMENTED_METHOD
-                return nullptr;
+            return nullptr;
         }
 
         size_t DX11Swapchain::GetSwapchainImageCount()
         {
             RAZIX_UNIMPLEMENTED_METHOD
-                return NULL;
+            return NULL;
         }
 
         RZCommandBuffer* DX11Swapchain::getCurrentCommandBuffer()
         {
             RAZIX_UNIMPLEMENTED_METHOD
-                return nullptr;
+            return nullptr;
         }
 
         uint32_t DX11Swapchain::getCurrentImageIndex()
         {
             RAZIX_UNIMPLEMENTED_METHOD
-                return 0;
+            return 0;
         }
 
-    }
-}
+    }    // namespace Graphics
+}    // namespace Razix
 #endif

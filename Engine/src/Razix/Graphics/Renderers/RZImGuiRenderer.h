@@ -45,14 +45,14 @@ namespace Razix {
 
         public:
             PushConstBlock pushConstBlock;
-            RZImGuiRenderer () {}
-            ~RZImGuiRenderer (){};
+            RZImGuiRenderer() {}
+            ~RZImGuiRenderer(){};
 
-            void init ();
-            void createPipeline (RZRenderPass& renderpass);
-            bool update (const RZTimestep& dt);
-            void draw (RZCommandBuffer* cmdBuffer);
-            void destroy ();
+            void init();
+            void createPipeline(RZRenderPass& renderpass);
+            bool update(const RZTimestep& dt);
+            void draw(RZCommandBuffer* cmdBuffer);
+            void destroy();
 
         private:
             RZShader*        m_UIShader; /* The ImGui shader that is used by ImGui to render the UI elements */
@@ -71,7 +71,7 @@ namespace Razix {
             RZVertexBufferLayout     layout;
 
         private:
-            void uploadUIFont (const std::string& fontPath);
+            void uploadUIFont(const std::string& fontPath);
         };
 
     }    // namespace Graphics

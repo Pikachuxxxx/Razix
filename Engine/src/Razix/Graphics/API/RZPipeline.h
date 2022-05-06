@@ -53,13 +53,13 @@ namespace Razix {
         class RAZIX_API RZPipeline
         {
         public:
-            RZPipeline () = default;
-            virtual ~RZPipeline () {}
+            RZPipeline() = default;
+            virtual ~RZPipeline() {}
 
-            static RZPipeline* Create (const PipelineInfo& pipelineInfo);
+            static RZPipeline* Create(const PipelineInfo& pipelineInfo);
 
-            virtual void Bind (RZCommandBuffer* commandBuffer) = 0;
-            virtual void Destroy ()                            = 0;
+            virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
+            virtual void Destroy()                            = 0;
 
         protected:
         };

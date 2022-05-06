@@ -11,15 +11,15 @@ namespace Razix {
         class OpenGLShader : public RZShader
         {
         public:
-            OpenGLShader (const std::string& filePath);
-            ~OpenGLShader ();
+            OpenGLShader(const std::string& filePath);
+            ~OpenGLShader();
 
-            void Bind () const override;
-            void Unbind () const override;
-            void Destroy () override {}
-            void CrossCompileShaders (const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
+            void Bind() const override;
+            void Unbind() const override;
+            void Destroy() override {}
+            void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
 
-            void pushTypeToBuffer (const spirv_cross::SPIRType type, Graphics::RZVertexBufferLayout& layout, const std::string& name);
+            void pushTypeToBuffer(const spirv_cross::SPIRType type, Graphics::RZVertexBufferLayout& layout, const std::string& name);
 
         private:
             uint32_t                               m_ProgramID;      /* OpenGL ID for the shader program that will bind to the pipeline  */
@@ -27,7 +27,7 @@ namespace Razix {
             std::vector<RZDescriptorLayoutBinding> m_BindingLayouts; /* The uniform and sampler binding layout information */
 
         private:
-            void init ();
+            void init();
         };
     }    // namespace Graphics
 }    // namespace Razix

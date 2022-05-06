@@ -34,51 +34,51 @@ namespace Razix {
         Orientation orientation = Orientation::Y_UP;
         float       fbx_scale   = 1.0f;
 
-        static ofbx::Vec3 operator- (const ofbx::Vec3& a, const ofbx::Vec3& b)
+        static ofbx::Vec3 operator-(const ofbx::Vec3& a, const ofbx::Vec3& b)
         {
             return {a.x - b.x, a.y - b.y, a.z - b.z};
         }
 
-        static ofbx::Vec2 operator- (const ofbx::Vec2& a, const ofbx::Vec2& b)
+        static ofbx::Vec2 operator-(const ofbx::Vec2& a, const ofbx::Vec2& b)
         {
             return {a.x - b.x, a.y - b.y};
         }
 
-        glm::vec3 FixOrientation (const glm::vec3& v)
+        glm::vec3 FixOrientation(const glm::vec3& v)
         {
             switch (orientation) {
                 case Orientation::Y_UP:
-                    return glm::vec3 (v.x, v.y, v.z);
+                    return glm::vec3(v.x, v.y, v.z);
                 case Orientation::Z_UP:
-                    return glm::vec3 (v.x, v.z, -v.y);
+                    return glm::vec3(v.x, v.z, -v.y);
                 case Orientation::Z_MINUS_UP:
-                    return glm::vec3 (v.x, -v.z, v.y);
+                    return glm::vec3(v.x, -v.z, v.y);
                 case Orientation::X_MINUS_UP:
-                    return glm::vec3 (v.y, -v.x, v.z);
+                    return glm::vec3(v.y, -v.x, v.z);
                 case Orientation::X_UP:
-                    return glm::vec3 (-v.y, v.x, v.z);
+                    return glm::vec3(-v.y, v.x, v.z);
             }
-            return glm::vec3 (v.x, v.y, v.z);
+            return glm::vec3(v.x, v.y, v.z);
         }
 
-        glm::quat FixOrientation (const glm::quat& v)
+        glm::quat FixOrientation(const glm::quat& v)
         {
             switch (orientation) {
                 case Orientation::Y_UP:
-                    return glm::quat (v.x, v.y, v.z, v.w);
+                    return glm::quat(v.x, v.y, v.z, v.w);
                 case Orientation::Z_UP:
-                    return glm::quat (v.x, v.z, -v.y, v.w);
+                    return glm::quat(v.x, v.z, -v.y, v.w);
                 case Orientation::Z_MINUS_UP:
-                    return glm::quat (v.x, -v.z, v.y, v.w);
+                    return glm::quat(v.x, -v.z, v.y, v.w);
                 case Orientation::X_MINUS_UP:
-                    return glm::quat (v.y, -v.x, v.z, v.w);
+                    return glm::quat(v.y, -v.x, v.z, v.w);
                 case Orientation::X_UP:
-                    return glm::quat (-v.y, v.x, v.z, v.w);
+                    return glm::quat(-v.y, v.x, v.z, v.w);
             }
-            return glm::quat (v.x, v.y, v.z, v.w);
+            return glm::quat(v.x, v.y, v.z, v.w);
         }
 
-        static void computeTangents (ofbx::Vec3* out, int vertex_count, const ofbx::Vec3* vertices, const ofbx::Vec3* normals, const ofbx::Vec2* uvs)
+        static void computeTangents(ofbx::Vec3* out, int vertex_count, const ofbx::Vec3* vertices, const ofbx::Vec3* normals, const ofbx::Vec2* uvs)
         {
             for (int i = 0; i < vertex_count; i += 3) {
                 const ofbx::Vec3 v0  = vertices[i + 0];
@@ -98,7 +98,7 @@ namespace Razix {
                 tangent.x     = (dv20.x * duv10.y - dv10.x * duv20.y) * dir;
                 tangent.y     = (dv20.y * duv10.y - dv10.y * duv20.y) * dir;
                 tangent.z     = (dv20.z * duv10.y - dv10.z * duv20.y) * dir;
-                const float l = 1 / sqrtf (float (tangent.x * tangent.x + tangent.y * tangent.y + tangent.z * tangent.z));
+                const float l = 1 / sqrtf(float(tangent.x * tangent.x + tangent.y * tangent.y + tangent.z * tangent.z));
                 tangent.x *= l;
                 tangent.y *= l;
                 tangent.z *= l;
@@ -108,50 +108,50 @@ namespace Razix {
             }
         }
 
-        glm::vec2 ToGLMVector (const ofbx::Vec2& vec)
+        glm::vec2 ToGLMVector(const ofbx::Vec2& vec)
         {
-            return glm::vec2 (float (vec.x), float (vec.y));
+            return glm::vec2(float(vec.x), float(vec.y));
         }
 
-        glm::vec3 ToGLMVector (const ofbx::Vec3& vec)
+        glm::vec3 ToGLMVector(const ofbx::Vec3& vec)
         {
-            return glm::vec3 (float (vec.x), float (vec.y), float (vec.z));
+            return glm::vec3(float(vec.x), float(vec.y), float(vec.z));
         }
 
-        glm::vec4 ToGLMVector (const ofbx::Vec4& vec)
+        glm::vec4 ToGLMVector(const ofbx::Vec4& vec)
         {
-            return glm::vec4 (float (vec.x), float (vec.y), float (vec.z), float (vec.w));
+            return glm::vec4(float(vec.x), float(vec.y), float(vec.z), float(vec.w));
         }
 
-        glm::vec4 ToGLMVector (const ofbx::Color& vec)
+        glm::vec4 ToGLMVector(const ofbx::Color& vec)
         {
-            return glm::vec4 (float (vec.r), float (vec.g), float (vec.b), 1.0f);
+            return glm::vec4(float(vec.r), float(vec.g), float(vec.b), 1.0f);
         }
 
-        glm::quat ToGLMQuat (const ofbx::Quat& quat)
+        glm::quat ToGLMQuat(const ofbx::Quat& quat)
         {
-            return glm::quat (float (quat.x), float (quat.y), float (quat.z), float (quat.w));
+            return glm::quat(float(quat.x), float(quat.y), float(quat.z), float(quat.w));
         }
 
-        void RZModel::loadFBX (const std::string& path)
+        void RZModel::loadFBX(const std::string& path)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             std::string err;
             std::string pathCopy = path;
-            pathCopy             = Utilities::BackSlashesToSlashes (pathCopy);
-            m_FBXModelDirectory  = pathCopy.substr (0, pathCopy.find_last_of ('/'));
+            pathCopy             = Utilities::BackSlashesToSlashes(pathCopy);
+            m_FBXModelDirectory  = pathCopy.substr(0, pathCopy.find_last_of('/'));
 
-            std::string name = m_FBXModelDirectory.substr (m_FBXModelDirectory.find_last_of ('/') + 1);
+            std::string name = m_FBXModelDirectory.substr(m_FBXModelDirectory.find_last_of('/') + 1);
 
-            std::string ext  = Utilities::GetFilePathExtension (path);
-            int64_t     size = RZFileSystem::GetFileSize (path);
-            auto        data = RZFileSystem::ReadFile (path);
+            std::string ext  = Utilities::GetFilePathExtension(path);
+            int64_t     size = RZFileSystem::GetFileSize(path);
+            auto        data = RZFileSystem::ReadFile(path);
 
-            RAZIX_CORE_TRACE ("Loading model Name : {0}, Size : {1}", name, size);
+            RAZIX_CORE_TRACE("Loading model Name : {0}, Size : {1}", name, size);
 
             if (data == nullptr) {
-                RAZIX_CORE_ERROR ("Failed to load fbx file!");
+                RAZIX_CORE_ERROR("Failed to load fbx file!");
                 return;
             }
 
@@ -159,14 +159,14 @@ namespace Razix {
             const uint64_t flags          = ignoreGeometry ? (uint64_t) ofbx::LoadFlags::IGNORE_GEOMETRY : (uint64_t) ofbx::LoadFlags::TRIANGULATE;
 
             // Load the scene that has models, materials and animation data
-            ofbx::IScene* scene = ofbx::load (data, uint32_t (size), flags);
+            ofbx::IScene* scene = ofbx::load(data, uint32_t(size), flags);
 
-            err = ofbx::getError ();
+            err = ofbx::getError();
 
-            if (!err.empty () || !scene)
-                RAZIX_CORE_ERROR (err);
+            if (!err.empty() || !scene)
+                RAZIX_CORE_ERROR(err);
 
-            const ofbx::GlobalSettings* settings = scene->getGlobalSettings ();
+            const ofbx::GlobalSettings* settings = scene->getGlobalSettings();
             switch (settings->UpAxis) {
                 case ofbx::UpVector_AxisX:
                     orientation = Orientation::X_UP;
@@ -180,33 +180,33 @@ namespace Razix {
             }
 
             // Iterate through the sub-meshes in the model
-            int c = scene->getMeshCount ();
+            int c = scene->getMeshCount();
             for (int i = 0; i < c; ++i) {
                 // Get the FBX mesh
-                const ofbx::Mesh* fbx_mesh = (const ofbx::Mesh*) scene->getMesh (i);
-                auto              geom     = fbx_mesh->getGeometry ();
+                const ofbx::Mesh* fbx_mesh = (const ofbx::Mesh*) scene->getMesh(i);
+                auto              geom     = fbx_mesh->getGeometry();
 
-                auto numIndices   = geom->getIndexCount ();
-                int  vertex_count = geom->getVertexCount ();
+                auto numIndices   = geom->getIndexCount();
+                int  vertex_count = geom->getVertexCount();
 
-                const ofbx::Vec3* vertices = geom->getVertices ();
-                const ofbx::Vec3* normals  = geom->getNormals ();
-                const ofbx::Vec3* tangents = geom->getTangents ();
-                const ofbx::Vec4* colours  = geom->getColors ();
-                const ofbx::Vec2* uvs      = geom->getUVs ();
+                const ofbx::Vec3* vertices = geom->getVertices();
+                const ofbx::Vec3* normals  = geom->getNormals();
+                const ofbx::Vec3* tangents = geom->getTangents();
+                const ofbx::Vec4* colours  = geom->getColors();
+                const ofbx::Vec2* uvs      = geom->getUVs();
 
                 // Filling in the Razix vertex data to create Razix Mesh
                 Graphics::RZVertex* tempvertices = new Graphics::RZVertex[vertex_count];
                 uint16_t*           indicesArray = new uint16_t[numIndices];
 
                 // IDK wtf is this
-                auto indices = geom->getFaceIndices ();
+                auto indices = geom->getFaceIndices();
 
                 // Generate tangents for the model
                 ofbx::Vec3* generatedTangents = nullptr;
                 if (!tangents && normals && uvs) {
                     generatedTangents = new ofbx::Vec3[vertex_count];
-                    computeTangents (generatedTangents, vertex_count, vertices, normals, uvs);
+                    computeTangents(generatedTangents, vertex_count, vertices, normals, uvs);
                     tangents = generatedTangents;
                 }
 
@@ -215,19 +215,19 @@ namespace Razix {
                     ofbx::Vec3 cp = vertices[i];
 
                     auto& vertex    = tempvertices[i];
-                    vertex.Position = glm::vec3 (float (cp.x), float (cp.y), float (cp.z));
-                    FixOrientation (vertex.Position);
+                    vertex.Position = glm::vec3(float(cp.x), float(cp.y), float(cp.z));
+                    FixOrientation(vertex.Position);
 
                     if (normals)
-                        vertex.Normal = glm::vec3 (float (normals[i].x), float (normals[i].y), float (normals[i].z));
+                        vertex.Normal = glm::vec3(float(normals[i].x), float(normals[i].y), float(normals[i].z));
                     if (uvs)
-                        vertex.TexCoords = glm::vec2 (float (uvs[i].x), 1.0f - float (uvs[i].y));
+                        vertex.TexCoords = glm::vec2(float(uvs[i].x), 1.0f - float(uvs[i].y));
                     if (colours)
-                        vertex.Color = glm::vec4 (float (colours[i].x), float (colours[i].y), float (colours[i].z), float (colours[i].w));
+                        vertex.Color = glm::vec4(float(colours[i].x), float(colours[i].y), float(colours[i].z), float(colours[i].w));
                     //if (tangents)
                     //  vertex.Tangent = glm::vec3(float(tangents[i].x), float(tangents[i].y), float(tangents[i].z));
 
-                    FixOrientation (vertex.Normal);
+                    FixOrientation(vertex.Normal);
                     //FixOrientation(vertex.Tangent);
                 }
 
@@ -238,19 +238,19 @@ namespace Razix {
                 }
 
                 // Create the vertex buffer to hold the vertex data of the mesh
-                Graphics::RZVertexBuffer* vb = Graphics::RZVertexBuffer::Create (sizeof (Graphics::RZVertex) * vertex_count, tempvertices, BufferUsage::STATIC, name);
+                Graphics::RZVertexBuffer* vb = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * vertex_count, tempvertices, BufferUsage::STATIC, name);
 
                 // Create the Index buffer to hold the index data
-                Graphics::RZIndexBuffer* ib = Graphics::RZIndexBuffer::Create (indicesArray, numIndices, name);
+                Graphics::RZIndexBuffer* ib = Graphics::RZIndexBuffer::Create(indicesArray, numIndices, name);
 
                 // TODO: Query and iterate through the materials and create mat+ texture resources
 
                 // Create the mesh
                 // TODO: Set the local transformation i.e. Update the Transform Component
-                Graphics::RZMesh* mesh = new Graphics::RZMesh (vb, ib, vertex_count, numIndices);
+                Graphics::RZMesh* mesh = new Graphics::RZMesh(vb, ib, vertex_count, numIndices);
 
-                mesh->setName (fbx_mesh->name);
-                m_Meshes.push_back (mesh);
+                mesh->setName(fbx_mesh->name);
+                m_Meshes.push_back(mesh);
 
                 delete[] tempvertices;
                 delete[] indicesArray;

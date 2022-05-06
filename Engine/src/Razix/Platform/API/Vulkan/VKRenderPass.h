@@ -14,21 +14,21 @@ namespace Razix {
         {
         public:
             /* Creates a Vulkan render pass object with the given information */
-            VKRenderPass (const RenderPassInfo& renderPassInfo);
-            ~VKRenderPass ();
+            VKRenderPass(const RenderPassInfo& renderPassInfo);
+            ~VKRenderPass();
 
             /* Begins the Vulkan render pass */
-            void BeginRenderPass (RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height) override;
+            void BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height) override;
             /* Ends the Vulkan render pass on the command buffer */
-            void EndRenderPass (RZCommandBuffer* commandBuffer) override;
+            void EndRenderPass(RZCommandBuffer* commandBuffer) override;
             /* Adds any attachments to the render pass */
-            void AddAttachment () override;
+            void AddAttachment() override;
 
-            void Destroy () override;
+            void Destroy() override;
 
-            bool                       init (const RenderPassInfo& renderpassInfo);
-            VkAttachmentDescription    getAttachmentDescription (AttachmentInfo info, bool clear = true);
-            inline const VkRenderPass& getVKRenderPass () const { return m_RenderPass; }
+            bool                       init(const RenderPassInfo& renderpassInfo);
+            VkAttachmentDescription    getAttachmentDescription(AttachmentInfo info, bool clear = true);
+            inline const VkRenderPass& getVKRenderPass() const { return m_RenderPass; }
 
         private:
             VkRenderPass  m_RenderPass; /* The handle to the vulkan render pass object                              */

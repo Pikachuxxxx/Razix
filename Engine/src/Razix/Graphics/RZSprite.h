@@ -26,7 +26,7 @@ namespace Razix {
         class RAZIX_API RZSprite
         {
         public:
-            RZSprite ();
+            RZSprite();
             /**
              * Creates an sprite with a given color
              * 
@@ -35,7 +35,7 @@ namespace Razix {
              * @param scale The dimensions of the sprite
              * @parma color The color of the sprite
              */
-            RZSprite (const glm::vec4& color);
+            RZSprite(const glm::vec4& color);
             /**
              * Crates a sprite with a given texture
              * 
@@ -44,35 +44,35 @@ namespace Razix {
              * @param rotation The rotation of the sprite
              * @param scale The dimensions of the sprite
              */
-            RZSprite (RZTexture2D* texture);
+            RZSprite(RZTexture2D* texture);
 
-            virtual ~RZSprite () = default;
+            virtual ~RZSprite() = default;
 
-            void destroy ();
+            void destroy();
 
             /* Gets the default UV values that is common for any sprite */
-            static const std::array<glm::vec2, 4>& GetDefaultUVs ();
+            static const std::array<glm::vec2, 4>& GetDefaultUVs();
             /* Gets the UV values given the minimum and maximum dimensions/range, useful while generating sprite sheet UVs */
-            static const std::array<glm::vec2, 4>& GetUVs (const glm::vec2& min, const glm::vec2& max);
+            static const std::array<glm::vec2, 4>& GetUVs(const glm::vec2& min, const glm::vec2& max);
 
-            void setSpriteSheet (const glm::vec2& cellIndex, const glm::vec2& sheetDimension);
+            void setSpriteSheet(const glm::vec2& cellIndex, const glm::vec2& sheetDimension);
 
-            RZTexture2D*       getTexture () const { return m_Texture; }
-            RAZIX_INLINE void  setTexture (RZTexture2D* texture) { m_Texture = texture; }
-            RAZIX_INLINE const glm::vec4& getColour () const { return m_Color; }
-            void                          setColour (const glm::vec4& color)
+            RZTexture2D*       getTexture() const { return m_Texture; }
+            RAZIX_INLINE void  setTexture(RZTexture2D* texture) { m_Texture = texture; }
+            RAZIX_INLINE const glm::vec4& getColour() const { return m_Color; }
+            void                          setColour(const glm::vec4& color)
             {
                 m_Color = color;
-                updateVertexData ();
+                updateVertexData();
             }
-            RAZIX_INLINE const std::array<glm::vec2, 4>& getUVs () const { return m_UVs; }
+            RAZIX_INLINE const std::array<glm::vec2, 4>& getUVs() const { return m_UVs; }
 
             // getter for shader, buffers and sets
-            RZVertexBuffer* getVertexBuffer () { return m_VBO; }
-            RZIndexBuffer*  getIndexBuffer () { return m_IBO; }
+            RZVertexBuffer* getVertexBuffer() { return m_VBO; }
+            RZIndexBuffer*  getIndexBuffer() { return m_IBO; }
 
-            RZShader*        getShader ();
-            RZDescriptorSet* getDescriptorSet (uint32_t index);
+            RZShader*        getShader();
+            RZDescriptorSet* getDescriptorSet(uint32_t index);
 
         private:
             RZTexture2D*             m_Texture;
@@ -89,9 +89,9 @@ namespace Razix {
             std::vector<RZDescriptorSet*> m_TexturedSpriteDescriptorSets;
 
         private:
-            void createBuffers ();
-            void updateVertexData ();
-            void updateDescriptorSets ();
+            void createBuffers();
+            void updateVertexData();
+            void updateDescriptorSets();
         };
     }    // namespace Graphics
 }    // namespace Razix

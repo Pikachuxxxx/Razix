@@ -21,8 +21,8 @@ namespace Razix {
 		 * @param borderless Should the window be borderless or not </param>
 		 * @param filepath	The path of the application </param>
 		 */
-        WindowProperties (const std::string& title = "Razix Engine", uint32_t width = 1280, uint32_t height = 720, bool fullscreen = false, bool vSync = true, bool borderless = false)
-            : Width (width), Height (height), Title (title), Fullscreen (fullscreen), VSync (vSync), Borderless (borderless)
+        WindowProperties(const std::string& title = "Razix Engine", uint32_t width = 1280, uint32_t height = 720, bool fullscreen = false, bool vSync = true, bool borderless = false)
+            : Width(width), Height(height), Title(title), Fullscreen(fullscreen), VSync(vSync), Borderless(borderless)
         {
         }
 
@@ -45,7 +45,7 @@ namespace Razix {
     class RAZIX_API RZWindow
     {
     public:
-        using EventCallbackFn = std::function<void (RZEvent&)>;
+        using EventCallbackFn = std::function<void(RZEvent&)>;
 
         /**
          * Creates a Razix window with the given window properties
@@ -53,20 +53,20 @@ namespace Razix {
          * @param properties A struct with the custom window properties
          * @returns Handle to the Razix window
          */
-        static RZWindow* Create (const WindowProperties& properties = WindowProperties ());
-        virtual ~RZWindow () {}
+        static RZWindow* Create(const WindowProperties& properties = WindowProperties());
+        virtual ~RZWindow() {}
 
         /* Called on Every Window Update */
-        virtual void OnWindowUpdate () = 0;
+        virtual void OnWindowUpdate() = 0;
 
         /* Process the Input polling */
-        virtual void ProcessInput (){};
+        virtual void ProcessInput(){};
 
         /* Gets the Width of the window */
-        virtual unsigned int getWidth () const = 0;
+        virtual unsigned int getWidth() const = 0;
 
         /* Gets the Height of the window */
-        virtual unsigned int getHeight () const = 0;
+        virtual unsigned int getHeight() const = 0;
 
         // Window Attributes
 
@@ -75,26 +75,26 @@ namespace Razix {
 		 * 
 		 * @param callback Pointer to the callback function 
 		 */
-        virtual void SetEventCallback (const EventCallbackFn& callback) = 0;
+        virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 
         /* Enables V - Sync */
-        virtual void SetVSync (bool enabled) = 0;
+        virtual void SetVSync(bool enabled) = 0;
 
         /* Tells whether or not VSync was enabled or not */
-        virtual bool IsVSync () const = 0;
+        virtual bool IsVSync() const = 0;
 
         /* Sets the window Icon */
-        virtual void SetWindowIcon () = 0;
+        virtual void SetWindowIcon() = 0;
 
         /**
          * Gets the native window handle for the underlying OS
          * @returns A pointer to the underlying OS native handle
          */
-        virtual void* GetNativeWindow () const = 0;
+        virtual void* GetNativeWindow() const = 0;
 
     protected:
         /* Pointer to the appropriate Window Creation function based on OS */
-        static RZWindow* (*ConstructionFunc) (const WindowProperties&);
-        RZWindow () = default;
+        static RZWindow* (*ConstructionFunc)(const WindowProperties&);
+        RZWindow() = default;
     };
 }    // namespace Razix

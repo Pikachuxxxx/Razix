@@ -18,38 +18,38 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer will be filled with
              */
-            VKBuffer (VkBufferUsageFlags usage, uint32_t size, const void* data, const std::string& bufferName);
+            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data, const std::string& bufferName);
             /* Creates an empty buffer to be mapped with data later */
-            VKBuffer ();
-            ~VKBuffer () {}
+            VKBuffer();
+            ~VKBuffer() {}
 
             /* Destroy the buffer and it's memory */
-            void destroy ();
+            void destroy();
 
             /* Maps the buffer to an external location on the HOST to copy data to it */
-            void map (VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+            void map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
             /* Unmaps the memory to which the buffer was mapped to */
-            void unMap ();
+            void unMap();
             /* Clears out the buffer allocation */
-            void flush (VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+            void flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 
             /* Sets the buffer with new given data */
-            void setData (uint32_t size, const void* data);
+            void setData(uint32_t size, const void* data);
             /* Resizes the buffer */
-            void resize (uint32_t size, const void* data);
+            void resize(uint32_t size, const void* data);
 
             /* Gets the HOST mapped buffer */
-            inline void* getMappedRegion () { return m_Mapped; }
+            inline void* getMappedRegion() { return m_Mapped; }
             /* Gets the reference to the Vulkan buffer object */
-            inline const VkBuffer& getBuffer () const { return m_Buffer; }
+            inline const VkBuffer& getBuffer() const { return m_Buffer; }
             /* Tells how the buffer is being used currently */
-            inline const VkBufferUsageFlags& getUsage () const { return m_UsageFlags; }
+            inline const VkBufferUsageFlags& getUsage() const { return m_UsageFlags; }
             /* Sets the usage of the buffer */
-            inline void setUsage (VkBufferUsageFlags flags) { m_UsageFlags = flags; }
+            inline void setUsage(VkBufferUsageFlags flags) { m_UsageFlags = flags; }
             /* Gets the size of the buffer */
-            inline VkDeviceSize getSize () const { return m_BufferSize; }
+            inline VkDeviceSize getSize() const { return m_BufferSize; }
             /* Sets the size of the buffer */
-            inline void setSize (uint32_t size) { m_BufferSize = (VkDeviceSize) size; }
+            inline void setSize(uint32_t size) { m_BufferSize = (VkDeviceSize) size; }
 
         protected:
             VkBuffer               m_Buffer;              /* handle to the Vulkan buffer          */
@@ -67,7 +67,7 @@ namespace Razix {
              * @param data The data with which the buffer will be filled with
              */
             // TODO: Refactor this signature to take the size and usage
-            void init (const void* data, const std::string& bufferName);
+            void init(const void* data, const std::string& bufferName);
         };
 
     }    // namespace Graphics

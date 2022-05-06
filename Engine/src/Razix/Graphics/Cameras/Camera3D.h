@@ -31,93 +31,93 @@ namespace Razix {
         {
         public:
             // Constructor with vectors
-            Camera3D (glm::vec3 position = glm::vec3 (0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3 (0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+            Camera3D(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
             // Constructor with scalar values
-            Camera3D (float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+            Camera3D(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
             // Update the camera movement in the world space
-            void update (double deltaTime);
+            void update(double deltaTime);
             // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-            void processKeyboard (Camera_Movement_Direction direction, double deltaTime);
+            void processKeyboard(Camera_Movement_Direction direction, double deltaTime);
             // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-            void processMouseMovement (float xoffset, float yoffset, bool constrainPitch = true);
+            void processMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
             // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-            void processMouseScroll (float yoffset);
+            void processMouseScroll(float yoffset);
 
-            RAZIX_INLINE const glm::vec3& getPosition () const { return Position; }
-            void                          setPosition (glm::vec3 vector)
+            RAZIX_INLINE const glm::vec3& getPosition() const { return Position; }
+            void                          setPosition(glm::vec3 vector)
             {
                 Position = vector;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getForward () const { return Front; }
-            void                          setForward (glm::vec3 vector)
+            RAZIX_INLINE const glm::vec3& getForward() const { return Front; }
+            void                          setForward(glm::vec3 vector)
             {
                 Front = vector;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getUp () const { return Up; }
-            void                          setUp (glm::vec3 vector)
+            RAZIX_INLINE const glm::vec3& getUp() const { return Up; }
+            void                          setUp(glm::vec3 vector)
             {
                 Up = vector;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getRight () const { return Right; }
-            void                          setRight (glm::vec3 vector)
+            RAZIX_INLINE const glm::vec3& getRight() const { return Right; }
+            void                          setRight(glm::vec3 vector)
             {
                 Right = vector;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getWorldUp () const { return WorldUp; }
-            void                          setWorldUp (glm::vec3 vector)
+            RAZIX_INLINE const glm::vec3& getWorldUp() const { return WorldUp; }
+            void                          setWorldUp(glm::vec3 vector)
             {
                 WorldUp = vector;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const float& getYaw () const { return Yaw; }
-            void                      setYaw (float value)
+            RAZIX_INLINE const float& getYaw() const { return Yaw; }
+            void                      setYaw(float value)
             {
                 Yaw = value;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const float& getPitch () const { return Pitch; }
-            void                      setPitch (float value)
+            RAZIX_INLINE const float& getPitch() const { return Pitch; }
+            void                      setPitch(float value)
             {
                 Pitch = value;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const float& getZoom () const { return Zoom; }
-            void                      setZoom (float value)
+            RAZIX_INLINE const float& getZoom() const { return Zoom; }
+            void                      setZoom(float value)
             {
                 Zoom = value;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const float& getSpeed () const { return MovementSpeed; }
-            void                      setSpeed (float speed)
+            RAZIX_INLINE const float& getSpeed() const { return MovementSpeed; }
+            void                      setSpeed(float speed)
             {
                 MovementSpeed = speed;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
-            RAZIX_INLINE const float& getSensitivity () const { return MouseSensitivity; }
-            void                      setSensitivity (float sensitivity)
+            RAZIX_INLINE const float& getSensitivity() const { return MouseSensitivity; }
+            void                      setSensitivity(float sensitivity)
             {
                 MouseSensitivity = sensitivity;
-                updateCameraVectors ();
+                updateCameraVectors();
             }
 
             // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
-            RAZIX_FORCE_INLINE glm::mat4 getViewMatrix ();
+            RAZIX_FORCE_INLINE glm::mat4 getViewMatrix();
 
-            glm::mat4 getViewMatrixLH ();
-            glm::mat4 getViewMatrixRH ();
+            glm::mat4 getViewMatrixLH();
+            glm::mat4 getViewMatrixRH();
 
         private:
             // Camera Attributes
@@ -138,7 +138,7 @@ namespace Razix {
 
         private:
             // Calculates the front vector from the Camera's (updated) Euler Angles
-            void updateCameraVectors ();
+            void updateCameraVectors();
         };
 
     }    // namespace Graphics

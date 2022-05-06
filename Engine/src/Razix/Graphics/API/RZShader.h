@@ -47,28 +47,28 @@ namespace Razix {
         class RAZIX_API RZShader
         {
         public:
-            RZShader () {}
-            virtual ~RZShader () {}
+            RZShader() {}
+            virtual ~RZShader() {}
 
             /**
              * Creates a shader resource from the given file
              * 
              * @param filePath The Virtual/absolute path to the compiled binary shader file
              */
-            static RZShader* Create (const std::string& filePath);
+            static RZShader* Create(const std::string& filePath);
 
-            virtual void Bind () const                                                                                     = 0;
-            virtual void Unbind () const                                                                                   = 0;
-            virtual void CrossCompileShaders (const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) = 0;
-            virtual void Destroy ()                                                                                        = 0;
+            virtual void Bind() const                                                                                     = 0;
+            virtual void Unbind() const                                                                                   = 0;
+            virtual void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) = 0;
+            virtual void Destroy()                                                                                        = 0;
 
-            static std::map<ShaderStage, std::string> ParseRZSF (const std::string& filePath);
+            static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
 
             /* Gets the stage of the pipeline that shader is bound/being used with */
-            inline const ShaderStage&              getStage () { return m_ShaderStage; }
-            inline const uint32_t&                 getInputStride () const { return m_VertexInputStride; }
-            inline std::vector<DescriptorSetInfo>& getSetInfos () { return m_DescriptorSetInfos; }
-            inline std::vector<RZPushConstant>&    getPushConstants () { return m_PushConstants; }
+            inline const ShaderStage&              getStage() { return m_ShaderStage; }
+            inline const uint32_t&                 getInputStride() const { return m_VertexInputStride; }
+            inline std::vector<DescriptorSetInfo>& getSetInfos() { return m_DescriptorSetInfos; }
+            inline std::vector<RZPushConstant>&    getPushConstants() { return m_PushConstants; }
 
         protected:
             ShaderStage                        m_ShaderStage = ShaderStage::NONE;       /* The shader stage to which the shader will be bound to                                                    */

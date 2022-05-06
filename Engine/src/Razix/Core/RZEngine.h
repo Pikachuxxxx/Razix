@@ -10,7 +10,7 @@
 
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
-//! The style guide rules are waved off for RZEngine class
+//! Some style guide rules are waved off for RZEngine class
 namespace Razix
 
 // TODO: Engine will also manage the Grpahics Context and API Renderer initialization ==> Window and app context (in consoles) must be given to the OS abstraction rather than the Application class
@@ -40,27 +40,27 @@ namespace Razix
 
     public:
         /* Starts up the Engine and it's sub-systems */
-        void Ignite ();
+        void Ignite();
 
         /// <summary>
         /// Shutdowns the engine and all the resources and systems
         /// </summary>
-        void ShutDown ();
+        void ShutDown();
 
         /// <summary>
         /// manages the Engine Runtime systems
         /// </summary>
-        void Run ();
+        void Run();
 
         /// <summary>
         /// Gets the Statistics of the current engine state
         /// </summary>
-        Stats& GetStatistics () { return m_Stats; }
+        Stats& GetStatistics() { return m_Stats; }
 
         /// <summary>
         /// Resets the stats to the default value
         /// </summary>
-        void ResetStats ()
+        void ResetStats()
         {
             m_Stats.FrameTime    = 0.0f;
             m_Stats.NumDrawCalls = 0;
@@ -69,20 +69,20 @@ namespace Razix
         /// <summary>
         /// Gets the maximum number of frames that can be rendered
         /// </summary>
-        const float& getTargetFrameRate () const { return m_MaxFramesPerSecond; }
+        const float& getTargetFrameRate() const { return m_MaxFramesPerSecond; }
 
         /// <summary>
         /// Sets the maximum number of frames per second
         /// </summary>
         /// <param name="targetFPS"> The targeted FPS for the engine </param>
-        void setTargetFrameRate (const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
+        void setTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
 
         // TODO: Use a template method to get the systems automatically, hence use a system registration design with IRZSystem as parent
-        RZSceneManager&                getSceneManager () { return m_SceneManagerSystem; }
-        Scripting::RZLuaScriptHandler& getScriptHandler () { return m_LuaScriptHandlerSystem; }
+        RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
+        Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
 
     private:
-        Stats m_Stats;                                /* Current frame basic statistics									*/
+        Stats m_Stats;                                /* Current frame basic statistics	                                */
         float m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
     };
 }    // namespace Razix
