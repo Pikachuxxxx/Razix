@@ -35,6 +35,8 @@ project "optick"
              VulkanSDK .. "/include"
         }
 
+        buildoptions { "-Wno-narrowing" }
+
     filter "configurations:Debug"
         runtime "Debug"
         symbols "on"

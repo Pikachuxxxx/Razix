@@ -3,25 +3,24 @@
 // clang-format on
 #include "RZCommandLineParser.h"
 
-namespace Razix
-{
+namespace Razix {
     RZCommandLineParser::RZCommandLineParser()
     {
-        AddCommand("help", { "--help" }, 0, "Show help");
-        AddCommand("project filename", { "-f", "--project-file" }, 1, "The project file to start the application with");
-        AddCommand("project filename", { "-s", "--scene" }, 1, "The scene file to load when the engine is fired");
-        AddCommand("engine config filename", { "-cf", "--config-file" }, 1, "The engine config file to for the engine runtime settings");
-        AddCommand("rendering api", { "-a", "--api" }, 1, "The Rendering API to use");
-        AddCommand("validation", { "-v", "--validation" }, 0, "Enable Graphics API validation layers");
-        AddCommand("vsync", { "-vs", "--vsync" }, 0, "Enable V-Sync");
-        AddCommand("width", { "-w", "--width" }, 1, "Set window width");
-        AddCommand("height", { "-h", "--height" }, 1, "Set window height");
+        AddCommand("help", {"--help"}, 0, "Show help");
+        AddCommand("project filename", {"-f", "--project-file"}, 1, "The project file to start the application with");
+        AddCommand("project filename", {"-s", "--scene"}, 1, "The scene file to load when the engine is fired");
+        AddCommand("engine config filename", {"-cf", "--config-file"}, 1, "The engine config file to for the engine runtime settings");
+        AddCommand("rendering api", {"-a", "--api"}, 1, "The Rendering API to use");
+        AddCommand("validation", {"-v", "--validation"}, 0, "Enable Graphics API validation layers");
+        AddCommand("vsync", {"-vs", "--vsync"}, 0, "Enable V-Sync");
+        AddCommand("width", {"-w", "--width"}, 1, "Set window width");
+        AddCommand("height", {"-h", "--height"}, 1, "Set window height");
     }
 
     void RZCommandLineParser::printHelp()
     {
         std::cout << "Available command line options:\n";
-        for (auto& option : m_CommandOptions) {
+        for (auto& option: m_CommandOptions) {
             std::cout << " ";
             for (size_t i = 0; i < option.second.commandFlags.size(); i++) {
                 std::cout << option.second.commandFlags[i];
@@ -50,26 +49,26 @@ namespace Razix
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) == m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
-        char* numConvPtr;
-        int32_t intVal = strtol(value.c_str(), &numConvPtr, 10);
+        char*       numConvPtr;
+        int32_t     intVal = strtol(value.c_str(), &numConvPtr, 10);
         return intVal;
     }
 
     void RZCommandLineParser::AddCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help)
     {
         m_CommandOptions[name].commandFlags = commands;
-        m_CommandOptions[name].helpDesc = help;
-        m_CommandOptions[name].set = false;
-        m_CommandOptions[name].hasValue = hasValue;
-        m_CommandOptions[name].value = "";
+        m_CommandOptions[name].helpDesc     = help;
+        m_CommandOptions[name].set          = false;
+        m_CommandOptions[name].hasValue     = hasValue;
+        m_CommandOptions[name].value        = "";
     }
 
     void RZCommandLineParser::parse(std::vector<const char*>& arguments)
     {
         bool printH = false;
         // Known arguments
-        for (auto& option : m_CommandOptions) {
-            for (auto& command : option.second.commandFlags) {
+        for (auto& option: m_CommandOptions) {
+            for (auto& command: option.second.commandFlags) {
                 for (size_t i = 0; i < arguments.size(); i++) {
                     if (strcmp(arguments[i], command.c_str()) == 0) {
                         option.second.set = true;
@@ -91,9 +90,9 @@ namespace Razix
         if (printH) {
             m_CommandOptions["help"].set = true;
         }
-        
+
         // If help is set print it
         if (isSet("help"))
             printHelp();
     }
-}
+}    // namespace Razix

@@ -12,13 +12,13 @@ namespace Razix {
         class VKFramebuffer : public RZFramebuffer
         {
         public:
-            VKFramebuffer (const FramebufferInfo& frameBufInfo);
-            ~VKFramebuffer ();
+            VKFramebuffer(const FramebufferInfo& frameBufInfo);
+            ~VKFramebuffer();
 
-            void Destroy () override;
+            void Destroy() override;
 
             /* Gets the handle to the Vulkan framebuffer object */
-            inline const VkFramebuffer& getVkFramebuffer () const { return m_Framebuffer; }
+            inline const VkFramebuffer& getVkFramebuffer() const { return m_Framebuffer; }
 
         private:
             VkFramebuffer m_Framebuffer;

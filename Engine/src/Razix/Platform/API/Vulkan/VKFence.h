@@ -16,21 +16,21 @@ namespace Razix {
              * 
              * @param isSignalled Whether or not to create a fence in a signaled state or not
              */
-            VKFence (bool isSignalled = true);
-            ~VKFence ();
+            VKFence(bool isSignalled = true);
+            ~VKFence();
 
             /* Indicates whether the fence is in signaled or not */
-            bool isSignaled ();
+            bool isSignaled();
             /* Waits until the fence is signaled */
-            bool wait ();
+            bool wait();
             /* Resets the fence into a non signaled state */
-            void reset ();
-            bool checkState ();
-            void waitAndReset ();
+            void reset();
+            bool checkState();
+            void waitAndReset();
 
             /* Gets the handle to the Vulkan fence */
-            const VkFence& getVKFence () const { return m_Fence; }
-            void           setSignaled (bool signaled) { m_IsSignaled = signaled; }
+            const VkFence& getVKFence() const { return m_Fence; }
+            void           setSignaled(bool signaled) { m_IsSignaled = signaled; }
 
         private:
             VkFence m_Fence;      /* The handle to the Vulkan fence object                                        */

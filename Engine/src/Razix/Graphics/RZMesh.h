@@ -30,10 +30,10 @@ namespace Razix {
             glm::vec3 Normal;
             glm::vec3 Tangent;
 
-            RZVertex ()
-                : Position (glm::vec3 (0.0f)), Color (glm::vec4 (0.0f)), TexCoords (glm::vec2 (0.0f)), Normal (glm::vec3 (0.0f)), Tangent (glm::vec3 (0.0f)) {}
+            RZVertex()
+                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), TexCoords(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)) {}
 
-            bool operator== (const RZVertex& other) const
+            bool operator==(const RZVertex& other) const
             {
                 return Position == other.Position && TexCoords == other.TexCoords && Color == other.Color && Normal == other.Normal && Tangent == other.Tangent;
             }
@@ -46,9 +46,9 @@ namespace Razix {
         {
         public:
             /* Creates a empty mesh */
-            RZMesh ();
+            RZMesh();
             /* Copy constructor for Razix Mesh */
-            RZMesh (const RZMesh& mesh);
+            RZMesh(const RZMesh& mesh);
             // TODO: Remove the last 2 arguments
             /**
              * Creates mesh with the given Razix vertex and Index buffer
@@ -56,7 +56,7 @@ namespace Razix {
              * @param vertexBuffer The Razix vertex buffer used to render the mesh
              * @param indexBuffer The Index Buffer used to render the mesh
              */
-            RZMesh (RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, uint32_t vtxcount, uint32_t idxcount);
+            RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, uint32_t vtxcount, uint32_t idxcount);
             /**
              * Creates a mesh with given indices and vertices
              * 
@@ -64,25 +64,25 @@ namespace Razix {
              * @param vertices The vertices that comprises the mesh
              * optimiseThreshold The default threshold to be set for mesh optimizer to optimize the vertex data
              */
-            RZMesh (const std::vector<uint16_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold = 1.0f);
+            RZMesh(const std::vector<uint16_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold = 1.0f);
 
-            virtual ~RZMesh () {}
+            virtual ~RZMesh() {}
 
-            static void GenerateNormals (RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
-            static void GenerateTangents (RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
+            static void GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
+            static void GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
 
-            void Destroy ();
+            void Destroy();
 
-            RAZIX_INLINE const std::string& getName () const { return m_Name; }
-            RAZIX_INLINE void               setName (const std::string& name) { m_Name = name; }
+            RAZIX_INLINE const std::string& getName() const { return m_Name; }
+            RAZIX_INLINE void               setName(const std::string& name) { m_Name = name; }
 
-            RAZIX_INLINE RZVertexBuffer* getVertexBuffer () { return m_VertexBuffer; }
-            RAZIX_INLINE RZIndexBuffer* getIndexBuffer () { return m_IndexBuffer; }
-            RAZIX_FORCE_INLINE uint32_t getVerticesCount () const { return m_VertexCount; }
-            RAZIX_FORCE_INLINE uint32_t getIndexCount () const { return m_IndexCount; }
+            RAZIX_INLINE RZVertexBuffer* getVertexBuffer() { return m_VertexBuffer; }
+            RAZIX_INLINE RZIndexBuffer* getIndexBuffer() { return m_IndexBuffer; }
+            RAZIX_FORCE_INLINE uint32_t getVerticesCount() const { return m_VertexCount; }
+            RAZIX_FORCE_INLINE uint32_t getIndexCount() const { return m_IndexCount; }
 
-            void setIndexCount (uint32_t count) { m_IndexCount = count; }
-            void setVertexCount (uint32_t count) { m_VertexCount = count; }
+            void setIndexCount(uint32_t count) { m_IndexCount = count; }
+            void setVertexCount(uint32_t count) { m_VertexCount = count; }
 
         private:
             std::string           m_Name;         /* The name of the mesh                                 */
@@ -101,9 +101,9 @@ namespace std {
     template<>
     struct hash<Razix::Graphics::RZVertex>
     {
-        size_t operator() (Razix::Graphics::RZVertex const& vertex) const
+        size_t operator()(Razix::Graphics::RZVertex const& vertex) const
         {
-            return ((hash<glm::vec3> () (vertex.Position) ^ (hash<glm::vec2> () (vertex.TexCoords) << 1) ^ (hash<glm::vec4> () (vertex.Color) << 1) ^ (hash<glm::vec3> () (vertex.Normal) << 1)));    // ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
+            return ((hash<glm::vec3>()(vertex.Position) ^ (hash<glm::vec2>()(vertex.TexCoords) << 1) ^ (hash<glm::vec4>()(vertex.Color) << 1) ^ (hash<glm::vec3>()(vertex.Normal) << 1)));    // ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
         }
     };
 }    // namespace std

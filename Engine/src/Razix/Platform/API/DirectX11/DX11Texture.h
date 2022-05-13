@@ -4,8 +4,8 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX11
 
-#include <d3d11.h>
-#include <wrl.h>
+    #include <d3d11.h>
+    #include <wrl.h>
 
 namespace Razix {
     namespace Graphics {
@@ -17,12 +17,10 @@ namespace Razix {
             void Release(bool deleteImage = true) override;
 
         protected:
-            void Bind(uint32_t slot) override;
-            void Unbind(uint32_t slot) override;
+            void  Bind(uint32_t slot) override;
+            void  Unbind(uint32_t slot) override;
             void* GetHandle() const override;
-
         };
-    }
-}
+    }    // namespace Graphics
+}    // namespace Razix
 #endif
-

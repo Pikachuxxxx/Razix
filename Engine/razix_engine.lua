@@ -44,7 +44,7 @@ project "Razix"
         "src/**.cpp",
         "src/**.inl",
         -- vendor
-        "vendor/tracy/TracyClient.cpp",
+        --"vendor/tracy/TracyClient.cpp",
         -- Shader files
         -- GLSL
         "content/Shaders/GLSL/*.vert",
@@ -140,6 +140,9 @@ project "Razix"
         characterset ("MBCS")
         editandcontinue "Off"
 
+         -- Enable AVX2 
+        --buildoptions { "-mavx2", "-mbmi", "-march=native", "-march=haswell", "-mavx", "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
+
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
 
@@ -217,12 +220,12 @@ project "Razix"
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "TRACY_ENABLE"}
+        defines { "RAZIX_DEBUG"}
         symbols "On"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG", "TRACY_ENABLE" }
+        defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
 

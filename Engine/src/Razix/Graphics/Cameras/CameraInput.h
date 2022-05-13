@@ -11,8 +11,8 @@ namespace Razix {
         class RAZIX_API CameraInput
         {
         public:
-            CameraInput ()          = default;
-            virtual ~CameraInput () = default;
+            CameraInput()          = default;
+            virtual ~CameraInput() = default;
 
         private:
         };

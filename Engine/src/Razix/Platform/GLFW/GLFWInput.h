@@ -2,12 +2,12 @@
 
 #include "Razix/Core/OS/RZInput.h"
 
-namespace Razix
-{
+namespace Razix {
     class RAZIX_API GLFWInput : public RZInput
     {
-    public: 
+    public:
         static void SelectGLFWInputManager();
+
     protected:
         bool IsKeyPressedImpl(int keycode) override;
         bool IsKeyReleasedImpl(int keycode) override;
@@ -18,9 +18,8 @@ namespace Razix
         bool IsMouseButtonHeldImpl(int button) override;
 
         std::pair<float, float> GetMousePositionImpl() override;
-        float GetMouseXImpl() override;
-        float GetMouseYImpl() override;
+        float                   GetMouseXImpl() override;
+        float                   GetMouseYImpl() override;
     };
 
-}
-
+}    // namespace Razix

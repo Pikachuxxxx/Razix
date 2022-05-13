@@ -30,8 +30,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#if defined(__clang__) || defined(__GNUC__)
-#	define OPTICK_GCC (1)
+#if (defined(__clang__) && !defined(_MSC_VER)) || defined(__GNUC__)
+#define OPTICK_GCC (1)
 #	if defined(__APPLE_CC__)
 #		define OPTICK_OSX (1)
 #		define OPTICK_64BIT (1)

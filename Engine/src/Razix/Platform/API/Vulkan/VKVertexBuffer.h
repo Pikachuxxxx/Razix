@@ -3,8 +3,8 @@
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 #ifdef RAZIX_RENDER_API_VULKAN
 
-#include "Razix/Platform/API/Vulkan/VKBuffer.h"
-#include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
 
 namespace Razix {
     namespace Graphics {
@@ -24,14 +24,14 @@ namespace Razix {
 
             void Destroy() override;
 
-            virtual void Map(uint32_t size = 0, uint32_t offset = 0) override;
-            virtual void UnMap() override;
+            virtual void  Map(uint32_t size = 0, uint32_t offset = 0) override;
+            virtual void  UnMap() override;
             virtual void* GetMappedBuffer() override;
-            virtual void Flush() override;
+            virtual void  Flush() override;
 
         private:
             bool m_IsBufferMapped = false;
         };
-    }
-}
+    }    // namespace Graphics
+}    // namespace Razix
 #endif

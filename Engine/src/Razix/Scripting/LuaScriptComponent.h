@@ -9,7 +9,7 @@ namespace Razix {
     class RAZIX_API LuaScriptComponent
     {
     public:
-        LuaScriptComponent() = default;
+        LuaScriptComponent()                          = default;
         LuaScriptComponent(const LuaScriptComponent&) = default;
         virtual ~LuaScriptComponent() {}
 
@@ -23,13 +23,13 @@ namespace Razix {
         void OnStart();
         void OnUpdate(RZTimestep dt);
 
-        template <typename Archive>
+        template<typename Archive>
         void save(Archive& archive) const
         {
             archive(cereal::make_nvp("FilePath", m_Filepath));
         }
 
-        template <typename Archive>
+        template<typename Archive>
         void load(Archive& archive)
         {
             archive(cereal::make_nvp("FilePath", m_Filepath));
@@ -39,11 +39,10 @@ namespace Razix {
     private:
         std::string m_Filepath;
 
-        std::vector<std::string>        m_Errors;
+        std::vector<std::string> m_Errors;
 
-        std::shared_ptr<sol::environment>           m_Env;
-        std::shared_ptr<sol::protected_function>    m_OnStartFunc;
-        std::shared_ptr<sol::protected_function>    m_UpdateFunc;
+        std::shared_ptr<sol::environment>        m_Env;
+        std::shared_ptr<sol::protected_function> m_OnStartFunc;
+        std::shared_ptr<sol::protected_function> m_UpdateFunc;
     };
-}
-
+}    // namespace Razix

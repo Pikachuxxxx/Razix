@@ -4,35 +4,34 @@
 #include <stdint.h>
 
 //-----System Includes-----//
-#include <iostream>
-#include <iomanip>
-#include <memory>
-#include <utility>
 #include <algorithm>
-#include <functional>
-#include <sstream>
-#include <fstream>
-#include <random>
-#include <limits>
 #include <cstdint>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <random>
+#include <sstream>
+#include <utility>
 
 //-----Data Structures-----//
-#include <string>
-#include <vector>
 #include <map>
+#include <set>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <set>
+#include <vector>
 
 //-----Engine-----//
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZProfiling.h"
 
-
 //-----Intrinsics-----//
 #include <emmintrin.h>
-#include <smmintrin.h>
 #include <immintrin.h>
+#include <smmintrin.h>
 
 //-----3rd Party-----//
 // Profilers

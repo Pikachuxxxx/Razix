@@ -1,21 +1,20 @@
 #pragma once
 
-#include "Razix/Utilities/TRZSingleton.h"
 #include "Razix/Utilities/RZTimestep.h"
+#include "Razix/Utilities/TRZSingleton.h"
 
 // Lua and c++ wrapper dependencies
-#include <sol/sol.hpp>
 #include <entt.hpp>
+#include <sol/sol.hpp>
 
 namespace Razix {
-        
+
     class RZScene;
-    
+
     namespace Scripting {
 
-
         // TODO: Derive this from the engine system and register to handle automatic startup and shutdown
-        
+
         /**
          * A class that handled lua script file and their execution, lifetime, memory and Engine API access
          * 
@@ -35,7 +34,7 @@ namespace Razix {
             sol::state& getState() { return m_State; }
 
         private:
-            sol::state m_State;     /* Manages the lua runtime state and executes scripts etc. */
+            sol::state m_State; /* Manages the lua runtime state and executes scripts etc. */
 
         private:
             /**
@@ -52,6 +51,5 @@ namespace Razix {
             void bindImGui();
             void bindglm();
         };
-    }
-}
-
+    }    // namespace Scripting
+}    // namespace Razix

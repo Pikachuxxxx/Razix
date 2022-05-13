@@ -12,31 +12,31 @@
 namespace Razix {
     namespace Graphics {
 
-        VKPipeline::VKPipeline (const PipelineInfo& pipelineInfo)
+        VKPipeline::VKPipeline(const PipelineInfo& pipelineInfo)
         {
             m_Shader         = pipelineInfo.shader;
-            m_PipelineLayout = static_cast<VKShader*> (m_Shader)->getPipelineLayout ();
+            m_PipelineLayout = static_cast<VKShader*>(m_Shader)->getPipelineLayout();
 
-            init (pipelineInfo);
+            init(pipelineInfo);
         }
 
-        void VKPipeline::Bind (RZCommandBuffer* commandBuffer)
+        void VKPipeline::Bind(RZCommandBuffer* commandBuffer)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkCmdBindPipeline (static_cast<VKCommandBuffer*> (commandBuffer)->getBuffer (), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+            vkCmdBindPipeline(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
         }
 
-        void VKPipeline::Destroy ()
+        void VKPipeline::Destroy()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkDestroyPipeline (VKDevice::Get ().getDevice (), m_Pipeline, nullptr);
+            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
         }
 
-        void VKPipeline::init (const PipelineInfo& pipelineInfo)
+        void VKPipeline::init(const PipelineInfo& pipelineInfo)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             //----------------------------
             // Vertex Input Layout Stage
@@ -44,18 +44,18 @@ namespace Razix {
             VkVertexInputBindingDescription vertexBindingDescription{};
             vertexBindingDescription.binding   = 0;
             vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-            vertexBindingDescription.stride    = m_Shader->getInputStride ();
+            vertexBindingDescription.stride    = m_Shader->getInputStride();
 
             // Get the input description information from the shader reflection
-            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*> (m_Shader)->getVertexAttribDescriptions ();
+            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*>(m_Shader)->getVertexAttribDescriptions();
 
             VkPipelineVertexInputStateCreateInfo vertexInputSCI{};
             vertexInputSCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             vertexInputSCI.pNext                           = nullptr;
             vertexInputSCI.vertexBindingDescriptionCount   = 1;
             vertexInputSCI.pVertexBindingDescriptions      = &vertexBindingDescription;
-            vertexInputSCI.vertexAttributeDescriptionCount = uint32_t (vertexInputAttributeDescription.size ());
-            vertexInputSCI.pVertexAttributeDescriptions    = vertexInputAttributeDescription.data ();
+            vertexInputSCI.vertexAttributeDescriptionCount = uint32_t(vertexInputAttributeDescription.size());
+            vertexInputSCI.pVertexAttributeDescriptions    = vertexInputAttributeDescription.data();
 
             //----------------------------
             // Input Assembly Stage
@@ -64,7 +64,7 @@ namespace Razix {
             inputAssemblySCI.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
             inputAssemblySCI.pNext                  = nullptr;
             inputAssemblySCI.primitiveRestartEnable = VK_FALSE;
-            inputAssemblySCI.topology               = VKUtilities::DrawTypeToVK (pipelineInfo.drawType);
+            inputAssemblySCI.topology               = VKUtilities::DrawTypeToVK(pipelineInfo.drawType);
 
             //----------------------------
             // Viewport and Dynamic states
@@ -79,17 +79,17 @@ namespace Razix {
             viewportSCI.scissorCount  = 1;
             viewportSCI.pScissors     = nullptr;
             viewportSCI.pViewports    = nullptr;
-            dynamicStateDescriptors.push_back (VK_DYNAMIC_STATE_VIEWPORT);
-            dynamicStateDescriptors.push_back (VK_DYNAMIC_STATE_SCISSOR);
+            dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+            dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_SCISSOR);
 
             if (pipelineInfo.depthBiasEnabled)
-                dynamicStateDescriptors.push_back (VK_DYNAMIC_STATE_DEPTH_BIAS);
+                dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
 
             VkPipelineDynamicStateCreateInfo dynamicStateCI{};
             dynamicStateCI.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
             dynamicStateCI.pNext             = NULL;
-            dynamicStateCI.dynamicStateCount = uint32_t (dynamicStateDescriptors.size ());
-            dynamicStateCI.pDynamicStates    = dynamicStateDescriptors.data ();
+            dynamicStateCI.dynamicStateCount = uint32_t(dynamicStateDescriptors.size());
+            dynamicStateCI.pDynamicStates    = dynamicStateDescriptors.data();
 
             //----------------------------
             // Rasterizer Stage
@@ -97,7 +97,7 @@ namespace Razix {
             VkPipelineRasterizationStateCreateInfo rasterizationSCI{};
             rasterizationSCI.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
             rasterizationSCI.pNext                   = nullptr;
-            rasterizationSCI.cullMode                = VKUtilities::CullModeToVK (pipelineInfo.cullMode);
+            rasterizationSCI.cullMode                = VKUtilities::CullModeToVK(pipelineInfo.cullMode);
             rasterizationSCI.depthBiasClamp          = 0;
             rasterizationSCI.depthBiasConstantFactor = 0;
             rasterizationSCI.depthBiasEnable         = (pipelineInfo.depthBiasEnabled ? VK_TRUE : VK_FALSE);
@@ -105,7 +105,7 @@ namespace Razix {
             rasterizationSCI.depthClampEnable        = VK_FALSE;
             rasterizationSCI.frontFace               = VK_FRONT_FACE_CLOCKWISE;
             rasterizationSCI.lineWidth               = 1.0f;
-            rasterizationSCI.polygonMode             = VKUtilities::PolygoneModeToVK (pipelineInfo.polygonMode);
+            rasterizationSCI.polygonMode             = VKUtilities::PolygoneModeToVK(pipelineInfo.polygonMode);
             rasterizationSCI.rasterizerDiscardEnable = VK_FALSE;
 
             //----------------------------
@@ -117,10 +117,10 @@ namespace Razix {
             colorBlendSCI.flags = 0;
 
             std::vector<VkPipelineColorBlendAttachmentState> blendAttachState;
-            blendAttachState.resize (pipelineInfo.renderpass->getColorAttachmentsCount ());
+            blendAttachState.resize(pipelineInfo.renderpass->getColorAttachmentsCount());
 
-            for (unsigned int i = 0; i < blendAttachState.size (); i++) {
-                blendAttachState[i]                = VkPipelineColorBlendAttachmentState ();
+            for (unsigned int i = 0; i < blendAttachState.size(); i++) {
+                blendAttachState[i]                = VkPipelineColorBlendAttachmentState();
                 blendAttachState[i].colorWriteMask = 0x0f;
                 blendAttachState[i].alphaBlendOp   = VK_BLEND_OP_ADD;
                 blendAttachState[i].colorBlendOp   = VK_BLEND_OP_ADD;
@@ -140,8 +140,8 @@ namespace Razix {
                 }
             }
 
-            colorBlendSCI.attachmentCount   = static_cast<uint32_t> (blendAttachState.size ());
-            colorBlendSCI.pAttachments      = blendAttachState.data ();
+            colorBlendSCI.attachmentCount   = static_cast<uint32_t>(blendAttachState.size());
+            colorBlendSCI.pAttachments      = blendAttachState.data();
             colorBlendSCI.logicOpEnable     = VK_FALSE;
             colorBlendSCI.logicOp           = VK_LOGIC_OP_NO_OP;
             colorBlendSCI.blendConstants[0] = 1.0f;
@@ -204,16 +204,16 @@ namespace Razix {
             graphicsPipelineCI.pDynamicState                          = &dynamicStateCI;
             graphicsPipelineCI.pViewportState                         = &viewportSCI;
             graphicsPipelineCI.pDepthStencilState                     = &depthStencilSCI;
-            std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*> (m_Shader)->getShaderStages ();
-            graphicsPipelineCI.pStages                                = shaderStages.data ();
-            graphicsPipelineCI.stageCount                             = shaderStages.size ();
-            graphicsPipelineCI.renderPass                             = static_cast<VKRenderPass*> (pipelineInfo.renderpass)->getVKRenderPass ();
+            std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(m_Shader)->getShaderStages();
+            graphicsPipelineCI.pStages                                = shaderStages.data();
+            graphicsPipelineCI.stageCount                             = shaderStages.size();
+            graphicsPipelineCI.renderPass                             = static_cast<VKRenderPass*>(pipelineInfo.renderpass)->getVKRenderPass();
 
             // TODO: use pipeline cache
-            if (VK_CHECK_RESULT (vkCreateGraphicsPipelines (VKDevice::Get ().getDevice (), VK_NULL_HANDLE, 1, &graphicsPipelineCI, nullptr, &m_Pipeline)))
-                RAZIX_CORE_ERROR ("[Vulkan] Cannot create graphics pipeline!");
+            if (VK_CHECK_RESULT(vkCreateGraphicsPipelines(VKDevice::Get().getDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineCI, nullptr, &m_Pipeline)))
+                RAZIX_CORE_ERROR("[Vulkan] Cannot create graphics pipeline!");
             else
-                RAZIX_CORE_TRACE ("[Vulkan] Successfully created graphics pipeline!");
+                RAZIX_CORE_TRACE("[Vulkan] Successfully created graphics pipeline!");
         }
     }    // namespace Graphics
 }    // namespace Razix

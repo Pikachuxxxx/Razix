@@ -17,17 +17,17 @@ namespace Razix {
              * @param queueIndex The Queue family index for which the pool will generate buffers for
              * @param flags Configure the pool
              */
-            VKCommandPool (int queueIndex, VkCommandPoolCreateFlags flags);
+            VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags);
             /* Destructor for the command pool */
-            ~VKCommandPool () {}
+            ~VKCommandPool() {}
 
             /* Resets the pool and the buffers it allocated */
-            void reset ();
+            void reset();
             /* Destroys the command pool */
-            void destroy ();
+            void destroy();
 
             /* Returns the underlying Vulkan command pool handle */
-            const VkCommandPool& getVKPool () const { return m_CmdPool; }
+            const VkCommandPool& getVKPool() const { return m_CmdPool; }
 
         private:
             VkCommandPool m_CmdPool; /* Handle to vulkan command pool */

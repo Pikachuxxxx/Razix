@@ -15,12 +15,12 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             m_Usage = usage;
-            m_Size = 0;
+            m_Size  = 0;
 
             VKBuffer::setUsage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         }
 
-        VKVertexBuffer::~VKVertexBuffer() { }
+        VKVertexBuffer::~VKVertexBuffer() {}
 
         void VKVertexBuffer::Bind(RZCommandBuffer* cmdBuffer)
         {
@@ -95,5 +95,5 @@ namespace Razix {
 
             VKBuffer::flush();
         }
-    }
-}
+    }    // namespace Graphics
+}    // namespace Razix
