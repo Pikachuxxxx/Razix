@@ -74,17 +74,16 @@ namespace Razix {
                 RAZIX_PROFILE_GPU_SCOPE("Draw Indexed");
                 s_APIInstance->DrawIndexedAPIImpl(cmdBuffer, indexCount);
             }
-
             RAZIX_FORCE_INLINE static void OnResize(uint32_t width, uint32_t height)
             {
                 RAZIX_PROFILE_GPU_SCOPE("OnResize");
                 s_APIInstance->OnResizeAPIImpl(width, height);
             }
 
-            RAZIX_FORCE_INLINE static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
-
             RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer) { return s_APIInstance->SetDepthBiasImpl(cmdBuffer); }
             RAZIX_FORCE_INLINE static void SetScissorRect(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) { return s_APIInstance->SetScissorRectImpl(cmdBuffer, x, y, width, height); }
+
+            RAZIX_FORCE_INLINE static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
 
         protected:
             virtual void InitAPIImpl()                                                                                                                                                                  = 0;
@@ -96,13 +95,11 @@ namespace Razix {
             virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT)                                                                           = 0;
             virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount = 1, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) = 0;
             virtual void DestroyAPIImpl()                                                                                                                                                               = 0;
-
-            virtual void OnResizeAPIImpl(uint32_t width, uint32_t height) = 0;
+            virtual void OnResizeAPIImpl(uint32_t width, uint32_t height)                                                                                                                               = 0;
+            virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                   = 0;
+            virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)                                                                          = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
-
-            virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                          = 0;
-            virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) = 0;
 
         protected:
             static RZAPIRenderer* s_APIInstance;

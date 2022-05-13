@@ -75,8 +75,8 @@ namespace Razix {
             RZDescriptorSet* getDescriptorSet(uint32_t index);
 
         private:
-            RZTexture2D*             m_Texture;
             glm::vec4                m_Color;
+            RZTexture2D*             m_Texture;
             std::array<glm::vec2, 4> m_UVs;
             bool                     m_IsAnimated = false;
             bool                     m_IsTextured = false;

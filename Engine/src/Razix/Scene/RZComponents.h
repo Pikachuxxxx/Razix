@@ -136,7 +136,7 @@ namespace Razix {
     struct RAZIX_API IDComponent
     {
         /* Used to uniquely identify the entity */
-        RZUUID UUID;
+        int UUID;
 
         IDComponent()                   = default;
         IDComponent(const IDComponent&) = default;
@@ -144,15 +144,15 @@ namespace Razix {
         template<class Archive>
         void load(Archive& archive)
         {
-            std::string uuid_string;
+            int uuid_string;
             archive(cereal::make_nvp("UUID", uuid_string));
-            UUID = RZUUID::FromStrFactory(uuid_string);
+            UUID = 0;
         }
 
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("UUID", UUID.str()));
+            archive(cereal::make_nvp("UUID", UUID));
         }
     };
 

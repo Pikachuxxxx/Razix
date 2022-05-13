@@ -45,7 +45,7 @@ public:
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
         activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
 
-        if (!activeScene) {
+        if (activeScene == nullptr) {
             RAZIX_TRACE("Creatng new scene...");
             RZScene* scriptingScene = new RZScene("ScriptingTest");
             Razix::RZEngine::Get().getSceneManager().enqueScene(scriptingScene);
@@ -55,9 +55,9 @@ public:
 
         // Add entities to the scene programatically for the first time
         // Camera Entity
-        auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
+        auto cameras = activeScene->GetComponentsOfType<CameraComponent>();
         if (!cameras.size()) {
-            RZEntity& camera = activeScene->createEntity("Camera");
+            RZEntity camera = activeScene->createEntity("Camera");
             camera.AddComponent<CameraComponent>();
             if (camera.HasComponent<CameraComponent>()) {
                 CameraComponent& cc = camera.GetComponent<CameraComponent>();
@@ -65,16 +65,16 @@ public:
             }
         }
 
-        auto& scripts = activeScene->GetComponentsOfType<LuaScriptComponent>();
+        auto scripts = activeScene->GetComponentsOfType<LuaScriptComponent>();
         if (!scripts.size()) {
-            RZEntity& scriptableEntity = activeScene->createEntity("ScriptableEntity");
+            RZEntity scriptableEntity = activeScene->createEntity("ScriptableEntity");
             scriptableEntity.AddComponent<LuaScriptComponent>();
             if (scriptableEntity.HasComponent<LuaScriptComponent>()) {
                 LuaScriptComponent& lsc = scriptableEntity.GetComponent<LuaScriptComponent>();
                 lsc.loadScript("//Scripts/hello_razix.lua");
             }
 
-            RZEntity& imguiEntity = activeScene->createEntity("guiEntity");
+            RZEntity imguiEntity = activeScene->createEntity("guiEntity");
             imguiEntity.AddComponent<LuaScriptComponent>();
             if (imguiEntity.HasComponent<LuaScriptComponent>()) {
                 LuaScriptComponent& lsc = imguiEntity.GetComponent<LuaScriptComponent>();
@@ -97,14 +97,11 @@ public:
             getImGuiRenderer()->createPipeline(*renderpass);
 
             // Add some model entities
-            auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
+            auto modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
             if (!modelEnitties.size()) {
                 // Avocado
-                auto& avocadoModelEntity = activeScene->createEntity("Avocado Angle Model");
+                auto avocadoModelEntity = activeScene->createEntity("Avocado Angle Model");
                 avocadoModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
-                // Plane
-                auto& planeEntity = activeScene->createEntity("Ground");
-                planeEntity.AddComponent<MeshRendererComponent>(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Plane));
             }
         }
     }
@@ -119,7 +116,7 @@ public:
             activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
         }
         // Update the camera
-        auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
+        auto cameras = activeScene->GetComponentsOfType<CameraComponent>();
         activeScene->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
@@ -145,7 +142,7 @@ public:
                 // draw related buffer bindings + Draw commands here
                 {
                     // Draw the models
-                    auto& mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
+                    auto mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
                     for (auto& mc: mcs) {
                         auto& meshes = mc.getMeshes();
                         for (auto& mesh: meshes) {
@@ -155,15 +152,6 @@ public:
                             Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
-
-                    // Draw the meshes
-                    // auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-                    // for (auto& mrc : mrcs) {
-                    //    mrc.Mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    //    mrc.Mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    //
-                    //    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
-                    //}
                 }
 
                 if (getImGuiRenderer()->update(dt)) getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -202,26 +190,8 @@ public:
 
         RAZIX_TRACE("Current Active Scene index : {0}", Razix::RZEngine::Get().getSceneManager().getCurrentSceneIndex());
         // Delete the models
-        auto& mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
+        auto mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
         for (Graphics::RZModel model: mcs) model.Destroy();
-
-        // auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        // for (auto& mesh : mrcs)
-        //    mesh.Mesh->Destroy();
-        //
-        /*
-        Razix::RZEngine::Get().getSceneManager().loadScene(0);
-        activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
-        mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
-        for (Graphics::RZModel model : mcs)
-            model.Destroy();
-
-        mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh : mrcs) {
-            if (mesh.Mesh)
-                mesh.Mesh->Destroy();
-        }
-        */
 
         // Delete the textures
         albedoTexture->Release(true);
@@ -277,7 +247,7 @@ private:
     Graphics::RZRenderPass*               renderpass;
     Graphics::RZPipeline*                 pipeline;
     uint32_t                              width, height;
-    RZScene*                              activeScene;    // The current active scene that is rendered by the application
+    RZScene*                              activeScene = nullptr;    // The current active scene that is rendered by the application
 
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>> descriptorSets;
 
@@ -285,9 +255,8 @@ private:
     void buildPipelineResources()
     {
         // Load the textures
-        albedoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
-        roughness_metallicTexture =
-            Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_roughnessMetallic.png", "Specular", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        albedoTexture             = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        roughness_metallicTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_roughnessMetallic.png", "Specular", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
 
         // Create the shader
         phongLightingShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/mesh_phong_lighting.rzsf");
@@ -355,9 +324,6 @@ private:
         pipeline = Graphics::RZPipeline::Create(pipelineInfo);
 
         // Create the framebuffer
-
-        auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
-
         framebuffers.clear();
         for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
             Graphics::RZTexture* attachments[2];

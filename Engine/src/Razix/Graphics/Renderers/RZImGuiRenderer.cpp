@@ -19,15 +19,15 @@
 namespace Razix {
     namespace Graphics {
 
-        static glm::vec4 U32ColorToRGBA(uint32_t color)
-        {
-            float CPa = float((color & 0xff000000UL) >> 24) / 255.0f;
-            float CPb = float((color & 0x00ff0000UL) >> 16) / 255.0f;
-            float CPg = float((color & 0x0000ff00UL) >> 8) / 255.0f;
-            float CPr = float((color & 0x000000ffUL)) / 255.0f;
-
-            return glm::vec4(CPr, CPg, CPb, CPa);
-        }
+        //static glm::vec4 U32ColorToRGBA(uint32_t color)
+        //{
+        //    float CPa = float((color & 0xff000000UL) >> 24) / 255.0f;
+        //    float CPb = float((color & 0x00ff0000UL) >> 16) / 255.0f;
+        //    float CPg = float((color & 0x0000ff00UL) >> 8) / 255.0f;
+        //    float CPr = float((color & 0x000000ffUL)) / 255.0f;
+        //
+        //    return glm::vec4(CPr, CPg, CPb, CPa);
+        //}
 
         void RZImGuiRenderer::init()
         {
@@ -305,7 +305,7 @@ namespace Razix {
             unsigned char* fontData;
             int            texWidth, texHeight;
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
-            size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
+            //size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
             m_FontAtlasTexture = RZTexture2D::Create("ImGui Font Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
         }

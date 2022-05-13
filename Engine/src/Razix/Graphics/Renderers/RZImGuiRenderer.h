@@ -63,8 +63,8 @@ namespace Razix {
             RZVertexBuffer* m_ImGuiVBO = nullptr;
             RZIndexBuffer*  m_ImGuiIBO = nullptr;
 
-            int32_t vertexCount = 0;
-            int32_t indexCount  = 0;
+            //int32_t vertexCount = 0;
+            //int32_t indexCount  = 0;
 
             std::vector<ImGuiVertex> m_VertexData;
             std::vector<uint16_t>    m_IndexData;

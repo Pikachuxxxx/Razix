@@ -1,10 +1,11 @@
 // clang-format off
 #include "rzxpch.h"
-// clang-format on
 #include "OpenGLContext.h"
 
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+// clang-format on
+
 
 namespace Razix {
     namespace Graphics {

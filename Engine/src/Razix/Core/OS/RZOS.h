@@ -8,7 +8,7 @@ namespace Razix {
     {
     public:
         RZOS()  = default;
-        ~RZOS() = default;
+        virtual ~RZOS() = default;
 
         /* Destroys the OS instance */
         static void Destroy();
