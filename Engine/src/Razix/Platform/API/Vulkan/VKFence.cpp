@@ -9,39 +9,39 @@
 namespace Razix {
     namespace Graphics {
 
-        VKFence::VKFence (bool isSignalled /*= true*/)
-            : m_IsSignaled (isSignalled)
+        VKFence::VKFence(bool isSignalled /*= true*/)
+            : m_IsSignaled(isSignalled)
         {
             VkFenceCreateInfo fenceCreateInfo = {};
             fenceCreateInfo.sType             = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
             fenceCreateInfo.flags             = isSignalled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
-            VK_CHECK_RESULT (vkCreateFence (VKDevice::Get ().getDevice (), &fenceCreateInfo, nullptr, &m_Fence));
+            VK_CHECK_RESULT(vkCreateFence(VKDevice::Get().getDevice(), &fenceCreateInfo, nullptr, &m_Fence));
         }
 
-        VKFence::~VKFence ()
+        VKFence::~VKFence()
         {
-            vkDestroyFence (VKDevice::Get ().getDevice (), m_Fence, nullptr);
+            vkDestroyFence(VKDevice::Get().getDevice(), m_Fence, nullptr);
         }
 
-        bool VKFence::isSignaled ()
+        bool VKFence::isSignaled()
         {
             if (m_IsSignaled)
                 return true;
             else
-                return checkState ();
+                return checkState();
         }
 
-        bool VKFence::wait ()
+        bool VKFence::wait()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            RAZIX_CORE_ASSERT (!m_IsSignaled, "[Vulkan] Fence is Signaled!");
+            RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is Signaled!");
 
             // Waits until the fence is signaled
-            const VkResult result = vkWaitForFences (VKDevice::Get ().getDevice (), 1, &m_Fence, true, UINT32_MAX);
+            const VkResult result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT32_MAX);
 
-            VK_CHECK_RESULT (result);
+            VK_CHECK_RESULT(result);
             if (result == VK_SUCCESS) {
                 m_IsSignaled = true;
                 return false;
@@ -49,26 +49,26 @@ namespace Razix {
             return true;
         }
 
-        void VKFence::reset ()
+        void VKFence::reset()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             if (m_IsSignaled)
-                VK_CHECK_RESULT (vkResetFences (VKDevice::Get ().getDevice (), 1, &m_Fence));
+                VK_CHECK_RESULT(vkResetFences(VKDevice::Get().getDevice(), 1, &m_Fence));
 
             m_IsSignaled = false;
         }
 
-        bool VKFence::checkState ()
+        bool VKFence::checkState()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            RAZIX_CORE_ASSERT (!m_IsSignaled, "[Vulkan] Fence is signalled!");
+            RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is signalled!");
 
             // Waits until the fence is signaled
-            const VkResult result = vkWaitForFences (VKDevice::Get ().getDevice (), 1, &m_Fence, true, UINT32_MAX);
+            const VkResult result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT32_MAX);
 
-            VK_CHECK_RESULT (result);
+            VK_CHECK_RESULT(result);
             if (result == VK_SUCCESS) {
                 m_IsSignaled = true;
                 return false;
@@ -76,14 +76,14 @@ namespace Razix {
             return true;
         }
 
-        void VKFence::waitAndReset ()
+        void VKFence::waitAndReset()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            if (!isSignaled ())
-                wait ();
+            if (!isSignaled())
+                wait();
 
-            reset ();
+            reset();
         }
     }    // namespace Graphics
 }    // namespace Razix

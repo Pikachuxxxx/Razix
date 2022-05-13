@@ -24,14 +24,14 @@ namespace Razix {
         // The Engine uses Vulkan aS the default render API
         RenderAPI RZGraphicsContext::s_RenderAPI = RenderAPI::VULKAN;
 
-        void RZGraphicsContext::Create (const WindowProperties& properties, RZWindow* window)
+        void RZGraphicsContext::Create(const WindowProperties& properties, RZWindow* window)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (s_RenderAPI) {
-                case Razix::Graphics::RenderAPI::OPENGL: s_Context = new OpenGLContext ((GLFWwindow*) window->GetNativeWindow ()); break;
-                case Razix::Graphics::RenderAPI::VULKAN: s_Context = new VKContext (window); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11: s_Context = new DX11Context (window); break;
+                case Razix::Graphics::RenderAPI::OPENGL: s_Context = new OpenGLContext((GLFWwindow*) window->GetNativeWindow()); break;
+                case Razix::Graphics::RenderAPI::VULKAN: s_Context = new VKContext(window); break;
+                case Razix::Graphics::RenderAPI::DIRECTX11: s_Context = new DX11Context(window); break;
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
@@ -39,20 +39,20 @@ namespace Razix {
             }
         }
 
-        void RZGraphicsContext::Release ()
+        void RZGraphicsContext::Release()
         {
-            s_Context->Destroy ();
+            s_Context->Destroy();
             delete s_Context;
         }
 
-        RZGraphicsContext* RZGraphicsContext::GetContext ()
+        RZGraphicsContext* RZGraphicsContext::GetContext()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (s_RenderAPI) {
-                case Razix::Graphics::RenderAPI::OPENGL: return static_cast<OpenGLContext*> (s_Context); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return static_cast<VKContext*> (s_Context); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11: return static_cast<DX11Context*> (s_Context); break;
+                case Razix::Graphics::RenderAPI::OPENGL: return static_cast<OpenGLContext*>(s_Context); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return static_cast<VKContext*>(s_Context); break;
+                case Razix::Graphics::RenderAPI::DIRECTX11: return static_cast<DX11Context*>(s_Context); break;
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
@@ -61,9 +61,9 @@ namespace Razix {
             return nullptr;
         }
 
-        const std::string Graphics::RZGraphicsContext::GetRenderAPIString ()
+        const std::string Graphics::RZGraphicsContext::GetRenderAPIString()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL: return "OpenGL"; break;

@@ -43,7 +43,9 @@ project "RazixEditor"
         "System.Drawing",
         "System.Windows.Forms",
         "System.XML",
-        "System.XML.Linq"
+        "System.XML.Linq",
+        -- ofc links to Razix Engine after all (+ any interop projects in future)
+        "Razix"
     }
 
     libdirs

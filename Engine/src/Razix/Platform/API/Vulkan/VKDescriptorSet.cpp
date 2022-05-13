@@ -12,10 +12,10 @@
 namespace Razix {
     namespace Graphics {
 
-        VKDescriptorSet::VKDescriptorSet (const std::vector<RZDescriptor>& descriptors)
-            : m_DescriptorPool (VK_NULL_HANDLE)
+        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors)
+            : m_DescriptorPool(VK_NULL_HANDLE)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Descriptor sets can't be created directly, they must be allocated from a pool like command buffers i.e. use a descriptor pool to allocate the descriptor sets
             // We first need to describe which descriptor types our descriptor sets are going to contain and how many of them, we allocate a pool for each type of descriptor
@@ -28,55 +28,55 @@ namespace Razix {
                 VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
                 setLayoutBindingInfo.binding                      = descriptor.bindingInfo.binding;
                 setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
-                setLayoutBindingInfo.descriptorType               = VKUtilities::DescriptorTypeToVK (descriptor.bindingInfo.type);
-                setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK (descriptor.bindingInfo.stage);
+                setLayoutBindingInfo.descriptorType               = VKUtilities::DescriptorTypeToVK(descriptor.bindingInfo.type);
+                setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(descriptor.bindingInfo.stage);
 
-                setLayoutBindingInfos.push_back (setLayoutBindingInfo);
+                setLayoutBindingInfos.push_back(setLayoutBindingInfo);
             }
 
             VkDescriptorSetLayoutCreateInfo layoutInfo{};
             layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutInfo.bindingCount = setLayoutBindingInfos.size ();
-            layoutInfo.pBindings    = setLayoutBindingInfos.data ();
+            layoutInfo.bindingCount = setLayoutBindingInfos.size();
+            layoutInfo.pBindings    = setLayoutBindingInfos.data();
 
             // Descriptor set layouts can be compatible if they are the same even if they are created in two different places.
             // Reference : (https://vkguide.dev/docs/chapter-4/descriptors/#descriptor-set-layout)
             // So even though they are already created in VKShader doing it again will not cause any binding issues, also cause
             // of this Shader and Descriptors API can stay decoupled which is a super good thing in terms of design which can spiral
             // into cyclic dependency real quick especially shaders and sets
-            if (VK_CHECK_RESULT (vkCreateDescriptorSetLayout (VKDevice::Get ().getDevice (), &layoutInfo, nullptr, &setLayout)))
-                RAZIX_CORE_ERROR ("[Vulkan] Failed to create descriptor set layout!");
+            if (VK_CHECK_RESULT(vkCreateDescriptorSetLayout(VKDevice::Get().getDevice(), &layoutInfo, nullptr, &setLayout)))
+                RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor set layout!");
             else
-                RAZIX_CORE_TRACE ("[Vulkan] Successfully created descriptor set layout");
+                RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
 
             VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
             descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            descriptorSetAllocateInfo.descriptorPool     = VKRenderer::GetVKRenderer ()->getDescriptorPool ();
+            descriptorSetAllocateInfo.descriptorPool     = VKRenderer::GetVKRenderer()->getDescriptorPool();
             descriptorSetAllocateInfo.descriptorSetCount = 1;
             descriptorSetAllocateInfo.pSetLayouts        = &setLayout;
 
-            if (VK_CHECK_RESULT (vkAllocateDescriptorSets (VKDevice::Get ().getDevice (), &descriptorSetAllocateInfo, &m_DescriptorSet)))
-                RAZIX_CORE_ERROR ("[Vulkan] Failed to create descriptor sets!");
+            if (VK_CHECK_RESULT(vkAllocateDescriptorSets(VKDevice::Get().getDevice(), &descriptorSetAllocateInfo, &m_DescriptorSet)))
+                RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor sets!");
             else
-                RAZIX_CORE_TRACE ("[Vulkan] Descriptor sets successfully created!");
+                RAZIX_CORE_TRACE("[Vulkan] Descriptor sets successfully created!");
 
             m_BufferInfoPool         = new VkDescriptorBufferInfo[MAX_BUFFER_INFOS];
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_IMAGE_INFOS];
             m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCTIPTORS];
 
-            UpdateSet (descriptors);
+            UpdateSet(descriptors);
         }
 
-        VKDescriptorSet::~VKDescriptorSet ()
+        VKDescriptorSet::~VKDescriptorSet()
         {
             delete[] m_BufferInfoPool;
             delete[] m_ImageInfoPool;
             delete[] m_WriteDescriptorSetPool;
         }
 
-        void VKDescriptorSet::UpdateSet (const std::vector<RZDescriptor>& descriptors)
+        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             int descriptorWritesCount = 0;
             {
@@ -85,7 +85,7 @@ namespace Razix {
 
                 for (auto descriptor: descriptors) {
                     if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
-                        VkDescriptorImageInfo& des              = *static_cast<VkDescriptorImageInfo*> (descriptor.texture->GetHandle ());
+                        VkDescriptorImageInfo& des              = *static_cast<VkDescriptorImageInfo*>(descriptor.texture->GetHandle());
                         m_ImageInfoPool[imageIndex].imageLayout = des.imageLayout;
                         m_ImageInfoPool[imageIndex].imageView   = des.imageView;
                         m_ImageInfoPool[imageIndex].sampler     = des.sampler;
@@ -104,7 +104,7 @@ namespace Razix {
                     } else {
                         // TODO: Don't use buffer members use a single one for the entire uniform buffer
                         //for (size_t i = 0; i < descriptor.uboMembers.size(); i++) {
-                        auto buffer                    = static_cast<VKUniformBuffer*> (descriptor.uniformBuffer)->getBuffer ();
+                        auto buffer                    = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer)->getBuffer();
                         m_BufferInfoPool[index].buffer = buffer;
                         m_BufferInfoPool[index].offset = descriptor.offset;
                         m_BufferInfoPool[index].range  = descriptor.size;
@@ -125,12 +125,12 @@ namespace Razix {
                 }
             }
 
-            vkUpdateDescriptorSets (VKDevice::Get ().getDevice (), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);
+            vkUpdateDescriptorSets(VKDevice::Get().getDevice(), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);
         }
 
-        void VKDescriptorSet::Destroy ()
+        void VKDescriptorSet::Destroy()
         {
-            vkDestroyDescriptorSetLayout (VKDevice::Get ().getDevice (), setLayout, nullptr);
+            vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), setLayout, nullptr);
         }
     }    // namespace Graphics
 }    // namespace Razix

@@ -4,9 +4,9 @@
 
 #include "Razix/Graphics/API/RZTexture.h"
 
-#define VK_CHECK_RESULT(x) VK_ERROR_REPORT (x)
+#define VK_CHECK_RESULT(x) VK_ERROR_REPORT(x)
 
-#define VK_ERROR_REPORT(x) Razix::Graphics::VKUtilities::VulkanCheckErrorStatus (x, __func__, __FILE__, __LINE__)
+#define VK_ERROR_REPORT(x) Razix::Graphics::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
 namespace Razix {
     namespace Graphics {
@@ -19,9 +19,9 @@ namespace Razix {
         enum class DescriptorType;
 
         namespace VKUtilities {
-
+            
             //-----------------------------------------------------------------------------------
-            /* VkResult enums and their error descriptions map */
+            // VkResult enums and their error descriptions map
             static std::unordered_map<VkResult, std::string> ErrorDescriptions = {
                 {VK_SUCCESS, "Command successfully completed"},
                 {VK_NOT_READY, "A fence or query has not yet completed"},
@@ -58,21 +58,24 @@ namespace Razix {
                 {VK_ERROR_INVALID_DEVICE_ADDRESS_EXT, "A buffer creation failed because the requested address is not available."},
                 {VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS, "A buffer creation or memory allocation failed because the requested address is not available. A shader group handle assignment failed because the requested shader group handle information is no longer valid."},
                 {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application’s control."},
-                {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}};
+                {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}
+            };
 
             /* 
              * Error reporting for Vulkan results
              * @returns True, if any error has occurred
              */
-            static bool VulkanCheckErrorStatus (VkResult x, const char* function, const char* file, int line)
+            static bool VulkanCheckErrorStatus(VkResult x, const char* function, const char* file, int line)
             {
                 if (x != VK_SUCCESS) {
                     //std::cout << "\033[1;31;49m **Vulkan Function Call Error** Description : \033[0m" << ErrorDescriptions[x] << " \033[2;90;49m [at Line : " << line << " in File : " << file << "\033[0m]" << std::endl;
-                    RAZIX_CORE_ERROR ("[Vulkan] VKResult Error :: Description : {0} (by Function : {1} at Line : {2} in File : {3})", ErrorDescriptions[x], function, line, file);
+                    RAZIX_CORE_ERROR("[Vulkan] VKResult Error :: Description : {0} (by Function : {1} at Line : {2} in File : {3})", ErrorDescriptions[x],function, line, file);
+                    //RAZIX_CORE_ERROR("[Vulkan] VKResult Error :: (by Function : {0} at Line : {1} in File : {2})", function, line, file);
                     return true;
                 } else
                     return false;
             }
+            
             //-----------------------------------------------------------------------------------
 
             //-----------------------------------------------------------------------------------
@@ -86,7 +89,7 @@ namespace Razix {
              * @param sRGB Whether or not to convert it to sRGB format
              * @returns Vulkan texture format
              */
-            VkFormat TextureFormatToVK (const RZTexture::Format format, bool srgb = true);
+            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb = true);
 
             /**
              * Engine wrap mode to Vulkan conversion
@@ -94,7 +97,7 @@ namespace Razix {
              * @param wrap The Wrapping mode to convert to
              * @returns Vulkan Wrap mode
              */
-            VkSamplerAddressMode TextureWrapToVK (const RZTexture::Wrapping wrap);
+            VkSamplerAddressMode TextureWrapToVK(const RZTexture::Wrapping wrap);
 
             /**
              * Converts from Engine filtering mode to Vulkan filter
@@ -102,27 +105,27 @@ namespace Razix {
              * @param filter The min/mag filter mode to convert to
              * @returns Vulkan filter mode
              */
-            VkFilter TextureFilterToVK (const RZTexture::Filtering::FilterMode filter);
+            VkFilter TextureFilterToVK(const RZTexture::Filtering::FilterMode filter);
 
             /**
              * Transitions the image layout from one layout to another for better storage on GPU
              */
-            void TransitionImageLayout (VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1);
+            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1);
 
             //-----------------------------------------------------------------------------------
             // Single Time Command Buffer utility functions
             //-----------------------------------------------------------------------------------
 
             /* Creates a command buffer for single time use */
-            VkCommandBuffer BeginSingleTimeCommandBuffer ();
+            VkCommandBuffer BeginSingleTimeCommandBuffer();
             /* Ends the recording of the single time command buffer */
-            void EndSingleTimeCommandBuffer (VkCommandBuffer commandBuffer);
+            void EndSingleTimeCommandBuffer(VkCommandBuffer commandBuffer);
 
             //-----------------------------------------------------------------------------------
             // Format Utility
             //-----------------------------------------------------------------------------------
-            VkFormat FindSupportedFormat (const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-            VkFormat FindDepthFormat ();
+            VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+            VkFormat FindDepthFormat();
 
             //-----------------------------------------------------------------------------------
             // Enum Conversions
@@ -137,15 +140,15 @@ namespace Razix {
              * 
              * @returns Vulkan equivalent value of primitive topology 
              */
-            VkPrimitiveTopology DrawTypeToVK (Razix::Graphics::DrawType type);
+            VkPrimitiveTopology DrawTypeToVK(Razix::Graphics::DrawType type);
 
-            VkCullModeFlags CullModeToVK (Razix::Graphics::CullMode cullMode);
+            VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode);
 
-            VkPolygonMode PolygoneModeToVK (Razix::Graphics::PolygonMode polygonMode);
+            VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode);
 
-            VkDescriptorType DescriptorTypeToVK (Razix::Graphics::DescriptorType descriptorType);
+            VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType);
 
-            VkShaderStageFlagBits ShaderStageToVK (Razix::Graphics::ShaderStage stage);
+            VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage);
 
         }    // namespace VKUtilities
     }        // namespace Graphics

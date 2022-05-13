@@ -6,11 +6,16 @@
 #include <glm/glm.hpp>
 
 namespace Razix {
-    
+
     class RAZIX_API RZSceneCamera : public Graphics::Camera3D
     {
     public:
-        enum class ProjectionType { Perspective = 0, Orthographic = 1 };
+        enum class ProjectionType
+        {
+            Perspective  = 0,
+            Orthographic = 1
+        };
+
     public:
         RZSceneCamera();
         virtual ~RZSceneCamera() = default;
@@ -22,28 +27,60 @@ namespace Razix {
         void setViewportSize(uint32_t width, uint32_t height);
 
         RAZIX_INLINE ProjectionType getProjectionType() const { return m_ProjectionType; }
-        RAZIX_INLINE void setProjectionType(ProjectionType type) { m_ProjectionType = type; recalculateProjection(); }
+        RAZIX_INLINE void           setProjectionType(ProjectionType type)
+        {
+            m_ProjectionType = type;
+            recalculateProjection();
+        }
 
         RAZIX_INLINE float getPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
-        RAZIX_INLINE void setPerspectiveVerticalFOV(float verticalFov) { m_PerspectiveFOV = verticalFov; recalculateProjection(); }
+        RAZIX_INLINE void  setPerspectiveVerticalFOV(float verticalFov)
+        {
+            m_PerspectiveFOV = verticalFov;
+            recalculateProjection();
+        }
 
         RAZIX_INLINE float getPerspectiveNearClip() const { return m_PerspectiveNear; }
-        RAZIX_INLINE void setPerspectiveNearClip(float nearClip) { m_PerspectiveNear = nearClip; recalculateProjection(); }
+        RAZIX_INLINE void  setPerspectiveNearClip(float nearClip)
+        {
+            m_PerspectiveNear = nearClip;
+            recalculateProjection();
+        }
 
         RAZIX_INLINE float getPerspectiveFarClip() const { return m_PerspectiveFar; }
-        RAZIX_INLINE void setPerspectiveFarClip(float farClip) { m_PerspectiveFar = farClip; recalculateProjection(); }
+        RAZIX_INLINE void  setPerspectiveFarClip(float farClip)
+        {
+            m_PerspectiveFar = farClip;
+            recalculateProjection();
+        }
 
         RAZIX_INLINE float getOrthographicSize() const { return m_OrthographicSize; }
-        RAZIX_INLINE void setOrthographicSize(float size) { m_OrthographicSize = size; recalculateProjection(); }
+        RAZIX_INLINE void  setOrthographicSize(float size)
+        {
+            m_OrthographicSize = size;
+            recalculateProjection();
+        }
 
         RAZIX_INLINE float getOrthographicNearClip() const { return m_OrthographicNear; }
-        RAZIX_INLINE void setOrthographicNearClip(float nearClip) { m_OrthographicNear = nearClip; recalculateProjection(); }
+        RAZIX_INLINE void  setOrthographicNearClip(float nearClip)
+        {
+            m_OrthographicNear = nearClip;
+            recalculateProjection();
+        }
 
         RAZIX_INLINE float getOrthographicFarClip() const { return m_OrthographicFar; }
-        RAZIX_INLINE void setOrthographicFarClip(float farClip) { m_OrthographicFar = farClip; recalculateProjection(); }
+        RAZIX_INLINE void  setOrthographicFarClip(float farClip)
+        {
+            m_OrthographicFar = farClip;
+            recalculateProjection();
+        }
 
         RAZIX_INLINE float getAspectRatio() const { return m_AspectRatio; }
-        RAZIX_INLINE void setAspectRatio(float ratio) { m_AspectRatio = ratio; recalculateProjection(); }
+        RAZIX_INLINE void  setAspectRatio(float ratio)
+        {
+            m_AspectRatio = ratio;
+            recalculateProjection();
+        }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -74,8 +111,6 @@ namespace Razix {
             archive(cereal::make_nvp("OrthographicFarClip", getOrthographicFarClip()));
 
             archive(cereal::make_nvp("AspectRatio", getAspectRatio()));
-
-
         }
 
         template<class Archive>
@@ -149,14 +184,13 @@ namespace Razix {
     private:
         ProjectionType m_ProjectionType = ProjectionType::Perspective;
 
-        glm::mat4 m_Projection = glm::mat4(1.0f);
-        float m_PerspectiveFOV = glm::radians(45.0f);
-        float m_PerspectiveNear = 0.1f, m_PerspectiveFar = 100.0f;
+        glm::mat4 m_Projection      = glm::mat4(1.0f);
+        float     m_PerspectiveFOV  = glm::radians(45.0f);
+        float     m_PerspectiveNear = 0.1f, m_PerspectiveFar = 100.0f;
 
         float m_OrthographicSize = 10.0f;
         float m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
 
         float m_AspectRatio = 0.0f;
     };
-}
-
+}    // namespace Razix

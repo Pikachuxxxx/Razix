@@ -3,8 +3,8 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Scene/RZComponents.h"
 
-#include <entt.hpp>
 #include <cereal/archives/json.hpp>
+#include <entt.hpp>
 
 namespace Razix {
 
@@ -49,8 +49,9 @@ namespace Razix {
         std::vector<T> GetComponentsOfType()
         {
             std::vector<T> components;
-            auto& view = m_Registry.view<T>();
-            for (auto& entity : view)
+            
+            auto view = m_Registry.view<T>();
+            for (auto& entity: view)
                 components.push_back(view.get<T>(entity));
 
             return components;
@@ -77,24 +78,24 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("UUID", m_SceneUUID.str()));
+            //archive(cereal::make_nvp("UUID", 0));
             archive(cereal::make_nvp("SceneName", m_SceneName));
-            archive(cereal::make_nvp("Total Entities", (uint32_t)m_Registry.alive()));
+            archive(cereal::make_nvp("Total Entities", (uint32_t) m_Registry.alive()));
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            std::string uuid_string;
-            archive(cereal::make_nvp("UUID", uuid_string));
-            m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
+            int uuid_string;
+            //archive(cereal::make_nvp("UUID", uuid_string));
+            //m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
             archive(cereal::make_nvp("SceneName", m_SceneName));
         }
 
     private:
-        RZUUID              m_SceneUUID;                    /* The UUID to identify the scene uniquely      */
-        entt::registry      m_Registry;                     /* Scene registry for storing all the entities  */
-        std::string         m_SceneName = "razix scene";    /* The name of the scene                        */
+        //RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
+        entt::registry m_Registry;                  /* Scene registry for storing all the entities  */
+        std::string    m_SceneName = "razix scene"; /* The name of the scene                        */
 
         friend class RZEntity;
 
@@ -102,4 +103,4 @@ namespace Razix {
         template<typename T>
         void OnComponentAdded(RZEntity entity, T& component, bool enable);
     };
-}
+}    // namespace Razix

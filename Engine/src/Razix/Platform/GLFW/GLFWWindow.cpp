@@ -12,14 +12,15 @@
 #include "Razix/Utilities/LoadImage.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+// clang-format off
+    #include <glad/glad.h>
+    #include <GLFW/glfw3.h>
+// clang-format on
 #endif
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 
-namespace Razix
-{
+namespace Razix {
     static bool sGLFWInitialized = false;
 
     GLFWWindow::GLFWWindow(const WindowProperties& properties)
@@ -34,7 +35,6 @@ namespace Razix
 
     void GLFWWindow::OnWindowUpdate()
     {
-
     }
 
     void GLFWWindow::ProcessInput()
@@ -43,8 +43,8 @@ namespace Razix
 
 #if defined(RAZIX_RENDER_API_OPENGL) || defined(RAZIX_RENDER_API_VULKAN)
         if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL || Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-		    glfwPollEvents();
-#endif // RAZIX_RENDER_API_OPENGL
+            glfwPollEvents();
+#endif    // RAZIX_RENDER_API_OPENGL
     }
 
     void GLFWWindow::SetVSync(bool enabled)
@@ -69,21 +69,21 @@ namespace Razix
 
         // 64-bit logo
         std::vector<GLFWimage> images;
-        GLFWimage image64{};
+        GLFWimage              image64{};
+
         image64.height = RazixLogo64Height;
-        image64.width = RazixLogo64Width;
+        image64.width  = RazixLogo64Width;
         image64.pixels = static_cast<unsigned char*>(&RazixLogo64Pixels[0]);
         images.push_back(image64);
 
         // 32-bit logo
-		GLFWimage image32{};
+        GLFWimage image32{};
         image32.height = RazixLogo32Height;
-        image32.width = RazixLogo32Width;
+        image32.width  = RazixLogo32Width;
         image32.pixels = static_cast<unsigned char*>(RazixLogo32Pixels);
         images.push_back(image32);
 
         glfwSetWindowIcon(m_Window, int(images.size()), images.data());
-
     }
 
     void GLFWWindow::Construct()
@@ -100,21 +100,19 @@ namespace Razix
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-        m_Data.Title = properties.Title;
-        m_Data.Width = properties.Width;
+        m_Data.Title  = properties.Title;
+        m_Data.Width  = properties.Width;
         m_Data.Height = properties.Height;
         //m_Data.API = properties.API; // use this with a switch statement to choose a proper rendering API
 
         RAZIX_CORE_INFO("Creating Window... \n \t\t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
 
-        glfwSetErrorCallback([](int errorCode, const char* description)
-        {
+        glfwSetErrorCallback([](int errorCode, const char* description) {
             RAZIX_CORE_ERROR("GLFW Error! code : {0} description : {1}", errorCode, description);
         });
 
         // TODO: Replace all this with WIN32 API
-        if (!sGLFWInitialized)
-        {
+        if (!sGLFWInitialized) {
             int success = glfwInit();
             RAZIX_CORE_ASSERT(success, "Could not initialize GLFW");
 
@@ -126,9 +124,9 @@ namespace Razix
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
+    #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-#endif
+    #endif
         }
 #endif
 
@@ -139,7 +137,7 @@ namespace Razix
         }
 
 #endif
-        m_Window = glfwCreateWindow((int)properties.Width, (int)properties.Height, properties.Title.c_str(), nullptr, nullptr);
+        m_Window = glfwCreateWindow((int) properties.Width, (int) properties.Height, properties.Title.c_str(), nullptr, nullptr);
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
@@ -147,87 +145,73 @@ namespace Razix
         SetWindowIcon();
 
         // Setting up event callbacks function via the dispatcher
-        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            data.Width = width;
+            data.Width  = width;
             data.Height = height;
 
             RZWindowResizeEvent event(width, height);
             data.EventCallback(event);
         });
 
-        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
             WindowCloseEvent event;
             data.EventCallback(event);
         });
 
-        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            switch (action)
-            {
-            case GLFW_PRESS:
-            {
-                RZKeyPressedEvent event(key, 0);
-                data.EventCallback(event);
-                break;
-            }
-            case GLFW_RELEASE:
-            {
-                RZKeyReleasedEvent event(key);
-                data.EventCallback(event);
-                break;
-            }
-            case GLFW_REPEAT:
-            {
-                RZKeyPressedEvent event(key, 1);
-                data.EventCallback(event);
-                break;
-            }
+            switch (action) {
+                case GLFW_PRESS: {
+                    RZKeyPressedEvent event(key, 0);
+                    data.EventCallback(event);
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    RZKeyReleasedEvent event(key);
+                    data.EventCallback(event);
+                    break;
+                }
+                case GLFW_REPEAT: {
+                    RZKeyPressedEvent event(key, 1);
+                    data.EventCallback(event);
+                    break;
+                }
             }
         });
 
-        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            switch (action)
-            {
-            case GLFW_PRESS:
-            {
-                RZMouseButtonPressedEvent event(button);
-                data.EventCallback(event);
-                break;
-            }
-            case GLFW_RELEASE:
-            {
-                RZMouseButtonReleasedEvent event(button);
-                data.EventCallback(event);
-                break;
-            }
+            switch (action) {
+                case GLFW_PRESS: {
+                    RZMouseButtonPressedEvent event(button);
+                    data.EventCallback(event);
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    RZMouseButtonReleasedEvent event(button);
+                    data.EventCallback(event);
+                    break;
+                }
             }
         });
 
-        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            RZMouseScrolledEvent event((float)xOffset, (float)yOffset);
+            RZMouseScrolledEvent event((float) xOffset, (float) yOffset);
             data.EventCallback(event);
-
         });
 
-        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            RZMouseMovedEvent event((float)xPos, (float)yPos);
+            RZMouseMovedEvent event((float) xPos, (float) yPos);
             data.EventCallback(event);
         });
     }
@@ -236,4 +220,4 @@ namespace Razix
     {
         glfwDestroyWindow(m_Window);
     }
-}
+}    // namespace Razix

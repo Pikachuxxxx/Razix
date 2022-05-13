@@ -88,6 +88,10 @@
       <Project>{1DC0900F-89F7-D8A6-9201-3DCAFEB7FF9F}</Project>
       <Name>Atf.SyntaxEditorControl</Name>
     </ProjectReference>
+    <ProjectReference Include="..\build\Razix.vcxproj">
+      <Project>{331F020E-9F33-2ABF-68B5-CD1ED48826F0}</Project>
+      <Name>Razix</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -35,7 +35,7 @@ namespace Razix {
         };
 
         /* Gets the build configuration in which the engine was build */
-        BuildConfig getBuildConfig ()
+        BuildConfig getBuildConfig()
         {
 #ifdef RAZIX_DEBUG
             return BuildConfig::DEBUG;
@@ -46,7 +46,7 @@ namespace Razix {
 #endif
         }
 
-        Platform getPlatform ()
+        Platform getPlatform()
         {
 #ifdef RAZIX_PLATFORM_WINDOWS
             return Platform::WINDOWS;

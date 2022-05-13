@@ -43,7 +43,7 @@ namespace Razix {
 
         m_LoadedSceneFilePaths.push_back(sceneFilePath);
 
-        auto name = Utilities::RemoveFilePathExtension(Utilities::GetFileName(sceneFilePath));
+        auto name  = Utilities::RemoveFilePathExtension(Utilities::GetFileName(sceneFilePath));
         auto scene = new RZScene(name);
         // Once loaded to memory De-Serialize it
         scene->deSerialiseScene(sceneFilePath);
@@ -63,7 +63,7 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         m_QueuedSceneIndexToLoad = index;
-        m_IsSwitchingScenes = true;
+        m_IsSwitchingScenes      = true;
 
         loadSceneSettings();
     }
@@ -72,13 +72,13 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        bool found = false;
+        bool found          = false;
         m_IsSwitchingScenes = true;
-        uint32_t idx = 0;
+        uint32_t idx        = 0;
         for (uint32_t i = 0; !found && i < m_LoadedScenes.size(); ++i) {
             if (m_LoadedScenes[i]->getSceneName() == sceneName) {
                 found = true;
-                idx = i;
+                idx   = i;
                 break;
             }
         }
@@ -114,7 +114,7 @@ namespace Razix {
         }
 
         m_CurrentSceneIdx = m_QueuedSceneIndexToLoad;
-        m_CurrentScene = m_LoadedScenes[m_QueuedSceneIndexToLoad];
+        m_CurrentScene    = m_LoadedScenes[m_QueuedSceneIndexToLoad];
 
         // Load and resume other paused/exited engine systems related to scene functionality\
 
@@ -133,7 +133,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        for (auto& filePath : m_LoadedSceneFilePaths) {
+        for (auto& filePath: m_LoadedSceneFilePaths) {
             loadScene(filePath);
         }
     }
@@ -143,7 +143,7 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         for (size_t i = 0; i < m_LoadedSceneFilePaths.size(); i++) {
-            auto path = m_LoadedSceneFilePaths[i];
+            auto path  = m_LoadedSceneFilePaths[i];
             auto scene = m_LoadedScenes[i];
             scene->serialiseScene(path);
         }
@@ -158,4 +158,4 @@ namespace Razix {
         m_CurrentScene->serialiseScene(scenePath);
     }
 
-}
+}    // namespace Razix

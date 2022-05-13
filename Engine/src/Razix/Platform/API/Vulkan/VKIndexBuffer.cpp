@@ -8,75 +8,75 @@
 namespace Razix {
     namespace Graphics {
 
-        VKIndexBuffer::VKIndexBuffer (uint16_t* data, uint32_t count, BufferUsage bufferUsage, const std::string& name)
-            : VKBuffer (VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof (uint32_t), data, name)
+        VKIndexBuffer::VKIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage, const std::string& name)
+            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(uint32_t), data, name)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Size       = count * sizeof (uint16_t);
+            m_Size       = count * sizeof(uint16_t);
             m_Usage      = bufferUsage;
             m_IndexCount = count;
         }
 
-        VKIndexBuffer::~VKIndexBuffer ()
+        VKIndexBuffer::~VKIndexBuffer()
         {
         }
 
-        void VKIndexBuffer::Bind (RZCommandBuffer* commandBuffer /*= nullptr*/)
+        void VKIndexBuffer::Bind(RZCommandBuffer* commandBuffer /*= nullptr*/)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkCmdBindIndexBuffer (static_cast<VKCommandBuffer*> (commandBuffer)->getBuffer (), m_Buffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdBindIndexBuffer(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT16);
         }
 
-        void VKIndexBuffer::Unbind () {}
+        void VKIndexBuffer::Unbind() {}
 
-        void VKIndexBuffer::Destroy ()
+        void VKIndexBuffer::Destroy()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsBufferMapped) {
-                VKBuffer::flush (m_Size);
-                VKBuffer::unMap ();
+                VKBuffer::flush(m_Size);
+                VKBuffer::unMap();
                 m_IsBufferMapped = false;
             }
-            VKBuffer::destroy ();
+            VKBuffer::destroy();
         }
 
-        void VKIndexBuffer::Resize (uint32_t size, const void* data)
+        void VKIndexBuffer::Resize(uint32_t size, const void* data)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            Destroy ();
-            VKBuffer::resize (size, data);
+            Destroy();
+            VKBuffer::resize(size, data);
         }
 
-        void VKIndexBuffer::Map (uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
+        void VKIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VKBuffer::map (size == 0 ? VK_WHOLE_SIZE : size, offset);
+            VKBuffer::map(size == 0 ? VK_WHOLE_SIZE : size, offset);
         }
 
-        void VKIndexBuffer::UnMap ()
+        void VKIndexBuffer::UnMap()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VKBuffer::unMap ();
+            VKBuffer::unMap();
         }
 
-        void* VKIndexBuffer::GetMappedBuffer ()
+        void* VKIndexBuffer::GetMappedBuffer()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            return VKBuffer::getMappedRegion ();
+            return VKBuffer::getMappedRegion();
         }
 
-        void VKIndexBuffer::Flush ()
+        void VKIndexBuffer::Flush()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VKBuffer::flush ();
+            VKBuffer::flush();
         }
     }    // namespace Graphics
 }    // namespace Razix

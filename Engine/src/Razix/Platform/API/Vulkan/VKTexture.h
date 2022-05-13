@@ -28,7 +28,7 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D (const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode);
+            VKTexture2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode);
             /**
              * Creates a 2D Vulkan texture
              * 
@@ -37,7 +37,7 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D (const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
             /**
              * Creates a TRXTexture2D from the given image and it's view
              * @brief Used by swapchain and render passes to create their own texture resources
@@ -45,8 +45,8 @@ namespace Razix {
              * @param image Vulkan image handle
              * @param imageView Vulkan image view handle for the specified image
              */
-            VKTexture2D (VkImage image, VkImageView imageView);
-            ~VKTexture2D () {}
+            VKTexture2D(VkImage image, VkImageView imageView);
+            ~VKTexture2D() {}
 
             /**
              * Creates a Vulkan Image handle
@@ -62,9 +62,9 @@ namespace Razix {
              * @param image The reference to the image to be created
              * @param imageMemory The reference to the image memory to created and will be bound to
              */
-            static void CreateImage (uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags);
+            static void CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags);
 
-            static void GenerateMipmaps (VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+            static void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
             /**
              * Creates an ImageView for the Vulkan image
@@ -77,7 +77,7 @@ namespace Razix {
              * @param layerCount The layers of image views usually 1 unless stereoscopic 3D is used
              * @param baseArrayLayer used if sterescopic3D is used to identify the layer of image to create the image view for
              */
-            static VkImageView CreateImageView (VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0);
+            static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0);
 
             /**
              * Creates a sampler to sampler the image in shader pipeline stage
@@ -92,42 +92,42 @@ namespace Razix {
              * @param modeV Texel V coordinate wrap mode
              * @param modeW Texel W coordinate wrap mode
              */
-            static VkSampler CreateImageSampler (VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 
             /* Binds the texture object to the given slot */
-            void Bind (uint32_t slot) override {}
+            void Bind(uint32_t slot) override {}
             /* Unbinds the texture object to the given slot */
-            void Unbind (uint32_t slot) override {}
+            void Unbind(uint32_t slot) override {}
 
             /* Releases the vulkan texture resources */
-            void Release (bool deleteImage) override;
+            void Release(bool deleteImage) override;
 
             /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
-            void* GetHandle () const override { return (void*) &m_Descriptor; }
+            void* GetHandle() const override { return (void*) &m_Descriptor; }
             /* Sets the texture with the given pixel data */
-            void SetData (const void* pixels) override {}
+            void SetData(const void* pixels) override {}
 
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
-            void updateDescriptor ();
+            void updateDescriptor();
 
             /* Gets the layout of the image ex. depth or optimal etc. */
-            VkImageLayout getLayout () { return m_ImageLayout; }
+            VkImageLayout getLayout() { return m_ImageLayout; }
             /* Sets the vulkan image layout */
-            void setImageLayout (VkImageLayout layout)
+            void setImageLayout(VkImageLayout layout)
             {
                 m_ImageLayout = layout;
-                updateDescriptor ();
+                updateDescriptor();
             }
             /* Gets the descriptor info about the Vulkan Texture object */
-            VkDescriptorImageInfo getDescriptor () { return m_Descriptor; }
+            VkDescriptorImageInfo getDescriptor() { return m_Descriptor; }
             /* Gets the vulkan image object */
-            VkImage getImage () const { return m_Image; };
+            VkImage getImage() const { return m_Image; };
             /* Gets the Vulkan image memory handle */
-            VkDeviceMemory getMemory () const { return m_ImageMemory; }
+            VkDeviceMemory getMemory() const { return m_ImageMemory; }
             /* Gets the image view of the Vulkan image */
-            VkImageView getImageView () const { return m_ImageView; }
+            VkImageView getImageView() const { return m_ImageView; }
             /* Gets the sampler for the Vulkan image */
-            VkSampler getSampler () const { return m_ImageSampler; }
+            VkSampler getSampler() const { return m_ImageSampler; }
 
         private:
             VkImage               m_Image;                                   /* Vulkan image handle for the Texture object                               */
@@ -140,7 +140,7 @@ namespace Razix {
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
-            bool load ();
+            bool load();
         };
 
         //-----------------------------------------------------------------------------------
@@ -150,14 +150,14 @@ namespace Razix {
         class VKDepthTexture : public RZDepthTexture
         {
         public:
-            VKDepthTexture (uint32_t width, uint32_t height);
-            ~VKDepthTexture ();
+            VKDepthTexture(uint32_t width, uint32_t height);
+            ~VKDepthTexture();
 
-            void  Resize (uint32_t width, uint32_t height) override;
-            void  Release (bool deleteImage = true) override;
-            void  Bind (uint32_t slot) override;
-            void  Unbind (uint32_t slot) override;
-            void* GetHandle () const override;
+            void  Resize(uint32_t width, uint32_t height) override;
+            void  Release(bool deleteImage = true) override;
+            void  Bind(uint32_t slot) override;
+            void  Unbind(uint32_t slot) override;
+            void* GetHandle() const override;
 
         private:
             VkImage               m_Image;        /* Vulkan image handle for the Texture object                               */
@@ -167,9 +167,9 @@ namespace Razix {
             VkDescriptorImageInfo m_Descriptor;   /* Descriptor info encapsulation the image, view and the sampler            */
 
         private:
-            void init ();
+            void init();
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
-            void updateDescriptor ();
+            void updateDescriptor();
         };
 
         //-----------------------------------------------------------------------------------
@@ -179,15 +179,15 @@ namespace Razix {
         class VKRenderTexture : public RZRenderTexture
         {
         public:
-            VKRenderTexture (uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
-            VKRenderTexture (VkImage image, VkImageView imageView);
-            ~VKRenderTexture () {}
+            VKRenderTexture(uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
+            VKRenderTexture(VkImage image, VkImageView imageView);
+            ~VKRenderTexture() {}
 
-            void  Resize (uint32_t width, uint32_t height) override;
-            void  Release (bool deleteImage = true) override;
-            void  Bind (uint32_t slot) override;
-            void  Unbind (uint32_t slot) override;
-            void* GetHandle () const override;
+            void  Resize(uint32_t width, uint32_t height) override;
+            void  Release(bool deleteImage = true) override;
+            void  Bind(uint32_t slot) override;
+            void  Unbind(uint32_t slot) override;
+            void* GetHandle() const override;
 
         private:
             VkImage               m_Image;                                   /* Vulkan image handle for the Texture object                               */
@@ -199,9 +199,9 @@ namespace Razix {
 
         private:
             /* recreates the render texture */
-            void init ();
+            void init();
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
-            void updateDescriptor ();
+            void updateDescriptor();
         };
     }    // namespace Graphics
 }    // namespace Razix

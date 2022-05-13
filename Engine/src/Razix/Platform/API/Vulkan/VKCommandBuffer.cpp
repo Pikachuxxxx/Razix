@@ -9,37 +9,37 @@
 namespace Razix {
     namespace Graphics {
 
-        VKCommandBuffer::VKCommandBuffer ()
-            : m_CommandBuffer (VK_NULL_HANDLE), m_CommandPool (VK_NULL_HANDLE), m_State (CommandBufferState::Idle)
+        VKCommandBuffer::VKCommandBuffer()
+            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE), m_State(CommandBufferState::Idle)
 
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }
 
-        VKCommandBuffer::~VKCommandBuffer ()
+        VKCommandBuffer::~VKCommandBuffer()
         {
-            Reset ();
+            Reset();
         }
 
-        void VKCommandBuffer::Init ()
+        void VKCommandBuffer::Init()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             VkCommandBufferAllocateInfo cmdBufferCI = {};
 
-            m_CommandPool = VKDevice::Get ().getCommandPool ()->getVKPool ();
+            m_CommandPool = VKDevice::Get().getCommandPool()->getVKPool();
 
             cmdBufferCI.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             cmdBufferCI.commandBufferCount = 1;
             cmdBufferCI.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             cmdBufferCI.commandPool        = m_CommandPool;
 
-            VK_CHECK_RESULT (vkAllocateCommandBuffers (VKDevice::Get ().getDevice (), &cmdBufferCI, &m_CommandBuffer));
+            VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
         }
 
-        void VKCommandBuffer::Init (bool primary /*= true*/, VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
+        void VKCommandBuffer::Init(bool primary /*= true*/, VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             VkCommandBufferAllocateInfo cmdBufferCI = {};
 
@@ -50,34 +50,34 @@ namespace Razix {
             cmdBufferCI.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             cmdBufferCI.commandPool        = m_CommandPool;
 
-            VK_CHECK_RESULT (vkAllocateCommandBuffers (VKDevice::Get ().getDevice (), &cmdBufferCI, &m_CommandBuffer));
+            VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
         }
 
-        void VKCommandBuffer::BeginRecording ()
+        void VKCommandBuffer::BeginRecording()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             m_State = CommandBufferState::Recording;
             VkCommandBufferBeginInfo beginCI{};
             beginCI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginCI.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            VK_CHECK_RESULT (vkBeginCommandBuffer (m_CommandBuffer, &beginCI));
+            VK_CHECK_RESULT(vkBeginCommandBuffer(m_CommandBuffer, &beginCI));
         }
 
-        void VKCommandBuffer::EndRecording ()
+        void VKCommandBuffer::EndRecording()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            RAZIX_ASSERT (m_State == CommandBufferState::Recording, "CommandBuffer ended before started recording");
-            VK_CHECK_RESULT (vkEndCommandBuffer (m_CommandBuffer));
+            RAZIX_ASSERT(m_State == CommandBufferState::Recording, "CommandBuffer ended before started recording");
+            VK_CHECK_RESULT(vkEndCommandBuffer(m_CommandBuffer));
             m_State = CommandBufferState::Ended;
         }
 
-        void VKCommandBuffer::Execute ()
+        void VKCommandBuffer::Execute()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            RAZIX_ASSERT (m_State == CommandBufferState::Ended, "CommandBuffer executed before ended recording");
+            RAZIX_ASSERT(m_State == CommandBufferState::Ended, "CommandBuffer executed before ended recording");
             // TODO: Attach to the synchronization primitives
             VkSubmitInfo submitInfo         = {};
             submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -90,26 +90,26 @@ namespace Razix {
             submitInfo.signalSemaphoreCount = 0;
             submitInfo.pSignalSemaphores    = nullptr;
 
-            VK_CHECK_RESULT (vkQueueSubmit (VKDevice::Get ().getGraphicsQueue (), 1, &submitInfo, VK_NULL_HANDLE));
+            VK_CHECK_RESULT(vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE));
             m_State = CommandBufferState::Submitted;
         }
 
-        void VKCommandBuffer::Reset ()
+        void VKCommandBuffer::Reset()
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            vkFreeCommandBuffers (VKDevice::Get ().getDevice (), m_CommandPool, 1, &m_CommandBuffer);
+            vkFreeCommandBuffers(VKDevice::Get().getDevice(), m_CommandPool, 1, &m_CommandBuffer);
         }
 
-        void VKCommandBuffer::UpdateViewport (uint32_t width, uint32_t height)
+        void VKCommandBuffer::UpdateViewport(uint32_t width, uint32_t height)
         {
-            RAZIX_PROFILE_FUNCTIONC (RZ_PROFILE_COLOR_CORE);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             VkViewport viewport = {};
             viewport.x          = 0.0f;
             viewport.y          = 0.0f;
-            viewport.width      = static_cast<float> (width);
-            viewport.height     = static_cast<float> (height);
+            viewport.width      = static_cast<float>(width);
+            viewport.height     = static_cast<float>(height);
             viewport.minDepth   = 0.0f;
             viewport.maxDepth   = 1.0f;
 
@@ -117,8 +117,8 @@ namespace Razix {
             scissor.offset   = {0, 0};
             scissor.extent   = {width, height};
 
-            vkCmdSetViewport (m_CommandBuffer, 0, 1, &viewport);
-            vkCmdSetScissor (m_CommandBuffer, 0, 1, &scissor);
+            vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+            vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
         }
 
         /*

@@ -24,7 +24,7 @@
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
 
-//! The style guide rules are waved off for RZApplication class
+//! Some style guide rules are waved off for RZApplication class
 
 namespace Razix {
     /* Determines the state of the application */
@@ -52,70 +52,70 @@ namespace Razix {
          * @param projectRoot   The root location of the application
          * @param appName       The name of the Razix application
          */
-        RAZIX_CALL RZApplication (const std::string& projectRoot, const std::string& appName = "Razix App");
+        RAZIX_CALL RZApplication(const std::string& projectRoot, const std::string& appName = "Razix App");
         /* Simple Virtual destructor */
-        virtual ~RZApplication () {}
+        virtual ~RZApplication() {}
 
         /* Initializes the application and other runtime systems */
-        void RAZIX_CALL Init ();
+        void RAZIX_CALL Init();
 
         /* Starts the Engine Runtime systems */
-        void RAZIX_CALL Run ();
+        void RAZIX_CALL Run();
 
         /**
          * Called before the application starts rendering
          * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
          */
-        virtual void RAZIX_CALL OnStart () {}
+        virtual void RAZIX_CALL OnStart() {}
         /**
          * Updates the Engine systems for every engine timestep
          * 
          * @param dt The timestep taken for every frame
          */
-        virtual void RAZIX_CALL OnUpdate (const RZTimestep& dt) {}
+        virtual void RAZIX_CALL OnUpdate(const RZTimestep& dt) {}
         /**
          * Calls the engine sub-systems to render the stuff calculated in OnFrame()
          * Begins the frame and submits the rendergraph to final display
          */
-        virtual void RAZIX_CALL OnRender () {}
+        virtual void RAZIX_CALL OnRender() {}
         /**
          * Called before the application is quit
          */
-        virtual void RAZIX_CALL OnQuit () {}
+        virtual void RAZIX_CALL OnQuit() {}
         /**
          * Called for Rendering ImGui UI
          */
-        virtual void RAZIX_CALL OnImGui () {}
+        virtual void RAZIX_CALL OnImGui() {}
 
         // Event callbacks for client
-        virtual void RAZIX_CALL OnResize (uint32_t width, uint32_t height) {}
+        virtual void RAZIX_CALL OnResize(uint32_t width, uint32_t height) {}
 
         /* Gets the static reference to the application instance */
-        inline static RZApplication& RAZIX_CALL Get () { return *s_AppInstance; }
+        inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
 
         /* Returns a reference to the application window */
-        inline RZWindow* RAZIX_CALL getWindow () { return m_Window.get (); }
+        inline RZWindow* RAZIX_CALL getWindow() { return m_Window.get(); }
         /* Gets the window size */
-        inline glm::vec2 RAZIX_CALL getWindowSize () { return glm::vec2 (m_Window->getWidth (), m_Window->getHeight ()); }
+        inline glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
         /* Returns a reference to the Application instance */
-        inline std::string RAZIX_CALL getAppName () const { return m_AppName; }
+        inline std::string RAZIX_CALL getAppName() const { return m_AppName; }
         /* Gets the window properties */
-        inline WindowProperties& RAZIX_CALL getWindowProps () { return m_WindowProperties; }
+        inline WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
         /* Gets the application render loop timer */
-        inline RZTimer RAZIX_CALL getTimer () { return *m_Timer.get (); }
+        inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
 
-        Graphics::RZImGuiRenderer* getImGuiRenderer () { return m_ImGuiRenderer; }
+        Graphics::RZImGuiRenderer* getImGuiRenderer() { return m_ImGuiRenderer; }
 
         /* Application Serialization */
 
         // Load mechanism for the RZApplication class
         // TODO: Make this look more neat
         template<class Archive>
-        void load (Archive& archive)
+        void load(Archive& archive)
         {
             std::string projectName;
-            archive (cereal::make_nvp ("Project Name", projectName));
-            RAZIX_ASSERT_MESSAGE ((projectName == m_AppName), "Project name doesn't match with Executable");
+            archive(cereal::make_nvp("Project Name", projectName));
+            RAZIX_ASSERT_MESSAGE((projectName == m_AppName), "Project name doesn't match with Executable");
             /**
              * Currently the project name will be verified with the one given in the sandbox or game project
              * If it doesn't match it updates the project name, it's not necessary that the name must match the 
@@ -128,49 +128,50 @@ namespace Razix {
             // TODO: Verify these two!
             //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
             //archive(cereal::make_nvp("Project Version", 0));
-            archive (cereal::make_nvp ("Render API", m_RenderAPI));
+            archive(cereal::make_nvp("Render API", m_RenderAPI));
             // Set the render API from the De-serialized data
-            if (Graphics::RZGraphicsContext::GetRenderAPI () == Graphics::RenderAPI::NONE)
-                Graphics::RZGraphicsContext::SetRenderAPI ((Graphics::RenderAPI) m_RenderAPI);
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::NONE)
+                Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) m_RenderAPI);
             uint32_t Width, Height;
-            archive (cereal::make_nvp ("Width", Width));
-            archive (cereal::make_nvp ("Height", Height));
+            archive(cereal::make_nvp("Width", Width));
+            archive(cereal::make_nvp("Height", Height));
             m_WindowProperties.Width  = Width;
             m_WindowProperties.Height = Height;
 
             // Extract the project UUID as as string and convert it back to the RZUUID
-            std::string uuid_string;
-            archive (cereal::make_nvp ("Project ID", uuid_string));
-            m_ProjectID = RZUUID::FromStrFactory (uuid_string);
+            int uuid_string;
+            archive(cereal::make_nvp("Project ID", uuid_string));
+            //m_ProjectID = RZUUID::FromStrFactory(uuid_string);
 
             // Load the scenes from the project file for the engine to load and present
-            RAZIX_CORE_TRACE ("Loading Scenes...");
-            archive (cereal::make_nvp ("Scenes", sceneFilePaths));
+            RAZIX_CORE_TRACE("Loading Scenes...");
+            archive(cereal::make_nvp("Scenes", sceneFilePaths));
             for (auto& sceneFilePath: sceneFilePaths)
-                RAZIX_CORE_TRACE ("\t scene : {0}", sceneFilePath);
+                RAZIX_CORE_TRACE("\t scene : {0}", sceneFilePath);
         }
 
         // Save mechanism for the RZApplication class
         template<class Archive>
-        void save (Archive& archive) const
+        void save(Archive& archive) const
         {
-            RAZIX_TRACE ("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window.get ()->getWidth (), m_Window.get ()->getHeight ());
-            archive (cereal::make_nvp ("Project Name", m_AppName));
-            archive (cereal::make_nvp ("Engine Version", Razix::RazixVersion.getVersionString ()));
-            archive (cereal::make_nvp ("Project ID", m_ProjectID.str ()));
-            archive (cereal::make_nvp ("Render API", (uint32_t) Graphics::RZGraphicsContext::GetRenderAPI ()));
-            archive (cereal::make_nvp ("Width", m_Window.get ()->getWidth ()));
-            archive (cereal::make_nvp ("Height", m_Window.get ()->getHeight ()));
-            archive (cereal::make_nvp ("Project Path", m_AppFilePath));    // Why am I even serializing this?
+            RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window.get()->getWidth(), m_Window.get()->getHeight());
+            archive(cereal::make_nvp("Project Name", m_AppName));
+            archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
+            archive(cereal::make_nvp("Project ID", 0));
+            archive(cereal::make_nvp("Render API", (uint32_t) Graphics::RZGraphicsContext::GetRenderAPI()));
+            archive(cereal::make_nvp("Width", m_Window.get()->getWidth()));
+            archive(cereal::make_nvp("Height", m_Window.get()->getHeight()));
+            archive(cereal::make_nvp("Project Path", m_AppFilePath));    // Why am I even serializing this?
 
-            auto                     paths = Razix::RZEngine::Get ().getSceneManager ().getSceneFilePaths ();
+            auto& paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
+
             std::vector<std::string> newPaths;
             for (auto& path: paths) {
                 std::string newPath;
-                RZVirtualFileSystem::Get ().absolutePathToVFS (path, newPath);
-                newPaths.push_back (path);
+                RZVirtualFileSystem::Get().absolutePathToVFS(path, newPath);
+                newPaths.push_back(path);
             }
-            archive (cereal::make_nvp ("Scenes", newPaths));
+            archive(cereal::make_nvp("Scenes", newPaths));
         }
 
     private:
@@ -186,7 +187,7 @@ namespace Razix {
         RZTimestep            m_Timestep;                         /* The timesteps taken to update the application            */
         UniqueRef<RZWindow>   m_Window;                           /* The window that will be used to view graphics            */
         WindowProperties      m_WindowProperties;                 /* The properties of the window to create with              */
-        RZUUID                m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
+        //RZUUID                m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
 
         std::vector<std::string>   sceneFilePaths;
         Graphics::RZImGuiRenderer* m_ImGuiRenderer;
@@ -198,15 +199,15 @@ namespace Razix {
          * 
          * @returns True, if the frame was successfully rendered by checking the state
          */
-        bool RenderFrame ();
+        bool RenderFrame();
         /* Starts the application */
-        void Start ();
+        void Start();
         /* Updates the engine and application runtime systems */
-        void Update (const RZTimestep& dt);
+        void Update(const RZTimestep& dt);
         /* Renders the application and Engine rendering commands */
-        void Render ();
+        void Render();
         /* Quits the application and releases any resources held by it */
-        void Quit ();
+        void Quit();
 
         // Event callbacks
         /**
@@ -214,7 +215,7 @@ namespace Razix {
          * 
          * @param event  The event received from all the sub-systems
          */
-        void OnEvent (RZEvent& event);
+        void OnEvent(RZEvent& event);
 
         /**
          * Called when the application is about to be closed
@@ -223,7 +224,7 @@ namespace Razix {
          *
          * @returns True, if the window was closed successfully
          */
-        bool OnWindowClose (WindowCloseEvent& e);
+        bool OnWindowClose(WindowCloseEvent& e);
         /**
          * Called when the window is resized
          *
@@ -231,9 +232,9 @@ namespace Razix {
          *
          * @returns True, if the window was resized successfully
          */
-        virtual bool OnWindowResize (RZWindowResizeEvent& e);
+        virtual bool OnWindowResize(RZWindowResizeEvent& e);
 
-        RAZIX_NONCOPYABLE_CLASS (RZApplication);
+        RAZIX_NONCOPYABLE_CLASS(RZApplication);
     };
 
     /**
@@ -245,5 +246,5 @@ namespace Razix {
      * [Application(forward declaration)-->Entry Point(extern declaration)-->CLIENT(definition)]
      * Defined by the client to create the application definition
      */
-    RZApplication* CreateApplication ();
+    RZApplication* CreateApplication();
 }    // namespace Razix

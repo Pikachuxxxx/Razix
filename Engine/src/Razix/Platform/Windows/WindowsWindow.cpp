@@ -7,8 +7,6 @@
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
+namespace Razix {
 
-namespace Razix
-{
-   
 }

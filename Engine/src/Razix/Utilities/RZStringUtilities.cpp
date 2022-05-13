@@ -6,20 +6,18 @@
 #include <cctype>
 
 #ifdef RAZIX_PLATFORM_WINDOWS
-#include <windows.h>
-#include <DbgHelp.h>
+    #include <DbgHelp.h>
+    #include <windows.h>
 #else
-#include <cxxabi.h> // __cxa_demangle()
+    #include <cxxabi.h>    // __cxa_demangle()
 #endif
 
-namespace Razix
-{
-    namespace Utilities
-    {
+namespace Razix {
+    namespace Utilities {
         std::string GetFilePathExtension(const std::string& FileName)
         {
             auto pos = FileName.find_last_of('.');
-            if(pos != std::string::npos)
+            if (pos != std::string::npos)
                 return FileName.substr(pos + 1);
             return "";
         }
@@ -27,7 +25,7 @@ namespace Razix
         std::string RemoveFilePathExtension(const std::string& FileName)
         {
             auto pos = FileName.find_last_of('.');
-            if(pos != std::string::npos)
+            if (pos != std::string::npos)
                 return FileName.substr(0, pos);
             return FileName;
         }
@@ -35,7 +33,7 @@ namespace Razix
         std::string GetFileName(const std::string& FilePath)
         {
             auto pos = FilePath.find_last_of('/');
-            if(pos != std::string::npos)
+            if (pos != std::string::npos)
                 return FilePath.substr(pos + 1);
             return FilePath;
         }
@@ -43,7 +41,7 @@ namespace Razix
         std::string GetFileLocation(const std::string& FilePath)
         {
             auto pos = FilePath.find_last_of('/');
-            if(pos != std::string::npos)
+            if (pos != std::string::npos)
                 return FilePath.substr(0, pos + 1);
             return FilePath;
         }
@@ -51,15 +49,14 @@ namespace Razix
         std::string RemoveName(const std::string& FilePath)
         {
             auto pos = FilePath.find_last_of('/');
-            if(pos != std::string::npos)
+            if (pos != std::string::npos)
                 return FilePath.substr(0, pos + 1);
             return FilePath;
         }
 
         bool IsHiddenFile(const std::string& path)
         {
-            if(path != ".." && path != "." && path[0] == '.')
-            {
+            if (path != ".." && path != "." && path[0] == '.') {
                 return true;
             }
 
@@ -69,21 +66,20 @@ namespace Razix
         std::vector<std::string> SplitString(const std::string& string, const std::string& delimiters)
         {
             size_t start = 0;
-            size_t end = string.find_first_of(delimiters);
+            size_t end   = string.find_first_of(delimiters);
 
             std::vector<std::string> result;
 
-            while(end <= std::string::npos)
-            {
+            while (end <= std::string::npos) {
                 std::string token = string.substr(start, end - start);
-                if(!token.empty())
+                if (!token.empty())
                     result.push_back(token);
 
-                if(end == std::string::npos)
+                if (end == std::string::npos)
                     break;
 
                 start = end + 1;
-                end = string.find_first_of(delimiters, start);
+                end   = string.find_first_of(delimiters, start);
             }
 
             return result;
@@ -107,11 +103,10 @@ namespace Razix
         const char* FindToken(const char* str, const std::string& token)
         {
             const char* t = str;
-            while((t = strstr(t, token.c_str())))
-            {
-                bool left = str == t || isspace(t[-1]);
+            while ((t = strstr(t, token.c_str()))) {
+                bool left  = str == t || isspace(t[-1]);
                 bool right = !t[token.size()] || isspace(t[token.size()]);
-                if(left && right)
+                if (left && right)
                     return t;
 
                 t += token.size();
@@ -126,11 +121,11 @@ namespace Razix
 
         int32_t FindStringPosition(const std::string& string, const std::string& search, uint32_t offset)
         {
-            const char* str = string.c_str() + offset;
+            const char* str   = string.c_str() + offset;
             const char* found = strstr(str, search.c_str());
-            if(found == nullptr)
+            if (found == nullptr)
                 return -1;
-            return (int32_t)(found - str) + offset;
+            return (int32_t) (found - str) + offset;
         }
 
         std::string StringRange(const std::string& string, uint32_t start, uint32_t length)
@@ -153,10 +148,10 @@ namespace Razix
         std::string GetBlock(const char* str, const char** outPosition)
         {
             const char* end = strstr(str, "}");
-            if(!end)
+            if (!end)
                 return std::string(str);
 
-            if(outPosition)
+            if (outPosition)
                 *outPosition = end;
             const uint32_t length = static_cast<uint32_t>(end - str + 1);
             return std::string(str, length);
@@ -171,10 +166,10 @@ namespace Razix
         std::string GetStatement(const char* str, const char** outPosition)
         {
             const char* end = strstr(str, ";");
-            if(!end)
+            if (!end)
                 return std::string(str);
 
-            if(outPosition)
+            if (outPosition)
                 *outPosition = end;
             const uint32_t length = static_cast<uint32_t>(end - str + 1);
             return std::string(str, length);
@@ -192,9 +187,8 @@ namespace Razix
 
         int32_t NextInt(const std::string& string)
         {
-            for(uint32_t i = 0; i < string.size(); i++)
-            {
-                if(isdigit(string[i]))
+            for (uint32_t i = 0; i < string.size(); i++) {
+                if (isdigit(string[i]))
                     return atoi(&string[i]);
             }
             return -1;
@@ -207,9 +201,8 @@ namespace Razix
 
         std::string StringReplace(std::string str, char ch1, char ch2)
         {
-            for(int i = 0; i < str.length(); ++i)
-            {
-                if(str[i] == ch1)
+            for (int i = 0; i < str.length(); ++i) {
+                if (str[i] == ch1)
                     str[i] = ch2;
             }
 
@@ -218,10 +211,8 @@ namespace Razix
 
         std::string StringReplace(std::string str, char ch)
         {
-            for(int i = 0; i < str.length(); ++i)
-            {
-                if(str[i] == ch)
-                {
+            for (int i = 0; i < str.length(); ++i) {
+                if (str[i] == ch) {
                     str = std::string(str).substr(0, i) + std::string(str).substr(i + 1, str.length());
                 }
             }
@@ -232,10 +223,8 @@ namespace Razix
         std::string& BackSlashesToSlashes(std::string& string)
         {
             size_t len = string.length();
-            for(size_t i = 0; i < len; i++)
-            {
-                if(string[i] == '\\')
-                {
+            for (size_t i = 0; i < len; i++) {
+                if (string[i] == '\\') {
                     string[i] = '/';
                 }
             }
@@ -245,10 +234,8 @@ namespace Razix
         std::string& SlashesToBackSlashes(std::string& string)
         {
             size_t len = string.length();
-            for(size_t i = 0; i < len; i++)
-            {
-                if(string[i] == '/')
-                {
+            for (size_t i = 0; i < len; i++) {
+                if (string[i] == '/') {
                     string[i] = '\\';
                 }
             }
@@ -261,8 +248,7 @@ namespace Razix
             string.erase(endIterator, string.end());
             string.erase(std::remove_if(string.begin(),
                              string.end(),
-                             [](unsigned char x)
-                             {
+                             [](unsigned char x) {
                                  return std::isspace(x);
                              }),
                 string.end());
@@ -272,29 +258,25 @@ namespace Razix
 
         std::string Demangle(const std::string& string)
         {
-            if(string.empty())
+            if (string.empty())
                 return {};
 
 #if defined(RAZIX_PLATFORM_WINDOWS)
             char undecorated_name[1024];
-            if(!UnDecorateSymbolName(
-                   string.c_str(), undecorated_name, sizeof(undecorated_name),
-                   UNDNAME_COMPLETE))
-            {
+            if (!UnDecorateSymbolName(
+                    string.c_str(), undecorated_name, sizeof(undecorated_name), UNDNAME_COMPLETE)) {
                 return string;
-            }
-            else
-            {
+            } else {
                 return std::string(undecorated_name);
             }
 #else
             char* demangled = nullptr;
-            int status = -1;
-            demangled = abi::__cxa_demangle(string.c_str(), nullptr, nullptr, &status);
+            int   status    = -1;
+            demangled       = abi::__cxa_demangle(string.c_str(), nullptr, nullptr, &status);
             std::string ret = status == 0 ? std::string(demangled) : string;
             free(demangled);
             return ret;
 #endif
         }
-    }
-}
+    }    // namespace Utilities
+}    // namespace Razix

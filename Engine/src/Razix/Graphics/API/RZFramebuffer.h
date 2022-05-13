@@ -30,8 +30,8 @@ namespace Razix {
         class RAZIX_API RZFramebuffer
         {
         public:
-            RZFramebuffer () = default;
-            virtual ~RZFramebuffer () {}
+            RZFramebuffer() = default;
+            virtual ~RZFramebuffer() {}
 
             /**
              * Creates a framebuffer pointer with the underlying API implementation
@@ -40,17 +40,17 @@ namespace Razix {
              * 
              * @returns The pointer to the API implementation of the Framebuffer class
              */
-            static RZFramebuffer* Create (const FramebufferInfo& frameBufInfo);
+            static RZFramebuffer* Create(const FramebufferInfo& frameBufInfo);
 
-            virtual void Destroy () = 0;
+            virtual void Destroy() = 0;
 
             /* Gets the width of the framebuffer */
-            inline const uint32_t& getWidht () const { return m_Width; }
+            inline const uint32_t& getWidht() const { return m_Width; }
             /* Gets the Height of the framebuffer */
-            inline const uint32_t& getHeight () const { return m_Height; }
+            inline const uint32_t& getHeight() const { return m_Height; }
 
             /* Sets the color with which the framebuffer will be cleared with */
-            void setClearColor (const glm::vec4& color) { m_ClearColor = color; }
+            void setClearColor(const glm::vec4& color) { m_ClearColor = color; }
 
         protected:
             uint32_t  m_Width;           /* The Width of the framebuffer                                     */

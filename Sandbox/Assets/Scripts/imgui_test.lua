@@ -20,7 +20,7 @@ end
 
 function OnUpdate(dt)
     imgui.beginWindow("ImGui Lua Window")
-        imgui.text("Delta Time : " .. dt)
+        imgui.text("FPS : " .. (1 / dt))
         imgui.checkbox("Label", value, get_value)
         imgui.button("somebutton")
         imgui.dragFloat("Range", range, get_dragFLoatVal)
