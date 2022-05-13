@@ -1,61 +1,51 @@
 {
     "Razix Scene": {
-        "UUID": "9f03b551-76e1-4ef0-b58a-1571fa00f2f3",
         "SceneName": "ScriptingTest",
-        "Total Entities": 5
+        "Total Entities": 4
     },
-    "value0": 5,
+    "value0": 4,
     "value1": 0,
     "value2": 1,
     "value3": 2,
     "value4": 3,
     "value5": 4,
-    "value6": 5,
-    "value7": 0,
-    "value8": {
-        "UUID": "e5027157-f1bc-43b9-a8d3-af0fb470935d"
+    "value6": 0,
+    "value7": {
+        "UUID": 0
     },
-    "value9": 1,
-    "value10": {
-        "UUID": "2efd8d86-e499-4a65-b66e-3f931a7c71c6"
+    "value8": 1,
+    "value9": {
+        "UUID": 0
     },
-    "value11": 2,
-    "value12": {
-        "UUID": "4de9022b-c8c5-4946-8c1c-412886481f72"
+    "value10": 2,
+    "value11": {
+        "UUID": 0
     },
-    "value13": 3,
-    "value14": {
-        "UUID": "7628b42d-e08f-42fa-a646-2e8e924e2524"
+    "value12": 3,
+    "value13": {
+        "UUID": 0
     },
-    "value15": 4,
+    "value14": 4,
+    "value15": 0,
     "value16": {
-        "UUID": "9c53da96-9ad5-46e7-8da6-f7798e54225e"
-    },
-    "value17": 5,
-    "value18": 0,
-    "value19": {
         "Tag": "Camera"
     },
-    "value20": 1,
-    "value21": {
+    "value17": 1,
+    "value18": {
         "Tag": "ScriptableEntity"
     },
-    "value22": 2,
-    "value23": {
+    "value19": 2,
+    "value20": {
         "Tag": "guiEntity"
     },
-    "value24": 3,
-    "value25": {
+    "value21": 3,
+    "value22": {
         "Tag": "Avocado Angle Model"
     },
-    "value26": 4,
-    "value27": {
-        "Tag": "Ground"
-    },
-    "value28": 0,
-    "value29": 5,
-    "value30": 0,
-    "value31": {
+    "value23": 0,
+    "value24": 4,
+    "value25": 0,
+    "value26": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -72,8 +62,8 @@
             "z": 1.0
         }
     },
-    "value32": 1,
-    "value33": {
+    "value27": 1,
+    "value28": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -90,92 +80,74 @@
             "z": 1.0
         }
     },
-    "value34": 2,
+    "value29": 2,
+    "value30": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value31": 3,
+    "value32": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value33": 1,
+    "value34": 0,
     "value35": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value36": 3,
-    "value37": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value38": 4,
-    "value39": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value40": 1,
-    "value41": 0,
-    "value42": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": -4.769399166107178,
-                "y": 3.8030552864074709,
-                "z": -7.443160057067871
+                "x": -3.7827351093292238,
+                "y": 3.752986431121826,
+                "z": -3.6166608333587648
             },
             "Front": {
-                "x": 0.4310014247894287,
-                "y": -0.28819626569747927,
-                "z": 0.8550910353660584
+                "x": 0.6627894043922424,
+                "y": -0.4146932363510132,
+                "z": 0.6234899759292603
             },
             "Up": {
-                "x": 0.12971670925617219,
-                "y": 0.9575713872909546,
-                "z": 0.2573532164096832
+                "x": 0.30205053091049197,
+                "y": 0.9099613428115845,
+                "z": 0.28414076566696169
             },
             "Right": {
-                "x": -0.8929789662361145,
+                "x": -0.6851829886436462,
                 "y": 0.0,
-                "z": 0.45009851455688479
+                "z": 0.7283710241317749
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": 63.25,
-            "Pitch": -16.75,
+            "Yaw": 43.25,
+            "Pitch": -24.5,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -189,22 +161,20 @@
             "AspectRatio": 1.7777777910232545
         }
     },
-    "value43": 0,
-    "value44": 1,
-    "value45": 4,
-    "value46": {},
-    "value47": 1,
-    "value48": 3,
-    "value49": {
+    "value36": 0,
+    "value37": 0,
+    "value38": 1,
+    "value39": 3,
+    "value40": {
         "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/Avocado.gltf"
     },
-    "value50": 2,
-    "value51": 1,
-    "value52": {
+    "value41": 2,
+    "value42": 1,
+    "value43": {
         "FilePath": "//Scripts/hello_razix.lua"
     },
-    "value53": 2,
-    "value54": {
+    "value44": 2,
+    "value45": {
         "FilePath": "//Scripts/imgui_test.lua"
     }
 }

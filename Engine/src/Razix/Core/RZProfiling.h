@@ -3,7 +3,7 @@
 #ifndef RAZIX_DISTRIBUTION
 
     // Profilers cannot be switched at runtime and need to be decided before compile time itself
-    #define RZ_PROFILER_TRACY   1
+    #define RZ_PROFILER_TRACY   0
     #define RZ_PROFILER_OPTICK  0
     #define RZ_PROFILER_NVSIGHT 0
 
@@ -54,10 +54,8 @@
         #define RAZIX_PROFILE_LOCK(type, var, name) TracyLockableN(type, var, name)
         #define RAZIX_PROFILE_LOCKMARKER(var)       LockMark(var)
         #define RAZIX_PROFILE_SETTHREADNAME(name)   tracy::SetThreadName(name)
-    #endif
-
     // OPTICK
-    #if RZ_PROFILER_OPTICK
+    #elif RZ_PROFILER_OPTICK
 
         #define USE_OPTICK 1
         #define OPTICK_ENABLE_GPU
@@ -79,21 +77,11 @@
         #define RAZIX_PROFILE_LOCK(type, var, name)
         #define RAZIX_PROFILE_LOCKMARKER(var)
         #define RAZIX_PROFILE_SETTHREADNAME(name) OPTICK_THREAD(name)
-    #endif
-
 #else
-
-    #define RZ_PROFILE_COLOR_CORE
-    #define RZ_PROFILE_COLOR_GRAPHICS
-    #define RZ_PROFILE_COLOR_RENDERERS
-    #define RZ_PROFILE_COLOR_SCENE
-    #define RZ_PROFILE_COLOR_SCRIPTING
-    #define RZ_PROFILE_COLOR_ASSET_SYSTEM
-
     #define RAZIX_PROFILE_SCOPE(name)
-    #define RAZIX_PROFILE_SCOPE(name, color)
+    #define RAZIX_PROFILE_SCOPEC(name, color)
     #define RAZIX_PROFILE_FUNCTION()
-    #define RAZIX_PROFILE_FUNCTION(color)
+    #define RAZIX_PROFILE_FUNCTIONC(color)
     #define RAZIX_PROFILE_FRAMEMARKER(name)
 
     #define RAZIX_PROFILE_GPU_CONTEXT(context)
@@ -106,5 +94,6 @@
     #define RAZIX_PROFILE_LOCK(type, var, name)
     #define RAZIX_PROFILE_LOCKMARKER(var)
     #define RAZIX_PROFILE_SETTHREADNAME(name)
+#endif
 
 #endif

@@ -255,23 +255,15 @@ public:
 private:
     Graphics::RZTexture2D* albedoTexture;
     Graphics::RZTexture2D* roughness_metallicTexture;
-
     Graphics::RZDepthTexture* depthImage;
-
-
     Graphics::RZUniformBuffer* viewProjUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
     Graphics::RZUniformBuffer* dirLightUniformBuffers[3];  // We also use 3 UBOs w.r.t to swap chain frames
     std::vector<Graphics::RZFramebuffer*>                                   framebuffers;
-
-
     std::unordered_map<uint32_t, std::vector<Graphics::RZDescriptorSet*>>   descriptorSets;
     Graphics::RZShader*                                                     phongLightingShader;
-
     Graphics::RZSwapchain* swapchain;
-
     Graphics::RZRenderPass*                                                 renderpass;
     Graphics::RZPipeline*                                                   pipeline;
-
     uint32_t                                                                width, height;
 
     // The current active scene that is rendered by the application

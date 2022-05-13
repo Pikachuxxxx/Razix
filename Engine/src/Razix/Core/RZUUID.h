@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include <random>
@@ -82,8 +83,8 @@ namespace Razix {
             if (&other == this) {
                 return *this;
             }
-            __m128i x = _mm_load_si128((__m128i*) other.data);
-            _mm_store_si128((__m128i*) data, x);
+            //__m128i x = _mm_load_si128((__m128i*) other.data);
+            //_mm_store_si128((__m128i*) data, x);
             return *this;
         }
 
@@ -93,7 +94,7 @@ namespace Razix {
             __m128i y = _mm_load_si128((__m128i*) rhs.data);
 
             __m128i neq = _mm_xor_si128(x, y);
-            return _mm_test_all_zeros(neq, neq);
+            return true;//_mm_test_all_zeros(neq, neq);
         }
 
         friend bool operator<(const RZUUID& lhs, const RZUUID& rhs)
@@ -167,3 +168,4 @@ namespace std {
         }
     };
 }    // namespace std
+#endif

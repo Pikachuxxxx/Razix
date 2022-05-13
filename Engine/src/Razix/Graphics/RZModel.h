@@ -40,8 +40,9 @@ namespace Razix {
                 }
             }
 
+            RAZIX_INLINE void addMesh(RZMesh* mesh) { m_Meshes.push_back(mesh); }
+
             RAZIX_INLINE const std::vector<RZMesh*>& getMeshes() const { return m_Meshes; }
-            RAZIX_INLINE void                        addMesh(RZMesh* mesh) { m_Meshes.push_back(mesh); }
             RAZIX_INLINE const std::string& getFilePath() const { return m_FilePath; }
 
         private:

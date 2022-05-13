@@ -24,7 +24,7 @@
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
 
-//! Sone style guide rules are waved off for RZApplication class
+//! Some style guide rules are waved off for RZApplication class
 
 namespace Razix {
     /* Determines the state of the application */
@@ -139,9 +139,9 @@ namespace Razix {
             m_WindowProperties.Height = Height;
 
             // Extract the project UUID as as string and convert it back to the RZUUID
-            std::string uuid_string;
+            int uuid_string;
             archive(cereal::make_nvp("Project ID", uuid_string));
-            m_ProjectID = RZUUID::FromStrFactory(uuid_string);
+            //m_ProjectID = RZUUID::FromStrFactory(uuid_string);
 
             // Load the scenes from the project file for the engine to load and present
             RAZIX_CORE_TRACE("Loading Scenes...");
@@ -157,13 +157,14 @@ namespace Razix {
             RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window.get()->getWidth(), m_Window.get()->getHeight());
             archive(cereal::make_nvp("Project Name", m_AppName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
-            archive(cereal::make_nvp("Project ID", m_ProjectID.str()));
+            archive(cereal::make_nvp("Project ID", 0));
             archive(cereal::make_nvp("Render API", (uint32_t) Graphics::RZGraphicsContext::GetRenderAPI()));
             archive(cereal::make_nvp("Width", m_Window.get()->getWidth()));
             archive(cereal::make_nvp("Height", m_Window.get()->getHeight()));
             archive(cereal::make_nvp("Project Path", m_AppFilePath));    // Why am I even serializing this?
 
-            auto                     paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
+            auto& paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
+
             std::vector<std::string> newPaths;
             for (auto& path: paths) {
                 std::string newPath;
@@ -186,7 +187,7 @@ namespace Razix {
         RZTimestep            m_Timestep;                         /* The timesteps taken to update the application            */
         UniqueRef<RZWindow>   m_Window;                           /* The window that will be used to view graphics            */
         WindowProperties      m_WindowProperties;                 /* The properties of the window to create with              */
-        RZUUID                m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
+        //RZUUID                m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
 
         std::vector<std::string>   sceneFilePaths;
         Graphics::RZImGuiRenderer* m_ImGuiRenderer;

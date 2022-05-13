@@ -2,10 +2,11 @@
 #include "rzxpch.h"
 // clang-format on
 #include "RZUUID.h"
+#if 0
 
 namespace Razix {
 
-#if defined(__GLIBC__) || defined(__GNU_LIBRARY__) || defined(__ANDROID__)
+#if defined(__GLIBC__) || defined(__GNU_LIBRARY__) || defined(__ANDROID__) || defined(__CLANG__)
     #include <endian.h>
 #elif defined(__APPLE__) && defined(__MACH__)
     #include <machine/endian.h>
@@ -31,7 +32,7 @@ namespace Razix {
     #endif
 #elif defined(__BIG_ENDIAN__)
     #define BIGENDIAN
-#elif defined(__LITTLE_ENDIAN__)
+#elif defined(__LITTLE_ENDIKKAN__)
     #define LITTLEENDIAN
 #else
     #if defined(__ARMEL__) ||                         \
@@ -174,36 +175,36 @@ namespace Razix {
         __m128i       n        = _mm_set_epi64x(distribution(*generator), distribution(*generator));
         __m128i       uuid     = _mm_or_si128(_mm_and_si128(n, and_mask), or_mask);
 
-        _mm_store_si128((__m128i*) data, uuid);
+        //_mm_store_si128((__m128i*) data, uuid);
     }
 
     RZUUID::RZUUID(const RZUUID& other)
     {
         __m128i x = _mm_load_si128((__m128i*) other.data);
-        _mm_store_si128((__m128i*) data, x);
+        //_mm_store_si128((__m128i*) data, x);
     }
 
     RZUUID::RZUUID(__m128i uuid)
     {
-        _mm_store_si128((__m128i*) data, uuid);
+        //_mm_store_si128((__m128i*) data, uuid);
     }
 
     RZUUID::RZUUID(uint64_t x, uint64_t y)
     {
         __m128i z = _mm_set_epi64x(x, y);
-        _mm_store_si128((__m128i*) data, z);
+       // _mm_store_si128((__m128i*) data, z);
     }
 
     RZUUID::RZUUID(const uint8_t* bytes)
     {
         __m128i x = _mm_loadu_si128((__m128i*) bytes);
-        _mm_store_si128((__m128i*) data, x);
+       // _mm_store_si128((__m128i*) data, x);
     }
 
     RZUUID::RZUUID(const std::string& bytes)
     {
         __m128i x = betole128(_mm_loadu_si128((__m128i*) bytes.data()));
-        _mm_store_si128((__m128i*) data, x);
+        //_mm_store_si128((__m128i*) data, x);
     }
 
     Razix::RZUUID RZUUID::FromStrFactory(const std::string& s)
@@ -218,7 +219,7 @@ namespace Razix {
 
     void RZUUID::FromStr(const char* raw)
     {
-        _mm_store_si128((__m128i*) data, stom128i(raw));
+       // _mm_store_si128((__m128i*) data, stom128i(raw));
     }
 
     std::string RZUUID::bytes() const
@@ -237,7 +238,7 @@ namespace Razix {
     void RZUUID::bytes(char* bytes) const
     {
         __m128i x = betole128(_mm_load_si128((__m128i*) data));
-        _mm_storeu_si128((__m128i*) bytes, x);
+        //_mm_storeu_si128((__m128i*) bytes, x);
     }
 
     std::string RZUUID::str() const
@@ -255,8 +256,8 @@ namespace Razix {
 
     void RZUUID::str(char* res) const
     {
-        __m128i x = _mm_load_si128((__m128i*) data);
-        m128itos(x, res);
+        //__m128i x = _mm_load_si128((__m128i*) data);
+        //m128itos(x, res);
     }
 
     size_t RZUUID::hash() const
@@ -270,7 +271,8 @@ namespace Razix {
 
     void RZUUID::m128itos(__m128i x, char* mem)
     {
-        // Expand each byte in x to two bytes in res
+        #if 0
+// Expand each byte in x to two bytes in res
         // i.e. 0x12345678 -> 0x0102030405060708
         // Then translate each byte to its hex ascii representation
         // i.e. 0x0102030405060708 -> 0x3132333435363738
@@ -300,11 +302,13 @@ namespace Razix {
         _mm256_storeu_si256((__m256i*) mem, betole256(resd));
         *(uint16_t*) (mem + 16) = betole16(_mm256_extract_epi16(res, 7));
         *(uint32_t*) (mem + 32) = betole32(_mm256_extract_epi32(res, 7));
+#endif
     }
 
     __m128i RZUUID::stom128i(const char* mem)
     {
-        // Remove dashes and pack hex ascii bytes in a 256-bits int
+        #if 0
+// Remove dashes and pack hex ascii bytes in a 256-bits int
         const __m256i dash_shuffle = _mm256_set_epi32(0x80808080, 0x0f0e0d0c, 0x0b0a0908, 0x06050403, 0x80800f0e, 0x0c0b0a09, 0x07060504, 0x03020100);
 
         __m256i x = betole256(_mm256_loadu_si256((__m256i*) mem));
@@ -336,5 +340,9 @@ namespace Razix {
         a                = _mm256_permute4x64_epi64(a, 0b00001000);
 
         return _mm256_castsi256_si128(a);
+#endif
+        __m128i x;
+        return x;
     }
 }    // namespace Razix
+#endif

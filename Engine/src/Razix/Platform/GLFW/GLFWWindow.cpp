@@ -12,8 +12,10 @@
 #include "Razix/Utilities/LoadImage.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
-    #include <GLFW/glfw3.h>
+// clang-format off
     #include <glad/glad.h>
+    #include <GLFW/glfw3.h>
+// clang-format on
 #endif
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
@@ -68,6 +70,7 @@ namespace Razix {
         // 64-bit logo
         std::vector<GLFWimage> images;
         GLFWimage              image64{};
+
         image64.height = RazixLogo64Height;
         image64.width  = RazixLogo64Width;
         image64.pixels = static_cast<unsigned char*>(&RazixLogo64Pixels[0]);

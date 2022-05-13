@@ -62,7 +62,8 @@ namespace Razix {
 
         if (!nope) {
             std::string path = "//Scenes/";
-            bool        nope = RZVirtualFileSystem::Get().resolvePhysicalPath(path, fullFilePath, true);
+            RZVirtualFileSystem::Get().resolvePhysicalPath(path, fullFilePath, true);
+         
             fullFilePath += (m_SceneName + std::string(".rzscn"));
         }
 
@@ -93,7 +94,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        auto& view = m_Registry.view<CameraComponent>();
+        auto view = m_Registry.view<CameraComponent>();
         for (auto& entity: view)
             return view.get<CameraComponent>(entity);
     }
