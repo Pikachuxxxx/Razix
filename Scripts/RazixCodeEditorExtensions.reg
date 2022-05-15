@@ -23,7 +23,7 @@ Windows Registry Editor Version 5.00
 
 ; TODO: Passing the filename as a command line argument with a -f flag to the Razix Game Application
 [HKEY_CLASSES_ROOT\Razix.ShaderFile\shell\open\command]
-@="\"C:\\Dev\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\RazixCodeEditor.exe\""
+@="\"C:\\Dev\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\RazixCodeEditor.exe\" \"%1\""
 ; -f \"%1\"
 
 ; TODO: Register the remainning file extension types (glsl, vert, frag, hlsl, pssl, cg, lua, python)

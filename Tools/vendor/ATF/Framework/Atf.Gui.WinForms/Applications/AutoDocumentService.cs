@@ -103,7 +103,7 @@ namespace Sce.Atf.Applications
         public string AutoDocuments
         {
             get { return m_openDocuments; }
-            set { m_openDocuments = value; }
+            set { m_openDocuments += value; }
         }
 
         /// <summary>
