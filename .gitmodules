@@ -7,3 +7,6 @@
 [submodule "Tool"]
 	path = Tools/RazixAssetPacker
 	url = https://github.com/Pikachuxxxx/RazixAssetPacker.git
+[submodule "Engine\\internal\\RazixMemory"]
+	path = Engine\\internal\\RazixMemory
+	url = https://github.com/Pikachuxxxx/RazixMemory.git
