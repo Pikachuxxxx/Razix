@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-    <ProjectGuid>{3A8FF852-A644-7148-2F39-6B1F9BED674C}</ProjectGuid>
+    <ProjectGuid>{1235657A-FE2D-84CC-2760-695113B863D8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Razix</RootNamespace>
-    <AssemblyName>RazixEditor</AssemblyName>
+    <AssemblyName>RazixLevelEditor</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -18,10 +18,9 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug-windows-x86_64\</OutputPath>
-    <BaseIntermediateOutputPath>..\bin-int\Debug-windows-x86_64\obj\Debug\RazixEditor\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\bin-int\Debug-windows-x86_64\obj\Debug\RazixLevelEditor\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,10 +29,9 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin\Release-windows-x86_64\</OutputPath>
-    <BaseIntermediateOutputPath>..\bin-int\Release-windows-x86_64\obj\Release\RazixEditor\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\bin-int\Release-windows-x86_64\obj\Release\RazixLevelEditor\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -42,10 +40,9 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin\Distribution-windows-x86_64\</OutputPath>
-    <BaseIntermediateOutputPath>..\bin-int\Distribution-windows-x86_64\obj\Distribution\RazixEditor\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\bin-int\Distribution-windows-x86_64\obj\Distribution\RazixLevelEditor\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -66,9 +63,9 @@
     <EmbeddedResource Include="Resources\RazixAtf.ico" />
     <EmbeddedResource Include="Resources\RazixAtf.png" />
     <EmbeddedResource Include="Resources\ja\Localization.xml" />
-    <Compile Include="src\RazixLevelEditorMain.cs" />
     <Compile Include="src\HelpAboutCommand.cs" />
     <None Include="src\RazixEditor.cpp" />
+    <Compile Include="src\RazixLevelEditorMain.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tools\vendor\ATF\Framework\Atf.Core\Atf.Core.csproj">
