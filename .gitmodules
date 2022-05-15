@@ -1,12 +1,9 @@
 [submodule "Tools/RazixCodeEditor"]
 	path = Tools/RazixCodeEditor
 	url = https://github.com/Pikachuxxxx/RazixCodeEditor.git
-[submodule "Engine/vendor/RZSTL"]
+[submodule "Engine/internal/RZSTL"]
 	path = Engine/internal/RZSTL
 	url = https://github.com/Pikachuxxxx/RZSTL.git
-[submodule "Tool"]
-	path = Tools/RazixAssetPacker
-	url = https://github.com/Pikachuxxxx/RazixAssetPacker.git
-[submodule "Engine\\internal\\RazixMemory"]
-	path = Engine\\internal\\RazixMemory
+[submodule "Engine/internal/RazixMemory"]
+	path = Engine/internal/RazixMemory
 	url = https://github.com/Pikachuxxxx/RazixMemory.git
