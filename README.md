@@ -13,23 +13,25 @@ Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan Di
 View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
-- Support for Windows, Linux, macOS, PSVita and PS3 systems.
-- Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
+- Support for Windows, Linux, macOS, PSVita and PS3 systems. (If you're a licensed PS developer check DevNet in future for potential releases that support next gen consoles)
+- Support for OpenGL, Vulkan DirectX 11, GXM, GCM & GNM.
 - 3D audio using OpenAL.
-- Rendering 3D models with deferred PBR shading.
-- Editor using Dear ImGui.
+- Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
+- Level Editor & tools built using **[Sony WWS ATF](https://github.com/SonyWWS/ATF).**
 - Multi Physics engine support.
-- 3D physics using PhysX, Bullet and Havok.
+- 3D physics using PhysX, Bullet and Jolt.
 - 2D physic using Box2D.
 - Basic lua scripting support for entities.
 - Extremely detailed profiling using Tracy, RenderDoc and Razor integrated deep into the engine systems.
-- Custom Animation and state machine engine and supports Havok Animation system
+- Custom Animation and state machine engine
 - Supports GLSL, HLSL and PSSL shading languages to create custom materials
 - Supports Hull, Domain, Geometry, Compute shaders for all Platforms
 - Asset streaming pipeline and custom asset format
 - Future support for Falcor and Render Graph Editor
 - Data drive pipeline architecture
-
+- Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
+                                                                                                          
+                                                                                                          
 # Tools
 Razix also provides a rich set of GUI and Commmand Line [**Tools**](https://github.com/Pikachuxxxx/Razix/tree/master/Tools) along with the Editor for various purposes such as
 - [**Razix Code Editor**](https://github.com/Pikachuxxxx/RazixCodeEditor) - Shaders and Scripts code editor for Razix Engine
