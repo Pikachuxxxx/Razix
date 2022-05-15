@@ -14,7 +14,7 @@ using Sce.Atf.Applications;
 
 namespace Razix
 {
-     class EditorMain
+     class RazixLevelEditorMain
     {
         /// <summary>
         /// The main entry point for the Editor application
@@ -22,6 +22,11 @@ namespace Razix
         [STAThread]
         static void Main(string[] args)
         {
+            for (int i = 0; i < args.Length; i++)
+            {
+                Console.WriteLine($"Arg[{i}] = [{args[i]}]");
+            }
+
             // important to call these before creating application host
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -70,7 +75,7 @@ namespace Razix
             //var image = GdiUtil.GetImage("Razix.Resources.RazixCodeEditorLogo.ico");
             //mainForm.Icon = GdiUtil.CreateIcon(image, 32, true);
 
-            mainForm.Text = "Razix Engine Editor".Localize();
+            mainForm.Text = "Razix Level Editor".Localize();
 
             var batch = new CompositionBatch();
             batch.AddPart(mainForm);
@@ -90,8 +95,7 @@ namespace Razix
             //  or even after imports have been satisfied by MEF, since we allow circular dependencies between
             //  components, via the System.Lazy class. IInitializable allows components to defer some operations
             //  until all MEF composition has been completed.
-            container.InitializeAll();
-            
+            container.InitializeAll();            
             // Show the main form and start message handling. The main Form Load event provides a final chance
             //  for components to perform initialization and configuration.
             Application.Run(mainForm);

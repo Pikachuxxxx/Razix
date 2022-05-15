@@ -1,11 +1,11 @@
-project "RazixEditor"
+project "RazixLevelEditor"
     kind "WindowedApp"
     language "C#"
     location"./"
 
     framework "4.0"
 
-    targetname "RazixEditor"
+    targetname "RazixLevelEditor"
     namespace "Razix"
 
     files
