@@ -28,6 +28,8 @@ namespace Razix {
 
         /* Width and Height of the window */
         uint32_t Width, Height;
+        /* The title of the window */
+        std::string Title;
         /* Fullscreen status of the window */
         bool Fullscreen;
         /* A boolean to whether enable V-Sync or not */
@@ -36,8 +38,6 @@ namespace Razix {
         bool Borderless;
         /* Whether or not to show the debug window console or not */
         bool ShowConsole = true;
-        /* The title of the window */
-        std::string Title;
     };
 
     /* Window Interface for Desktop systems */

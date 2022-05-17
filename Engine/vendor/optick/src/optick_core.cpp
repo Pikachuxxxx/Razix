@@ -1104,7 +1104,7 @@ void Core::DumpFrames(uint32 mode)
 
 		// We can free some memory now to unlock space for callstack serialization
 		DumpProgress("Deallocating memory for SymbolEngine");
-		Memory::Free(symbolEngine);
+		Memory::Delete(symbolEngine);
 		symbolEngine = nullptr;
 
 		DumpProgress("Serializing callstacks");
@@ -1265,19 +1265,22 @@ void Core::Update()
 	{
 		FrameBuffer frameBuffer = frames[FrameType::CPU].m_Frames;
 
-		if (settings.frameLimit > 0 && frameBuffer.Size() >= settings.frameLimit)
-			DumpCapture();
-
-		if (settings.timeLimitUs > 0)
+		if (frameBuffer.Size() > 0)
 		{
-			if (TicksToUs(frameBuffer.Back()->finish - frameBuffer.Front()->start) >= settings.timeLimitUs)
+			if (settings.frameLimit > 0 && frameBuffer.Size() >= settings.frameLimit)
 				DumpCapture();
-		}
 
-		if (settings.spikeLimitUs > 0)
-		{
-			if (TicksToUs(frameBuffer.Back()->finish - frameBuffer.Front()->start) >= settings.spikeLimitUs)
-				DumpCapture();
+			if (settings.timeLimitUs > 0)
+			{
+				if (TicksToUs(frameBuffer.Back()->finish - frameBuffer.Front()->start) >= settings.timeLimitUs)
+					DumpCapture();
+			}
+
+			if (settings.spikeLimitUs > 0)
+			{
+				if (TicksToUs(frameBuffer.Back()->finish - frameBuffer.Front()->start) >= settings.spikeLimitUs)
+					DumpCapture();
+			}
 		}
 
 		if (IsTimeToReportProgress())
@@ -1586,7 +1589,6 @@ bool Core::AttachFile(File::Type type, const char* name, const wchar_t* path)
 void Core::InitGPUProfiler(GPUProfiler* profiler)
 {
 	OPTICK_ASSERT(gpuProfiler == nullptr, "Can't reinitialize GPU profiler! Not supported yet!");
-	Memory::Delete<GPUProfiler>(gpuProfiler);
 	gpuProfiler = profiler;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1633,6 +1635,9 @@ void Core::Shutdown()
 {
 	std::lock_guard<std::recursive_mutex> lock(threadsLock);
 
+	Memory::Delete<GPUProfiler>(gpuProfiler);
+	gpuProfiler = nullptr;
+
 	for (ThreadList::iterator it = threads.begin(); it != threads.end(); ++it)
 	{
 		Memory::Delete(*it);
@@ -1644,6 +1649,9 @@ void Core::Shutdown()
 		Memory::Delete(*it);
 	}
 	fibers.clear();
+
+	Memory::Delete(symbolEngine);
+	symbolEngine = nullptr;
 
 	EventDescriptionBoard::Get().Shutdown();
 }
@@ -1896,7 +1904,11 @@ bool EndsWith(const char* str, const char* substr)
 OPTICK_API bool SaveCapture(const char* path, bool force /*= true*/)
 {
 	char filePath[512] = { 0 };
+#if defined(OPTICK_MSVC)
+	strcpy_s(filePath, 512, path);
+#else
 	strcpy(filePath, path);
+#endif
 	
 	if (path == nullptr || !EndsWith(path, ".opt"))
 	{
@@ -1909,7 +1921,11 @@ OPTICK_API bool SaveCapture(const char* path, bool force /*= true*/)
 #endif
 		char timeStr[80] = { 0 };
 		strftime(timeStr, sizeof(timeStr), "(%Y-%m-%d.%H-%M-%S).opt", &tstruct);
+#if defined(OPTICK_MSVC)
+		strcat_s(filePath, 512, timeStr);
+#else
 		strcat(filePath, timeStr);
+#endif
 	}
 
 	SaveHelper::Init(filePath);

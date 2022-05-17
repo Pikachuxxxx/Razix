@@ -77,6 +77,7 @@ workspace ( settings.workspace_name )
         require("Engine/vendor/OpenFBX/premake5")
         require("Engine/vendor/lua/premake5")
         include 'Engine/vendor/optick/optick.lua'
+        include 'Engine/vendor/tracy/tracy.lua'
     group ""
 
     -- Uses .NET 4.0

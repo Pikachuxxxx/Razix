@@ -27,7 +27,7 @@ namespace Razix {
          */
         RZEntity createEntity(const std::string& name = std::string());
         /**
-         * Detroys the entity from the scene
+         * Destroys the entity from the scene
          * 
          * @param The entity to destroy
          */
@@ -78,7 +78,7 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
-            //archive(cereal::make_nvp("UUID", 0));
+            archive(cereal::make_nvp("UUID", m_SceneUUID.prettyString()));
             archive(cereal::make_nvp("SceneName", m_SceneName));
             archive(cereal::make_nvp("Total Entities", (uint32_t) m_Registry.alive()));
         }
@@ -86,14 +86,14 @@ namespace Razix {
         template<class Archive>
         void load(Archive& archive)
         {
-            int uuid_string;
-            //archive(cereal::make_nvp("UUID", uuid_string));
-            //m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
+            std::string uuid_string;
+            archive(cereal::make_nvp("UUID", uuid_string));
+            m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
             archive(cereal::make_nvp("SceneName", m_SceneName));
         }
 
     private:
-        //RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
+        RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
         entt::registry m_Registry;                  /* Scene registry for storing all the entities  */
         std::string    m_SceneName = "razix scene"; /* The name of the scene                        */
 

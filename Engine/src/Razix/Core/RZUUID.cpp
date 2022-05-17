@@ -1,87 +1,16 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
+
 #include "RZUUID.h"
-#if 0
+
+#define SIMDE_ENABLE_NATIVE_ALIASES
+#define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
+
+#include <simde/x86/avx.h>  // AVX
+#include <simde/x86/avx2.h>  // AVX
 
 namespace Razix {
-
-#if defined(__GLIBC__) || defined(__GNU_LIBRARY__) || defined(__ANDROID__) || defined(__CLANG__)
-    #include <endian.h>
-#elif defined(__APPLE__) && defined(__MACH__)
-    #include <machine/endian.h>
-#elif defined(BSD) || defined(_SYSTYPE_BSD)
-    #if defined(__OpenBSD__)
-        #include <machine/endian.h>
-    #else
-        #include <sys/endian.h>
-    #endif
-#endif
-
-#if defined(__BYTE_ORDER)
-    #if defined(__BIG_ENDIAN) && (__BYTE_ORDER == __BIG_ENDIAN)
-        #define BIGENDIAN
-    #elif defined(__LITTLE_ENDIAN) && (__BYTE_ORDER == __LITTLE_ENDIAN)
-        #define LITTLEENDIAN
-    #endif
-#elif defined(_BYTE_ORDER)
-    #if defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN)
-        #define BIGENDIAN
-    #elif defined(_LITTLE_ENDIAN) && (_BYTE_ORDER == _LITTLE_ENDIAN)
-        #define LITTLEENDIAN
-    #endif
-#elif defined(__BIG_ENDIAN__)
-    #define BIGENDIAN
-#elif defined(__LITTLE_ENDIKKAN__)
-    #define LITTLEENDIAN
-#else
-    #if defined(__ARMEL__) ||                         \
-        defined(__THUMBEL__) ||                       \
-        defined(__AARCH64EL__) ||                     \
-        defined(_MIPSEL) ||                           \
-        defined(__MIPSEL) ||                          \
-        defined(__MIPSEL__) ||                        \
-        defined(__ia64__) || defined(_IA64) ||        \
-        defined(__IA64__) || defined(__ia64) ||       \
-        defined(_M_IA64) || defined(__itanium__) ||   \
-        defined(i386) || defined(__i386__) ||         \
-        defined(__i486__) || defined(__i586__) ||     \
-        defined(__i686__) || defined(__i386) ||       \
-        defined(_M_IX86) || defined(_X86_) ||         \
-        defined(__THW_INTEL__) || defined(__I86__) || \
-        defined(__INTEL__) ||                         \
-        defined(__x86_64) || defined(__x86_64__) ||   \
-        defined(__amd64__) || defined(__amd64) ||     \
-        defined(_M_X64) ||                            \
-        defined(__bfin__) || defined(__BFIN__) ||     \
-        defined(bfin) || defined(BFIN)
-
-        #define LITTLEENDIAN
-    #elif defined(__m68k__) || defined(M68000) ||                    \
-        defined(__hppa__) || defined(__hppa) || defined(__HPPA__) || \
-        defined(__sparc__) || defined(__sparc) ||                    \
-        defined(__370__) || defined(__THW_370__) ||                  \
-        defined(__s390__) || defined(__s390x__) ||                   \
-        defined(__SYSC_ZARCH__)
-
-        #define BIGENDIAN
-
-    #elif defined(__arm__) || defined(__arm64) || defined(__thumb__) || \
-        defined(__TARGET_ARCH_ARM) || defined(__TARGET_ARCH_THUMB) ||   \
-        defined(__ARM_ARCH) ||                                          \
-        defined(_M_ARM) || defined(_M_ARM64)
-
-        #if defined(_WIN32) || defined(_WIN64) ||         \
-            defined(__WIN32__) || defined(__TOS_WIN__) || \
-            defined(__WINDOWS__)
-
-            #define LITTLEENDIAN
-
-        #else
-            #error "Cannot determine system endianness."
-        #endif
-    #endif
-#endif
 
 #if defined(BIGENDIAN)
     // Try to use compiler intrinsics
@@ -115,10 +44,6 @@ namespace Razix {
 #endif    // BIGENDIAN
 
 #if defined(BIGENDIAN)
-    #include <emmintrin.h>
-    #include <immintrin.h>
-    #include <smmintrin.h>
-    #include <tmmintrin.h>
 
     inline __m128i swap_u128(__m128i value)
     {
@@ -158,7 +83,7 @@ namespace Razix {
                ((value & 0x000000000000FF00u) << 40u) |
                ((value & 0x00000000000000FFu) << 56u);
     }
-#endif    // FALLBACK_SWAP#pragma once
+#endif    // FALLBACK_SWAP
 
     //---------------------------------------------------------------------------------------------------------
     // RZUUID Class
@@ -166,6 +91,23 @@ namespace Razix {
 
     RZUUID::RZUUID()
     {
+
+        /**
+         * Section 4.4 
+         * 
+         * The version 4 UUID is meant for generating UUIDs from truly-random or pseudo-random numbers
+         * The algorithm is as follows : 
+         * 
+         * 1. Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved to zero and one, respectively.
+         * 2. Set the four most significant bits (bits 12 through 15) of the time_hi_and_version field to the 4-bit version number from Section 4.1.3.
+         * 3. Set all the other bits to randomly (or pseudo-randomly) chosen values.
+         * 
+         * Section 4.1.3
+         * 
+         * The version number is in the most significant 4 bits of the time stamp (bits 4 through 7 of the time_hi_and_version field)
+         * 0     1     0     0 - V4 UUID The randomly or pseudo-randomly generated version UUID
+         * 
+         */
         // Automatically generate a UUID
         std::shared_ptr<std::mt19937_64>        generator = std::make_shared<std::mt19937_64>(std::random_device()());
         std::uniform_int_distribution<uint64_t> distribution(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
@@ -175,51 +117,49 @@ namespace Razix {
         __m128i       n        = _mm_set_epi64x(distribution(*generator), distribution(*generator));
         __m128i       uuid     = _mm_or_si128(_mm_and_si128(n, and_mask), or_mask);
 
-        //_mm_store_si128((__m128i*) data, uuid);
+        // Store 128-bits of integer data from a into memory aligned at 16-byte boundary
+        _mm_storeu_si128(((__m128i*) m_Data), uuid);
     }
 
     RZUUID::RZUUID(const RZUUID& other)
     {
-        __m128i x = _mm_load_si128((__m128i*) other.data);
-        //_mm_store_si128((__m128i*) data, x);
+        // Load 128-bits of integer data from memory into 128-bit register destination memory aligned at 16-byte boundary
+        __m128i x = _mm_loadu_si128((__m128i*) other.m_Data);
+        _mm_storeu_si128((__m128i*) m_Data, x);
     }
 
     RZUUID::RZUUID(__m128i uuid)
     {
-        //_mm_store_si128((__m128i*) data, uuid);
+        _mm_storeu_si128((__m128i*) m_Data, uuid);
     }
 
     RZUUID::RZUUID(uint64_t x, uint64_t y)
     {
+        // _mm_set_epi64x sets x as first 64 bits and y as the next 64 bits and returns the 128-bit register contents
         __m128i z = _mm_set_epi64x(x, y);
-       // _mm_store_si128((__m128i*) data, z);
+        _mm_storeu_si128((__m128i*) m_Data, z);
     }
 
     RZUUID::RZUUID(const uint8_t* bytes)
     {
         __m128i x = _mm_loadu_si128((__m128i*) bytes);
-       // _mm_store_si128((__m128i*) data, x);
+        _mm_storeu_si128((__m128i*) m_Data, x);
     }
 
     RZUUID::RZUUID(const std::string& bytes)
     {
         __m128i x = betole128(_mm_loadu_si128((__m128i*) bytes.data()));
-        //_mm_store_si128((__m128i*) data, x);
+        _mm_storeu_si128((__m128i*) m_Data, x);
     }
 
-    Razix::RZUUID RZUUID::FromStrFactory(const std::string& s)
+    RZUUID RZUUID::FromStrFactory(const std::string& s)
     {
         return FromStrFactory(s.c_str());
     }
 
-    Razix::RZUUID RZUUID::FromStrFactory(const char* raw)
+    RZUUID RZUUID::FromStrFactory(const char* raw)
     {
-        return RZUUID(stom128i(raw));
-    }
-
-    void RZUUID::FromStr(const char* raw)
-    {
-       // _mm_store_si128((__m128i*) data, stom128i(raw));
+        return RZUUID(stringTom128i(raw));
     }
 
     std::string RZUUID::bytes() const
@@ -231,48 +171,58 @@ namespace Razix {
 
     void RZUUID::bytes(std::string& out) const
     {
-        out.resize(sizeof(data));
+        out.resize(sizeof(m_Data));
         bytes((char*) out.data());
     }
 
     void RZUUID::bytes(char* bytes) const
     {
-        __m128i x = betole128(_mm_load_si128((__m128i*) data));
-        //_mm_storeu_si128((__m128i*) bytes, x);
+        __m128i x = betole128(_mm_loadu_si128((__m128i*) m_Data));
+        _mm_storeu_si128((__m128i*) bytes, x);
     }
 
-    std::string RZUUID::str() const
+    std::string RZUUID::prettyString() const
     {
         std::string mem;
-        str(mem);
+        prettyString(mem);
         return mem;
     }
 
-    void RZUUID::str(std::string& s) const
+    void RZUUID::prettyString(std::string& s) const
     {
         s.resize(36);
-        str((char*) s.data());
+        prettyString((char*) s.data());
     }
 
-    void RZUUID::str(char* res) const
+    void RZUUID::prettyString(char* res) const
     {
-        //__m128i x = _mm_load_si128((__m128i*) data);
-        //m128itos(x, res);
+        __m128i x = _mm_loadu_si128((__m128i*) m_Data);
+        m128iToString(x, res);
     }
 
     size_t RZUUID::hash() const
     {
+        // Simple hash function for this class
         //return *((uint64_t*) data) ^ *((uint64_t*) data + 8);
         // https://github.com/crashoz/uuid_v4/pull/13
-        const uint64_t a = *((uint64_t*) data);
-        const uint64_t b = *((uint64_t*) &data[8]);
+        const uint64_t a = *((uint64_t*) m_Data);
+        const uint64_t b = *((uint64_t*) &m_Data[8]);
         return a ^ b + 0x9e3779b9 + (a << 6) + (a >> 2);
     }
 
-    void RZUUID::m128itos(__m128i x, char* mem)
+    RZUUID& RZUUID::operator=(const RZUUID& other)
     {
-        #if 0
-// Expand each byte in x to two bytes in res
+        if (&other == this) {
+            return *this;
+        }
+        __m128i x = _mm_loadu_si128((__m128i*) other.m_Data);
+        _mm_storeu_si128((__m128i*) m_Data, x);
+        return *this;
+    }
+
+    void RZUUID::m128iToString(__m128i x, char* mem)
+    {
+        // Expand each byte in x to two bytes in res
         // i.e. 0x12345678 -> 0x0102030405060708
         // Then translate each byte to its hex ascii representation
         // i.e. 0x0102030405060708 -> 0x3132333435363738
@@ -301,20 +251,18 @@ namespace Razix {
 
         _mm256_storeu_si256((__m256i*) mem, betole256(resd));
         *(uint16_t*) (mem + 16) = betole16(_mm256_extract_epi16(res, 7));
-        *(uint32_t*) (mem + 32) = betole32(_mm256_extract_epi32(res, 7));
-#endif
+        *(uint32_t*) (mem + 32) = betole32(simde_mm256_extract_epi32(res, 7));
     }
 
-    __m128i RZUUID::stom128i(const char* mem)
+    __m128i RZUUID::stringTom128i(const char* mem)
     {
-        #if 0
-// Remove dashes and pack hex ascii bytes in a 256-bits int
+        // Remove dashes and pack hex ascii bytes in a 256-bits int
         const __m256i dash_shuffle = _mm256_set_epi32(0x80808080, 0x0f0e0d0c, 0x0b0a0908, 0x06050403, 0x80800f0e, 0x0c0b0a09, 0x07060504, 0x03020100);
 
         __m256i x = betole256(_mm256_loadu_si256((__m256i*) mem));
         x         = _mm256_shuffle_epi8(x, dash_shuffle);
-        x         = _mm256_insert_epi16(x, betole16(*(uint16_t*) (mem + 16)), 7);
-        x         = _mm256_insert_epi32(x, betole32(*(uint32_t*) (mem + 32)), 7);
+        x         = simde_mm256_insert_epi16(x, betole16(*(uint16_t*) (mem + 16)), 7);
+        x         = simde_mm256_insert_epi16(x, betole32(*(uint32_t*) (mem + 32)), 7);
 
         // Build a mask to apply a different offset to alphas and digits
         const __m256i sub           = _mm256_set1_epi8(0x2F);
@@ -340,9 +288,5 @@ namespace Razix {
         a                = _mm256_permute4x64_epi64(a, 0b00001000);
 
         return _mm256_castsi256_si128(a);
-#endif
-        __m128i x;
-        return x;
     }
 }    // namespace Razix
-#endif

@@ -56,9 +56,6 @@ namespace Razix {
         static std::optional<int> ProcessMessages();
 
     private:
-        int         width;
-        int         height;
-        int32_t     xPos, yPos;
         HWND        hWnd;
         std::string m_VersionString;
         std::string m_LogString;
