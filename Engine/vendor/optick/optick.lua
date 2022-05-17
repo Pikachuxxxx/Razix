@@ -2,7 +2,6 @@ project "optick"
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
-    staticruntime "off"
 
     -- Vulkan SDK
     VulkanSDK = os.getenv("VULKAN_SDK")
@@ -24,10 +23,10 @@ project "optick"
         "src/optick_gpu.vulkan.cpp"
     }
 
+    defines "OPTICK_MSVC"
+
     filter "system:windows"
         systemversion "latest"
-        cppdialect "C++17"
-        staticruntime "off"
 
          -- Windows specific incldue directories
         includedirs

@@ -172,7 +172,6 @@ namespace Razix {
     bool RZApplication::RenderFrame()
     {
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
-
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
         // Calculate the delta time

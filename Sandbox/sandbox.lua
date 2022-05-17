@@ -41,15 +41,16 @@ project "Sandbox"
    links
    {
        "Razix", -- Razix DLL
-        "glfw",
-        "imgui",
-        "spdlog",
-        "SPIRVReflect",
-        "SPIRVCross",
-        "meshoptimizer",
-        "OpenFBX",
-        "lua",
-        "optick"
+       "glfw",
+       "imgui",
+       "spdlog",
+       "SPIRVReflect",
+       "SPIRVCross",
+       "meshoptimizer",
+       "OpenFBX",
+       "lua",
+       "optick",
+       "tracy"
    }
 
    defines
