@@ -1,7 +1,8 @@
-#if 0
 #pragma once
 
 #include <random>
+
+#include <simde/x86/sse4.1.h>
 
 namespace Razix {
 
@@ -47,7 +48,7 @@ namespace Razix {
     class RAZIX_API RZUUID
     {
     public:
-        /* Defining the format type of RZUUID (we will use a union with bytes for easier calculation)*/
+        /* Defining the format type of RZUUID (we will use a union with bytes for easier calculation) */
         typedef struct
         {
             uint32_t time_low;
@@ -56,80 +57,99 @@ namespace Razix {
             uint8_t  clock_seq_hi_and_reserved;
             uint8_t  clock_seq_low;
             char     node[6];
-        } rzuuid_format;
+        } uuidv4;
 
     public:
         /* Builds a 128-bits RZUUID */
         RZUUID();
+        /* Copy constructor for the RZUUID */
         RZUUID(const RZUUID& other);
-
+        /**
+         * Create RZUUID from the 128-bit number using AVX registers
+         * 
+         * @param uuid 128-bit UUID
+         */
         RZUUID(__m128i uuid);
-
+        /**
+         * Create RZUUID using 2 64-bit numbers
+         * 
+         * @param x first number
+         * @param y second number
+         */
         RZUUID(uint64_t x, uint64_t y);
+        /**
+         * Creates the RZUUID and 128-bit representation using 8-4-4-4-12 style string characters 
+         * 
+         * @param bytes bytes representation of the UUID
+         */
         RZUUID(const uint8_t* bytes);
-        /* Builds an RZUUID from a byte string (16 bytes long) */
+        /**
+         * Builds an RZUUID from a byte string (16 bytes long)
+         * 
+         * @param bytes 16byte string representation of the UUID
+         */
         explicit RZUUID(const std::string& bytes);
 
+        /* Default destructor */
         ~RZUUID() = default;
 
-        /* Static factory to parse an RZUUID from its string representation */
+        // Static factory methods to parse an RZUUID from its string representation
+
+        /**
+         * Creates a RZUUID from std::string
+         * 
+         * @param s The string representation of the UUID
+         */
         static RZUUID FromStrFactory(const std::string& s);
+        /**
+         * Creates a RZUUID raw character bytes
+         * 
+         * @param ray bytes representation of the UUID
+         */
         static RZUUID FromStrFactory(const char* raw);
 
-        void FromStr(const char* raw);
+        /* Serializes the uuid to a byte string (16 bytes) */
+        std::string bytes() const;
+        /* fills a string buffer with UUID string representation (16 bytes) */
+        void bytes(std::string& out) const;
+        /* Fills the char buffer with the RZUUID string representation (16 bytes) */
+        void bytes(char* bytes) const;
+        /* Converts the uuid to its string representation (32 bytes pretty string) */
+        std::string prettyString() const;
+        /* fills a string buffer with UUID string representation (32 bytes pretty string)*/
+        void prettyString(std::string& s) const;
+        /* fills a char buffer with UUID string representation (32 bytes pretty string)*/
+        void prettyString(char* res) const;
+        /* Hash function for the UUID */
+        size_t hash() const;
 
-        RZUUID& operator=(const RZUUID& other)
-        {
-            if (&other == this) {
-                return *this;
-            }
-            //__m128i x = _mm_load_si128((__m128i*) other.data);
-            //_mm_store_si128((__m128i*) data, x);
-            return *this;
-        }
+        RZUUID& operator=(const RZUUID& other);
 
         friend bool operator==(const RZUUID& lhs, const RZUUID& rhs)
         {
-            __m128i x = _mm_load_si128((__m128i*) lhs.data);
-            __m128i y = _mm_load_si128((__m128i*) rhs.data);
+            __m128i x = _mm_load_si128((__m128i*) lhs.m_Data);
+            __m128i y = _mm_load_si128((__m128i*) rhs.m_Data);
 
             __m128i neq = _mm_xor_si128(x, y);
-            return true;//_mm_test_all_zeros(neq, neq);
+            return simde_mm_test_all_zeros(neq, neq);
         }
-
         friend bool operator<(const RZUUID& lhs, const RZUUID& rhs)
         {
             // There are no trivial 128-bits comparisons in SSE/AVX
             // It's faster to compare two uint64_t
-            uint64_t* x = (uint64_t*) lhs.data;
-            uint64_t* y = (uint64_t*) rhs.data;
+            uint64_t* x = (uint64_t*) lhs.m_Data;
+            uint64_t* y = (uint64_t*) rhs.m_Data;
             return *x < *y || (*x == *y && *(x + 1) < *(y + 1));
         }
-
         friend bool operator!=(const RZUUID& lhs, const RZUUID& rhs) { return !(lhs == rhs); }
         friend bool operator>(const RZUUID& lhs, const RZUUID& rhs) { return rhs < lhs; }
         friend bool operator<=(const RZUUID& lhs, const RZUUID& rhs) { return !(lhs > rhs); }
         friend bool operator>=(const RZUUID& lhs, const RZUUID& rhs) { return !(lhs < rhs); }
 
-        /* Serializes the uuid to a byte string (16 bytes) */
-        std::string bytes() const;
-
-        void bytes(std::string& out) const;
-
-        void bytes(char* bytes) const;
-
-        /* Converts the uuid to its string representation */
-        std::string str() const;
-
-        void str(std::string& s) const;
-
-        void str(char* res) const;
-
         friend std::ostream& operator<<(std::ostream& stream, const RZUUID& uuid)
         {
-            return stream << uuid.str();
+            return stream << uuid.prettyString();
         }
-
         friend std::istream& operator>>(std::istream& stream, RZUUID& uuid)
         {
             std::string s;
@@ -138,23 +158,21 @@ namespace Razix {
             return stream;
         }
 
-        size_t hash() const;
+    private:
+        uint8_t m_Data[16]; /* The 128-bit byte representation of the RZUUID */
 
     private:
-        uint8_t data[16];
-
-    private:
-        /*
-          Converts a 128-bits unsigned int to an UUIDv4 string representation.
-          Uses SIMD via Intel's AVX2 instruction set.
+        /**
+         * Converts a 128-bits unsigned int to an UUIDv4 string representation.
+         * nUses SIMD via Intel's AVX2 instruction set.
          */
-        static void inline m128itos(__m128i x, char* mem);
+        static void inline m128iToString(__m128i x, char* mem);
 
-        /*
-        Converts an UUIDv4 string representation to a 128-bits unsigned int.
-        Uses SIMD via Intel's AVX2 instruction set.
-        */
-        static __m128i inline stom128i(const char* mem);
+        /**
+         * Converts an UUIDv4 string representation to a 128-bits unsigned int.
+         * Uses SIMD via Intel's AVX2 instruction set.
+         */
+        static __m128i inline stringTom128i(const char* mem);
     };
 }    // namespace Razix
 
@@ -168,4 +186,3 @@ namespace std {
         }
     };
 }    // namespace std
-#endif

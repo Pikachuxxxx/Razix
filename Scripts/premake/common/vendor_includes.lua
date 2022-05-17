@@ -11,7 +11,8 @@ IncludeDir["SPIRVCross"]        = "%{wks.location}/../Engine/" .. "vendor/SPIRVC
 IncludeDir["entt"]              = "%{wks.location}/../Engine/" .. "vendor/entt/include"
 IncludeDir["lua"]               = "%{wks.location}/../Engine/" .. "vendor/lua/src"
 IncludeDir["tracy"]             = "%{wks.location}/../Engine/" .. "vendor/tracy"
-IncludeDir["optick"]             = "%{wks.location}/../Engine/" .. "vendor/optick/src"
+IncludeDir["optick"]            = "%{wks.location}/../Engine/" .. "vendor/optick/src"
+IncludeDir["simde"]             = "%{wks.location}/../Engine/" .. "vendor/simde"
 
 IncludeDir["Razix"]             = "%{wks.location}/../Engine/" .. "src"
 IncludeDir["vendor"]            = "%{wks.location}/../Engine/" .. "vendor/"

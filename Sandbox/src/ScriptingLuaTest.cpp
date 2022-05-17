@@ -270,7 +270,7 @@ private:
             dirLightUniformBuffers[i]->SetData(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
 
             // get the descriptor infos to create the descriptor sets
-            auto setInfos = phongLightingShader->getSetInfos();
+            auto& setInfos = phongLightingShader->getSetInfos();
 
             int j = 0;
             for (auto& setInfo: setInfos) {

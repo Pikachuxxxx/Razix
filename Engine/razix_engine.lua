@@ -32,8 +32,9 @@ project "Razix"
         "RAZIX_RENDERER_FALCOR",
         "RAZIX_RAY_TRACE_RENDERER_RAZIX",
         "RAZIX_RAY_TRACE_RENDERER_OPTIX",
-        "RAZIX_RAY_TRACE_RENDERER_EMBREE"
+        "RAZIX_RAY_TRACE_RENDERER_EMBREE",
         -- vendor
+        "OPTICK_MSVC"
     }
 
     -- Razix Engine source files (Global)
@@ -106,7 +107,8 @@ project "Razix"
         "meshoptimizer",
         "OpenFBX", 
         "lua",
-        "optick"
+        "optick",
+        "tracy"
     }
 
     -- TODO Add as rules, every shader file type will have it's own rule
@@ -140,8 +142,9 @@ project "Razix"
         characterset ("MBCS")
         editandcontinue "Off"
 
-         -- Enable AVX2 
-        --buildoptions { "-mavx2", "-mbmi", "-march=native", "-march=haswell", "-mavx", "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
+         -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
+         -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
+        buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
 
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
@@ -220,12 +223,12 @@ project "Razix"
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG"}
+        defines { "RAZIX_DEBUG", "TRACY_ENABLE"}
         symbols "On"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG" }
+        defines { "RAZIX_RELEASE", "NDEBUG", "TRACY_ENABLE" }
         optimize "Speed"
         symbols "On"
 
