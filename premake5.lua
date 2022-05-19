@@ -92,7 +92,13 @@ workspace ( settings.workspace_name )
         require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
     group ""
 
-    -- Build Script for Razix Engine
+    -- Build Script for Razix Engine (Internal)
+    --------------------------------------------------------------------------------
+    group "Engine/internal"
+        include "Engine/internal/RazixMemory/razixmemory.lua"
+    group ""
+
+    -- Build Script for Razix Engine (Core)
     --------------------------------------------------------------------------------
     group "Engine"
         include "Engine/razix_engine.lua"
