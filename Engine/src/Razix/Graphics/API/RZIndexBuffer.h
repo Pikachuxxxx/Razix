@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Razix/Core/RZRoot.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 
 namespace Razix {
     namespace Graphics {
 
         /* Creates an Index Buffer to use indexed data to draw geometry */
-        class RAZIX_API RZIndexBuffer
+        class RAZIX_API RZIndexBuffer : public RZRoot
         {
         public:
             RZIndexBuffer() = default;

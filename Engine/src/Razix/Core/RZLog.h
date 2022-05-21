@@ -15,7 +15,7 @@ namespace Razix {
          * The Engine wide Logging system
          * @birief Used for various Engine and Client sub-systems to report statuses, errors and other information
          */
-        class RAZIX_API RZLog
+        class RAZIX_API RZLog : public RZRoot
         {
         public:
             /* Starts Up the Logging system */

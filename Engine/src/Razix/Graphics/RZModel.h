@@ -12,7 +12,7 @@ namespace Razix {
          * Note: Only loads OBJ, GLTF and FBX files
          * Collada and other format support will be added later
          */
-        class RAZIX_API RZModel
+        class RAZIX_API RZModel : public RZRoot
         {
         public:
             RZModel() = default;

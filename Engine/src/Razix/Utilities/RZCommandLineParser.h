@@ -10,7 +10,7 @@ namespace Razix {
     /**
      * Parses the command line arguments for the Razix Application
      */
-    class RAZIX_API RZCommandLineParser
+    class RAZIX_API RZCommandLineParser : public RZRoot
     {
     public:
         /* Command Line Option information */

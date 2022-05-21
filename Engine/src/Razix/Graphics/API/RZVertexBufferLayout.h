@@ -69,7 +69,7 @@ namespace Razix {
         };
 
         /* Vertex buffer layout describes the layout of the buffer data that is being uploaded to the GPU to be consumed by the Input Assembler */
-        class RAZIX_API RZVertexBufferLayout
+        class RAZIX_API RZVertexBufferLayout : public RZRoot
         {
         public:
             RZVertexBufferLayout();

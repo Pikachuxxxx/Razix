@@ -12,7 +12,7 @@ namespace Razix {
     namespace Graphics {
 
         /* The actual handle to the Physical GPU being used to process the application */
-        class VKPhysicalDevice
+        class VKPhysicalDevice : public RZRoot
         {
         public:
             struct QueueFamilyIndices
