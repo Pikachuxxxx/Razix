@@ -65,6 +65,10 @@
 #include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
+// Internal
+// Razix Memory
+#include "RZMemory.h"
+
 //-----------Entry Point-------------
 #include "Razix/Core/EntryPoint.h"
 //-----------------------------------
