@@ -49,7 +49,6 @@ namespace Razix {
     #define RAZIX_INFO(...)  ::Razix::Debug::RZLog::GetApplicationLogger()->info(__VA_ARGS__)
     #define RAZIX_WARN(...)  ::Razix::Debug::RZLog::GetApplicationLogger()->warn(__VA_ARGS__)
     #define RAZIX_ERROR(...) ::Razix::Debug::RZLog::GetApplicationLogger()->error(__VA_ARGS__)
-
 #else
 // Core Engine Logging
     #define RAZIX_CORE_TRACE(...)

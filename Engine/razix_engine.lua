@@ -1,5 +1,7 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
+-- Internal libraies include dirs
+include 'Scripts/premake/common/internal_includes.lua'
 
 -- Vulkan SDK
 VulkanSDK = os.getenv("VULKAN_SDK")
@@ -74,6 +76,7 @@ project "Razix"
         -- Engine
         "./",
         "../",
+        "internal/",
         "src/",
         "src/Razix",
         -- Vendor
@@ -93,7 +96,9 @@ project "Razix"
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
-        "%{VulkanSDK}"
+        "%{VulkanSDK}",
+        -- Internal libraries
+        "%{InternalIncludeDir.RazixMemory}"
     }
 
     -- Razix engine external linkage libraries (Global)
@@ -101,14 +106,17 @@ project "Razix"
     {
         "glfw",
         "imgui",
-        "spdlog",
+        "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in Distribution build)
         "SPIRVReflect",
         "SPIRVCross",
         "meshoptimizer",
         "OpenFBX", 
         "lua",
         "optick",
-        "tracy"
+        "tracy",
+        -- Razix Internal Libraries 
+        -- 1. Razix Memory
+        "RazixMemory"
     }
 
     -- TODO Add as rules, every shader file type will have it's own rule
