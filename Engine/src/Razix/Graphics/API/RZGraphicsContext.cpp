@@ -42,7 +42,7 @@ namespace Razix {
         void RZGraphicsContext::Release()
         {
             s_Context->Destroy();
-            delete s_Context;
+            //delete s_Context; // This is causing unnecessary crashes
         }
 
         RZGraphicsContext* RZGraphicsContext::GetContext()

@@ -27,7 +27,7 @@ namespace Razix {
             DOWN
         };
 
-        class RAZIX_API Camera3D
+        class RAZIX_API Camera3D : public RZRoot
         {
         public:
             // Constructor with vectors

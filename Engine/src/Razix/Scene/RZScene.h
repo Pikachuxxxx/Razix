@@ -13,7 +13,7 @@ namespace Razix {
     /**
      * Scene contains entities that will be used by the engine for rendering and other runtime systems
      */
-    class RAZIX_API RZScene
+    class RAZIX_API RZScene : public RZRoot
     {
     public:
         RZScene();

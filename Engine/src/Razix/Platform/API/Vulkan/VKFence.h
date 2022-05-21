@@ -8,7 +8,7 @@ namespace Razix {
     namespace Graphics {
 
         /* A Vulkan fence is a object used to synchronize between the CPU and GPU */
-        class VKFence
+        class VKFence : public RZRoot
         {
         public:
             /**

@@ -42,7 +42,7 @@ namespace Razix {
         /**
          * Mesh represents the cluster of vertex and index data which is essentially the building block of a 3D Model which will be rendered onto a scene in one draw call
          */
-        class RAZIX_API RZMesh
+        class RAZIX_API RZMesh : public RZRoot
         {
         public:
             /* Creates a empty mesh */

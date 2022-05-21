@@ -14,7 +14,7 @@ namespace Razix {
         // TODO: Derive Texture from a RazixResource/Asset class this way it gets a resource/asset UUID + serialization by default
         // TODO: Calculate size properly for manually set texture data
         // TODO: Add support and Utility functions for sRGB textures
-        class RAZIX_API RZTexture
+        class RAZIX_API RZTexture : public RZRoot
         {
             // Texture internal Types
         public:

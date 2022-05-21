@@ -42,10 +42,7 @@ namespace Razix {
      * Thus, the probability to find a duplicate within 103 trillion version-4 UUIDs is one in a billion.
      */
 
-    // TODO: 1. Tidy up the class as per Razix style guide
-    // TODO: 2. read more about generators, show we persist them(their seeding or would it be fine with using every time the engine/game is fired up) or can it be randomly generated as well
-    // TODO: 3. Add cereal Serialization Functions
-    class RAZIX_API RZUUID
+    class RAZIX_API RZUUID : public RZRoot
     {
     public:
         /* Defining the format type of RZUUID (we will use a union with bytes for easier calculation) */
