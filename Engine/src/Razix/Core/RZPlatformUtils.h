@@ -11,7 +11,7 @@ namespace Razix {
     /**
      * Platform Utility methods to get information about the current platform and it's environment configuration
      */
-    class RAZIX_API PlatformUtils
+    class RAZIX_API PlatformUtils : public RZRoot
     {
     public:
         PlatformUtils()  = default;

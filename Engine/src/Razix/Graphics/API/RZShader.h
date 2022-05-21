@@ -44,7 +44,7 @@ namespace Razix {
          * can compile and cache and do all the fookin possible cases on it's own in the most efficient cache-friendly
          * and also serialize reflection data for faster loading
          */
-        class RAZIX_API RZShader
+        class RAZIX_API RZShader : public RZRoot
         {
         public:
             RZShader() {}

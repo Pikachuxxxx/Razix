@@ -135,7 +135,7 @@ namespace Razix {
         };
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
-        class RAZIX_API RZDescriptorSet
+        class RAZIX_API RZDescriptorSet  : public RZRoot
         {
         public:
             /**

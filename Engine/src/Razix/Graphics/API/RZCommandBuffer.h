@@ -4,7 +4,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Command buffer to which the draw and other command are recorded to and used with */
-        class RAZIX_API RZCommandBuffer
+        class RAZIX_API RZCommandBuffer : public RZRoot
         {
         public:
             RZCommandBuffer()          = default;

@@ -12,7 +12,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Uniform Buffer that contains various kinds of data such as animation, lighting etc and can be passed to the shader stages */
-        class RAZIX_API RZUniformBuffer
+        class RAZIX_API RZUniformBuffer : public RZRoot
         {
         public:
             /* The API is responsible for deallocating any resources */

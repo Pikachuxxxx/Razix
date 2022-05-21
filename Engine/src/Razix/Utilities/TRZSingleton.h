@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/RZRoot.h"
+
 #include "Razix/Core/RZCore.h"
 
 namespace Razix {
@@ -9,7 +11,7 @@ namespace Razix {
      * @note [Design Suggested in Game Engine Architecture by Jason Gregory at p.199-201]
      */
     template<class T>
-    class RZSingleton
+    class RZSingleton : public RZRoot
     {
     public:
         /* Gets the reference to the Singleton Object */

@@ -9,7 +9,7 @@ namespace Razix {
     /// <summary>
     /// Counts the reference of the Object as it's ownership is being handed over
     /// </summary>
-    struct RAZIX_API ReferenceCounter
+    struct RAZIX_API ReferenceCounter : public RZRoot
     {
         /// Global object reference count
         std::atomic<int> count = 0;

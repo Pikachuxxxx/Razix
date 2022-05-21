@@ -267,7 +267,7 @@ namespace Razix {
                 result                                               = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, pp_descriptor_bindings);
 
                 for (uint32_t i = 0; i < descriptors_count; i++) {
-                    std::cout << "---------------------------------------------" << std::endl;
+                    //std::cout << "---------------------------------------------" << std::endl;
                     DescriptorSetInfo* setInfo = new DescriptorSetInfo;
                     setInfo->setID             = -1;
                     bool oldSet                = false;
@@ -283,13 +283,13 @@ namespace Razix {
 
                     RZDescriptor rzDescriptor;
 
-                    std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
-                    std::cout << "UBO Name                  : " << descriptor->name << std::endl;
-                    std::cout << "Binding                   : " << descriptor->binding << std::endl;
-                    std::cout << "Set                       : " << descriptor->set << std::endl;
-                    std::cout << "Count                     : " << descriptor->count << std::endl;
-                    std::cout << "Descriptor Type           : " << ToStringDescriptorType(descriptor->descriptor_type) << std::endl;
-                    std::cout << "Member Count              : " << descriptor->block.member_count << std::endl;
+                    //std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
+                    //std::cout << "UBO Name                  : " << descriptor->name << std::endl;
+                    //std::cout << "Binding                   : " << descriptor->binding << std::endl;
+                    //std::cout << "Set                       : " << descriptor->set << std::endl;
+                    //std::cout << "Count                     : " << descriptor->count << std::endl;
+                    //std::cout << "Descriptor Type           : " << ToStringDescriptorType(descriptor->descriptor_type) << std::endl;
+                    //std::cout << "Member Count              : " << descriptor->block.member_count << std::endl;
                     //
                     //for (size_t i = 0; i < descriptor->block.member_count; i++) {
                     //

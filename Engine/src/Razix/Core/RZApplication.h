@@ -43,7 +43,7 @@ namespace Razix {
     };
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
-    class RAZIX_API RZApplication
+    class RAZIX_API RZApplication : public RZRoot
     {
     public:
         /**

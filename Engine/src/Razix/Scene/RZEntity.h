@@ -10,7 +10,7 @@ namespace Razix {
     class RZScene;
 
     /* An entity represents the basic building block of a scene, they are the objects the exist in the game world */
-    class RAZIX_API RZEntity
+    class RAZIX_API RZEntity : public RZRoot
     {
     public:
         RZEntity() = default;
@@ -67,14 +67,16 @@ namespace Razix {
         bool IsActive();
         void SetActive(bool isActive);
 
-        void                  SetParent(RZEntity entity);
-        RZEntity              GetParent();
-        std::vector<RZEntity> GetChildren();
-        bool                  IsParent(RZEntity potentialParent);
+        void     SetParent(RZEntity entity);
+        RZEntity GetParent();
+        bool     IsParent(RZEntity potentialParent);
 
-             operator bool() const { return m_Entity != entt::null; }
-             operator entt::entity() const { return m_Entity; }
-             operator uint32_t() const { return (uint32_t) m_Entity; }
+        std::vector<RZEntity> GetChildren();
+
+        operator bool() const { return m_Entity != entt::null; }
+        operator entt::entity() const { return m_Entity; }
+        operator uint32_t() const { return (uint32_t) m_Entity; }
+
         bool operator==(const RZEntity& other) const { return m_Entity == other.m_Entity && m_Scene == other.m_Scene; }
         bool operator!=(const RZEntity& other) const { return !(*this == other); }
 

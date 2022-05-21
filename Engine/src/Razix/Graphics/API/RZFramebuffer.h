@@ -14,20 +14,20 @@ namespace Razix {
         // TODO: Replace the pointers with  rzstl::SharedRef(s)
         struct FramebufferInfo
         {
-            uint32_t    width;             /* The initial width with which the framebuffer will be constructed with                */
-            uint32_t    height;            /* The initial height with which the framebuffer will be constructed with               */
-            uint32_t    layer = 0;         /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
-            uint32_t    attachmentCount;   /* Total number of attachments to the framebuffer                                       */
-            uint32_t    msaaLevel;         /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
-            bool        screenFBO = false; /* Is this a final screen FBO or a render target pass                                   */
-            RZTexture** attachments;       /* Pointer to all the attachments of the framebuffer                                    */
+            uint32_t                width;             /* The initial width with which the framebuffer will be constructed with                */
+            uint32_t                height;            /* The initial height with which the framebuffer will be constructed with               */
+            uint32_t                layer = 0;         /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
+            uint32_t                attachmentCount;   /* Total number of attachments to the framebuffer                                       */
+            uint32_t                msaaLevel;         /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
+            bool                    screenFBO = false; /* Is this a final screen FBO or a render target pass                                   */
+            RZTexture**             attachments;       /* Pointer to all the attachments of the framebuffer                                    */
+            Graphics::RZRenderPass* renderPass;        /* The render passes that will performed on the contents of the framebuffer             */
             // TODO: resolve this from the render pass that is provided
             //RZTexture::Type*        attachmentTypes;        /* The types of the attachments                                                         */
-            Graphics::RZRenderPass* renderPass; /* The render passes that will performed on the contents of the framebuffer             */
         };
 
         /* Framebuffer is what the swapchain images and command are executed onto to be used by the GPU to read and present from */
-        class RAZIX_API RZFramebuffer
+        class RAZIX_API RZFramebuffer : public RZRoot
         {
         public:
             RZFramebuffer() = default;

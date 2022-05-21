@@ -50,7 +50,7 @@ namespace Razix {
         };
 
         /* Pipeline binds all the resources together that are necessary to render geometry such as shaders, buffers, uniforms, descriptors and pipeline info */
-        class RAZIX_API RZPipeline
+        class RAZIX_API RZPipeline : public RZRoot
         {
         public:
             RZPipeline() = default;

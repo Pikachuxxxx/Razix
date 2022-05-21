@@ -4,7 +4,7 @@
 
 namespace Razix {
     /* The OS instance helps the Engine get / set information or make changes to the Engine and it's application state */
-    class RAZIX_API RZOS
+    class RAZIX_API RZOS : public RZRoot
     {
     public:
         RZOS()  = default;

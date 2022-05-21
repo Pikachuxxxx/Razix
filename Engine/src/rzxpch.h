@@ -25,6 +25,7 @@
 #include <vector>
 
 //-----Engine-----//
+#include "Razix/Core/RZRoot.h"
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZProfiling.h"
 

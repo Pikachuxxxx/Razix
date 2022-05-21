@@ -48,7 +48,7 @@ namespace Razix {
 #define EVENT_CLASS_CATEGORY(category) \
     virtual int GetCategoryFlags() const override { return category; }
 
-    class RAZIX_API RZEvent
+    class RAZIX_API RZEvent : public RZRoot
     {
         friend class RZEventDispatcher;
 
@@ -67,7 +67,7 @@ namespace Razix {
         }
     };
 
-    class RZEventDispatcher
+    class RZEventDispatcher : public RZRoot
     {
         template<typename T>
         using EventFn = std::function<bool(T&)>;

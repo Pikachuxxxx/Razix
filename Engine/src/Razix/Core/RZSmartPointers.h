@@ -10,7 +10,7 @@ namespace Razix {
     /// <summary>
     /// Manages the counter for different types of smart pointers and global reference count
     /// </summary>
-    class RAZIX_API RefCounter
+    class RAZIX_API RefCounter : public RZRoot
     {
     public:
         RefCounter();

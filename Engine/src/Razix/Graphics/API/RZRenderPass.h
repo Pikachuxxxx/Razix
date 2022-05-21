@@ -33,7 +33,7 @@ namespace Razix {
         };
 
         /* Render Pass describes how the framebuffer is interpreted, provides multiple passes for transformations and attachments and helps with post-processing */
-        class RAZIX_API RZRenderPass
+        class RAZIX_API RZRenderPass : public RZRoot
         {
         public:
             RZRenderPass() = default;
