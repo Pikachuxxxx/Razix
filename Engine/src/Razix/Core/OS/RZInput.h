@@ -9,7 +9,7 @@ namespace Razix {
      * Input manager for the Engine to interface with various input devices
      * such as Keyboard, Mouse, Joystick and other HID devices
      */
-    class RAZIX_API RZInput
+    class RAZIX_API RZInput : public RZRoot
     {
     public:
         // TODO: Use a better API convention for selecting input API implementation

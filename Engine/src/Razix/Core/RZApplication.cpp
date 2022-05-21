@@ -234,7 +234,8 @@ namespace Razix {
         OnStart();
 
         // Run the OnStart method for all the scripts in the scene
-        RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
     }
 
     void RZApplication::Update(const RZTimestep& dt)
@@ -263,7 +264,8 @@ namespace Razix {
         ImGui::End();
 
         // Run the OnUpdate for all the scripts
-        RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
 
         ImGui::Render();
 

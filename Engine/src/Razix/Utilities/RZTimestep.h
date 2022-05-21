@@ -6,7 +6,7 @@ namespace Razix {
     /// <summary>
     /// Manages the delta time of the frame
     /// </summary>
-    class RAZIX_API RZTimestep
+    class RAZIX_API RZTimestep : public RZRoot
     {
     public:
         /// <summary>

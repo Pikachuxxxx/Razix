@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/RZRoot.h"
+
 #include "Razix/Core/RZCore.h"
 
 #include "Razix/Graphics/API/RZVertexBufferLayout.h"
@@ -19,7 +21,7 @@ namespace Razix {
         };
 
         /* Vertex buffer that contains the vertex data that will be used to render geometry */
-        class RAZIX_API RZVertexBuffer
+        class RAZIX_API RZVertexBuffer : public RZRoot
         {
         public:
             RZVertexBuffer() = default;

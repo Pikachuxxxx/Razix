@@ -17,7 +17,7 @@ namespace Razix {
         /**
          * Provides the Interface for Implementing renderers in Razix engine
          */
-        class RAZIX_API IRZRenderer
+        class RAZIX_API IRZRenderer : public RZRoot
         {
         public:
             IRZRenderer() = default;

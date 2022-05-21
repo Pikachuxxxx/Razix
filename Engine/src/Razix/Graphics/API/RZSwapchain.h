@@ -23,7 +23,7 @@ namespace Razix {
         class RZCommandBuffer; /* The command buffer that will be submitted for execution */
 
         /* The swapchain that consists of multiple render targets and framebuffer attachments to render to the surface */
-        class RAZIX_API RZSwapchain
+        class RAZIX_API RZSwapchain : public RZRoot
         {
         public:
             /* Virtual destructor RZSwapchain */

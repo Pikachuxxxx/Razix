@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/RZRoot.h"
+
 #include "Razix/Core/RZCore.h"
 
 #include "Razix/Utilities/RZTimestep.h"
@@ -11,7 +13,7 @@ namespace Razix {
     /*
 	 * An Interface for Engine Systems, Managers, Libraries and Factories
 	 */
-    class RAZIX_API IRZSystem
+    class RAZIX_API IRZSystem : public RZRoot
     {
         IRZSystem()          = default;
         virtual ~IRZSystem() = default;
