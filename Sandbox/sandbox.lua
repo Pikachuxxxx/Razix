@@ -1,5 +1,7 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
+-- Internal libraies include dirs
+include 'Scripts/premake/common/internal_includes.lua'
 
 -- Sanbox Game project
 project "Sandbox"
@@ -19,6 +21,7 @@ project "Sandbox"
     sysincludedirs
     {
         "../Engine/src/Razix",
+        "../Engine",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -33,7 +36,9 @@ project "Sandbox"
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
         "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}"
+        "%{IncludeDir.vendor}",
+        -- Internal libraries
+        "%{InternalIncludeDir.RazixMemory}"
     }
 
    -- Razix Application linkage libraries
@@ -50,7 +55,9 @@ project "Sandbox"
        "OpenFBX",
        "lua",
        "optick",
-       "tracy"
+       "tracy",
+       -- Internal
+       "RazixMemory"
    }
 
    defines

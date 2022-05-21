@@ -5,6 +5,8 @@
 
 #include "Razix/Core/RZSplashScreen.h"
 
+#include "internal/RazixMemory/include/RZMemoryLog.h"
+
 namespace Razix {
     namespace Debug {
 
@@ -24,6 +26,8 @@ namespace Razix {
             RAZIX_CORE_INFO("Starting Up Core Engine Logger");
             Razix::RZSplashScreen::Get().setLogString("Starting Up Core Engine Logger");
 
+            //--------------------------------------------------------------------------------------
+
             std::stringstream appLoggerName;
             appLoggerName << std::setw(18) << std::left << "Razix Application";
 
@@ -31,6 +35,9 @@ namespace Razix {
             s_ApplicationLogger->set_level(spdlog::level::trace);
             RAZIX_INFO("Starting Up Engine Application Logger");
             Razix::RZSplashScreen::Get().setLogString("Starting Up Engine Application Logger");
+
+            // Start the memory logger
+            RZMemoryLog::StartUp();
         }
 
         void RZLog::Shutdown()
@@ -38,6 +45,9 @@ namespace Razix {
             RAZIX_CORE_ERROR("Shutting down Logging System");
             s_CoreLogger.reset();
             s_ApplicationLogger.reset();
+
+            RZMemoryLog::Shutdown();
+
             spdlog::shutdown();
         }
 
