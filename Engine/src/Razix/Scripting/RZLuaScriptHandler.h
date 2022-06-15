@@ -1,15 +1,13 @@
 #pragma once
 
-#include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
 // Lua and c++ wrapper dependencies
-#include <entt.hpp>
-#include <sol/sol.hpp>
 
 namespace Razix {
 
     class RZScene;
+    class RZTimestep;
 
     namespace Scripting {
 

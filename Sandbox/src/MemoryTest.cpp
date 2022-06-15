@@ -28,7 +28,7 @@ public:
         RAZIX_TRACE("sizeof std::string : {0}", sizeof(std::string));
         RAZIX_TRACE("sizeof char : {0}", sizeof(char));
         RAZIX_TRACE("sizeof MemTestClass : {0}", sizeof(MemTestClass));
-         memtestClass = new MemTestClass;
+        memtestClass = new MemTestClass;
 
         //-----------------------------------------------
 

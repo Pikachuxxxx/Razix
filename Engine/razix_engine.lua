@@ -113,7 +113,7 @@ project "Razix"
         "OpenFBX", 
         "lua",
         "optick",
-        "tracy",
+        --"tracy",
         -- Razix Internal Libraries 
         -- 1. Razix Memory
         "RazixMemory"
@@ -231,12 +231,12 @@ project "Razix"
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "TRACY_ENABLE"}
+        defines { "RAZIX_DEBUG", "DEBUG"}
         symbols "On"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG", "TRACY_ENABLE" }
+        defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
 

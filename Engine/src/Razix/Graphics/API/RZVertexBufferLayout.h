@@ -2,10 +2,6 @@
 
 #include "Razix/Core/RZCore.h"
 
-#include <glm/glm.hpp>
-#include <string>
-#include <vector>
-
 namespace Razix {
     namespace Graphics {
 
