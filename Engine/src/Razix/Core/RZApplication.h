@@ -18,13 +18,20 @@
 
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
 
+// glm
+//#include <glm/glm.hpp>
+
 // Cereal
 #pragma warning(push, 0)
-#include <cereal/archives/json.hpp>
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
 
 //! Some style guide rules are waved off for RZApplication class
+
+
+namespace Razix::Graphics {
+    class RZTexture2D;
+}
 
 namespace Razix {
     /* Determines the state of the application */

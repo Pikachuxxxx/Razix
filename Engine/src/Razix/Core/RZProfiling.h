@@ -26,8 +26,6 @@
     #if RZ_PROFILER_TRACY
         #define TRACY_CALLSTACK 1
 
-        #include <Tracy.hpp>
-
         #if RZ_ENABLE_CALL_STACK_CAPTURE
             #define RAZIX_PROFILE_SCOPE(name)         ZoneScopedNS(name, RZ_CALL_STACK_DEPTH)
             #define RAZIX_PROFILE_SCOPEC(name, color) ZoneScopedNCS(name, color, RZ_CALL_STACK_DEPTH)

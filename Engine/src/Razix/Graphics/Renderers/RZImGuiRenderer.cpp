@@ -3,13 +3,22 @@
 // clang-format on
 #include "RZImGuiRenderer.h"
 
+#include "razix/Core/RZApplication.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/API/RZCommandBuffer.h"
+#include "Razix/Graphics/API/RZIndexBuffer.h"
+#include "Razix/Graphics/API/RZPipeline.h"
+#include "Razix/Graphics/API/RZRenderPass.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/API/RZShader.h"
 
-#include "razix/Core/RZApplication.h"
+#include "Razix/Utilities/RZTimestep.h"
 
+// Imgui
+#include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -106,9 +115,9 @@ namespace Razix {
             if (m_UIShader)
                 m_ImGuiPipeline = Graphics::RZPipeline::Create(pipelineInfo);
 
-            layout.push<glm::vec2>("inPos");
-            layout.push<glm::vec2>("inUV");
-            layout.push<uint32_t>("inColor");
+            //layout.push<glm::vec2>("inPos");
+            //layout.push<glm::vec2>("inUV");
+            //layout.push<uint32_t>("inColor");
             /*
 
             ImDrawData* imDrawData = ImGui::GetDrawData();

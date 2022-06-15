@@ -4,11 +4,15 @@
 
 #include "RZUUID.h"
 
-#define SIMDE_ENABLE_NATIVE_ALIASES
-#define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
+// Only use simde if we use clang on windows --> soon to use only 256b-it AVX as PS doesn't support avx-512
 
-#include <simde/x86/avx.h>  // AVX
-#include <simde/x86/avx2.h>  // AVX
+#ifdef __clang__ 
+    #define SIMDE_ENABLE_NATIVE_ALIASES
+    #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
+    
+    #include <simde/x86/avx.h>  // AVX
+    #include <simde/x86/avx2.h>  // AVX
+#endif
 
 namespace Razix {
 
@@ -251,7 +255,7 @@ namespace Razix {
 
         _mm256_storeu_si256((__m256i*) mem, betole256(resd));
         *(uint16_t*) (mem + 16) = betole16(_mm256_extract_epi16(res, 7));
-        *(uint32_t*) (mem + 32) = betole32(simde_mm256_extract_epi32(res, 7));
+        *(uint32_t*) (mem + 32) = betole32(_mm256_extract_epi32(res, 7));
     }
 
     __m128i RZUUID::stringTom128i(const char* mem)
@@ -261,8 +265,8 @@ namespace Razix {
 
         __m256i x = betole256(_mm256_loadu_si256((__m256i*) mem));
         x         = _mm256_shuffle_epi8(x, dash_shuffle);
-        x         = simde_mm256_insert_epi16(x, betole16(*(uint16_t*) (mem + 16)), 7);
-        x         = simde_mm256_insert_epi16(x, betole32(*(uint32_t*) (mem + 32)), 7);
+        x         = _mm256_insert_epi16(x, betole16(*(uint16_t*) (mem + 16)), 7);
+        x         = _mm256_insert_epi32(x, betole32(*(uint32_t*) (mem + 32)), 7);
 
         // Build a mask to apply a different offset to alphas and digits
         const __m256i sub           = _mm256_set1_epi8(0x2F);
