@@ -32,3 +32,7 @@
 //-----3rd Party-----//
 // Profilers
 #include <Tracy.hpp>
+// GLM
+#include <glm/glm.hpp>
+// SOL
+#include <sol/sol.hpp>

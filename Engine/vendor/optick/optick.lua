@@ -23,7 +23,8 @@ project "optick"
         "src/optick_gpu.vulkan.cpp"
     }
 
-    defines "OPTICK_MSVC"
+    -- Needed when using clang-cl on windows as it will default to linux as soon as it sees clang is being used
+    --defines "OPTICK_MSVC"
 
     filter "system:windows"
         systemversion "latest"
@@ -34,7 +35,7 @@ project "optick"
              VulkanSDK .. "/include"
         }
 
-        buildoptions { "-Wno-narrowing" }
+        --buildoptions { "-Wno-narrowing" }
 
     filter "configurations:Debug"
         runtime "Debug"

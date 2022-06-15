@@ -7,5 +7,6 @@ namespace Razix {
 
     Endianess PlatformUtils::GetEndianess()
     {
+        return Endianess::LITTLE;
     }
 }    // namespace Razix

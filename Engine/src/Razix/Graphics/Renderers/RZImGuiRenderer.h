@@ -1,23 +1,21 @@
 #pragma once
 
-#include "Razix/Graphics/Renderers/IRZRenderer.h"
-
-#include "Razix/Graphics/API/RZCommandBuffer.h"
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZRenderPass.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
-#include "Razix/Graphics/API/RZVertexBufferLayout.h"
-
-#include "Razix/Utilities/RZTimestep.h"
-
-// Imgui
-#include <imgui.h>
-#include <imgui_internal.h>
+#include <glm/glm.hpp>
 
 namespace Razix {
 
+    class RZTimestep;
+
     namespace Graphics {
+
+        class RZCommandBuffer;
+        class RZVertexBuffer;
+        class RZIndexBuffer;
+        class RZPipeline;
+        class RZRenderPass;
+        class RZShader;
+        class RZTexture2D;
+        class RZDescriptorSet;
 
         /**
          * ImGui renderer for the Razix engine, manages everything necessary for UI elements
@@ -43,8 +41,9 @@ namespace Razix {
                 glm::vec4 color;
             };
 
-        public:
             PushConstBlock pushConstBlock;
+        
+        public:
             RZImGuiRenderer() {}
             ~RZImGuiRenderer(){};
 
@@ -68,7 +67,6 @@ namespace Razix {
 
             std::vector<ImGuiVertex> m_VertexData;
             std::vector<uint16_t>    m_IndexData;
-            RZVertexBufferLayout     layout;
 
         private:
             void uploadUIFont(const std::string& fontPath);

@@ -2,8 +2,6 @@
 
 #include "Razix/Utilities/RZTimestep.h"
 
-#include <sol/sol.hpp>
-
 namespace Razix {
 
     class RAZIX_API LuaScriptComponent

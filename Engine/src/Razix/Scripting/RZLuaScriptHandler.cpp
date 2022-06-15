@@ -10,6 +10,8 @@
 
 #include "Razix/Scripting/LuaScriptComponent.h"
 
+#include "Razix/Utilities/RZTimestep.h"
+
 namespace Razix {
     namespace Scripting {
 

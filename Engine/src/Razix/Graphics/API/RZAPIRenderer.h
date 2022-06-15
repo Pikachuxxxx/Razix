@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Razix/Core/RZProfiling.h"
-#include "Razix/Core/RZSmartPointers.h"
-#include "Razix/Graphics/API/RZDescriptorSet.h"
 
 namespace Razix {
     namespace Graphics {
@@ -12,6 +10,7 @@ namespace Razix {
         class RZDescriptorSet;
         class RZSwapchain;
         class RZPushConstant;
+        class RZDescriptorSet;
 
         enum class DataType
         {
