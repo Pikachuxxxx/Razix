@@ -22,6 +22,7 @@
 #include "Razix/Graphics/API/RZTexture.h"
 
 #include <backends/imgui_impl_glfw.h>
+#include <cereal/archives/json.hpp>
 
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
