@@ -11,14 +11,14 @@ namespace Razix {
         enum class ShaderStage;
 
         /* What type of data does the descriptor set member represent */
-        enum class DescriptorType
+        enum class DescriptorType : uint32_t
         {
             UNIFORM_BUFFER,
             IMAGE_SAMPLER
         };
 
         /* The format of the input variables in the shader */
-        enum class VertexInputFormat
+        enum class VertexInputFormat : uint32_t
         {
             R8_UINT,
             R32_UINT,
@@ -36,7 +36,7 @@ namespace Razix {
         };
 
         /* The shader data type */
-        enum class ShaderDataType
+        enum class ShaderDataType : uint32_t
         {
             NONE,
             FLOAT32,
@@ -78,11 +78,12 @@ namespace Razix {
         /* Information about the uniform buffer members */
         struct RZShaderBufferMemberInfo
         {
-            uint32_t       size;     /* The size of the member                                                                                   */
-            uint32_t       offset;   /* The offset of the member in the uniform buffer from the first member                                     */
-            ShaderDataType type;     /* The type of the member, this can be used to resolve the format                                           */
-            std::string    name;     /* The name of the member variable                                                                          */
-            std::string    fullName; /* The complete name of the member including uniform buffer as prefix                                       */
+            alignas(16) std::string name;     /* The name of the member variable                                                                             */
+            alignas(16) std::string fullName; /* The complete name of the member including uniform buffer as prefix                                          */
+            uint32_t       size;              /* The size of the member                                                                                      */
+            uint32_t       offset;            /* The offset of the member in the uniform buffer from the first member                                        */
+            ShaderDataType type;              /* The type of the member, this can be used to resolve the format                                              */
+            uint32_t       _padding;          /* Padding variable to pad the structure to 16-byte alignment                                                  */
         };
 
         // TODO: Add support for texture arrays
@@ -135,7 +136,7 @@ namespace Razix {
         };
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
-        class RAZIX_API RZDescriptorSet  : public RZRoot
+        class RAZIX_API RZDescriptorSet : public RZRoot
         {
         public:
             /**
