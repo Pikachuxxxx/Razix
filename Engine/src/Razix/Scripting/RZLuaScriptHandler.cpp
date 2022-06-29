@@ -31,7 +31,9 @@ namespace Razix {
             bindLoggingAPI();
 
             // Bind the ImGui bindings
-            bindImGui();
+            bindImGuiAPI();
+
+            // TODO: Bind other APIs (engine, gfx, ecs, physics etc.)
         }
 
         void RZLuaScriptHandler::ShutDown()

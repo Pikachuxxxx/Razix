@@ -162,15 +162,15 @@
 #endif
 
 // Release for API convention consistency
-#define RAZIX_RELEASE(x)            \
-    {                               \
-        if (x) { (x)->Release(); }; \
-    }
-#define RAZIX_SAFE_RELEASE(x)       \
-    {                               \
-        if (x) { (x)->Release(); }; \
-        x = nullptr;                \
-    }
+//#define RAZIX_RELEASE(x)            \
+//    {                               \
+//        if (x) { (x)->Release(); }; \
+//    }
+//#define RAZIX_SAFE_RELEASE(x)       \
+//    {                               \
+//        if (x) { (x)->Release(); }; \
+//        x = nullptr;                \
+//    }
 
 // Warning push/pop as per compiler convention
 #define RAZIX_WARNING_PUSH() __pragma(warning(push))

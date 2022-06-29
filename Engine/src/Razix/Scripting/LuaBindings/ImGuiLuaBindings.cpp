@@ -3,19 +3,12 @@
 // clang-format on
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
-#include "Razix/Core/RZApplication.h"
-#include "Razix/Core/RZSplashScreen.h"
-
-#include "Razix/Scene/RZScene.h"
-
-#include "Razix/Scripting/LuaScriptComponent.h"
-
 #include <imgui.h>
 
 namespace Razix {
     namespace Scripting {
 
-        void RZLuaScriptHandler::bindImGui()
+        void RZLuaScriptHandler::bindImGuiAPI()
         {
             sol::table globals = m_State.globals();
             sol::table imgui   = m_State.create_table();

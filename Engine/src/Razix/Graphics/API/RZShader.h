@@ -10,7 +10,7 @@ namespace Razix {
     namespace Graphics {
 
         /* The stage which the shader corresponds to in the graphics pipeline */
-        enum class ShaderStage : int32_t
+        enum class ShaderStage
         {
             NONE = -1,
             VERTEX,

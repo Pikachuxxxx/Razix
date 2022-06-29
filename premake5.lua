@@ -34,7 +34,7 @@ end
 workspace ( settings.workspace_name )
     location "build"
     startproject "Sandbox"
-    --flags 'MultiProcessorCompile' (this won't work with clang)
+    flags 'MultiProcessorCompile' --(this won't work with clang)
 
     -- Use clang on windows
     --toolset "clang"

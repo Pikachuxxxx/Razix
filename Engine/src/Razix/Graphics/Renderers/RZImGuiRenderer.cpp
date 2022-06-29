@@ -11,8 +11,8 @@
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZRenderPass.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
 #include "Razix/Graphics/API/RZShader.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
 
 #include "Razix/Utilities/RZTimestep.h"
 

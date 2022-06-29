@@ -13,7 +13,7 @@ namespace Razix {
     /**
      * Scene contains entities that will be used by the engine for rendering and other runtime systems
      */
-    class RAZIX_API RZScene : public RZRoot
+    class RAZIX_API RZScene
     {
     public:
         RZScene();
@@ -93,8 +93,8 @@ namespace Razix {
         }
 
     private:
-        RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
         entt::registry m_Registry;                  /* Scene registry for storing all the entities  */
+        RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
         std::string    m_SceneName = "razix scene"; /* The name of the scene                        */
 
         friend class RZEntity;

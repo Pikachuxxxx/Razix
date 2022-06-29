@@ -16,7 +16,7 @@ namespace Razix {
         enum class CullMode;
         enum class PolygonMode;
         enum class ShaderStage;
-        enum class DescriptorType;
+        enum class DescriptorType : uint32_t;
 
         namespace VKUtilities {
             

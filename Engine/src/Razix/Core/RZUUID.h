@@ -2,8 +2,6 @@
 
 #include <random>
 
-#include <simde/x86/sse4.1.h>
-
 namespace Razix {
 
     /**
@@ -128,7 +126,7 @@ namespace Razix {
             __m128i y = _mm_load_si128((__m128i*) rhs.m_Data);
 
             __m128i neq = _mm_xor_si128(x, y);
-            return simde_mm_test_all_zeros(neq, neq);
+            return _mm_test_all_zeros(neq, neq);
         }
         friend bool operator<(const RZUUID& lhs, const RZUUID& rhs)
         {
