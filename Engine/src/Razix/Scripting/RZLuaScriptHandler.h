@@ -35,18 +35,15 @@ namespace Razix {
             sol::state m_State; /* Manages the lua runtime state and executes scripts etc. */
 
         private:
-            /**
-             * Binds Application API which the user can control such as Widows system information, or get app state and other simple information
-             */
+            /* Binds Application API which the user can control such as Widows system information, or get app state and other simple information */
             void bindApplicationAPI();
-            /**
-             * Binds the Razix Logging API which the client can use to log in the app using Razix Application Logger
-             */
+            /* Binds the Razix Logging API which the client can use to log in the app using Razix Application Logger */
             void bindLoggingAPI();
+            /* Binds the ImGUi API  which the client can use to create ImGui components using lua scripts */
+            void bindImGuiAPI();
             void bindSceneManagerAPI();
             void bindInputAPI();
             void bindECSAPI();
-            void bindImGui();
             void bindglm();
         };
     }    // namespace Scripting

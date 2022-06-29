@@ -2,11 +2,9 @@
 
 #include "Razix/Core/RZUUID.h"
 
-#include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
-#include "Razix/Graphics/RZSprite.h"
-
 #include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZSprite.h"
 
 #include "Razix/Scene/RZSceneCamera.h"
 #include "Razix/Scripting/LuaScriptComponent.h"
