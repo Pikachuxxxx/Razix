@@ -3,7 +3,7 @@
 
 namespace Razix {
 
-    class RAZIX_API RZWindowResizeEvent : public RZRoot, public RZEvent
+    class RAZIX_API RZWindowResizeEvent : public RZEvent
     {
     public:
         RZWindowResizeEvent(unsigned int width, unsigned int height)

@@ -97,7 +97,7 @@ namespace Razix {
             /* returns the height of the texture */
             uint32_t getHeight() const { return m_Height; }
             /* Gets the size of the texture resource */
-            uint32_t getSize() const { return m_Size; }
+            uint64_t getSize() const { return m_Size; }
             /* Returns the internal format of the texture */
             Format getFormat() const { return m_Format; }
             /* Returns the virtual path of the texture resource */
