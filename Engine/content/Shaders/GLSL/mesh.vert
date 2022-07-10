@@ -25,7 +25,7 @@ layout(set = 0, binding = 0) uniform ViewProjectionUniformBufferObject
 } view_proj_ubo;
 
 // The model push constant
-layout (push_constant) uniform ModelPushConstantData{
+layout (push_constant, binding = 1) uniform ModelPushConstantData{
     mat4 model;
 }model_pc_data;
 //------------------------------------------------------------------------------

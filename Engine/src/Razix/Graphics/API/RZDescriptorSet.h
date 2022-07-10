@@ -129,11 +129,7 @@ namespace Razix {
         };
 
         /* Encapsulating the descriptors of a set along with the setID */
-        struct DescriptorSetInfo
-        {
-            int32_t                   setID;       /* The set number to which the descriptors correspond to */
-            std::vector<RZDescriptor> descriptors; /* The descriptors that will be bound to this set and passed to the GPU */
-        };
+        using DescriptorSetsCreateInfos = std::map<uint32_t, std::vector<RZDescriptor>>;
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
         class RAZIX_API RZDescriptorSet : public RZRoot

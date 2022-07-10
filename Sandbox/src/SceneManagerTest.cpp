@@ -1,7 +1,5 @@
-#if 0
-    #if 1
-
-        #include <Razix.h>
+#if 1
+#include <Razix.h>
 
 using namespace Razix;
 
@@ -47,7 +45,7 @@ public:
 
         if (!activeScene) {
             RAZIX_TRACE("Creatng new scene...");
-            RZScene* modelLightScene = new RZScene("SceneManagerTest_Alt");
+            RZScene* modelLightScene = new RZScene("Scene_2");
             Razix::RZEngine::Get().getSceneManager().enqueScene(modelLightScene);
             Razix::RZEngine::Get().getSceneManager().loadScene();
             activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
@@ -70,6 +68,9 @@ public:
 
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
+
+            buildPipelineResources();
+            buildCommandPipeline();
         }
         else  if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
 
@@ -82,15 +83,15 @@ public:
             getImGuiRenderer()->createPipeline(*renderpass);
 
             // Add some model entities
-            //auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
-            //if (!modelEnitties.size()) {
-            //    // Avocado
-            //    auto& avocadoModelEntity = activeScene->createEntity("Avocado Angle Model");
-            //    avocadoModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
-            //    // Plane
-            //    auto& planeEntity = activeScene->createEntity("Ground");
-            //    planeEntity.AddComponent<MeshRendererComponent>(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Plane));
-            //} 
+            auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
+            if (!modelEnitties.size()) {
+                // Avocado
+                auto& armadilloModelEntity = activeScene->createEntity("Armadillo");
+                armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
+                // Plane
+                auto& planeEntity = activeScene->createEntity("Ground");
+                planeEntity.AddComponent<MeshRendererComponent>(Graphics::MeshFactory::CreatePrimitive(Graphics::MeshPrimitive::Plane));
+            } 
         }
     }
 
@@ -125,7 +126,7 @@ public:
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 auto tc = TransformComponent();
-                tc.Rotation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
+                //tc.Rotation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
                 glm::mat4 transform = tc.GetTransform();
                 Graphics::RZAPIRenderer::BindPushConstants(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), sizeof(glm::mat4), &transform);
                 Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
@@ -145,13 +146,15 @@ public:
                     }
 
                     // Draw the meshes
-                    //auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-                    //for (auto& mrc : mrcs) {
-                    //    mrc.Mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    //    mrc.Mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-                    //
-                    //    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
-                    //}
+                    auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
+                    for (auto& mrc : mrcs) {
+                        if (mrc.Mesh != nullptr) {
+                            mrc.Mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                            mrc.Mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+                            Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        }
+                    }
                 }
 
                 if (getImGuiRenderer()->update(dt))
@@ -194,21 +197,22 @@ public:
         for (Graphics::RZModel model : mcs)
             model.Destroy();
 
-        auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh : mrcs)
-            mesh.Mesh->Destroy();
+        //auto& mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        //for (auto& mesh : mrcs)
+        //    mesh.Mesh->Destroy();
 
-        Razix::RZEngine::Get().getSceneManager().loadScene(0);
+        auto csidx = Razix::RZEngine::Get().getSceneManager().getCurrentSceneIndex();
+        Razix::RZEngine::Get().getSceneManager().loadScene(csidx ? 0 : 1);
         activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
         mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
         for (Graphics::RZModel model : mcs)
             model.Destroy();
 
-        mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh : mrcs) {
-            if(mesh.Mesh)
-                mesh.Mesh->Destroy();
-        }
+        //mrcs = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        //for (auto& mesh : mrcs) {
+        //    if(mesh.Mesh)
+        //        mesh.Mesh->Destroy();
+        //}
         
         // Delete the textures
         albedoTexture->Release(true);
@@ -267,14 +271,14 @@ private:
     uint32_t                                                                width, height;
 
     // The current active scene that is rendered by the application
-    RZScene* activeScene;
+    RZScene* activeScene = nullptr;
 
 private:
     void buildPipelineResources()
     {
         // Load the textures
-        albedoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
-        roughness_metallicTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_roughnessMetallic.png", "Specular", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        albedoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Armadillo_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+        roughness_metallicTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Armadillo_metallicRoughness.png", "Specular", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
 
         // Create the shader
         phongLightingShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/mesh_phong_lighting.rzsf");
@@ -288,12 +292,12 @@ private:
             dirLightUniformBuffers[i]->SetData(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
 
             // get the descriptor infos to create the descriptor sets
-            auto setInfos = phongLightingShader->getSetInfos();
+            auto& setInfos = phongLightingShader->getSetsCreateInfos();
 
             int j = 0;
             for (auto& setInfo : setInfos) {
                 // Fill the descriptors with buffers and textures
-                for (auto& descriptor : setInfo.descriptors) {
+                for (auto& descriptor : setInfo.second) {
                     if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
                         if (!j) {
                             descriptor.texture = albedoTexture;
@@ -302,12 +306,12 @@ private:
                         else
                             descriptor.texture = roughness_metallicTexture;
                     }
-                    else if(setInfo.setID == 0 && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER)
+                    else if(setInfo.first == 0 && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER)
                         descriptor.uniformBuffer = viewProjUniformBuffers[i];
-                    else if (setInfo.setID == 1 && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER)
+                    else if (setInfo.first == 1 && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER)
                         descriptor.uniformBuffer = dirLightUniformBuffers[i];
                 }
-                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second);
                 descriptorSets[i].push_back(descSet);
             }
         }
@@ -384,5 +388,4 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new SceneManagerTestApp();
 }
-    #endif
 #endif

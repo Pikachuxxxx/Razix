@@ -121,7 +121,7 @@ namespace Razix {
         m_CurrentState = AppState::Running;
 
         // Enable V-Sync
-        m_Window->SetVSync(true);
+        //m_Window->SetVSync(true);
     }
 
     void RZApplication::OnEvent(RZEvent& event)
@@ -155,11 +155,13 @@ namespace Razix {
     {
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
+        // TODO: Enable window V-Sync here
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
+        // ImGui Renderer
         m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
 
         Start();

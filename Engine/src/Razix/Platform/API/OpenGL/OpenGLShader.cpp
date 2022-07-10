@@ -56,6 +56,7 @@ namespace Razix {
             if (srcType == ShaderSourceType::GLSL)
                 return;
             else if (srcType == ShaderSourceType::SPIRV) {
+                // TODO: Change the decorations for push constants and UBO and set IDs and recompile into proper glsl
             }
         }
 
@@ -88,9 +89,11 @@ namespace Razix {
                         RAZIX_CORE_TRACE("Input variable name : {0}, type : {1}", resource.name, InputType.vecsize);
                         // Push the input vertex layout
                         pushTypeToBuffer(InputType, m_Layout, resource.name);
+                        // TODO: Add Stride
                     }
                 }
 
+                //---------------------------------------------------------------------------------------------------------------------------------------
                 // reflecting the sampled images in the shader
                 for (auto& resource: resources.sampled_images) {
                     // Get the shader and binding info for sampler and get the type of the sampler
@@ -102,8 +105,8 @@ namespace Razix {
                     // Modify the decoration to prepare it for GLSL.
                     glsl.unset_decoration(resource.id, spv::DecorationDescriptorSet);
 
-                    // Some arbitrary remapping if we want (WTF is this???)
-                    glsl.set_decoration(resource.id, spv::DecorationBinding, set * 16 + binding);
+                    // Some arbitrary remapping if we want
+                    //glsl.unset_decoration(resource.id, spv::DecorationBinding);
 
                     RZDescriptorLayoutBinding bindingLayout = {};
                     bindingLayout.binding                   = binding;
@@ -111,7 +114,13 @@ namespace Razix {
                     bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
                     bindingLayout.type                      = DescriptorType::IMAGE_SAMPLER;
 
-                    m_BindingLayouts.push_back(bindingLayout);
+                    RZDescriptor rzDescriptor;
+                    rzDescriptor.bindingInfo = bindingLayout;
+                    rzDescriptor.name        = resource.name;
+
+                    // Find the set first and then it's descriptors vector to append to
+                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[set];
+                    descriptors_in_set.push_back(rzDescriptor);
                 }
 
                 // Changing some parameters of the spv so that it's compatible with OpenGL glsl
@@ -124,6 +133,7 @@ namespace Razix {
                     glsl.set_decoration(input.id, spv::Decoration::DecorationDescriptorSet, DESCRIPTOR_TABLE_INITIAL_SPACE + 2 * set);
                 }
 
+                //---------------------------------------------------------------------------------------------------------------------------------------
                 // Reflecting the Uniform buffer data
                 for (auto& uniform_buffer: resources.uniform_buffers) {
                     auto set{glsl.get_decoration(uniform_buffer.id, spv::Decoration::DecorationDescriptorSet)};
@@ -132,11 +142,71 @@ namespace Razix {
                     uint32_t binding    = glsl.get_decoration(uniform_buffer.id, spv::DecorationBinding);
                     auto&    bufferType = glsl.get_type(uniform_buffer.type_id);
 
+                    //glsl.unset_decoration(uniform_buffer.id, spv::DecorationBinding);
+
                     auto bufferSize  = glsl.get_declared_struct_size(bufferType);
                     int  memberCount = (int) bufferType.member_types.size();
 
                     RAZIX_CORE_TRACE("Uniform buffer info | binding : {0}, set : {1}, bufferSize : {2}, memberCount : {3}", binding, set, bufferSize, memberCount);
                 }
+
+                //---------------------------------------------------------------------------------------------------------------------------------------
+                // Push constants
+                for (auto& u: resources.push_constant_buffers) {
+                    uint32_t set     = glsl.get_decoration(u.id, spv::DecorationDescriptorSet);
+                    uint32_t binding = glsl.get_decoration(u.id, spv::DecorationBinding);
+
+                    auto& type = glsl.get_type(u.type_id);
+                    auto& name = glsl.get_name(u.id);
+
+                    auto ranges = glsl.get_active_buffer_ranges(u.id);
+
+                    uint32_t size = 0;
+                    for (auto& range: ranges) {
+                        size += uint32_t(range.range);
+                    }
+
+                    auto& bufferType  = glsl.get_type(u.base_type_id);
+                    auto  bufferSize  = glsl.get_declared_struct_size(bufferType);
+                    int   memberCount = (int) bufferType.member_types.size();
+
+                    //glsl.unset_decoration(u.id, spv::DecorationBinding);
+                    glsl.set_decoration(u.id, spv::DecorationBinding, binding);
+                    //glsl.set_decoration(u.id, spv::Decort)
+                    //m_PushConstants.push_back({size, file.first});
+                    //m_PushConstants.back().data = new uint8_t[size];
+
+                    for (int i = 0; i < memberCount; i++) {
+                        auto        type       = glsl.get_type(bufferType.member_types[i]);
+                        const auto& memberName = glsl.get_member_name(bufferType.self, i);
+                        auto        size       = glsl.get_declared_struct_member_size(bufferType, i);
+                        auto        offset     = glsl.type_struct_member_offset(bufferType, i);
+
+                        std::string uniformName = u.name + "." + memberName;
+
+                        //auto& member    = m_PushConstants.back().m_Members.emplace_back();
+                        //member.size     = (uint32_t) size;
+                        //member.offset   = offset;
+                        //member.type     = SPIRVTypeToLumosDataType(type);
+                        //member.fullName = uniformName;
+                        //member.name     = memberName;
+                    }
+                }
+                //---------------------------------------------------------------------------------------------------------------------------------------
+                spirv_cross::CompilerGLSL::Options options;
+                options.version                              = 440;
+                options.es                                   = false;
+                options.vulkan_semantics                     = false;
+                options.separate_shader_objects              = false;
+                options.enable_420pack_extension             = false;
+                options.emit_push_constant_as_uniform_buffer = false; // Works with false?? this is weird baby
+                glsl.set_common_options(options);
+
+                // Compile to GLSL, ready to give to GL driver.
+                std::string glslSource = glsl.compile();
+                RAZIX_CORE_TRACE("//---------------------------------------------------------------------------------------------------------------------------------------//");
+                RAZIX_CORE_TRACE("Compiled GLSL Source ==> {0} : {1} \n \t", source.first, glslSource);
+                RAZIX_CORE_TRACE("//---------------------------------------------------------------------------------------------------------------------------------------//");
             }
         }
 
