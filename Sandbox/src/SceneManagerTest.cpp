@@ -30,7 +30,7 @@ public:
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::OPENGL);
         //-------------------------------------------------------------------------------------
     }
 
@@ -66,21 +66,16 @@ public:
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
 
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
 
-            buildPipelineResources();
-            buildCommandPipeline();
-        }
-        else  if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN || Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
 
             buildPipelineResources();
             buildCommandPipeline();
 
             Graphics::RZAPIRenderer::Init();
 
-            getImGuiRenderer()->init();
-            getImGuiRenderer()->createPipeline(*renderpass);
+            //getImGuiRenderer()->init();
+            //getImGuiRenderer()->createPipeline(*renderpass);
 
             // Add some model entities
             auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
@@ -110,11 +105,7 @@ public:
         auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
         activeScene->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
-            swapchain->Flip();
-        }
-        else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN || Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
             Graphics::RZAPIRenderer::Begin();
@@ -157,8 +148,8 @@ public:
                     }
                 }
 
-                if (getImGuiRenderer()->update(dt))
-                    getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                //if (getImGuiRenderer()->update(dt))
+                //    getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
@@ -284,7 +275,7 @@ private:
         phongLightingShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/mesh_phong_lighting.rzsf");
 
         descriptorSets.clear();
-        for (size_t i = 0; i < 3; i++) {
+        for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
             viewProjUniformBuffers[i] = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData, "ViewProjectionUBO");
             viewProjUniformBuffers[i]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 

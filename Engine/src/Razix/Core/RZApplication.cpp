@@ -237,40 +237,40 @@ namespace Razix {
         OnStart();
 
         // Run the OnStart method for all the scripts in the scene
-        if (RZEngine::Get().getSceneManager().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
+        //if (RZEngine::Get().getSceneManager().getCurrentScene())
+        //    RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
     }
 
     void RZApplication::Update(const RZTimestep& dt)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        ImGuiIO& io = ImGui::GetIO();
-        (void) io;
-        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+        //ImGuiIO& io = ImGui::GetIO();
+        //(void) io;
+        //io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
 
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        //ImGui_ImplGlfw_NewFrame();
+        //ImGui::NewFrame();
 
-        OnImGui();
+        //OnImGui();
 
-        ImGui::ShowDemoWindow();
-        if (ImGui::Begin("Razix Engine")) {
-            ImGui::Text("Indeed it is!");
+        //ImGui::ShowDemoWindow();
+        //if (ImGui::Begin("Razix Engine")) {
+        //    ImGui::Text("Indeed it is!");
 
-            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
-            static bool some;
-            if (ImGui::Checkbox("Tesy", &some)) {
-                RAZIX_CORE_ERROR("Done!");
-            }
-        }
-        ImGui::End();
+        //    ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
+        //    static bool some;
+        //    if (ImGui::Checkbox("Tesy", &some)) {
+        //        RAZIX_CORE_ERROR("Done!");
+        //    }
+        //}
+        //ImGui::End();
 
-        // Run the OnUpdate for all the scripts
-        if (RZEngine::Get().getSceneManager().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+        //// Run the OnUpdate for all the scripts
+        //if (RZEngine::Get().getSceneManager().getCurrentScene())
+        //    RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
 
-        ImGui::Render();
+        //ImGui::Render();
 
         OnUpdate(dt);
     }

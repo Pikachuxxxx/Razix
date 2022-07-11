@@ -9,6 +9,10 @@
     #include "Razix/Platform/API/Vulkan/VKFramebuffer.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_OPENGL
+    #include "Razix/Platform/API/OpenGL/OpenGLFrameBuffer.h"
+#endif
+
 namespace Razix {
     namespace Graphics {
 
@@ -17,7 +21,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL:
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLFrameBuffer(frameBufInfo); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKFramebuffer(frameBufInfo); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
