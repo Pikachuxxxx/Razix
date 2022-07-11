@@ -69,7 +69,7 @@ namespace Razix {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                         // Bind the shader to uniform buffer block index 
                         // TODO: USe type name instead of the actual variable name, where the fuck do I store that as (type_id)
-                        unsigned int BindingIndex = glGetUniformBlockIndex(glShader->getProgramID(), descriptor.name.c_str());
+                        unsigned int BindingIndex = glGetUniformBlockIndex(glShader->getProgramID(), descriptor.typeName.c_str());
                         glUniformBlockBinding(glShader->getProgramID(), BindingIndex, descriptor.bindingInfo.binding);
 
                         // Bind the buffer itself
@@ -79,10 +79,8 @@ namespace Razix {
                         // Time to perform slot binding
                         GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
-                        // First enable the right slot
-                        glActiveTexture(GL_TEXTURE0 + descriptor.bindingInfo.binding);
                         // Bind the texture
-                        descriptor.texture->Bind(descriptor.bindingInfo.binding);
+                         descriptor.texture->Bind(descriptor.bindingInfo.binding);
                     }
                 }
             }
@@ -136,8 +134,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // TODO: Use pipeline to set the primitive mode here
-            glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+            // TODO: Use pipeline object to set the primitive mode here
+            glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, nullptr);
         }
 
         void OpenGLAPIRenderer::DestroyAPIImpl()

@@ -58,8 +58,8 @@ namespace Razix {
         {
             m_Size = size;
             GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-            //GLCall(glBufferData(GL_ARRAY_BUFFER, size, data));
-            RAZIX_UNIMPLEMENTED_METHOD
+            GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, dataoffset, GL_STATIC_DRAW));
+            //RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void OpenGLVertexBuffer::Resize(uint32_t size, const void* data)
@@ -71,8 +71,9 @@ namespace Razix {
         {
             Bind(nullptr);
 
-            auto&    elements = layout.getElements();
-            uint32_t offset   = 0;
+            auto& elements = layout.getElements();
+
+            uint32_t offset = 0;
             for (uint32_t i = 0; i < elements.size(); ++i) {
                 BufferLayoutElement& element = elements[i];
                 glEnableVertexAttribArray(i);

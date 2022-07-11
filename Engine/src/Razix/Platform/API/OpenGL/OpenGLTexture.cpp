@@ -85,7 +85,7 @@ namespace Razix {
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
 
             uint32_t format = Graphics::OpenGLUtilities::TextureFormatToGL(m_Format, true);
-            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, Graphics::OpenGLUtilities::TextureFormatToInternalFormat(format), GL_UNSIGNED_BYTE, data ? data : NULL));
+            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, Graphics::OpenGLUtilities::TextureFormatToInternalFormat(format), GL_UNSIGNED_BYTE, pixels));
             GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 
             return handle;
