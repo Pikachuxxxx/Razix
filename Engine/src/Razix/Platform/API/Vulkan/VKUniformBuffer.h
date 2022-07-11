@@ -24,6 +24,7 @@ namespace Razix {
             ~VKUniformBuffer() {}
 
             void Init(const void* data, const std::string& name) override;
+            void Bind() override {}
             void SetData(uint32_t size, const void* data) override;
             void Destroy() override;
         };

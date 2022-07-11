@@ -247,16 +247,16 @@ namespace Razix {
 
             // Create the descriptor sets for normal sprite
             if (m_IsTextured) {
-                auto setInfos = m_TexturedSpriteShader->getSetInfos();
+                auto setInfos = m_TexturedSpriteShader->getSetsCreateInfos();
 
                 for (size_t i = 0; i < 3; i++) {
                     for (auto& setInfo: setInfos) {
                         // Fill the descriptors with buffers and textures
-                        for (auto& descriptor: setInfo.descriptors) {
+                        for (auto& descriptor: setInfo.second) {
                             if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                                 descriptor.texture = m_Texture;
                         }
-                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second);
                         m_TexturedSpriteDescriptorSets.push_back(descSet);
                     }
                 }

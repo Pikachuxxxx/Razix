@@ -11,6 +11,7 @@
 namespace Razix {
     namespace Graphics {
 
+        // TODO: Add bind method to RZUniformBuffer
         /* Uniform Buffer that contains various kinds of data such as animation, lighting etc and can be passed to the shader stages */
         class RAZIX_API RZUniformBuffer : public RZRoot
         {
@@ -29,6 +30,8 @@ namespace Razix {
 
             /* Initializes the uniform buffer */
             virtual void Init(const void* data, const std::string& name) = 0;
+            /* Binds the buffer to the pipeline (relevant for DX and GL) */
+            virtual void Bind() = 0;
             /**
              * Sets the data contents of the uniform buffer
              * 

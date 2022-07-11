@@ -8,7 +8,11 @@
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
-    #include "Razix/Platform/API/Vulkan/VKRenderer.h"
+    #include "Razix/Platform/API/Vulkan/VKAPIRenderer.h"
+#endif
+
+#ifdef RAZIX_RENDER_API_OPENGL
+    #include "Razix/Platform/API/OpenGL/OpenGLAPIRenderer.h"
 #endif
 
 namespace Razix {
@@ -31,8 +35,8 @@ namespace Razix {
             //-------------------------------------------------------------------------------------
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: break;
-                case Razix::Graphics::RenderAPI::VULKAN: s_APIInstance = new VKRenderer(width, height); break;
+                case Razix::Graphics::RenderAPI::OPENGL: s_APIInstance = new OpenGLAPIRenderer(width, height); break;
+                case Razix::Graphics::RenderAPI::VULKAN: s_APIInstance = new VKAPIRenderer(width, height); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
