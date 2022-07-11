@@ -155,8 +155,14 @@ namespace Razix {
                     bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
                     bindingLayout.type                      = DescriptorType::UNIFORM_BUFFER;
 
+                    RAZIX_CORE_WARN("id : {0}, type_id {1}, base_type_id : {2}, name : {3}", glsl.get_name(uniform_buffer.id), glsl.get_name(uniform_buffer.type_id), glsl.get_name(uniform_buffer.base_type_id), uniform_buffer.name);
+
+                    glsl.set_decoration(uniform_buffer.id, spv::Decoration::DecorationBinding, binding);
+
+
                     RZDescriptor rzDescriptor;
                     rzDescriptor.bindingInfo = bindingLayout;
+                    rzDescriptor.typeName    = glsl.get_name(uniform_buffer.base_type_id);
                     rzDescriptor.name        = glsl.get_name(uniform_buffer.id);
                     rzDescriptor.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
                     rzDescriptor.size        = bufferSize;
@@ -212,7 +218,7 @@ namespace Razix {
 
                     //glsl.unset_decoration(u.id, spv::DecorationBinding);
                     // FIXME: This isn't working
-                    glsl.set_decoration(push_constant.id, spv::DecorationBinding, binding);
+                    glsl.set_decoration(push_constant.id, spv::Decoration::DecorationBinding, binding);
                     //glsl.set_decoration(u.id, spv::Decort)
                     //m_PushConstants.push_back({size, file.first});
                     //m_PushConstants.back().data = new uint8_t[size];
@@ -223,9 +229,12 @@ namespace Razix {
                     bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
                     bindingLayout.type                      = DescriptorType::UNIFORM_BUFFER;
 
+                     RAZIX_CORE_WARN("id : {0}, type_id {1}, base_type_id : {2}, name : {3}", glsl.get_name(push_constant.id), glsl.get_name(push_constant.type_id), glsl.get_name(push_constant.base_type_id), push_constant.name);
+
                     RZDescriptor rzDescriptor;
                     rzDescriptor.bindingInfo = bindingLayout;
-                    rzDescriptor.name        = push_constant.name;
+                    rzDescriptor.typeName    = glsl.get_name(push_constant.base_type_id);
+                    rzDescriptor.name        = glsl.get_name(push_constant.id);
                     rzDescriptor.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
                     rzDescriptor.size        = bufferSize;
 
@@ -253,8 +262,8 @@ namespace Razix {
                     }
 
                     // Find the set first and then it's descriptors vector to append to
-                    //auto& descriptors_in_set = m_DescriptorSetsCreateInfos[set];
-                    //descriptors_in_set.push_back(rzDescriptor);
+                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[set];
+                    descriptors_in_set.push_back(rzDescriptor);
                 }
                 //---------------------------------------------------------------------------------------------------------------------------------------
                 spirv_cross::CompilerGLSL::Options options;
@@ -263,8 +272,8 @@ namespace Razix {
                 options.vulkan_semantics                      = false;
                 options.separate_shader_objects               = false;
                 options.enable_420pack_extension              = false;
-                options.emit_push_constant_as_uniform_buffer  = false;
-                options.emit_uniform_buffer_as_plain_uniforms = true;
+                options.emit_push_constant_as_uniform_buffer  = true;
+                options.emit_uniform_buffer_as_plain_uniforms = false;
                 glsl.set_common_options(options);
 
                 // Compile to GLSL, ready to give to GL driver.

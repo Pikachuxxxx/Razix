@@ -47,7 +47,7 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = view_proj_ubo.proj * view_proj_ubo.view * model_pc_data.model * vec4(inPosition, 1.0);
+    gl_Position = view_proj_ubo.proj * view_proj_ubo.view * vec4(inPosition, 1.0);
 
     // Out from vertex shader
     vs_out.fragPos      = vec3(model_pc_data.model * vec4(inPosition, 1.0));

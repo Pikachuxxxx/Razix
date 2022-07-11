@@ -91,6 +91,7 @@ namespace Razix {
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
         struct RZDescriptor
         {
+            std::string                           typeName = "Fuck you";
             std::string                           name;
             RZUniformBuffer*                      uniformBuffer;
             RZTexture*                            texture;
