@@ -9,14 +9,16 @@
 
     #include "Razix/Graphics/API/RZTexture.h"
     #include "Razix/Graphics/API/RZVertexBufferLayout.h"
+    #include "Razix/Graphics/API/RZPipeline.h"
 
 namespace Razix {
     namespace Graphics {
         // TODO: Move implementation to .cpp file
+
         namespace OpenGLUtilities {
 
     /* Check the OpenGL functions for any errors and reports them */
-    #define GLCall(x)                                       \
+    #define GL_CALL(x)                                       \
         ::Razix::Graphics::OpenGLUtilities::GLClearError(); \
         (x);                                                \
         RAZIX_CORE_ASSERT(::Razix::Graphics::OpenGLUtilities::GLLogCall(#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
@@ -221,6 +223,45 @@ namespace Razix {
                         return GL_FLOAT;
                     default:
                         return 0;
+                        break;
+                }
+            }
+
+            static GLenum CullModeToGLCullModeEnum(CullMode mode)
+            {
+                switch (mode) {
+                    case Razix::Graphics::CullMode::BACK:
+                        return GL_BACK;
+                        break;
+                    case Razix::Graphics::CullMode::FRONT:
+                        return GL_FRONT;
+                        break;
+                    case Razix::Graphics::CullMode::FRONTANDBACK:
+                        return GL_FRONT_AND_BACK;
+                        break;
+                    case Razix::Graphics::CullMode::NONE:
+                        return GL_BACK;
+                        break;
+                    default:
+                        return GL_BACK;
+                        break;
+                }
+            }
+
+            static GLenum PolygonModeToGLPolygonModeEnum(PolygonMode mode)
+            {
+                switch (mode) {
+                    case Razix::Graphics::PolygonMode::FILL:
+                        return GL_FILL;
+                        break;
+                    case Razix::Graphics::PolygonMode::LINE:
+                        return GL_LINE;
+                        break;
+                    case Razix::Graphics::PolygonMode::POINT:
+                        return GL_FILL;
+                        break;
+                    default:
+                        return GL_FILL;
                         break;
                 }
             }

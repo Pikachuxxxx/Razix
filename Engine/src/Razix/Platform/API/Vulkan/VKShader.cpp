@@ -268,18 +268,8 @@ namespace Razix {
 
                 for (uint32_t i = 0; i < descriptors_count; i++) {
                     //std::cout << "---------------------------------------------" << std::endl;
-                    DescriptorSetInfo* setInfo = new DescriptorSetInfo;
-                    setInfo->setID             = -1;
-                    bool oldSet                = false;
 
                     SpvReflectDescriptorBinding* descriptor = pp_descriptor_bindings[i];
-
-                    for (size_t i = 0; i < m_DescriptorSetInfos.size(); i++) {
-                        if (m_DescriptorSetInfos[i].setID == descriptor->set) {
-                            setInfo = &m_DescriptorSetInfos[i];
-                            oldSet  = true;
-                        }
-                    }
 
                     RZDescriptor rzDescriptor;
 
@@ -313,7 +303,7 @@ namespace Razix {
                     RZDescriptorLayoutBinding bindingInfo;
                     bindingInfo.binding = descriptor->binding;
                     bindingInfo.count   = 1;
-                    bindingInfo.name    = descriptor->name;
+                    //bindingInfo.name    = descriptor->name;// already being stored in RZDescriptor::name
                     bindingInfo.type    = VKToEngineDescriptorType(descriptor->descriptor_type);
                     bindingInfo.stage   = spvSource.first;
 
@@ -332,11 +322,8 @@ namespace Razix {
                         rzDescriptor.uboMembers.push_back(memberInfo);
                     }
 
-                    setInfo->setID = descriptor->set;
-                    setInfo->descriptors.push_back(rzDescriptor);
-
-                    if (!oldSet && setInfo->setID != -1)
-                        m_DescriptorSetInfos.push_back(*setInfo);
+                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[descriptor->set];
+                    descriptors_in_set.push_back(rzDescriptor);
                 }
                 //if(!oldSet && setInfo->setID != -1)
                 //    m_DescriptorSetInfos.push_back(*setInfo);

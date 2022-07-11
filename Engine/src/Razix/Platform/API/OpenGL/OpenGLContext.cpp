@@ -6,7 +6,6 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
-
 namespace Razix {
     namespace Graphics {
         OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
@@ -28,6 +27,8 @@ namespace Razix {
 
             RAZIX_CORE_INFO("OpenGL Info : \n \t\t\t\t Vendor : {0} \n \t\t\t\t Renderer : {1} \n \t\t\t\t Version : {2} ", vendor, renderer, version);
             RAZIX_CORE_INFO("GLFW Version : {0}", glfwGetVersionString());
+
+            m_Swapchain = new OpenGLSwapchain(0, 0);
         }
 
         void OpenGLContext::Destroy()

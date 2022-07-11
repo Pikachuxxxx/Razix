@@ -46,13 +46,13 @@ namespace Razix {
 
             m_IndexBuffer  = Graphics::RZIndexBuffer::Create(m_Indices.data(), (uint16_t) newIndexCount, m_Name);
             m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * newVertexCount, m_Vertices.data(), BufferUsage::STATIC, m_Name);
-            // TODO: Add buffer layout from the shader
+            // TODO: Add buffer layout by reflecting from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");
             layout.push<glm::vec4>("Color");
             layout.push<glm::vec2>("TexCoords");
             layout.push<glm::vec3>("Normal");
-            //layout.push<glm::vec3>("Tangent");
+            layout.push<glm::vec3>("Tangent");
             m_VertexBuffer->AddBufferLayout(layout);
         }
 

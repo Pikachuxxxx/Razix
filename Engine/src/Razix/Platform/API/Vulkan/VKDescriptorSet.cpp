@@ -4,7 +4,7 @@
 #include "VKDescriptorSet.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
-#include "Razix/Platform/API/Vulkan/VKRenderer.h"
+#include "Razix/Platform/API/Vulkan/VKAPIRenderer.h"
 #include "Razix/Platform/API/Vulkan/VKSwapchain.h"
 #include "Razix/Platform/API/Vulkan/VKUniformBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
@@ -51,7 +51,7 @@ namespace Razix {
 
             VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
             descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            descriptorSetAllocateInfo.descriptorPool     = VKRenderer::GetVKRenderer()->getDescriptorPool();
+            descriptorSetAllocateInfo.descriptorPool     = VKAPIRenderer::GetVKRenderer()->getDescriptorPool();
             descriptorSetAllocateInfo.descriptorSetCount = 1;
             descriptorSetAllocateInfo.pSetLayouts        = &setLayout;
 
@@ -83,7 +83,7 @@ namespace Razix {
                 int imageIndex = 0;
                 int index      = 0;
 
-                for (auto descriptor: descriptors) {
+                for (auto& descriptor: descriptors) {
                     if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         VkDescriptorImageInfo& des              = *static_cast<VkDescriptorImageInfo*>(descriptor.texture->GetHandle());
                         m_ImageInfoPool[imageIndex].imageLayout = des.imageLayout;
@@ -124,7 +124,6 @@ namespace Razix {
                     }
                 }
             }
-
             vkUpdateDescriptorSets(VKDevice::Get().getDevice(), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);
         }
 

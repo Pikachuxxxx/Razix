@@ -13,8 +13,8 @@ namespace Razix {
         /* Culling mode describes which face of the polygon will be culled */
         enum class CullMode
         {
+            BACK, // default
             FRONT,
-            BACK,
             FRONTANDBACK,
             NONE
         };

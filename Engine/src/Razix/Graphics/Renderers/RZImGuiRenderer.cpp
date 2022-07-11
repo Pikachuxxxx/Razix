@@ -79,14 +79,14 @@ namespace Razix {
             uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto& setInfos = m_UIShader->getSetInfos();
+            auto& setInfos = m_UIShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
-                for (auto& descriptor: setInfo.descriptors) {
+                for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                         descriptor.texture = m_FontAtlasTexture;
                 }
-                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second);
             }
 
             ImFontAtlas* atlas = io.Fonts;

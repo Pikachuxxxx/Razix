@@ -61,8 +61,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            DescriptorSetInfo setInfo{};
-            setInfo.setID = 0;
+
             RZDescriptor descriptor{};
             descriptor.name                = m_Name;
             descriptor.bindingInfo.binding = 0;
@@ -70,9 +69,10 @@ namespace Razix {
             descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
             descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
             descriptor.texture             = (RZTexture2D*) this;
-            setInfo.descriptors.push_back(descriptor);
 
-            m_DescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+            std::vector<RZDescriptor> descriptors = {descriptor};
+
+            m_DescriptorSet = Graphics::RZDescriptorSet::Create(descriptors);
         }
 
         //-----------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: break;
+                case Razix::Graphics::RenderAPI::OPENGL: return nullptr; break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKDepthTexture(width, height); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
