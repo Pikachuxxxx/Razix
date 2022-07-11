@@ -14,7 +14,8 @@ namespace Razix {
         enum class DescriptorType : uint32_t
         {
             UNIFORM_BUFFER,
-            IMAGE_SAMPLER
+            IMAGE_SAMPLER // (combined image sampler)
+            // TODO: Add more types like STORAGE_BUFFER, STORAGE_IMAGE, UNIFORM_TEXEL etc.
         };
 
         /* The format of the input variables in the shader */
@@ -68,7 +69,7 @@ namespace Razix {
         /* Descriptor Binding layout describes the binding and set information of the shader uniform variable, to which shader stages the variable is accessible from */
         struct RZDescriptorLayoutBinding
         {
-            std::string    name;        /* The name of the descriptor resource                                                                      */
+            //std::string    name;        /* The name of the descriptor resource                                                                      */
             DescriptorType type;        /* The type of the Descriptor, either a buffer or an texture image that is being consumed in the shader     */
             ShaderStage    stage;       /* The shader stage to which the descriptor is bound to                                                     */
             uint32_t       binding = 0; /* The binding index of the shader                                                                          */

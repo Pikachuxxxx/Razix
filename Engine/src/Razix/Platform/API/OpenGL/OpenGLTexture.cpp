@@ -39,21 +39,21 @@ namespace Razix {
 
         void OpenGLTexture2D::Bind(uint32_t slot)
         {
-            GLCall(glActiveTexture(GL_TEXTURE0 + slot));
-            GLCall(glBindTexture(GL_TEXTURE_2D, m_Handle));
+            GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Handle));
         }
 
         void OpenGLTexture2D::Unbind(uint32_t slot)
         {
-            GLCall(glActiveTexture(GL_TEXTURE0 + slot));
-            GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+            GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         }
 
         void OpenGLTexture2D::SetData(const void* pixels)
         {
-            GLCall(glBindTexture(GL_TEXTURE_2D, m_Handle));
-            GLCall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, Graphics::OpenGLUtilities::TextureFormatToGL(m_Format, true), GL_UNSIGNED_BYTE, pixels));
-            GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Handle));
+            GL_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, Graphics::OpenGLUtilities::TextureFormatToGL(m_Format, true), GL_UNSIGNED_BYTE, pixels));
+            GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
         }
 
         uint32_t OpenGLTexture2D::load(void* data)
@@ -77,16 +77,16 @@ namespace Razix {
             RAZIX_CORE_ASSERT((pixels != nullptr), "[OpenGL] Failed to load Texture data! Name : {0}", m_Name);
 
             uint32_t handle;
-            GLCall(glGenTextures(1, &handle));
-            GLCall(glBindTexture(GL_TEXTURE_2D, handle));
-            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_FilterMode.minFilter == Filtering::FilterMode::LINEAR ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
-            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_FilterMode.magFilter == Filtering::FilterMode::LINEAR ? GL_LINEAR : GL_NEAREST));
-            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
-            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
+            GL_CALL(glGenTextures(1, &handle));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, handle));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_FilterMode.minFilter == Filtering::FilterMode::LINEAR ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_FilterMode.magFilter == Filtering::FilterMode::LINEAR ? GL_LINEAR : GL_NEAREST));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
 
             uint32_t format = Graphics::OpenGLUtilities::TextureFormatToGL(m_Format, true);
-            GLCall(glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, Graphics::OpenGLUtilities::TextureFormatToInternalFormat(format), GL_UNSIGNED_BYTE, data ? data : NULL));
-            GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, Graphics::OpenGLUtilities::TextureFormatToInternalFormat(format), GL_UNSIGNED_BYTE, data ? data : NULL));
+            GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 
             return handle;
         }

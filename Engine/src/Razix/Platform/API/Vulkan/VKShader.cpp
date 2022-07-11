@@ -303,7 +303,7 @@ namespace Razix {
                     RZDescriptorLayoutBinding bindingInfo;
                     bindingInfo.binding = descriptor->binding;
                     bindingInfo.count   = 1;
-                    bindingInfo.name    = descriptor->name;
+                    //bindingInfo.name    = descriptor->name;
                     bindingInfo.type    = VKToEngineDescriptorType(descriptor->descriptor_type);
                     bindingInfo.stage   = spvSource.first;
 

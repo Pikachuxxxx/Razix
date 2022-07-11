@@ -38,17 +38,17 @@ namespace Razix {
 
         OpenGLShader::~OpenGLShader()
         {
-            GLCall(glDeleteProgram(m_ProgramID));
+            GL_CALL(glDeleteProgram(m_ProgramID));
         }
 
         void OpenGLShader::Bind() const
         {
-            GLCall(glUseProgram(m_ProgramID));
+            GL_CALL(glUseProgram(m_ProgramID));
         }
 
         void OpenGLShader::Unbind() const
         {
-            GLCall(glUseProgram(0));
+            GL_CALL(glUseProgram(0));
         }
 
         void OpenGLShader::CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType)
@@ -62,6 +62,10 @@ namespace Razix {
 
         void OpenGLShader::init()
         {
+            uint32_t vertex_shader, pixel_shader, geom_shader, compute_shader;
+            GLint    success;
+            GLchar   infoLog[512];
+
             for (auto& source: m_ParsedRZSF) {
                 // Read SPIR-V from disk or similar and store it into a 32-bit byte code
                 std::string outPath, virtualPath;
@@ -142,72 +146,182 @@ namespace Razix {
                     uint32_t binding    = glsl.get_decoration(uniform_buffer.id, spv::DecorationBinding);
                     auto&    bufferType = glsl.get_type(uniform_buffer.type_id);
 
-                    //glsl.unset_decoration(uniform_buffer.id, spv::DecorationBinding);
-
                     auto bufferSize  = glsl.get_declared_struct_size(bufferType);
                     int  memberCount = (int) bufferType.member_types.size();
 
-                    RAZIX_CORE_TRACE("Uniform buffer info | binding : {0}, set : {1}, bufferSize : {2}, memberCount : {3}", binding, set, bufferSize, memberCount);
+                    RZDescriptorLayoutBinding bindingLayout = {};
+                    bindingLayout.binding                   = binding;
+                    bindingLayout.count                     = 1;
+                    bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
+                    bindingLayout.type                      = DescriptorType::UNIFORM_BUFFER;
+
+                    RZDescriptor rzDescriptor;
+                    rzDescriptor.bindingInfo = bindingLayout;
+                    rzDescriptor.name        = glsl.get_name(uniform_buffer.id);
+                    rzDescriptor.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
+                    rzDescriptor.size        = bufferSize;
+
+                    RAZIX_CORE_TRACE("Uniform buffer info | binding : {0}, set : {1}, bufferSize : {2}, memberCount : {3}, name : {4}", binding, set, bufferSize, memberCount, glsl.get_name(uniform_buffer.id));
+
+                    // Get the member info
+                    for (size_t i = 0; i < memberCount; i++) {
+                        auto& type       = glsl.get_type(bufferType.member_types[i]);
+                        auto& memberName = glsl.get_member_name(bufferType.self, i);
+                        auto  size       = glsl.get_declared_struct_member_size(bufferType, i);
+                        auto  offset     = glsl.type_struct_member_offset(bufferType, i);
+
+                        std::string uniformName = glsl.get_name(uniform_buffer.id) + "." + memberName;
+
+                        RZShaderBufferMemberInfo memberInfo;
+
+                        memberInfo.size   = (uint32_t) size;
+                        memberInfo.offset = offset;
+                        //memberInfo.type     = spirvtype(type); // TODO: Add utility function for conversion
+                        memberInfo.fullName = uniformName;
+                        memberInfo.name     = memberName;
+
+                        rzDescriptor.uboMembers.push_back(memberInfo);
+
+                        RAZIX_CORE_TRACE("\t UBO member Info | name : {0}, offset : {1}, size : {2}", uniformName, offset, size);
+                    }
+
+                    // Find the set first and then it's descriptors vector to append to
+                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[set];
+                    descriptors_in_set.push_back(rzDescriptor);
                 }
 
                 //---------------------------------------------------------------------------------------------------------------------------------------
                 // Push constants
-                for (auto& u: resources.push_constant_buffers) {
-                    uint32_t set     = glsl.get_decoration(u.id, spv::DecorationDescriptorSet);
-                    uint32_t binding = glsl.get_decoration(u.id, spv::DecorationBinding);
+                for (auto& push_constant: resources.push_constant_buffers) {
+                    uint32_t set     = glsl.get_decoration(push_constant.id, spv::DecorationDescriptorSet);
+                    uint32_t binding = glsl.get_decoration(push_constant.id, spv::DecorationBinding);
 
-                    auto& type = glsl.get_type(u.type_id);
-                    auto& name = glsl.get_name(u.id);
+                    auto& type = glsl.get_type(push_constant.type_id);
+                    auto& name = glsl.get_name(push_constant.id);
 
-                    auto ranges = glsl.get_active_buffer_ranges(u.id);
+                    auto ranges = glsl.get_active_buffer_ranges(push_constant.id);
 
                     uint32_t size = 0;
                     for (auto& range: ranges) {
                         size += uint32_t(range.range);
                     }
 
-                    auto& bufferType  = glsl.get_type(u.base_type_id);
+                    auto& bufferType  = glsl.get_type(push_constant.base_type_id);
                     auto  bufferSize  = glsl.get_declared_struct_size(bufferType);
                     int   memberCount = (int) bufferType.member_types.size();
 
                     //glsl.unset_decoration(u.id, spv::DecorationBinding);
-                    glsl.set_decoration(u.id, spv::DecorationBinding, binding);
+                    // FIXME: This isn't working
+                    glsl.set_decoration(push_constant.id, spv::DecorationBinding, binding);
                     //glsl.set_decoration(u.id, spv::Decort)
                     //m_PushConstants.push_back({size, file.first});
                     //m_PushConstants.back().data = new uint8_t[size];
 
+                    RZDescriptorLayoutBinding bindingLayout = {};
+                    bindingLayout.binding                   = binding;
+                    bindingLayout.count                     = 1;
+                    bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
+                    bindingLayout.type                      = DescriptorType::UNIFORM_BUFFER;
+
+                    RZDescriptor rzDescriptor;
+                    rzDescriptor.bindingInfo = bindingLayout;
+                    rzDescriptor.name        = push_constant.name;
+                    rzDescriptor.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
+                    rzDescriptor.size        = bufferSize;
+
+                    RAZIX_CORE_TRACE("PushConstant Info | name : {0}, size : {1}, member count : {2}, binding : {3}, set : {4}", name, bufferSize, memberCount, binding, set);
+
                     for (int i = 0; i < memberCount; i++) {
-                        auto        type       = glsl.get_type(bufferType.member_types[i]);
-                        const auto& memberName = glsl.get_member_name(bufferType.self, i);
-                        auto        size       = glsl.get_declared_struct_member_size(bufferType, i);
-                        auto        offset     = glsl.type_struct_member_offset(bufferType, i);
+                        auto& type       = glsl.get_type(bufferType.member_types[i]);
+                        auto& memberName = glsl.get_member_name(bufferType.self, i);
+                        auto  size       = glsl.get_declared_struct_member_size(bufferType, i);
+                        auto  offset     = glsl.type_struct_member_offset(bufferType, i);
 
-                        std::string uniformName = u.name + "." + memberName;
+                        std::string uniformName = push_constant.name + "." + memberName;
 
-                        //auto& member    = m_PushConstants.back().m_Members.emplace_back();
-                        //member.size     = (uint32_t) size;
-                        //member.offset   = offset;
-                        //member.type     = SPIRVTypeToLumosDataType(type);
-                        //member.fullName = uniformName;
-                        //member.name     = memberName;
+                        RZShaderBufferMemberInfo memberInfo;
+
+                        memberInfo.size   = (uint32_t) size;
+                        memberInfo.offset = offset;
+                        //memberInfo.type     = spirvtype(type); // TODO: Add utility function for conversion
+                        memberInfo.fullName = uniformName;
+                        memberInfo.name     = memberName;
+
+                        rzDescriptor.uboMembers.push_back(memberInfo);
+
+                        RAZIX_CORE_TRACE("\t PushConstant member Info | name : {0}, offset : {1}, size : {2}", uniformName, offset, size);
                     }
+
+                    // Find the set first and then it's descriptors vector to append to
+                    //auto& descriptors_in_set = m_DescriptorSetsCreateInfos[set];
+                    //descriptors_in_set.push_back(rzDescriptor);
                 }
                 //---------------------------------------------------------------------------------------------------------------------------------------
                 spirv_cross::CompilerGLSL::Options options;
-                options.version                              = 440;
-                options.es                                   = false;
-                options.vulkan_semantics                     = false;
-                options.separate_shader_objects              = false;
-                options.enable_420pack_extension             = false;
-                options.emit_push_constant_as_uniform_buffer = false; // Works with false?? this is weird baby
+                options.version                               = 440;
+                options.es                                    = false;
+                options.vulkan_semantics                      = false;
+                options.separate_shader_objects               = false;
+                options.enable_420pack_extension              = false;
+                options.emit_push_constant_as_uniform_buffer  = false;
+                options.emit_uniform_buffer_as_plain_uniforms = true;
                 glsl.set_common_options(options);
 
                 // Compile to GLSL, ready to give to GL driver.
                 std::string glslSource = glsl.compile();
                 RAZIX_CORE_TRACE("//---------------------------------------------------------------------------------------------------------------------------------------//");
-                RAZIX_CORE_TRACE("Compiled GLSL Source ==> {0} : {1} \n \t", source.first, glslSource);
+                RAZIX_CORE_TRACE("SPIRV-->GLSL (non-vulkan) Source ==> {0} : {1} \n \t", source.first, glslSource);
                 RAZIX_CORE_TRACE("//---------------------------------------------------------------------------------------------------------------------------------------//");
+
+                // Now compile this
+                if (source.first == ShaderStage::VERTEX) {
+                    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+
+                    const GLchar* ShaderCode = glslSource.c_str();
+                    glShaderSource(vertex_shader, 1, &ShaderCode, NULL);
+                    glCompileShader(vertex_shader);
+                    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+
+                    if (!success) {
+                        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
+
+                        RAZIX_CORE_ERROR("[OPENGL] [Shader Compilation Failed :: VEXTEX_SHADER] Info : {0} ", infoLog);
+                    }
+
+                } else if (source.first == ShaderStage::PIXEL) {
+                    pixel_shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+                    const GLchar* ShaderCode = glslSource.c_str();
+                    glShaderSource(pixel_shader, 1, &ShaderCode, NULL);
+                    glCompileShader(pixel_shader);
+                    glGetShaderiv(pixel_shader, GL_COMPILE_STATUS, &success);
+
+                    if (!success) {
+                        glGetShaderInfoLog(pixel_shader, 512, NULL, infoLog);
+
+                        RAZIX_CORE_ERROR("[OPENGL] [Shader Compilation Failed :: PIXEL_SHADER] Info : {0} ", infoLog);
+                    }
+                }
             }
+
+            // Link the vertex and pixel shaders into a single shader program
+            m_ProgramID = glCreateProgram();
+            glAttachShader(m_ProgramID, vertex_shader);
+            glAttachShader(m_ProgramID, pixel_shader);
+            glLinkProgram(m_ProgramID);
+
+            glGetProgramiv(m_ProgramID, GL_LINK_STATUS, &success);
+
+            if (!success) {
+                glGetProgramInfoLog(m_ProgramID, 512, NULL, infoLog);
+                RAZIX_CORE_ERROR("[OPENGL] [Shader Program LINKING_FAILED] Info : {0}", infoLog);
+            }
+
+            // Delete the shaders as they're linked into our program now and no longer necessary
+            glDeleteShader(vertex_shader);
+            glDeleteShader(pixel_shader);
+
+            // Add bindings to shader
         }
 
         void OpenGLShader::pushTypeToBuffer(const spirv_cross::SPIRType type, Graphics::RZVertexBufferLayout& layout, const std::string& name)

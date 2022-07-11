@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Platform/API/OpenGL/OpenGLSwapchain.h"
 
 struct GLFWwindow;
 
@@ -18,9 +19,11 @@ namespace Razix {
             static OpenGLContext* Get() { return static_cast<OpenGLContext*>(s_Context); }
 
             inline GLFWwindow* getGLFWWindow() const { return m_Window; }
+            inline OpenGLSwapchain* getSwapchain() const { return m_Swapchain; }
 
         private:
             GLFWwindow* m_Window;
+            OpenGLSwapchain* m_Swapchain;
         };
     }    // namespace Graphics
 

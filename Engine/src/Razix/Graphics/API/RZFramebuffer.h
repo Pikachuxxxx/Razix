@@ -14,14 +14,15 @@ namespace Razix {
         // TODO: Replace the pointers with  rzstl::SharedRef(s)
         struct FramebufferInfo
         {
-            uint32_t                width;             /* The initial width with which the framebuffer will be constructed with                */
-            uint32_t                height;            /* The initial height with which the framebuffer will be constructed with               */
-            uint32_t                layer = 0;         /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
-            uint32_t                attachmentCount;   /* Total number of attachments to the framebuffer                                       */
-            uint32_t                msaaLevel;         /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
-            bool                    screenFBO = false; /* Is this a final screen FBO or a render target pass                                   */
-            RZTexture**             attachments;       /* Pointer to all the attachments of the framebuffer                                    */
-            Graphics::RZRenderPass* renderPass;        /* The render passes that will performed on the contents of the framebuffer             */
+            uint32_t                width;            /* The initial width with which the framebuffer will be constructed with                */
+            uint32_t                height;           /* The initial height with which the framebuffer will be constructed with               */
+            uint32_t                layer = 0;        /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
+            uint32_t                attachmentCount;  /* Total number of attachments to the framebuffer                                       */
+            uint32_t                msaaLevel;        /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
+            bool                    screenFBO = true; /* Is this a final screen FBO or a render target pass                                   */
+            RZTexture**             attachments;      /* Pointer to all the attachments of the framebuffer                                    */
+            // TODO: convert this to RenderTexture so that screenFBO boolean can be used to validate if swapchain image is passed instead; it should automatically get the swapchain image if we use screenFBO and depthTexture is created by itself
+            Graphics::RZRenderPass* renderPass;       /* The render passes that will performed on the contents of the framebuffer             */
             // TODO: resolve this from the render pass that is provided
             //RZTexture::Type*        attachmentTypes;        /* The types of the attachments                                                         */
         };
@@ -41,6 +42,9 @@ namespace Razix {
              * @returns The pointer to the API implementation of the Framebuffer class
              */
             static RZFramebuffer* Create(const FramebufferInfo& frameBufInfo);
+
+            virtual void Bind() {}
+            virtual void Unbind() {}
 
             virtual void Destroy() = 0;
 
