@@ -5,6 +5,7 @@
 
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
 
 #include "Razix/Scene/RZScene.h"
 
@@ -77,10 +78,16 @@ namespace Razix {
 
         void RZLuaScriptHandler::bindApplicationAPI()
         {
-            sol::usertype<RZApplication> appType = m_State.new_usertype<RZApplication>("RZApplication");
+            sol::usertype<RZApplication> appType = m_State.new_usertype<RZApplication>("RZApp");
 
             appType.set_function("GetWindowSize", &RZApplication::getWindowSize);
             m_State.set_function("GetAppInstance", &RZApplication::Get);
+
+            sol::table graphics = m_State.create_table("RZGraphicsContext");
+
+            graphics.new_enum("RenderAPI", "OpenGL", Graphics::RenderAPI::OPENGL, "Vulkan", Graphics::RenderAPI::OPENGL);
+
+            graphics.set_function("SetRenderAPI", &Graphics::RZGraphicsContext::SetRenderAPI);
         }
 
         void RZLuaScriptHandler::bindLoggingAPI()
