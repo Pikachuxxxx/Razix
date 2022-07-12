@@ -25,6 +25,7 @@ namespace Razix {
 
         private:
             uint32_t m_IBO;
+            void*    m_Mapped;
         };
     }    // namespace Graphics
 }    // namespace Razix

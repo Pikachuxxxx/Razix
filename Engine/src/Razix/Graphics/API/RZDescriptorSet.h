@@ -14,7 +14,7 @@ namespace Razix {
         enum class DescriptorType : uint32_t
         {
             UNIFORM_BUFFER,
-            IMAGE_SAMPLER // (combined image sampler)
+            IMAGE_SAMPLER    // (combined image sampler)
             // TODO: Add more types like STORAGE_BUFFER, STORAGE_IMAGE, UNIFORM_TEXEL etc.
         };
 
@@ -96,29 +96,35 @@ namespace Razix {
             RZUniformBuffer*                      uniformBuffer;
             RZTexture*                            texture;
             std::vector<RZShaderBufferMemberInfo> uboMembers;
-            RZDescriptorLayoutBinding             bindingInfo;
             uint32_t                              size;      //? The size of the descriptor data, can also be extracted from UBO/Texture??
             uint32_t                              offset;    //? I don't think this is needed
+            RZDescriptorLayoutBinding             bindingInfo;
         };
 
         struct RZPushConstant
         {
-            std::string name;
-            ShaderStage shaderStage;
-            uint8_t*    data;
-            uint32_t    size;
-            uint32_t    offset = 0;
+            std::string                           typeName = "Fuck you";
+            std::string                           name;
+            std::vector<RZShaderBufferMemberInfo> structMembers;
+            void*                                 data;
+            RZDescriptorLayoutBinding             bindingInfo;
+            uint32_t                              size;
+            uint32_t                              offset = 0;
+            ShaderStage                           shaderStage;
+            uint32_t                              _padding;
+
+            RZPushConstant() {}
 
             RZPushConstant(const std::string& name, ShaderStage stage, uint8_t* data, uint32_t size, uint32_t offset)
                 : name(name), shaderStage(stage), data(data), size(size), offset(offset) {}
 
-            std::vector<RZShaderBufferMemberInfo> m_Members;
-
             void setValue(const std::string& name, void* value)
             {
-                for (auto& member: m_Members) {
+                memset(data, 0, size);
+                for (auto& member: structMembers) {
                     if (member.name == name) {
-                        memcpy(&data[member.offset], value, member.size);
+                        // TODO: FIXME
+                        //memcpy(&data[member.offset], value, member.size);
                         break;
                     }
                 }

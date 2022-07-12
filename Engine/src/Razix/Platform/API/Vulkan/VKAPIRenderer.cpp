@@ -165,21 +165,12 @@ namespace Razix {
             return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get());
         }
 
-        void VKAPIRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data)
+        void VKAPIRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            //for (auto pushConstant : pushConstants) {
-
-            //struct DefaultPushConstantData
-            //{
-            //    alignas(16) glm::mat4 model;
-            //}modelPCData;
-
-            ////modelPCData.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -100.0f, 0.0f));
-            //modelPCData.model = tc.GetTransform();
-
-            vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, blockSize, data);
+            //for (auto& pushConstant: pushConstants) {
+                vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), VKUtilities::ShaderStageToVK(pushConstant.shaderStage), pushConstant.offset, pushConstant.size, pushConstant.data);
             //}
         }
 

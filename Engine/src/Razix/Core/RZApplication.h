@@ -69,6 +69,11 @@ namespace Razix {
         /* Starts the Engine Runtime systems */
         void RAZIX_CALL Run();
 
+        /* Quits the application and releases any resources held by it */
+        void Quit();
+
+        void SaveApp();
+
         /**
          * Called before the application starts rendering
          * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
@@ -213,8 +218,7 @@ namespace Razix {
         void Update(const RZTimestep& dt);
         /* Renders the application and Engine rendering commands */
         void Render();
-        /* Quits the application and releases any resources held by it */
-        void Quit();
+
 
         // Event callbacks
         /**
