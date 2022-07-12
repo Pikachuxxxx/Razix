@@ -86,22 +86,26 @@ namespace Razix {
 
         void OpenGLVertexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            Bind(nullptr);
+
+            m_Mapped = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+            RAZIX_CORE_ASSERT(m_Mapped != nullptr, "[OPENGL] cannot map buffer")
         }
 
         void OpenGLVertexBuffer::UnMap()
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            Bind(nullptr);
+
+            glUnmapBuffer(GL_ARRAY_BUFFER);
         }
 
         void* OpenGLVertexBuffer::GetMappedBuffer()
         {
-            return nullptr;
+            return m_Mapped;
         }
 
         void OpenGLVertexBuffer::Flush()
         {
-            RAZIX_UNIMPLEMENTED_METHOD
         }
     }    // namespace Graphics
 }    // namespace Razix

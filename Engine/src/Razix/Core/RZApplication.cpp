@@ -22,6 +22,8 @@
 #include "Razix/Graphics/API/RZTexture.h"
 
 #include <backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 #include <cereal/archives/json.hpp>
 
 namespace Razix {
@@ -170,6 +172,7 @@ namespace Razix {
         albedoTexture->generateDescriptorSet();
         while (RenderFrame()) {}
         Quit();
+        SaveApp();
     }
 
     bool RZApplication::RenderFrame()
@@ -237,40 +240,43 @@ namespace Razix {
         OnStart();
 
         // Run the OnStart method for all the scripts in the scene
-        //if (RZEngine::Get().getSceneManager().getCurrentScene())
-        //    RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
     }
 
     void RZApplication::Update(const RZTimestep& dt)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        //ImGuiIO& io = ImGui::GetIO();
-        //(void) io;
-        //io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
 
-        //ImGui_ImplGlfw_NewFrame();
-        //ImGui::NewFrame();
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+            ImGui_ImplOpenGL3_NewFrame();
 
-        //OnImGui();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-        //ImGui::ShowDemoWindow();
-        //if (ImGui::Begin("Razix Engine")) {
-        //    ImGui::Text("Indeed it is!");
+        OnImGui();
 
-        //    ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
-        //    static bool some;
-        //    if (ImGui::Checkbox("Tesy", &some)) {
-        //        RAZIX_CORE_ERROR("Done!");
-        //    }
-        //}
-        //ImGui::End();
+        ImGui::ShowDemoWindow();
+        if (ImGui::Begin("Razix Engine")) {
+            ImGui::Text("Indeed it is!");
 
-        //// Run the OnUpdate for all the scripts
-        //if (RZEngine::Get().getSceneManager().getCurrentScene())
-        //    RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
+            static bool some;
+            if (ImGui::Checkbox("Test", &some)) {
+                RAZIX_CORE_ERROR("Done!");
+            }
+        }
+        ImGui::End();
 
-        //ImGui::Render();
+        // Run the OnUpdate for all the scripts
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+
+        ImGui::Render();
 
         OnUpdate(dt);
     }
@@ -288,7 +294,10 @@ namespace Razix {
         albedoTexture->Release(true);
         // Client side quit customization
         OnQuit();
+    }
 
+    void RZApplication::SaveApp()
+    {
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
         std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
@@ -298,4 +307,5 @@ namespace Razix {
 
         RAZIX_CORE_ERROR("Closing Application!");
     }
+
 }    // namespace Razix

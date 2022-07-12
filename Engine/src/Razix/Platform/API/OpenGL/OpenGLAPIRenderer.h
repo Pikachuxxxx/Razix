@@ -28,13 +28,13 @@ namespace Razix {
 
             RZSwapchain* GetSwapchainImpl() override;
 
-            void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data) override;
+            void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant) override;
             void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer) override;
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets) override;
             void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) override;
 
         private:
-            OpenGLContext* m_Context; /* Reference to the opengl context, we store it to avoid multiple calls */
+            OpenGLContext*       m_Context; /* Reference to the opengl context, we store it to avoid multiple calls */
         };
-    }
-}
+    }    // namespace Graphics
+}    // namespace Razix

@@ -342,7 +342,26 @@ namespace Razix {
                     //std::cout << "Size      : " << pushConstant->size << std::endl;
                     //std::cout << "Offset    : " << pushConstant->offset << std::endl;
 
-                    m_PushConstants.push_back(RZPushConstant(pushConstant->name, spvSource.first, nullptr, pushConstant->size, pushConstant->offset));
+                    RZPushConstant pc{};
+                    pc.name = pushConstant->name;
+                    pc.shaderStage = spvSource.first;
+                    pc.data        = nullptr;
+                    pc.size        = pushConstant->size;
+                    pc.offset      = pushConstant->offset;
+                    pc.bindingInfo.binding = 0;
+                    pc.bindingInfo.stage   = spvSource.first;
+                    pc.bindingInfo.count   = 1;
+                    pc.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                    for (size_t i = 0; i < pushConstant->member_count; i++) {
+                        auto member = pushConstant->members[i];
+                        RZShaderBufferMemberInfo mem;
+                        mem.fullName = pc.name + "." + member.name;
+                        mem.name     = member.name;
+                        mem.offset   = member.offset;
+                        mem.size     = member.size;
+                        pc.structMembers.push_back(mem);
+                    }
+                    m_PushConstants.push_back(pc);
                 }
                 // Destroy the reflection data when no longer required
                 spvReflectDestroyShaderModule(&module);

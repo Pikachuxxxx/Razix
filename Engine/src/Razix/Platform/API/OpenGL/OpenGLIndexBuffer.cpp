@@ -55,22 +55,26 @@ namespace Razix {
 
         void OpenGLIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            Bind(nullptr);
+
+            m_Mapped = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_WRITE);
+            RAZIX_CORE_ASSERT(m_Mapped != nullptr, "[OPENGL] cannot map buffer")
         }
 
         void OpenGLIndexBuffer::UnMap()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            Bind(nullptr);
+
+            glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         }
 
         void* OpenGLIndexBuffer::GetMappedBuffer()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            return m_Mapped;
         }
 
         void OpenGLIndexBuffer::Flush()
         {
-            throw std::logic_error("The method or operation is not implemented.");
         }
 
     }    // namespace Graphics
