@@ -38,6 +38,26 @@ namespace Razix {
                 "iniSavingRate",
                 &ImGuiIO::IniSavingRate);
 
+            imgui.new_enum("ComboFlags",
+                "None",
+                0,
+                "PopupAlignLeft",
+                1 << 0,
+                "HeightSmall",
+                1 << 1,
+                "HeightRegular",
+                1 << 2,
+                "HeightLarge",
+                1 << 3,
+                "HeightLargest",
+                1 << 4,
+                "NoArrowButton",
+                1 << 5,
+                "NoPreview",
+                1 << 6,
+                "HeightMask_",
+                ImGuiComboFlags_HeightSmall | ImGuiComboFlags_HeightRegular | ImGuiComboFlags_HeightLarge | ImGuiComboFlags_HeightLargest);
+
             imgui["getIO"]       = ImGui::GetIO;
             imgui["getStyle"]    = ImGui::GetStyle;
             imgui["newFrame"]    = ImGui::NewFrame;
@@ -53,8 +73,23 @@ namespace Razix {
 
             imgui["beginWindow"] = sol::overload([](const char* _str) { return ImGui::Begin(_str); },
                 [](const char* _str, ImGuiWindowFlags _flags) { return ImGui::Begin(_str, NULL, _flags); });
+            imgui["endWindow"]   = ImGui::End;
 
-            imgui["endWindow"] = ImGui::End;
+            imgui["beginCombo"] = sol::overload(
+                [](const char* _label, const char* _preview_value) { return ImGui::BeginCombo(_label, _preview_value); });
+            imgui["endCombo"]   = ImGui::EndCombo;
+
+            imgui["selectable"] = sol::overload(
+                [](const char* _label, bool _bSelected, sol::function _cb) {
+                    if (ImGui::Selectable(_label, &_bSelected))
+                        _cb(_bSelected);
+                },
+                [](const char* _label, bool _bSelected, ImGuiSelectableFlags _flags, sol::function _cb) {
+                    if (ImGui::Selectable(_label, &_bSelected, _flags))
+                        _cb(_bSelected);
+                });
+
+            imgui["setItemDefaultFocus"] = ImGui::SetItemDefaultFocus;
 
             imgui["separator"] = ImGui::Separator;
 

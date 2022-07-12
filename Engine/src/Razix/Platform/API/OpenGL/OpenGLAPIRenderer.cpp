@@ -67,7 +67,7 @@ namespace Razix {
                 for (auto& descriptor: static_cast<OpenGLDescriptorSet*>(set)->getDescriptors()) {
                     // Let's bind all the uniform buffers first
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
-                        // Bind the shader to uniform buffer block index 
+                        // Bind the shader to uniform buffer block index
                         // TODO: USe type name instead of the actual variable name, where the fuck do I store that as (type_id)
                         unsigned int BindingIndex = glGetUniformBlockIndex(glShader->getProgramID(), descriptor.typeName.c_str());
                         glUniformBlockBinding(glShader->getProgramID(), BindingIndex, descriptor.bindingInfo.binding);
@@ -80,7 +80,7 @@ namespace Razix {
                         GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         // Bind the texture
-                         descriptor.texture->Bind(descriptor.bindingInfo.binding);
+                        descriptor.texture->Bind(descriptor.bindingInfo.binding);
                     }
                 }
             }
@@ -94,7 +94,8 @@ namespace Razix {
             // Bind all the uniform, storage and samplers to the right binding slots here using the information from the descriptors
 
             // First bind the shader
-            static_cast<OpenGLPipeline*>(pipeline)->getShader()->Bind();
+            auto shader = static_cast<OpenGLPipeline*>(pipeline)->getShader();
+            shader->Bind();
 
             for (int i = 0; i < totalSets; i++) {
                 auto& set = descriptorSets[i];
@@ -154,9 +155,22 @@ namespace Razix {
             return static_cast<RZSwapchain*>(OpenGLContext::Get()->getSwapchain());
         }
 
-        void OpenGLAPIRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data)
+        void OpenGLAPIRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Find the uniform in the set and tag that with this
+            auto shader = static_cast<OpenGLPipeline*>(pipeline)->getShader();
+            shader->Bind();
+
+            // now use the push constant to create uniform buffer and bind it
+            OpenGLUniformBuffer ubo(pushConstant.size, pushConstant.data, pushConstant.name);
+            ubo.Bind();
+            ubo.SetData(pushConstant.size, pushConstant.data);
+
+            GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, pushConstant.bindingInfo.binding, ubo.getHandle(), pushConstant.offset, pushConstant.size));
+
+            ubo.Destroy();
         }
 
         void OpenGLAPIRenderer::SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)

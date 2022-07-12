@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZProfiling.h"
 
+#include "Razix/Graphics/API/RZDescriptorSet.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -9,8 +11,8 @@ namespace Razix {
         class RZPipeline;
         class RZDescriptorSet;
         class RZSwapchain;
-        class RZPushConstant;
         class RZDescriptorSet;
+        struct RZPushConstant;
 
         enum class DataType
         {
@@ -58,10 +60,10 @@ namespace Razix {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
                 s_APIInstance->BindDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets, totalSets);
             }
-            RAZIX_FORCE_INLINE static void BindPushConstants(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data)
+            RAZIX_FORCE_INLINE static void BindPushConstant(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Pushconstants");
-                s_APIInstance->BindPushConstantsAPIImpl(pipeline, cmdBuffer, blockSize, data);
+                s_APIInstance->BindPushConstantsAPIImpl(pipeline, cmdBuffer, pushConstant);
             }
             RAZIX_FORCE_INLINE static void Draw(RZCommandBuffer* cmdBuffer, uint32_t count, DataType dataType = DataType::UNSIGNED_INT)
             {
@@ -90,7 +92,7 @@ namespace Razix {
             virtual void PresentAPIImple(RZCommandBuffer* cmdBuffer)                                                                                                                                    = 0;
             virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)                                                      = 0;
             virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)                                               = 0;
-            virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, size_t blockSize, void* data)                                                                       = 0;
+            virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                                        = 0;
             virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT)                                                                           = 0;
             virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount = 1, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) = 0;
             virtual void DestroyAPIImpl()                                                                                                                                                               = 0;
