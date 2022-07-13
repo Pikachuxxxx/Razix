@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Razix/Core/RZCore.h"
-#include "Razix/Scene/RZComponents.h"
-
 #include <cereal/archives/json.hpp>
 #include <entt.hpp>
+
+#include "Razix/Core/RZUUID.h"
 
 namespace Razix {
 
     class RZEntity;
+    struct CameraComponent;
 
     /**
      * Scene contains entities that will be used by the engine for rendering and other runtime systems

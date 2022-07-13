@@ -23,6 +23,7 @@ private:
 
         float     shininess;
         glm::vec3 viewPos;
+        float     _padding;
     } directional_light_data;
 
 public:
@@ -63,7 +64,7 @@ public:
             }
         }
 
-         auto scripts = activeScene->GetComponentsOfType<LuaScriptComponent>();
+        auto scripts = activeScene->GetComponentsOfType<LuaScriptComponent>();
         if (!scripts.size()) {
             RZEntity scriptableEntity = activeScene->createEntity("ScriptableEntity");
             scriptableEntity.AddComponent<LuaScriptComponent>();
@@ -128,7 +129,7 @@ public:
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 auto tc = TransformComponent();
-                tc.Rotation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
+                //tc.Rotation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
                 glm::mat4 transform = tc.GetTransform();
 
                 auto& modelMatrix = phongLightingShader->getPushConstants()[0];

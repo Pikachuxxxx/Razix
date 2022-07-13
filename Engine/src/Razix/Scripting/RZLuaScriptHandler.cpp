@@ -9,7 +9,7 @@
 
 #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Scripting/LuaScriptComponent.h"
+#include "Razix/Scene/Components/LuaScriptComponent.h"
 
 #include "Razix/Utilities/RZTimestep.h"
 
@@ -74,33 +74,6 @@ namespace Razix {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
                 luaScript.OnUpdate(dt);
             }
-        }
-
-        void RZLuaScriptHandler::bindApplicationAPI()
-        {
-            sol::usertype<RZApplication> appType = m_State.new_usertype<RZApplication>("RZApp");
-
-            appType.set_function("GetWindowSize", &RZApplication::getWindowSize);
-            m_State.set_function("GetAppInstance", &RZApplication::Get);
-
-            sol::table graphics = m_State.create_table("RZGraphicsContext");
-
-            graphics.new_enum("RenderAPI", "OpenGL", Graphics::RenderAPI::OPENGL, "Vulkan", Graphics::RenderAPI::OPENGL);
-
-            graphics.set_function("SetRenderAPI", &Graphics::RZGraphicsContext::SetRenderAPI);
-        }
-
-        void RZLuaScriptHandler::bindLoggingAPI()
-        {
-            auto log = m_State.create_table("RZLog");
-
-            log.set_function("Trace", [&](sol::this_state s, std::string_view message) { RAZIX_TRACE(message); });
-
-            log.set_function("Info", [&](sol::this_state s, std::string_view message) { RAZIX_INFO(message); });
-
-            log.set_function("Warn", [&](sol::this_state s, std::string_view message) { RAZIX_WARN(message); });
-
-            log.set_function("Error", [&](sol::this_state s, std::string_view message) { RAZIX_ERROR(message); });
         }
 
         void RZLuaScriptHandler::bindSceneManagerAPI()
