@@ -62,6 +62,8 @@ namespace Razix {
         /* Process the Input polling */
         virtual void ProcessInput(){};
 
+        virtual void Destroy() = 0;
+
         /* Gets the Width of the window */
         virtual unsigned int getWidth() const = 0;
 

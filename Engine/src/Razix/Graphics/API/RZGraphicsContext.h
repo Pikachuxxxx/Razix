@@ -51,18 +51,7 @@ namespace Razix {
             /* Gets the current render API being used by the engine to render */
             static RenderAPI GetRenderAPI() { return s_RenderAPI; }
             /* Set the render API to use to render */
-            static void SetRenderAPI(RenderAPI api)
-            {
-                // Stop Rendering
-                
-                // First close the app
-                RZApplication::Get().Quit();
-                // Update the render API
-                s_RenderAPI = api;
-                RZApplication::Get().SaveApp();
-                RZApplication::Get().Init();
-                RZApplication::Get().Run();
-            }
+            static void SetRenderAPI(RenderAPI api) { s_RenderAPI = api; }
             /* Gets the render API being used as a string */
             static const std::string GetRenderAPIString();
 

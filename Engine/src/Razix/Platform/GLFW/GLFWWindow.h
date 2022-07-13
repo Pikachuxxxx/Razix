@@ -28,6 +28,9 @@ namespace Razix {
 
         static void Construct();
 
+
+        void Destroy() override;
+
     private:
         static RZWindow* GLFWConstructionFunc(const WindowProperties& properties);
 
