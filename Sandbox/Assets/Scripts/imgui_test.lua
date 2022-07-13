@@ -2,15 +2,19 @@
 -- This is a test for imgui scripting from lua, currently onle a few imgui elemts and types are available for use the API exposure needs to be improved later
 -- Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
 
-function OnStart()
-    RZLog.Info("ImGui Test!")
-end
-
 local value = false
 local range = 0.0
 local APIs = {"OpenGL", "Vulkan"}
 local currentAPI = "OpenGL"
 local isSelected = false
+
+function OnStart()
+    RZLog.Info("ImGui Test!")
+    currentAPI = RZGraphicsContext.GetRenderAPIString()
+    RZLog.Trace("Rendering API : " .. currentAPI)
+end
+
+
 
 function get_value(res)
     value = res
@@ -32,7 +36,6 @@ function OnUpdate(dt)
         imgui.checkbox("Label", value, get_value)
         imgui.button("somebutton")
         imgui.dragFloat("Range", range, get_dragFLoatVal)
-
         if(imgui.beginCombo("Rendering API", currentAPI)) then
             for i = 1, 2, 1 do
                 imgui.selectable(APIs[i], isSelected, get_isSelected)

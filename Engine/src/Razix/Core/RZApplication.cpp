@@ -294,6 +294,8 @@ namespace Razix {
         albedoTexture->Release(true);
         // Client side quit customization
         OnQuit();
+
+        RAZIX_CORE_ERROR("Closing Application!");
     }
 
     void RZApplication::SaveApp()
@@ -304,8 +306,6 @@ namespace Razix {
         std::ofstream             opAppStream(projectFullPath);
         cereal::JSONOutputArchive saveArchive(opAppStream);
         saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
-
-        RAZIX_CORE_ERROR("Closing Application!");
     }
 
 }    // namespace Razix

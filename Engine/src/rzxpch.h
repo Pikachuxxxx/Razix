@@ -34,4 +34,5 @@
 #include <Tracy.hpp>
 // SOL
 #include <sol/sol.hpp>
-// TODO: FUCK IT! Add glm 
+ // GLM
+#include <glm/glm.hpp>
