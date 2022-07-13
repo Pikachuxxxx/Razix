@@ -53,9 +53,9 @@
 #include "Razix/Graphics/RZSprite.h"
 
 // Scene
-#include "Razix/Scene/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
+#include "Razix/Scene/Components/RZComponents.h"
 
 // Utilities
 #include "Razix/Utilities/LoadImage.h"

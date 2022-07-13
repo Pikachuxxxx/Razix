@@ -22,6 +22,9 @@ namespace Razix {
 
             //glPolygonMode(OpenGLUtilities::CullModeToGLCullModeEnum(m_PipelineInfo.cullMode), OpenGLUtilities::PolygonModeToGLPolygonModeEnum(m_PipelineInfo.polygonMode));
 
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+
             //if (m_PipelineInfo.depthBiasEnabled)
             //    glEnable(GL_DEPTH_TEST);
             //else

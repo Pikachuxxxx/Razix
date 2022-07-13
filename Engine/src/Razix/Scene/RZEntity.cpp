@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZEntity.h"
 
-#include "Razix/Scene/RZComponents.h"
+#include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZScene.h"
 
 namespace Razix {

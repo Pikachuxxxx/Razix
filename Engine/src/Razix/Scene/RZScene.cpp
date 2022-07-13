@@ -5,8 +5,11 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Scene/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
+
+#include "Razix/Scene/Components/RZComponents.h"
+
+#include "Razix/Graphics/RZModel.h"
 
 namespace Razix {
 
