@@ -262,6 +262,10 @@ public:
 
     void OnImGui() override
     {
+        // FIXME: This doesn't work IDK why
+        //ImGui::Begin("App imgui window");
+        //ImGui::Text("Scene manager test application");
+        //ImGui::End();
     }
 
 private:
@@ -389,7 +393,7 @@ private:
     }
 };
 
-Razix::RZApplication* Razix::CreateApplication()
+Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new SceneManagerTestApp();

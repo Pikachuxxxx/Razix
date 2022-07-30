@@ -69,6 +69,8 @@
 // Razix Memory
 #include "RZMemory.h"
 
+#include <imgui/imgui.h>
+
 //-----------Entry Point-------------
 #include "Razix/Core/EntryPoint.h"
 //-----------------------------------
