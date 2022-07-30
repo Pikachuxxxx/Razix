@@ -4,7 +4,7 @@
 #include "Razix/Core/RZProfiling.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
-extern Razix::RZApplication* Razix::CreateApplication();
+extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 
 /********************************************************************************
  *                        Razix Engine Entry Point                              *
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
 
     // Application auto Initialization by the Engine
-    Razix::CreateApplication();
+    Razix::CreateApplication(argc, argv);
 
     windowsOS->Init();
 

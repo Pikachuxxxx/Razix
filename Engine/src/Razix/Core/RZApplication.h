@@ -255,5 +255,5 @@ namespace Razix {
      * [Application(forward declaration)-->Entry Point(extern declaration)-->CLIENT(definition)]
      * Defined by the client to create the application definition
      */
-    RZApplication* CreateApplication();
+    RZApplication* CreateApplication(int argc, char** argv);
 }    // namespace Razix

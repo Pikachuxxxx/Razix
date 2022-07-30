@@ -2,7 +2,7 @@
 include 'Scripts/premake/common/premake-config.lua'
 
 -- System overrides to support PS4/PS5 and other hardware systems
-include 'Scripts/premake/modules/system-overides.lua'
+include 'Scripts/premake/extensions/system-overides.lua'
 
 -- Workspace Settings
 settings = { }

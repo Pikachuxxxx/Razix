@@ -262,6 +262,10 @@ public:
 
     void OnImGui() override
     {
+        // FIXME: This doesn't work IDK why
+        //ImGui::Begin("App imgui window");
+        //ImGui::Text("Scene manager test application");
+        //ImGui::End();
     }
 
 private:
