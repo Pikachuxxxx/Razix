@@ -393,7 +393,7 @@ private:
     }
 };
 
-Razix::RZApplication* Razix::CreateApplication()
+Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new SceneManagerTestApp();

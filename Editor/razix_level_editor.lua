@@ -43,11 +43,17 @@ project "RazixLevelEditor"
 	--
 	qtprefix "Qt5"
 
+    qtbinpath "C:/Qt/Qt_msvc_dir/msvc2017_64/bin"
+
+    qtgenerateddir "%{prj.location}/../Editor/src/generated"
+
     files
     {
         -- C++ source files
         "src/*.cpp",
         "src/*.h",
+        "src/**.cpp",
+        "src/**.h",
         -- resource files
         "**.ui",
         "**.qrc",
@@ -55,11 +61,38 @@ project "RazixLevelEditor"
         "**.ico"
     }
 
+    removefiles { "src/generated/**" }
+
      -- Macos include paths
     sysincludedirs
     {
         "../Engine/src/Razix",
         "../Engine",
+        "../Editor/src",
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
+        "%{IncludeDir.tracy}",
+        "%{IncludeDir.optick}",
+        "%{IncludeDir.Razix}",
+        "%{IncludeDir.vendor}",
+        -- Internal libraries
+        "%{InternalIncludeDir.RazixMemory}"
+    }
+
+    includedirs
+    {
+        "../Engine/src/Razix",
+        "../Engine",
+        "../Editor/src",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -82,7 +115,20 @@ project "RazixLevelEditor"
     links
     {
         -- ofc links to Razix Engine after all
-        "Razix"
+        "Razix",
+                -- because of the client log macros this needs to be linked again because we didn't export the spdlog symbols first time
+       "glfw",
+       "imgui",
+       "spdlog",
+       "SPIRVReflect",
+       "SPIRVCross",
+       "meshoptimizer",
+       "OpenFBX",
+       "lua",
+       "optick",
+       "tracy",
+       -- Internal
+       "RazixMemory"
     }
 
     libdirs
@@ -110,7 +156,6 @@ project "RazixLevelEditor"
            -- Engine
            "RAZIX_PLATFORM_WINDOWS",
            "RAZIX_USE_GLFW_WINDOWS",
-           "RAZIX_ROOT_DIR="  .. root_dir,
            "RAZIX_IMGUI",
            -- API
            "RAZIX_RENDER_API_OPENGL",
@@ -124,7 +169,8 @@ project "RazixLevelEditor"
            "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
            -- Editor 
-           "RAZIX_EDITOR"
+           "RAZIX_EDITOR",
+           "RAZIX_CONFIG=" .. outputdir
        }
        
        disablewarnings { 4307 }
