@@ -201,7 +201,7 @@ namespace Razix {
         RZUUID                m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
 
         std::vector<std::string>   sceneFilePaths;
-        Graphics::RZImGuiRenderer* m_ImGuiRenderer;
+        Graphics::RZImGuiRenderer* m_ImGuiRenderer = nullptr;
         Graphics::RZTexture2D*     albedoTexture;
 
     private:

@@ -4,16 +4,25 @@
 
 #include <QApplication>
 
+#include "UI/Windows/RZEMainWindow.h"
+
+static  QApplication* qrzeditorApp = nullptr;
+
 class RazixEditorApp : public Razix::RZApplication
 {
 public:
-    QApplication* qrzeditorApp;
+    Razix::Editor::RZEMainWindow mainWindow;
+
+public:
 
     // TODO: In future we will pass multiple native window handles (for multiple viewports, debug rendering, content viewers etc) for now only a single viewport is sufficient
     RazixEditorApp(void* viewportNativeWindowHandle)
         : RZApplication("/Sandbox/", "Razix Editor")
     {
         // Show the Editor Application after the engine static initialization is complete
+
+        mainWindow.resize(800, 600);
+        mainWindow.show();
     }
 
 private:
@@ -28,12 +37,12 @@ private:
 
     void RAZIX_CALL OnResize(uint32_t width, uint32_t height) override
     {
-        throw std::logic_error("The method or operation is not implemented.");
+        
     }
 
     void RAZIX_CALL OnQuit() override
     {
-        throw std::logic_error("The method or operation is not implemented.");
+        
     }
 };
 
