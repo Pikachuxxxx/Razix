@@ -201,7 +201,7 @@ namespace Razix {
         RZUUID                m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
 
         std::vector<std::string>   sceneFilePaths;
-        Graphics::RZImGuiRenderer* m_ImGuiRenderer;
+        Graphics::RZImGuiRenderer* m_ImGuiRenderer = nullptr;
         Graphics::RZTexture2D*     albedoTexture;
 
     private:
@@ -255,5 +255,5 @@ namespace Razix {
      * [Application(forward declaration)-->Entry Point(extern declaration)-->CLIENT(definition)]
      * Defined by the client to create the application definition
      */
-    RZApplication* CreateApplication();
+    RZApplication* CreateApplication(int argc, char** argv);
 }    // namespace Razix

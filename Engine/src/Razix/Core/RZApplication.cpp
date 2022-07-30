@@ -158,13 +158,14 @@ namespace Razix {
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
+        Graphics::RZAPIRenderer::Init();
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
         // ImGui Renderer
-        m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+        //m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
 
         Start();
 
@@ -248,35 +249,37 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        ImGuiIO& io = ImGui::GetIO();
-        (void) io;
-        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+        if (m_ImGuiRenderer != nullptr) {
+            ImGuiIO& io = ImGui::GetIO();
+            (void) io;
+            io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
 
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
-            ImGui_ImplOpenGL3_NewFrame();
+            if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+                ImGui_ImplOpenGL3_NewFrame();
 
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-        OnImGui();
+            OnImGui();
 
-        ImGui::ShowDemoWindow();
-        if (ImGui::Begin("Razix Engine")) {
-            ImGui::Text("Indeed it is!");
+            ImGui::ShowDemoWindow();
+            if (ImGui::Begin("Razix Engine")) {
+                ImGui::Text("Indeed it is!");
 
-            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
-            static bool some;
-            if (ImGui::Checkbox("Test", &some)) {
-                RAZIX_CORE_ERROR("Done!");
+                ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
+                static bool some;
+                if (ImGui::Checkbox("Test", &some)) {
+                    RAZIX_CORE_ERROR("Done!");
+                }
             }
+            ImGui::End();
+
+            // Run the OnUpdate for all the scripts
+            if (RZEngine::Get().getSceneManager().getCurrentScene())
+                RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+
+            ImGui::Render();
         }
-        ImGui::End();
-
-        // Run the OnUpdate for all the scripts
-        if (RZEngine::Get().getSceneManager().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
-
-        ImGui::Render();
 
         OnUpdate(dt);
     }
@@ -292,8 +295,11 @@ namespace Razix {
     {
         albedoTexture->getDescriptorSet()->Destroy();
         albedoTexture->Release(true);
+
         // Client side quit customization
         OnQuit();
+
+        Graphics::RZAPIRenderer::Release();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }
