@@ -10,7 +10,7 @@ namespace Razix {
     namespace Graphics {
 
         /* The stage which the shader corresponds to in the graphics pipeline */
-        enum class ShaderStage
+        enum class ShaderStage 
         {
             NONE = -1,
             VERTEX,
@@ -65,10 +65,10 @@ namespace Razix {
             static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
 
             /* Gets the stage of the pipeline that shader is bound/being used with */
-            inline const ShaderStage&              getStage() { return m_ShaderStage; }
-            inline const uint32_t&                 getInputStride() const { return m_VertexInputStride; }
-            inline std::vector<DescriptorSetInfo>& getSetInfos() { return m_DescriptorSetInfos; }
-            inline std::vector<RZPushConstant>&    getPushConstants() { return m_PushConstants; }
+            inline const ShaderStage&           getStage() { return m_ShaderStage; }
+            inline const uint32_t&              getInputStride() const { return m_VertexInputStride; }
+            inline DescriptorSetsCreateInfos    getSetsCreateInfos() { return m_DescriptorSetsCreateInfos; }
+            inline std::vector<RZPushConstant>& getPushConstants() { return m_PushConstants; }
 
         protected:
             ShaderStage                        m_ShaderStage = ShaderStage::NONE;       /* The shader stage to which the shader will be bound to                                                    */
@@ -77,7 +77,7 @@ namespace Razix {
             std::string                        m_Name;                                  /* The name of the shader                                                                                   */
             std::map<ShaderStage, std::string> m_ParsedRZSF;                            /* The razix shader file that was parsed                                                                    */
             RZVertexBufferLayout               m_BufferLayout;                          /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
-            std::vector<DescriptorSetInfo>     m_DescriptorSetInfos;                    /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
+            DescriptorSetsCreateInfos          m_DescriptorSetsCreateInfos;             /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
             std::vector<RZPushConstant>        m_PushConstants;                         /* The list of the the push constants                                                                       */
             uint32_t                           m_VertexInputStride = 0;                 /* The stride of the vertex data that is extracted from the information                                     */
         };

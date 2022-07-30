@@ -268,18 +268,8 @@ namespace Razix {
 
                 for (uint32_t i = 0; i < descriptors_count; i++) {
                     //std::cout << "---------------------------------------------" << std::endl;
-                    DescriptorSetInfo* setInfo = new DescriptorSetInfo;
-                    setInfo->setID             = -1;
-                    bool oldSet                = false;
 
                     SpvReflectDescriptorBinding* descriptor = pp_descriptor_bindings[i];
-
-                    for (size_t i = 0; i < m_DescriptorSetInfos.size(); i++) {
-                        if (m_DescriptorSetInfos[i].setID == descriptor->set) {
-                            setInfo = &m_DescriptorSetInfos[i];
-                            oldSet  = true;
-                        }
-                    }
 
                     RZDescriptor rzDescriptor;
 
@@ -313,7 +303,7 @@ namespace Razix {
                     RZDescriptorLayoutBinding bindingInfo;
                     bindingInfo.binding = descriptor->binding;
                     bindingInfo.count   = 1;
-                    bindingInfo.name    = descriptor->name;
+                    //bindingInfo.name    = descriptor->name;// already being stored in RZDescriptor::name
                     bindingInfo.type    = VKToEngineDescriptorType(descriptor->descriptor_type);
                     bindingInfo.stage   = spvSource.first;
 
@@ -332,11 +322,8 @@ namespace Razix {
                         rzDescriptor.uboMembers.push_back(memberInfo);
                     }
 
-                    setInfo->setID = descriptor->set;
-                    setInfo->descriptors.push_back(rzDescriptor);
-
-                    if (!oldSet && setInfo->setID != -1)
-                        m_DescriptorSetInfos.push_back(*setInfo);
+                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[descriptor->set];
+                    descriptors_in_set.push_back(rzDescriptor);
                 }
                 //if(!oldSet && setInfo->setID != -1)
                 //    m_DescriptorSetInfos.push_back(*setInfo);
@@ -355,7 +342,26 @@ namespace Razix {
                     //std::cout << "Size      : " << pushConstant->size << std::endl;
                     //std::cout << "Offset    : " << pushConstant->offset << std::endl;
 
-                    m_PushConstants.push_back(RZPushConstant(pushConstant->name, spvSource.first, nullptr, pushConstant->size, pushConstant->offset));
+                    RZPushConstant pc{};
+                    pc.name = pushConstant->name;
+                    pc.shaderStage = spvSource.first;
+                    pc.data        = nullptr;
+                    pc.size        = pushConstant->size;
+                    pc.offset      = pushConstant->offset;
+                    pc.bindingInfo.binding = 0;
+                    pc.bindingInfo.stage   = spvSource.first;
+                    pc.bindingInfo.count   = 1;
+                    pc.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                    for (size_t i = 0; i < pushConstant->member_count; i++) {
+                        auto member = pushConstant->members[i];
+                        RZShaderBufferMemberInfo mem;
+                        mem.fullName = pc.name + "." + member.name;
+                        mem.name     = member.name;
+                        mem.offset   = member.offset;
+                        mem.size     = member.size;
+                        pc.structMembers.push_back(mem);
+                    }
+                    m_PushConstants.push_back(pc);
                 }
                 // Destroy the reflection data when no longer required
                 spvReflectDestroyShaderModule(&module);

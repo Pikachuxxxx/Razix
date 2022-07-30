@@ -1,3 +1,4 @@
+#if 0
 #include <Razix.h>
 
 using namespace Razix;
@@ -186,3 +187,4 @@ Razix::RZApplication* Razix::CreateApplication()
     RAZIX_INFO("Creating Razix Sandbox Application [MemoryTest]");
     return new MemoryTest();
 }
+#endif

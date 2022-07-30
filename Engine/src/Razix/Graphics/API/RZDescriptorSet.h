@@ -14,7 +14,8 @@ namespace Razix {
         enum class DescriptorType : uint32_t
         {
             UNIFORM_BUFFER,
-            IMAGE_SAMPLER
+            IMAGE_SAMPLER    // (combined image sampler)
+            // TODO: Add more types like STORAGE_BUFFER, STORAGE_IMAGE, UNIFORM_TEXEL etc.
         };
 
         /* The format of the input variables in the shader */
@@ -68,7 +69,7 @@ namespace Razix {
         /* Descriptor Binding layout describes the binding and set information of the shader uniform variable, to which shader stages the variable is accessible from */
         struct RZDescriptorLayoutBinding
         {
-            std::string    name;        /* The name of the descriptor resource                                                                      */
+            //std::string    name;        /* The name of the descriptor resource                                                                      */
             DescriptorType type;        /* The type of the Descriptor, either a buffer or an texture image that is being consumed in the shader     */
             ShaderStage    stage;       /* The shader stage to which the descriptor is bound to                                                     */
             uint32_t       binding = 0; /* The binding index of the shader                                                                          */
@@ -90,33 +91,40 @@ namespace Razix {
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
         struct RZDescriptor
         {
+            std::string                           typeName = "Fuck you";
             std::string                           name;
             RZUniformBuffer*                      uniformBuffer;
             RZTexture*                            texture;
             std::vector<RZShaderBufferMemberInfo> uboMembers;
-            RZDescriptorLayoutBinding             bindingInfo;
             uint32_t                              size;      //? The size of the descriptor data, can also be extracted from UBO/Texture??
             uint32_t                              offset;    //? I don't think this is needed
+            RZDescriptorLayoutBinding             bindingInfo;
         };
 
         struct RZPushConstant
         {
-            std::string name;
-            ShaderStage shaderStage;
-            uint8_t*    data;
-            uint32_t    size;
-            uint32_t    offset = 0;
+            std::string                           typeName = "Fuck you";
+            std::string                           name;
+            std::vector<RZShaderBufferMemberInfo> structMembers;
+            void*                                 data;
+            RZDescriptorLayoutBinding             bindingInfo;
+            uint32_t                              size;
+            uint32_t                              offset = 0;
+            ShaderStage                           shaderStage;
+            uint32_t                              _padding;
+
+            RZPushConstant() {}
 
             RZPushConstant(const std::string& name, ShaderStage stage, uint8_t* data, uint32_t size, uint32_t offset)
                 : name(name), shaderStage(stage), data(data), size(size), offset(offset) {}
 
-            std::vector<RZShaderBufferMemberInfo> m_Members;
-
             void setValue(const std::string& name, void* value)
             {
-                for (auto& member: m_Members) {
+                memset(data, 0, size);
+                for (auto& member: structMembers) {
                     if (member.name == name) {
-                        memcpy(&data[member.offset], value, member.size);
+                        // TODO: FIXME
+                        //memcpy(&data[member.offset], value, member.size);
                         break;
                     }
                 }
@@ -129,11 +137,7 @@ namespace Razix {
         };
 
         /* Encapsulating the descriptors of a set along with the setID */
-        struct DescriptorSetInfo
-        {
-            int32_t                   setID;       /* The set number to which the descriptors correspond to */
-            std::vector<RZDescriptor> descriptors; /* The descriptors that will be bound to this set and passed to the GPU */
-        };
+        using DescriptorSetsCreateInfos = std::map<uint32_t, std::vector<RZDescriptor>>;
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
         class RAZIX_API RZDescriptorSet : public RZRoot

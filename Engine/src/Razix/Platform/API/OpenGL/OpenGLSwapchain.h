@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Graphics/API/RZSwapchain.h"
+#include "Razix/Platform/API/OpenGL/OpenGLCommandBuffer.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
 
@@ -21,8 +22,8 @@ namespace Razix {
 
             RZTexture*       GetCurrentImage() override { return nullptr; }
             RZTexture*       GetImage(uint32_t index) override { return nullptr; }
-            size_t           GetSwapchainImageCount() override { return 0; }
-            RZCommandBuffer* getCurrentCommandBuffer() override { return nullptr; }
+            size_t           GetSwapchainImageCount() override { return 1; }
+            RZCommandBuffer* getCurrentCommandBuffer() override { return m_DummyCmdBuffer; }
 
             uint32_t getCurrentImageIndex() override { return 0; }
 
@@ -30,6 +31,7 @@ namespace Razix {
             uint32_t m_Width;
             uint32_t m_Height;
             uint32_t m_CurrentImageIndex = 0;
+            OpenGLCommandBuffer* m_DummyCmdBuffer;
         };
     }    // namespace Graphics
 }    // namespace Razix

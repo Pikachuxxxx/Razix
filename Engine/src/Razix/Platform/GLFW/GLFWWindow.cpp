@@ -1,4 +1,4 @@
-// clang-format off
+\    // clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "GLFWWindow.h"
@@ -20,7 +20,8 @@
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 
-namespace Razix {
+    namespace Razix
+{
     static bool sGLFWInitialized = false;
 
     GLFWWindow::GLFWWindow(const WindowProperties& properties)
@@ -30,7 +31,7 @@ namespace Razix {
 
     GLFWWindow::~GLFWWindow()
     {
-        Shutdown();
+        //Shutdown();
     }
 
     void GLFWWindow::OnWindowUpdate()
@@ -89,6 +90,12 @@ namespace Razix {
     void GLFWWindow::Construct()
     {
         ConstructionFunc = GLFWConstructionFunc;
+    }
+
+    void GLFWWindow::Destroy()
+    {
+        sGLFWInitialized = false;
+        Shutdown();
     }
 
     RZWindow* GLFWWindow::GLFWConstructionFunc(const WindowProperties& properties)
