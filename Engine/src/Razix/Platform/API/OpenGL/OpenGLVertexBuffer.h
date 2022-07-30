@@ -28,6 +28,7 @@ namespace Razix {
         private:
             uint32_t m_VAO;
             uint32_t m_VBO;
+            void*    m_Mapped;
         };
     }    // namespace Graphics
 }    // namespace Razix

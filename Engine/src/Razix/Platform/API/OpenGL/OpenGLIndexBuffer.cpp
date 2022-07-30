@@ -28,24 +28,24 @@ namespace Razix {
             m_Size       = count * sizeof(uint16_t);
             m_Usage      = bufferUsage;
             m_IndexCount = count;
-            GLCall(glGenBuffers(1, &m_IBO));
-            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
-            GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint16_t), data, BufferUsageToOpenGL(m_Usage)));
+            GL_CALL(glGenBuffers(1, &m_IBO));
+            GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
+            GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint16_t), data, BufferUsageToOpenGL(m_Usage)));
         }
 
         OpenGLIndexBuffer::~OpenGLIndexBuffer()
         {
-            GLCall(glDeleteBuffers(1, &m_IBO));
+            GL_CALL(glDeleteBuffers(1, &m_IBO));
         }
 
         void OpenGLIndexBuffer::Bind(RZCommandBuffer* commandBuffer /*= nullptr*/)
         {
-            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
+            GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
         }
 
         void OpenGLIndexBuffer::Unbind()
         {
-            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+            GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         }
 
         void OpenGLIndexBuffer::Resize(uint32_t size, const void* data)
@@ -55,22 +55,26 @@ namespace Razix {
 
         void OpenGLIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            Bind(nullptr);
+
+            m_Mapped = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_WRITE);
+            RAZIX_CORE_ASSERT(m_Mapped != nullptr, "[OPENGL] cannot map buffer")
         }
 
         void OpenGLIndexBuffer::UnMap()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            Bind(nullptr);
+
+            glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         }
 
         void* OpenGLIndexBuffer::GetMappedBuffer()
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            return m_Mapped;
         }
 
         void OpenGLIndexBuffer::Flush()
         {
-            throw std::logic_error("The method or operation is not implemented.");
         }
 
     }    // namespace Graphics

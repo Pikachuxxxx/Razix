@@ -28,7 +28,6 @@
 
 //! Some style guide rules are waved off for RZApplication class
 
-
 namespace Razix::Graphics {
     class RZTexture2D;
 }
@@ -68,6 +67,12 @@ namespace Razix {
 
         /* Starts the Engine Runtime systems */
         void RAZIX_CALL Run();
+
+        /* Quits the application and releases any resources held by it */
+        void Quit();
+
+        /* Save the application */
+        void SaveApp();
 
         /**
          * Called before the application starts rendering
@@ -137,8 +142,7 @@ namespace Razix {
             //archive(cereal::make_nvp("Project Version", 0));
             archive(cereal::make_nvp("Render API", m_RenderAPI));
             // Set the render API from the De-serialized data
-            if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::NONE)
-                Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) m_RenderAPI);
+            Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) m_RenderAPI);
             uint32_t Width, Height;
             archive(cereal::make_nvp("Width", Width));
             archive(cereal::make_nvp("Height", Height));
@@ -213,8 +217,6 @@ namespace Razix {
         void Update(const RZTimestep& dt);
         /* Renders the application and Engine rendering commands */
         void Render();
-        /* Quits the application and releases any resources held by it */
-        void Quit();
 
         // Event callbacks
         /**

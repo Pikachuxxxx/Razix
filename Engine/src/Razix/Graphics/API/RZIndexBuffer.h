@@ -32,7 +32,6 @@ namespace Razix {
             virtual void Destroy() = 0;
             /* Resizes the buffer with new data */
             virtual void Resize(uint32_t size, const void* data) = 0;
-            ;
 
             virtual void  Map(uint32_t size = 0, uint32_t offset = 0) = 0;
             virtual void  UnMap()                                     = 0;

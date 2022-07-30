@@ -31,35 +31,35 @@ namespace Razix {
             glGenVertexArrays(1, &m_VAO);
             glBindVertexArray(m_VAO);
 
-            GLCall(glGenBuffers(1, &m_VBO));
-            GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-            GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, BufferUsageToOpenGL(m_Usage)));
+            GL_CALL(glGenBuffers(1, &m_VBO));
+            GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
+            GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, data, BufferUsageToOpenGL(m_Usage)));
         }
 
         OpenGLVertexBuffer::~OpenGLVertexBuffer()
         {
-            GLCall(glDeleteBuffers(1, &m_VBO));
+            GL_CALL(glDeleteBuffers(1, &m_VBO));
         }
 
         void OpenGLVertexBuffer::Bind(RZCommandBuffer* cmdBuffer)
         {
             // Bind the VAO here later
             glBindVertexArray(m_VAO);
-            GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
+            GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
         }
 
         void OpenGLVertexBuffer::Unbind()
         {
             glBindVertexArray(0);
-            GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+            GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
         }
 
         void OpenGLVertexBuffer::SetData(uint32_t size, const void* dataoffset)
         {
             m_Size = size;
-            GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
-            //GLCall(glBufferData(GL_ARRAY_BUFFER, size, data));
-            RAZIX_UNIMPLEMENTED_METHOD
+            GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
+            GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, dataoffset, GL_STATIC_DRAW));
+            //RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void OpenGLVertexBuffer::Resize(uint32_t size, const void* data)
@@ -71,8 +71,9 @@ namespace Razix {
         {
             Bind(nullptr);
 
-            auto&    elements = layout.getElements();
-            uint32_t offset   = 0;
+            auto& elements = layout.getElements();
+
+            uint32_t offset = 0;
             for (uint32_t i = 0; i < elements.size(); ++i) {
                 BufferLayoutElement& element = elements[i];
                 glEnableVertexAttribArray(i);
@@ -85,22 +86,26 @@ namespace Razix {
 
         void OpenGLVertexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            Bind(nullptr);
+
+            m_Mapped = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+            RAZIX_CORE_ASSERT(m_Mapped != nullptr, "[OPENGL] cannot map buffer")
         }
 
         void OpenGLVertexBuffer::UnMap()
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            Bind(nullptr);
+
+            glUnmapBuffer(GL_ARRAY_BUFFER);
         }
 
         void* OpenGLVertexBuffer::GetMappedBuffer()
         {
-            return nullptr;
+            return m_Mapped;
         }
 
         void OpenGLVertexBuffer::Flush()
         {
-            RAZIX_UNIMPLEMENTED_METHOD
         }
     }    // namespace Graphics
 }    // namespace Razix

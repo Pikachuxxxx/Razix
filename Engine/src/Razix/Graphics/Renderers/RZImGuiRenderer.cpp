@@ -3,8 +3,8 @@
 // clang-format on
 #include "RZImGuiRenderer.h"
 
-#include "razix/Core/RZApplication.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "razix/Core/RZApplication.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 #include "Razix/Graphics/API/RZCommandBuffer.h"
@@ -13,17 +13,20 @@
 #include "Razix/Graphics/API/RZRenderPass.h"
 #include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
 
 #include "Razix/Utilities/RZTimestep.h"
 
 // Imgui
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui_internal.h>
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include <vulkan/vulkan.h>
 #endif
+
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 namespace Razix {
     namespace Graphics {
@@ -79,14 +82,14 @@ namespace Razix {
             uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto& setInfos = m_UIShader->getSetInfos();
+            auto& setInfos = m_UIShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
-                for (auto& descriptor: setInfo.descriptors) {
+                for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                         descriptor.texture = m_FontAtlasTexture;
                 }
-                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.descriptors);
+                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second);
             }
 
             ImFontAtlas* atlas = io.Fonts;
@@ -94,7 +97,15 @@ namespace Razix {
             ImTextureID set = m_FontAtlasDescriptorSet;
             atlas->SetTexID(set);
 
-            ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
+            if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
+                ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
+            else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+                ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
+                const char* glsl_version = "#version 410";
+                ImGui_ImplOpenGL3_Init(glsl_version);
+                return;
+            }
+
             m_ImGuiVBO = RZVertexBuffer::Create(10, nullptr, BufferUsage::DYNAMIC, "ImGUi VBO");
             //m_ImGuiVBO->Destroy();
             m_ImGuiIBO = RZIndexBuffer::Create(nullptr, 10, "ImGui IBO");
@@ -139,6 +150,9 @@ namespace Razix {
         bool RZImGuiRenderer::update(const RZTimestep& dt)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
+            if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+                return true;
 
             ImDrawData* imDrawData       = ImGui::GetDrawData();
             bool        updateCmdBuffers = false;
@@ -242,6 +256,12 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
+            if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+                // Start the Dear ImGui frame
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+                return;
+            }
+
             ImDrawData* imDrawData   = ImGui::GetDrawData();
             int32_t     vertexOffset = 0;
             int32_t     indexOffset  = 0;
@@ -261,7 +281,12 @@ namespace Razix {
             pushConstBlock.scale     = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
             pushConstBlock.translate = glm::vec2(-1.0f);
 
-            RZAPIRenderer::BindPushConstants(m_ImGuiPipeline, cmdBuffer, sizeof(PushConstBlock), &pushConstBlock);
+            RZPushConstant& model = m_UIShader->getPushConstants()[0];
+
+            model.size = sizeof(PushConstBlock);
+            model.data = &pushConstBlock;
+
+            RZAPIRenderer::BindPushConstant(m_ImGuiPipeline, cmdBuffer, model);
 
             // Bind the vertex and index buffers
             m_ImGuiVBO->Bind(cmdBuffer);
@@ -283,7 +308,8 @@ namespace Razix {
                     // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
                     RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
 #ifdef RAZIX_RENDER_API_VULKAN
-                    vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+                    if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
+                        vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
 #endif
                     //RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
                     indexOffset += pcmd->ElemCount;
@@ -294,6 +320,9 @@ namespace Razix {
 
         void RZImGuiRenderer::destroy()
         {
+            if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+                return;
+
             m_UIShader->Destroy();
             m_FontAtlasDescriptorSet->Destroy();
             m_FontAtlasTexture->Release(true);

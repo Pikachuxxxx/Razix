@@ -34,3 +34,5 @@
 #include <Tracy.hpp>
 // SOL
 #include <sol/sol.hpp>
+ // GLM
+#include <glm/glm.hpp>

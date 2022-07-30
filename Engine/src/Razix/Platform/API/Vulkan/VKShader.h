@@ -24,7 +24,7 @@ namespace Razix {
             /* Gets the vertex input variables attribute descriptions of the vertex data that are being sent to the shaders via VBO */
             inline const std::vector<VkVertexInputAttributeDescription>& getVertexAttribDescriptions() const { return m_VertexInputAttributeDescriptions; }
             /* Gets Descriptor set info that is used to create the descriptor sets */
-            inline const std::vector<DescriptorSetInfo>& getDescriptorSetInfos() const { return m_DescriptorSetInfos; }
+            inline const DescriptorSetsCreateInfos getDescriptorSetInfos() const { return m_DescriptorSetsCreateInfos; }
             /* Gets the pipeline layout that encapsulates the descriptor sets and push constants information while creating the graphics pipeline */
             inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
 

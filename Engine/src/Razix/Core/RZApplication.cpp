@@ -22,6 +22,8 @@
 #include "Razix/Graphics/API/RZTexture.h"
 
 #include <backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 #include <cereal/archives/json.hpp>
 
 namespace Razix {
@@ -121,7 +123,7 @@ namespace Razix {
         m_CurrentState = AppState::Running;
 
         // Enable V-Sync
-        m_Window->SetVSync(true);
+        //m_Window->SetVSync(true);
     }
 
     void RZApplication::OnEvent(RZEvent& event)
@@ -155,11 +157,13 @@ namespace Razix {
     {
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
+        // TODO: Enable window V-Sync here
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
+        // ImGui Renderer
         m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
 
         Start();
@@ -168,6 +172,7 @@ namespace Razix {
         albedoTexture->generateDescriptorSet();
         while (RenderFrame()) {}
         Quit();
+        SaveApp();
     }
 
     bool RZApplication::RenderFrame()
@@ -247,6 +252,9 @@ namespace Razix {
         (void) io;
         io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
 
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+            ImGui_ImplOpenGL3_NewFrame();
+
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
@@ -258,7 +266,7 @@ namespace Razix {
 
             ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
             static bool some;
-            if (ImGui::Checkbox("Tesy", &some)) {
+            if (ImGui::Checkbox("Test", &some)) {
                 RAZIX_CORE_ERROR("Done!");
             }
         }
@@ -287,13 +295,17 @@ namespace Razix {
         // Client side quit customization
         OnQuit();
 
+        RAZIX_CORE_ERROR("Closing Application!");
+    }
+
+    void RZApplication::SaveApp()
+    {
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
         std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
         std::ofstream             opAppStream(projectFullPath);
         cereal::JSONOutputArchive saveArchive(opAppStream);
         saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
-
-        RAZIX_CORE_ERROR("Closing Application!");
     }
+
 }    // namespace Razix
