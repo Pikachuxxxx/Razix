@@ -16,6 +16,7 @@ namespace Razix {
             ~RZEMainWindow() {}
 
             QWidget* getViewport() { return m_Viewport; }
+            ToolWindowManager* getToolWindowManager() { return ui.toolWindowManager; }
 
         private:
             Ui::MainWindow ui;

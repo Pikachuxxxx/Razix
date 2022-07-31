@@ -11,11 +11,12 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "Extensions/toolwindowmanager/ToolWindowManager.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -23,7 +24,8 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QGridLayout *gridLayout_2;
+    QVBoxLayout *verticalLayout;
+    ToolWindowManager *toolWindowManager;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -31,15 +33,20 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(800, 600);
+        MainWindow->resize(799, 600);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        gridLayout_2 = new QGridLayout(centralwidget);
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
+        verticalLayout = new QVBoxLayout(centralwidget);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        toolWindowManager = new ToolWindowManager(centralwidget);
+        toolWindowManager->setObjectName(QString::fromUtf8("toolWindowManager"));
+
+        verticalLayout->addWidget(toolWindowManager);
+
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 800, 21));
+        menubar->setGeometry(QRect(0, 0, 799, 21));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
