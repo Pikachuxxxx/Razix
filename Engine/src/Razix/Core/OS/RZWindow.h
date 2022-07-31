@@ -54,6 +54,7 @@ namespace Razix {
          * @returns Handle to the Razix window
          */
         static RZWindow* Create(const WindowProperties& properties = WindowProperties());
+        static RZWindow* Create(void* nativeHandle, const WindowProperties& properties = WindowProperties());
         virtual ~RZWindow() {}
 
         /* Called on Every Window Update */
@@ -97,6 +98,7 @@ namespace Razix {
     protected:
         /* Pointer to the appropriate Window Creation function based on OS */
         static RZWindow* (*ConstructionFunc)(const WindowProperties&);
+        static RZWindow* (*ConstructionFuncNative)(void*, const WindowProperties&);
         RZWindow() = default;
     };
 }    // namespace Razix

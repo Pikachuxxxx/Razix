@@ -96,7 +96,7 @@
 #define RAZIX_ENGINE_ROOT_DIR STRINGIZE(RAZIX_ROOT_DIR)
 
 // Function Bind macro
-#define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&RZApplication::x, this, std::placeholders::_1)
+#define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::RZApplication::x, this, std::placeholders::_1)
 
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)

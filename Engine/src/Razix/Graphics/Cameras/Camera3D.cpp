@@ -31,28 +31,28 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Input management
-            if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
-                processKeyboard(FORWARD, deltaTime);
-            else if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
-                processKeyboard(BACKWARD, deltaTime);
-            if (RZInput::IsKeyHeld(KeyCode::Key::Right) || RZInput::IsKeyHeld(KeyCode::Key::D))
-                processKeyboard(RIGHT, deltaTime);
-            else if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
-                processKeyboard(LEFT, deltaTime);
+            //if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
+            //    processKeyboard(FORWARD, deltaTime);
+            //else if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
+            //    processKeyboard(BACKWARD, deltaTime);
+            //if (RZInput::IsKeyHeld(KeyCode::Key::Right) || RZInput::IsKeyHeld(KeyCode::Key::D))
+            //    processKeyboard(RIGHT, deltaTime);
+            //else if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
+            //    processKeyboard(LEFT, deltaTime);
 
-            auto mX = RZInput::GetMouseX();
-            auto mY = RZInput::GetMouseY();
+            //auto mX = RZInput::GetMouseX();
+            //auto mY = RZInput::GetMouseY();
 
-            float deltaX = mX - m_OldX;
-            float deltaY = mY - m_OldY;
+            //float deltaX = mX - m_OldX;
+            //float deltaY = mY - m_OldY;
 
-            //RAZIX_CORE_TRACE("Mouse delta [ X : {0} | Y : {1} ]", deltaX, deltaY);
+            ////RAZIX_CORE_TRACE("Mouse delta [ X : {0} | Y : {1} ]", deltaX, deltaY);
 
-            if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
-                processMouseMovement(deltaX, -deltaY);
+            //if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
+            //    processMouseMovement(deltaX, -deltaY);
 
-            m_OldX = mX;
-            m_OldY = mY;
+            //m_OldX = mX;
+            //m_OldY = mY;
         }
 
         void Camera3D::processKeyboard(Camera_Movement_Direction direction, double deltaTime)

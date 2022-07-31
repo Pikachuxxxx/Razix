@@ -5,6 +5,17 @@ include 'Scripts/premake/common/internal_includes.lua'
 -- QT support for premake and VS
 include 'Scripts/premake/extensions/qt/qt.lua'
 
+-- Vulkan SDK
+VulkanSDK = os.getenv("VULKAN_SDK")
+
+if (VulkanSDK == nil or VulkanSDK == '') then
+    print("VULKAN_SDK Enviroment variable is not found! Please check your development environment settings")
+    os.exit()
+else
+    print("Vulkan SDK found at : " .. VulkanSDK)
+end
+
+
 local qt = premake.extensions.qt
 
 project "RazixLevelEditor"
@@ -84,6 +95,8 @@ project "RazixLevelEditor"
         "%{IncludeDir.optick}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
+        -- API related
+        "%{VulkanSDK}/Include",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}"
     }
@@ -108,6 +121,8 @@ project "RazixLevelEditor"
         "%{IncludeDir.optick}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
+        -- API related
+        "%{VulkanSDK}/Include",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}"
     }

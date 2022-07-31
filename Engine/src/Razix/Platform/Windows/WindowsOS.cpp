@@ -23,7 +23,7 @@ namespace Razix {
         // Set GLFW as window when the Engine API will be called to create the window
         GLFWWindow::Construct();
         // Select GLFW as the input manager client
-        RZInput::SelectGLFWInputManager();
+        //RZInput::SelectGLFWInputManager();
 #else
         WindowsWindow::Construct();
         Razix::RZInput* Razix::RZInput::sInstance = new WindowsInput();
@@ -34,7 +34,7 @@ namespace Razix {
     {
         // TODO: Implement the Application life cycle here! in a more Robust way
         // Initialize the application with additional systems after application constructor is called with project name and VFS mounts
-        Razix::RZApplication::Get().Init();
+        //Razix::RZApplication::Get().Init();
         // Application auto Initialization by the Engine
         Razix::RZApplication::Get().Run();
     }

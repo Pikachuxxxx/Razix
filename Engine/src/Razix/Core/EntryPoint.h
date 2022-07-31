@@ -25,7 +25,7 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
-int main(int argc, char** argv)
+int EngineMain(int argc, char** argv)
 {
     // Read the command line arguments
     static std::vector<const char*> args;
@@ -57,10 +57,10 @@ int main(int argc, char** argv)
 
     Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
 
+    windowsOS->Init();
+
     // Application auto Initialization by the Engine
     Razix::CreateApplication(argc, argv);
-
-    windowsOS->Init();
 
     // Run the  Application with the master controlled given to the OS
     windowsOS->Run();
