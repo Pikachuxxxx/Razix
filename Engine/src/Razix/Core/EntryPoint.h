@@ -25,7 +25,7 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
-int main(int argc, char** argv)
+int EngineMain(int argc, char** argv)
 {
     // Read the command line arguments
     static std::vector<const char*> args;

@@ -259,7 +259,7 @@ namespace Razix {
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 ImGui_ImplOpenGL3_NewFrame();
 
-            ImGui_ImplGlfw_NewFrame();
+            //ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
             OnImGui();

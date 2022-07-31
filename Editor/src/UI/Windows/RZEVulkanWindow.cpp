@@ -11,7 +11,13 @@ namespace Razix {
             : QWindow(parentWindow)
         {
             setSurfaceType(VulkanSurface);
+        }
 
+        RZEVulkanWindow::~RZEVulkanWindow()
+        {}
+
+        void RZEVulkanWindow::Init()
+        {
             Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
 
             m_QVKInstance.setVkInstance(context->getInstance());
@@ -19,10 +25,8 @@ namespace Razix {
 
             this->setVulkanInstance(&m_QVKInstance);
 
-           auto version = m_QVKInstance.apiVersion();
+            auto version = m_QVKInstance.apiVersion();
         }
 
-        RZEVulkanWindow::~RZEVulkanWindow()
-        {}
     }    // namespace Editor
 }    // namespace Razix

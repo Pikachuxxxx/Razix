@@ -13,16 +13,15 @@
 
 #include <vulkan/vulkan.h>
 
-static QApplication* qrzeditorApp = nullptr;
+static QApplication*            qrzeditorApp = nullptr;
+Razix::Editor::RZEMainWindow*   mainWindow;
+Razix::Editor::RZEVulkanWindow* vulkanWindow;
 
 using namespace Razix;
 
 class RazixEditorApp : public Razix::RZApplication
 {
 public:
-    Razix::Editor::RZEMainWindow    mainWindow;
-    Razix::Editor::RZEVulkanWindow* vulkanWindow;
-
     struct ViewProjectionUniformBuffer
     {
         alignas(16) glm::mat4 view       = glm::mat4(1.0f);
@@ -67,21 +66,18 @@ public:
 
         Razix::RZApplication::Get().setAppType(Razix::AppType::EDITOR);
 
-        mainWindow.resize(1280, 720);
-        mainWindow.show();
-
         // get the hwnd handle
 
         // create a native window derived form RZWindow and store this as the window handle pointer
         Razix::WindowProperties properties{};
         // TODO: Use the application signature title for this
         properties.Title  = "Razix Editor";
-        properties.Width  = mainWindow.width();
-        properties.Height = mainWindow.height();
+        properties.Width  = mainWindow->width();
+        properties.Height = mainWindow->height();
 
         //HWND hWnd = (HWND) vulkanWindow->winId();
 
-        HWND hWnd = (HWND) mainWindow.winId();
+        HWND hWnd = (HWND) mainWindow->winId();
 
         Razix::Editor::RZENativeWindow::Construct();
         Razix::RZApplication::setViewportWindow(Razix::RZWindow::Create(&hWnd, properties));
@@ -96,9 +92,8 @@ public:
         Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
 
-        vulkanWindow = new Razix::Editor::RZEVulkanWindow;
-        vulkanWindow->resize(1280, 720);
-        vulkanWindow->show();
+        vulkanWindow->Init();
+
         vulkanWindow->setTitle("Vulkan Window");
 
         Razix::RZApplication::Get().Init();
@@ -191,7 +186,7 @@ private:
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 auto tc = TransformComponent();
-                //tc.Rotation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
+                tc.Translation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
                 glm::mat4 transform = tc.GetTransform();
 
                 auto& modelMatrix = phongLightingShader->getPushConstants()[0];
@@ -248,7 +243,6 @@ private:
         // But this makes the engine and editor to run the from the same main thread!!! (of course once the engine become multi-threaded this won't affect much as only a few systems would be on the main thread)
         // This also simplifies engine-editor communication for now
         vulkanWindow->getQVKInstance().presentQueued(vulkanWindow);
-        qrzeditorApp->processEvents();
     }
 
     void RAZIX_CALL OnResize(uint32_t width, uint32_t height) override
@@ -414,7 +408,28 @@ private:
 Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Editor Application");
-
-    qrzeditorApp = new QApplication(argc, argv);
     return new RazixEditorApp();
+}
+
+HINSTANCE razixDll;
+void      LoadEngineDLL(int argc, char** argv)
+{
+    razixDll = LoadLibrary(L"Razix.dll");
+    EngineMain(argc, argv);
+}
+
+int main(int argc, char** argv)
+{
+    // Initialize the QT Editor Application
+    qrzeditorApp = new QApplication(argc, argv);
+    mainWindow   = new Razix::Editor::RZEMainWindow;
+    mainWindow->resize(1280, 720);
+    mainWindow->show();
+    vulkanWindow = new Razix::Editor::RZEVulkanWindow;
+    vulkanWindow->resize(1280, 720);
+    vulkanWindow->show();
+    // Load the engine DLL and Ignite it on a separate thread
+    std::thread engineThread(LoadEngineDLL, argc, argv);
+
+    return qrzeditorApp->exec();
 }
