@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/rzeditor">
+        <file>RazixLogo32.png</file>
+        <file>RazixLogo64.png</file>
+    </qresource>
+</RCC>
