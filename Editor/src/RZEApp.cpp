@@ -6,16 +6,22 @@
 #include <QVulkanInstance>
 
 #include "RZENativeWindow.h"
+#include "UI/Widgets/RZEViewport.h"
+#include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
+#include "Styles/StyleData.h"
+
 #include <vulkan/vulkan.h>
 
-static QApplication*            qrzeditorApp = nullptr;
-Razix::Editor::RZEMainWindow*   mainWindow;
-Razix::Editor::RZEVulkanWindow* vulkanWindow;
+static QApplication*               qrzeditorApp = nullptr;
+Razix::Editor::RZEMainWindow*      mainWindow;
+Razix::Editor::RZEVulkanWindow*    vulkanWindow;
+Razix::Editor::RZEInspectorWindow* inspectorWidget;
+Razix::Editor::RZEViewport*        viewportWidget;
 
 using namespace Razix;
 
@@ -72,12 +78,12 @@ public:
         Razix::WindowProperties properties{};
         // TODO: Use the application signature title for this
         properties.Title  = "Razix Editor";
-        properties.Width  = mainWindow->width();
-        properties.Height = mainWindow->height();
+        properties.Width  = vulkanWindow->width();
+        properties.Height = vulkanWindow->height();
 
         //HWND hWnd = (HWND) vulkanWindow->winId();
 
-        HWND hWnd = (HWND) mainWindow->winId();
+        HWND hWnd = (HWND) vulkanWindow->winId();
 
         Razix::Editor::RZENativeWindow::Construct();
         Razix::RZApplication::setViewportWindow(Razix::RZWindow::Create(&hWnd, properties));
@@ -185,8 +191,8 @@ private:
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                auto tc = TransformComponent();
-                tc.Translation = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
+                auto tc             = TransformComponent();
+                tc.Translation      = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
                 glm::mat4 transform = tc.GetTransform();
 
                 auto& modelMatrix = phongLightingShader->getPushConstants()[0];
@@ -411,8 +417,10 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new RazixEditorApp();
 }
 
+// TODO: move the ifdef for platforms defined in EntryPoint to here and to Sandbox
 HINSTANCE razixDll;
-void      LoadEngineDLL(int argc, char** argv)
+
+void LoadEngineDLL(int argc, char** argv)
 {
     razixDll = LoadLibrary(L"Razix.dll");
     EngineMain(argc, argv);
@@ -422,12 +430,36 @@ int main(int argc, char** argv)
 {
     // Initialize the QT Editor Application
     qrzeditorApp = new QApplication(argc, argv);
-    mainWindow   = new Razix::Editor::RZEMainWindow;
+
+    QStyle* style = StyleData::availStyles[1].creator();
+    QApplication::setStyle(style);
+    qrzeditorApp->setWindowIcon(QIcon(":/rzeditor/RazixLogo64.png"));
+
+    mainWindow = new Razix::Editor::RZEMainWindow;
     mainWindow->resize(1280, 720);
     mainWindow->show();
+
+    inspectorWidget = new Razix::Editor::RZEInspectorWindow;
+    viewportWidget  = new Razix::Editor::RZEViewport;
+    viewportWidget->resize(1280, 720);
+    viewportWidget->setWindowTitle("Viewport");
+    inspectorWidget->setWindowTitle("Inspector");
+    inspectorWidget->setAutoFillBackground(true);
+    QIcon razixIcon(":/rzeditor/RazixLogo64.png");
+    inspectorWidget->setWindowIcon(razixIcon);
+    viewportWidget->setWindowIcon(razixIcon);
+
+    mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
+    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+
     vulkanWindow = new Razix::Editor::RZEVulkanWindow;
-    vulkanWindow->resize(1280, 720);
-    vulkanWindow->show();
+    //vulkanWindow->show();
+    auto vulkanWindowWidget = QWidget::createWindowContainer(vulkanWindow);
+
+    vulkanWindowWidget->setWindowIcon(razixIcon);
+    vulkanWindowWidget->setWindowTitle("Vulkan Window");
+
+    mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
     // Load the engine DLL and Ignite it on a separate thread
     std::thread engineThread(LoadEngineDLL, argc, argv);
 

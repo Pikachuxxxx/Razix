@@ -29,6 +29,8 @@ public:
         if (Viewport->objectName().isEmpty())
             Viewport->setObjectName(QString::fromUtf8("Viewport"));
         Viewport->resize(400, 300);
+        Viewport->setStyleSheet(QString::fromUtf8("border: 20px;\n"
+"border-color: rgb(255, 0, 4);"));
         pushButton = new QPushButton(Viewport);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setGeometry(QRect(80, 110, 75, 23));
@@ -49,7 +51,7 @@ public:
 
     void retranslateUi(QWidget *Viewport)
     {
-        Viewport->setWindowTitle(QCoreApplication::translate("Viewport", "Form", nullptr));
+        Viewport->setWindowTitle(QCoreApplication::translate("Viewport", "Viewport", nullptr));
         pushButton->setText(QCoreApplication::translate("Viewport", "PushButton", nullptr));
         pushButton_2->setText(QCoreApplication::translate("Viewport", "PushButton", nullptr));
         pushButton_3->setText(QCoreApplication::translate("Viewport", "PushButton", nullptr));
