@@ -78,12 +78,12 @@ public:
         Razix::WindowProperties properties{};
         // TODO: Use the application signature title for this
         properties.Title  = "Razix Editor";
-        properties.Width  = mainWindow->width();
-        properties.Height = mainWindow->height();
+        properties.Width  = vulkanWindow->width();
+        properties.Height = vulkanWindow->height();
 
         //HWND hWnd = (HWND) vulkanWindow->winId();
 
-        HWND hWnd = (HWND) mainWindow->winId();
+        HWND hWnd = (HWND) vulkanWindow->winId();
 
         Razix::Editor::RZENativeWindow::Construct();
         Razix::RZApplication::setViewportWindow(Razix::RZWindow::Create(&hWnd, properties));
@@ -435,7 +435,6 @@ int main(int argc, char** argv)
     QApplication::setStyle(style);
     qrzeditorApp->setWindowIcon(QIcon(":/rzeditor/RazixLogo64.png"));
 
-
     mainWindow = new Razix::Editor::RZEMainWindow;
     mainWindow->resize(1280, 720);
     mainWindow->show();
@@ -451,14 +450,16 @@ int main(int argc, char** argv)
     viewportWidget->setWindowIcon(razixIcon);
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
-    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::RightOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
 
     vulkanWindow = new Razix::Editor::RZEVulkanWindow;
-    vulkanWindow->resize(1280, 720);
-    vulkanWindow->show();
+    //vulkanWindow->show();
+    auto vulkanWindowWidget = QWidget::createWindowContainer(vulkanWindow);
 
-    //mainWindow->getToolWindowManager()->addToolWindow(QWidget::createWindowContainer(vulkanWindow), ToolWindowManager::AreaReference(ToolWindowManager::NoArea));
+    vulkanWindowWidget->setWindowIcon(razixIcon);
+    vulkanWindowWidget->setWindowTitle("Vulkan Window");
 
+    mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
     // Load the engine DLL and Ignite it on a separate thread
     std::thread engineThread(LoadEngineDLL, argc, argv);
 
