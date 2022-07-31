@@ -14,6 +14,8 @@ namespace Razix {
             RZEVulkanWindow(QWindow* parentWindow = nullptr);
             ~RZEVulkanWindow();
 
+            void Init();
+
             QVulkanInstance& getQVKInstance() { return m_QVKInstance; }
 
         private:
