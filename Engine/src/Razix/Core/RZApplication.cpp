@@ -104,9 +104,10 @@ namespace Razix {
         // Destroy the Splash Screen before we create the window
         Razix::RZSplashScreen::Get().destroy();
 
-        // Create the Window
-        m_Window = UniqueRef<RZWindow>(RZWindow::Create(m_WindowProperties));
-        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
+        // Create the Window only if it's not set before (using the native window pointer, usually done by the QT editor)
+        if (m_Window == nullptr) {
+            m_Window = RZWindow::Create(m_WindowProperties);
+        }
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
@@ -155,6 +156,7 @@ namespace Razix {
 
     void RZApplication::Run()
     {
+        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
@@ -165,7 +167,7 @@ namespace Razix {
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
         // ImGui Renderer
-        //m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+        m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
 
         Start();
 
@@ -194,8 +196,8 @@ namespace Razix {
         m_Window->ProcessInput();
 
         // Early close if the escape key is pressed or close button is pressed
-        if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
-            m_CurrentState = AppState::Closing;
+        //if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
+        //   m_CurrentState = AppState::Closing;
 
         if (m_CurrentState == AppState::Closing)
             return false;
@@ -223,7 +225,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;
@@ -257,7 +259,7 @@ namespace Razix {
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 ImGui_ImplOpenGL3_NewFrame();
 
-            ImGui_ImplGlfw_NewFrame();
+            //ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
             OnImGui();
