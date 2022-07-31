@@ -26,13 +26,6 @@ namespace Razix {
 
             RAZIX_CORE_INFO("Creating API Renderer...");
             RAZIX_CORE_INFO("\t Backend API : {0}", Graphics::RZGraphicsContext::GetRenderAPIString());
-            //-------------------------------------------------------------------------------------
-            // Creating the Graphics Context and Initialize it
-            RAZIX_CORE_INFO("Creating Graphics Context...");
-            Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
-            RAZIX_CORE_INFO("Initializing Graphics Context...");
-            Graphics::RZGraphicsContext::GetContext()->Init();
-            //-------------------------------------------------------------------------------------
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: s_APIInstance = new OpenGLAPIRenderer(width, height); break;

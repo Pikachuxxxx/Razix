@@ -57,10 +57,10 @@ int main(int argc, char** argv)
 
     Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
 
+    windowsOS->Init();
+
     // Application auto Initialization by the Engine
     Razix::CreateApplication(argc, argv);
-
-    windowsOS->Init();
 
     // Run the  Application with the master controlled given to the OS
     windowsOS->Run();

@@ -11,8 +11,11 @@
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
+    #define VK_USE_PLATFORM_WIN32_KHR
+
     #include <glfw/glfw3.h>
     #include <vulkan/vulkan.h>
+    #include <vulkan/vulkan_win32.h>
 
     #define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
@@ -49,7 +52,24 @@ namespace Razix {
         {
             // Create the Vulkan instance to interface with the Vulkan library
             createInstance();
+        }
 
+        void VKContext::Destroy()
+        {
+            // Destroy the swapchain
+            m_Swapchain->Destroy();
+            // Destroy the logical device
+            VKDevice::Get().destroy();
+            // Destroy the surface
+            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+            // Destroy the debug manager
+            DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugCallbackHandle, nullptr);
+            // Destroy the instance at last
+            vkDestroyInstance(m_Instance, nullptr);
+        }
+
+        void VKContext::SetupDeviceAndSC()
+        {
             // Create the Logical Device
             VKDevice::Get().init();
 
@@ -66,20 +86,6 @@ namespace Razix {
         #endif    // RZ_PROFILER_OPTICK
 
     #endif    // RAZIX_DISTRIBUTION
-        }
-
-        void VKContext::Destroy()
-        {
-            // Destroy the swapchain
-            m_Swapchain->Destroy();
-            // Destroy the logical device
-            VKDevice::Get().destroy();
-            // Destroy the surface
-            vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-            // Destroy the debug manager
-            DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugCallbackHandle, nullptr);
-            // Destroy the instance at last
-            vkDestroyInstance(m_Instance, nullptr);
         }
 
         void VKContext::createInstance()
@@ -125,9 +131,6 @@ namespace Razix {
 
             // Create the debug utils
             setupDebugMessenger();
-
-            // Create the WSI surface
-            createSurface((GLFWwindow*) m_Window->GetNativeWindow());
         }
 
         std::vector<const char*> VKContext::getRequiredLayers()
@@ -173,7 +176,8 @@ namespace Razix {
 
             // Bundle all the required extensions into a vector and return it
             std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
-
+            extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+            extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
             // Add any custom extension from the list of supported extensions that you need and are not included by GLFW
             if (m_EnabledValidationLayer)
                 extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -189,12 +193,31 @@ namespace Razix {
                 RAZIX_CORE_TRACE("[Vulkan] Succesfully created debug messenger!");
         }
 
-        void VKContext::createSurface(GLFWwindow* window)
+        void VKContext::CreateSurface(void* window)
         {
-            if (glfwCreateWindowSurface(m_Instance, window, nullptr, &m_Surface))
-                RAZIX_CORE_ERROR("[Vulkan] Failed to create surface!");
-            else
-                RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface!");
+            if (RZApplication::Get().getAppType() == AppType::GAME) {
+                if (glfwCreateWindowSurface(m_Instance, (GLFWwindow*) window, nullptr, &m_Surface))
+                    RAZIX_CORE_ERROR("[Vulkan] Failed to create surface!");
+                else
+                    RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface!");
+            } else {
+                // if the app type is editor create a custom surface based on the OS
+    #ifdef RAZIX_PLATFORM_WINDOWS
+                //HWND*                       hwndPtr = (HWND*) m_Window->GetNativeWindow();
+                //HWND                        hwnd    = *hwndPtr;
+                //VkWin32SurfaceCreateInfoKHR createInfo{};
+                //createInfo.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+                //createInfo.hwnd      = RZApplication::Get().getViewportHWND();
+                //createInfo.hinstance = GetModuleHandle(nullptr);
+
+                //if (vkCreateWin32SurfaceKHR(m_Instance, &createInfo, nullptr, &m_Surface))
+                //    RAZIX_CORE_ERROR("[Vulkan] Failed to create surface! for native window");
+                //else
+                //    RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface for native window!");
+
+                        m_Surface = *(VkSurfaceKHR*) window;
+    #endif
+            }
         }
 
         VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)

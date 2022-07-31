@@ -18,7 +18,7 @@ struct GLFWwindow;
 namespace Razix {
     namespace Graphics {
 
-        class VKContext : public RZGraphicsContext
+        class RAZIX_API VKContext : public RZGraphicsContext
         {
         public:
             VKContext(RZWindow* windowHandle);
@@ -31,7 +31,10 @@ namespace Razix {
             /* Gets the underlying Vulkan context object */
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }
 
-            void waitIdle() const { vkDeviceWaitIdle(VKDevice::Get().getDevice()); }
+            /* creates the WSI surface to render the the stuff, required the platform window handle to create the surface */
+            void CreateSurface(void* window);
+
+            void SetupDeviceAndSC();
 
             Ref<VKSwapchain>& getSwapchain() { return m_Swapchain; }
 
@@ -64,8 +67,7 @@ namespace Razix {
             std::vector<const char*> getRequiredExtensions();
             /* Sets the debug messenger this is used to record instance creation and deletion */
             void setupDebugMessenger();
-            /* creates the WSI surface to render the the stuff, required the platform window handle to create the surface */
-            void createSurface(GLFWwindow* window);
+
             /* Vulkan debug callback reporting function */
             static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
         };

@@ -106,7 +106,7 @@ namespace Razix {
         inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
 
         /* Returns a reference to the application window */
-        inline RZWindow* RAZIX_CALL getWindow() { return m_Window.get(); }
+        inline RZWindow* RAZIX_CALL getWindow() { return m_Window; }
         /* Gets the window size */
         inline glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
         /* Returns a reference to the Application instance */
@@ -118,6 +118,13 @@ namespace Razix {
 
         Graphics::RZImGuiRenderer* getImGuiRenderer() { return m_ImGuiRenderer; }
 
+        void setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
+
+        void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
+        HWND getViewportHWND() { return viewportHWND; }
+
+        inline AppType getAppType() { return m_appType; }
+        void           setAppType(AppType appType) { m_appType = appType; }
         /* Application Serialization */
 
         // Load mechanism for the RZApplication class
@@ -165,13 +172,13 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
-            RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window.get()->getWidth(), m_Window.get()->getHeight());
+            RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
             archive(cereal::make_nvp("Project Name", m_AppName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
             archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
             archive(cereal::make_nvp("Render API", (uint32_t) Graphics::RZGraphicsContext::GetRenderAPI()));
-            archive(cereal::make_nvp("Width", m_Window.get()->getWidth()));
-            archive(cereal::make_nvp("Height", m_Window.get()->getHeight()));
+            archive(cereal::make_nvp("Width", m_Window->getWidth()));
+            archive(cereal::make_nvp("Height", m_Window->getHeight()));
             archive(cereal::make_nvp("Project Path", m_AppFilePath));    // Why am I even serializing this?
 
             auto& paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
@@ -186,8 +193,10 @@ namespace Razix {
         }
 
     private:
+        HWND                  viewportHWND;
         static RZApplication* s_AppInstance;                      /* The singleton instance of the application                */
         AppState              m_CurrentState = AppState::Loading; /* The current state of the application                     */
+        AppType               m_appType      = AppType::GAME;     /* The type of the application                              */
         std::string           m_AppName;                          /* The name of the application                              */
         std::string           m_AppFilePath;                      /* The path of the Razix Project file (*.razixproject)      */
         uint32_t              m_RenderAPI;                        /* The Render API being used to render the application      */
@@ -196,7 +205,7 @@ namespace Razix {
         UniqueRef<RZTimer>    m_Timer;                            /* The timer used to calculate the delta time and timesteps */
         float                 m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
         RZTimestep            m_Timestep;                         /* The timesteps taken to update the application            */
-        UniqueRef<RZWindow>   m_Window;                           /* The window that will be used to view graphics            */
+        RZWindow*             m_Window = nullptr;                 /* The window that will be used to view graphics            */
         WindowProperties      m_WindowProperties;                 /* The properties of the window to create with              */
         RZUUID                m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
 

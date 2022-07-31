@@ -23,7 +23,8 @@ namespace Razix {
             void Destroy() override;
             void ClearWithColor(float r, float g, float b) override;
 
-            static DX11Context*   Get() { return static_cast<DX11Context*>(s_Context); }
+            static DX11Context* Get() { return static_cast<DX11Context*>(s_Context); }
+
             inline RZWindow*      getWindow() const { return m_Window; }
             inline DX11Swapchain* getSwapchain() { return &m_Swapchain; }
 
