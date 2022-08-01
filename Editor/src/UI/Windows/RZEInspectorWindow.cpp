@@ -7,15 +7,11 @@ namespace Razix {
         {
             ui.setupUi(this);
 
-            QWidget* transformComponentWidget = new QWidget(this);
-            ui_TransformComponent.setupUi(transformComponentWidget);
-
-            auto layout = new QVBoxLayout();
-            layout->addWidget(transformComponentWidget);
-            this->setLayout(layout);
+            // First add a QVBoxLayout
+            auto layout = new QVBoxLayout(this);
         }
 
-        RZEInspectorWindow::~RZEInspectorWindow()
+        RZEInspectorWindow::~RZEInspectorWindow() 
         {}
 
     }    // namespace Editor

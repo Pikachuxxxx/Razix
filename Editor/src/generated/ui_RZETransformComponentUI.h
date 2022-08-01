@@ -16,7 +16,6 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QToolBox>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -26,224 +25,208 @@ class Ui_TransformComponent
 {
 public:
     QVBoxLayout *verticalLayout;
-    QToolBox *toolBox;
-    QWidget *Transform;
-    QVBoxLayout *verticalLayout_2;
-    QHBoxLayout *horizontalLayout_3;
-    QLabel *Position_3;
-    QSpacerItem *horizontalSpacer_3;
-    QPushButton *pushButton_7;
-    QLineEdit *Position_Value_3;
-    QPushButton *pushButton_8;
-    QLineEdit *lineEdit_5;
-    QPushButton *pushButton_9;
-    QLineEdit *lineEdit_6;
-    QHBoxLayout *horizontalLayout;
-    QLabel *Position;
-    QSpacerItem *horizontalSpacer;
-    QPushButton *pushButton;
-    QLineEdit *Position_Value;
-    QPushButton *pushButton_2;
-    QLineEdit *lineEdit;
-    QPushButton *pushButton_3;
-    QLineEdit *lineEdit_2;
-    QHBoxLayout *horizontalLayout_2;
-    QLabel *Position_2;
+    QHBoxLayout *PositionLayout;
+    QLabel *PosLbl;
+    QSpacerItem *horizontalSpacer_1;
+    QPushButton *PosX;
+    QLineEdit *PosVal_X;
+    QPushButton *PosY;
+    QLineEdit *PosVal_Y;
+    QPushButton *PosZ;
+    QLineEdit *PosVal_Z;
+    QHBoxLayout *RotationLayout;
+    QLabel *RotLbl;
     QSpacerItem *horizontalSpacer_2;
-    QPushButton *pushButton_4;
-    QLineEdit *Position_Value_2;
-    QPushButton *pushButton_5;
-    QLineEdit *lineEdit_3;
-    QPushButton *pushButton_6;
-    QLineEdit *lineEdit_4;
+    QPushButton *RotX;
+    QLineEdit *RotVal_X;
+    QPushButton *RotY;
+    QLineEdit *RotVal_Y;
+    QPushButton *RotZ;
+    QLineEdit *RotVal_Z;
+    QHBoxLayout *ScaleLayout;
+    QLabel *ScaleLbl;
+    QSpacerItem *horizontalSpacer_3;
+    QPushButton *ScaleX;
+    QLineEdit *ScaleVal_X;
+    QPushButton *ScaleY;
+    QLineEdit *ScaleVal_Y;
+    QPushButton *ScaleZ;
+    QLineEdit *ScaleVal_Z;
 
     void setupUi(QWidget *TransformComponent)
     {
         if (TransformComponent->objectName().isEmpty())
             TransformComponent->setObjectName(QString::fromUtf8("TransformComponent"));
-        TransformComponent->resize(405, 171);
+        TransformComponent->resize(325, 105);
         verticalLayout = new QVBoxLayout(TransformComponent);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        toolBox = new QToolBox(TransformComponent);
-        toolBox->setObjectName(QString::fromUtf8("toolBox"));
-        Transform = new QWidget();
-        Transform->setObjectName(QString::fromUtf8("Transform"));
-        Transform->setGeometry(QRect(0, 0, 387, 123));
-        verticalLayout_2 = new QVBoxLayout(Transform);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-        Position_3 = new QLabel(Transform);
-        Position_3->setObjectName(QString::fromUtf8("Position_3"));
+        PositionLayout = new QHBoxLayout();
+        PositionLayout->setObjectName(QString::fromUtf8("PositionLayout"));
+        PosLbl = new QLabel(TransformComponent);
+        PosLbl->setObjectName(QString::fromUtf8("PosLbl"));
+        PosLbl->setMinimumSize(QSize(50, 0));
 
-        horizontalLayout_3->addWidget(Position_3);
+        PositionLayout->addWidget(PosLbl);
 
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalSpacer_1 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_3->addItem(horizontalSpacer_3);
+        PositionLayout->addItem(horizontalSpacer_1);
 
-        pushButton_7 = new QPushButton(Transform);
-        pushButton_7->setObjectName(QString::fromUtf8("pushButton_7"));
-        pushButton_7->setMaximumSize(QSize(30, 30));
-        pushButton_7->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
+        PosX = new QPushButton(TransformComponent);
+        PosX->setObjectName(QString::fromUtf8("PosX"));
+        PosX->setMaximumSize(QSize(30, 25));
+        PosX->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
 
-        horizontalLayout_3->addWidget(pushButton_7);
+        PositionLayout->addWidget(PosX);
 
-        Position_Value_3 = new QLineEdit(Transform);
-        Position_Value_3->setObjectName(QString::fromUtf8("Position_Value_3"));
-        Position_Value_3->setMaximumSize(QSize(40, 30));
-        Position_Value_3->setDragEnabled(true);
+        PosVal_X = new QLineEdit(TransformComponent);
+        PosVal_X->setObjectName(QString::fromUtf8("PosVal_X"));
+        PosVal_X->setMaximumSize(QSize(40, 25));
+        PosVal_X->setDragEnabled(true);
 
-        horizontalLayout_3->addWidget(Position_Value_3);
+        PositionLayout->addWidget(PosVal_X);
 
-        pushButton_8 = new QPushButton(Transform);
-        pushButton_8->setObjectName(QString::fromUtf8("pushButton_8"));
-        pushButton_8->setMaximumSize(QSize(30, 30));
-        pushButton_8->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
+        PosY = new QPushButton(TransformComponent);
+        PosY->setObjectName(QString::fromUtf8("PosY"));
+        PosY->setMaximumSize(QSize(30, 30));
+        PosY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
 
-        horizontalLayout_3->addWidget(pushButton_8);
+        PositionLayout->addWidget(PosY);
 
-        lineEdit_5 = new QLineEdit(Transform);
-        lineEdit_5->setObjectName(QString::fromUtf8("lineEdit_5"));
-        lineEdit_5->setMaximumSize(QSize(40, 30));
+        PosVal_Y = new QLineEdit(TransformComponent);
+        PosVal_Y->setObjectName(QString::fromUtf8("PosVal_Y"));
+        PosVal_Y->setMaximumSize(QSize(40, 25));
 
-        horizontalLayout_3->addWidget(lineEdit_5);
+        PositionLayout->addWidget(PosVal_Y);
 
-        pushButton_9 = new QPushButton(Transform);
-        pushButton_9->setObjectName(QString::fromUtf8("pushButton_9"));
-        pushButton_9->setMaximumSize(QSize(30, 30));
-        pushButton_9->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
+        PosZ = new QPushButton(TransformComponent);
+        PosZ->setObjectName(QString::fromUtf8("PosZ"));
+        PosZ->setMaximumSize(QSize(30, 25));
+        PosZ->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
 
-        horizontalLayout_3->addWidget(pushButton_9);
+        PositionLayout->addWidget(PosZ);
 
-        lineEdit_6 = new QLineEdit(Transform);
-        lineEdit_6->setObjectName(QString::fromUtf8("lineEdit_6"));
-        lineEdit_6->setMaximumSize(QSize(40, 30));
+        PosVal_Z = new QLineEdit(TransformComponent);
+        PosVal_Z->setObjectName(QString::fromUtf8("PosVal_Z"));
+        PosVal_Z->setMaximumSize(QSize(40, 25));
 
-        horizontalLayout_3->addWidget(lineEdit_6);
+        PositionLayout->addWidget(PosVal_Z);
 
 
-        verticalLayout_2->addLayout(horizontalLayout_3);
+        verticalLayout->addLayout(PositionLayout);
 
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        Position = new QLabel(Transform);
-        Position->setObjectName(QString::fromUtf8("Position"));
+        RotationLayout = new QHBoxLayout();
+        RotationLayout->setObjectName(QString::fromUtf8("RotationLayout"));
+        RotLbl = new QLabel(TransformComponent);
+        RotLbl->setObjectName(QString::fromUtf8("RotLbl"));
+        RotLbl->setMinimumSize(QSize(50, 0));
 
-        horizontalLayout->addWidget(Position);
-
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout->addItem(horizontalSpacer);
-
-        pushButton = new QPushButton(Transform);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setMaximumSize(QSize(30, 30));
-        pushButton->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
-
-        horizontalLayout->addWidget(pushButton);
-
-        Position_Value = new QLineEdit(Transform);
-        Position_Value->setObjectName(QString::fromUtf8("Position_Value"));
-        Position_Value->setMaximumSize(QSize(40, 30));
-        Position_Value->setDragEnabled(true);
-
-        horizontalLayout->addWidget(Position_Value);
-
-        pushButton_2 = new QPushButton(Transform);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setMaximumSize(QSize(30, 30));
-        pushButton_2->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
-
-        horizontalLayout->addWidget(pushButton_2);
-
-        lineEdit = new QLineEdit(Transform);
-        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
-        lineEdit->setMaximumSize(QSize(40, 30));
-
-        horizontalLayout->addWidget(lineEdit);
-
-        pushButton_3 = new QPushButton(Transform);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-        pushButton_3->setMaximumSize(QSize(30, 30));
-        pushButton_3->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
-
-        horizontalLayout->addWidget(pushButton_3);
-
-        lineEdit_2 = new QLineEdit(Transform);
-        lineEdit_2->setObjectName(QString::fromUtf8("lineEdit_2"));
-        lineEdit_2->setMaximumSize(QSize(40, 30));
-
-        horizontalLayout->addWidget(lineEdit_2);
-
-
-        verticalLayout_2->addLayout(horizontalLayout);
-
-        horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        Position_2 = new QLabel(Transform);
-        Position_2->setObjectName(QString::fromUtf8("Position_2"));
-
-        horizontalLayout_2->addWidget(Position_2);
+        RotationLayout->addWidget(RotLbl);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_2->addItem(horizontalSpacer_2);
+        RotationLayout->addItem(horizontalSpacer_2);
 
-        pushButton_4 = new QPushButton(Transform);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
-        pushButton_4->setMaximumSize(QSize(30, 30));
-        pushButton_4->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
+        RotX = new QPushButton(TransformComponent);
+        RotX->setObjectName(QString::fromUtf8("RotX"));
+        RotX->setMaximumSize(QSize(30, 25));
+        RotX->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
 
-        horizontalLayout_2->addWidget(pushButton_4);
+        RotationLayout->addWidget(RotX);
 
-        Position_Value_2 = new QLineEdit(Transform);
-        Position_Value_2->setObjectName(QString::fromUtf8("Position_Value_2"));
-        Position_Value_2->setMaximumSize(QSize(40, 30));
-        Position_Value_2->setDragEnabled(true);
+        RotVal_X = new QLineEdit(TransformComponent);
+        RotVal_X->setObjectName(QString::fromUtf8("RotVal_X"));
+        RotVal_X->setMaximumSize(QSize(40, 25));
+        RotVal_X->setDragEnabled(true);
 
-        horizontalLayout_2->addWidget(Position_Value_2);
+        RotationLayout->addWidget(RotVal_X);
 
-        pushButton_5 = new QPushButton(Transform);
-        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
-        pushButton_5->setMaximumSize(QSize(30, 30));
-        pushButton_5->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
+        RotY = new QPushButton(TransformComponent);
+        RotY->setObjectName(QString::fromUtf8("RotY"));
+        RotY->setMaximumSize(QSize(30, 30));
+        RotY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
 
-        horizontalLayout_2->addWidget(pushButton_5);
+        RotationLayout->addWidget(RotY);
 
-        lineEdit_3 = new QLineEdit(Transform);
-        lineEdit_3->setObjectName(QString::fromUtf8("lineEdit_3"));
-        lineEdit_3->setMaximumSize(QSize(40, 30));
+        RotVal_Y = new QLineEdit(TransformComponent);
+        RotVal_Y->setObjectName(QString::fromUtf8("RotVal_Y"));
+        RotVal_Y->setMaximumSize(QSize(40, 25));
 
-        horizontalLayout_2->addWidget(lineEdit_3);
+        RotationLayout->addWidget(RotVal_Y);
 
-        pushButton_6 = new QPushButton(Transform);
-        pushButton_6->setObjectName(QString::fromUtf8("pushButton_6"));
-        pushButton_6->setMaximumSize(QSize(30, 30));
-        pushButton_6->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
+        RotZ = new QPushButton(TransformComponent);
+        RotZ->setObjectName(QString::fromUtf8("RotZ"));
+        RotZ->setMaximumSize(QSize(30, 25));
+        RotZ->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
 
-        horizontalLayout_2->addWidget(pushButton_6);
+        RotationLayout->addWidget(RotZ);
 
-        lineEdit_4 = new QLineEdit(Transform);
-        lineEdit_4->setObjectName(QString::fromUtf8("lineEdit_4"));
-        lineEdit_4->setMaximumSize(QSize(40, 30));
+        RotVal_Z = new QLineEdit(TransformComponent);
+        RotVal_Z->setObjectName(QString::fromUtf8("RotVal_Z"));
+        RotVal_Z->setMaximumSize(QSize(40, 25));
 
-        horizontalLayout_2->addWidget(lineEdit_4);
+        RotationLayout->addWidget(RotVal_Z);
 
 
-        verticalLayout_2->addLayout(horizontalLayout_2);
+        verticalLayout->addLayout(RotationLayout);
 
-        QIcon icon;
-        icon.addFile(QString::fromUtf8(":/rzeditor/transform_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        toolBox->addItem(Transform, icon, QString::fromUtf8("Transform"));
+        ScaleLayout = new QHBoxLayout();
+        ScaleLayout->setObjectName(QString::fromUtf8("ScaleLayout"));
+        ScaleLbl = new QLabel(TransformComponent);
+        ScaleLbl->setObjectName(QString::fromUtf8("ScaleLbl"));
+        ScaleLbl->setMinimumSize(QSize(50, 0));
 
-        verticalLayout->addWidget(toolBox);
+        ScaleLayout->addWidget(ScaleLbl);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        ScaleLayout->addItem(horizontalSpacer_3);
+
+        ScaleX = new QPushButton(TransformComponent);
+        ScaleX->setObjectName(QString::fromUtf8("ScaleX"));
+        ScaleX->setMaximumSize(QSize(30, 25));
+        ScaleX->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
+
+        ScaleLayout->addWidget(ScaleX);
+
+        ScaleVal_X = new QLineEdit(TransformComponent);
+        ScaleVal_X->setObjectName(QString::fromUtf8("ScaleVal_X"));
+        ScaleVal_X->setMaximumSize(QSize(40, 25));
+        ScaleVal_X->setDragEnabled(true);
+
+        ScaleLayout->addWidget(ScaleVal_X);
+
+        ScaleY = new QPushButton(TransformComponent);
+        ScaleY->setObjectName(QString::fromUtf8("ScaleY"));
+        ScaleY->setMaximumSize(QSize(30, 25));
+        ScaleY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
+
+        ScaleLayout->addWidget(ScaleY);
+
+        ScaleVal_Y = new QLineEdit(TransformComponent);
+        ScaleVal_Y->setObjectName(QString::fromUtf8("ScaleVal_Y"));
+        ScaleVal_Y->setMaximumSize(QSize(40, 25));
+
+        ScaleLayout->addWidget(ScaleVal_Y);
+
+        ScaleZ = new QPushButton(TransformComponent);
+        ScaleZ->setObjectName(QString::fromUtf8("ScaleZ"));
+        ScaleZ->setMaximumSize(QSize(30, 25));
+        ScaleZ->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
+
+        ScaleLayout->addWidget(ScaleZ);
+
+        ScaleVal_Z = new QLineEdit(TransformComponent);
+        ScaleVal_Z->setObjectName(QString::fromUtf8("ScaleVal_Z"));
+        ScaleVal_Z->setMaximumSize(QSize(40, 25));
+
+        ScaleLayout->addWidget(ScaleVal_Z);
+
+
+        verticalLayout->addLayout(ScaleLayout);
 
 
         retranslateUi(TransformComponent);
-
-        toolBox->setCurrentIndex(0);
-
 
         QMetaObject::connectSlotsByName(TransformComponent);
     } // setupUi
@@ -251,19 +234,18 @@ public:
     void retranslateUi(QWidget *TransformComponent)
     {
         TransformComponent->setWindowTitle(QCoreApplication::translate("TransformComponent", "Form", nullptr));
-        Position_3->setText(QCoreApplication::translate("TransformComponent", "Position", nullptr));
-        pushButton_7->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
-        pushButton_8->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
-        pushButton_9->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
-        Position->setText(QCoreApplication::translate("TransformComponent", "Rotation", nullptr));
-        pushButton->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
-        pushButton_3->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
-        Position_2->setText(QCoreApplication::translate("TransformComponent", "Scale", nullptr));
-        pushButton_4->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
-        pushButton_5->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
-        pushButton_6->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
-        toolBox->setItemText(toolBox->indexOf(Transform), QCoreApplication::translate("TransformComponent", "Transform", nullptr));
+        PosLbl->setText(QCoreApplication::translate("TransformComponent", "Position", nullptr));
+        PosX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
+        PosY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
+        PosZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
+        RotLbl->setText(QCoreApplication::translate("TransformComponent", "Rotation", nullptr));
+        RotX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
+        RotY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
+        RotZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
+        ScaleLbl->setText(QCoreApplication::translate("TransformComponent", "Scale", nullptr));
+        ScaleX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
+        ScaleY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
+        ScaleZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
     } // retranslateUi
 
 };
