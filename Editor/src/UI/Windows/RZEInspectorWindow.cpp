@@ -6,9 +6,13 @@ namespace Razix {
             : QFrame(parent)
         {
             ui.setupUi(this);
+
+            // First add a QVBoxLayout
+            auto layout = new QVBoxLayout(this);
         }
 
-        RZEInspectorWindow::~RZEInspectorWindow()
+        RZEInspectorWindow::~RZEInspectorWindow() 
         {}
+
     }    // namespace Editor
 }    // namespace Razix
