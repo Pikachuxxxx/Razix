@@ -404,20 +404,20 @@ namespace Razix {
             present.pResults           = VK_NULL_HANDLE;
             auto error                 = vkQueuePresentKHR(VKDevice::Get().getPresentQueue(), &present);
 
-            //if (error == VK_ERROR_OUT_OF_DATE_KHR || error == VK_SUBOPTIMAL_KHR || m_IsResized) {
-            //    m_IsResized = !m_IsResized;
-            //    //VKContext::Get()->waitIdle();
-            //    vkDeviceWaitIdle(VKDevice::Get().getDevice());
-            //    for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
-            //        auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-            //        tex->Release(false);
-            //        delete m_SwapchainImageTextures[i];
-            //    }
-            //    m_SwapchainImageTextures.clear();
-            //    vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
-            //    Init(m_Width, m_Height);
-            //    return;
-            //}
+            if (error == VK_ERROR_OUT_OF_DATE_KHR || error == VK_SUBOPTIMAL_KHR || m_IsResized) {
+                m_IsResized = !m_IsResized;
+                //VKContext::Get()->waitIdle();
+                vkDeviceWaitIdle(VKDevice::Get().getDevice());
+                for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+                    auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+                    tex->Release(false);
+                    delete m_SwapchainImageTextures[i];
+                }
+                m_SwapchainImageTextures.clear();
+                vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
+                Init(m_Width, m_Height);
+                return;
+            }
 
             if (error == VK_ERROR_OUT_OF_DATE_KHR)
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
