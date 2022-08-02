@@ -18,6 +18,8 @@ namespace Razix {
             RZEInspectorWindow(QFrame *parent = nullptr);
             ~RZEInspectorWindow();
 
+            QVBoxLayout& getBoxLayout() { return *(ui.verticalLayout_2); }
+
         private:
             Ui::InspectorWindow ui;
         };
