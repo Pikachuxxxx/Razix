@@ -6,11 +6,12 @@
 #include <QVulkanInstance>
 
 #include "RZENativeWindow.h"
+#include "UI/Widgets/RZECollapsingHeader.h"
 #include "UI/Widgets/RZEViewport.h"
 #include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZEVulkanWindow.h"
-#include "UI/Widgets/RZECollapsingHeader.h"
+#include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -450,11 +451,19 @@ int main(int argc, char** argv)
     inspectorWidget->setWindowIcon(razixIcon);
     viewportWidget->setWindowIcon(razixIcon);
 
-    inspectorWidget->layout()->addWidget(new Razix::Editor::RZECollapsingHeader(QString("Transform")));
-    inspectorWidget->layout()->addWidget(new Razix::Editor::RZECollapsingHeader(QString("Camera")));
+    auto transformWIdget = new Razix::Editor::RZETransformComponentUI;
+
+    auto widget = new QPushButton;
+    widget->setText("Add Component");
+    
+    inspectorWidget->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Transform"), transformWIdget, new QIcon(":/rzeditor/transform_icon.png")));
+    QFrame* hFrame = new QFrame;
+    hFrame->setFrameShape(QFrame::HLine);
+    inspectorWidget->getBoxLayout().insertWidget(3, hFrame);
+    inspectorWidget->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("Camera"), widget, new QIcon(":/rzeditor/camera_icon.png")));
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
-    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea/*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
+    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
 
     vulkanWindow = new Razix::Editor::RZEVulkanWindow;
     //vulkanWindow->show();
