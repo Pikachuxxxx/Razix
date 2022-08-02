@@ -11,7 +11,7 @@
 #include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZEVulkanWindow.h"
-#include "UI/Widgets/RZETransformComponentUI.h"
+#include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -456,11 +456,11 @@ int main(int argc, char** argv)
     auto widget = new QPushButton;
     widget->setText("Add Component");
     
-    inspectorWidget->getBoxLayout().insertWidget(0, new Razix::Editor::RZECollapsingHeader(QString("Transform"), transformWIdget, new QIcon(":/rzeditor/transform_icon.png")));
+    inspectorWidget->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Transform"), transformWIdget, new QIcon(":/rzeditor/transform_icon.png")));
     QFrame* hFrame = new QFrame;
     hFrame->setFrameShape(QFrame::HLine);
-    inspectorWidget->getBoxLayout().insertWidget(1, hFrame);
-    inspectorWidget->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Camera"), widget, new QIcon(":/rzeditor/camera_icon.png")));
+    inspectorWidget->getBoxLayout().insertWidget(3, hFrame);
+    inspectorWidget->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("Camera"), widget, new QIcon(":/rzeditor/camera_icon.png")));
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
     mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));

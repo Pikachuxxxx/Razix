@@ -11,6 +11,10 @@ namespace Razix {
             m_BoxVLayout = new QVBoxLayout(this);
 
             m_Header = new RZEHeaderFrame(headerTitle, icon, true, this);
+
+            m_BoxVLayout->setSpacing(4);
+            m_BoxVLayout->setMargin(0);
+
             m_BoxVLayout->addWidget(m_Header);
             m_BoxVLayout->addWidget(m_ChildWidget);
 
@@ -24,8 +28,8 @@ namespace Razix {
             : QFrame(parent)
         {
             this->setMaximumHeight(24);
-            this->move(QPoint(24, 0));
-            this->setStyleSheet("border:1px solid rgb(81, 81, 81); ");
+            //this->move(QPoint(24, 0));
+            this->setStyleSheet("border:1px solid rgb(81, 81, 81); background-color: rgb(141, 141, 141); ");
 
             auto Hlayout = new QHBoxLayout(this);
             Hlayout->setContentsMargins(0, 0, 0, 0);
@@ -40,7 +44,7 @@ namespace Razix {
                 auto iconLbl = new QLabel();
                 iconLbl->setMaximumHeight(24);
                 iconLbl->setMaximumWidth(24);
-                iconLbl->move(QPoint(24, 0));
+                //iconLbl->move(QPoint(24, 0));
                 iconLbl->setStyleSheet("border:0px");
                 iconLbl->setPixmap(pixmap);
 
@@ -49,7 +53,7 @@ namespace Razix {
 
             auto title = new QLabel(headerTitle);
             title->setMinimumHeight(24);
-            title->move(QPoint(24, 0));
+            //title->move(QPoint(24, 0));
             title->setStyleSheet("border:0px");
 
             Hlayout->addWidget(title);

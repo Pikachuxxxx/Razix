@@ -7,7 +7,8 @@ namespace Razix {
         {
             ui.setupUi(this);
 
-            ui.verticalLayout_2->setSpacing(0);
+            ui.verticalLayout_2->setSpacing(5);
+            ui.verticalLayout_2->setMargin(0);
         }
 
         RZEInspectorWindow::~RZEInspectorWindow() 
