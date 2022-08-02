@@ -7,12 +7,12 @@ namespace Razix {
         {
             ui.setupUi(this);
 
-            // First add a QVBoxLayout
-            auto layout = new QVBoxLayout(this);
+            ui.verticalLayout_2->setSpacing(0);
         }
 
         RZEInspectorWindow::~RZEInspectorWindow() 
-        {}
+        {
+        }
 
     }    // namespace Editor
 }    // namespace Razix

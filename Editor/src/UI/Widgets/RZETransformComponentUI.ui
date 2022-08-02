@@ -6,14 +6,36 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>325</width>
-    <height>105</height>
+    <width>314</width>
+    <height>82</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">border-left: 2px;
+border-right: 2px;
+border-bottom: 2px;
+
+</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>3</number>
+   </property>
+   <property name="leftMargin">
+    <number>5</number>
+   </property>
+   <property name="topMargin">
+    <number>5</number>
+   </property>
+   <property name="rightMargin">
+    <number>5</number>
+   </property>
+   <property name="bottomMargin">
+    <number>5</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="PositionLayout">
      <item>
@@ -47,7 +69,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -63,7 +85,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="dragEnabled">
@@ -76,7 +98,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>30</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -92,7 +114,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
       </widget>
@@ -102,7 +124,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -118,7 +140,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
       </widget>
@@ -158,7 +180,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -174,7 +196,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="dragEnabled">
@@ -187,7 +209,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>30</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -203,7 +225,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
       </widget>
@@ -213,7 +235,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -229,7 +251,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
       </widget>
@@ -269,7 +291,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -285,7 +307,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="dragEnabled">
@@ -298,7 +320,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -314,7 +336,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
       </widget>
@@ -324,7 +346,7 @@
        <property name="maximumSize">
         <size>
          <width>30</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -340,7 +362,7 @@
        <property name="maximumSize">
         <size>
          <width>40</width>
-         <height>25</height>
+         <height>20</height>
         </size>
        </property>
       </widget>

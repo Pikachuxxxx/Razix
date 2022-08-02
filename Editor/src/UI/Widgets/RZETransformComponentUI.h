@@ -11,7 +11,7 @@ namespace Razix {
             Q_OBJECT
 
         public:
-            RZETransformComponentUI(QWidget *parent);
+            RZETransformComponentUI(QWidget *parent = nullptr);
             ~RZETransformComponentUI();
 
         private:
