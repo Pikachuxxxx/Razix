@@ -10,6 +10,7 @@
 #include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZEVulkanWindow.h"
+#include "UI/Widgets/RZECollapsingHeader.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -449,8 +450,11 @@ int main(int argc, char** argv)
     inspectorWidget->setWindowIcon(razixIcon);
     viewportWidget->setWindowIcon(razixIcon);
 
+    inspectorWidget->layout()->addWidget(new Razix::Editor::RZECollapsingHeader(QString("Transform")));
+    inspectorWidget->layout()->addWidget(new Razix::Editor::RZECollapsingHeader(QString("Camera")));
+
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
-    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea/*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
 
     vulkanWindow = new Razix::Editor::RZEVulkanWindow;
     //vulkanWindow->show();
