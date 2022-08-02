@@ -37,16 +37,16 @@
 namespace Constants
 {
 static const int ButtonMargin = 6;
-static const int ButtonBorder = 1;
+static const int ButtonBorder = 2;
 
-static const int HighlightBorder = 2;
+static const int HighlightBorder = 4;
 
-static const int CheckWidth = 14;
-static const int CheckHeight = 14;
+static const int CheckWidth = 16;
+static const int CheckHeight = 32;
 static const int CheckMargin = 3;
 
-static const int GroupHMargin = 8;
-static const int GroupVMargin = 4;
+static const int GroupHMargin = 16;
+static const int GroupVMargin = 8;
 
 static const int ScrollButtonDim = 12;
 static const int ScrollBarMargin = 2;
@@ -69,8 +69,8 @@ static const int MenuSubmenuWidth = 8;
 static const int MenuBarIconSize = 16;
 static const int MenuBarMinimumWidth = 80;
 
-static const int TabWidgetBorder = 1;
-static const int TabMargin = 4;
+static const int TabWidgetBorder = 2;
+static const int TabMargin = 16;
 static const int TabMinWidth = 75;
 static const int TabMaxWidth = 250;
 
@@ -667,7 +667,7 @@ QSize RDStyle::sizeFromContents(ContentsType type, const QStyleOption *opt, cons
   {
     // have a maximum size for tabs
     return size.boundedTo(QSize(Constants::TabMaxWidth, INT_MAX))
-               .expandedTo(QSize(Constants::TabMinWidth, 0)) +
+               .expandedTo(QSize(Constants::TabMinWidth, 20)) +
            QSize(Constants::TabMargin * 2, 0);
   }
   else if(type == CT_CheckBox || type == CT_RadioButton)

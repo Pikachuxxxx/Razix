@@ -38,7 +38,7 @@ namespace Razix {
         {
             Q_OBJECT
         public:
-            RZEHeaderFrame(QString& headerTitle, bool isCollapsed = true, QWidget* parent = nullptr);
+            RZEHeaderFrame(QString& headerTitle, QIcon* icon = nullptr, bool isCollapsed = true, QWidget* parent = nullptr);
             ~RZEHeaderFrame() {}
             Arrow* arrow;
 
@@ -59,13 +59,14 @@ namespace Razix {
             Q_OBJECT
 
         public:
-            RZECollapsingHeader(QString& headerTitle, QWidget* parent = nullptr);
+            RZECollapsingHeader(QString& headerTitle, QWidget* childWidget, QIcon* icon = nullptr, QWidget* parent = nullptr);
             ~RZECollapsingHeader();
 
         private:
             bool            m_IsCollapsed = true;
             QVBoxLayout*    m_BoxVLayout;
             RZEHeaderFrame* m_Header;
+            QWidget*        m_ChildWidget;
 
         public slots:
             void toggleCollapse()
@@ -73,6 +74,11 @@ namespace Razix {
                 std::cout << m_IsCollapsed << std::endl;
                 m_Header->arrow->setArrow(m_IsCollapsed);
                 m_IsCollapsed = !m_IsCollapsed;
+
+                if (!m_IsCollapsed)
+                    m_ChildWidget->show();
+                else
+                    m_ChildWidget->hide();
             }
         };
     }    // namespace Editor

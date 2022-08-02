@@ -5,13 +5,14 @@
 
 namespace Razix {
     namespace Editor {
-        RZECollapsingHeader::RZECollapsingHeader(QString& headerTitle, QWidget* parent /* = nullptr*/)
-            : QFrame(parent)
+        RZECollapsingHeader::RZECollapsingHeader(QString& headerTitle, QWidget* childWidget, QIcon* icon, QWidget* parent /* = nullptr*/)
+            : QFrame(parent), m_ChildWidget(childWidget)
         {
             m_BoxVLayout = new QVBoxLayout(this);
 
-            m_Header = new RZEHeaderFrame(headerTitle, true, this);
+            m_Header = new RZEHeaderFrame(headerTitle, icon, true, this);
             m_BoxVLayout->addWidget(m_Header);
+            m_BoxVLayout->addWidget(m_ChildWidget);
 
             connect(m_Header, SIGNAL(clicked()), this, SLOT(toggleCollapse()));
         }
@@ -19,12 +20,12 @@ namespace Razix {
         RZECollapsingHeader::~RZECollapsingHeader()
         {}
 
-        RZEHeaderFrame::RZEHeaderFrame(QString& headerTitle, bool isCollapsed /*= true*/, QWidget* parent /*= nullptr*/)
+        RZEHeaderFrame::RZEHeaderFrame(QString& headerTitle, QIcon* icon /*= nullptr*/, bool isCollapsed /*= true*/, QWidget* parent /*= nullptr*/)
             : QFrame(parent)
         {
             this->setMaximumHeight(24);
             this->move(QPoint(24, 0));
-            this->setStyleSheet("border:1px solid rgb(41, 41, 41); ");
+            this->setStyleSheet("border:1px solid rgb(81, 81, 81); ");
 
             auto Hlayout = new QHBoxLayout(this);
             Hlayout->setContentsMargins(0, 0, 0, 0);
@@ -33,17 +34,18 @@ namespace Razix {
             arrow = new Arrow(this);
             Hlayout->addWidget(arrow);
 
-            auto IconWidget = new QIcon(":/rzeditor/RazixLogo64.png");
-            auto pixmap     = IconWidget->pixmap(24, 24);
+            auto pixmap     = icon->pixmap(20, 20);
 
-            auto icon = new QLabel();
-            icon->setMaximumHeight(24);
-            icon->setMaximumWidth(24);
-            icon->move(QPoint(24, 0));
-            icon->setStyleSheet("border:0px");
-            icon->setPixmap(pixmap);
+            if (icon != nullptr) {
+                auto iconLbl = new QLabel();
+                iconLbl->setMaximumHeight(24);
+                iconLbl->setMaximumWidth(24);
+                iconLbl->move(QPoint(24, 0));
+                iconLbl->setStyleSheet("border:0px");
+                iconLbl->setPixmap(pixmap);
 
-            Hlayout->addWidget(icon);
+                Hlayout->addWidget(iconLbl);
+            }
 
             auto title = new QLabel(headerTitle);
             title->setMinimumHeight(24);

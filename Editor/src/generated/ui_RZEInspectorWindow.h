@@ -11,6 +11,8 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -18,6 +20,8 @@ QT_BEGIN_NAMESPACE
 class Ui_InspectorWindow
 {
 public:
+    QVBoxLayout *verticalLayout_2;
+    QSpacerItem *verticalSpacer;
 
     void setupUi(QWidget *InspectorWindow)
     {
@@ -25,6 +29,12 @@ public:
             InspectorWindow->setObjectName(QString::fromUtf8("InspectorWindow"));
         InspectorWindow->resize(401, 486);
         InspectorWindow->setStyleSheet(QString::fromUtf8(""));
+        verticalLayout_2 = new QVBoxLayout(InspectorWindow);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_2->addItem(verticalSpacer);
+
 
         retranslateUi(InspectorWindow);
 
