@@ -6,12 +6,12 @@
 #include <QVulkanInstance>
 
 #include "RZENativeWindow.h"
+#include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 #include "UI/Widgets/RZECollapsingHeader.h"
 #include "UI/Widgets/RZEViewport.h"
 #include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZEVulkanWindow.h"
-#include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -440,6 +440,7 @@ int main(int argc, char** argv)
     mainWindow = new Razix::Editor::RZEMainWindow;
     mainWindow->resize(1280, 720);
     mainWindow->show();
+    mainWindow->setWindowTitle("Razix Engine Editor");
 
     inspectorWidget = new Razix::Editor::RZEInspectorWindow;
     viewportWidget  = new Razix::Editor::RZEViewport;
@@ -451,11 +452,13 @@ int main(int argc, char** argv)
     inspectorWidget->setWindowIcon(razixIcon);
     viewportWidget->setWindowIcon(razixIcon);
 
+    qrzeditorApp->installEventFilter(viewportWidget);
+
     auto transformWIdget = new Razix::Editor::RZETransformComponentUI;
 
     auto widget = new QPushButton;
     widget->setText("Add Component");
-    
+
     inspectorWidget->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Transform"), transformWIdget, new QIcon(":/rzeditor/transform_icon.png")));
     QFrame* hFrame = new QFrame;
     hFrame->setFrameShape(QFrame::HLine);
