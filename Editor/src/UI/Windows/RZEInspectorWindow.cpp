@@ -9,6 +9,8 @@ namespace Razix {
 
             ui.verticalLayout_2->setSpacing(5);
             ui.verticalLayout_2->setMargin(0);
+
+            ui.UUIDLbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
         }
 
         RZEInspectorWindow::~RZEInspectorWindow() 

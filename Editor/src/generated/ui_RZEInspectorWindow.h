@@ -30,8 +30,8 @@ public:
     QLineEdit *EntityName;
     QCheckBox *IsStatic;
     QHBoxLayout *horizontalLayout_2;
+    QLabel *UUIDTitle;
     QLabel *UUIDLbl;
-    QLabel *UUIDString;
     QSpacerItem *verticalSpacer;
 
     void setupUi(QWidget *InspectorWindow)
@@ -75,24 +75,26 @@ public:
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        UUIDLbl = new QLabel(InspectorWindow);
-        UUIDLbl->setObjectName(QString::fromUtf8("UUIDLbl"));
-        UUIDLbl->setMaximumSize(QSize(60, 16777215));
+        UUIDTitle = new QLabel(InspectorWindow);
+        UUIDTitle->setObjectName(QString::fromUtf8("UUIDTitle"));
+        UUIDTitle->setMaximumSize(QSize(60, 16777215));
         QFont font;
         font.setPointSize(12);
-        UUIDLbl->setFont(font);
-        UUIDLbl->setStyleSheet(QString::fromUtf8("color: rgb(161, 161, 161);border:0px;"));
+        UUIDTitle->setFont(font);
+        UUIDTitle->setStyleSheet(QString::fromUtf8("color: rgb(161, 161, 161);border:0px;"));
 
-        horizontalLayout_2->addWidget(UUIDLbl);
+        horizontalLayout_2->addWidget(UUIDTitle);
 
-        UUIDString = new QLabel(InspectorWindow);
-        UUIDString->setObjectName(QString::fromUtf8("UUIDString"));
-        UUIDString->setStyleSheet(QString::fromUtf8("border-color: rgb(147, 147, 147);\n"
+        UUIDLbl = new QLabel(InspectorWindow);
+        UUIDLbl->setObjectName(QString::fromUtf8("UUIDLbl"));
+        UUIDLbl->setMinimumSize(QSize(0, 25));
+        UUIDLbl->setMaximumSize(QSize(16777215, 25));
+        UUIDLbl->setStyleSheet(QString::fromUtf8("border-color: rgb(147, 147, 147);\n"
 "border:1px;\n"
 "border-radius:5;\n"
 "border-style:solid;"));
 
-        horizontalLayout_2->addWidget(UUIDString);
+        horizontalLayout_2->addWidget(UUIDLbl);
 
 
         verticalLayout_2->addLayout(horizontalLayout_2);
@@ -113,8 +115,8 @@ public:
         TagIcon->setText(QString());
         EntityName->setText(QCoreApplication::translate("InspectorWindow", "Character", nullptr));
         IsStatic->setText(QCoreApplication::translate("InspectorWindow", "Static", nullptr));
-        UUIDLbl->setText(QCoreApplication::translate("InspectorWindow", "UUID :", nullptr));
-        UUIDString->setText(QCoreApplication::translate("InspectorWindow", "123e4567-e89b-12d3-a456-426614174000", nullptr));
+        UUIDTitle->setText(QCoreApplication::translate("InspectorWindow", "UUID :", nullptr));
+        UUIDLbl->setText(QCoreApplication::translate("InspectorWindow", "123e4567-e89b-12d3-a456-426614174000", nullptr));
     } // retranslateUi
 
 };
