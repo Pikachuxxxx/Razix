@@ -330,6 +330,7 @@ namespace Razix {
                         });*/
                         //OnResize(m_Width, m_Height);
                         //acquireNextImage();
+                        vkDeviceWaitIdle(VKDevice::Get().getDevice());
                     }
                     return;
                 } else if (result != VK_SUCCESS)
@@ -424,6 +425,7 @@ namespace Razix {
             //}
 
             if (error == VK_ERROR_OUT_OF_DATE_KHR) {
+                vkDeviceWaitIdle(VKDevice::Get().getDevice());
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
                 return;
             } else if (error == VK_SUBOPTIMAL_KHR) {
