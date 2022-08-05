@@ -105,6 +105,9 @@ public:
         context->CreateSurface(&surface);
         context->SetupDeviceAndSC();
 
+        vulkanWindow->getRZNativeWindow()->setWidth(vulkanWindow->width());
+        vulkanWindow->getRZNativeWindow()->setHeight(vulkanWindow->height());
+
         // Since it will be locked/halted for initial resize that is called when the QT window is created we manually trigger it again to resume execution
         std::lock_guard<std::mutex> lk(RZApplication::m);
         RZApplication::ready_for_execution = true;

@@ -59,6 +59,30 @@ namespace Razix {
                 m_UserIsResizing = true;
             }
 
+            void mouseMoveEvent(QMouseEvent* event)
+            {
+                auto& callback = m_RZWindow->getEventCallbackFunc();
+
+                RZMouseMovedEvent e(event->pos().x(), event->pos().y());
+                callback(e);
+            }
+
+            void mousePressEvent(QMouseEvent* event)
+            {
+                auto& callback = m_RZWindow->getEventCallbackFunc();
+
+                RZMouseButtonPressedEvent e(event->button());
+                callback(e);
+            }
+
+            void mouseReleaseEvent(QMouseEvent* event)
+            {
+                auto& callback = m_RZWindow->getEventCallbackFunc();
+
+                RZMouseButtonReleasedEvent e(event->button());
+                callback(e);
+            }
+
             QVulkanInstance& getQVKInstance() { return m_QVKInstance; }
             RZENativeWindow* getRZNativeWindow() { return m_RZWindow; }
 
