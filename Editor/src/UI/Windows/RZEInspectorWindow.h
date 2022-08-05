@@ -22,9 +22,6 @@ namespace Razix {
 
         private:
             Ui::InspectorWindow ui;
-
-        public slots:
-            void OnNameEdit();
         };
     }    // namespace Editor
 }    // namespace Razix

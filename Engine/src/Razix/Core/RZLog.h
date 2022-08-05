@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Razix/Core/RZRoot.h"
 #include "Razix/Core/RZCore.h"
 
 RAZIX_WARNING_PUSH()
