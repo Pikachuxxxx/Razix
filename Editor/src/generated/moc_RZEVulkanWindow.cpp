@@ -83,6 +83,8 @@ void *Razix::Editor::RZEVulkanWindow::qt_metacast(const char *_clname)
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_Razix__Editor__RZEVulkanWindow.stringdata0))
         return static_cast<void*>(this);
+    if (!strcmp(_clname, "Razix::RZInput"))
+        return static_cast< Razix::RZInput*>(this);
     return QWindow::qt_metacast(_clname);
 }
 

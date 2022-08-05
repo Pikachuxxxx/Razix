@@ -11,7 +11,7 @@
 namespace Razix {
     namespace Editor {
         RZEVulkanWindow::RZEVulkanWindow(QWindow* parentWindow)
-            : QWindow(parentWindow)
+            : QWindow(parentWindow)    
         {
             setSurfaceType(VulkanSurface);
         }
@@ -29,6 +29,8 @@ namespace Razix {
             this->setVulkanInstance(&m_QVKInstance);
 
             auto version = m_QVKInstance.apiVersion();
+
+            sInstance = this;
         }
 
         void RZEVulkanWindow::InitRZWindow()
@@ -41,6 +43,60 @@ namespace Razix {
             // TODO: make this platform agnostic
             HWND hwnd  = (HWND) this->winId();
             m_RZWindow = new RZENativeWindow(&hwnd, props);
+        }
+
+        bool RZEVulkanWindow::IsKeyPressedImpl(int keycode)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        bool RZEVulkanWindow::IsKeyReleasedImpl(int keycode)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        bool RZEVulkanWindow::IsIsKeyHeldImpl(int keycode)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        bool RZEVulkanWindow::IsMouseButtonPressedImpl(int button)
+        {
+            if (button == m_MouseButton - 1)
+                return true;
+            else
+                return false;
+        }
+
+        bool RZEVulkanWindow::IsMouseButtonReleasedImpl(int button)
+        {
+            if (button == m_MouseButton - 1)
+                return true;
+            else
+                return false;
+        }
+
+        bool RZEVulkanWindow::IsMouseButtonHeldImpl(int button)
+        {
+            if (button == m_MouseButton - 1)
+                return true;
+            else
+                return false;
+        }
+
+        std::pair<float, float> RZEVulkanWindow::GetMousePositionImpl()
+        {
+            return std::pair<float, float>(m_MousePos.x, m_MousePos.y);
+        }
+
+        float RZEVulkanWindow::GetMouseXImpl()
+        {
+            return m_MousePos.x;
+        }
+
+        float RZEVulkanWindow::GetMouseYImpl()
+        {
+            return m_MousePos.y;
         }
 
     }    // namespace Editor
