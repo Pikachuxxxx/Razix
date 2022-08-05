@@ -27,9 +27,9 @@ namespace Razix {
         RZEHeaderFrame::RZEHeaderFrame(QString& headerTitle, QIcon* icon /*= nullptr*/, bool isCollapsed /*= true*/, QWidget* parent /*= nullptr*/)
             : QFrame(parent)
         {
-            this->setMaximumHeight(24);
+            this->setMaximumHeight(20);
             //this->move(QPoint(24, 0));
-            this->setStyleSheet("border:1px solid rgb(81, 81, 81); background-color: rgb(141, 141, 141); ");
+            this->setStyleSheet("border:0px solid rgb(81, 81, 81); background-color: rgb(31, 31, 31); ");
 
             auto Hlayout = new QHBoxLayout(this);
             Hlayout->setContentsMargins(0, 0, 0, 0);
@@ -42,8 +42,8 @@ namespace Razix {
 
             if (icon != nullptr) {
                 auto iconLbl = new QLabel();
-                iconLbl->setMaximumHeight(24);
-                iconLbl->setMaximumWidth(24);
+                iconLbl->setMaximumHeight(20);
+                iconLbl->setMaximumWidth(20);
                 //iconLbl->move(QPoint(24, 0));
                 iconLbl->setStyleSheet("border:0px");
                 iconLbl->setPixmap(pixmap);
@@ -52,7 +52,7 @@ namespace Razix {
             }
 
             auto title = new QLabel(headerTitle);
-            title->setMinimumHeight(24);
+            title->setMinimumHeight(20);
             //title->move(QPoint(24, 0));
             title->setStyleSheet("border:0px");
 

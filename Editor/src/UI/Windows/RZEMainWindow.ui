@@ -29,8 +29,182 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuWindows">
+    <property name="title">
+     <string>Windows</string>
+    </property>
+    <addaction name="actionInspector"/>
+    <addaction name="actionViewport"/>
+   </widget>
+   <widget class="QMenu" name="menuGraphics">
+    <property name="title">
+     <string>Graphics</string>
+    </property>
+    <addaction name="actionLighting_Settings"/>
+    <addaction name="actionEnvironment_Settings"/>
+   </widget>
+   <widget class="QMenu" name="menuCreate">
+    <property name="title">
+     <string>Create</string>
+    </property>
+    <widget class="QMenu" name="menuComponent">
+     <property name="title">
+      <string>Component</string>
+     </property>
+     <addaction name="actionID"/>
+     <addaction name="actionTag"/>
+     <addaction name="actionCamera"/>
+     <addaction name="actionTransform"/>
+     <addaction name="actionMeshRenderer"/>
+     <addaction name="actionSpriteRenderer"/>
+     <addaction name="actionLuaScript"/>
+    </widget>
+    <widget class="QMenu" name="menuPrimitive">
+     <property name="title">
+      <string>Primitive</string>
+     </property>
+     <addaction name="actionPlane"/>
+     <addaction name="actionCube"/>
+     <addaction name="actionSphere"/>
+     <addaction name="actionCylinder"/>
+     <addaction name="actionTerrain"/>
+    </widget>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import</string>
+     </property>
+     <addaction name="actionModel"/>
+     <addaction name="actionTexture"/>
+     <addaction name="actionShader"/>
+    </widget>
+    <addaction name="actionEntity"/>
+    <addaction name="menuComponent"/>
+    <addaction name="actionLua_Script"/>
+    <addaction name="menuPrimitive"/>
+    <addaction name="menuImport"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuWindows"/>
+   <addaction name="menuGraphics"/>
+   <addaction name="menuCreate"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLighting_Settings">
+   <property name="text">
+    <string>Lighting Settings</string>
+   </property>
+  </action>
+  <action name="actionEnvironment_Settings">
+   <property name="text">
+    <string>Environment Settings</string>
+   </property>
+  </action>
+  <action name="actionEntity">
+   <property name="text">
+    <string>Entity</string>
+   </property>
+  </action>
+  <action name="actionID">
+   <property name="text">
+    <string>ID</string>
+   </property>
+  </action>
+  <action name="actionTag">
+   <property name="text">
+    <string>Tag</string>
+   </property>
+  </action>
+  <action name="actionCamera">
+   <property name="text">
+    <string>Camera</string>
+   </property>
+  </action>
+  <action name="actionTransform">
+   <property name="text">
+    <string>Transform</string>
+   </property>
+  </action>
+  <action name="actionMeshRenderer">
+   <property name="text">
+    <string>MeshRenderer</string>
+   </property>
+  </action>
+  <action name="actionSpriteRenderer">
+   <property name="text">
+    <string>SpriteRenderer</string>
+   </property>
+  </action>
+  <action name="actionLuaScript">
+   <property name="text">
+    <string>LuaScript</string>
+   </property>
+  </action>
+  <action name="actionLua_Script">
+   <property name="text">
+    <string>Lua Script</string>
+   </property>
+  </action>
+  <action name="actionPlane">
+   <property name="text">
+    <string>Plane</string>
+   </property>
+  </action>
+  <action name="actionCube">
+   <property name="text">
+    <string>Cube</string>
+   </property>
+  </action>
+  <action name="actionSphere">
+   <property name="text">
+    <string>Sphere</string>
+   </property>
+  </action>
+  <action name="actionCylinder">
+   <property name="text">
+    <string>Cylinder</string>
+   </property>
+  </action>
+  <action name="actionTerrain">
+   <property name="text">
+    <string>Terrain</string>
+   </property>
+  </action>
+  <action name="actionModel">
+   <property name="text">
+    <string>Model</string>
+   </property>
+  </action>
+  <action name="actionTexture">
+   <property name="text">
+    <string>Texture</string>
+   </property>
+  </action>
+  <action name="actionShader">
+   <property name="text">
+    <string>Shader</string>
+   </property>
+  </action>
+  <action name="actionInspector">
+   <property name="text">
+    <string>Inspector</string>
+   </property>
+  </action>
+  <action name="actionViewport">
+   <property name="text">
+    <string>Viewport</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
