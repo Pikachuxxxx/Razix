@@ -1,8 +1,5 @@
-// clang-format off
-#include "rzxpch.h"
-// clang-format on
-
 #include "RZEVulkanWindow.h"
+#include "rzxpch.h"
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 
@@ -29,18 +26,6 @@ namespace Razix {
             this->setVulkanInstance(&m_QVKInstance);
 
             auto version = m_QVKInstance.apiVersion();
-        }
-
-        void RZEVulkanWindow::InitRZWindow()
-        {
-            WindowProperties props{};
-            props.Title  = "Vulkan Viewport";
-            props.Width  = this->width();
-            props.Height = this->height();
-
-            // TODO: make this platform agnostic
-            HWND hwnd  = (HWND) this->winId();
-            m_RZWindow = new RZENativeWindow(&hwnd, props);
         }
 
     }    // namespace Editor

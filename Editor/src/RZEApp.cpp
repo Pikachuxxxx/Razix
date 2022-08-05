@@ -75,15 +75,21 @@ public:
         Razix::RZApplication::Get().setAppType(Razix::AppType::EDITOR);
 
         // get the hwnd handle
+
+        // create a native window derived form RZWindow and store this as the window handle pointer
+        Razix::WindowProperties properties{};
+        // TODO: Use the application signature title for this
+        properties.Title  = "Razix Editor";
+        properties.Width  = vulkanWindow->width();
+        properties.Height = vulkanWindow->height();
+
+        //HWND hWnd = (HWND) vulkanWindow->winId();
+
         HWND hWnd = (HWND) vulkanWindow->winId();
 
-        vulkanWindow->InitRZWindow();
-
         Razix::Editor::RZENativeWindow::Construct();
-        Razix::RZApplication::setViewportWindow(vulkanWindow->getRZNativeWindow() /*Razix::RZWindow::Create(&hWnd, properties)*/ /* TODO: Create the window by taking it from vulkanWindow and binding the event callbacks so update the properties properly */);
+        Razix::RZApplication::setViewportWindow(Razix::RZWindow::Create(&hWnd, properties));
         Razix::RZApplication::Get().setViewportHWND(hWnd);
-
-        auto h = vulkanWindow->height();
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------
@@ -104,12 +110,6 @@ public:
         Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
         context->CreateSurface(&surface);
         context->SetupDeviceAndSC();
-
-        // Since it will be locked/halted for initial resize that is called when the QT window is created we manually trigger it again to resume execution
-        std::lock_guard<std::mutex> lk(RZApplication::m);
-        RZApplication::ready_for_execution = true;
-        std::cout << "Triggering worker thread to resume execution :::: " << std::endl;
-        RZApplication::halt_execution.notify_one();
     }
 
 private:
@@ -183,26 +183,6 @@ private:
         auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
         activeScene->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
-        // Update the uniform buffer data
-        viewProjUBOData.view       = cameras[0].Camera.getViewMatrix();
-        viewProjUBOData.projection = cameras[0].Camera.getProjection();
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
-            viewProjUBOData.projection[1][1] *= -1;
-        viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
-
-        // Update the lighting data
-        directional_light_data.position  = glm::vec3(-2.0f, 2.0f, 0.0f);    // glm::vec3(2.2f, (5.0f * sin(getTimer().GetElapsedMS())), 1.0f);
-        directional_light_data.ambient   = glm::vec3(0.2f);
-        directional_light_data.diffuse   = glm::vec3(1.0f);
-        directional_light_data.specular  = glm::vec3(1.0f);
-        directional_light_data.shininess = 32.0f;
-        directional_light_data.viewPos   = cameras[0].Camera.getPosition();
-
-        dirLightUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
-    }
-
-    void OnRender() override
-    {
 #if 1
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN || Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Graphics::RZAPIRenderer::Begin();
@@ -213,8 +193,8 @@ private:
 
                 pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
-                auto tc = TransformComponent();
-                //tc.Translation      = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
+                auto tc             = TransformComponent();
+                tc.Translation      = glm::vec3(sin(dt.GetElapsedMs()) * 25.0f, 0.0f, 0.0f) * dt.GetTimestepMs();
                 glm::mat4 transform = tc.GetTransform();
 
                 auto& modelMatrix = phongLightingShader->getPushConstants()[0];
@@ -240,10 +220,26 @@ private:
                     }
                 }
 
-                if (getImGuiRenderer()->update())
+                if (getImGuiRenderer()->update(dt))
                     getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+                // Update the uniform buffer data
+                viewProjUBOData.view       = cameras[0].Camera.getViewMatrix();
+                viewProjUBOData.projection = cameras[0].Camera.getProjection();
+                if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
+                    viewProjUBOData.projection[1][1] *= -1;
+                viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
+
+                // Update the lighting data
+                directional_light_data.position  = glm::vec3(-2.0f, 2.0f, 0.0f);    // glm::vec3(2.2f, (5.0f * sin(getTimer().GetElapsedMS())), 1.0f);
+                directional_light_data.ambient   = glm::vec3(0.2f);
+                directional_light_data.diffuse   = glm::vec3(1.0f);
+                directional_light_data.specular  = glm::vec3(1.0f);
+                directional_light_data.shininess = 32.0f;
+                directional_light_data.viewPos   = cameras[0].Camera.getPosition();
+                dirLightUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
             }
             // Present the frame by executing the recorded commands
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -255,26 +251,10 @@ private:
         // But this makes the engine and editor to run the from the same main thread!!! (of course once the engine become multi-threaded this won't affect much as only a few systems would be on the main thread)
         // This also simplifies engine-editor communication for now
         vulkanWindow->getQVKInstance().presentQueued(vulkanWindow);
-        vulkanWindow->getQVKInstance().presentQueued(vulkanWindow);
     }
 
     void RAZIX_CALL OnResize(uint32_t width, uint32_t height) override
     {
-        std::lock_guard<std::mutex> lk(RZApplication::m);
-        RZApplication::ready_for_execution = true;
-        std::cout << "Triggering worker thread to resume execution :::: " << std::endl;
-        RZApplication::halt_execution.notify_one();
-
-        RAZIX_TRACE("Window Resize override Editor application! | W : {0}, H : {1}", width, height);
-
-        this->width  = width;
-        this->height = height;
-
-        destroyCommandPipeline();
-
-        Graphics::RZAPIRenderer::OnResize(width, height);
-
-        buildCommandPipeline();
     }
 
     void RAZIX_CALL OnQuit() override
@@ -472,6 +452,8 @@ int main(int argc, char** argv)
     inspectorWidget->setWindowIcon(razixIcon);
     viewportWidget->setWindowIcon(razixIcon);
 
+    qrzeditorApp->installEventFilter(viewportWidget);
+
     auto transformWIdget = new Razix::Editor::RZETransformComponentUI;
 
     auto widget = new QPushButton;
@@ -493,13 +475,9 @@ int main(int argc, char** argv)
     vulkanWindowWidget->setWindowIcon(razixIcon);
     vulkanWindowWidget->setWindowTitle("Vulkan Window");
 
-    // In order for event filter to work this is fookin important
-    qrzeditorApp->installEventFilter(vulkanWindow);
-
     mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
     // Load the engine DLL and Ignite it on a separate thread
     std::thread engineThread(LoadEngineDLL, argc, argv);
-    engineThread.detach();
 
     return qrzeditorApp->exec();
 }
