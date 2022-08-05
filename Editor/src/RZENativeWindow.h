@@ -7,10 +7,10 @@ namespace Razix {
 
         class RZENativeWindow : public RZWindow
         {
+        public:
             RZENativeWindow(void* windowHandle, const WindowProperties& properties);
             ~RZENativeWindow() {}
 
-        public:
             void         OnWindowUpdate() override;
             void         Destroy() override;
             unsigned int getWidth() const override;
@@ -25,11 +25,15 @@ namespace Razix {
 
             static void Construct();
 
+            void setWidth(uint32_t val) { m_Data.Width = val; }
+            void setHeight(uint32_t val) { m_Data.Height = val; }
+
+            EventCallbackFn& getEventCallbackFunc() { return EventCallback; }
+
         private:
             WindowProperties m_Data;
             void*            m_NativeHandle;
             EventCallbackFn  EventCallback;
-
         };
     }    // namespace Editor
 }    // namespace Razix
