@@ -5,13 +5,18 @@
 
 #include "RZENativeWindow.h"
 
+#include "Razix/Core/RZRoot.h"
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Events/ApplicationEvent.h"
+#include "Razix/Core/RZCore.h"
+#include "Razix/Core/OS/RZInput.h"
+
+#include <glm/glm.hpp>
 
 namespace Razix {
     namespace Editor {
 
-        class RZEVulkanWindow : public QWindow
+        class RZEVulkanWindow : public QWindow, public Razix::RZInput
         {
             Q_OBJECT
 
@@ -61,6 +66,8 @@ namespace Razix {
 
             void mouseMoveEvent(QMouseEvent* event)
             {
+                m_MousePos     = glm::vec2(event->pos().x(), event->pos().y());
+
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseMovedEvent e(event->pos().x(), event->pos().y());
@@ -72,6 +79,7 @@ namespace Razix {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseButtonPressedEvent e(event->button());
+                m_MouseButton = event->button();
                 callback(e);
             }
 
@@ -80,6 +88,7 @@ namespace Razix {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseButtonReleasedEvent e(event->button());
+                m_MouseButton = event->button();
                 callback(e);
             }
 
@@ -91,6 +100,20 @@ namespace Razix {
             VkSurfaceKHR     m_vkSurface      = VK_NULL_HANDLE;
             bool             m_UserIsResizing = false;
             RZENativeWindow* m_RZWindow;
+            glm::vec2        m_MousePos;
+            int              m_MouseButton;
+            int              m_Key;
+
+        protected:
+            bool IsKeyPressedImpl(int keycode) override;
+            bool IsKeyReleasedImpl(int keycode) override;
+            bool IsIsKeyHeldImpl(int keycode) override;
+            bool IsMouseButtonPressedImpl(int button) override;
+            bool IsMouseButtonReleasedImpl(int button) override;
+            bool IsMouseButtonHeldImpl(int button) override;
+            std::pair<float, float> GetMousePositionImpl() override;
+            float GetMouseXImpl() override;
+            float GetMouseYImpl() override;
         };
     }    // namespace Editor
 }    // namespace Razix
