@@ -141,6 +141,12 @@ namespace Razix {
         dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
         // Window resize event
         dispatcher.Dispatch<RZWindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
+
+        // Mouse Events
+        // Mouse Moved event
+        dispatcher.Dispatch<RZMouseMovedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseMoved));
+        dispatcher.Dispatch<RZMouseButtonPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonPressed));
+        dispatcher.Dispatch<RZMouseButtonReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonReleased));
     }
 
     bool RZApplication::OnWindowClose(WindowCloseEvent& e)
@@ -155,7 +161,45 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
+        if (m_ImGuiRenderer != nullptr) {
+            // Resize ImGui
+            ImGuiIO& io                = ImGui::GetIO();
+            io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
+            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+        }
+
         OnResize(e.GetWidth(), e.GetHeight());
+        return true;
+    }
+
+    bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
+    {
+        if (m_ImGuiRenderer != nullptr) {
+            ImGuiIO& io = ImGui::GetIO();
+            io.MousePos = ImVec2(e.GetX(), e.GetY());
+        }
+
+        return true;
+    }
+
+    bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
+    {
+        if (m_ImGuiRenderer != nullptr) {
+            ImGuiIO& io                      = ImGui::GetIO();
+            io.MouseDown[e.GetMouseButton() - 1] = true;
+            io.MouseDown[e.GetMouseButton() - 1] = true;
+        }
+
+        return true;
+    }
+
+    bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
+    {
+        if (m_ImGuiRenderer != nullptr) {
+            ImGuiIO& io                      = ImGui::GetIO();
+            io.MouseDown[e.GetMouseButton() - 1] = false;
+        }
+
         return true;
     }
 
@@ -255,17 +299,17 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        //if (RZApplication::Get().getAppType() != AppType::GAME) {
-        // Wait until Editor sends data
-        std::unique_lock<std::mutex> lk(m);
-        halt_execution.wait(lk, [] {
-            return ready_for_execution;
-        });
-        // Manual unlocking is done before notifying, to avoid waking up
-        // the waiting thread only to block again (see notify_one for details)
-        lk.unlock();
-        halt_execution.notify_one();
-        //}
+        if (RZApplication::Get().getAppType() != AppType::GAME) {
+            // Wait until Editor sends data
+            std::unique_lock<std::mutex> lk(m);
+            halt_execution.wait(lk, [] {
+                return ready_for_execution;
+            });
+            // Manual unlocking is done before notifying, to avoid waking up
+            // the waiting thread only to block again (see notify_one for details)
+            lk.unlock();
+            halt_execution.notify_one();
+        }
 
 #if 1
         if (m_ImGuiRenderer != nullptr) {
