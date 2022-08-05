@@ -1,5 +1,6 @@
 #include "RZEInspectorWindow.h"
 
+#include <iostream>
 namespace Razix {
     namespace Editor {
         RZEInspectorWindow::RZEInspectorWindow(QFrame *parent)
@@ -11,10 +12,18 @@ namespace Razix {
             ui.verticalLayout_2->setMargin(0);
 
             ui.UUIDLbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
+            
+            // Make the connections
+            connect(ui.EntityName, SIGNAL(returnPressed()), this, SLOT(OnNameEdit()));
         }
 
-        RZEInspectorWindow::~RZEInspectorWindow() 
+        RZEInspectorWindow::~RZEInspectorWindow()
         {
+        }
+
+        void RZEInspectorWindow::OnNameEdit()
+        {
+            std::cout << "Entity name edited to : " << ui.EntityName << std::endl;
         }
 
     }    // namespace Editor

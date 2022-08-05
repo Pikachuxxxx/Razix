@@ -29,6 +29,10 @@
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
+    bool                    RZApplication::ready_for_execution = false;
+    std::mutex              RZApplication::m;
+    std::condition_variable RZApplication::halt_execution;
+
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
         : m_AppName(appName), m_Timestep(RZTimestep(0.0f))
     {
@@ -108,6 +112,7 @@ namespace Razix {
         if (m_Window == nullptr) {
             m_Window = RZWindow::Create(m_WindowProperties);
         }
+        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
@@ -156,7 +161,6 @@ namespace Razix {
 
     void RZApplication::Run()
     {
-        m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
         // Create the API renderer to issue render commands
         Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
@@ -251,6 +255,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
+#if 1
         if (m_ImGuiRenderer != nullptr) {
             ImGuiIO& io = ImGui::GetIO();
             (void) io;
@@ -284,11 +289,22 @@ namespace Razix {
         }
 
         OnUpdate(dt);
+#endif
     }
 
     void RZApplication::Render()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
+        // Wait until Editor sends data
+        std::unique_lock<std::mutex> lk(m);
+        halt_execution.wait(lk, [] {
+            return ready_for_execution;
+        });
+        // Manual unlocking is done before notifying, to avoid waking up
+        // the waiting thread only to block again (see notify_one for details)
+        lk.unlock();
+        halt_execution.notify_one();
 
         OnRender();
     }
@@ -315,5 +331,4 @@ namespace Razix {
         cereal::JSONOutputArchive saveArchive(opAppStream);
         saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
     }
-
 }    // namespace Razix
