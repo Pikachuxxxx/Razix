@@ -3,7 +3,7 @@
         "Project Name": "SceneManager Test App",
         "Engine Version": "0.30.0",
         "Project ID": "5d6a410f-4c8d-4aef-b3e4-9778e982316c",
-        "Render API": 0,
+        "Render API": 1,
         "Width": 1920,
         "Height": 1009,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",

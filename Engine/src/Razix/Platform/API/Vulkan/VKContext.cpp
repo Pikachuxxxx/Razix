@@ -52,6 +52,10 @@ namespace Razix {
         {
             // Create the Vulkan instance to interface with the Vulkan library
             createInstance();
+
+            if (RZApplication::Get().getAppType() == AppType::GAME) {
+                SetupDeviceAndSC();
+            }
         }
 
         void VKContext::Destroy()
@@ -131,6 +135,10 @@ namespace Razix {
 
             // Create the debug utils
             setupDebugMessenger();
+
+            if (RZApplication::Get().getAppType() == AppType::GAME) {
+                CreateSurface((GLFWwindow*) m_Window->GetNativeWindow());
+            }
         }
 
         std::vector<const char*> VKContext::getRequiredLayers()
@@ -213,9 +221,9 @@ namespace Razix {
                 //if (vkCreateWin32SurfaceKHR(m_Instance, &createInfo, nullptr, &m_Surface))
                 //    RAZIX_CORE_ERROR("[Vulkan] Failed to create surface! for native window");
                 //else
-                //    RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface for native window!");
+                //    RAZIX_CORE_TRACE("[Vulkan] Successfully created surface for native window!");
 
-                        m_Surface = *(VkSurfaceKHR*) window;
+                m_Surface = *(VkSurfaceKHR*) window;
     #endif
             }
         }
@@ -262,7 +270,6 @@ namespace Razix {
             //     std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage  << std::endl;
             //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
             // }
-
             return VK_FALSE;
         }
     }    // namespace Graphics
