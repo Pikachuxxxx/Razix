@@ -427,14 +427,11 @@ namespace Razix {
             if (error == VK_ERROR_OUT_OF_DATE_KHR) {
                 vkDeviceWaitIdle(VKDevice::Get().getDevice());
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
-                return;
-            } else if (error == VK_SUBOPTIMAL_KHR) {
-                RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
-                return;
-            } else {
-                VK_CHECK_RESULT(error);
-                return;
             }
+            else if (error == VK_SUBOPTIMAL_KHR)
+                RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
+            else
+                VK_CHECK_RESULT(error);
         }
     }    // namespace Graphics
 }    // namespace Razix

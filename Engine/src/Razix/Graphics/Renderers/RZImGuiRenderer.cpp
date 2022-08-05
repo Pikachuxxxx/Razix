@@ -147,7 +147,7 @@ namespace Razix {
             */
         }
 
-        bool RZImGuiRenderer::update()
+        bool RZImGuiRenderer::update(const RZTimestep& dt)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 

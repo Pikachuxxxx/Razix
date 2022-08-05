@@ -1,4 +1,4 @@
- #if 1
+#if 1
     #include <Razix.h>
 
 using namespace Razix;
@@ -30,9 +30,21 @@ public:
     SceneManagerTestApp()
         : RZApplication("/Sandbox/", "SceneManager Test App")
     {
+        Razix::RZInput::SelectGLFWInputManager();
+        Razix::RZApplication::Get().Init();
+
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        //Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::OPENGL);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        //-------------------------------------------------------------------------------------
+
+        // Init Graphics Context
+        //-------------------------------------------------------------------------------------
+        // Creating the Graphics Context and Initialize it
+        RAZIX_CORE_INFO("Creating Graphics Context...");
+        Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        RAZIX_CORE_INFO("Initializing Graphics Context...");
+        Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
     }
 
@@ -399,3 +411,8 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new SceneManagerTestApp();
 }
 #endif
+
+void main(int argc, char** argv)
+{
+    EngineMain(argc, argv);
+}

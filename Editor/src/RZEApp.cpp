@@ -183,26 +183,6 @@ private:
         auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
         activeScene->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
-        // Update the uniform buffer data
-        viewProjUBOData.view       = cameras[0].Camera.getViewMatrix();
-        viewProjUBOData.projection = cameras[0].Camera.getProjection();
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
-            viewProjUBOData.projection[1][1] *= -1;
-        viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
-
-        // Update the lighting data
-        directional_light_data.position  = glm::vec3(-2.0f, 2.0f, 0.0f);    // glm::vec3(2.2f, (5.0f * sin(getTimer().GetElapsedMS())), 1.0f);
-        directional_light_data.ambient   = glm::vec3(0.2f);
-        directional_light_data.diffuse   = glm::vec3(1.0f);
-        directional_light_data.specular  = glm::vec3(1.0f);
-        directional_light_data.shininess = 32.0f;
-        directional_light_data.viewPos   = cameras[0].Camera.getPosition();
-
-        dirLightUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
-    }
-
-    void OnRender() override
-    {
 #if 1
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN || Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Graphics::RZAPIRenderer::Begin();
@@ -240,10 +220,27 @@ private:
                     }
                 }
 
-                if (getImGuiRenderer()->update())
+                if (getImGuiRenderer()->update(dt))
                     getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+                // Update the uniform buffer data
+                viewProjUBOData.view       = cameras[0].Camera.getViewMatrix();
+                viewProjUBOData.projection = cameras[0].Camera.getProjection();
+                if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
+                    viewProjUBOData.projection[1][1] *= -1;
+                viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
+
+                // Update the lighting data
+                directional_light_data.position  = glm::vec3(-2.0f, 2.0f, 0.0f);    // glm::vec3(2.2f, (5.0f * sin(getTimer().GetElapsedMS())), 1.0f);
+                directional_light_data.ambient   = glm::vec3(0.2f);
+                directional_light_data.diffuse   = glm::vec3(1.0f);
+                directional_light_data.specular  = glm::vec3(1.0f);
+                directional_light_data.shininess = 32.0f;
+                directional_light_data.viewPos   = cameras[0].Camera.getPosition();
+
+                dirLightUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(DirectionalLightUniformBuffer), &directional_light_data);
             }
             // Present the frame by executing the recorded commands
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
@@ -255,7 +252,10 @@ private:
         // But this makes the engine and editor to run the from the same main thread!!! (of course once the engine become multi-threaded this won't affect much as only a few systems would be on the main thread)
         // This also simplifies engine-editor communication for now
         vulkanWindow->getQVKInstance().presentQueued(vulkanWindow);
-        vulkanWindow->getQVKInstance().presentQueued(vulkanWindow);
+    }
+
+    void OnRender() override
+    {
     }
 
     void RAZIX_CALL OnResize(uint32_t width, uint32_t height) override
