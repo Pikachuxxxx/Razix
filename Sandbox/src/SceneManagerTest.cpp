@@ -178,7 +178,7 @@ public:
                     }
                 }
 
-                if (getImGuiRenderer()->update())
+                if (getImGuiRenderer()->update(dt))
                     getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
                 renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
