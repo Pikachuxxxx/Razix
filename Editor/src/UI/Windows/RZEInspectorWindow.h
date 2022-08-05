@@ -15,13 +15,16 @@ namespace Razix {
             Q_OBJECT
 
         public:
-            RZEInspectorWindow(QFrame *parent = nullptr);
+            RZEInspectorWindow(QFrame* parent = nullptr);
             ~RZEInspectorWindow();
 
             QVBoxLayout& getBoxLayout() { return *(ui.verticalLayout_2); }
 
         private:
             Ui::InspectorWindow ui;
+
+        public slots:
+            void OnNameEdit();
         };
     }    // namespace Editor
 }    // namespace Razix

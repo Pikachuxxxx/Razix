@@ -49,7 +49,7 @@ namespace Razix {
 
             void init();
             void createPipeline(RZRenderPass& renderpass);
-            bool update();
+            bool update(const RZTimestep& dt);
             void draw(RZCommandBuffer* cmdBuffer);
             void destroy();
 

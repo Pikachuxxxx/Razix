@@ -255,6 +255,18 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
+        //if (RZApplication::Get().getAppType() != AppType::GAME) {
+        // Wait until Editor sends data
+        std::unique_lock<std::mutex> lk(m);
+        halt_execution.wait(lk, [] {
+            return ready_for_execution;
+        });
+        // Manual unlocking is done before notifying, to avoid waking up
+        // the waiting thread only to block again (see notify_one for details)
+        lk.unlock();
+        halt_execution.notify_one();
+        //}
+
 #if 1
         if (m_ImGuiRenderer != nullptr) {
             ImGuiIO& io = ImGui::GetIO();
@@ -295,18 +307,6 @@ namespace Razix {
     void RZApplication::Render()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        if (RZApplication::Get().getAppType() != AppType::GAME) {
-            // Wait until Editor sends data
-            std::unique_lock<std::mutex> lk(m);
-            halt_execution.wait(lk, [] {
-                return ready_for_execution;
-            });
-            // Manual unlocking is done before notifying, to avoid waking up
-            // the waiting thread only to block again (see notify_one for details)
-            lk.unlock();
-            halt_execution.notify_one();
-        }
 
         OnRender();
     }
