@@ -1,15 +1,15 @@
 
 #pragma once
 
-#include "Razix/Core/OS/RZKeyCodes.h"
 #include "Razix/Core/RZCore.h"
+#include "Razix/Core/OS/RZKeyCodes.h"
 
 namespace Razix {
     /**
      * Input manager for the Engine to interface with various input devices
      * such as Keyboard, Mouse, Joystick and other HID devices
      */
-    class RAZIX_API RZInput : public RZRoot
+    class RAZIX_API RZInput
     {
     public:
         // TODO: Use a better API convention for selecting input API implementation
@@ -87,7 +87,7 @@ namespace Razix {
          */
         virtual float GetMouseYImpl() = 0;
 
-    private:
+    protected:
         /* The Global Input variable for the Engine, from which the Input information is retrieved */
         static RZInput* sInstance;
     };

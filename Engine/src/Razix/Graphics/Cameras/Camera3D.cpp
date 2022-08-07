@@ -40,19 +40,17 @@ namespace Razix {
             //else if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
             //    processKeyboard(LEFT, deltaTime);
 
-            //auto mX = RZInput::GetMouseX();
-            //auto mY = RZInput::GetMouseY();
+            auto mX = RZInput::GetMouseX();
+            auto mY = RZInput::GetMouseY();
 
-            //float deltaX = mX - m_OldX;
-            //float deltaY = mY - m_OldY;
+            float deltaX = mX - m_OldX;
+            float deltaY = mY - m_OldY;
 
-            ////RAZIX_CORE_TRACE("Mouse delta [ X : {0} | Y : {1} ]", deltaX, deltaY);
+            if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
+                processMouseMovement(deltaX, -deltaY);
 
-            //if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
-            //    processMouseMovement(deltaX, -deltaY);
-
-            //m_OldX = mX;
-            //m_OldY = mY;
+            m_OldX = mX;
+            m_OldY = mY;
         }
 
         void Camera3D::processKeyboard(Camera_Movement_Direction direction, double deltaTime)

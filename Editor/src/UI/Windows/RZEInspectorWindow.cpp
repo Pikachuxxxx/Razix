@@ -23,7 +23,7 @@ namespace Razix {
 
         void RZEInspectorWindow::OnNameEdit()
         {
-            std::cout << "Entity name edited to : " << ui.EntityName << std::endl;
+            std::cout << "Entity name edited to : " << ui.EntityName->text().toStdString() << std::endl;
         }
 
     }    // namespace Editor

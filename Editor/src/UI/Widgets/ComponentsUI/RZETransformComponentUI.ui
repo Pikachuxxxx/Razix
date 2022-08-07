@@ -88,6 +88,9 @@ border-bottom: 2px;
          <height>20</height>
         </size>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
        <property name="dragEnabled">
         <bool>true</bool>
        </property>
@@ -117,6 +120,9 @@ border-bottom: 2px;
          <height>20</height>
         </size>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -142,6 +148,9 @@ border-bottom: 2px;
          <width>40</width>
          <height>20</height>
         </size>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
      </item>
@@ -199,6 +208,9 @@ border-bottom: 2px;
          <height>20</height>
         </size>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
        <property name="dragEnabled">
         <bool>true</bool>
        </property>
@@ -228,6 +240,9 @@ border-bottom: 2px;
          <height>20</height>
         </size>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -253,6 +268,9 @@ border-bottom: 2px;
          <width>40</width>
          <height>20</height>
         </size>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
      </item>
@@ -310,6 +328,9 @@ border-bottom: 2px;
          <height>20</height>
         </size>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
        <property name="dragEnabled">
         <bool>true</bool>
        </property>
@@ -339,6 +360,9 @@ border-bottom: 2px;
          <height>20</height>
         </size>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -365,14 +389,15 @@ border-bottom: 2px;
          <height>20</height>
         </size>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../../Resources/RZEResources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

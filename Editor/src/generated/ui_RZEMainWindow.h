@@ -64,7 +64,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(799, 600);
+        MainWindow->resize(798, 600);
         actionLighting_Settings = new QAction(MainWindow);
         actionLighting_Settings->setObjectName(QString::fromUtf8("actionLighting_Settings"));
         actionEnvironment_Settings = new QAction(MainWindow);
@@ -119,7 +119,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 799, 21));
+        menubar->setGeometry(QRect(0, 0, 798, 21));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuEdit = new QMenu(menubar);
