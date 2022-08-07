@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEMainWindow_t {
-    QByteArrayData data[1];
-    char stringdata0[29];
+    QByteArrayData data[4];
+    char stringdata0[58];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,10 +32,14 @@ struct qt_meta_stringdata_Razix__Editor__RZEMainWindow_t {
     )
 static const qt_meta_stringdata_Razix__Editor__RZEMainWindow_t qt_meta_stringdata_Razix__Editor__RZEMainWindow = {
     {
-QT_MOC_LITERAL(0, 0, 28) // "Razix::Editor::RZEMainWindow"
+QT_MOC_LITERAL(0, 0, 28), // "Razix::Editor::RZEMainWindow"
+QT_MOC_LITERAL(1, 29, 20), // "OnSaveProjectPressed"
+QT_MOC_LITERAL(2, 50, 0), // ""
+QT_MOC_LITERAL(3, 51, 6) // "update"
 
     },
-    "Razix::Editor::RZEMainWindow"
+    "Razix::Editor::RZEMainWindow\0"
+    "OnSaveProjectPressed\0\0update"
 };
 #undef QT_MOC_LITERAL
 
@@ -45,21 +49,35 @@ static const uint qt_meta_data_Razix__Editor__RZEMainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       0,    0, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
        0,       // signalCount
 
+ // slots: name, argc, parameters, tag, flags
+       1,    0,   24,    2, 0x0a /* Public */,
+       3,    0,   25,    2, 0x0a /* Public */,
+
+ // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void,
+
        0        // eod
 };
 
 void Razix::Editor::RZEMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
-    Q_UNUSED(_o);
-    Q_UNUSED(_id);
-    Q_UNUSED(_c);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        auto *_t = static_cast<RZEMainWindow *>(_o);
+        Q_UNUSED(_t)
+        switch (_id) {
+        case 0: _t->OnSaveProjectPressed(); break;
+        case 1: _t->update(); break;
+        default: ;
+        }
+    }
     Q_UNUSED(_a);
 }
 
@@ -89,6 +107,17 @@ void *Razix::Editor::RZEMainWindow::qt_metacast(const char *_clname)
 int Razix::Editor::RZEMainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QMainWindow::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 2)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 2;
+    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 2)
+            *reinterpret_cast<int*>(_a[0]) = -1;
+        _id -= 2;
+    }
     return _id;
 }
 QT_WARNING_POP
