@@ -96,7 +96,7 @@ public:
         PosY = new QPushButton(TransformComponent);
         PosY->setObjectName(QString::fromUtf8("PosY"));
         PosY->setMaximumSize(QSize(30, 20));
-        PosY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
+        PosY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 185, 0, 255);"));
 
         PositionLayout->addWidget(PosY);
 
@@ -151,7 +151,7 @@ public:
         RotY = new QPushButton(TransformComponent);
         RotY->setObjectName(QString::fromUtf8("RotY"));
         RotY->setMaximumSize(QSize(30, 20));
-        RotY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
+        RotY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 185, 0, 255);"));
 
         RotationLayout->addWidget(RotY);
 
@@ -206,7 +206,7 @@ public:
         ScaleY = new QPushButton(TransformComponent);
         ScaleY->setObjectName(QString::fromUtf8("ScaleY"));
         ScaleY->setMaximumSize(QSize(30, 20));
-        ScaleY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
+        ScaleY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 185, 0, 255);"));
 
         ScaleLayout->addWidget(ScaleY);
 
@@ -243,25 +243,16 @@ public:
         TransformComponent->setWindowTitle(QCoreApplication::translate("TransformComponent", "Form", nullptr));
         PosLbl->setText(QCoreApplication::translate("TransformComponent", "Position", nullptr));
         PosX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
-        PosVal_X->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         PosY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
-        PosVal_Y->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         PosZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
-        PosVal_Z->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         RotLbl->setText(QCoreApplication::translate("TransformComponent", "Rotation", nullptr));
         RotX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
-        RotVal_X->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         RotY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
-        RotVal_Y->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         RotZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
-        RotVal_Z->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         ScaleLbl->setText(QCoreApplication::translate("TransformComponent", "Scale", nullptr));
         ScaleX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
-        ScaleVal_X->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         ScaleY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
-        ScaleVal_Y->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
         ScaleZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
-        ScaleVal_Z->setText(QCoreApplication::translate("TransformComponent", "0", nullptr));
     } // retranslateUi
 
 };
