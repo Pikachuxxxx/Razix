@@ -5,6 +5,8 @@
 
 #include <QMainWindow>
 
+#include <QToolBar>
+
 namespace Razix {
     namespace Editor {
 
@@ -15,12 +17,19 @@ namespace Razix {
             RZEMainWindow(QWidget* parent = Q_NULLPTR, Qt::WindowFlags flags = {});
             ~RZEMainWindow() {}
 
-            QWidget* getViewport() { return m_Viewport; }
+            QWidget*           getViewport() { return m_Viewport; }
             ToolWindowManager* getToolWindowManager() { return ui.toolWindowManager; }
 
         private:
             Ui::MainWindow ui;
             QWidget*       m_Viewport;
+            QToolBar*      renderSettingsTB;
+            QToolBar*      m_ProjectSettingsTB;
+            QLabel*        m_FPSLblSB;
+
+        public slots:
+            void OnSaveProjectPressed();
+            void update();
         };
     }    // namespace Editor
 }    // namespace Razix

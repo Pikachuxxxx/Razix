@@ -1,9 +1,12 @@
 <RCC>
-  <qresource prefix="/rzeditor">
-    <file>tag_icon.png</file>
-    <file>transform_icon.png</file>
-    <file>RazixLogo32.png</file>
-    <file>RazixLogo64.png</file>
-    <file>camera_icon.png</file>
-  </qresource>
+    <qresource prefix="/rzeditor">
+        <file>tag_icon.png</file>
+        <file>transform_icon.png</file>
+        <file>RazixLogo32.png</file>
+        <file>RazixLogo64.png</file>
+        <file>camera_icon.png</file>
+        <file>new_project.png</file>
+        <file>open_project.png</file>
+        <file>save_project.png</file>
+    </qresource>
 </RCC>
