@@ -19,9 +19,19 @@ struct RZMemClusterAllocationInfo : public RZMemAllocationInfo
     uint32_t clusterSize;
 };
 
-struct RZMemAllocationSnapshot
+struct RZMemView
 {
 
+};
+
+struct RZMemAllocationSnapshot
+{
+    void AddAllocation(const RZMemAllocationInfo& allocationInfo);
+    void AddAllocationCluster(const RZMemClusterAllocationInfo& allocationClusterInfo);
+
+    bool CaptureAllocations(RZMemView& view);
+    // This is a debug method to print total allocations
+    void DisplayView(const RZMemView& view);
 };
 
 struct RZMemInfoElement
