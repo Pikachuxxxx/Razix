@@ -4,9 +4,9 @@
 [submodule "Engine/internal/RZSTL"]
 	path = Engine/internal/RZSTL
 	url = https://github.com/Pikachuxxxx/RZSTL.git
-[submodule "Engine/internal/RazixMemory"]
-	path = Engine/internal/RazixMemory
-	url = https://github.com/Pikachuxxxx/RazixMemory.git
 [submodule "Tools/RazixAssetPacker"]
 	path = Tools/RazixAssetPacker
 	url = https://github.com/Pikachuxxxx/RazixAssetPacker.git
+[submodule "Engine/internal/RazixMemory"]
+	path = Engine/internal/RazixMemory
+	url = https://github.com/Pikachuxxxx/RazixMemory.git
