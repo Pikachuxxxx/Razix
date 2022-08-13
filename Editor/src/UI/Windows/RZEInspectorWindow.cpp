@@ -2,6 +2,8 @@
 
 #include "Razix/Scene/Components/RZComponents.h"
 
+#include "UI/Widgets/RZECollapsingHeader.h"
+
 namespace Razix {
     namespace Editor {
         RZEInspectorWindow::RZEInspectorWindow(RZESceneHierarchyPanel* hierarchyPanel, QFrame* parent)
@@ -14,10 +16,26 @@ namespace Razix {
 
             ui.UUIDLbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-            // Make the connections
+            // Add the list of components that will be enabled and disables based on the entity
+            // At index 0 and 1 we have the Tag and ID components in the box layout by the QDesigner
+            // 1. Transform component
+            m_TrasformComponentUI = new Razix::Editor::RZETransformComponentUI;
+            this->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Transform"), m_TrasformComponentUI, new QIcon(":/rzeditor/transform_icon.png")));
+            
+            // --- Line break after transform component ---
+            QFrame* hFrame = new QFrame;
+            hFrame->setFrameShape(QFrame::HLine);
+            this->getBoxLayout().insertWidget(3, hFrame);
+
+            // 2. Add the camera component
+            auto widget = new QPushButton;
+            widget->setText("Add Component");
+            this->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("Camera"), widget, new QIcon(":/rzeditor/camera_icon.png")));
+
+            // connections
             // Name change
             connect(ui.EntityName, SIGNAL(returnPressed()), this, SLOT(OnNameEdit()));
-            // On entity selected
+            // On Entity selected
             connect(hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelected, this, &RZEInspectorWindow::OnEntitySelected);
         }
 
@@ -36,7 +54,15 @@ namespace Razix {
         void RZEInspectorWindow::OnEntitySelected(RZEntity entity)
         {
             this->entity = entity;
+
+            // Update the name label
             ui.EntityName->setText(entity.GetComponent<TagComponent>().Tag.c_str());
+
+            // Update the UUID
+            ui.UUIDLbl->setText(entity.GetComponent<IDComponent>().UUID.prettyString().c_str());
+
+            // Update the transform component
+            m_TrasformComponentUI->setEditingEntity(entity);
         }
 
     }    // namespace Editor
