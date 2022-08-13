@@ -462,7 +462,6 @@ int main(int argc, char** argv)
 
     mainWindow = new Razix::Editor::RZEMainWindow;
     mainWindow->resize(1280, 720);
-    mainWindow->show();
     mainWindow->setWindowTitle("Razix Engine Editor");
 
     inspectorWidget = new Razix::Editor::RZEInspectorWindow;
@@ -503,6 +502,8 @@ int main(int argc, char** argv)
     // Load the engine DLL and Ignite it on a separate thread
     std::thread engineThread(LoadEngineDLL, argc, argv);
     engineThread.detach();
+
+    mainWindow->show();
 
     return qrzeditorApp->exec();
 }

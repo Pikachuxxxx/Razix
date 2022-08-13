@@ -49,6 +49,12 @@ namespace Razix {
             if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
                 processMouseMovement(deltaX, -deltaY);
 
+            if (RZInput::IsKeyPressed(KeyCode::Key::A))
+                RAZIX_CORE_ERROR("A key is pressed");
+
+            if (RZInput::IsMouseButtonReleased(KeyCode::MouseKey::ButtonRight))
+                RAZIX_CORE_WARN("Right mouse button is released");
+
             m_OldX = mX;
             m_OldY = mY;
         }
