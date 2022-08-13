@@ -116,6 +116,8 @@ namespace Razix {
         inline glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
         /* Returns a reference to the Application instance */
         inline std::string RAZIX_CALL getAppName() const { return m_AppName; }
+        /* Gets the razixproject file path */
+        inline std::string getAppFilePath() const { return m_AppFilePath; }
         /* Gets the window properties */
         inline WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
         /* Gets the application render loop timer */

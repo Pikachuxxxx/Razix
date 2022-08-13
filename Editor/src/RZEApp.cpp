@@ -13,6 +13,7 @@
 #include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZEVulkanWindow.h"
+#include "UI/Windows/RZEContentBrowserWindow.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -26,6 +27,7 @@ Razix::Editor::RZEVulkanWindow*        vulkanWindow;
 Razix::Editor::RZEInspectorWindow*     inspectorWidget;
 Razix::Editor::RZEViewport*            viewportWidget;
 Razix::Editor::RZESceneHierarchyPanel* sceneHierarchyPanel;
+Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
 
 using namespace Razix;
 
@@ -101,6 +103,11 @@ public:
         vulkanWindow->setTitle("Vulkan Window");
 
         Razix::RZApplication::Get().Init();
+
+        QMetaObject::invokeMethod(qrzeditorApp, [] {
+            contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
+            mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+        });
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
         Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
