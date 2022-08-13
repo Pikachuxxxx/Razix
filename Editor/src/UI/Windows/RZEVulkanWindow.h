@@ -5,11 +5,11 @@
 
 #include "RZENativeWindow.h"
 
-#include "Razix/Core/RZRoot.h"
-#include "Razix/Core/RZApplication.h"
-#include "Razix/Events/ApplicationEvent.h"
-#include "Razix/Core/RZCore.h"
 #include "Razix/Core/OS/RZInput.h"
+#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZRoot.h"
+#include "Razix/Events/ApplicationEvent.h"
 
 #include <glm/glm.hpp>
 
@@ -66,7 +66,7 @@ namespace Razix {
 
             void mouseMoveEvent(QMouseEvent* event)
             {
-                m_MousePos     = glm::vec2(event->pos().x(), event->pos().y());
+                m_MousePos = glm::vec2(event->pos().x(), event->pos().y());
 
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
@@ -79,7 +79,7 @@ namespace Razix {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseButtonPressedEvent e(event->button());
-                m_MouseButton = event->button();
+                m_MousePressedButton = event->button();
                 callback(e);
             }
 
@@ -88,7 +88,23 @@ namespace Razix {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseButtonReleasedEvent e(event->button());
-                m_MouseButton = event->button();
+                m_MouseReleasedButton = event->button();
+                callback(e);
+            }
+
+            void keyPressEvent(QKeyEvent* event)
+            {
+                auto& callback = m_RZWindow->getEventCallbackFunc();
+                m_KeyPressed   = event->key();
+                RZKeyPressedEvent e(event->key(), 1);
+                callback(e);
+            }
+
+            void keyReleaseEvent(QKeyEvent* event)
+            {
+                auto& callback = m_RZWindow->getEventCallbackFunc();
+                m_KeyReleased  = event->key();
+                RZKeyReleasedEvent e(event->key());
                 callback(e);
             }
 
@@ -101,8 +117,10 @@ namespace Razix {
             bool             m_UserIsResizing = false;
             RZENativeWindow* m_RZWindow;
             glm::vec2        m_MousePos;
-            int              m_MouseButton;
-            int              m_Key;
+            int              m_MousePressedButton  = -1;
+            int              m_MouseReleasedButton = -1;
+            int              m_KeyPressed          = -1;
+            int              m_KeyReleased         = -1;
 
         protected:
             bool IsKeyPressedImpl(int keycode) override;
@@ -111,9 +129,11 @@ namespace Razix {
             bool IsMouseButtonPressedImpl(int button) override;
             bool IsMouseButtonReleasedImpl(int button) override;
             bool IsMouseButtonHeldImpl(int button) override;
-            std::pair<float, float> GetMousePositionImpl() override;
+
             float GetMouseXImpl() override;
             float GetMouseYImpl() override;
+
+            std::pair<float, float> GetMousePositionImpl() override;
         };
     }    // namespace Editor
 }    // namespace Razix

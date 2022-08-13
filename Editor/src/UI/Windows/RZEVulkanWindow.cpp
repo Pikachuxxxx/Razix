@@ -11,7 +11,7 @@
 namespace Razix {
     namespace Editor {
         RZEVulkanWindow::RZEVulkanWindow(QWindow* parentWindow)
-            : QWindow(parentWindow)    
+            : QWindow(parentWindow)
         {
             setSurfaceType(VulkanSurface);
         }
@@ -47,12 +47,20 @@ namespace Razix {
 
         bool RZEVulkanWindow::IsKeyPressedImpl(int keycode)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            if (keycode == m_KeyPressed) {
+                m_KeyPressed = -1;
+                return true;
+            } else
+                return false;
         }
 
         bool RZEVulkanWindow::IsKeyReleasedImpl(int keycode)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            if (keycode == m_KeyReleased) {
+                m_KeyReleased = -1;
+                return true;
+            } else
+                return false;
         }
 
         bool RZEVulkanWindow::IsIsKeyHeldImpl(int keycode)
@@ -62,24 +70,29 @@ namespace Razix {
 
         bool RZEVulkanWindow::IsMouseButtonPressedImpl(int button)
         {
-            if (button == m_MouseButton - 1)
+            if (button == m_MousePressedButton - 1) {
+                m_MousePressedButton = -1;
                 return true;
-            else
+            } else
                 return false;
         }
 
         bool RZEVulkanWindow::IsMouseButtonReleasedImpl(int button)
         {
-            if (button == m_MouseButton - 1)
+            if (button == m_MouseReleasedButton - 1) {
+                m_MouseReleasedButton = -1;
                 return true;
-            else
+            } else
                 return false;
         }
 
         bool RZEVulkanWindow::IsMouseButtonHeldImpl(int button)
         {
-            if (button == m_MouseButton - 1)
+            if (button == m_MousePressedButton - 1 && button != m_MouseReleasedButton - 1) {
+                // m_MousePressedButton  = -1;
+                // m_MouseReleasedButton = -1; 
                 return true;
+            }
             else
                 return false;
         }
