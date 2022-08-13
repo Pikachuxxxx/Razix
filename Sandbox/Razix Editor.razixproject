@@ -8,10 +8,6 @@
         "Height": 887,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
         "Scenes": [
-            "//Scenes/Editor_Scene_1.rzscn",
-            "//Scenes/Editor_Scene_1.rzscn",
-            "//Scenes/Editor_Scene_1.rzscn",
-            "//Scenes/Editor_Scene_1.rzscn",
             "//Scenes/Editor_Scene_1.rzscn"
         ]
     }
