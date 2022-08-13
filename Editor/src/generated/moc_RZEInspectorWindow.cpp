@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEInspectorWindow_t {
-    QByteArrayData data[3];
-    char stringdata0[46];
+    QByteArrayData data[6];
+    char stringdata0[79];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -34,11 +34,15 @@ static const qt_meta_stringdata_Razix__Editor__RZEInspectorWindow_t qt_meta_stri
     {
 QT_MOC_LITERAL(0, 0, 33), // "Razix::Editor::RZEInspectorWi..."
 QT_MOC_LITERAL(1, 34, 10), // "OnNameEdit"
-QT_MOC_LITERAL(2, 45, 0) // ""
+QT_MOC_LITERAL(2, 45, 0), // ""
+QT_MOC_LITERAL(3, 46, 16), // "OnEntitySelected"
+QT_MOC_LITERAL(4, 63, 8), // "RZEntity"
+QT_MOC_LITERAL(5, 72, 6) // "entity"
 
     },
     "Razix::Editor::RZEInspectorWindow\0"
-    "OnNameEdit\0"
+    "OnNameEdit\0\0OnEntitySelected\0RZEntity\0"
+    "entity"
 };
 #undef QT_MOC_LITERAL
 
@@ -48,7 +52,7 @@ static const uint qt_meta_data_Razix__Editor__RZEInspectorWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -56,10 +60,12 @@ static const uint qt_meta_data_Razix__Editor__RZEInspectorWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   19,    2, 0x0a /* Public */,
+       1,    0,   24,    2, 0x0a /* Public */,
+       3,    1,   25,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 4,    5,
 
        0        // eod
 };
@@ -71,10 +77,10 @@ void Razix::Editor::RZEInspectorWindow::qt_static_metacall(QObject *_o, QMetaObj
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->OnNameEdit(); break;
+        case 1: _t->OnEntitySelected((*reinterpret_cast< RZEntity(*)>(_a[1]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZEInspectorWindow::staticMetaObject = { {
@@ -106,13 +112,13 @@ int Razix::Editor::RZEInspectorWindow::qt_metacall(QMetaObject::Call _c, int _id
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 2)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }

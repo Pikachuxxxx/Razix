@@ -99,7 +99,6 @@ namespace Razix {
                 }
             }
         }
-
         return false;
     }
 }    // namespace Razix

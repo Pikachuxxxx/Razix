@@ -73,7 +73,7 @@ namespace Razix {
             if (button == m_MousePressedButton - 1) {
                 m_MouseReleasedButton = -1;
                 return true;
-            } else
+            } else      
                 return false;
         }
 

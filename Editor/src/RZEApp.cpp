@@ -470,7 +470,9 @@ int main(int argc, char** argv)
     mainWindow->resize(1280, 720);
     mainWindow->setWindowTitle("Razix Engine Editor");
 
-    inspectorWidget = new Razix::Editor::RZEInspectorWindow;
+    sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel;
+
+    inspectorWidget = new Razix::Editor::RZEInspectorWindow(sceneHierarchyPanel);
     viewportWidget  = new Razix::Editor::RZEViewport;
     viewportWidget->resize(1280, 720);
     viewportWidget->setWindowTitle("Viewport");
@@ -502,7 +504,6 @@ int main(int argc, char** argv)
     vulkanWindowWidget->setWindowTitle("Vulkan Window");
 
     // Scene Hierarchy Panel
-    sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel;
     mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
 
     // In order for event filter to work this is fookin important
