@@ -8,6 +8,7 @@
 #include "RZESceneHierarchyPanel.h"
 
 #include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
+#include "UI/Widgets/ComponentsUI/RZECameraComponentUI.h"
 
 // All components will be added to this window and will be enabled on a need to basis; We can remove or add (only single isntance for now)
 // This way code and design get's easier, but the Component widgets will have seperate UI and class files for ease of management;
@@ -33,6 +34,7 @@ namespace Razix {
             RZEntity            entity;
             // Hold the components here
             RZETransformComponentUI* m_TrasformComponentUI;
+            RZECameraComponentUI*    m_CameraComponentUI;
         };
     }    // namespace Editor
 }    // namespace Razix

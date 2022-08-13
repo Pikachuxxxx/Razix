@@ -28,6 +28,8 @@ namespace Razix {
             //
             //Entity2->addChild(Entity_2_child_1);
 
+            this->setBaseSize(QSize(80, 100));
+
             // Connect the signals
             connect(ui.sceneTree, SIGNAL(itemSelectionChanged()), this, SLOT(OnItemSelected()));
         }
