@@ -1,5 +1,7 @@
-#include "RZEMainWindow.h"
+// clang-format off
 #include "rzxpch.h"
+// clang-format on
+#include "RZEMainWindow.h"
 
 #include <QComboBox>
 #include <QTimer>

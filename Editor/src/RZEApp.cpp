@@ -145,14 +145,14 @@ private:
 
         auto scripts = activeScene->GetComponentsOfType<LuaScriptComponent>();
         if (!scripts.size()) {
-            RZEntity scriptableEntity = activeScene->createEntity("ScriptableEntity");
+            RZEntity scriptableEntity = activeScene->createEntity("hello_lua");
             scriptableEntity.AddComponent<LuaScriptComponent>();
             if (scriptableEntity.HasComponent<LuaScriptComponent>()) {
                 LuaScriptComponent& lsc = scriptableEntity.GetComponent<LuaScriptComponent>();
                 lsc.loadScript("//Scripts/hello_razix.lua");
             }
 
-            RZEntity imguiEntity = activeScene->createEntity("guiEntity");
+            RZEntity imguiEntity = activeScene->createEntity("imgui_lua");
             imguiEntity.AddComponent<LuaScriptComponent>();
             if (imguiEntity.HasComponent<LuaScriptComponent>()) {
                 LuaScriptComponent& lsc = imguiEntity.GetComponent<LuaScriptComponent>();
@@ -211,7 +211,6 @@ private:
                 modelMatrix.data = glm::value_ptr(transform);
                 modelMatrix.size = sizeof(glm::mat4);
 
-                Graphics::RZAPIRenderer::BindPushConstant(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), modelMatrix);
                 Graphics::RZAPIRenderer::BindDescriptorSets(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), descriptorSets[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
                 // draw related buffer bindings + Draw commands here
@@ -223,6 +222,7 @@ private:
                         for (auto& mesh: meshes) {
                             mesh->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
                             mesh->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                            Graphics::RZAPIRenderer::BindPushConstant(pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), modelMatrix);
 
                             Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
@@ -265,6 +265,8 @@ private:
 
     void OnRender() override
     {
+        auto& transforms = activeScene->GetComponentsOfType<TransformComponent>();
+        int   j          = 5;
     }
 
     void RAZIX_CALL OnResize(uint32_t width, uint32_t height) override
@@ -481,17 +483,6 @@ int main(int argc, char** argv)
     QIcon razixIcon(":/rzeditor/RazixLogo64.png");
     inspectorWidget->setWindowIcon(razixIcon);
     viewportWidget->setWindowIcon(razixIcon);
-
-    auto transformWIdget = new Razix::Editor::RZETransformComponentUI;
-
-    auto widget = new QPushButton;
-    widget->setText("Add Component");
-
-    inspectorWidget->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Transform"), transformWIdget, new QIcon(":/rzeditor/transform_icon.png")));
-    QFrame* hFrame = new QFrame;
-    hFrame->setFrameShape(QFrame::HLine);
-    inspectorWidget->getBoxLayout().insertWidget(3, hFrame);
-    inspectorWidget->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("Camera"), widget, new QIcon(":/rzeditor/camera_icon.png")));
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
     mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));

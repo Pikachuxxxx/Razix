@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>438</width>
+    <width>230</width>
     <height>767</height>
    </rect>
   </property>
@@ -53,6 +53,12 @@ QTreeView::branch:open:has-children:has-siblings  {
    </property>
    <item>
     <widget class="QTreeWidget" name="sceneTree">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="styleSheet">
       <string notr="true">QTreeWidget::branch:has-siblings:!adjoins-item {
     border-image: url(:/rzeditor/vline.png) 0;

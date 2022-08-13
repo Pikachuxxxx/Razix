@@ -28,7 +28,7 @@ public:
     {
         if (SceneHierarchyPanel->objectName().isEmpty())
             SceneHierarchyPanel->setObjectName(QString::fromUtf8("SceneHierarchyPanel"));
-        SceneHierarchyPanel->resize(438, 767);
+        SceneHierarchyPanel->resize(230, 767);
         SceneHierarchyPanel->setStyleSheet(QString::fromUtf8("QTreeView::branch:has-siblings:!adjoins-item {\n"
 "    border-image: url(:/rzeditor/vline.png) 0;\n"
 "}\n"
@@ -59,6 +59,11 @@ public:
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         sceneTree = new QTreeWidget(SceneHierarchyPanel);
         sceneTree->setObjectName(QString::fromUtf8("sceneTree"));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(sceneTree->sizePolicy().hasHeightForWidth());
+        sceneTree->setSizePolicy(sizePolicy);
         sceneTree->setStyleSheet(QString::fromUtf8("QTreeWidget::branch:has-siblings:!adjoins-item {\n"
 "    border-image: url(:/rzeditor/vline.png) 0;\n"
 "}\n"
