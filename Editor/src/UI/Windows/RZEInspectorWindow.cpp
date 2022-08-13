@@ -21,16 +21,17 @@ namespace Razix {
             // 1. Transform component
             m_TrasformComponentUI = new Razix::Editor::RZETransformComponentUI;
             this->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Transform"), m_TrasformComponentUI, new QIcon(":/rzeditor/transform_icon.png")));
-            
+
             // --- Line break after transform component ---
             QFrame* hFrame = new QFrame;
             hFrame->setFrameShape(QFrame::HLine);
             this->getBoxLayout().insertWidget(3, hFrame);
 
             // 2. Add the camera component
-            auto widget = new QPushButton;
-            widget->setText("Add Component");
-            this->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("Camera"), widget, new QIcon(":/rzeditor/camera_icon.png")));
+            m_CameraComponentUI = new RZECameraComponentUI;
+            this->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("Camera"), m_CameraComponentUI, new QIcon(":/rzeditor/camera_icon.png")));
+
+            this->setBaseSize(QSize(250, 100));
 
             // connections
             // Name change
