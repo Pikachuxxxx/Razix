@@ -11,6 +11,7 @@
 #include "UI/Widgets/RZEViewport.h"
 #include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEMainWindow.h"
+#include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
@@ -19,11 +20,12 @@
 
 #include <vulkan/vulkan.h>
 
-static QApplication*               qrzeditorApp = nullptr;
-Razix::Editor::RZEMainWindow*      mainWindow;
-Razix::Editor::RZEVulkanWindow*    vulkanWindow;
-Razix::Editor::RZEInspectorWindow* inspectorWidget;
-Razix::Editor::RZEViewport*        viewportWidget;
+static QApplication*                   qrzeditorApp = nullptr;
+Razix::Editor::RZEMainWindow*          mainWindow;
+Razix::Editor::RZEVulkanWindow*        vulkanWindow;
+Razix::Editor::RZEInspectorWindow*     inspectorWidget;
+Razix::Editor::RZEViewport*            viewportWidget;
+Razix::Editor::RZESceneHierarchyPanel* sceneHierarchyPanel;
 
 using namespace Razix;
 
@@ -165,6 +167,10 @@ private:
             auto& armadilloModelEntity = activeScene->createEntity("Avocado");
             armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
         }
+
+        QMetaObject::invokeMethod(qrzeditorApp, [] {
+            sceneHierarchyPanel->populateHierarchy();
+        });
 
         width  = getWindow()->getWidth();
         height = getWindow()->getHeight();
@@ -495,10 +501,14 @@ int main(int argc, char** argv)
     vulkanWindowWidget->setWindowIcon(razixIcon);
     vulkanWindowWidget->setWindowTitle("Vulkan Window");
 
+    // Scene Hierarchy Panel
+    sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel;
+    mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+
     // In order for event filter to work this is fookin important
     qrzeditorApp->installEventFilter(vulkanWindow);
 
-    mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
+    mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
     // Load the engine DLL and Ignite it on a separate thread
     std::thread engineThread(LoadEngineDLL, argc, argv);
     engineThread.detach();

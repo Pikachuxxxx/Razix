@@ -71,7 +71,7 @@ namespace Razix {
         bool RZEVulkanWindow::IsMouseButtonPressedImpl(int button)
         {
             if (button == m_MousePressedButton - 1) {
-                m_MousePressedButton = -1;
+                m_MouseReleasedButton = -1;
                 return true;
             } else
                 return false;
@@ -80,7 +80,7 @@ namespace Razix {
         bool RZEVulkanWindow::IsMouseButtonReleasedImpl(int button)
         {
             if (button == m_MouseReleasedButton - 1) {
-                m_MouseReleasedButton = -1;
+                m_MousePressedButton = -1;
                 return true;
             } else
                 return false;
