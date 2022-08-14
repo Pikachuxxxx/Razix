@@ -2,11 +2,14 @@
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
 
+
 namespace Razix {
     namespace Graphics {
 
         class RZMesh;
         class RZUniformBuffer;
+        class RZVertexBuffer;
+        class RZIndexBuffer;
 
         /**
          * This renderer is used to draw the Grid for editing and reference purposes which scales with the camera
@@ -19,9 +22,9 @@ namespace Razix {
             {
                 glm::vec3 cameraPos   = glm::vec3(0.0f);
                 float     _padding    = 0.0f;
-                float     scale       = 1.0f;
-                float     resolution  = 1.4f;
-                float     maxDistance = 600.0f;
+                float     scale       = 1000.0f;
+                float     resolution  = 2.25f;
+                float     maxDistance = 1600.0f;
                 float     _padding2   = 0.0f;
             };
 
@@ -48,12 +51,13 @@ namespace Razix {
             void OnEvent(RZEvent& event) override;
 
         private:
-            RZMesh*                     m_Plane                   = nullptr;
             RZUniformBuffer*            m_ViewProjectionSystemUBO = nullptr;
             RZUniformBuffer*            m_GridUBO                 = nullptr;
             uint8_t                     _padding[8];
             ViewProjectionSystemUBOData m_ViewProjSystemUBOData;
             GridUBOData                 m_GridUBOData;
+            Graphics::RZVertexBuffer*   gridVBO;
+            Graphics::RZIndexBuffer*    gridIBO;
 
         private:
             void InitDisposableResources();

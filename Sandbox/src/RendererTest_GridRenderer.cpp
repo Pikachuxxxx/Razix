@@ -9,13 +9,13 @@ public:
     RendererTest_GridRenderer()
         : RZApplication("/Sandbox/", "RendererTest_GridRenderer")
     {
-        Razix::RZInput::SelectGLFWInputManager();
-        Razix::RZApplication::Get().Init();
-
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
         Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
+
+        Razix::RZInput::SelectGLFWInputManager();
+        Razix::RZApplication::Get().Init();
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------
