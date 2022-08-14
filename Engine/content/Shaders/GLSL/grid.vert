@@ -11,12 +11,16 @@
 
 //------------------------------------------------------------------------------
 // Vertex Input
+// Since we use a plane primitive mesh for the Grid we need the same vertex layout as that of a mesh vertex shader
 layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec2 inTexCoord;
+layout(location = 1) in vec4 inColor;   // this is not needed for all types of meshes, but since we use a common vertex shader we need this too
+layout(location = 2) in vec2 inTexCoord;
+layout(location = 3) in vec3 inNormal;
+layout(location = 4) in vec3 inTangent;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
 // The view projection matrix
-layout(set = 0, binding = 0) uniform ViewProjectionUniformBufferObject
+layout(set = 0, binding = 0) uniform ViewProjectionUBOData
 {
     mat4 view;
 	mat4 proj;
