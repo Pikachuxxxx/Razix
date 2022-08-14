@@ -26,6 +26,9 @@
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
 
+// TODO: TESTING REMOVE THIS!!!!
+#include "Razix/Graphics/Renderers/RZGridRenderer.h"
+
 //! Some style guide rules are waved off for RZApplication class
 
 namespace Razix::Graphics {
@@ -67,6 +70,7 @@ namespace Razix {
         /* Simple Virtual destructor */
         virtual ~RZApplication() {}
 
+        // TODO: Have 2 inits ==> Static and Runtime
         /* Initializes the application and other runtime systems */
         void RAZIX_CALL Init();
 
@@ -219,6 +223,9 @@ namespace Razix {
         Graphics::RZImGuiRenderer* m_ImGuiRenderer = nullptr;
         Graphics::RZTexture2D*     albedoTexture;
 
+        // TODO: TESTING REMOVE THIS!!!!
+        Graphics::RZGridRenderer* gridRenderer = nullptr;
+
     private:
         /**
          * Renders the frame and displays the graphics and updates the window
@@ -261,7 +268,6 @@ namespace Razix {
         virtual bool OnMouseMoved(RZMouseMovedEvent& e);
         virtual bool OnMouseButtonPressed(RZMouseButtonPressedEvent& e);
         virtual bool OnMouseButtonReleased(RZMouseButtonReleasedEvent& e);
-
 
         RAZIX_NONCOPYABLE_CLASS(RZApplication);
     };

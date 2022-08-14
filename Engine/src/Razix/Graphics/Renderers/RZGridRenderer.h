@@ -35,7 +35,7 @@ namespace Razix {
 
             void BeginScene(RZScene* scene) override;
 
-            void Submit(RZCommandBuffer& cmdBuf) override;
+            void Submit(RZCommandBuffer* cmdBuf) override;
 
             void EndScene(RZScene* scene) override;
 

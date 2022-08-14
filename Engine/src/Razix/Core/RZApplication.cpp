@@ -160,13 +160,15 @@ namespace Razix {
     bool RZApplication::OnWindowResize(RZWindowResizeEvent& e)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
+         
         if (m_ImGuiRenderer != nullptr) {
             // Resize ImGui
             ImGuiIO& io                = ImGui::GetIO();
             io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
+
+        gridRenderer->Resize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -185,7 +187,7 @@ namespace Razix {
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
         if (m_ImGuiRenderer != nullptr) {
-            ImGuiIO& io                      = ImGui::GetIO();
+            ImGuiIO& io                          = ImGui::GetIO();
             io.MouseDown[e.GetMouseButton() - 1] = true;
             io.MouseDown[e.GetMouseButton() - 1] = true;
         }
@@ -196,7 +198,7 @@ namespace Razix {
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
         if (m_ImGuiRenderer != nullptr) {
-            ImGuiIO& io                      = ImGui::GetIO();
+            ImGuiIO& io                          = ImGui::GetIO();
             io.MouseDown[e.GetMouseButton() - 1] = false;
         }
 
@@ -210,12 +212,19 @@ namespace Razix {
         // TODO: Enable window V-Sync here
         Graphics::RZAPIRenderer::Init();
 
+        // Job system and Engine Systems(run-time) Initialization
+        gridRenderer = new Graphics::RZGridRenderer;
+        gridRenderer->Init();
+
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
+        // Load a scene into memory
+        Razix::RZEngine::Get().getSceneManager().loadScene(0);
+
         // ImGui Renderer
-        m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+        //m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
 
         Start();
 
@@ -311,7 +320,7 @@ namespace Razix {
             halt_execution.notify_one();
         }
 
-#if 1
+#if 0
         if (m_ImGuiRenderer != nullptr) {
             ImGuiIO& io = ImGui::GetIO();
             (void) io;
@@ -352,7 +361,21 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
+        // We are not checking if the current is scene is null or not
+        gridRenderer->BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
+
+        gridRenderer->Begin();
+
+        gridRenderer->Submit(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+        gridRenderer->End();
+
+        // IDK might make sense to have it here before presentation, this way it will retrieve the scene variables
         OnRender();
+
+        gridRenderer->EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+
+        gridRenderer->Present();
     }
 
     void RZApplication::Quit()

@@ -31,8 +31,8 @@ namespace Razix {
             m_RendererName = "Grid Renderer";
 
             // Init the width and height of RT
-            m_ScreenBufferWidth  = Graphics::RZAPIRenderer::Get().getWidth();
-            m_ScreenBufferHeight = Graphics::RZAPIRenderer::Get().getHeight();
+            m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
+            m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Create the mesh that will be rendered which is a plane
             m_Plane = MeshFactory::CreatePlane(2000.0f, 2000.0f);
@@ -111,24 +111,24 @@ namespace Razix {
             m_GridUBO->SetData(sizeof(GridUBOData), &m_GridUBOData);
         }
 
-        void RZGridRenderer::Submit(RZCommandBuffer& cmdBuf)
+        void RZGridRenderer::Submit(RZCommandBuffer* cmdBuf)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Submit work to GPU by binding the pipeline , buffers etc and recoding the draw command
 
             // Bind the pipeline
-            m_Pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+            m_Pipeline->Bind(cmdBuf);
 
             // Bind the descriptor set
-            Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), m_DescriptorSets);
+            Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
             // Bind the appropriate buffers/mesh
             m_Plane->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
             m_Plane->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
             // Issues the Draw Commands
-            Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), 6);
+            Graphics::RZAPIRenderer::DrawIndexed(cmdBuf, 6);
         }
 
         void RZGridRenderer::EndScene(RZScene* scene)
@@ -158,12 +158,14 @@ namespace Razix {
             // Destroy the resources first
             m_DepthTexture->Release(true);
 
-             for (auto frameBuf: m_Framebuffers)
+            for (auto frameBuf: m_Framebuffers)
                 frameBuf->Destroy();
 
             m_RenderPass->Destroy();
 
             m_Pipeline->Destroy();
+
+            Graphics::RZAPIRenderer::OnResize(width, height);
 
             InitDisposableResources();
         }
