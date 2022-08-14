@@ -59,7 +59,7 @@ namespace Razix {
             /**
              * Submits the draw calls to the GPU by binding the necessary resources + context information + pipeline
              */
-            virtual void Submit(RZCommandBuffer& cmdBuf) = 0;
+            virtual void Submit(RZCommandBuffer* cmdBuf) = 0;
             /**
              * Ends rendering the scene
              */
