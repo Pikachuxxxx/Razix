@@ -7,14 +7,16 @@
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZRenderPass.h"
 #include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
 
 #include "Razix/Graphics/RZMesh.h"
-#include "Razix/Graphics/RZMeshFactory.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
@@ -33,9 +35,6 @@ namespace Razix {
             // Init the width and height of RT
             m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
-
-            // Create the mesh that will be rendered which is a plane
-            m_Plane = MeshFactory::CreatePlane(2000.0f, 2000.0f);
 
             // Load the grid shader
             m_Shader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/grid.rzsf");
@@ -66,6 +65,21 @@ namespace Razix {
             }
 
             InitDisposableResources();
+
+            float vertices[8 * 4] = {
+                -2000.5f, -2.5f, -2000.5f, 0.0f, 0.0f, 2000.5f, -2.5f, -2000.5f, 1.0f, 0.0f, 2000.5f, -2.5f, 2000.5f, 1.0f, 1.0f, -2000.5f, -2.5f, 2000.5f, 0.0f, 1.0f};
+
+            uint16_t indices[6] = {
+                0, 1, 2, 2, 3, 0};
+
+            // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
+            RZVertexBufferLayout bufferLayout;
+            bufferLayout.push<glm::vec3>("Position");
+            bufferLayout.push<glm::vec2>("TexCoord");
+
+            gridVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 8 * 4, vertices, Graphics::BufferUsage::STATIC, "Grid VBO");
+            gridVBO->AddBufferLayout(bufferLayout);
+            gridIBO = Graphics::RZIndexBuffer::Create(indices, 6, "Grid IBO");
         }
 
         void RZGridRenderer::Begin()
@@ -101,9 +115,11 @@ namespace Razix {
             }
 
             // Update the View Projection UBO
+            m_Camera->setPerspectiveFarClip(6000.0f);
             m_ViewProjSystemUBOData.view       = m_Camera->getViewMatrix();
             m_ViewProjSystemUBOData.projection = m_Camera->getProjection();
-            m_ViewProjSystemUBOData.projection[1][1] *= -1;
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
+                m_ViewProjSystemUBOData.projection[1][1] *= -1;
             m_ViewProjectionSystemUBO->SetData(sizeof(ViewProjectionSystemUBOData), &m_ViewProjSystemUBOData);
 
             // Update the Grid UBO
@@ -124,8 +140,8 @@ namespace Razix {
             Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
             // Bind the appropriate buffers/mesh
-            m_Plane->getVertexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-            m_Plane->getIndexBuffer()->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+            gridVBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+            gridIBO->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
             // Issues the Draw Commands
             Graphics::RZAPIRenderer::DrawIndexed(cmdBuf, 6);
@@ -154,6 +170,9 @@ namespace Razix {
         void RZGridRenderer::Resize(uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_ScreenBufferWidth  = width;
+            m_ScreenBufferHeight = height;
 
             // Destroy the resources first
             m_DepthTexture->Release(true);

@@ -1,17 +1,88 @@
 {
     "Razix Scene": {
-        "UUID": "19681740-5bfd-4627-b566-480edd35d0c5",
+        "UUID": "ed558017-fd17-4997-8ea2-55e3097a3dcb",
         "SceneName": "default Scene",
-        "Total Entities": 0
+        "Total Entities": 1
     },
-    "value0": 0,
+    "value0": 1,
     "value1": 0,
-    "value2": 0,
+    "value2": 1,
     "value3": 0,
-    "value4": 0,
-    "value5": 0,
+    "value4": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value5": 1,
     "value6": 0,
-    "value7": 0,
+    "value7": {
+        "Tag": "Camera"
+    },
     "value8": 0,
-    "value9": 0
+    "value9": 1,
+    "value10": 0,
+    "value11": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value12": 1,
+    "value13": 0,
+    "value14": {
+        "isPrimary": true,
+        "Camera": {
+            "Position": {
+                "x": 80.68016815185547,
+                "y": 36.17914581298828,
+                "z": -23.386741638183595
+            },
+            "Front": {
+                "x": -0.5138289928436279,
+                "y": -0.5037739872932434,
+                "z": -0.6944001317024231
+            },
+            "Up": {
+                "x": -0.2996562421321869,
+                "y": 0.8638355135917664,
+                "z": -0.4049622118473053
+            },
+            "Right": {
+                "x": 0.8038569092750549,
+                "y": 0.0,
+                "z": -0.5948227643966675
+            },
+            "WorldUp": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Yaw": -126.5,
+            "Pitch": -30.25,
+            "Zoom": 45.0,
+            "MovementSpeed": 0.02500000037252903,
+            "MouseSensitivity": 0.25,
+            "ProjectionType": 0,
+            "PerspectiveFOV": 0.7853981852531433,
+            "PerspectiveNearClip": 0.10000000149011612,
+            "PerspectiveFarClip": 6000.0,
+            "OrthographicSize": 10.0,
+            "OrthographicNearClip": -1.0,
+            "OrthographicFarClip": 1.0,
+            "AspectRatio": 1.7777777910232545
+        }
+    },
+    "value15": 0,
+    "value16": 0,
+    "value17": 0,
+    "value18": 0
 }

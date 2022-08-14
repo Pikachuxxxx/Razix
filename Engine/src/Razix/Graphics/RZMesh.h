@@ -103,7 +103,7 @@ namespace std {
     {
         size_t operator()(Razix::Graphics::RZVertex const& vertex) const
         {
-            return ((hash<glm::vec3>()(vertex.Position) ^ (hash<glm::vec2>()(vertex.TexCoords) << 1) ^ (hash<glm::vec4>()(vertex.Color) << 1) ^ (hash<glm::vec3>()(vertex.Normal) << 1)));    // ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
+            return ((hash<glm::vec3>()(vertex.Position) ^ (hash<glm::vec2>()(vertex.TexCoords) << 1) ^ (hash<glm::vec4>()(vertex.Color) << 1) ^ (hash<glm::vec3>()(vertex.Normal) << 1) ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
         }
     };
 }    // namespace std

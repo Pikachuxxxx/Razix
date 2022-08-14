@@ -71,6 +71,13 @@ namespace Razix {
                 data[3].Normal    = normal;
 
                 RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec3>("Position");
+                layout.push<glm::vec4>("Color");
+                layout.push<glm::vec2>("TexCoords");
+                layout.push<glm::vec3>("Normal");
+                layout.push<glm::vec3>("Tangent");
+                vb->AddBufferLayout(layout);
                 delete[] data;
 
                 uint16_t indices[6]{

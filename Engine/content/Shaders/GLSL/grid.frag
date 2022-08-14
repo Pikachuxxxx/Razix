@@ -61,6 +61,6 @@ void main()
 	outFragColor = Grid(divs) + Grid(divs / subdivisions);
 	outFragColor.a *= clamp((decreaseDistance - distanceToCamera) / decreaseDistance, 0.0f, 1.0f);
 
-	//outFragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	//outFragColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
 }
 //------------------------------------------------------------------------------

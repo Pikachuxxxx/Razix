@@ -21,6 +21,8 @@
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
+#include "Razix/Scene/Components/CameraComponent.h"
+
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
@@ -253,8 +255,8 @@ namespace Razix {
         m_Window->ProcessInput();
 
         // Early close if the escape key is pressed or close button is pressed
-        //if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
-        //   m_CurrentState = AppState::Closing;
+        if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
+            m_CurrentState = AppState::Closing;
 
         if (m_CurrentState == AppState::Closing)
             return false;
@@ -320,6 +322,8 @@ namespace Razix {
             halt_execution.notify_one();
         }
 
+        // Update the renderer stuff here
+        RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
 #if 0
         if (m_ImGuiRenderer != nullptr) {
             ImGuiIO& io = ImGui::GetIO();
@@ -385,6 +389,10 @@ namespace Razix {
 
         // Client side quit customization
         OnQuit();
+
+        // Save the scene and the Application
+        RZEngine::Get().getSceneManager().saveAllScenes();
+        SaveApp();
 
         Graphics::RZAPIRenderer::Release();
 
