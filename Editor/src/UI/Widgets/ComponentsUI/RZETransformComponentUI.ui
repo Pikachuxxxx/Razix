@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
+    <width>356</width>
     <height>82</height>
    </rect>
   </property>
@@ -84,12 +84,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="PosVal_X">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
        <property name="dragEnabled">
         <bool>true</bool>
@@ -116,12 +116,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="PosVal_Y">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
       </widget>
      </item>
@@ -145,12 +145,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="PosVal_Z">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
       </widget>
      </item>
@@ -204,12 +204,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="RotVal_X">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
        <property name="dragEnabled">
         <bool>true</bool>
@@ -236,12 +236,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="RotVal_Y">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
       </widget>
      </item>
@@ -265,12 +265,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="RotVal_Z">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
       </widget>
      </item>
@@ -324,12 +324,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="ScaleVal_X">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
        <property name="dragEnabled">
         <bool>true</bool>
@@ -356,12 +356,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="ScaleVal_Y">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
       </widget>
      </item>
@@ -385,12 +385,12 @@ border-bottom: 2px;
       <widget class="QLineEdit" name="ScaleVal_Z">
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>80</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>0.000000</string>
        </property>
       </widget>
      </item>

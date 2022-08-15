@@ -29,8 +29,10 @@ function get_isSelected(val)
     isSelected = val
 end
 
-
 function OnUpdate(dt)
+end
+
+function OnUppppppdate(dt)
     imgui.beginWindow("ImGui Lua Window")
         imgui.text("FPS : " .. (1 / dt))
         imgui.checkbox("Label", value, get_value)

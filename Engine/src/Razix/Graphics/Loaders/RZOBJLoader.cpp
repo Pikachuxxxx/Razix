@@ -5,7 +5,12 @@
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
 
+#include "Razix/Graphics/API/RZIndexBuffer.h"
+#include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+
+#include "Razix/Graphics/Materials/RZMaterial.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
@@ -15,6 +20,22 @@ namespace Razix {
 
         std::string               m_Directory;
         std::vector<RZTexture2D*> m_Textures;
+
+        Graphics::RZTexture2D* LoadMaterialTextures(const std::string& typeName, std::vector<RZTexture2D*>& textures_loaded, const std::string& name, const std::string& directory)
+        {
+            for (uint32_t j = 0; j < textures_loaded.size(); j++) {
+                if (std::strcmp(textures_loaded[j]->getPath().c_str(), (directory + "/" + name).c_str()) == 0) {
+                    return textures_loaded[j];
+                }
+            }
+
+            {    // If texture hasn't been loaded already, load it
+                auto texture = Graphics::RZTexture2D::CreateFromFile(typeName, directory + "/" + name, RZTexture::Wrapping::CLAMP_TO_EDGE);
+                textures_loaded.push_back(texture);    // Store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+
+                return texture;
+            }
+        }
 
         void RZModel::loadOBJ(const std::string& path)
         {
@@ -92,7 +113,47 @@ namespace Razix {
                 // Generate tangents
                 Graphics::RZMesh::GenerateTangents(vertices, vertexCount, indices, numIndices);
 
-                // TODO: Query and retrieve the materials information, use a pre-defined shader to create the material and fill in the necessary info
+                // Currently we load a pre-defined material but this should be a preset based on the current renderer and the client can select it from the list of presets
+                auto        shader                  = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
+                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
+
+                PBRMataterialTextures textures{};
+
+                if (shape.mesh.material_ids[0] >= 0) {
+                    tinyobj::material_t* mp = &materials[shape.mesh.material_ids[0]];
+
+                    if (mp->diffuse_texname.length() > 0) {
+                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Albedo", m_Textures, mp->diffuse_texname, m_Directory);
+                        if (texture)
+                            textures.albedo = texture;
+                    }
+
+                    if (mp->bump_texname.length() > 0) {
+                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Normal", m_Textures, mp->bump_texname, m_Directory);
+                        if (texture)
+                            textures.normal = texture;    //pbrMaterial->SetNormalMap(texture);
+                    }
+
+                    if (mp->roughness_texname.length() > 0) {
+                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Roughness", m_Textures, mp->roughness_texname.c_str(), m_Directory);
+                        if (texture)
+                            textures.roughness = texture;
+                    }
+
+                    if (mp->metallic_texname.length() > 0) {
+                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Metallic", m_Textures, mp->metallic_texname, m_Directory);
+                        if (texture)
+                            textures.metallic = texture;
+                    }
+
+                    if (mp->specular_highlight_texname.length() > 0) {
+                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Metallic", m_Textures, mp->specular_highlight_texname, m_Directory);
+                        if (texture)
+                            textures.metallic = texture;
+                    }
+                }
+
+                forwardRendererMaterial->setTextures(textures);
 
                 // Create the meshes
                 RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * numVertices, vertices, BufferUsage::STATIC, name);
@@ -109,6 +170,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(vb, ib, numVertices, numIndices);
                 mesh->setIndexCount(numIndices);
+                mesh->setMaterial(forwardRendererMaterial);
                 m_Meshes.push_back(mesh);
 
                 delete[] vertices;

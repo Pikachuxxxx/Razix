@@ -35,6 +35,8 @@ namespace Razix {
             static void Create(uint32_t width, uint32_t height);
             static void Release();
 
+            static RZAPIRenderer& Get() { return *s_APIInstance; }
+
             RAZIX_FORCE_INLINE static void Init()
             {
                 RAZIX_PROFILE_GPU_SCOPE("Init Rendering");
@@ -81,10 +83,19 @@ namespace Razix {
                 s_APIInstance->OnResizeAPIImpl(width, height);
             }
 
+            RAZIX_FORCE_INLINE static void SubmitWork()
+            {
+                RAZIX_PROFILE_GPU_SCOPE("SubmitWork");
+                s_APIInstance->SubmitWorkImpl();
+            }
+
             RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer) { return s_APIInstance->SetDepthBiasImpl(cmdBuffer); }
             RAZIX_FORCE_INLINE static void SetScissorRect(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) { return s_APIInstance->SetScissorRectImpl(cmdBuffer, x, y, width, height); }
 
             RAZIX_FORCE_INLINE static RZSwapchain* getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
+
+            RAZIX_FORCE_INLINE const uint32_t& getWidth() { return m_Width; }
+            RAZIX_FORCE_INLINE const uint32_t& getHeight() { return m_Height; }
 
         protected:
             virtual void InitAPIImpl()                                                                                                                                                                  = 0;
@@ -99,6 +110,7 @@ namespace Razix {
             virtual void OnResizeAPIImpl(uint32_t width, uint32_t height)                                                                                                                               = 0;
             virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                   = 0;
             virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)                                                                          = 0;
+            virtual void SubmitWorkImpl()                                                                                                                                                               = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
 

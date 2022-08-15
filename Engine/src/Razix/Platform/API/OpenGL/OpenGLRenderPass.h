@@ -15,6 +15,8 @@ namespace Razix {
             void EndRenderPass(RZCommandBuffer* commandBuffer) override;
             void AddAttachment() override;
             void Destroy() override;
+
+            bool shouldClear = true;
         };
     }    // namespace Graphics
 }    // namespace Razix

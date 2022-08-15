@@ -21,6 +21,10 @@
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
+#include "Razix/Scene/Components/CameraComponent.h"
+
+#include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
+
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
@@ -161,12 +165,14 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        if (m_ImGuiRenderer != nullptr) {
-            // Resize ImGui
-            ImGuiIO& io                = ImGui::GetIO();
-            io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
-            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-        }
+        //if (m_ImGuiRenderer != nullptr) {
+        // Resize ImGui
+        ImGuiIO& io                = ImGui::GetIO();
+        io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
+        io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+        //}
+
+        RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -174,31 +180,31 @@ namespace Razix {
 
     bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
     {
-        if (m_ImGuiRenderer != nullptr) {
-            ImGuiIO& io = ImGui::GetIO();
-            io.MousePos = ImVec2(e.GetX(), e.GetY());
-        }
+        //if (m_ImGuiRenderer != nullptr) {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MousePos = ImVec2(e.GetX(), e.GetY());
+        //}
 
         return true;
     }
 
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
-        if (m_ImGuiRenderer != nullptr) {
-            ImGuiIO& io                      = ImGui::GetIO();
-            io.MouseDown[e.GetMouseButton() - 1] = true;
-            io.MouseDown[e.GetMouseButton() - 1] = true;
-        }
+        //if (m_ImGuiRenderer != nullptr) {
+        ImGuiIO& io                          = ImGui::GetIO();
+        io.MouseDown[e.GetMouseButton() - 1] = true;
+        io.MouseDown[e.GetMouseButton() - 1] = true;
+        //}
 
         return true;
     }
 
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
-        if (m_ImGuiRenderer != nullptr) {
-            ImGuiIO& io                      = ImGui::GetIO();
-            io.MouseDown[e.GetMouseButton() - 1] = false;
-        }
+        //if (m_ImGuiRenderer != nullptr) {
+        ImGuiIO& io                          = ImGui::GetIO();
+        io.MouseDown[e.GetMouseButton() - 1] = false;
+        //}
 
         return true;
     }
@@ -210,12 +216,16 @@ namespace Razix {
         // TODO: Enable window V-Sync here
         Graphics::RZAPIRenderer::Init();
 
+        // Job system and Engine Systems(run-time) Initialization
+        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
+        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
+
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
             Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
 
-        // ImGui Renderer
-        m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+        // Load a scene into memory
+        Razix::RZEngine::Get().getSceneManager().loadScene(0);
 
         Start();
 
@@ -244,8 +254,8 @@ namespace Razix {
         m_Window->ProcessInput();
 
         // Early close if the escape key is pressed or close button is pressed
-        //if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
-        //   m_CurrentState = AppState::Closing;
+        if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
+            m_CurrentState = AppState::Closing;
 
         if (m_CurrentState == AppState::Closing)
             return false;
@@ -311,70 +321,89 @@ namespace Razix {
             halt_execution.notify_one();
         }
 
-#if 1
-        if (m_ImGuiRenderer != nullptr) {
-            ImGuiIO& io = ImGui::GetIO();
-            (void) io;
-            io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if no primary camera don't render!!!!
+        // Update the renderer stuff here
+        RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
-            if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
-                ImGui_ImplOpenGL3_NewFrame();
+        // Update ImGui
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
 
-            //ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
+        // Run the OnUpdate for all the scripts
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
 
-            OnImGui();
-
-            ImGui::ShowDemoWindow();
-            if (ImGui::Begin("Razix Engine")) {
-                ImGui::Text("Indeed it is!");
-
-                ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
-                static bool some;
-                if (ImGui::Checkbox("Test", &some)) {
-                    RAZIX_CORE_ERROR("Done!");
-                }
-            }
-            ImGui::End();
-
-            // Run the OnUpdate for all the scripts
-            if (RZEngine::Get().getSceneManager().getCurrentScene())
-                RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
-
-            ImGui::Render();
-        }
-
+        // Client App Update
         OnUpdate(dt);
+
+#if 1
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+            ImGui_ImplOpenGL3_NewFrame();
+
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        OnImGui();
+
+        ImGui::ShowDemoWindow();
+        if (ImGui::Begin("Razix Engine")) {
+            ImGui::Text("Indeed it is!");
+
+            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
+            static bool some;
+            if (ImGui::Checkbox("Test", &some)) {
+                RAZIX_CORE_ERROR("Done!");
+            }
+        }
+        ImGui::End();
+
+        ImGui::Render();
+    
+
 #endif
-    }
+}
 
-    void RZApplication::Render()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+void RZApplication::Render()
+{
+    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        OnRender();
-    }
+    // We are not checking if the current is scene is null or not
+    Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-    void RZApplication::Quit()
-    {
-        albedoTexture->getDescriptorSet()->Destroy();
-        albedoTexture->Release(true);
+    Razix::RZEngine::Get().getRenderStack().OnRender();
 
-        // Client side quit customization
-        OnQuit();
+    Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-        Graphics::RZAPIRenderer::Release();
+    OnRender();
+}
 
-        RAZIX_CORE_ERROR("Closing Application!");
-    }
+void RZApplication::Quit()
+{
+    albedoTexture->getDescriptorSet()->Destroy();
+    albedoTexture->Release(true);
 
-    void RZApplication::SaveApp()
-    {
-        // Save the app data before closing
-        RAZIX_CORE_WARN("Saving project...");
-        std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
-        std::ofstream             opAppStream(projectFullPath);
-        cereal::JSONOutputArchive saveArchive(opAppStream);
-        saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
-    }
+    Razix::RZEngine::Get().getRenderStack().Destroy();
+
+    // Client side quit customization
+    OnQuit();
+
+    // Save the scene and the Application
+    RZEngine::Get().getSceneManager().saveAllScenes();
+    SaveApp();
+
+    Graphics::RZAPIRenderer::Release();
+
+    RAZIX_CORE_ERROR("Closing Application!");
+}
+
+void RZApplication::SaveApp()
+{
+    // Save the app data before closing
+    RAZIX_CORE_WARN("Saving project...");
+    std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+    std::ofstream             opAppStream(projectFullPath);
+    cereal::JSONOutputArchive saveArchive(opAppStream);
+    saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
+}
 }    // namespace Razix

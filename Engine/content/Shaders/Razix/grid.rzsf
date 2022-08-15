@@ -12,6 +12,6 @@
 
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/default.frag.spv
+        #include Compiled/SPIRV/grid.frag.spv
     #endif
 #end

@@ -8,5 +8,10 @@
         <file>new_project.png</file>
         <file>open_project.png</file>
         <file>save_project.png</file>
+        <file>branch-closed.png</file>
+        <file>branch-end.png</file>
+        <file>branch-more.png</file>
+        <file>branch-open.png</file>
+        <file>vline.png</file>
     </qresource>
 </RCC>

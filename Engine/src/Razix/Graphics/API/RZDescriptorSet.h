@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include <map>
+
 namespace Razix {
     namespace Graphics {
 
