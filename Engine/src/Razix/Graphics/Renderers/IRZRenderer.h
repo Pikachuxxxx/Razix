@@ -48,6 +48,10 @@ namespace Razix {
              */
             virtual void Init() = 0;
             /**
+             * uUsed to init disposable resources like render passes, fbos, etc.
+             */
+            virtual void InitDisposableResources() = 0;
+            /**
              * Begins the Renderer, sets up Engine/Render system variables/data and prepares the GPU and bindable resources
              * along with render passes, pipelines, descriptors, root signatures and everything the GPU needs to render
              */
@@ -101,6 +105,8 @@ namespace Razix {
             // TODO: Use a vector to hold many shaders to support multiple render passes + multi-layered materials in future???
             RZSceneCamera*                          m_Camera;
             RZShader*                               m_Shader;
+            RZUniformBuffer*                        m_ViewProjectionSystemUBO = nullptr;
+            ViewProjectionSystemUBOData             m_ViewProjSystemUBOData;
             RZRenderPass*                           m_RenderPass;
             RZPipeline*                             m_Pipeline;
             uint32_t                                m_ScreenBufferWidth  = 0;
@@ -108,12 +114,11 @@ namespace Razix {
             RZTexture*                              m_RenderTexture      = nullptr;
             RZTexture*                              m_DepthTexture       = nullptr;
             uint32_t                                m_PriorityIndex      = 0;
-            uint32_t                                _padding;
+            bool                                    m_OffScreenRender    = false;
+            uint8_t                                 _padding[3];
             std::vector<RZFramebuffer*>             m_Framebuffers;
             std::vector<Graphics::RZDescriptorSet*> m_DescriptorSets;
             std::string                             m_RendererName;
-            bool                                    m_OffScreenRender = false;
-            uint8_t                                 _padding_2[7];
         };
     }    // namespace Graphics
 }    // namespace Razix
