@@ -31,14 +31,14 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Input management
-            //if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
-            //    processKeyboard(FORWARD, deltaTime);
-            //else if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
-            //    processKeyboard(BACKWARD, deltaTime);
-            //if (RZInput::IsKeyHeld(KeyCode::Key::Right) || RZInput::IsKeyHeld(KeyCode::Key::D))
-            //    processKeyboard(RIGHT, deltaTime);
-            //else if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
-            //    processKeyboard(LEFT, deltaTime);
+            if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
+                processKeyboard(FORWARD, deltaTime);
+            else if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
+                processKeyboard(BACKWARD, deltaTime);
+            if (RZInput::IsKeyHeld(KeyCode::Key::Right) || RZInput::IsKeyHeld(KeyCode::Key::D))
+                processKeyboard(RIGHT, deltaTime);
+            else if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
+                processKeyboard(LEFT, deltaTime);
 
             auto mX = RZInput::GetMouseX();
             auto mY = RZInput::GetMouseY();

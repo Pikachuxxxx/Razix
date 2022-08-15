@@ -42,7 +42,7 @@ static const int ButtonBorder = 2;
 static const int HighlightBorder = 4;
 
 static const int CheckWidth = 16;
-static const int CheckHeight = 32;
+static const int CheckHeight = 16;
 static const int CheckMargin = 3;
 
 static const int GroupHMargin = 16;

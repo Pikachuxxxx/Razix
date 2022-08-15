@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/Renderers/IRZRenderer.h"
+
 #include <glm/glm.hpp>
 
 namespace Razix {
@@ -25,7 +27,7 @@ namespace Razix {
          * Note: Used GLFW for events, once engine wide common Input-platform system is done we can use that to redirect events to ImGui controls 
          * such as for consoles etc.
          */
-        class RAZIX_API RZImGuiRenderer : public RZRoot
+        class RAZIX_API RZImGuiRenderer : public RZRoot, public IRZRenderer
         {
         public:
             struct PushConstBlock
@@ -42,22 +44,36 @@ namespace Razix {
             };
 
             PushConstBlock pushConstBlock;
-        
+
+            void Init() override;
+
+            void InitDisposableResources() override;
+
+            void Begin() override;
+
+            void BeginScene(RZScene* scene) override {}
+
+            void Submit(RZCommandBuffer* cmdBuf) override;
+
+            void EndScene(RZScene* scene) override { }
+
+            void End() override;
+
+            void Present() override;
+
+            void Resize(uint32_t width, uint32_t height) override;
+
+            void Destroy() override;
+
+            void OnEvent(RZEvent& event) override;
+
         public:
             RZImGuiRenderer() {}
-            ~RZImGuiRenderer(){};
-
-            void init();
-            void createPipeline(RZRenderPass& renderpass);
-            bool update(const RZTimestep& dt);
-            void draw(RZCommandBuffer* cmdBuffer);
-            void destroy();
+            ~RZImGuiRenderer(){}
 
         private:
-            RZShader*        m_UIShader; /* The ImGui shader that is used by ImGui to render the UI elements */
             RZTexture2D*     m_FontAtlasTexture;
             RZDescriptorSet* m_FontAtlasDescriptorSet;
-            RZPipeline*      m_ImGuiPipeline;
 
             RZVertexBuffer* m_ImGuiVBO = nullptr;
             RZIndexBuffer*  m_ImGuiIBO = nullptr;

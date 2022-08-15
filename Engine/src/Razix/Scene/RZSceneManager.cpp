@@ -4,8 +4,13 @@
 #include "RZSceneManager.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZSplashScreen.h"
+
+#include "Razix/Scene/Components/CameraComponent.h"
+#include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
+
 #include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix {
@@ -61,6 +66,20 @@ namespace Razix {
     void RZSceneManager::loadScene(uint32_t index)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
+        if (m_LoadedSceneFilePaths.size() == 0) {
+            // Create a default scene
+            RZScene* defaultScene = new RZScene("default Scene");
+            enqueScene(defaultScene);
+            loadSceneSettings();
+            // Add a camera and a cube just like Blender (+ a sun light when it's available)
+            RZEntity& camera = m_CurrentScene->createEntity("Camera");
+            camera.AddComponent<CameraComponent>();
+            if (camera.HasComponent<CameraComponent>()) {
+                CameraComponent& cc = camera.GetComponent<CameraComponent>();
+                cc.Camera.setViewportSize(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+            }
+        }
 
         m_QueuedSceneIndexToLoad = index;
         m_IsSwitchingScenes      = true;

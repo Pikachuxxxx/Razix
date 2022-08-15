@@ -1,4 +1,4 @@
-#if 1
+#if 0
     #include <Razix.h>
 
 using namespace Razix;
@@ -46,6 +46,8 @@ public:
         RAZIX_CORE_INFO("Initializing Graphics Context...");
         Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
+
+        Razix::RZApplication::Get().Init();
     }
 
     ~SceneManagerTestApp() {}
@@ -410,9 +412,9 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     RAZIX_INFO("Creating Razix Sandbox Application");
     return new SceneManagerTestApp();
 }
-#endif
 
 void main(int argc, char** argv)
 {
     EngineMain(argc, argv);
 }
+#endif

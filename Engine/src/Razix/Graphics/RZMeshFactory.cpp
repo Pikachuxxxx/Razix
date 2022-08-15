@@ -6,7 +6,11 @@
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
 
+#include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+
+#include "Razix/Graphics/Materials/RZMaterial.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -20,7 +24,7 @@ namespace Razix {
                     case MeshPrimitive::Plane:
                         return CreatePlane();
                         break;
-                    case MeshPrimitive::Quad:
+                    case MeshPrimitive::ScreenQuad:
                         RAZIX_UNIMPLEMENTED_METHOD
                         break;
                     case MeshPrimitive::Cube:
@@ -44,9 +48,48 @@ namespace Razix {
                 return nullptr;
             }
 
-            RZMesh* CreateQuad()
+            RZMesh* CreatePlane(float width, float height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
             {
-                return nullptr;
+                RZVertex* data = new RZVertex[4];
+
+                glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
+
+                data[0].Position  = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
+                data[0].Color     = color;
+                data[0].TexCoords = glm::vec2(0.0f, 0.0f);
+                data[0].Normal    = normal;
+
+                data[1].Position  = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
+                data[1].Color     = color;
+                data[1].TexCoords = glm::vec2(0.0f, 1.0f);
+                data[1].Normal    = normal;
+
+                data[2].Position  = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
+                data[2].Color     = color;
+                data[2].TexCoords = glm::vec2(1.0f, 1.0f);
+                data[2].Normal    = normal;
+
+                data[3].Position  = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
+                data[3].Color     = color;
+                data[3].TexCoords = glm::vec2(1.0f, 0.0f);
+                data[3].Normal    = normal;
+
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec3>("Position");
+                layout.push<glm::vec4>("Color");
+                layout.push<glm::vec2>("TexCoords");
+                layout.push<glm::vec3>("Normal");
+                layout.push<glm::vec3>("Tangent");
+                vb->AddBufferLayout(layout);
+                delete[] data;
+
+                uint16_t indices[6]{
+                    0, 1, 2, 2, 3, 0};
+
+                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6, "Plane");
+
+                return new RZMesh(vb, ib, 4, 6);
             }
 
             RZMesh* CreateCube()
@@ -242,43 +285,6 @@ namespace Razix {
                 RZIndexBuffer* ib = RZIndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()), "Sphere");
 
                 return new RZMesh(vb, ib, data.size(), indices.size());
-            }
-
-            RZMesh* CreatePlane(float width, float height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
-            {
-                RZVertex* data = new RZVertex[4];
-
-                glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
-
-                data[0].Position  = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
-                data[0].Color     = color;
-                data[0].TexCoords = glm::vec2(0.0f, 0.0f);
-                data[0].Normal    = normal;
-
-                data[1].Position  = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
-                data[1].Color     = color;
-                data[1].TexCoords = glm::vec2(0.0f, 1.0f);
-                data[1].Normal    = normal;
-
-                data[2].Position  = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
-                data[2].Color     = color;
-                data[2].TexCoords = glm::vec2(1.0f, 1.0f);
-                data[2].Normal    = normal;
-
-                data[3].Position  = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
-                data[3].Color     = color;
-                data[3].TexCoords = glm::vec2(1.0f, 0.0f);
-                data[3].Normal    = normal;
-
-                RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
-                delete[] data;
-
-                uint16_t indices[6]{
-                    0, 1, 2, 2, 3, 0};
-
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6, "Plane");
-
-                return new RZMesh(vb, ib, 4, 6);
             }
 
             RZMesh* CreateScreenQuad()

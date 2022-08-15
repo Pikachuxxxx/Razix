@@ -16,8 +16,6 @@
 
 #include "Razix/Graphics/API/RZSwapchain.h"
 
-#include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
-
 // glm
 //#include <glm/glm.hpp>
 
@@ -25,6 +23,9 @@
 #pragma warning(push, 0)
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
+
+// TODO: TESTING REMOVE THIS!!!!
+#include "Razix/Graphics/Renderers/RZGridRenderer.h"
 
 //! Some style guide rules are waved off for RZApplication class
 
@@ -67,6 +68,7 @@ namespace Razix {
         /* Simple Virtual destructor */
         virtual ~RZApplication() {}
 
+        // TODO: Have 2 inits ==> Static and Runtime
         /* Initializes the application and other runtime systems */
         void RAZIX_CALL Init();
 
@@ -116,12 +118,12 @@ namespace Razix {
         inline glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
         /* Returns a reference to the Application instance */
         inline std::string RAZIX_CALL getAppName() const { return m_AppName; }
+        /* Gets the razixproject file path */
+        inline std::string getAppFilePath() const { return m_AppFilePath; }
         /* Gets the window properties */
         inline WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
         /* Gets the application render loop timer */
         inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
-
-        Graphics::RZImGuiRenderer* getImGuiRenderer() { return m_ImGuiRenderer; }
 
         void setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
 
@@ -214,7 +216,6 @@ namespace Razix {
         WindowProperties           m_WindowProperties;                 /* The properties of the window to create with              */
         RZUUID                     m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
         std::vector<std::string>   sceneFilePaths;
-        Graphics::RZImGuiRenderer* m_ImGuiRenderer = nullptr;
         Graphics::RZTexture2D*     albedoTexture;
 
     private:
@@ -259,7 +260,6 @@ namespace Razix {
         virtual bool OnMouseMoved(RZMouseMovedEvent& e);
         virtual bool OnMouseButtonPressed(RZMouseButtonPressedEvent& e);
         virtual bool OnMouseButtonReleased(RZMouseButtonReleasedEvent& e);
-
 
         RAZIX_NONCOPYABLE_CLASS(RZApplication);
     };

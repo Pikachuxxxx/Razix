@@ -8,15 +8,15 @@
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
 
-
 //------------------------------------------------------------------------------
 // Vertex Input
+// Since we use a plane primitive mesh for the Grid we need the same vertex layout as that of a mesh vertex shader
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inTexCoord;
-//------------------------------------------------------------------------------
+//-----------------------------------
 // Uniforms and Push Constants
 // The view projection matrix
-layout(set = 0, binding = 0) uniform ViewProjectionUniformBufferObject
+layout(set = 0, binding = 0) uniform ViewProjectionUBOData
 {
     mat4 view;
 	mat4 proj;

@@ -22,7 +22,7 @@ layout(set = 0, binding = 1) uniform GridUniform
 	vec3	CameraPos;
 	float _padding;
 	float	Scale;
-	float	Res;
+	float	Resolution;
 	float	MaxDistance;
 	float _padding2;
 }grid_ubo;
@@ -42,7 +42,7 @@ vec4 Grid(float divisions)
 
 	vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
 	float line = min(grid.x, grid.y);
-	float lineResult = grid_ubo.Res - min(line, grid_ubo.Res);
+	float lineResult = grid_ubo.Resolution - min(line, grid_ubo.Resolution);
 	vec3 colour = vec3(0.3, 0.3, 0.3);
 
 	return vec4(vec3(lineResult) * colour, 0.1 * lineResult);
@@ -61,6 +61,6 @@ void main()
 	outFragColor = Grid(divs) + Grid(divs / subdivisions);
 	outFragColor.a *= clamp((decreaseDistance - distanceToCamera) / decreaseDistance, 0.0f, 1.0f);
 
-	//outFragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	//outFragColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
 }
 //------------------------------------------------------------------------------

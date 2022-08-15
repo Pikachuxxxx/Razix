@@ -24,7 +24,7 @@ namespace Razix {
 
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_BLEND);
-
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             //if (m_PipelineInfo.depthBiasEnabled)
             //    glEnable(GL_DEPTH_TEST);
             //else

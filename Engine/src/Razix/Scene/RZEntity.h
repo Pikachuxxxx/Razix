@@ -10,7 +10,7 @@ namespace Razix {
     class RZScene;
 
     /* An entity represents the basic building block of a scene, they are the objects the exist in the game world */
-    class RAZIX_API RZEntity : public RZRoot
+    class RAZIX_API RZEntity
     {
     public:
         RZEntity() = default;
