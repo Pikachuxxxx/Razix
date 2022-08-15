@@ -324,6 +324,7 @@ namespace Razix {
             halt_execution.notify_one();
         }
 
+        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if no primary camera don't render!!!!
         // Update the renderer stuff here
         RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
@@ -384,12 +385,12 @@ namespace Razix {
 
         gridRenderer->End();
 
-        // IDK might make sense to have it here before presentation, this way it will retrieve the scene variables
+        gridRenderer->Present();
+
+        // IDK might make sense to have it here before ending the scene, this way it will retrieve the scene variables
         OnRender();
 
         gridRenderer->EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
-
-        gridRenderer->Present();
     }
 
     void RZApplication::Quit()

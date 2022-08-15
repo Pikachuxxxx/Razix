@@ -95,6 +95,8 @@ namespace Razix {
             /* ImGui render settings/Info of the renderer for debug builds */
             virtual void OnImGui() {}
 
+            void setRenderPriorityIndex(uint32_t idx) { m_PriorityIndex = idx; }
+
         protected:
             // TODO: Use a vector to hold many shaders to support multiple render passes + multi-layered materials in future???
             RZSceneCamera*                          m_Camera;
