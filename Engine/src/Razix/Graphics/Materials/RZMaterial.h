@@ -5,6 +5,16 @@
 namespace Razix {
     namespace Graphics {
 
+        /**
+         * All the sets at index 0 is for View Projection UBO (no samplers)
+         * Set index 1 is for Lighting Buffers only (no textures)
+         * Set index 2 is for Material buffer data + Textures (How do we fit sampler and fill the data it's a bit of messy for now)
+         * other sets will be allocated for GI, Decals etc up to 32/16
+         */
+#define SYSTEM_SET_INDEX_VIEW_PROJ_DATA 0
+#define SYSTEM_SET_INDEX_LIGHTING_DATA  1
+#define SYSTEM_SET_INDEX_MATERIAL_DATA  2
+
         class RZShader;
         class RZTexture2D;
         class RZUniformBuffer;
@@ -20,16 +30,16 @@ namespace Razix {
 
         struct RZMaterialProperties
         {
-            glm::vec4 albedoColor        = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 roughnessColor     = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 metallicColor      = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 emissiveColor      = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            bool      isUsingAlbedoMap    = true;
-            bool      isUsingMetallicMap  = true;
-            bool      isUsingRoughnessMap = true;
-            bool      isUsingNormalMap    = true;
-            bool      isUsingAOMap        = true;
-            bool      isUsingEmissiveMap  = true;
+            glm::vec4 albedoColor         = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 roughnessColor      = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 metallicColor       = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 emissiveColor       = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            bool      isUsingAlbedoMap    = false;
+            bool      isUsingNormalMap    = false;
+            bool      isUsingMetallicMap  = false;
+            bool      isUsingRoughnessMap = false;
+            bool      isUsingAOMap        = false;
+            bool      isUsingEmissiveMap  = false;
             uint16_t  _padding_bool       = 0;
             float     _padding            = 0.0f;
             WorkFlow  workflow            = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
@@ -46,20 +56,20 @@ namespace Razix {
         };
 
         /* Not an interface yet, this is a hard coded PBR material as of this iteration of the engine */
-        class RAZIX_API RZPBRMaterial
+        class RAZIX_API RZMaterial
         {
         public:
-            RZPBRMaterial() {}
-            virtual ~RZPBRMaterial() {}
+            /* Crates the material with the given shader and it's properties */
+            RZMaterial(RZShader* shader, RZMaterialProperties matProps = RZMaterialProperties(), PBRMataterialTextures textures = PBRMataterialTextures());
+            virtual ~RZMaterial() {}
 
             static void InitDefaultTexture();
             static void ReleaseDefaultTexture();
 
-            /* Crates the material with the given shader and it's properties */
-            void create(RZShader* shader, RZMaterialProperties matProps = RZMaterialProperties(), PBRMataterialTextures textures = PBRMataterialTextures());
             /* Overrides the default material properties and textures by loading the material file and de-serializing it */
             void loadMaterial(const std::string& name, const std::string& path);
             void loadShader(const std::string& path);
+            void createDescriptorSet();
 
             void Bind();
 
@@ -146,11 +156,11 @@ namespace Razix {
             RZShader*             m_Shader;
             PBRMataterialTextures m_PBRMaterialTextures;
             RZMaterialProperties  m_MaterialProperties;
-            RZUniformBuffer*      m_MaterialPropertiesBuffer;
+            RZUniformBuffer*      m_MaterialPropertiesUBO;
             RZDescriptorSet*      m_DescriptorSet;
-            uint32_t              m_MaterialBufferSize;
-            uint8_t*              m_MaterialBufferData;
-            std::string           m_Name;
+            //uint32_t              m_MaterialBufferSize;
+            //uint8_t*              m_MaterialBufferData;
+            std::string m_Name;
         };
 
     }    // namespace Graphics
