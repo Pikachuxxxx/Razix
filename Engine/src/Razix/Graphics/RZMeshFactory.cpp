@@ -6,7 +6,11 @@
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
 
+#include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+
+#include "Razix/Graphics/Materials/RZMaterial.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -70,7 +74,7 @@ namespace Razix {
                 data[3].TexCoords = glm::vec2(1.0f, 0.0f);
                 data[3].Normal    = normal;
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec3>("Position");
                 layout.push<glm::vec4>("Color");

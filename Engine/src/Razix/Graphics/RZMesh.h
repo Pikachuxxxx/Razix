@@ -1,14 +1,15 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
-
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
 namespace Razix {
     namespace Graphics {
+
+        class RZMaterial;
+        class RZVertexBuffer;
+        class RZIndexBuffer;
 
         /**
          * Simple vertex encapsulates the minimum amount of data needed for rendering a simple mesh
@@ -76,6 +77,9 @@ namespace Razix {
             RAZIX_INLINE const std::string& getName() const { return m_Name; }
             RAZIX_INLINE void               setName(const std::string& name) { m_Name = name; }
 
+            RAZIX_INLINE RZMaterial* getMaterial() { return m_Material; }
+            RAZIX_INLINE void        setMaterial(RZMaterial* mat) { m_Material = mat; }
+
             RAZIX_INLINE RZVertexBuffer* getVertexBuffer() { return m_VertexBuffer; }
             RAZIX_INLINE RZIndexBuffer* getIndexBuffer() { return m_IndexBuffer; }
             RAZIX_FORCE_INLINE uint32_t getVerticesCount() const { return m_VertexCount; }
@@ -85,11 +89,12 @@ namespace Razix {
             void setVertexCount(uint32_t count) { m_VertexCount = count; }
 
         private:
-            std::string           m_Name;         /* The name of the mesh                                 */
-            std::vector<RZVertex> m_Vertices;     /* The vertex data with which the mesh is made of       */
-            std::vector<uint16_t> m_Indices;      /* The indices with which the mesh will be attached     */
-            RZVertexBuffer*       m_VertexBuffer; /* The Vertex Buffer that will be uploaded to the GPU   */
-            RZIndexBuffer*        m_IndexBuffer;  /* The Index Buffer that will be uploaded to the GPU    */
+            std::string           m_Name;         /* The name of the mesh                                   */
+            RZMaterial*           m_Material;     /* The material with which the mesh will be rendered with */
+            std::vector<RZVertex> m_Vertices;     /* The vertex data with which the mesh is made of         */
+            std::vector<uint16_t> m_Indices;      /* The indices with which the mesh will be attached       */
+            RZVertexBuffer*       m_VertexBuffer; /* The Vertex Buffer that will be uploaded to the GPU     */
+            RZIndexBuffer*        m_IndexBuffer;  /* The Index Buffer that will be uploaded to the GPU      */
             uint32_t              m_IndexCount;
             uint32_t              m_VertexCount;
         };
