@@ -25,6 +25,8 @@ namespace Razix {
             void OnRender();
             void OnResize(uint32_t width, uint32_t height);
 
+            void Destroy();
+
             void enableDebugRenderer(bool enable);
             void sortRenderers();
 

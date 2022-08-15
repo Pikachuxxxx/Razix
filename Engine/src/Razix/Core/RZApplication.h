@@ -16,8 +16,6 @@
 
 #include "Razix/Graphics/API/RZSwapchain.h"
 
-#include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
-
 // glm
 //#include <glm/glm.hpp>
 
@@ -127,8 +125,6 @@ namespace Razix {
         /* Gets the application render loop timer */
         inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
 
-        Graphics::RZImGuiRenderer* getImGuiRenderer() { return m_ImGuiRenderer; }
-
         void setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
 
         void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
@@ -220,11 +216,7 @@ namespace Razix {
         WindowProperties           m_WindowProperties;                 /* The properties of the window to create with              */
         RZUUID                     m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
         std::vector<std::string>   sceneFilePaths;
-        Graphics::RZImGuiRenderer* m_ImGuiRenderer = nullptr;
         Graphics::RZTexture2D*     albedoTexture;
-
-        // TODO: TESTING REMOVE THIS!!!!
-        Graphics::RZGridRenderer* gridRenderer = nullptr;
 
     private:
         /**

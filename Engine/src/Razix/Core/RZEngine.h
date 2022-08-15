@@ -9,6 +9,7 @@
 #include "Razix/Scene/RZSceneManager.h"
 
 #include "Razix/Scripting/RZLuaScriptHandler.h"
+#include "Razix/Graphics/Renderers/RZRenderStack.h"
 
 //! Some style guide rules are waved off for RZEngine class
 namespace Razix
@@ -37,6 +38,7 @@ namespace Razix
         RZVirtualFileSystem           m_VirtualFileSystem;      /* The Virtual File Engine System for managing files								*/
         RZSceneManager                m_SceneManagerSystem;     /* Scene Manager Engine System for managing scenes in game world					*/
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
+        Graphics::RZRenderStack       m_RenderStack;
 
     public:
         /* Starts up the Engine and it's sub-systems */
@@ -80,6 +82,7 @@ namespace Razix
         // TODO: Use a template method to get the systems automatically, hence use a system registration design with IRZSystem as parent
         RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
         Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
+        Graphics::RZRenderStack&       getRenderStack() { return m_RenderStack; }
 
     private:
         Stats m_Stats;                                /* Current frame basic statistics	                                */
