@@ -76,6 +76,10 @@ namespace Razix {
              * Handles resizing the renderer
              */
             virtual void Resize(uint32_t width, uint32_t height) = 0;
+            /**
+             * Destroy all the renderer resources
+             */
+            virtual void Destroy() = 0;
 
             // TODO: Other Utility Methods :: Yes to be designed after implementing Materials and Scene Culling
             //virtual void SubmitMesh();
