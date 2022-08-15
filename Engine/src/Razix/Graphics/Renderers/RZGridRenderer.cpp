@@ -189,6 +189,30 @@ namespace Razix {
             InitDisposableResources();
         }
 
+        void RZGridRenderer::Destroy()
+        {
+            // Destroy the resources first
+            m_DepthTexture->Release(true);
+
+            m_Shader->Destroy();
+
+            m_ViewProjectionSystemUBO->Destroy();
+            m_GridUBO->Destroy();
+
+            gridVBO->Destroy();
+            gridIBO->Destroy();
+
+            for (auto set: m_DescriptorSets)
+                set->Destroy();
+
+            for (auto frameBuf: m_Framebuffers)
+                frameBuf->Destroy();
+
+            m_RenderPass->Destroy();
+
+            m_Pipeline->Destroy();
+        }
+
         void RZGridRenderer::OnEvent(RZEvent& event)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

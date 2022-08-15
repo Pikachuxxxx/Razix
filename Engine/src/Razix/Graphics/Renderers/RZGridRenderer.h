@@ -48,6 +48,8 @@ namespace Razix {
 
             void Resize(uint32_t width, uint32_t height) override;
 
+             void Destroy() override;
+
             void OnEvent(RZEvent& event) override;
 
         private:

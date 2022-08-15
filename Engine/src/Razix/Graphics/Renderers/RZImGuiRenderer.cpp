@@ -112,13 +112,26 @@ namespace Razix {
             //m_ImGuiIBO->Destroy();
         }
 
-        void RZImGuiRenderer::createPipeline(RZRenderPass& renderpass)
+        void RZImGuiRenderer::createPipeline()
         {
+            // Create the renderpass
+            Graphics::AttachmentInfo textureTypes[2] = {
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN},
+                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
+
+            Graphics::RenderPassInfo renderPassInfo{};
+            renderPassInfo.attachmentCount = 2;
+            renderPassInfo.textureType     = textureTypes;
+            renderPassInfo.name            = "ImGui UI pass";
+            renderPassInfo.clear           = false;
+
+            m_ImGuiRenderpass = Graphics::RZRenderPass::Create(renderPassInfo);
+
             // Create the graphics pipeline
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.renderpass          = &renderpass;
+            pipelineInfo.renderpass          = m_ImGuiRenderpass;
             pipelineInfo.shader              = m_UIShader;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
@@ -329,6 +342,7 @@ namespace Razix {
             m_ImGuiVBO->Destroy();
             m_ImGuiIBO->Destroy();
             m_ImGuiPipeline->Destroy();
+            m_ImGuiRenderpass->Destroy();
         }
 
         void RZImGuiRenderer::uploadUIFont(const std::string& fontPath)

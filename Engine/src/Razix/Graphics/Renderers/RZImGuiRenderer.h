@@ -48,7 +48,7 @@ namespace Razix {
             ~RZImGuiRenderer(){};
 
             void init();
-            void createPipeline(RZRenderPass& renderpass);
+            void createPipeline();
             bool update(const RZTimestep& dt);
             void draw(RZCommandBuffer* cmdBuffer);
             void destroy();
@@ -58,6 +58,7 @@ namespace Razix {
             RZTexture2D*     m_FontAtlasTexture;
             RZDescriptorSet* m_FontAtlasDescriptorSet;
             RZPipeline*      m_ImGuiPipeline;
+            RZRenderPass*    m_ImGuiRenderpass;
 
             RZVertexBuffer* m_ImGuiVBO = nullptr;
             RZIndexBuffer*  m_ImGuiIBO = nullptr;

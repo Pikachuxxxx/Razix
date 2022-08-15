@@ -162,7 +162,7 @@ namespace Razix {
     bool RZApplication::OnWindowResize(RZWindowResizeEvent& e)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-         
+
         if (m_ImGuiRenderer != nullptr) {
             // Resize ImGui
             ImGuiIO& io                = ImGui::GetIO();
@@ -226,7 +226,9 @@ namespace Razix {
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
 
         // ImGui Renderer
-        //m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+        m_ImGuiRenderer = new Graphics::RZImGuiRenderer;
+        m_ImGuiRenderer->init();
+        m_ImGuiRenderer->createPipeline();
 
         Start();
 
@@ -324,6 +326,19 @@ namespace Razix {
 
         // Update the renderer stuff here
         RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
+
+        // Update ImGui
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+
+        // Run the OnUpdate for all the scripts
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+
+        // Client App Update
+        OnUpdate(dt);
+
 #if 0
         if (m_ImGuiRenderer != nullptr) {
             ImGuiIO& io = ImGui::GetIO();
@@ -350,14 +365,9 @@ namespace Razix {
             }
             ImGui::End();
 
-            // Run the OnUpdate for all the scripts
-            if (RZEngine::Get().getSceneManager().getCurrentScene())
-                RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
-
             ImGui::Render();
         }
 
-        OnUpdate(dt);
 #endif
     }
 
@@ -386,6 +396,9 @@ namespace Razix {
     {
         albedoTexture->getDescriptorSet()->Destroy();
         albedoTexture->Release(true);
+
+        gridRenderer->Destroy();
+        m_ImGuiRenderer->destroy();
 
         // Client side quit customization
         OnQuit();

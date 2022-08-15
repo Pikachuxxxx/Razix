@@ -34,40 +34,6 @@ using namespace Razix;
 class RazixEditorApp : public Razix::RZApplication
 {
 public:
-    struct ViewProjectionUniformBuffer
-    {
-        alignas(16) glm::mat4 view       = glm::mat4(1.0f);
-        alignas(16) glm::mat4 projection = glm::mat4(1.0f);
-
-    } viewProjUBOData;
-
-    struct DirectionalLightUniformBuffer
-    {
-        alignas(16) glm::vec3 position;
-
-        alignas(16) glm::vec3 ambient;
-        alignas(16) glm::vec3 diffuse;
-        alignas(16) glm::vec3 specular;
-
-        float     shininess;
-        glm::vec3 viewPos;
-        float     _padding;
-    } directional_light_data;
-
-    // The current active scene that is rendered by the application
-    Razix::RZScene*                                                              activeScene = nullptr;
-    Razix::Graphics::RZTexture2D*                                                albedoTexture;
-    Razix::Graphics::RZTexture2D*                                                roughness_metallicTexture;
-    Razix::Graphics::RZDepthTexture*                                             depthImage;
-    Razix::Graphics::RZUniformBuffer*                                            viewProjUniformBuffers[3];    // We also use 3 UBOs w.r.t to swap chain frames
-    Razix::Graphics::RZUniformBuffer*                                            dirLightUniformBuffers[3];    // We also use 3 UBOs w.r.t to swap chain frames
-    std::vector<Razix::Graphics::RZFramebuffer*>                                 framebuffers;
-    std::unordered_map<uint32_t, std::vector<Razix::Graphics::RZDescriptorSet*>> descriptorSets;
-    Razix::Graphics::RZShader*                                                   phongLightingShader;
-    Razix::Graphics::RZSwapchain*                                                swapchain;
-    Razix::Graphics::RZRenderPass*                                               renderpass;
-    Razix::Graphics::RZPipeline*                                                 pipeline;
-    uint32_t                                                                     width, height;
 
 public:
     // TODO: In future we will pass multiple native window handles (for multiple viewports, debug rendering, content viewers etc) for now only a single viewport is sufficient
