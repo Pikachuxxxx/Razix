@@ -158,13 +158,15 @@ namespace Razix {
 
             // End the render pass and recording
             m_RenderPass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+
+            Graphics::RZAPIRenderer::SubmitWork();
         }
 
         void RZGridRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+            //Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
         }
 
         void RZGridRenderer::Resize(uint32_t width, uint32_t height)

@@ -65,7 +65,7 @@ namespace Razix {
 
         bool RZEVulkanWindow::IsIsKeyHeldImpl(int keycode)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            return false;
         }
 
         bool RZEVulkanWindow::IsMouseButtonPressedImpl(int button)

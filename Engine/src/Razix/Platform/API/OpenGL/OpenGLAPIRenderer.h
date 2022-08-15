@@ -33,6 +33,9 @@ namespace Razix {
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets) override;
             void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) override;
 
+
+ void SubmitWorkImpl() override;
+
         private:
             OpenGLContext*       m_Context; /* Reference to the opengl context, we store it to avoid multiple calls */
         };

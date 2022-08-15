@@ -96,6 +96,9 @@ namespace Razix {
             ImTextureID set = m_FontAtlasDescriptorSet;
             atlas->SetTexID(set);
 
+            
+            InitDisposableResources();
+
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                 ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
             else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
@@ -109,8 +112,6 @@ namespace Razix {
             //m_ImGuiVBO->Destroy();
             m_ImGuiIBO = RZIndexBuffer::Create(nullptr, 10, "ImGui IBO");
             //m_ImGuiIBO->Destroy();
-
-            InitDisposableResources();
         }
 
         void RZImGuiRenderer::InitDisposableResources()

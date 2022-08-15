@@ -123,6 +123,11 @@ namespace Razix {
             glScissor(x, y, width, height);
         }
 
+        void OpenGLAPIRenderer::SubmitWorkImpl()
+        {
+            
+        }
+
         void OpenGLAPIRenderer::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

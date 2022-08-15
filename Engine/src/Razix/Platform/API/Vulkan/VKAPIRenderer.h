@@ -25,6 +25,7 @@ namespace Razix {
             void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) override;
             void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount = 1, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) override;
             void DestroyAPIImpl() override;
+            void SubmitWorkImpl() override;
 
             void OnResizeAPIImpl(uint32_t width, uint32_t height) override;
 

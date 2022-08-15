@@ -152,6 +152,14 @@ namespace Razix {
             vkDestroyDescriptorPool(VKDevice::Get().getDevice(), m_DescriptorPool, nullptr);
         }
 
+        void VKAPIRenderer::SubmitWorkImpl()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_Context->getSwapchain()->end();
+            m_Context->getSwapchain()->queueSubmit();
+        }
+
         void VKAPIRenderer::OnResizeAPIImpl(uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
