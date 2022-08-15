@@ -8,11 +8,14 @@
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 #include "Razix/Graphics/API/RZCommandBuffer.h"
+#include "Razix/Graphics/API/RZFramebuffer.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZRenderPass.h"
 #include "Razix/Graphics/API/RZShader.h"
+#include "Razix/Graphics/API/RZSwapchain.h"
+#include "Razix/Graphics/API/RZUniformBuffer.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 
 #include "Razix/Utilities/RZTimestep.h"
@@ -31,20 +34,16 @@
 namespace Razix {
     namespace Graphics {
 
-        //static glm::vec4 U32ColorToRGBA(uint32_t color)
-        //{
-        //    float CPa = float((color & 0xff000000UL) >> 24) / 255.0f;
-        //    float CPb = float((color & 0x00ff0000UL) >> 16) / 255.0f;
-        //    float CPg = float((color & 0x0000ff00UL) >> 8) / 255.0f;
-        //    float CPr = float((color & 0x000000ffUL)) / 255.0f;
-        //
-        //    return glm::vec4(CPr, CPg, CPb, CPa);
-        //}
-
-        void RZImGuiRenderer::init()
+        void RZImGuiRenderer::Init()
         {
+            m_RendererName = "ImGui Renderer";
+
+            // Init the width and height of RT
+            m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
+            m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
+
             // Load the ImGui shaders
-            m_UIShader = RZShader::Create("//RazixContent/Shaders/Razix/imgui.rzsf");
+            m_Shader = RZShader::Create("//RazixContent/Shaders/Razix/imgui.rzsf");
 
             // Configure ImGui
             // Setup Dear ImGui context
@@ -82,7 +81,7 @@ namespace Razix {
             uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto& setInfos = m_UIShader->getSetsCreateInfos();
+            auto& setInfos = m_Shader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
@@ -110,9 +109,11 @@ namespace Razix {
             //m_ImGuiVBO->Destroy();
             m_ImGuiIBO = RZIndexBuffer::Create(nullptr, 10, "ImGui IBO");
             //m_ImGuiIBO->Destroy();
+
+            InitDisposableResources();
         }
 
-        void RZImGuiRenderer::createPipeline()
+        void RZImGuiRenderer::InitDisposableResources()
         {
             // Create the renderpass
             Graphics::AttachmentInfo textureTypes[2] = {
@@ -123,21 +124,46 @@ namespace Razix {
             renderPassInfo.attachmentCount = 2;
             renderPassInfo.textureType     = textureTypes;
             renderPassInfo.name            = "ImGui UI pass";
-            renderPassInfo.clear           = false;
+            renderPassInfo.clear           = false;    // Always draw on top without clearing anything
 
-            m_ImGuiRenderpass = Graphics::RZRenderPass::Create(renderPassInfo);
+            m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
 
             // Create the graphics pipeline
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.renderpass          = m_ImGuiRenderpass;
-            pipelineInfo.shader              = m_UIShader;
+            pipelineInfo.renderpass          = m_RenderPass;
+            pipelineInfo.shader              = m_Shader;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
 
-            if (m_UIShader)
-                m_ImGuiPipeline = Graphics::RZPipeline::Create(pipelineInfo);
+            if (m_Shader)
+                m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
+
+            // Framebuffer (we need on per frame ==> 3 in total)
+            // Create the framebuffer
+            Graphics::RZTexture::Type attachmentTypes[2];
+            attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
+            attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
+
+            auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
+            m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
+
+            m_Framebuffers.clear();
+            for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
+                Graphics::RZTexture* attachments[2];
+                attachments[0] = Graphics::RZAPIRenderer::getSwapchain()->GetImage(i);
+                attachments[1] = m_DepthTexture;
+
+                Graphics::FramebufferInfo frameBufInfo{};
+                frameBufInfo.width           = m_ScreenBufferWidth;
+                frameBufInfo.height          = m_ScreenBufferHeight;
+                frameBufInfo.attachmentCount = 2;
+                frameBufInfo.renderPass      = m_RenderPass;
+                frameBufInfo.attachments     = attachments;
+
+                m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
+            }
 
             //layout.push<glm::vec2>("inPos");
             //layout.push<glm::vec2>("inUV");
@@ -160,24 +186,36 @@ namespace Razix {
             */
         }
 
-        bool RZImGuiRenderer::update(const RZTimestep& dt)
+        void RZImGuiRenderer::Begin()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
+            m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
+            m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
+
+            // Begin recording the command buffers
+            Graphics::RZAPIRenderer::Begin();
+
+            // Update the viewport
+            Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+
+            // Begin the render pass
+            m_RenderPass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
+
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
-                return true;
+                return;
 
             ImDrawData* imDrawData       = ImGui::GetDrawData();
             bool        updateCmdBuffers = false;
 
-            if (!imDrawData) { return false; };
+            if (!imDrawData) { return; };
 
             size_t vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
             size_t indexBufferSize  = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
 
             // Update buffers only if vertex or index count has been changed compared to current buffer size
             if ((vertexBufferSize == 0) || (indexBufferSize == 0))
-                return false;
+                return;
 
 #if 1
             /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
@@ -261,14 +299,11 @@ namespace Razix {
             m_ImGuiIBO.flush();
 
 #endif
-
-            return updateCmdBuffers;
+            //return updateCmdBuffers;
         }
 
-        void RZImGuiRenderer::draw(RZCommandBuffer* cmdBuffer)
+        void RZImGuiRenderer::Submit(RZCommandBuffer* cmdBuffer)
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
                 // Start the Dear ImGui frame
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -286,20 +321,20 @@ namespace Razix {
             ImGuiIO& io = ImGui::GetIO();
 
             // Bind the pipeline and descriptor sets
-            m_ImGuiPipeline->Bind(cmdBuffer);
+            m_Pipeline->Bind(cmdBuffer);
 
-            RZAPIRenderer::BindDescriptorSets(m_ImGuiPipeline, cmdBuffer, &m_FontAtlasDescriptorSet, 1);
+            RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuffer, &m_FontAtlasDescriptorSet, 1);
 
             // Update the push constants
             pushConstBlock.scale     = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
             pushConstBlock.translate = glm::vec2(-1.0f);
 
-            RZPushConstant& model = m_UIShader->getPushConstants()[0];
+            RZPushConstant& model = m_Shader->getPushConstants()[0];
 
             model.size = sizeof(PushConstBlock);
             model.data = &pushConstBlock;
 
-            RZAPIRenderer::BindPushConstant(m_ImGuiPipeline, cmdBuffer, model);
+            RZAPIRenderer::BindPushConstant(m_Pipeline, cmdBuffer, model);
 
             // Bind the vertex and index buffers
             m_ImGuiVBO->Bind(cmdBuffer);
@@ -311,7 +346,7 @@ namespace Razix {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
                     RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
-                    RZAPIRenderer::BindDescriptorSets(m_ImGuiPipeline, cmdBuffer, &set, 1);
+                    RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuffer, &set, 1);
                     // TODO: Fix this for Vulkan
                     VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
 
@@ -331,19 +366,72 @@ namespace Razix {
             }
         }
 
-        void RZImGuiRenderer::destroy()
+        void RZImGuiRenderer::End()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // End the render pass and recording
+            m_RenderPass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+        }
+
+        void RZImGuiRenderer::Present()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+        }
+
+        void RZImGuiRenderer::Resize(uint32_t width, uint32_t height)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_ScreenBufferWidth  = width;
+            m_ScreenBufferHeight = height;
+
+            if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+                return;
+
+            for (auto frameBuf: m_Framebuffers)
+                frameBuf->Destroy();
+
+            m_Pipeline->Destroy();
+            m_RenderPass->Destroy();
+
+            Graphics::RZAPIRenderer::OnResize(width, height);
+
+            InitDisposableResources();
+        }
+
+        void RZImGuiRenderer::Destroy()
         {
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
 
-            m_UIShader->Destroy();
+            for (auto frameBuf: m_Framebuffers)
+                frameBuf->Destroy();
+
+            m_Shader->Destroy();
             m_FontAtlasDescriptorSet->Destroy();
             m_FontAtlasTexture->Release(true);
             m_ImGuiVBO->Destroy();
             m_ImGuiIBO->Destroy();
-            m_ImGuiPipeline->Destroy();
-            m_ImGuiRenderpass->Destroy();
+            m_Pipeline->Destroy();
+            m_RenderPass->Destroy();
         }
+
+        void RZImGuiRenderer::OnEvent(RZEvent& event)
+        {
+        }
+
+        //static glm::vec4 U32ColorToRGBA(uint32_t color)
+        //{
+        //    float CPa = float((color & 0xff000000UL) >> 24) / 255.0f;
+        //    float CPb = float((color & 0x00ff0000UL) >> 16) / 255.0f;
+        //    float CPg = float((color & 0x0000ff00UL) >> 8) / 255.0f;
+        //    float CPr = float((color & 0x000000ffUL)) / 255.0f;
+        //
+        //    return glm::vec4(CPr, CPg, CPb, CPa);
+        //}
 
         void RZImGuiRenderer::uploadUIFont(const std::string& fontPath)
         {

@@ -7,6 +7,9 @@
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
 
+#include "Razix/Graphics/API/RZIndexBuffer.h" 
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/Materials/RZMaterial.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"

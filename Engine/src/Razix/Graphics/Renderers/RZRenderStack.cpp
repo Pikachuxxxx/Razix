@@ -12,11 +12,13 @@ namespace Razix {
 
         void RZRenderStack::PushRenderer(Graphics::IRZRenderer* renderer)
         {
+            renderer->Init();
             m_RenderersStack.push_back(renderer);
         }
 
         void RZRenderStack::PushRenderer(Graphics::IRZRenderer* renderer, int priorityIndex)
         {
+            renderer->Init();
             renderer->setRenderPriorityIndex(priorityIndex);
             m_RenderersStack.push_back(renderer);
         }
@@ -60,6 +62,12 @@ namespace Razix {
         {
             for (auto renderer: m_RenderersStack)
                 renderer->Resize(width, height);
+        }
+
+        void RZRenderStack::Destroy()
+        {
+            for (auto renderer: m_RenderersStack)
+                renderer->Destroy();
         }
 
         void RZRenderStack::enableDebugRenderer(bool enable)
