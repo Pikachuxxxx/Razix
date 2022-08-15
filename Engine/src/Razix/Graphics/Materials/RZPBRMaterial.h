@@ -20,10 +20,10 @@ namespace Razix {
 
         struct RZMaterialProperties
         {
-            glm::vec4 albedoColour        = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 roughnessColour     = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 metallicColour      = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 emissiveColour      = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            glm::vec4 albedoColor        = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 roughnessColor     = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 metallicColor      = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 emissiveColor      = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             bool      isUsingAlbedoMap    = true;
             bool      isUsingMetallicMap  = true;
             bool      isUsingRoughnessMap = true;
@@ -79,10 +79,10 @@ namespace Razix {
                     cereal::make_nvp("Roughness", m_PBRMaterialTextures.roughness ? m_PBRMaterialTextures.roughness->getPath() : ""),
                     cereal::make_nvp("Ao", m_PBRMaterialTextures.ao ? m_PBRMaterialTextures.ao->getPath() : ""),
                     cereal::make_nvp("Emissive", m_PBRMaterialTextures.emissive ? m_PBRMaterialTextures.emissive->getPath() : ""),
-                    cereal::make_nvp("albedoColour", m_MaterialProperties->albedoColour),
-                    cereal::make_nvp("roughnessColour", m_MaterialProperties->roughnessColour),
-                    cereal::make_nvp("metallicColour", m_MaterialProperties->metallicColour),
-                    cereal::make_nvp("emissiveColour", m_MaterialProperties->emissiveColour),
+                    cereal::make_nvp("albedoColor", m_MaterialProperties->albedoColor),
+                    cereal::make_nvp("roughnessColor", m_MaterialProperties->roughnessColor),
+                    cereal::make_nvp("metallicColor", m_MaterialProperties->metallicColor),
+                    cereal::make_nvp("emissiveColor", m_MaterialProperties->emissiveColor),
                     cereal::make_nvp("isUsingAlbedoMap", m_MaterialProperties->isUsingAlbedoMap),
                     cereal::make_nvp("isUsingMetallicMap", m_MaterialProperties->isUsingMetallicMap),
                     cereal::make_nvp("isUsingRoughnessMap", m_MaterialProperties->isUsingRoughnessMap),
@@ -110,10 +110,10 @@ namespace Razix {
                     cereal::make_nvp("Roughness", roughnessFilePath),
                     cereal::make_nvp("Ao", aoFilePath),
                     cereal::make_nvp("Emissive", emissiveFilePath),
-                    cereal::make_nvp("albedoColour", m_MaterialProperties->albedoColour),
-                    cereal::make_nvp("roughnessColour", m_MaterialProperties->roughnessColour),
-                    cereal::make_nvp("metallicColour", m_MaterialProperties->metallicColour),
-                    cereal::make_nvp("emissiveColour", m_MaterialProperties->emissiveColour),
+                    cereal::make_nvp("albedoColor", m_MaterialProperties->albedoColor),
+                    cereal::make_nvp("roughnessColor", m_MaterialProperties->roughnessColor),
+                    cereal::make_nvp("metallicColor", m_MaterialProperties->metallicColor),
+                    cereal::make_nvp("emissiveColor", m_MaterialProperties->emissiveColor),
                     cereal::make_nvp("isUsingAlbedoMap", m_MaterialProperties->isUsingAlbedoMap),
                     cereal::make_nvp("isUsingMetallicMap", m_MaterialProperties->isUsingMetallicMap),
                     cereal::make_nvp("isUsingRoughnessMap", m_MaterialProperties->isUsingRoughnessMap),

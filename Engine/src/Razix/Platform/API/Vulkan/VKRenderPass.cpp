@@ -201,7 +201,7 @@ namespace Razix {
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             } else {
-                attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_LOAD;
+                attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_LOAD; // Well don't discard stuff we render on top of what was presented previously
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                 attachment.initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
