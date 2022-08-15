@@ -81,9 +81,25 @@ namespace Razix {
             }
         }
 
+        void RZMaterial::setTextures(PBRMataterialTextures& textures)
+        {
+            m_PBRMaterialTextures.albedo    = textures.albedo;
+            m_PBRMaterialTextures.normal    = textures.normal;
+            m_PBRMaterialTextures.roughness = textures.roughness;
+            m_PBRMaterialTextures.metallic  = textures.metallic;
+            m_PBRMaterialTextures.ao        = textures.ao;
+            m_PBRMaterialTextures.emissive  = textures.emissive;
+
+            setTexturesUpdated(true);
+        }
+
         void RZMaterial::Bind()
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
+            if (m_DescriptorSet == nullptr || getTexturesUpdated()) {
+                createDescriptorSet();
+                setTexturesUpdated(false);
+            }
         }
 
     }    // namespace Graphics

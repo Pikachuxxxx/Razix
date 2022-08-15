@@ -98,8 +98,10 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         auto view = m_Registry.view<CameraComponent>();
-        for (auto& entity: view)
+        for (auto& entity: view) {
+            // check it it's primary and only then return only a single camera component
             return view.get<CameraComponent>(entity);
+        }
     }
 
     template<typename T>

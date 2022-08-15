@@ -34,6 +34,8 @@ namespace Razix {
 
             void Init() override;
 
+            void InitDisposableResources() override;
+
             void Begin() override;
 
             void BeginScene(RZScene* scene) override;
@@ -53,16 +55,12 @@ namespace Razix {
             void OnEvent(RZEvent& event) override;
 
         private:
-            RZUniformBuffer*            m_ViewProjectionSystemUBO = nullptr;
             RZUniformBuffer*            m_GridUBO                 = nullptr;
             uint8_t                     _padding[8];
-            ViewProjectionSystemUBOData m_ViewProjSystemUBOData;
             GridUBOData                 m_GridUBOData;
             Graphics::RZVertexBuffer*   gridVBO;
             Graphics::RZIndexBuffer*    gridIBO;
 
-        private:
-            void InitDisposableResources();
         };
     }    // namespace Graphics
 }    // namespace Razix

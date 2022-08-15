@@ -70,8 +70,14 @@ namespace Razix {
             void loadMaterial(const std::string& name, const std::string& path);
             void loadShader(const std::string& path);
             void createDescriptorSet();
+            void setTextures(PBRMataterialTextures& textures);
 
             void Bind();
+
+            RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }
+            RAZIX_INLINE void  setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
+
+            RAZIX_INLINE RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
 
             template<typename Archive>
             void save(Archive& archive) const
@@ -161,6 +167,7 @@ namespace Razix {
             //uint32_t              m_MaterialBufferSize;
             //uint8_t*              m_MaterialBufferData;
             std::string m_Name;
+            bool        m_TexturesUpdated;
         };
 
     }    // namespace Graphics
