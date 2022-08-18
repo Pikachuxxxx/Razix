@@ -341,7 +341,10 @@ namespace Razix {
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 
-        ImGui_ImplGlfw_NewFrame();
+        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
+        if (RZApplication::Get().getAppType() != AppType::GAME)
+            ImGui_ImplGlfw_NewFrame();
+
         ImGui::NewFrame();
 
         OnImGui();
@@ -359,51 +362,50 @@ namespace Razix {
         ImGui::End();
 
         ImGui::Render();
-    
 
 #endif
-}
+    }
 
-void RZApplication::Render()
-{
-    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+    void RZApplication::Render()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-    // We are not checking if the current is scene is null or not
-    Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        // We are not checking if the current is scene is null or not
+        Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-    Razix::RZEngine::Get().getRenderStack().OnRender();
+        Razix::RZEngine::Get().getRenderStack().OnRender();
 
-    Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-    OnRender();
-}
+        OnRender();
+    }
 
-void RZApplication::Quit()
-{
-    albedoTexture->getDescriptorSet()->Destroy();
-    albedoTexture->Release(true);
+    void RZApplication::Quit()
+    {
+        albedoTexture->getDescriptorSet()->Destroy();
+        albedoTexture->Release(true);
 
-    Razix::RZEngine::Get().getRenderStack().Destroy();
+        Razix::RZEngine::Get().getRenderStack().Destroy();
 
-    // Client side quit customization
-    OnQuit();
+        // Client side quit customization
+        OnQuit();
 
-    // Save the scene and the Application
-    RZEngine::Get().getSceneManager().saveAllScenes();
-    SaveApp();
+        // Save the scene and the Application
+        RZEngine::Get().getSceneManager().saveAllScenes();
+        SaveApp();
 
-    Graphics::RZAPIRenderer::Release();
+        Graphics::RZAPIRenderer::Release();
 
-    RAZIX_CORE_ERROR("Closing Application!");
-}
+        RAZIX_CORE_ERROR("Closing Application!");
+    }
 
-void RZApplication::SaveApp()
-{
-    // Save the app data before closing
-    RAZIX_CORE_WARN("Saving project...");
-    std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
-    std::ofstream             opAppStream(projectFullPath);
-    cereal::JSONOutputArchive saveArchive(opAppStream);
-    saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
-}
+    void RZApplication::SaveApp()
+    {
+        // Save the app data before closing
+        RAZIX_CORE_WARN("Saving project...");
+        std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+        std::ofstream             opAppStream(projectFullPath);
+        cereal::JSONOutputArchive saveArchive(opAppStream);
+        saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
+    }
 }    // namespace Razix
