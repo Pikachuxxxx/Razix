@@ -50,7 +50,7 @@ namespace Razix {
             for (auto renderer: m_RenderersStack) {
                 renderer->Begin();
 
-                renderer->Submit(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+                renderer->Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
 
                 renderer->End();
 

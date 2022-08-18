@@ -5,6 +5,7 @@
 
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDescriptorSet.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
@@ -61,23 +62,46 @@ namespace Razix {
             m_Context = VKContext::Get();
         }
 
-        void VKAPIRenderer::BeginAPIImpl()
+        void VKAPIRenderer::AcquireImageAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage();
-            // Begin recording to the command buffer
-            m_Context->getSwapchain()->begin();
         }
 
-        void VKAPIRenderer::PresentAPIImple(RZCommandBuffer* cmdBuffer)
+        void VKAPIRenderer::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Context->getSwapchain()->end();
-            m_Context->getSwapchain()->queueSubmit();
+            // Begin recording to the command buffer
+            m_CurrentCommandBuffer = cmdBuffer;
+            cmdBuffer->BeginRecording();
+        }
+
+        void VKAPIRenderer::SubmitImpl(RZCommandBuffer* cmdBuffer)
+        {
+            // End the command buffer recording
+            cmdBuffer->EndRecording();
+            // Stack up the recorded command buffers for execution
+            m_CommandQueue.push_back(cmdBuffer);
+        }
+
+        void VKAPIRenderer::SubmitWorkImpl()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_Context->getSwapchain()->queueSubmit(m_CommandQueue);
+        }
+
+        void VKAPIRenderer::PresentAPIImpl()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_Context->getSwapchain()->queueSubmit(m_CommandQueue);
             m_Context->getSwapchain()->present();
+
+            m_CommandQueue.clear();
         }
 
         void VKAPIRenderer::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
@@ -150,14 +174,6 @@ namespace Razix {
 
             // Destroy the descriptor pool
             vkDestroyDescriptorPool(VKDevice::Get().getDevice(), m_DescriptorPool, nullptr);
-        }
-
-        void VKAPIRenderer::SubmitWorkImpl()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            m_Context->getSwapchain()->end();
-            m_Context->getSwapchain()->queueSubmit();
         }
 
         void VKAPIRenderer::OnResizeAPIImpl(uint32_t width, uint32_t height)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <spirv_reflect.h>
-
 #include "Razix/Graphics/API/RZDescriptorSet.h"
 #include "Razix/Graphics/API/RZVertexBufferLayout.h"
 

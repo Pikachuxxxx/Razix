@@ -23,6 +23,8 @@ namespace Razix {
         class RZShader;
         class RZRenderPass;
 
+#define MAX_SWAPCHAIN_BUFFERS 3
+
         // TODO: Add the ViewProjection (+ maybe Light) as system UBOs and perform static Initialization for all the Renderers
         struct ViewProjectionSystemUBOData
         {
@@ -104,7 +106,8 @@ namespace Razix {
         protected:
             // TODO: Use a vector to hold many shaders to support multiple render passes + multi-layered materials in future???
             RZSceneCamera*                          m_Camera;
-            RZShader*                               m_Shader;
+            RZCommandBuffer*                        m_MainCommandBuffers[MAX_SWAPCHAIN_BUFFERS];
+            RZShader*                               m_OverrideGlobalRHIShader;
             RZUniformBuffer*                        m_ViewProjectionSystemUBO = nullptr;
             ViewProjectionSystemUBOData             m_ViewProjSystemUBOData;
             RZRenderPass*                           m_RenderPass;

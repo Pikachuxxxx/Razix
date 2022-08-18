@@ -10,10 +10,12 @@ namespace Razix {
     namespace Graphics {
 
         VKCommandBuffer::VKCommandBuffer()
-            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE), m_State(CommandBufferState::Idle)
+            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE)
 
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_State = CommandBufferState::Idle;
         }
 
         VKCommandBuffer::~VKCommandBuffer()
@@ -37,7 +39,7 @@ namespace Razix {
             VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
         }
 
-        void VKCommandBuffer::Init(bool primary /*= true*/, VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
+        void VKCommandBuffer::Init(VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
