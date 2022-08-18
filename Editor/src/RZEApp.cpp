@@ -206,7 +206,7 @@ int main(int argc, char** argv)
     vulkanWindowWidget->setWindowIcon(razixIcon);
     vulkanWindowWidget->setWindowTitle("Vulkan Window");
 
-    // Scene Hierarchy Panel
+    // Scene Hierarchy  
     mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
 
     // In order for event filter to work this is fookin important

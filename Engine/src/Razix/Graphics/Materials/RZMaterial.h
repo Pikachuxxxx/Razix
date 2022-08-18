@@ -40,9 +40,8 @@ namespace Razix {
             bool      isUsingRoughnessMap = false;
             bool      isUsingAOMap        = false;
             bool      isUsingEmissiveMap  = false;
-            uint16_t  _padding_bool       = 0;
-            float     _padding            = 0.0f;
-            WorkFlow  workflow            = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
+            bool      _padding_bool[6];
+            WorkFlow  workflow = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
         };
 
         struct PBRMataterialTextures

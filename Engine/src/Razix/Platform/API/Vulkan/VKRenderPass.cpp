@@ -203,7 +203,7 @@ namespace Razix {
             } else {
                 attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_LOAD; // Well don't discard stuff we render on top of what was presented previously
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachment.initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
             }
 
             attachment.samples        = VK_SAMPLE_COUNT_1_BIT;

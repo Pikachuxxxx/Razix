@@ -42,6 +42,7 @@ namespace Razix {
         void OpenGLAPIRenderer::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            m_CurrentCommandBuffer = cmdBuffer;
         }
 
         void OpenGLAPIRenderer::SubmitImpl(RZCommandBuffer* cmdBuffer)

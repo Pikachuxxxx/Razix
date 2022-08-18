@@ -108,6 +108,7 @@ namespace Razix {
             RZSceneCamera*                          m_Camera;
             RZCommandBuffer*                        m_MainCommandBuffers[MAX_SWAPCHAIN_BUFFERS];
             RZShader*                               m_OverrideGlobalRHIShader;
+            RZScene*                                m_CurrentScene;
             RZUniformBuffer*                        m_ViewProjectionSystemUBO = nullptr;
             ViewProjectionSystemUBOData             m_ViewProjSystemUBOData;
             RZRenderPass*                           m_RenderPass;
