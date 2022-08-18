@@ -17,8 +17,11 @@ namespace Razix {
 
         protected:
             void InitAPIImpl() override;
-            void BeginAPIImpl() override;
-            void PresentAPIImple(RZCommandBuffer* cmdBuffer) override;
+            void AcquireImageAPIImpl() override {}
+            void BeginAPIImpl(RZCommandBuffer* cmdBuffer) override;
+            void SubmitImpl(RZCommandBuffer* cmdBuffer) override;
+            void SubmitWorkImpl() override;
+            void PresentAPIImpl() override;
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) override;
             void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) override;
             void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount = 1, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) override;
@@ -33,11 +36,8 @@ namespace Razix {
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets) override;
             void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) override;
 
-
- void SubmitWorkImpl() override;
-
         private:
-            OpenGLContext*       m_Context; /* Reference to the opengl context, we store it to avoid multiple calls */
+            OpenGLContext* m_Context; /* Reference to the opengl context, we store it to avoid multiple calls */
         };
     }    // namespace Graphics
 }    // namespace Razix

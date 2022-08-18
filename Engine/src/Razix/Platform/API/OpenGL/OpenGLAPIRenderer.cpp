@@ -37,12 +37,20 @@ namespace Razix {
             m_Context = OpenGLContext::Get();
         }
 
-        void OpenGLAPIRenderer::BeginAPIImpl()
+        void OpenGLAPIRenderer::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }
 
-        void OpenGLAPIRenderer::PresentAPIImple(RZCommandBuffer* cmdBuffer)
+        void OpenGLAPIRenderer::SubmitImpl(RZCommandBuffer* cmdBuffer)
+        {
+        }
+
+        void OpenGLAPIRenderer::SubmitWorkImpl()
+        {
+        }
+
+        void OpenGLAPIRenderer::PresentAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -90,14 +98,12 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // Bind all the uniform, storage and samplers to the right binding slots here
             // Bind all the uniform, storage and samplers to the right binding slots here using the information from the descriptors
-
             // First bind the shader
             auto shader = static_cast<OpenGLPipeline*>(pipeline)->getShader();
             shader->Bind();
 
-            for (int i = 0; i < totalSets; i++) {
+            for (uint32_t i = 0; i < totalSets; i++) {
                 auto& set = descriptorSets[i];
                 for (auto& descriptor: static_cast<OpenGLDescriptorSet*>(set)->getDescriptors()) {
                     // Let's bind all the uniform buffers first
@@ -121,11 +127,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             glScissor(x, y, width, height);
-        }
-
-        void OpenGLAPIRenderer::SubmitWorkImpl()
-        {
-            
         }
 
         void OpenGLAPIRenderer::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)

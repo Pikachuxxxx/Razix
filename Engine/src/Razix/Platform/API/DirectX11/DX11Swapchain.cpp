@@ -42,12 +42,6 @@ namespace Razix {
             return NULL;
         }
 
-        RZCommandBuffer* DX11Swapchain::getCurrentCommandBuffer()
-        {
-            RAZIX_UNIMPLEMENTED_METHOD
-            return nullptr;
-        }
-
         uint32_t DX11Swapchain::getCurrentImageIndex()
         {
             RAZIX_UNIMPLEMENTED_METHOD

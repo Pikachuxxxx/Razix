@@ -152,7 +152,8 @@ project "Razix"
 
          -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
          -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
-        buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
+        -- Only works with GCC and Clang
+        --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
 
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"

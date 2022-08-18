@@ -52,22 +52,20 @@ namespace Razix {
             virtual RZTexture* GetCurrentImage() = 0;
             /* Gets the count of total number of images in the swapchain */
             virtual size_t GetSwapchainImageCount() = 0;
-            /* Gets the current command buffer being executed for rendering onto the swapchain */
-            virtual RZCommandBuffer* getCurrentCommandBuffer() = 0;
+            /* Gets the index of the current image that is ready for rendering */
+            virtual inline uint32_t getCurrentImageIndex() = 0;
 
             /* Gets the width of the swapchain */
             inline uint32_t getWidth() { return m_Width; }
             /* Gets the height of the swapchain */
             inline uint32_t getHeight() { return m_Height; }
-            /* Gets the index of the current image that is ready for rendering */
-            virtual inline uint32_t getCurrentImageIndex() = 0;
 
             virtual void* GetAPIHandle() = 0;
 
         protected:
-            uint32_t m_Width;                 /* The width of the swapchain extent */
-            uint32_t m_Height;                /* The height of the swapchain extent */
-            uint32_t m_CurrentImageIndex = 0; /* The current image that is ready for rendering  */
+            uint32_t         m_Width;                 /* The width of the swapchain extent */
+            uint32_t         m_Height;                /* The height of the swapchain extent */
+            uint32_t         m_CurrentImageIndex = 0; /* The current image that is ready for rendering  */
         };
 
     }    // namespace Graphics

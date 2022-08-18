@@ -3,6 +3,7 @@
 #include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZVertexBufferLayout.h"
 
+// TODO: Check spirv includes order in the razix codebase to get rid of SPV_REVISION redefinition warning
 #include <SPIRVCross/spirv_glsl.hpp>
 
 namespace Razix {

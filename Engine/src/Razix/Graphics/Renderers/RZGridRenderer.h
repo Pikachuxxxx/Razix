@@ -2,7 +2,6 @@
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
 
-
 namespace Razix {
     namespace Graphics {
 

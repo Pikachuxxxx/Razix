@@ -1,29 +1,28 @@
 #pragma once
 
 #include "Razix/Core/RZSmartPointers.h"
+
+#include "Razix/Graphics/API/RZAPIRenderer.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
-
-    #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
-    #include "Razix/Platform/API/Vulkan/VKCommandPool.h"
-    #include "Razix/Platform/API/Vulkan/VKFence.h"
 
     #include <vulkan/vulkan.h>
 
 namespace Razix {
     namespace Graphics {
 
+        // Forward declaration
+        class VKFence;
+
     #define MAX_SWAPCHAIN_BUFFERS 3
 
-        struct FrameData
+        struct FrameSyncData
         {
-            VkSemaphore presentSemaphore = VK_NULL_HANDLE, renderSemaphore = VK_NULL_HANDLE;
-
-            Ref<VKFence>         renderFence;
-            Ref<VKCommandPool>   commandPool;
-            Ref<VKCommandBuffer> mainCommandBuffer;
+            VkSemaphore  presentSemaphore = VK_NULL_HANDLE;
+            VkSemaphore  renderSemaphore  = VK_NULL_HANDLE;
+            Ref<VKFence> renderFence;
         };
 
         class VKSwapchain : public RZSwapchain
@@ -54,17 +53,14 @@ namespace Razix {
             void createSynchronizationPrimitives() {}
             void createFrameData();
             void acquireNextImage();
-            void queueSubmit();
             //void OnResize(uint32_t width, uint32_t height, bool forceResize = false);
-            void begin();
-            void end();
+            void queueSubmit(CommandQueue& commandQueue);
             void present();
 
-            RZTexture*       GetImage(uint32_t index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }
-            RZTexture*       GetCurrentImage() override { return static_cast<RZTexture*>(m_SwapchainImageTextures[m_AcquireImageIndex]); }
-            size_t           GetSwapchainImageCount() override { return m_SwapchainImageCount; }
-            RZCommandBuffer* getCurrentCommandBuffer() override { return getCurrentFrameData().mainCommandBuffer.get(); }
-            FrameData&       getCurrentFrameData()
+            RZTexture*     GetImage(uint32_t index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }
+            RZTexture*     GetCurrentImage() override { return static_cast<RZTexture*>(m_SwapchainImageTextures[m_AcquireImageIndex]); }
+            size_t         GetSwapchainImageCount() override { return m_SwapchainImageCount; }
+            FrameSyncData& getCurrentFrameSyncData()
             {
                 RAZIX_ASSERT(m_CurrentBuffer < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
                 return m_Frames[m_CurrentBuffer];
@@ -85,7 +81,7 @@ namespace Razix {
             VkFormat                  m_ColorFormat;            /* Color format of the screen                             
             // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = VKContext::Get();                                                      */
-            FrameData                 m_Frames[MAX_SWAPCHAIN_BUFFERS];
+            FrameSyncData             m_Frames[MAX_SWAPCHAIN_BUFFERS];
             uint32_t                  m_CurrentBuffer = 0; /* Index of the current buffer being submitted for execution */
             bool                      m_IsResized     = false;
 

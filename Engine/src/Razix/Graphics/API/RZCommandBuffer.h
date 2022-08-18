@@ -3,6 +3,14 @@
 namespace Razix {
     namespace Graphics {
 
+        enum class CommandBufferState : uint8_t
+        {
+            Idle,
+            Recording,
+            Ended,
+            Submitted
+        };
+
         /* Command buffer to which the draw and other command are recorded to and used with */
         class RAZIX_API RZCommandBuffer : public RZRoot
         {
@@ -31,7 +39,11 @@ namespace Razix {
             /* Updates the viewport dynamically with the given width and height */
             virtual void UpdateViewport(uint32_t width, uint32_t height) = 0;
 
-            virtual void* getAPIBuffer() { return nullptr; }
+            virtual void*      getAPIBuffer() { return nullptr; }
+            CommandBufferState getState() { return m_State; }
+
+        protected:
+            CommandBufferState m_State;
         };
 
     }    // namespace Graphics
