@@ -11,6 +11,7 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
+#include "Razix/Platform/API/Vulkan/VKFence.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -76,6 +77,10 @@ namespace Razix {
 
             // Begin recording to the command buffer
             m_CurrentCommandBuffer = cmdBuffer;
+
+            if ( m_CurrentCommandBuffer->getState() == CommandBufferState::Submitted)
+                m_Context->getSwapchain()->getCurrentFrameSyncData().renderFence->wait();
+
             cmdBuffer->BeginRecording();
         }
 
@@ -98,7 +103,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Context->getSwapchain()->queueSubmit(m_CommandQueue);
+            // Don't submit again
+            //m_Context->getSwapchain()->queueSubmit(m_CommandQueue);
             m_Context->getSwapchain()->present();
 
             m_CommandQueue.clear();
