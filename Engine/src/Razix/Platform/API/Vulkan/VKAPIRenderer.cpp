@@ -163,6 +163,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RZEngine::Get().GetStatistics().NumDrawCalls++;
+            RZEngine::Get().GetStatistics().Draws++;
             vkCmdDraw(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0);
         }
 
@@ -171,6 +172,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RZEngine::Get().GetStatistics().NumDrawCalls++;
+            RZEngine::Get().GetStatistics().IndexedDraws++;
             vkCmdDrawIndexed(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 

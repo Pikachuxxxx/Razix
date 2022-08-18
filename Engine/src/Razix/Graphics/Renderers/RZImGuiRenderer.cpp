@@ -3,8 +3,10 @@
 // clang-format on
 #include "RZImGuiRenderer.h"
 
-#include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/RZEngine.h"
 #include "razix/Core/RZApplication.h"
+
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 #include "Razix/Graphics/API/RZCommandBuffer.h"
@@ -203,10 +205,10 @@ namespace Razix {
             Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
-            m_MainCommandBuffers[ Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // Begin the render pass
-            m_RenderPass->BeginRenderPass(m_MainCommandBuffers[ Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
+            m_RenderPass->BeginRenderPass(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
@@ -346,7 +348,7 @@ namespace Razix {
             m_ImGuiVBO->Bind(cmdBuffer);
             m_ImGuiIBO->Bind(cmdBuffer);
 
-            for (uint32_t i = 0; i < (uint32_t)imDrawData->CmdListsCount; ++i) {
+            for (uint32_t i = 0; i < (uint32_t) imDrawData->CmdListsCount; ++i) {
                 const ImDrawList* cmd_list = imDrawData->CmdLists[i];
                 for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
@@ -356,11 +358,14 @@ namespace Razix {
                     // TODO: Fix this for Vulkan
                     VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
 
-                    // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
-                    // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
-                    // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
-                    // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                    RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    RZEngine::Get().GetStatistics().NumDrawCalls++;
+                    RZEngine::Get().GetStatistics().IndexedDraws++;
+
+                        // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
+                        // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
+                        // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
+                        // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
+                        RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
 #ifdef RAZIX_RENDER_API_VULKAN
                     if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                         vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);

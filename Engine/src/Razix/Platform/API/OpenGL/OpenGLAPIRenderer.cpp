@@ -3,6 +3,8 @@
 // clang-format on
 #include "OpenGLAPIRenderer.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Platform/API/OpenGL/OpenGLDescriptorSet.h"
 #include "Razix/Platform/API/OpenGL/OpenGLPipeline.h"
 #include "Razix/Platform/API/OpenGL/OpenGLShader.h"
@@ -133,6 +135,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            RZEngine::Get().GetStatistics().NumDrawCalls++;
+            RZEngine::Get().GetStatistics().Draws++;
             // TODO: Use pipeline to set the primitive mode here
             glDrawArrays(GL_TRIANGLES, 0, count);
         }
@@ -141,6 +145,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            RZEngine::Get().GetStatistics().NumDrawCalls++;
+            RZEngine::Get().GetStatistics().IndexedDraws++;
             // TODO: Use pipeline object to set the primitive mode here
             glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, nullptr);
         }

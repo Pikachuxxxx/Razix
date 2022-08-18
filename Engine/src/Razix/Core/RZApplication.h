@@ -231,6 +231,8 @@ namespace Razix {
         void Update(const RZTimestep& dt);
         /* Renders the application and Engine rendering commands */
         void Render();
+        /* Used to render GUI */
+        void RenderGUI();
 
         // Event callbacks
         /**
