@@ -16,8 +16,8 @@
 #include "Razix/Graphics/API/RZUniformBuffer.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 
-#include "Razix/Graphics/RZModel.h"
 #include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZModel.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
@@ -40,7 +40,7 @@ namespace Razix {
             // This is a override shader that won't be used
             // Giving the shader to the renderer is not something I can think will be useful I think material will decide that
             // So what does the renderer do then? it's job is to enforce some rules on the shader and it handles how it updates the data in a way that is appropriate for that renderer to operate
-            m_Shader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
+            m_OverrideGlobalRHIShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
 
             // Create the uniform buffers
             // 1. Create the View Projection UBOs
@@ -51,7 +51,7 @@ namespace Razix {
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
-            auto setInfos = m_Shader->getSetsCreateInfos();
+            auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 for (auto& descriptor: setInfo.second) {
                     if (setInfo.first == 0)
@@ -85,7 +85,7 @@ namespace Razix {
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
             pipelineInfo.renderpass          = m_RenderPass;
-            pipelineInfo.shader              = m_Shader;
+            pipelineInfo.shader              = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled = true;
 
             m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
@@ -114,6 +114,12 @@ namespace Razix {
 
                 m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
             }
+
+            // TODO: This is also to be moved to the renderer static initialization
+            for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
+                m_MainCommandBuffers[i]->Init();
+            }
         }
 
         void RZForwardRenderer::Begin()
@@ -124,13 +130,13 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Begin recording the command buffers
-            Graphics::RZAPIRenderer::Begin();
+            Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
-            Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // Begin the render pass
-            m_RenderPass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
+            m_RenderPass->BeginRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
         }
 
         void RZForwardRenderer::BeginScene(RZScene* scene)
@@ -157,18 +163,17 @@ namespace Razix {
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
                 m_ViewProjSystemUBOData.projection[1][1] *= -1;
             m_ViewProjectionSystemUBO->SetData(sizeof(ViewProjectionSystemUBOData), &m_ViewProjSystemUBOData);
-            
+
             // Update the lighting information
             m_ForwardLightData.viewPos = m_Camera->getPosition();
             m_ForwardLightUBO->SetData(sizeof(ForwardLightData), &m_ForwardLightData);
             //auto lightEntities = registry.view<LightComponent>();
             // TODO: Iterate and get the data and update the UBO
-            
+
             // Get the list of entities and their transform component together
             auto group = registry.group<Razix::Graphics::RZModel>(entt::get<TransformComponent, TagComponent>);
             for (auto entity: group) {
                 const auto& [model, trans] = group.get<Razix::Graphics::RZModel, TransformComponent>(entity);
-
 
                 auto& meshes = model.getMeshes();
 
@@ -184,7 +189,6 @@ namespace Razix {
         void RZForwardRenderer::EndScene(RZScene* scene)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
         }
 
         void RZForwardRenderer::End()

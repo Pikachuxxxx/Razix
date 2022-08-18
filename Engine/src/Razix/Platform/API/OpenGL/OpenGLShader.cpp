@@ -62,7 +62,9 @@ namespace Razix {
 
         void OpenGLShader::init()
         {
-            uint32_t vertex_shader, pixel_shader, geom_shader, compute_shader;
+            uint32_t vertex_shader, pixel_shader;
+            // TODO: Add support for geometry, tesselation and compute shaders
+            //, geom_shader, compute_shader;
             GLint    success;
             GLchar   infoLog[512];
 
@@ -147,7 +149,7 @@ namespace Razix {
                     auto&    bufferType = glsl.get_type(uniform_buffer.type_id);
 
                     auto bufferSize  = glsl.get_declared_struct_size(bufferType);
-                    int  memberCount = (int) bufferType.member_types.size();
+                    uint32_t  memberCount = (uint32_t) bufferType.member_types.size();
 
                     RZDescriptorLayoutBinding bindingLayout = {};
                     bindingLayout.binding                   = binding;
@@ -164,12 +166,12 @@ namespace Razix {
                     rzDescriptor.typeName    = glsl.get_name(uniform_buffer.base_type_id);
                     rzDescriptor.name        = glsl.get_name(uniform_buffer.id);
                     rzDescriptor.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
-                    rzDescriptor.size        = bufferSize;
+                    rzDescriptor.size        = static_cast<uint32_t>(bufferSize);
 
                     RAZIX_CORE_TRACE("Uniform buffer info | binding : {0}, set : {1}, bufferSize : {2}, memberCount : {3}, name : {4}", binding, set, bufferSize, memberCount, glsl.get_name(uniform_buffer.id));
 
                     // Get the member info
-                    for (size_t i = 0; i < memberCount; i++) {
+                    for (uint32_t i = 0; i < memberCount; i++) {
                         auto& type       = glsl.get_type(bufferType.member_types[i]);
                         auto& memberName = glsl.get_member_name(bufferType.self, i);
                         auto  size       = glsl.get_declared_struct_member_size(bufferType, i);
@@ -242,7 +244,7 @@ namespace Razix {
                     pc.name        = glsl.get_name(push_constant.id);
                     pc.shaderStage = bindingLayout.stage;
                     pc.data        = nullptr;
-                    pc.size        = bufferSize;
+                    pc.size        =  static_cast<uint32_t>(bufferSize);
                     pc.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
                     pc.bindingInfo = bindingLayout;
 

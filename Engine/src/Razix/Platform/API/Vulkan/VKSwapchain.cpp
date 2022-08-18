@@ -3,8 +3,11 @@
 // clang-format on
 #include "VKSwapchain.h"
 
+#include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+#include "Razix/Platform/API/Vulkan/VKCommandPool.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKFence.h"
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -56,7 +59,7 @@ namespace Razix {
                 m_SwapchainImageTextures.push_back(swapImageTexture);
             }
 
-            // Create the sync primitives for each frame
+            // Create the sync primitives for each frame + Command Buffers
             createFrameData();
         }
 
@@ -66,10 +69,9 @@ namespace Razix {
 
             // Delete the frame data
             for (auto& frame: m_Frames) {
-                frame.mainCommandBuffer->Reset();
+                //frame.mainCommandBuffer->Reset();
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.presentSemaphore, nullptr);
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderSemaphore, nullptr);
-                frame.commandPool->destroy();
                 vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
             }
 
@@ -305,10 +307,6 @@ namespace Razix {
                         VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].renderSemaphore));
 
                     m_Frames[i].renderFence = CreateRef<VKFence>(true);
-                    m_Frames[i].commandPool = CreateRef<VKCommandPool>(VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT);
-
-                    m_Frames[i].mainCommandBuffer = CreateRef<VKCommandBuffer>();
-                    m_Frames[i].mainCommandBuffer->Init(true, m_Frames[i].commandPool->getVKPool());
                 }
             }
         }
@@ -341,7 +339,7 @@ namespace Razix {
             }
         }
 
-        void VKSwapchain::queueSubmit()
+        void VKSwapchain::queueSubmit(CommandQueue& commandQueue)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -349,13 +347,17 @@ namespace Razix {
             //    vkWaitForFences(VKDevice::Get().getDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
             //imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
-            auto&        frameData         = getCurrentFrameData();
-            auto         cmdBuffer         = frameData.mainCommandBuffer->getBuffer();
-            VkSubmitInfo submitInfo        = {};
-            submitInfo.sType               = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.pNext               = VK_NULL_HANDLE;
-            submitInfo.commandBufferCount  = 1;
-            submitInfo.pCommandBuffers     = &cmdBuffer;
+            auto&        frameData        = getCurrentFrameSyncData();
+            VkSubmitInfo submitInfo       = {};
+            submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext              = VK_NULL_HANDLE;
+            submitInfo.commandBufferCount = static_cast<uint32_t>(commandQueue.size());
+
+            std::vector<VkCommandBuffer> cmdBuffs;
+            for (size_t i = 0; i < submitInfo.commandBufferCount; i++)
+                cmdBuffs.push_back(*((VkCommandBuffer*) commandQueue[i]->getAPIBuffer()));
+
+            submitInfo.pCommandBuffers     = cmdBuffs.data();
             VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
             submitInfo.pWaitDstStageMask = &waitStage;
@@ -373,30 +375,13 @@ namespace Razix {
             }
 
             frameData.renderFence->wait();
-            frameData.commandPool->reset();
-        }
-
-        void VKSwapchain::begin()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            if (getCurrentFrameData().mainCommandBuffer->getState() == CommandBufferState::Submitted)
-                getCurrentFrameData().renderFence->wait();
-            getCurrentFrameData().mainCommandBuffer->BeginRecording();
-        }
-
-        void VKSwapchain::end()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            getCurrentCommandBuffer()->EndRecording();
         }
 
         void VKSwapchain::present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto& frameData = getCurrentFrameData();
+            auto& frameData = getCurrentFrameSyncData();
 
             VkPresentInfoKHR present{};
             present.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -427,8 +412,7 @@ namespace Razix {
             if (error == VK_ERROR_OUT_OF_DATE_KHR) {
                 vkDeviceWaitIdle(VKDevice::Get().getDevice());
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
-            }
-            else if (error == VK_SUBOPTIMAL_KHR)
+            } else if (error == VK_SUBOPTIMAL_KHR)
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
             else
                 VK_CHECK_RESULT(error);
