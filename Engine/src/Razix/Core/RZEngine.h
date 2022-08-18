@@ -40,14 +40,11 @@ namespace Razix {
 
             void reset()
             {
-                UpdatesPerSecond = 0;
-                FramesPerSecond  = 0;
                 DeltaTime        = 0;
                 NumDrawCalls     = 0;
                 Draws            = 0;
                 IndexedDraws     = 0;
                 GPUMemoryUsed    = 0;
-                TotalGPUMemory   = 0;
                 UsedRAM          = 0;
             }
         };

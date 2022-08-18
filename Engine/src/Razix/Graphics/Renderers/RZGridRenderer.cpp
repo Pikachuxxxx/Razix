@@ -1,4 +1,4 @@
-// clang-format off
+ // clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZGridRenderer.h"
@@ -149,8 +149,8 @@ namespace Razix {
             Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
             // Bind the appropriate buffers/mesh
-            gridVBO->Bind(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
-            gridIBO->Bind(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+            gridVBO->Bind(cmdBuf);
+            gridIBO->Bind(cmdBuf);
 
             // Issues the Draw Commands
             Graphics::RZAPIRenderer::DrawIndexed(cmdBuf, 6);

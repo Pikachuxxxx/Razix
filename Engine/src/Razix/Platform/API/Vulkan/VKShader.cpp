@@ -278,21 +278,22 @@ namespace Razix {
 
                     RZDescriptor rzDescriptor;
 
-                    //std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
-                    //std::cout << "UBO Name                  : " << descriptor->name << std::endl;
-                    //std::cout << "Binding                   : " << descriptor->binding << std::endl;
-                    //std::cout << "Set                       : " << descriptor->set << std::endl;
-                    //std::cout << "Count                     : " << descriptor->count << std::endl;
-                    //std::cout << "Descriptor Type           : " << ToStringDescriptorType(descriptor->descriptor_type) << std::endl;
-                    //std::cout << "Member Count              : " << descriptor->block.member_count << std::endl;
-                    //
-                    //for (size_t i = 0; i < descriptor->block.member_count; i++) {
-                    //
-                    //    std::cout << "\t Member Name : " << descriptor->block.members[i].name << std::endl;
-                    //    std::cout << "\t Member offset : " << descriptor->block.members[i].offset << std::endl;
-                    //    std::cout << "\t Member size : " << descriptor->block.members[i].size << std::endl;
-                    //}
-                    //std::cout << "---------------------------------------------" << std::endl;
+                    std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
+                    std::cout << "UBO Name                  : " << descriptor->name << std::endl;
+                    std::cout << "Binding                   : " << descriptor->binding << std::endl;
+                    std::cout << "Set                       : " << descriptor->set << std::endl;
+                    std::cout << "Count                     : " << descriptor->count << std::endl;
+                    std::cout << "Descriptor Type           : " << ToStringDescriptorType(descriptor->descriptor_type) << std::endl;
+                    std::cout << "Member Count              : " << descriptor->block.member_count << std::endl;
+                    std::cout << "Block Size                : " << descriptor->block.size << std::endl;
+                    
+                    for (size_t i = 0; i < descriptor->block.member_count; i++) {
+                    
+                        std::cout << "\t Member Name : " << descriptor->block.members[i].name << std::endl;
+                        std::cout << "\t Member offset : " << descriptor->block.members[i].offset << std::endl;
+                        std::cout << "\t Member size : " << descriptor->block.members[i].size << std::endl;
+                    }
+                    std::cout << "---------------------------------------------" << std::endl;
 
                     // First create the descriptor layout bindings, these describe where and what kind of resources are being bound to the shader per descriptor set
                     // Which means each descriptor set (i.e. for a given set ID) it stores a list of binding layouts in a map
@@ -343,9 +344,9 @@ namespace Razix {
                 // Create Push constants and store info about it
                 for (uint32_t i = 0; i < push_constants_count; i++) {
                     SpvReflectBlockVariable* pushConstant = pp_push_constant_blocks[i];
-                    //std::cout << "Name      : " << pushConstant->name << std::endl;
-                    //std::cout << "Size      : " << pushConstant->size << std::endl;
-                    //std::cout << "Offset    : " << pushConstant->offset << std::endl;
+                    std::cout << "Name      : " << pushConstant->name << std::endl;
+                    std::cout << "Size      : " << pushConstant->size << std::endl;
+                    std::cout << "Offset    : " << pushConstant->offset << std::endl;
 
                     RZPushConstant pc{};
                     pc.name = pushConstant->name;

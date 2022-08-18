@@ -1,25 +1,34 @@
 {
     "Razix Scene": {
-        "UUID": "ed558017-fd17-4997-8ea2-55e3097a3dcb",
+        "UUID": "bf2c502b-7c17-4588-a674-2c052fa453a6",
         "SceneName": "default Scene",
-        "Total Entities": 1
+        "Total Entities": 2
     },
-    "value0": 1,
+    "value0": 2,
     "value1": 0,
     "value2": 1,
-    "value3": 0,
-    "value4": {
+    "value3": 2,
+    "value4": 0,
+    "value5": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value5": 1,
-    "value6": 0,
+    "value6": 1,
     "value7": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value8": 2,
+    "value9": 0,
+    "value10": {
         "Tag": "Camera"
     },
-    "value8": 0,
-    "value9": 1,
-    "value10": 0,
-    "value11": {
+    "value11": 1,
+    "value12": {
+        "Tag": "Armadillo"
+    },
+    "value13": 0,
+    "value14": 2,
+    "value15": 0,
+    "value16": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -36,38 +45,56 @@
             "z": 1.0
         }
     },
-    "value12": 1,
-    "value13": 0,
-    "value14": {
+    "value17": 1,
+    "value18": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value19": 1,
+    "value20": 0,
+    "value21": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": -144.34144592285157,
-                "y": 9.125526428222657,
-                "z": 1.6214756965637208
+                "x": -4.954821586608887,
+                "y": 3.9666800498962404,
+                "z": -1.6233395338058472
             },
             "Front": {
-                "x": -0.7059957385063171,
-                "y": -0.6755902171134949,
-                "z": -0.21248047053813935
+                "x": 0.873885989189148,
+                "y": -0.44228869676589968,
+                "z": 0.2017524689435959
             },
             "Up": {
-                "x": -0.6469258666038513,
-                "y": 0.7372773289680481,
-                "z": -0.19470246136188508
+                "x": 0.43095287680625918,
+                "y": 0.8968727588653565,
+                "z": 0.09949330240488053
             },
             "Right": {
-                "x": 0.2881960868835449,
+                "x": -0.22495104372501374,
                 "y": 0.0,
-                "z": -0.9575713872909546
+                "z": 0.9743700623512268
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -883.25,
-            "Pitch": -42.5,
+            "Yaw": 13.0,
+            "Pitch": -26.25,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -78,11 +105,15 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.7777777910232545
+            "AspectRatio": 1.9028741121292115
         }
     },
-    "value15": 0,
-    "value16": 0,
-    "value17": 0,
-    "value18": 0
+    "value22": 0,
+    "value23": 0,
+    "value24": 1,
+    "value25": 1,
+    "value26": {
+        "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/Avocado.gltf"
+    },
+    "value27": 0
 }
