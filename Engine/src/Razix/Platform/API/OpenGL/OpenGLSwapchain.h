@@ -23,7 +23,6 @@ namespace Razix {
             RZTexture*       GetCurrentImage() override { return nullptr; }
             RZTexture*       GetImage(uint32_t index) override { return nullptr; }
             size_t           GetSwapchainImageCount() override { return 1; }
-            RZCommandBuffer* getCurrentCommandBuffer() override { return m_DummyCmdBuffer; }
 
             uint32_t getCurrentImageIndex() override { return 0; }
 

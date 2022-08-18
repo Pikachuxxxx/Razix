@@ -10,7 +10,9 @@
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
+#include <spirv_reflect.h>
 #include <SPIRVReflect/common/output_stream.h>
+
 #include <glm/glm.hpp>
 
 #include <imgui/imgui.h>
@@ -96,6 +98,9 @@ namespace Razix {
                     return DescriptorType::UNIFORM_BUFFER;
                     break;
             }
+
+            // FIXME: Make this return something like NONE and cause a ASSERT_ERROR
+            return DescriptorType::UNIFORM_BUFFER;
         }
 
         VKShader::VKShader(const std::string& filePath)
@@ -372,7 +377,7 @@ namespace Razix {
             for (const auto& setLayouts: m_VKSetBindingLayouts) {
                 VkDescriptorSetLayoutCreateInfo layoutInfo{};
                 layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-                layoutInfo.bindingCount = setLayouts.second.size();
+                layoutInfo.bindingCount = static_cast<uint32_t>(setLayouts.second.size());
                 layoutInfo.pBindings    = setLayouts.second.data();
 
                 VkDescriptorSetLayout& setLayout = m_PerSetLayouts[setLayouts.first];

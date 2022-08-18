@@ -32,6 +32,7 @@ end
 function OnUpdate(dt)
 end
 
+-- This should be something like OnGui() or OnImGui() or OnGuiDraw()
 function OnUppppppdate(dt)
     imgui.beginWindow("ImGui Lua Window")
         imgui.text("FPS : " .. (1 / dt))
