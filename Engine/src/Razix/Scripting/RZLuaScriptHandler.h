@@ -12,6 +12,7 @@ namespace Razix {
     namespace Scripting {
 
         // TODO: Derive this from the engine system and register to handle automatic startup and shutdown
+        // TODO: Add OnImGui rendering feature for it
 
         /**
          * A class that handled lua script file and their execution, lifetime, memory and Engine API access
