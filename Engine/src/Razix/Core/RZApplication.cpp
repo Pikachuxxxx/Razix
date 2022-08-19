@@ -183,8 +183,8 @@ namespace Razix {
     bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
     {
         //if (m_ImGuiRenderer != nullptr) {
-        //ImGuiIO& io = ImGui::GetIO();
-        //io.MousePos = ImVec2(e.GetX(), e.GetY());
+        ImGuiIO& io = ImGui::GetIO();
+        io.MousePos = ImVec2(e.GetX(), e.GetY());
         //}
 
         return true;
@@ -193,9 +193,9 @@ namespace Razix {
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
         //if (m_ImGuiRenderer != nullptr) {
-        //ImGuiIO& io                          = ImGui::GetIO();
-        //io.MouseDown[e.GetMouseButton() - 1] = true;
-        //io.MouseDown[e.GetMouseButton() - 1] = true;
+        ImGuiIO& io                          = ImGui::GetIO();
+        io.MouseDown[e.GetMouseButton() - 1] = true;
+        io.MouseDown[e.GetMouseButton() - 1] = true;
         //}
 
         return true;
@@ -204,8 +204,8 @@ namespace Razix {
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
         //if (m_ImGuiRenderer != nullptr) {
-        //ImGuiIO& io                          = ImGui::GetIO();
-        //io.MouseDown[e.GetMouseButton() - 1] = false;
+        ImGuiIO& io                          = ImGui::GetIO();
+        io.MouseDown[e.GetMouseButton() - 1] = false;
         //}
 
         return true;
@@ -221,7 +221,7 @@ namespace Razix {
         // Job system and Engine Systems(run-time) Initialization
         Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
         Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZForwardRenderer);
-        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
+        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
@@ -275,7 +275,7 @@ namespace Razix {
         m_Frames++;
 
         // RenderGUI
-        //RenderGUI();
+        RenderGUI();
 
         // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
@@ -334,9 +334,9 @@ namespace Razix {
         RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
         // Update ImGui
-        //ImGuiIO& io = ImGui::GetIO();
-        //(void) io;
-        //io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
 
         // Run the OnUpdate for all the scripts
         if (RZEngine::Get().getSceneManager().getCurrentScene())
@@ -345,7 +345,7 @@ namespace Razix {
         // Client App Update
         OnUpdate(dt);
 
-#if 0
+#if 1
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 

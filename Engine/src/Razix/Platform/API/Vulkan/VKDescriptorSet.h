@@ -18,7 +18,6 @@ namespace Razix {
         {
         public:
             VKDescriptorSet(const std::vector<RZDescriptor>& descriptors);
-            ~VKDescriptorSet();
 
             void UpdateSet(const std::vector<RZDescriptor>& descriptors) override;
             void Destroy() override;

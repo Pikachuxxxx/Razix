@@ -88,7 +88,7 @@ namespace Razix {
         {
             // Render pass
             Graphics::AttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN},
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
                 {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
 
             Graphics::RenderPassInfo renderPassInfo{};
@@ -146,7 +146,7 @@ namespace Razix {
             //Graphics::RZAPIRenderer::AcquireImage();
 
             // Begin recording the command buffers
-            Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
+            //Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
             Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
@@ -241,15 +241,15 @@ namespace Razix {
             // End the render pass and recording
             m_RenderPass->EndRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
 
-            Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+            //Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
         }
 
         void RZForwardRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            Graphics::RZAPIRenderer::SubmitWork();
-            Graphics::RZAPIRenderer::Present();
+            //Graphics::RZAPIRenderer::SubmitWork();
+            //Graphics::RZAPIRenderer::Present();
         }
 
         void RZForwardRenderer::Resize(uint32_t width, uint32_t height)
