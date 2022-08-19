@@ -210,7 +210,7 @@ namespace Razix {
             swcCI.imageColorSpace                                     = m_SurfaceFormat.colorSpace;
             swcCI.imageExtent                                         = m_SwapchainExtent;
             swcCI.imageArrayLayers                                    = 1;
-            swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
             VKPhysicalDevice::QueueFamilyIndices indices              = VKDevice::Get().getPhysicalDevice().get()->getQueueFamilyIndices();
             uint32_t                             queueFamilyIndices[] = {static_cast<uint32_t>(indices.Graphics), static_cast<uint32_t>(indices.Present)};
 

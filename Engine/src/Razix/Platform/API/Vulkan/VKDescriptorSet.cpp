@@ -67,13 +67,6 @@ namespace Razix {
             UpdateSet(descriptors);
         }
 
-        VKDescriptorSet::~VKDescriptorSet()
-        {
-            //delete[] m_BufferInfoPool;
-            //delete[] m_ImageInfoPool;
-            //delete[] m_WriteDescriptorSetPool;
-        }
-
         void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
