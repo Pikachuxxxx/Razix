@@ -346,12 +346,6 @@ namespace Razix {
         OnUpdate(dt);
 
 #if 1
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
-            ImGui_ImplOpenGL3_NewFrame();
-
-        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
-        if (RZApplication::Get().getAppType() == AppType::GAME)
-            ImGui_ImplGlfw_NewFrame();
 
 #endif
     }
@@ -372,6 +366,13 @@ namespace Razix {
 
     void RZApplication::RenderGUI()
     {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+            ImGui_ImplOpenGL3_NewFrame();
+
+        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
+        if (RZApplication::Get().getAppType() == AppType::GAME)
+            ImGui_ImplGlfw_NewFrame();
+
         ImGui::NewFrame();
 
         // TODO: Call the Lua Scripts OnGuiDraw method here

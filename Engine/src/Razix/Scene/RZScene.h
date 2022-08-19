@@ -19,6 +19,8 @@ namespace Razix {
         RZScene();
         RZScene(std::string sceneName);
 
+        void Destroy();
+
         /**
          * Create a Razix Entity in the scene
          * 

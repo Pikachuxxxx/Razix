@@ -30,18 +30,17 @@ namespace Razix {
 
         struct RZMaterialProperties
         {
-            glm::vec4 albedoColor         = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 roughnessColor      = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 metallicColor       = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 emissiveColor       = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            bool      isUsingAlbedoMap    = false;
-            bool      isUsingNormalMap    = false;
-            bool      isUsingMetallicMap  = false;
-            bool      isUsingRoughnessMap = false;
-            bool      isUsingAOMap        = false;
-            bool      isUsingEmissiveMap  = false;
-            bool      _padding_bool[6];
-            WorkFlow  workflow = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
+            alignas(16) glm::vec4 albedoColor       = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            alignas(16) glm::vec4 roughnessColor    = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            alignas(16) glm::vec4 metallicColor     = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            alignas(16) glm::vec4 emissiveColor     = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            alignas(16) bool isUsingAlbedoMap       = true;
+            alignas(16) bool isUsingNormalMap       = false;
+            alignas(16) bool isUsingMetallicMap     = false;
+            alignas(16) bool isUsingRoughnessMap    = false;
+            alignas(16) bool isUsingAOMap           = false;
+            alignas(16) bool isUsingEmissiveMap     = false;
+            alignas(16) WorkFlow workflow           = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
         };
 
         struct PBRMataterialTextures

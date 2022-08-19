@@ -17,10 +17,9 @@ namespace Razix {
         public:
             struct ForwardLightData
             {
-                glm::vec3 position     = glm::vec3(1.0f);
-                glm::vec3 color        = glm::vec3(1.0f);
-                glm::vec3 viewPos      = glm::vec3(1.0f);
-                uint8_t   _padding[12] = {};
+                alignas(16) glm::vec3 position = glm::vec3(1.0f);
+                alignas(16) glm::vec3 color    = glm::vec3(1.0f);
+                alignas(16) glm::vec3 viewPos  = glm::vec3(1.0f);
             };
 
         public:

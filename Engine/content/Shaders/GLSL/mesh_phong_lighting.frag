@@ -42,7 +42,6 @@ layout(set = 1, binding = 0) uniform DirectionalLight
     bool  isUsingRoughnessMap;
     bool  isUsingAOMap;
     bool  isUsingEmissiveMap;
-    bool   _padding[6];
     int   workflow;
  }material;
 // Having the samplers in the same set is adding to the Descriptor Block size which is fucked up
@@ -78,9 +77,9 @@ void main()
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse;
     if(material.isUsingAlbedoMap){
-       diffuse = directional_light.color * diff * texture(albedoMap, fs_in.fragTexCoord).rgb * material.albedoColor.rgb;
+       diffuse = diff * texture(albedoMap, fs_in.fragTexCoord).rgb;
     }else {
-        diffuse = directional_light.color * diff * material.albedoColor.rgb;
+        diffuse = diff * material.albedoColor.rgb;
     }
 
     // specular
@@ -95,9 +94,9 @@ void main()
         specular = directional_light.color * spec * material.metallicColor.rgb;
     }
 
-    vec3 result = ambient + diffuse + specular;
+    vec3 result = ambient;
     outFragColor = vec4(result, 1.0);
 
-    outFragColor = texture(albedoMap, fs_in.fragTexCoord);
+    //outFragColor = texture(albedoMap, fs_in.fragTexCoord);
 }
 //------------------------------------------------------------------------------
