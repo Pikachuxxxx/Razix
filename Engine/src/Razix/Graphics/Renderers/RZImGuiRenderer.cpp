@@ -312,19 +312,20 @@ namespace Razix {
 
         void RZImGuiRenderer::Submit(RZCommandBuffer* cmdBuffer)
         {
+            ImDrawData* imDrawData = ImGui::GetDrawData();
+
+            if ((!imDrawData) || (imDrawData->CmdListsCount == 0)) {
+                return;
+            }
+
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
                 // Start the Dear ImGui frame
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
                 return;
             }
 
-            ImDrawData* imDrawData   = ImGui::GetDrawData();
-            int32_t     vertexOffset = 0;
-            int32_t     indexOffset  = 0;
-
-            if ((!imDrawData) || (imDrawData->CmdListsCount == 0)) {
-                return;
-            }
+            int32_t vertexOffset = 0;
+            int32_t indexOffset  = 0;
 
             ImGuiIO& io = ImGui::GetIO();
 
@@ -361,11 +362,11 @@ namespace Razix {
                     RZEngine::Get().GetStatistics().NumDrawCalls++;
                     RZEngine::Get().GetStatistics().IndexedDraws++;
 
-                        // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
-                        // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
-                        // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
-                        // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                        RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
+                    // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
+                    // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
+                    // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
+                    RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
 #ifdef RAZIX_RENDER_API_VULKAN
                     if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                         vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);

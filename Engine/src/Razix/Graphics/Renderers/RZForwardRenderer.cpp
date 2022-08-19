@@ -68,7 +68,9 @@ namespace Razix {
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         uint32_t pinkTextureData = 0xffff00ff;    // is it ABGR
                         // All maps will have the same pink texture
-                        descriptor.texture = Graphics::RZTexture2D::Create("Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
+                        descriptor.texture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+
+                        //Graphics::RZTexture2D::Create("Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
                     }
                 }
                 auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second);
@@ -175,7 +177,7 @@ namespace Razix {
             }
 
             // Update the View Projection UBO
-            m_Camera->setPerspectiveFarClip(6000.0f);
+            //m_Camera->setPerspectiveFarClip(6000.0f);
             m_ViewProjSystemUBOData.view       = m_Camera->getViewMatrix();
             m_ViewProjSystemUBOData.projection = m_Camera->getProjection();
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
@@ -277,6 +279,26 @@ namespace Razix {
         void RZForwardRenderer::Destroy()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Destroy the resources first
+            m_DepthTexture->Release(true);
+
+            m_OverrideGlobalRHIShader->Destroy();
+
+            m_ViewProjectionSystemUBO->Destroy();
+
+            m_ForwardLightUBO->Destroy();
+            m_TempMatUBO->Destroy();
+
+            for (auto set: m_DescriptorSets)
+                set->Destroy();
+
+            for (auto frameBuf: m_Framebuffers)
+                frameBuf->Destroy();
+
+            m_RenderPass->Destroy();
+
+            m_Pipeline->Destroy();
         }
 
         void RZForwardRenderer::OnEvent(RZEvent& event)
