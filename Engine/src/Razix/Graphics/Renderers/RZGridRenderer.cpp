@@ -11,12 +11,12 @@
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZRenderPass.h"
-#include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 
 #include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
@@ -37,7 +37,7 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Load the grid shader
-            m_OverrideGlobalRHIShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/grid.rzsf");
+            m_OverrideGlobalRHIShader = Graphics::RZShaderLibrary::Get().getShader("grid.rzsf");
 
             // TODO: Use a set of 2 UBOs and DescSets (per frame in flight)
 
@@ -206,7 +206,7 @@ namespace Razix {
             // Destroy the resources first
             m_DepthTexture->Release(true);
 
-            m_OverrideGlobalRHIShader->Destroy();
+            //m_OverrideGlobalRHIShader->Destroy();
 
             m_ViewProjectionSystemUBO->Destroy();
             m_GridUBO->Destroy();

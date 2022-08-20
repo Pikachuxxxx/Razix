@@ -10,6 +10,7 @@
 
 #include "Razix/Graphics/Renderers/RZRenderStack.h"
 #include "Razix/Scripting/RZLuaScriptHandler.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
 //! Some style guide rules are waved off for RZEngine class
 namespace Razix {
@@ -40,12 +41,12 @@ namespace Razix {
 
             void reset()
             {
-                DeltaTime        = 0;
-                NumDrawCalls     = 0;
-                Draws            = 0;
-                IndexedDraws     = 0;
-                GPUMemoryUsed    = 0;
-                UsedRAM          = 0;
+                DeltaTime     = 0;
+                NumDrawCalls  = 0;
+                Draws         = 0;
+                IndexedDraws  = 0;
+                GPUMemoryUsed = 0;
+                UsedRAM       = 0;
             }
         };
 
@@ -58,10 +59,13 @@ namespace Razix {
         RZSceneManager                m_SceneManagerSystem;     /* Scene Manager Engine System for managing scenes in game world					*/
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
         Graphics::RZRenderStack       m_RenderStack;
+        Graphics::RZShaderLibrary     m_ShaderLibrary;
 
     public:
         /* Starts up the Engine and it's sub-systems */
         void Ignite();
+        /* Post ignition after important engine systems */
+        void PostGraphicsIgnite();
 
         /// <summary>
         /// Shutdowns the engine and all the resources and systems
@@ -101,7 +105,7 @@ namespace Razix {
         RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
         Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
         Graphics::RZRenderStack&       getRenderStack() { return m_RenderStack; }
-
+        Graphics::RZShaderLibrary&     getShaderLibrary() { return m_ShaderLibrary; }
     private:
         Stats m_Stats;                                /* Current frame basic statistics	                                */
         float m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/

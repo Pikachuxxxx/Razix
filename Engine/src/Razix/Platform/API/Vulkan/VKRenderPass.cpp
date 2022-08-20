@@ -206,6 +206,7 @@ namespace Razix {
                 attachment.initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
 
+            // We are always clearing the depth after every render pass so yeah beware of this make this optional for the render pass add explicit bool to control this
             if (info.type == RZTexture::Type::DEPTH) {
                 attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;

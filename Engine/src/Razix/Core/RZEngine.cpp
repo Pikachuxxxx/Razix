@@ -63,6 +63,17 @@ namespace Razix {
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_double.count());
     }
 
+    void RZEngine::PostGraphicsIgnite()
+    {
+        // Post ignition systems that are done after the Graphics are done
+        RAZIX_CORE_INFO("***********************************");
+        RAZIX_CORE_INFO("*   Post Graphics Ignition....    *");
+        RAZIX_CORE_INFO("***********************************");
+
+        // Ignite the shader library after the Graphics has been initialized
+        Graphics::RZShaderLibrary::Get().StartUp();
+    }
+
     void RZEngine::ShutDown()
     {
         RAZIX_CORE_ERROR("***********************************");
@@ -70,6 +81,8 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
+        // Shutting down the shader library
+        Graphics::RZShaderLibrary::Get().ShutDown();
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager
