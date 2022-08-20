@@ -103,9 +103,10 @@ namespace Razix {
                         }
                     }
                 }
-
-                // This holds the descriptor set only for the Material Index
-                m_DescriptorSet = RZDescriptorSet::Create(setInfo.second);
+                // This holds the descriptor sets for the material Properties and Samplers
+                // Now each mesh will have a material instance so each have their own sets so not a problem
+                // TODO: Make sure the material instances similar to unreal exist with different Desc Sets for mat props buth with same shader instance, Simple Solution: Use a shader library to load the same shader, ofc we give the shader so that's possible
+                m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second));
             }
         }
 
@@ -124,7 +125,7 @@ namespace Razix {
         void RZMaterial::Bind()
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
-            if (m_DescriptorSet == nullptr || getTexturesUpdated()) {
+            if (m_DescriptorSets.size() || getTexturesUpdated()) {
                 createDescriptorSet();
                 setTexturesUpdated(false);
             }
