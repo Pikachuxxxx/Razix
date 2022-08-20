@@ -15,10 +15,11 @@
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZRenderPass.h"
-#include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
+
+#include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Utilities/RZTimestep.h"
 
@@ -45,7 +46,7 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Load the ImGui shaders
-            m_OverrideGlobalRHIShader = RZShader::Create("//RazixContent/Shaders/Razix/imgui.rzsf");
+            m_OverrideGlobalRHIShader = RZShaderLibrary::Get().getShader("imgui.rzsf");
 
             // Configure ImGui
             // Setup Dear ImGui context

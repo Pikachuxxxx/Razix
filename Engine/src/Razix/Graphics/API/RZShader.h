@@ -61,6 +61,7 @@ namespace Razix {
 
             static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
 
+            inline const std::string& getName() { return m_Name; }
             /* Gets the stage of the pipeline that shader is bound/being used with */
             inline const ShaderStage&           getStage() { return m_ShaderStage; }
             inline const uint32_t&              getInputStride() const { return m_VertexInputStride; }

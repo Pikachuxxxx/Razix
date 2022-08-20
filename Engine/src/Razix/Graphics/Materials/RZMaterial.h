@@ -145,7 +145,7 @@ namespace Razix {
             RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }
             RAZIX_INLINE void  setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
 
-            RAZIX_INLINE RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
+            RAZIX_INLINE std::vector<RZDescriptorSet*> getDescriptorSets() { return m_DescriptorSets; }
 
             template<typename Archive>
             void save(Archive& archive) const
@@ -230,7 +230,7 @@ namespace Razix {
 
             RZShader* m_Shader;
             // TODO: make this a vector equal to the number of user mat sets
-            RZDescriptorSet* m_DescriptorSet;
+            std::vector<RZDescriptorSet*> m_DescriptorSets;
 
             // Data for the UBO
             PBRMaterialProperties   m_PBRMaterialProperties;
