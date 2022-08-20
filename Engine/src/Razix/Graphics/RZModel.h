@@ -47,6 +47,7 @@ namespace Razix {
 
         private:
             std::string          m_FilePath;
+            // TODO: Make this into a Hierarchy thing! Model will only have a single parent mesh!!!
             std::vector<RZMesh*> m_Meshes;
 
         private:
