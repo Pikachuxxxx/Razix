@@ -62,6 +62,8 @@ int EngineMain(int argc, char** argv)
     // Application auto Initialization by the Engine
     Razix::CreateApplication(argc, argv);
 
+    Razix::RZEngine::Get().PostGraphicsIgnite();
+
     // Run the  Application with the master controlled given to the OS
     windowsOS->Run();
     delete windowsOS;

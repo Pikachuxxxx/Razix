@@ -11,13 +11,13 @@
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZRenderPass.h"
-#include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
@@ -40,7 +40,7 @@ namespace Razix {
             // This is a override shader that won't be used
             // Giving the shader to the renderer is not something I can think will be useful I think material will decide that
             // So what does the renderer do then? it's job is to enforce some rules on the shader (on the UBO data and samplers) and it handles how it updates the data in a way that is appropriate for that renderer to operate
-            m_OverrideGlobalRHIShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
+            m_OverrideGlobalRHIShader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
 
             // Create the uniform buffers
             // 1. Create the View Projection UBOs
@@ -283,7 +283,7 @@ namespace Razix {
             // Destroy the resources first
             m_DepthTexture->Release(true);
 
-            m_OverrideGlobalRHIShader->Destroy();
+            //m_OverrideGlobalRHIShader->Destroy();
 
             m_ViewProjectionSystemUBO->Destroy();
 
