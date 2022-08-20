@@ -8,14 +8,15 @@
 
 #include "Razix/Scene/RZSceneManager.h"
 
-#include "Razix/Scripting/RZLuaScriptHandler.h"
 #include "Razix/Graphics/Renderers/RZRenderStack.h"
+#include "Razix/Scripting/RZLuaScriptHandler.h"
 
 //! Some style guide rules are waved off for RZEngine class
-namespace Razix
+namespace Razix {
 
-// TODO: Engine will also manage the Grpahics Context and API Renderer initialization ==> Window and app context (in consoles) must be given to the OS abstraction rather than the Application class
-{
+    // TODO: Engine will also manage the Grpahics Context and API Renderer initialization ==> Window and app context (in consoles) must be given to the OS abstraction rather than the Application class
+    // TODO: use this for stats CPU https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+
     /* The Engine class that Starts and Manages all the Engine back end and runtime systems */
     class RAZIX_API RZEngine : public RZSingleton<RZEngine>
     {
@@ -24,10 +25,28 @@ namespace Razix
         /* Statistic about the current frame */
         struct Stats
         {
-            uint32_t UpdatesPerSecond = 0;
-            uint32_t FramesPerSecond  = 0;
-            float    FrameTime        = 0;
-            uint32_t NumDrawCalls     = 0;
+            float    DeltaTime             = 0;    //[x]
+            uint32_t UpdatesPerSecond      = 0;    //[x]
+            uint32_t FramesPerSecond       = 0;    //[x]
+            uint32_t NumDrawCalls          = 0;    //[x]
+            uint32_t Draws                 = 0;    //[x]
+            uint32_t IndexedDraws          = 0;    //[x]
+            uint32_t GPUMemoryUsed         = 0;    //[ ] // Needs VMA kind of allocator
+            uint32_t TotalGPUMemory        = 0;    //[ ] // Needs VMA kind of allocator
+            uint32_t UsedRAM               = 0;    //[ ] // Needs platform specific implementation
+            uint32_t MeshesRendered        = 0;    //[x]
+            uint32_t TexturesInMemory      = 0;
+            uint32_t DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
+
+            void reset()
+            {
+                DeltaTime        = 0;
+                NumDrawCalls     = 0;
+                Draws            = 0;
+                IndexedDraws     = 0;
+                GPUMemoryUsed    = 0;
+                UsedRAM          = 0;
+            }
         };
 
     public:
@@ -64,8 +83,7 @@ namespace Razix
         /// </summary>
         void ResetStats()
         {
-            m_Stats.FrameTime    = 0.0f;
-            m_Stats.NumDrawCalls = 0;
+            m_Stats.reset();
         }
 
         /// <summary>

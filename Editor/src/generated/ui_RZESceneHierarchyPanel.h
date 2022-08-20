@@ -28,7 +28,13 @@ public:
     {
         if (SceneHierarchyPanel->objectName().isEmpty())
             SceneHierarchyPanel->setObjectName(QString::fromUtf8("SceneHierarchyPanel"));
-        SceneHierarchyPanel->resize(230, 767);
+        SceneHierarchyPanel->resize(273, 767);
+        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(SceneHierarchyPanel->sizePolicy().hasHeightForWidth());
+        SceneHierarchyPanel->setSizePolicy(sizePolicy);
+        SceneHierarchyPanel->setMinimumSize(QSize(200, 100));
         SceneHierarchyPanel->setStyleSheet(QString::fromUtf8("QTreeView::branch:has-siblings:!adjoins-item {\n"
 "    border-image: url(:/rzeditor/vline.png) 0;\n"
 "}\n"
@@ -56,14 +62,15 @@ public:
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setSizeConstraint(QLayout::SetMinimumSize);
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         sceneTree = new QTreeWidget(SceneHierarchyPanel);
         sceneTree->setObjectName(QString::fromUtf8("sceneTree"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(sceneTree->sizePolicy().hasHeightForWidth());
-        sceneTree->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(sceneTree->sizePolicy().hasHeightForWidth());
+        sceneTree->setSizePolicy(sizePolicy1);
         sceneTree->setStyleSheet(QString::fromUtf8("QTreeWidget::branch:has-siblings:!adjoins-item {\n"
 "    border-image: url(:/rzeditor/vline.png) 0;\n"
 "}\n"

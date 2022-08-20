@@ -67,13 +67,6 @@ namespace Razix {
             UpdateSet(descriptors);
         }
 
-        VKDescriptorSet::~VKDescriptorSet()
-        {
-            delete[] m_BufferInfoPool;
-            delete[] m_ImageInfoPool;
-            delete[] m_WriteDescriptorSetPool;
-        }
-
         void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
@@ -107,7 +100,7 @@ namespace Razix {
                         auto buffer                    = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer)->getBuffer();
                         m_BufferInfoPool[index].buffer = buffer;
                         m_BufferInfoPool[index].offset = descriptor.offset;
-                        m_BufferInfoPool[index].range  = descriptor.size;
+                        m_BufferInfoPool[index].range  = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer)->getSize();
                         //}
 
                         VkWriteDescriptorSet writeDescriptorSet{};

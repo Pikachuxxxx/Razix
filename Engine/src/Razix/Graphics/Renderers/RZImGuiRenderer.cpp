@@ -3,8 +3,10 @@
 // clang-format on
 #include "RZImGuiRenderer.h"
 
-#include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/RZEngine.h"
 #include "razix/Core/RZApplication.h"
+
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 #include "Razix/Graphics/API/RZCommandBuffer.h"
@@ -200,13 +202,13 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Begin recording the command buffers
-            Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
+            //Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
-            m_MainCommandBuffers[ Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // Begin the render pass
-            m_RenderPass->BeginRenderPass(m_MainCommandBuffers[ Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
+            m_RenderPass->BeginRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
@@ -310,19 +312,20 @@ namespace Razix {
 
         void RZImGuiRenderer::Submit(RZCommandBuffer* cmdBuffer)
         {
+            ImDrawData* imDrawData = ImGui::GetDrawData();
+
+            if ((!imDrawData) || (imDrawData->CmdListsCount == 0)) {
+                return;
+            }
+
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
                 // Start the Dear ImGui frame
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
                 return;
             }
 
-            ImDrawData* imDrawData   = ImGui::GetDrawData();
-            int32_t     vertexOffset = 0;
-            int32_t     indexOffset  = 0;
-
-            if ((!imDrawData) || (imDrawData->CmdListsCount == 0)) {
-                return;
-            }
+            int32_t vertexOffset = 0;
+            int32_t indexOffset  = 0;
 
             ImGuiIO& io = ImGui::GetIO();
 
@@ -346,7 +349,7 @@ namespace Razix {
             m_ImGuiVBO->Bind(cmdBuffer);
             m_ImGuiIBO->Bind(cmdBuffer);
 
-            for (uint32_t i = 0; i < (uint32_t)imDrawData->CmdListsCount; ++i) {
+            for (uint32_t i = 0; i < (uint32_t) imDrawData->CmdListsCount; ++i) {
                 const ImDrawList* cmd_list = imDrawData->CmdLists[i];
                 for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
@@ -355,6 +358,9 @@ namespace Razix {
                     RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuffer, &set, 1);
                     // TODO: Fix this for Vulkan
                     VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
+
+                    RZEngine::Get().GetStatistics().NumDrawCalls++;
+                    RZEngine::Get().GetStatistics().IndexedDraws++;
 
                     // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
                     // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,

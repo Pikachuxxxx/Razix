@@ -159,7 +159,7 @@ namespace Razix {
 
                     RAZIX_CORE_WARN("id : {0}, type_id {1}, base_type_id : {2}, name : {3}", glsl.get_name(uniform_buffer.id), glsl.get_name(uniform_buffer.type_id), glsl.get_name(uniform_buffer.base_type_id), uniform_buffer.name);
 
-                    glsl.set_decoration(uniform_buffer.id, spv::Decoration::DecorationBinding, binding);
+                    glsl.set_decoration(uniform_buffer.id, spv::Decoration::DecorationBinding, binding + set);
 
                     RZDescriptor rzDescriptor;
                     rzDescriptor.bindingInfo = bindingLayout;
@@ -219,7 +219,7 @@ namespace Razix {
 
                     //glsl.unset_decoration(u.id, spv::DecorationBinding);
                     // FIXME: This isn't working
-                    glsl.set_decoration(push_constant.id, spv::Decoration::DecorationBinding, binding);
+                    glsl.set_decoration(push_constant.id, spv::Decoration::DecorationBinding, binding + set);
                     //glsl.set_decoration(u.id, spv::Decort)
                     //m_PushConstants.push_back({size, file.first});
                     //m_PushConstants.back().data = new uint8_t[size];

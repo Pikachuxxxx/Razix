@@ -29,6 +29,24 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
     }
 
+    void RZScene::Destroy()
+    {
+        // Destroy models
+        auto& mcs = this->GetComponentsOfType<Graphics::RZModel>();
+        for (Graphics::RZModel model: mcs)
+            model.Destroy();
+
+        // Meshes
+        auto& mrcs = this->GetComponentsOfType<MeshRendererComponent>();
+        for (auto& mesh: mrcs)
+            mesh.Mesh->Destroy();
+
+        // Sprites
+        auto& sprites = this->GetComponentsOfType<SpriteRendererComponent>();
+        for (auto& sprite: sprites)
+            sprite.Sprite->destroy();
+    }
+
     RZEntity RZScene::createEntity(const std::string& name /*= std::string()*/)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
@@ -66,7 +84,7 @@ namespace Razix {
         if (!nope) {
             std::string path = "//Scenes/";
             RZVirtualFileSystem::Get().resolvePhysicalPath(path, fullFilePath, true);
-         
+
             fullFilePath += (m_SceneName + std::string(".rzscn"));
         }
 

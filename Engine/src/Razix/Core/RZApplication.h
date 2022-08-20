@@ -16,6 +16,9 @@
 
 #include "Razix/Graphics/API/RZSwapchain.h"
 
+#include "Razix/Graphics/Renderers/RZGridRenderer.h"
+
+
 // glm
 //#include <glm/glm.hpp>
 
@@ -23,9 +26,6 @@
 #pragma warning(push, 0)
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
-
-// TODO: TESTING REMOVE THIS!!!!
-#include "Razix/Graphics/Renderers/RZGridRenderer.h"
 
 //! Some style guide rules are waved off for RZApplication class
 
@@ -231,6 +231,8 @@ namespace Razix {
         void Update(const RZTimestep& dt);
         /* Renders the application and Engine rendering commands */
         void Render();
+        /* Used to render GUI */
+        void RenderGUI();
 
         // Event callbacks
         /**
