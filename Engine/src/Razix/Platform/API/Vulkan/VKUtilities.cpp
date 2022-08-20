@@ -46,13 +46,16 @@ namespace Razix {
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
                         case RZTexture::Format::RGBA32F:
-                            return VK_FORMAT_R32G32B32A32_SFLOAT;
+                            return VK_FORMAT_R32G32B32A32_SFLOAT; 
                             break;
                         case RZTexture::Format::RGB:
                             return VK_FORMAT_R8G8B8_SRGB;
                             break;
                         case RZTexture::Format::RGBA:
                             return VK_FORMAT_R8G8B8A8_SRGB;
+                            break;
+                        case RZTexture::Format::BGRA8_UNORM:
+                            return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
                         default:
                             RAZIX_CORE_WARN("[Texture] Unsupported Texture format");
@@ -93,6 +96,9 @@ namespace Razix {
                             break;
                         case RZTexture::Format::RGBA:
                             return VK_FORMAT_R8G8B8A8_UNORM;
+                            break;
+                        case RZTexture::Format::BGRA8_UNORM:
+                            return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
                         default:
                             RAZIX_CORE_WARN("[Texture] Unsupported Texture format");

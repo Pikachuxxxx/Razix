@@ -2,6 +2,8 @@
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
 
+#include "Razix/Graphics/Materials/RZMaterial.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -9,16 +11,15 @@ namespace Razix {
         class RZUniformBuffer;
         class RZVertexBuffer;
         class RZIndexBuffer;
-        class RZMaterial;
 
         class RAZIX_API RZForwardRenderer : public IRZRenderer
         {
         public:
             struct ForwardLightData
             {
-                glm::vec3 position = glm::vec3(1.0f);
-                glm::vec3 color    = glm::vec3(1.0f);
-                glm::vec3 viewPos  = glm::vec3(1.0f);
+                alignas(16) glm::vec3 position = glm::vec3(1.0f);
+                alignas(16) glm::vec3 color    = glm::vec3(1.0f);
+                alignas(16) glm::vec3 viewPos  = glm::vec3(1.0f);
             };
 
         public:
@@ -48,8 +49,11 @@ namespace Razix {
             void OnEvent(RZEvent& event) override;
 
         private:
-            ForwardLightData m_ForwardLightData;
-            RZUniformBuffer* m_ForwardLightUBO;
+            ForwardLightData     m_ForwardLightData{};
+            RZUniformBuffer*     m_ForwardLightUBO = nullptr;
+            PBRMaterialProperties m_TempMatProps{};
+            RZUniformBuffer*     m_TempMatUBO;
+            ;
         };
     }    // namespace Graphics
 }    // namespace Razix

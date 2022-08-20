@@ -23,6 +23,7 @@
 
 #include "Razix/Scene/Components/CameraComponent.h"
 
+#include "Razix/Graphics/Renderers/RZForwardRenderer.h"
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
 
 #include <backends/imgui_impl_glfw.h>
@@ -33,6 +34,7 @@
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
+    // Editor-Graphics API Resize primitives won't make into final game so not an issues as of now!!!
     bool                    RZApplication::ready_for_execution = false;
     std::mutex              RZApplication::m;
     std::condition_variable RZApplication::halt_execution;
@@ -218,6 +220,7 @@ namespace Razix {
 
         // Job system and Engine Systems(run-time) Initialization
         Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
+        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZForwardRenderer);
         Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
@@ -241,13 +244,16 @@ namespace Razix {
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
+        // TODO: Add Time stamp Queries for calculating GPU time here
+
         // Calculate the delta time
-        float now   = m_Timer->GetElapsedS();
+        float now = m_Timer->GetElapsedS();
+        RZEngine::Get().ResetStats();
         auto& stats = RZEngine::Get().GetStatistics();
         m_Timestep.Update(now);
 
         // Update the stats
-        stats.FrameTime = m_Timestep.GetTimestepMs();
+        stats.DeltaTime = m_Timestep.GetTimestepMs();
         //RAZIX_CORE_TRACE("Time steps : {0} ms", stats.FrameTime);
 
         // Poll for Input events
@@ -267,6 +273,9 @@ namespace Razix {
         // Render the Graphics
         Render();
         m_Frames++;
+
+        // RenderGUI
+        RenderGUI();
 
         // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
@@ -290,7 +299,6 @@ namespace Razix {
                 m_Updates = 0;
             }
         }
-        RZEngine::Get().ResetStats();
         return m_CurrentState != AppState::Closing;
     }
 
@@ -338,30 +346,6 @@ namespace Razix {
         OnUpdate(dt);
 
 #if 1
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
-            ImGui_ImplOpenGL3_NewFrame();
-
-        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
-        if (RZApplication::Get().getAppType() != AppType::GAME)
-            ImGui_ImplGlfw_NewFrame();
-
-        ImGui::NewFrame();
-
-        OnImGui();
-
-        ImGui::ShowDemoWindow();
-        if (ImGui::Begin("Razix Engine")) {
-            ImGui::Text("Indeed it is!");
-
-            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(ImGui::GetWindowSize()[0], 400));
-            static bool some;
-            if (ImGui::Checkbox("Test", &some)) {
-                RAZIX_CORE_ERROR("Done!");
-            }
-        }
-        ImGui::End();
-
-        ImGui::Render();
 
 #endif
     }
@@ -378,6 +362,72 @@ namespace Razix {
         Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
         OnRender();
+    }
+
+    void RZApplication::RenderGUI()
+    {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+            ImGui_ImplOpenGL3_NewFrame();
+
+        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
+        if (RZApplication::Get().getAppType() == AppType::GAME)
+            ImGui_ImplGlfw_NewFrame();
+
+        ImGui::NewFrame();
+
+        // TODO: Call the Lua Scripts OnGuiDraw method here
+
+        OnImGui();
+
+        ImGui::ShowDemoWindow();
+        if (ImGui::Begin("Razix Engine")) {
+            ImGui::Text("Indeed it is!");
+
+            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(50, 50));
+            ImGui::SameLine();
+            static bool some;
+            if (ImGui::Checkbox("Test", &some)) {
+                RAZIX_CORE_ERROR("Done!");
+            }
+
+            ImGui::Separator();
+        }
+        ImGui::End();
+
+        // Engine stats
+        ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+        const float          DISTANCE         = 10.0f;
+        const ImGuiViewport* viewport         = ImGui::GetMainViewport();
+        ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
+        ImVec2               work_area_size   = viewport->WorkSize;
+        ImVec2               window_pos       = ImVec2((1 & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (1 & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
+        ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::SetNextWindowBgAlpha(0.35f);    // Transparent background
+
+        ImGui::Begin("Engine Stats", 0, window_flags);
+        {
+            auto& stats = RZEngine::Get().GetStatistics();
+            ImGui::Text("Engine Stats");
+            ImGui::Indent();
+            ImGui::Text("FPS                    : %d", stats.FramesPerSecond);
+            ImGui::Text("render time (in ms)    : %f", stats.DeltaTime);
+
+            ImGui::Separator();
+            ImGui::Text("API calls");
+
+            ImGui::Text("Total Draw calls       : %d", stats.NumDrawCalls);
+
+            ImGui::Indent();
+            ImGui::BulletText("Draws            : %d", stats.Draws);
+            ImGui::BulletText("Indexed Draws    : %d", stats.IndexedDraws);
+            ImGui::Unindent();
+            ImGui::Unindent();
+        }
+        ImGui::End();
+
+        ImGui::Render();
     }
 
     void RZApplication::Quit()

@@ -28,6 +28,17 @@ public:
     }
 
     ~RendererTest_GridRenderer() {}
+
+    void OnStart() override
+    {
+        // Add some model entities
+        auto& modelEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
+        if (!modelEnitties.size()) {
+            // Avocado
+            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Armadillo");
+            armadilloModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Avocado.gltf");
+        }
+    }
 };
 
 Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)

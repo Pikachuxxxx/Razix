@@ -39,7 +39,7 @@ namespace Razix {
 
             // This is a override shader that won't be used
             // Giving the shader to the renderer is not something I can think will be useful I think material will decide that
-            // So what does the renderer do then? it's job is to enforce some rules on the shader and it handles how it updates the data in a way that is appropriate for that renderer to operate
+            // So what does the renderer do then? it's job is to enforce some rules on the shader (on the UBO data and samplers) and it handles how it updates the data in a way that is appropriate for that renderer to operate
             m_OverrideGlobalRHIShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
 
             // Create the uniform buffers
@@ -49,18 +49,40 @@ namespace Razix {
             // 2. Lighting data
             m_ForwardLightUBO = Graphics::RZUniformBuffer::Create(sizeof(ForwardLightData), &m_ForwardLightData, "Forward Renderer Light Data");
 
+            // 3. Material data
+            m_TempMatUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_TempMatProps, "Temp Mat");
+
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
             auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 for (auto& descriptor: setInfo.second) {
-                    if (setInfo.first == 0)
-                        descriptor.uniformBuffer = m_ViewProjectionSystemUBO;
-                    else
-                        descriptor.uniformBuffer = m_ForwardLightUBO;
+                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                        if (setInfo.first == 0)
+                            descriptor.uniformBuffer = m_ViewProjectionSystemUBO;
+                        else if (setInfo.first == 1)
+                            descriptor.uniformBuffer = m_ForwardLightUBO;
+                        else if (setInfo.first == 2) {
+                            descriptor.uniformBuffer = m_TempMatUBO;
+                        }
+                    } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
+                        uint32_t pinkTextureData = 0xffff00ff;    // is it ABGR
+                        // All maps will have the same pink texture
+                        descriptor.texture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+
+                        //Graphics::RZTexture2D::Create("Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
+                    }
                 }
                 auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second);
                 m_DescriptorSets.push_back(descSet);
+            }
+
+            InitDisposableResources();
+
+            // TODO: This is also to be moved to the renderer static initialization
+            for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
+                m_MainCommandBuffers[i]->Init();
             }
         }
 
@@ -68,7 +90,7 @@ namespace Razix {
         {
             // Render pass
             Graphics::AttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN},
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
                 {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
 
             Graphics::RenderPassInfo renderPassInfo{};
@@ -114,12 +136,6 @@ namespace Razix {
 
                 m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
             }
-
-            // TODO: This is also to be moved to the renderer static initialization
-            for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init();
-            }
         }
 
         void RZForwardRenderer::Begin()
@@ -129,8 +145,10 @@ namespace Razix {
             m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
+            //Graphics::RZAPIRenderer::AcquireImage();
+
             // Begin recording the command buffers
-            Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
+            //Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
             Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
@@ -142,6 +160,8 @@ namespace Razix {
         void RZForwardRenderer::BeginScene(RZScene* scene)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_CurrentScene = scene;
 
             auto& registry = scene->getRegistry();
 
@@ -157,7 +177,7 @@ namespace Razix {
             }
 
             // Update the View Projection UBO
-            m_Camera->setPerspectiveFarClip(6000.0f);
+            //m_Camera->setPerspectiveFarClip(6000.0f);
             m_ViewProjSystemUBOData.view       = m_Camera->getViewMatrix();
             m_ViewProjSystemUBOData.projection = m_Camera->getProjection();
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
@@ -168,7 +188,19 @@ namespace Razix {
             m_ForwardLightData.viewPos = m_Camera->getPosition();
             m_ForwardLightUBO->SetData(sizeof(ForwardLightData), &m_ForwardLightData);
             //auto lightEntities = registry.view<LightComponent>();
-            // TODO: Iterate and get the data and update the UBO
+            // TODO: Iterate and get the light components + Material data from the mesh and update the UBO
+        }
+
+        void RZForwardRenderer::Submit(RZCommandBuffer* cmdBuf)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Bind the pipeline
+            m_Pipeline->Bind(cmdBuf);
+            // Bind the sets
+            Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+
+            auto& registry = m_CurrentScene->getRegistry();
 
             // Get the list of entities and their transform component together
             auto group = registry.group<Razix::Graphics::RZModel>(entt::get<TransformComponent, TagComponent>);
@@ -177,13 +209,26 @@ namespace Razix {
 
                 auto& meshes = model.getMeshes();
 
-                // Bind the desc set, push constants, VBO, IBO and draw (or stack them into queue to be submitted after starting the recording operations)
-            }
-        }
+                // Bind push constants, VBO, IBO and draw
+                glm::mat4 transform = trans.GetTransform();
 
-        void RZForwardRenderer::Submit(RZCommandBuffer* cmdBuf)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+                // Get the shader from the Mesh Material later
+                // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
+
+                modelMatrix.data = glm::value_ptr(transform);
+                modelMatrix.size = sizeof(glm::mat4);
+
+                Graphics::RZAPIRenderer::BindPushConstant(m_Pipeline, cmdBuf, modelMatrix);
+
+                // Bind IBO and VBO
+                for (auto& mesh: meshes) {
+                    mesh->getVertexBuffer()->Bind(cmdBuf);
+                    mesh->getIndexBuffer()->Bind(cmdBuf);
+
+                    Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getCurrentCommandBuffer(), mesh->getIndexCount());
+                }
+            }
         }
 
         void RZForwardRenderer::EndScene(RZScene* scene)
@@ -194,21 +239,66 @@ namespace Razix {
         void RZForwardRenderer::End()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // End the render pass and recording
+            m_RenderPass->EndRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+
+            //Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
         }
 
         void RZForwardRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            //Graphics::RZAPIRenderer::SubmitWork();
+            //Graphics::RZAPIRenderer::Present();
         }
 
         void RZForwardRenderer::Resize(uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_ScreenBufferWidth  = width;
+            m_ScreenBufferHeight = height;
+
+            // Destroy the resources first
+            m_DepthTexture->Release(true);
+
+            for (auto frameBuf: m_Framebuffers)
+                frameBuf->Destroy();
+
+            m_RenderPass->Destroy();
+
+            m_Pipeline->Destroy();
+
+            Graphics::RZAPIRenderer::OnResize(width, height);
+
+            InitDisposableResources();
         }
 
         void RZForwardRenderer::Destroy()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Destroy the resources first
+            m_DepthTexture->Release(true);
+
+            m_OverrideGlobalRHIShader->Destroy();
+
+            m_ViewProjectionSystemUBO->Destroy();
+
+            m_ForwardLightUBO->Destroy();
+            m_TempMatUBO->Destroy();
+
+            for (auto set: m_DescriptorSets)
+                set->Destroy();
+
+            for (auto frameBuf: m_Framebuffers)
+                frameBuf->Destroy();
+
+            m_RenderPass->Destroy();
+
+            m_Pipeline->Destroy();
         }
 
         void RZForwardRenderer::OnEvent(RZEvent& event)

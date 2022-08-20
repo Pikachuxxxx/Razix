@@ -11,10 +11,51 @@ namespace Razix {
          * Set index 2 is for Material buffer data + Textures (How do we fit sampler and fill the data it's a bit of messy for now)
          * other sets will be allocated for GI, Decals etc up to 32/16
          */
-#define SYSTEM_SET_INDEX_VIEW_PROJ_DATA 0
-#define SYSTEM_SET_INDEX_LIGHTING_DATA  1
-#define SYSTEM_SET_INDEX_MATERIAL_DATA  2
 
+        /**
+         * Note:- Not an enum class because we need them as Int!!!! so the style guide is broke here on purpose
+         * This for the render system 
+         * for ex. for GI data, View proj data and Lighting data that will be defined by the rendering engine system data
+         * we will have only set info for now as we implement if we need set info we'll see
+         */
+        enum MatBindingTable_System : uint32_t
+        {
+            BINDING_SET_SYSTEM_VIEW_PROJECTION   = 0, // How to feed this to the Renderer? in terms of Include files order which is fucked up, should I make a header file to hold binding Material + Render System binding table infos
+            BINDING_SET_SYSTEM_FORWARD_LIGHTING  = 1,
+            BINDING_SET_SYSTEM_DEFERRED_LIGHTING = BINDING_SET_SYSTEM_FORWARD_LIGHTING
+            //BINDING_SET_SYSTEM_VARIABLE_MODEL_MATRIX = 1,    // TODO: To be decided once OpenGL works, this is only for OpenGL
+        };
+
+        /**
+         * binding/slot IDs for the user defined 
+         */
+        enum MatBindingTable_User : uint32_t
+        {
+            BINDING_SET_USER_MAT_PROPS    = 2,    // continued from after the System variables table
+            BINDING_SET_USER_MAT_SAMPLERS = 3
+        };
+
+        /* Phong lighting model texture binding slots */
+        enum PhongBindinngTable : uint32_t
+        {
+            PHONG_TEX_BINDING_IDX_AMBIENT  = 0,
+            PHONG_TEX_BINDING_IDX_DIFFUSE  = 1,
+            PHONG_TEX_BINDING_IDX_NORMAL   = 2,
+            PHONG_TEX_BINDING_IDX_SPECULAR = 3
+        };
+
+        /* PBR lighting model texture binding slots */
+        enum PBRBindingTable : uint32_t
+        {
+            PBR_TEX_BINDING_IDX_ALBEDO    = 0,
+            PBR_TEX_BINDING_IDX_NORMAL    = 1,
+            PBR_TEX_BINDING_IDX_METALLLIC = 2,
+            PBR_TEX_BINDING_IDX_ROUGHNESS = 3,
+            PBR_TEX_BINDING_IDX_AO        = 4,
+            PBR_TEX_BINDING_IDX_EMISSIVE  = 5,
+        };
+
+        // Forward declaration
         class RZShader;
         class RZTexture2D;
         class RZUniformBuffer;
@@ -28,23 +69,37 @@ namespace Razix {
             PBR_WORKFLOW_SPECULAR_ROUGHNESS
         };
 
-        struct RZMaterialProperties
+        /* PBR material properties */
+        struct PBRMaterialProperties
         {
-            glm::vec4 albedoColor         = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 roughnessColor      = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 metallicColor       = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-            glm::vec4 emissiveColor       = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            bool      isUsingAlbedoMap    = false;
-            bool      isUsingNormalMap    = false;
-            bool      isUsingMetallicMap  = false;
-            bool      isUsingRoughnessMap = false;
-            bool      isUsingAOMap        = false;
-            bool      isUsingEmissiveMap  = false;
-            uint16_t  _padding_bool       = 0;
-            float     _padding            = 0.0f;
-            WorkFlow  workflow            = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
+            alignas(16) glm::vec4 albedoColor    = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            alignas(16) glm::vec4 roughnessColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            alignas(16) glm::vec4 metallicColor  = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            alignas(16) glm::vec4 emissiveColor  = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            alignas(16) bool isUsingAlbedoMap    = true;
+            alignas(16) bool isUsingNormalMap    = false;
+            alignas(16) bool isUsingMetallicMap  = false;
+            alignas(16) bool isUsingRoughnessMap = false;
+            alignas(16) bool isUsingAOMap        = false;
+            alignas(16) bool isUsingEmissiveMap  = false;
+            alignas(16) WorkFlow workflow        = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
         };
 
+        /* Phong Material properties for forward lighting */
+        struct PhongMaterialProperties
+        {
+        };
+
+        /* Phong lighting model light maps */
+        struct PhongMaterialTextures
+        {
+            RZTexture2D* normal;
+            RZTexture2D* ambient;
+            RZTexture2D* diffuse;
+            RZTexture2D* specular;
+        };
+
+        /* PBR lighting model textures */
         struct PBRMataterialTextures
         {
             RZTexture2D* albedo;
@@ -55,16 +110,29 @@ namespace Razix {
             RZTexture2D* emissive;
         };
 
+        /* Presets that help load a shader/material provided by the engine during model loading */
+        enum class MaterialPreset : uint32_t
+        {
+            MAT_PRESET_FORWARD_PHONG_LIGHTING,
+            MAT_PRESET_DEFERRED_PBR,
+            MAT_PRESET_SKYBOX
+        };
+
         /* Not an interface yet, this is a hard coded PBR material as of this iteration of the engine */
         class RAZIX_API RZMaterial
         {
         public:
             /* Crates the material with the given shader and it's properties */
-            RZMaterial(RZShader* shader, RZMaterialProperties matProps = RZMaterialProperties(), PBRMataterialTextures textures = PBRMataterialTextures());
+            RZMaterial(RZShader* shader);
             virtual ~RZMaterial() {}
 
+            /* Creates a 1x1 default pink 2D texture */
             static void InitDefaultTexture();
+            /* Destroys the default texture created */
             static void ReleaseDefaultTexture();
+            /* Static Getter and setter for the material preset */
+            RAZIX_INLINE static MaterialPreset GetMatPreset() { return s_MatPreset; }
+            RAZIX_INLINE static void           SetMatPreset(MaterialPreset preset) { s_MatPreset = preset; }
 
             /* Overrides the default material properties and textures by loading the material file and de-serializing it */
             void loadMaterial(const std::string& name, const std::string& path);
@@ -157,13 +225,20 @@ namespace Razix {
             }
 
         private:
-            static RZTexture2D* s_DefaultTexture;
+            static RZTexture2D*   s_DefaultTexture;
+            static MaterialPreset s_MatPreset;
 
-            RZShader*             m_Shader;
-            PBRMataterialTextures m_PBRMaterialTextures;
-            RZMaterialProperties  m_MaterialProperties;
-            RZUniformBuffer*      m_MaterialPropertiesUBO;
-            RZDescriptorSet*      m_DescriptorSet;
+            RZShader* m_Shader;
+            // TODO: make this a vector equal to the number of user mat sets
+            RZDescriptorSet* m_DescriptorSet;
+
+            // Data for the UBO
+            PBRMaterialProperties   m_PBRMaterialProperties;
+            PhongMaterialProperties m_PhongMaterialProperties;
+            PBRMataterialTextures   m_PBRMaterialTextures;
+            PhongMaterialTextures   m_PhongMaterialTextures;
+
+            RZUniformBuffer* m_MaterialPropertiesUBO;
             //uint32_t              m_MaterialBufferSize;
             //uint8_t*              m_MaterialBufferData;
             std::string m_Name;

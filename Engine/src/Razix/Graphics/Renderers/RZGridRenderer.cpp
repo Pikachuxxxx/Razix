@@ -1,4 +1,4 @@
-// clang-format off
+ // clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZGridRenderer.h"
@@ -149,8 +149,8 @@ namespace Razix {
             Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
             // Bind the appropriate buffers/mesh
-            gridVBO->Bind(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
-            gridIBO->Bind(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+            gridVBO->Bind(cmdBuf);
+            gridIBO->Bind(cmdBuf);
 
             // Issues the Draw Commands
             Graphics::RZAPIRenderer::DrawIndexed(cmdBuf, 6);
@@ -168,14 +168,15 @@ namespace Razix {
             // End the render pass and recording
             m_RenderPass->EndRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
 
-            Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+            //Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
         }
 
         void RZGridRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            //Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
+            //Graphics::RZAPIRenderer::SubmitWork();
+            //Graphics::RZAPIRenderer::Present();
         }
 
         void RZGridRenderer::Resize(uint32_t width, uint32_t height)
@@ -235,7 +236,7 @@ namespace Razix {
         {
             // Render pass
             Graphics::AttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN},
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
                 {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
 
             Graphics::RenderPassInfo renderPassInfo{};

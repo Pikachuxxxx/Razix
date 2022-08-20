@@ -44,9 +44,9 @@ namespace Razix {
                     m_ClearValue[i].color.float32[3] = clearColor.w;
                 }
             }
-
-            if (m_ClearDepth)
-                m_ClearValue[m_AttachmentsCount - 1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+            // Assuming that depth is always the last attachment 
+            m_ClearValue[m_AttachmentsCount - 1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
+            //if (m_ClearDepth)
 
             VkRenderPassBeginInfo rpBegin{};
             rpBegin.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -186,7 +186,7 @@ namespace Razix {
 
             VkAttachmentDescription attachment = {};
             if (info.type == RZTexture::Type::COLOR) {
-                attachment.format      = info.format == RZTexture::Format::SCREEN ? VKContext::Get()->getSwapchain()->getColorFormat() : VKUtilities::TextureFormatToVK(info.format);
+                attachment.format      = info.format == RZTexture::Format::SCREEN ? VKContext::Get()->getSwapchain()->getColorFormat() : VKUtilities::TextureFormatToVK(info.format, true);
                 attachment.finalLayout = info.format == RZTexture::Format::SCREEN ? VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             } else if (info.type == RZTexture::Type::DEPTH) {
                 attachment.format      = VKUtilities::FindDepthFormat();
@@ -201,9 +201,15 @@ namespace Razix {
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             } else {
-                attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_LOAD; // Well don't discard stuff we render on top of what was presented previously
-                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
+                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+                attachment.initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            }
+
+            if (info.type == RZTexture::Type::DEPTH) {
+                attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                attachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             }
 
             attachment.samples        = VK_SAMPLE_COUNT_1_BIT;

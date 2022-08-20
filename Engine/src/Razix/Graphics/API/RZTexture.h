@@ -43,7 +43,8 @@ namespace Razix {
                 DEPTH,
                 STENCIL,
                 DEPTH_STENCIL,
-                SCREEN
+                SCREEN,
+                BGRA8_UNORM
             };
 
             /* Wrap mode for the texture texels */
