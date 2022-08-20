@@ -10,20 +10,25 @@
 namespace Razix {
     namespace Graphics {
 
-        RZTexture2D* RZMaterial::s_DefaultTexture = nullptr;
+        RZTexture2D*   RZMaterial::s_DefaultTexture = nullptr;
+        MaterialPreset RZMaterial::s_MatPreset      = MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING;
 
-        RZMaterial::RZMaterial(RZShader* shader, RZMaterialProperties matProps /*= RZMaterialProperties()*/, PBRMataterialTextures textures /*= PBRMataterialTextures()*/)
+        RZMaterial::RZMaterial(RZShader* shader)
         {
-            m_Shader              = shader;
-            m_MaterialProperties  = matProps;
-            m_PBRMaterialTextures = textures;
+            m_Shader = shader;
 
             m_MaterialPropertiesUBO = nullptr;
-            //m_MaterialBufferSize       = sizeof(RZMaterialProperties);
-            //m_MaterialBufferData       = new uint8_t[m_MaterialBufferSize];
 
             // Create the uniform buffer first
-            m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(RZMaterialProperties), &m_MaterialProperties, "Material Properties UBO");
+            // well the type of UBO data to create depends on the shader since the pre-made shader reflection info for mat properties has to be stored somewhere
+            // we store the types in the header file and use the preset to create the UBO with apt data
+            if (s_MatPreset == MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING)
+                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PhongMaterialProperties), &m_PhongMaterialProperties, "Material Properties UBO (Phong)");
+            else if (s_MatPreset == MaterialPreset::MAT_PRESET_DEFERRED_PBR)
+                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_PBRMaterialProperties, "Material Properties UBO (PBR)");
+
+            // Create the descriptor sets for the shaders and Update with the apt data (user mat + render systems data)
+            createDescriptorSet();
         }
 
         void RZMaterial::InitDefaultTexture()
@@ -39,45 +44,68 @@ namespace Razix {
 
         void RZMaterial::loadMaterial(const std::string& name, const std::string& path)
         {
-            m_Name                = name;
-            m_PBRMaterialTextures = PBRMataterialTextures();
+            m_Name = name;
+            // TODO: Deserialize using the path
         }
 
         void RZMaterial::loadShader(const std::string& path)
         {
+            // TODO: if its just a name search the VFS and ShaderLibrary of not load it into memory and do all the shit work needed thereafter
         }
 
         void RZMaterial::createDescriptorSet()
         {
-            // TODO: Make this more intuitive and less dirty like this!!!!
             // Create the descriptor set for material properties data and it's textures
-            auto setInfos      = m_Shader->getSetsCreateInfos();
-            int  texBindingidx = 0;
+            // How about renderer data for forward lights info + system vars???? How to associate and update?
+            auto setInfos = m_Shader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
-                if (setInfo.first == SYSTEM_SET_INDEX_MATERIAL_DATA) {
+                if (setInfo.first == MatBindingTable_User::BINDING_SET_USER_MAT_PROPS) {
                     for (auto& descriptor: setInfo.second) {
                         // Find the material properties UBO and assign it's UBO to this slot
-                        if (setInfo.first == SYSTEM_SET_INDEX_MATERIAL_DATA && descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER) {
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER) {
                             descriptor.uniformBuffer = m_MaterialPropertiesUBO;
-                        } else if (setInfo.first == SYSTEM_SET_INDEX_MATERIAL_DATA && descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
-                            if (texBindingidx == 0)
-                                descriptor.texture = m_PBRMaterialTextures.albedo ? m_PBRMaterialTextures.albedo : s_DefaultTexture;
-                            if (texBindingidx == 1)
-                                descriptor.texture = m_PBRMaterialTextures.normal ? m_PBRMaterialTextures.normal : s_DefaultTexture;
-                            if (texBindingidx == 2)
-                                descriptor.texture = m_PBRMaterialTextures.metallic ? m_PBRMaterialTextures.metallic : s_DefaultTexture;
-                            if (texBindingidx == 3)
-                                descriptor.texture = m_PBRMaterialTextures.roughness ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
-                            if (texBindingidx == 4)
-                                descriptor.texture = m_PBRMaterialTextures.ao ? m_PBRMaterialTextures.ao : s_DefaultTexture;
-                            if (texBindingidx == 5)
-                                descriptor.texture = m_PBRMaterialTextures.emissive ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
-                            texBindingidx++;
                         }
                     }
-                    // This holds the descriptor set only for the Material Index
-                    m_DescriptorSet = RZDescriptorSet::Create(setInfo.second);
+                } else if (setInfo.first == MatBindingTable_User::BINDING_SET_USER_MAT_SAMPLERS) {
+                    for (auto& descriptor: setInfo.second) {
+                        // Choose the mat textures based on the workflow & preset
+                        if (s_MatPreset == MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING) {
+                            switch (descriptor.bindingInfo.binding) {
+                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_AMBIENT:
+                                    descriptor.texture = m_PhongMaterialTextures.ambient ? m_PhongMaterialTextures.ambient : s_DefaultTexture;
+                                    break;
+                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_DIFFUSE:
+                                    descriptor.texture = m_PhongMaterialTextures.diffuse ? m_PhongMaterialTextures.diffuse : s_DefaultTexture;
+                                    break;
+                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_NORMAL:
+                                    descriptor.texture = m_PhongMaterialTextures.normal ? m_PhongMaterialTextures.normal : s_DefaultTexture;
+                                    break;
+                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_SPECULAR:
+                                    descriptor.texture = m_PhongMaterialTextures.specular ? m_PhongMaterialTextures.specular : s_DefaultTexture;
+                                    break;
+                                default:
+                                    descriptor.texture = s_DefaultTexture;
+                                    break;
+                            }
+                        } else if (s_MatPreset == MaterialPreset::MAT_PRESET_DEFERRED_PBR) {
+                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_ALBEDO)
+                                descriptor.texture = m_PBRMaterialTextures.albedo ? m_PBRMaterialTextures.albedo : s_DefaultTexture;
+                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_NORMAL)
+                                descriptor.texture = m_PBRMaterialTextures.normal ? m_PBRMaterialTextures.normal : s_DefaultTexture;
+                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_METALLLIC)
+                                descriptor.texture = m_PBRMaterialTextures.metallic ? m_PBRMaterialTextures.metallic : s_DefaultTexture;
+                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_ROUGHNESS)
+                                descriptor.texture = m_PBRMaterialTextures.roughness ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
+                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_AO)
+                                descriptor.texture = m_PBRMaterialTextures.ao ? m_PBRMaterialTextures.ao : s_DefaultTexture;
+                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_EMISSIVE)
+                                descriptor.texture = m_PBRMaterialTextures.emissive ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
+                        }
+                    }
                 }
+
+                // This holds the descriptor set only for the Material Index
+                m_DescriptorSet = RZDescriptorSet::Create(setInfo.second);
             }
         }
 

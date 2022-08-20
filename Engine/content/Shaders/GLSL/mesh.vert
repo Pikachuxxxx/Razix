@@ -7,6 +7,11 @@
 #extension GL_ARB_separate_shader_objects : enable
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
+// This extension is for #include support in glsl, this extension is usually not supported to force enable it perhaps?
+#extension GL_ARB_shading_language_include : enable
+
+// TODO: Implement this
+//#include "binding_table.glsli"
 
 //------------------------------------------------------------------------------
 // Vertex Input
@@ -18,7 +23,7 @@ layout(location = 4) in vec3 inTangent;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
 // Thew view projection matrix
-layout(set = 0, binding = 0) uniform ViewProjectionUniformBufferObject
+layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 {
     mat4 view;
 	mat4 proj;

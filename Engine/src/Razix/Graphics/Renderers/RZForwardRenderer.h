@@ -51,7 +51,7 @@ namespace Razix {
         private:
             ForwardLightData     m_ForwardLightData{};
             RZUniformBuffer*     m_ForwardLightUBO = nullptr;
-            RZMaterialProperties m_TempMatProps{};
+            PBRMaterialProperties m_TempMatProps{};
             RZUniformBuffer*     m_TempMatUBO;
             ;
         };

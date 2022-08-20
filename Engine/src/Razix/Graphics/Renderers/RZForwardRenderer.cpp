@@ -50,7 +50,7 @@ namespace Razix {
             m_ForwardLightUBO = Graphics::RZUniformBuffer::Create(sizeof(ForwardLightData), &m_ForwardLightData, "Forward Renderer Light Data");
 
             // 3. Material data
-            m_TempMatUBO = Graphics::RZUniformBuffer::Create(sizeof(RZMaterialProperties), &m_TempMatProps, "Temp Mat");
+            m_TempMatUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_TempMatProps, "Temp Mat");
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
