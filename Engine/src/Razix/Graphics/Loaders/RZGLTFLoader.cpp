@@ -6,11 +6,13 @@
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
-#include "Razix/Graphics/API/RZIndexBuffer.h" 
-#include "Razix/Graphics/API/RZVertexBuffer.h"
-#include "Razix/Graphics/Materials/RZMaterial.h"
+#include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+
+#include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
@@ -27,6 +29,19 @@
 
 namespace Razix {
     namespace Graphics {
+
+        std::string AlbedoTexName   = "baseColorTexture";
+        std::string NormalTexName   = "normalTexture";
+        std::string MetallicTexName = "metallicRoughnessTexture";
+        std::string GlossTexName    = "metallicRoughnessTexture";
+        std::string AOTexName       = "occlusionTexture";
+        std::string EmissiveTexName = "emissiveTexture";
+
+        struct GLTFTexture
+        {
+            tinygltf::Image*   Image;
+            tinygltf::Sampler* Sampler;
+        };
 
         static std::map<int32_t, size_t> ComponentSize{
             {TINYGLTF_COMPONENT_TYPE_BYTE, sizeof(int8_t)},
@@ -63,6 +78,116 @@ namespace Razix {
         inline glm::vec4 ToVector(const Vector4Simple& vec)
         {
             return glm::vec4(vec.x, vec.y, vec.z, vec.w);
+        }
+
+        std::vector<RZMaterial*> LoadMaterials(tinygltf::Model& gltfModel)
+        {
+            std::vector<Graphics::RZTexture2D*> loadedTextures;
+            std::vector<RZMaterial*>            loadedMaterials;
+            loadedTextures.reserve(gltfModel.textures.size());
+            loadedMaterials.reserve(gltfModel.materials.size());
+
+            for (tinygltf::Texture& gltfTexture: gltfModel.textures) {
+                GLTFTexture imageAndSampler{};
+
+                if (gltfTexture.source != -1) {
+                    imageAndSampler.Image = &gltfModel.images.at(gltfTexture.source);
+                }
+
+                if (gltfTexture.sampler != -1) {
+                    imageAndSampler.Sampler = &gltfModel.samplers.at(gltfTexture.sampler);
+                }
+
+                if (imageAndSampler.Image) {
+                    Graphics::RZTexture2D* texture2D = Graphics::RZTexture2D::Create(imageAndSampler.Image->name, imageAndSampler.Image->width, imageAndSampler.Image->height, imageAndSampler.Image->image.data(), Graphics::RZTexture::Format::RGBA8);
+                    loadedTextures.push_back(texture2D ? texture2D : nullptr);
+                }
+            }
+
+            auto TextureName = [&](int index) {
+                if (index >= 0) {
+                    const tinygltf::Texture& tex = gltfModel.textures[index];
+                    if (tex.source >= 0 && tex.source < loadedTextures.size()) {
+                        return loadedTextures[tex.source];
+                    }
+                } else
+                    return RZMaterial::GetDefaultTexture();
+            };
+
+            for (tinygltf::Material& mat: gltfModel.materials) {
+                //TODO : if(isAnimated) Load deferredColorAnimated;
+                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+
+                RZMaterial*                     forwardRendererMaterial = new RZMaterial(shader);
+                PBRMataterialTextures           textures;
+                Graphics::PBRMaterialProperties properties;
+
+                const tinygltf::PbrMetallicRoughness& pbr = mat.pbrMetallicRoughness;
+                textures.albedo                           = TextureName(pbr.baseColorTexture.index);
+                textures.normal                           = TextureName(mat.normalTexture.index);
+                textures.ao                               = TextureName(mat.occlusionTexture.index);
+                textures.emissive                         = TextureName(mat.emissiveTexture.index);
+                textures.metallic                         = TextureName(pbr.metallicRoughnessTexture.index);
+                properties.workflow = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+
+                // metallic-roughness workflow:
+                auto baseColorFactor = mat.values.find("baseColorFactor");
+                auto roughnessFactor = mat.values.find("roughnessFactor");
+                auto metallicFactor  = mat.values.find("metallicFactor");
+
+                if (roughnessFactor != mat.values.end()) {
+                    properties.roughnessColor = glm::vec4(static_cast<float>(roughnessFactor->second.Factor()));
+                }
+
+                if (metallicFactor != mat.values.end()) {
+                    properties.metallicColor = glm::vec4(static_cast<float>(metallicFactor->second.Factor()));
+                }
+
+                if (baseColorFactor != mat.values.end()) {
+                    properties.albedoColor = glm::vec4((float) baseColorFactor->second.ColorFactor()[0], (float) baseColorFactor->second.ColorFactor()[1], (float) baseColorFactor->second.ColorFactor()[2], 1.0f);
+                }
+
+                // Extensions
+                auto metallicGlossinessWorkflow = mat.extensions.find("KHR_materials_pbrSpecularGlossiness");
+                if (metallicGlossinessWorkflow != mat.extensions.end()) {
+                    if (metallicGlossinessWorkflow->second.Has("diffuseTexture")) {
+                        int index       = metallicGlossinessWorkflow->second.Get("diffuseTexture").Get("index").Get<int>();
+                        textures.albedo = loadedTextures[gltfModel.textures[index].source];
+                    }
+
+                    if (metallicGlossinessWorkflow->second.Has("metallicGlossinessTexture")) {
+                        int index          = metallicGlossinessWorkflow->second.Get("metallicGlossinessTexture").Get("index").Get<int>();
+                        textures.roughness = loadedTextures[gltfModel.textures[index].source];
+                    }
+
+                    if (metallicGlossinessWorkflow->second.Has("diffuseFactor")) {
+                        auto& factor             = metallicGlossinessWorkflow->second.Get("diffuseFactor");
+                        properties.albedoColor.x = factor.ArrayLen() > 0 ? float(factor.Get(0).IsNumber() ? factor.Get(0).Get<double>() : factor.Get(0).Get<int>()) : 1.0f;
+                        properties.albedoColor.y = factor.ArrayLen() > 1 ? float(factor.Get(1).IsNumber() ? factor.Get(1).Get<double>() : factor.Get(1).Get<int>()) : 1.0f;
+                        properties.albedoColor.z = factor.ArrayLen() > 2 ? float(factor.Get(2).IsNumber() ? factor.Get(2).Get<double>() : factor.Get(2).Get<int>()) : 1.0f;
+                        properties.albedoColor.w = factor.ArrayLen() > 3 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
+                    }
+                    if (metallicGlossinessWorkflow->second.Has("metallicFactor")) {
+                        auto& factor               = metallicGlossinessWorkflow->second.Get("metallicFactor");
+                        properties.metallicColor.x = factor.ArrayLen() > 0 ? float(factor.Get(0).IsNumber() ? factor.Get(0).Get<double>() : factor.Get(0).Get<int>()) : 1.0f;
+                        properties.metallicColor.y = factor.ArrayLen() > 0 ? float(factor.Get(1).IsNumber() ? factor.Get(1).Get<double>() : factor.Get(1).Get<int>()) : 1.0f;
+                        properties.metallicColor.z = factor.ArrayLen() > 0 ? float(factor.Get(2).IsNumber() ? factor.Get(2).Get<double>() : factor.Get(2).Get<int>()) : 1.0f;
+                        properties.metallicColor.w = factor.ArrayLen() > 0 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
+                    }
+                    if (metallicGlossinessWorkflow->second.Has("glossinessFactor")) {
+                        auto& factor              = metallicGlossinessWorkflow->second.Get("glossinessFactor");
+                        properties.roughnessColor = glm::vec4(1.0f - float(factor.IsNumber() ? factor.Get<double>() : factor.Get<int>()));
+                    }
+                }
+
+                forwardRendererMaterial->setTextures(textures);
+                forwardRendererMaterial->setProperties(properties);
+                forwardRendererMaterial->createDescriptorSet();
+
+                loadedMaterials.push_back(forwardRendererMaterial);
+            }
+
+            return loadedMaterials;
         }
 
         std::vector<Graphics::RZMesh*> LoadMesh(tinygltf::Model& model, tinygltf::Mesh& mesh)
@@ -123,13 +248,13 @@ namespace Razix {
                         }
                     }
 
-                    // -------- Colour attribute -----------
+                    // -------- Color attribute -----------
 
                     else if (attribute.first == "COLOR_0") {
                         size_t         uvCount = accessor.count;
-                        Vector4Simple* colours = reinterpret_cast<Vector4Simple*>(data.data());
+                        Vector4Simple* Colors  = reinterpret_cast<Vector4Simple*>(data.data());
                         for (auto p = 0; p < uvCount; ++p) {
-                            vertices[p].Color = ToVector(colours[p]);
+                            vertices[p].Color = ToVector(Colors[p]);
                         }
                     }
 
@@ -182,7 +307,7 @@ namespace Razix {
             return meshes;
         }
 
-        void LoadNode(RZModel* mainModel, int nodeIndex, tinygltf::Model& model, std::vector<std::vector<Graphics::RZMesh*>>& meshes)
+        void LoadNode(RZModel* mainModel, int nodeIndex, tinygltf::Model& model, std::vector<RZMaterial*> materials, std::vector<std::vector<Graphics::RZMesh*>>& meshes)
         {
             if (nodeIndex < 0)
                 return;
@@ -204,10 +329,18 @@ namespace Razix {
                 for (auto& mesh: meshes) {
                     auto subname = node.name;
                     mesh->setName(subname);
+
+                    int materialIndex = model.meshes[node.mesh].primitives[subIndex].material;
+                    if (materialIndex >= 0) {
+                        mesh->setMaterial(materials[materialIndex]);
+                    }
+
                     mainModel->addMesh(mesh);
                     subIndex++;
                 }
             }
+
+            // TODO: Laod child meshes
         }
 
         void RZModel::loadGLTF(const std::string& path)
@@ -247,11 +380,13 @@ namespace Razix {
                 RAZIX_CORE_ERROR("Failed to parse glTF");
             }
 
+            auto LoadedMaterials = LoadMaterials(model);
+
             std::string            name      = path.substr(path.find_last_of('/') + 1);
             auto                   meshes    = std::vector<std::vector<Graphics::RZMesh*>>();
             const tinygltf::Scene& gltfScene = model.scenes[std::max(0, model.defaultScene)];
             for (size_t i = 0; i < gltfScene.nodes.size(); i++)
-                LoadNode(this, gltfScene.nodes[i], model, meshes);
+                LoadNode(this, gltfScene.nodes[i], model, LoadedMaterials, meshes);
         }
     }    // namespace Graphics
 }    // namespace Razix
