@@ -4,6 +4,7 @@
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZShader.h"
@@ -30,7 +31,7 @@ namespace Razix {
             }
 
             {    // If texture hasn't been loaded already, load it
-                auto texture = Graphics::RZTexture2D::CreateFromFile(typeName, directory + "/" + name, RZTexture::Wrapping::CLAMP_TO_EDGE);
+                auto texture = Graphics::RZTexture2D::CreateFromFile(directory + "/" + name, typeName, RZTexture::Wrapping::CLAMP_TO_EDGE);
                 textures_loaded.push_back(texture);    // Store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 
                 return texture;
@@ -114,7 +115,8 @@ namespace Razix {
                 Graphics::RZMesh::GenerateTangents(vertices, vertexCount, indices, numIndices);
 
                 // Currently we load a pre-defined material but this should be a preset based on the current renderer and the client can select it from the list of presets
-                auto        shader                  = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
+                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
 
                 PBRMataterialTextures textures{};
@@ -147,13 +149,20 @@ namespace Razix {
                     }
 
                     if (mp->specular_highlight_texname.length() > 0) {
-                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Metallic", m_Textures, mp->specular_highlight_texname, m_Directory);
+                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Specular", m_Textures, mp->specular_texname, m_Directory);
                         if (texture)
                             textures.metallic = texture;
+                    }
+
+                    if (mp->emissive_texname.length() > 0) {
+                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Emissive", m_Textures, mp->emissive_texname, m_Directory);
+                        if (texture)
+                            textures.emissive = texture;
                     }
                 }
 
                 forwardRendererMaterial->setTextures(textures);
+                forwardRendererMaterial->createDescriptorSet();
 
                 // Create the meshes
                 RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * numVertices, vertices, BufferUsage::STATIC, name);

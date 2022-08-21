@@ -50,6 +50,7 @@ namespace Razix {
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
+            // Well don't use any binding tables here this is fine!!!! fuckin smart ass mf!! FUCK OFF!!!!
             auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
             int  j        = 0;
             for (auto& setInfo: setInfos) {

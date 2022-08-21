@@ -5,6 +5,7 @@
 
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/RazixVersion.h"
+#include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include <chrono>
 
@@ -72,6 +73,7 @@ namespace Razix {
 
         // Ignite the shader library after the Graphics has been initialized
         Graphics::RZShaderLibrary::Get().StartUp();
+        Graphics::RZMaterial::InitDefaultTexture();
     }
 
     void RZEngine::ShutDown()

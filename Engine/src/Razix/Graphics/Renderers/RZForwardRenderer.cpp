@@ -49,32 +49,23 @@ namespace Razix {
             // 2. Lighting data
             m_ForwardLightUBO = Graphics::RZUniformBuffer::Create(sizeof(ForwardLightData), &m_ForwardLightData, "Forward Renderer Light Data");
 
-            // 3. Material data
-            m_TempMatUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_TempMatProps, "Temp Mat");
-
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
             auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
-                        if (setInfo.first == 0)
+                        if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
                             descriptor.uniformBuffer = m_ViewProjectionSystemUBO;
-                        else if (setInfo.first == 1)
+                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second);
+                            m_DescriptorSets.push_back(descSet);
+                        } else if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_FORWARD_LIGHTING) {
                             descriptor.uniformBuffer = m_ForwardLightUBO;
-                        else if (setInfo.first == 2) {
-                            descriptor.uniformBuffer = m_TempMatUBO;
+                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second);
+                            m_DescriptorSets.push_back(descSet);
                         }
-                    } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
-                        uint32_t pinkTextureData = 0xffff00ff;    // is it ABGR
-                        // All maps will have the same pink texture
-                        descriptor.texture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
-
-                        //Graphics::RZTexture2D::Create("Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
                     }
                 }
-                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second);
-                m_DescriptorSets.push_back(descSet);
             }
 
             InitDisposableResources();
@@ -186,9 +177,14 @@ namespace Razix {
 
             // Update the lighting information
             m_ForwardLightData.viewPos = m_Camera->getPosition();
-            m_ForwardLightUBO->SetData(sizeof(ForwardLightData), &m_ForwardLightData);
             //auto lightEntities = registry.view<LightComponent>();
-            // TODO: Iterate and get the light components + Material data from the mesh and update the UBO
+            auto group = registry.group<LightComponent>(entt::get<TransformComponent>);
+            for (auto entity: group) {
+                const auto& [light, trans]   = group.get<LightComponent, TransformComponent>(entity);
+                m_ForwardLightData.lightData = light.light.getLightData();
+                m_ForwardLightData.position  = trans.Translation;
+            }
+            m_ForwardLightUBO->SetData(sizeof(ForwardLightData), &m_ForwardLightData);
         }
 
         void RZForwardRenderer::Submit(RZCommandBuffer* cmdBuf)
@@ -197,8 +193,6 @@ namespace Razix {
 
             // Bind the pipeline
             m_Pipeline->Bind(cmdBuf);
-            // Bind the sets
-            Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
             auto& registry = m_CurrentScene->getRegistry();
 
@@ -219,12 +213,21 @@ namespace Razix {
                 modelMatrix.data = glm::value_ptr(transform);
                 modelMatrix.size = sizeof(glm::mat4);
 
+                // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
                 Graphics::RZAPIRenderer::BindPushConstant(m_Pipeline, cmdBuf, modelMatrix);
 
                 // Bind IBO and VBO
                 for (auto& mesh: meshes) {
                     mesh->getVertexBuffer()->Bind(cmdBuf);
                     mesh->getIndexBuffer()->Bind(cmdBuf);
+
+                    mesh->getMaterial()->Bind();
+
+                    // Combine System Desc sets with material sets and Bind them
+                    std::vector<RZDescriptorSet*> SystemMat = m_DescriptorSets;
+                    std::vector<RZDescriptorSet*> MatSets   = mesh->getMaterial()->getDescriptorSets();
+                    SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
+                    Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, SystemMat);
 
                     Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getCurrentCommandBuffer(), mesh->getIndexCount());
                 }
@@ -288,7 +291,6 @@ namespace Razix {
             m_ViewProjectionSystemUBO->Destroy();
 
             m_ForwardLightUBO->Destroy();
-            m_TempMatUBO->Destroy();
 
             for (auto set: m_DescriptorSets)
                 set->Destroy();
