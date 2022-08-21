@@ -262,6 +262,8 @@ namespace Razix {
         virtual bool OnMouseMoved(RZMouseMovedEvent& e);
         virtual bool OnMouseButtonPressed(RZMouseButtonPressedEvent& e);
         virtual bool OnMouseButtonReleased(RZMouseButtonReleasedEvent& e);
+        virtual bool OnKeyPress(RZKeyPressedEvent& e);
+        virtual bool OnKeyRelease(RZKeyReleasedEvent& e);
 
         RAZIX_NONCOPYABLE_CLASS(RZApplication);
     };
