@@ -13,23 +13,9 @@ namespace Razix {
          */
 
         /**
-         * Note:- Not an enum class because we need them as Int!!!! so the style guide is broke here on purpose
-         * This for the render system 
-         * for ex. for GI data, View proj data and Lighting data that will be defined by the rendering engine system data
-         * we will have only set info for now as we implement if we need set info we'll see
+         * binding/slot IDs for the engine material instances
          */
         enum MatBindingTable_System : uint32_t
-        {
-            BINDING_SET_SYSTEM_VIEW_PROJECTION   = 0, // How to feed this to the Renderer? in terms of Include files order which is fucked up, should I make a header file to hold binding Material + Render System binding table infos
-            BINDING_SET_SYSTEM_FORWARD_LIGHTING  = 1,
-            BINDING_SET_SYSTEM_DEFERRED_LIGHTING = BINDING_SET_SYSTEM_FORWARD_LIGHTING
-            //BINDING_SET_SYSTEM_VARIABLE_MODEL_MATRIX = 1,    // TODO: To be decided once OpenGL works, this is only for OpenGL
-        };
-
-        /**
-         * binding/slot IDs for the user defined 
-         */
-        enum MatBindingTable_User : uint32_t
         {
             BINDING_SET_USER_MAT_PROPS    = 2,    // continued from after the System variables table
             BINDING_SET_USER_MAT_SAMPLERS = 3
@@ -88,26 +74,29 @@ namespace Razix {
         /* Phong Material properties for forward lighting */
         struct PhongMaterialProperties
         {
+            alignas(16) glm::vec4 ambientColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            alignas(16) glm::vec4 diffuseColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            alignas(16) uint32_t shininess     = 32;
         };
 
         /* Phong lighting model light maps */
         struct PhongMaterialTextures
         {
-            RZTexture2D* normal;
-            RZTexture2D* ambient;
-            RZTexture2D* diffuse;
-            RZTexture2D* specular;
+            RZTexture2D* ambient  = nullptr;
+            RZTexture2D* diffuse  = nullptr;
+            RZTexture2D* normal   = nullptr;
+            RZTexture2D* specular = nullptr;
         };
 
         /* PBR lighting model textures */
         struct PBRMataterialTextures
         {
-            RZTexture2D* albedo;
-            RZTexture2D* normal;
-            RZTexture2D* metallic;
-            RZTexture2D* roughness;
-            RZTexture2D* ao;
-            RZTexture2D* emissive;
+            RZTexture2D* albedo    = nullptr;
+            RZTexture2D* normal    = nullptr;
+            RZTexture2D* metallic  = nullptr;
+            RZTexture2D* roughness = nullptr;
+            RZTexture2D* ao        = nullptr;
+            RZTexture2D* emissive  = nullptr;
         };
 
         /* Presets that help load a shader/material provided by the engine during model loading */
@@ -130,6 +119,7 @@ namespace Razix {
             static void InitDefaultTexture();
             /* Destroys the default texture created */
             static void ReleaseDefaultTexture();
+            static RZTexture2D* GetDefaultTexture() { return s_DefaultTexture; }
             /* Static Getter and setter for the material preset */
             RAZIX_INLINE static MaterialPreset GetMatPreset() { return s_MatPreset; }
             RAZIX_INLINE static void           SetMatPreset(MaterialPreset preset) { s_MatPreset = preset; }
@@ -139,6 +129,7 @@ namespace Razix {
             void loadShader(const std::string& path);
             void createDescriptorSet();
             void setTextures(PBRMataterialTextures& textures);
+            void setProperties(PBRMaterialProperties& props);
 
             void Bind();
 
@@ -242,7 +233,7 @@ namespace Razix {
             //uint32_t              m_MaterialBufferSize;
             //uint8_t*              m_MaterialBufferData;
             std::string m_Name;
-            bool        m_TexturesUpdated;
+            bool        m_TexturesUpdated = false;
         };
 
     }    // namespace Graphics
