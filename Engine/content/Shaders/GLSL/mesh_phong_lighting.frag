@@ -81,26 +81,29 @@ layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // Functions
 
-vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
+vec3 CalcDirLight(DirectionalLight light, vec3 normal)
 {
-    vec3 lightDir = normalize(-light.direction);
+    vec3 lightDir = normalize(light.direction - fs_in.fragPos);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
+    vec3 viewDir = normalize(forward_light_data.viewPos - fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec_map = 1.0f - texture(specularMap, fs_in.fragTexCoord).g;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     // combine results
-    vec3 ambient  = light.color  * vec3(texture(diffuseMap, fs_in.fragTexCoord));
+    vec3 ambient  = light.color  * vec3(texture(diffuseMap, fs_in.fragTexCoord)) * 0.1f;
     vec3 diffuse  = light.color  * diff * vec3(texture(diffuseMap, fs_in.fragTexCoord));
-    vec3 specular = light.color * spec * vec3(texture(specularMap, fs_in.fragTexCoord));
-    return (ambient + diffuse + specular);
+    vec3 specular = vec3(spec_map, spec_map, spec_map);
+    return ambient + diffuse;
 }  
 //------------------------------------------------------------------------------
 // Main
 void main()
 {
-    vec3 result = CalcDirLight(forward_light_data.lightData.dirLightData, fs_in.fragNormal, forward_light_data.viewPos);
+    vec4 normal = texture(normalMap, fs_in.fragTexCoord);
+    vec3 result = CalcDirLight(forward_light_data.lightData.dirLightData, normal.rgb);
     outFragColor = vec4(result, 1.0);
-    outFragColor = texture(diffuseMap, fs_in.fragTexCoord);
+    //outFragColor = texture(diffuseMap, fs_in.fragTexCoord);
 }
 //------------------------------------------------------------------------------
