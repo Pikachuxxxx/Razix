@@ -153,6 +153,8 @@ namespace Razix {
         dispatcher.Dispatch<RZMouseMovedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseMoved));
         dispatcher.Dispatch<RZMouseButtonPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonPressed));
         dispatcher.Dispatch<RZMouseButtonReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonReleased));
+        dispatcher.Dispatch<RZKeyPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyPress));
+        dispatcher.Dispatch<RZKeyReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyRelease));
     }
 
     bool RZApplication::OnWindowClose(WindowCloseEvent& e)
@@ -207,6 +209,22 @@ namespace Razix {
         ImGuiIO& io                          = ImGui::GetIO();
         io.MouseDown[e.GetMouseButton() - 1] = false;
         //}
+
+        return true;
+    }
+
+    bool RZApplication::OnKeyPress(RZKeyPressedEvent& e)
+    {
+        ImGuiIO& io                 = ImGui::GetIO();
+        io.KeysDown[e.GetKeyCode()] = true;
+
+        return true;
+    }
+
+    bool RZApplication::OnKeyRelease(RZKeyReleasedEvent& e)
+    {
+        ImGuiIO& io                 = ImGui::GetIO();
+        io.KeysDown[e.GetKeyCode()] = false;
 
         return true;
     }
@@ -411,8 +429,8 @@ namespace Razix {
             auto& stats = RZEngine::Get().GetStatistics();
             ImGui::Text("Engine Stats");
             ImGui::Indent();
-            ImGui::Text("FPS                    : %d", stats.FramesPerSecond);
-            ImGui::Text("render time (in ms)    : %f", stats.DeltaTime);
+            ImGui::Text("FPS                    : %.4d", stats.FramesPerSecond);
+            ImGui::Text("render time (in ms)    : %0.2f", stats.DeltaTime);
 
             ImGui::Separator();
             ImGui::Text("API calls");
