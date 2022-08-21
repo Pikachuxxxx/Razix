@@ -1,24 +1,21 @@
 #pragma once
 
-//#include "Light.h"
+#include "Razix/Graphics/Lighting/RZLight.h"
 
 namespace Razix {
+
     class RAZIX_API LightComponent
     {
     public:
         LightComponent()                      = default;
         LightComponent(const LightComponent&) = default;
 
-        template<class Archive>
-        void load(Archive& archive)
-        {
-            archive(cereal::make_nvp());
-        }
+        Graphics::RZLight light;
 
         template<class Archive>
-        void save(Archive& archive) const
+        void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp());
+            archive(cereal::make_nvp("Light", light));
         }
     };
 }    // namespace Razix

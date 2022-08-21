@@ -7,7 +7,7 @@ class RendererTest_GridRenderer : public Razix::RZApplication
 {
 public:
     RendererTest_GridRenderer()
-        : RZApplication("/Sandbox/", "RendererTest_GridRenderer")
+        : RZApplication("/Sandbox/", "RendererTest_ForwardRenderer")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
@@ -37,6 +37,13 @@ public:
             // Avocado
             auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Armadillo");
             armadilloModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Avocado.gltf");
+        }
+
+        // Add a directional light for test
+        auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
+        if (!lightEnitties.size()) {
+            auto& directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("DirLight");
+            directionalLightEntity.AddComponent<Razix::LightComponent>();
         }
     }
 };

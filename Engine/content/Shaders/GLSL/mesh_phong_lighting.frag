@@ -22,81 +22,85 @@ layout(location = 0) in VSOutput
  // Fragment Shader Stage Uniforms
  // Uniforms and Push Constants
 // Lighting information
-layout(set = 1, binding = 0) uniform DirectionalLight
+struct DirectionalLight
 {
-    vec3 position;
+    vec3 direction;
     vec3 color;
-    vec3 viewPos;
-} directional_light;
+    float time;
+};
+struct PointLight
+{
+    vec3  position;
+    vec3  color;
+    float radius;
+    float constant;
+    float linear;
+    float quadratic;
+};
+struct SpotLight
+{
+    vec3  position;
+    vec3  direction;
+    vec3  color;
+    float radius;
+    float constant;
+    float linear;
+    float quadratic;
+};
+struct LightData
+{
+    int                 type;
+    DirectionalLight    dirLightData;
+    PointLight          pointLightData;
+    SpotLight           spotLightData;
+};
+// Forward Light Data
+ layout(set = 1, binding = 0) uniform ForwardLightData
+{
+    vec3        position;
+    vec3        viewPos;
+    LightData   lightData;
+}forward_light_data;
 //------------------------------------------------------------------------------
 // Materials and lightmaps
- layout(set = 2, binding = 0)  uniform MaterialProperties
+ layout(set = 2, binding = 0) uniform PhongMaterialProperties
  {
-    vec4  albedoColor;
-    vec4  roughnessColor;
-    vec4  metallicColor;
-    vec4  emissiveColor;
-    bool  isUsingAlbedoMap;
-    bool  isUsingNormalMap;
-    bool  isUsingMetallicMap;
-    bool  isUsingRoughnessMap;
-    bool  isUsingAOMap;
-    bool  isUsingEmissiveMap;
-    int   workflow;
+    vec4 ambient;
+    vec4 diffuse;
+    float shininess;
  }material;
 // Having the samplers in the same set is adding to the Descriptor Block size which is fucked up
-layout(set = 3, binding = 0) uniform sampler2D albedoMap;
-layout(set = 3, binding = 1) uniform sampler2D normalMap;
-layout(set = 3, binding = 2) uniform sampler2D metallicMap;
-layout(set = 3, binding = 3) uniform sampler2D roughnessMap;
-layout(set = 3, binding = 4) uniform sampler2D aoMap;
-layout(set = 3, binding = 5) uniform sampler2D emissiveMap;
+layout(set = 3, binding = 0) uniform sampler2D aoMap;
+layout(set = 3, binding = 1) uniform sampler2D diffuseMap;
+layout(set = 3, binding = 2) uniform sampler2D normalMap;
+layout(set = 3, binding = 3) uniform sampler2D specularMap;
+// TODO: Add booleans to check if the sampler is available or not
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
+// Functions
 
+vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
+{
+    vec3 lightDir = normalize(-light.direction);
+    // diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0);
+    // specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    // combine results
+    vec3 ambient  = light.color  * vec3(texture(diffuseMap, fs_in.fragTexCoord));
+    vec3 diffuse  = light.color  * diff * vec3(texture(diffuseMap, fs_in.fragTexCoord));
+    vec3 specular = light.color * spec * vec3(texture(specularMap, fs_in.fragTexCoord));
+    return (ambient + diffuse + specular);
+}  
+//------------------------------------------------------------------------------
+// Main
 void main()
 {
-    // ambient
-    vec3 ambient;// = directional_light.ambient * texture(albedoMap, fs_in.fragTexCoord).rgb;
-    if(material.isUsingAlbedoMap){
-       ambient = directional_light.color * texture(albedoMap, fs_in.fragTexCoord).rgb * material.albedoColor.rgb;
-    }else {
-        ambient = directional_light.color * material.albedoColor.rgb;
-    }
-
-    // diffuse
-    vec3 norm;
-    if(material.isUsingNormalMap){
-        norm = texture(normalMap, fs_in.fragTexCoord).rgb;
-    }else{
-        norm  = normalize(fs_in.fragNormal);
-    }
-    vec3 lightDir = normalize(directional_light.position - fs_in.fragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse;
-    if(material.isUsingAlbedoMap){
-       diffuse = diff * texture(albedoMap, fs_in.fragTexCoord).rgb;
-    }else {
-        diffuse = diff * material.albedoColor.rgb;
-    }
-
-    // specular
-    vec3 viewDir = normalize(directional_light.viewPos - fs_in.fragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 8);
-    float spec_map = texture(metallicMap, fs_in.fragTexCoord).g;
-    vec3 specular;// = vec3(spec_map, spec_map, spec_map) * spec;
-     if(material.isUsingMetallicMap){
-       specular = directional_light.color * spec * spec_map * material.metallicColor.rgb;
-    }else {
-        specular = directional_light.color * spec * material.metallicColor.rgb;
-    }
-
-    vec3 result = ambient;
+    vec3 result = CalcDirLight(forward_light_data.lightData.dirLightData, fs_in.fragNormal, forward_light_data.viewPos);
     outFragColor = vec4(result, 1.0);
-
-    //outFragColor = texture(albedoMap, fs_in.fragTexCoord);
+    outFragColor = texture(diffuseMap, fs_in.fragTexCoord);
 }
 //------------------------------------------------------------------------------
