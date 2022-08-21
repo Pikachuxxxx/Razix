@@ -1,4 +1,4 @@
- // clang-format off
+// clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZGridRenderer.h"
@@ -21,7 +21,6 @@
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
-
 
 namespace Razix {
     namespace Graphics {
@@ -67,11 +66,9 @@ namespace Razix {
 
             InitDisposableResources();
 
-            float vertices[8 * 4] = {
-                -2000.5f, -2.5f, -2000.5f, 0.0f, 0.0f, 2000.5f, -2.5f, -2000.5f, 1.0f, 0.0f, 2000.5f, -2.5f, 2000.5f, 1.0f, 1.0f, -2000.5f, -2.5f, 2000.5f, 0.0f, 1.0f};
+            float vertices[8 * 4] = {-2000.5f, 0.0f, -2000.5f, 0.0f, 0.0f, 2000.5f, 0.0f, -2000.5f, 1.0f, 0.0f, 2000.5f, 0.0f, 2000.5f, 1.0f, 1.0f, -2000.5f, 0.0f, 2000.5f, 0.0f, 1.0f};
 
-            uint16_t indices[6] = {
-                0, 1, 2, 2, 3, 0};
+            uint16_t indices[6] = {0, 1, 2, 2, 3, 0};
 
             // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
             RZVertexBufferLayout bufferLayout;
@@ -100,7 +97,7 @@ namespace Razix {
             Graphics::RZAPIRenderer::AcquireImage();
 
             // Begin recording the command buffers
-            Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[ Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
+            Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
             Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
