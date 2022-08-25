@@ -23,6 +23,14 @@ namespace Razix {
             VKBuffer();
             ~VKBuffer() {}
 
+            /**
+             * Initializes the buffer with the given size, usage and data
+             * 
+             * @param data The data with which the buffer will be filled with
+             */
+            // TODO: Refactor this signature to take the size and usage
+            void init(const void* data, const std::string& bufferName);
+
             /* Destroy the buffer and it's memory */
             void destroy();
 
@@ -59,15 +67,6 @@ namespace Razix {
             VkBufferUsageFlags     m_UsageFlags;          /* Buffer usage description             */
             void*                  m_Mapped = nullptr;    /* The HOST mapped region of the buffer */
             std::string            m_BufferName;
-
-        protected:
-            /**
-             * Initializes the buffer with the given size, usage and data
-             * 
-             * @param data The data with which the buffer will be filled with
-             */
-            // TODO: Refactor this signature to take the size and usage
-            void init(const void* data, const std::string& bufferName);
         };
 
     }    // namespace Graphics

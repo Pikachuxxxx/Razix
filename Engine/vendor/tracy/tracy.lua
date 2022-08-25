@@ -6,19 +6,19 @@ project "Tracy"
 
     files
     {
-        "client/**.h",
-        "client/**.hpp",
-        "client/**.c",
-        "client/**.cpp",
+        --"client/**.h",
+        --"client/**.hpp",
+        --"client/**.c",
+        --"client/**.cpp",
         "Tracy.hpp",
-        "TracyC.h",
-        "TracyClient.cpp",
-        "TracyD3D11.hpp",
-        "TracyD3D12.hpp",
-        "TracyLua.hpp",
-        "TracyOpenCL.hpp",
-        "TracyOpenGL.hpp",
-        "TracyVulkan.hpp"
+        --"TracyC.h",
+        "TracyClient.cpp"
+        --"TracyD3D11.hpp",
+        --"TracyD3D12.hpp",
+        --"TracyLua.hpp",
+        --"TracyOpenCL.hpp",
+        --"TracyOpenGL.hpp",
+        --"TracyVulkan.hpp"
     }
 
     filter "system:windows"

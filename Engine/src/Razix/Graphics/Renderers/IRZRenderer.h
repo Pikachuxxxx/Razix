@@ -22,6 +22,7 @@ namespace Razix {
         class RZFramebuffer;
         class RZShader;
         class RZRenderPass;
+        class RZRenderTexture;
 
 #define MAX_SWAPCHAIN_BUFFERS 3
 
@@ -117,6 +118,9 @@ namespace Razix {
 
             void setRenderPriorityIndex(uint32_t idx) { m_PriorityIndex = idx; }
 
+            inline RZRenderTexture* getRenderTexture() { return m_RenderTexture; }
+            inline RZRenderTexture* getEntityIDsRT() { return m_EntityIDsRT; }
+
         protected:
             // TODO: Use a vector to hold many shaders to support multiple render passes + multi-layered materials in future???
             RZSceneCamera*                          m_Camera;
@@ -129,8 +133,9 @@ namespace Razix {
             RZPipeline*                             m_Pipeline;
             uint32_t                                m_ScreenBufferWidth  = 0;
             uint32_t                                m_ScreenBufferHeight = 0;
-            RZTexture*                              m_RenderTexture      = nullptr;
             RZTexture*                              m_DepthTexture       = nullptr;
+            RZRenderTexture*                        m_RenderTexture      = nullptr;
+            RZRenderTexture*                        m_EntityIDsRT        = nullptr;
             uint32_t                                m_PriorityIndex      = 0;
             bool                                    m_OffScreenRender    = false;
             uint8_t                                 _padding[3];

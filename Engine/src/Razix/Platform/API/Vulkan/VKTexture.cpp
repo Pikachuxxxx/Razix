@@ -433,6 +433,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         VKRenderTexture::VKRenderTexture(uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode)
+            : m_TransferBuffer(VK_BUFFER_USAGE_TRANSFER_DST_BIT, width * height * 4, NULL, "Transfer RT Buffer")
         {
             m_Name        = "Render Target";
             m_Width       = width;
@@ -460,6 +461,11 @@ namespace Razix {
         {
             m_Width  = width;
             m_Height = height;
+
+            m_TransferBuffer.destroy();
+            m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+            m_TransferBuffer.setSize(width * height * 4);
+            m_TransferBuffer.init(NULL, "Transfer RT Buffer");
 
             Release();
 
@@ -490,6 +496,46 @@ namespace Razix {
             return (void*) &m_Descriptor;
         }
 
+        uint32_t VKRenderTexture::ReadPixels(uint32_t x, uint32_t y)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Change the image layout from shader read only optimal to transfer source
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+
+            {
+                // 1.1 Copy from staging buffer to Image
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+
+                VkBufferImageCopy region               = {};
+                region.bufferOffset                    = 0;
+                region.bufferRowLength                 = 0;    // Try with m_Width
+                region.bufferImageHeight               = 0;    // Try with m_Height
+                region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel       = 0;
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount     = 1;
+                region.imageOffset                     = {0, 0, 0};
+                region.imageExtent                     = {m_Width, m_Height, 1};
+
+                vkCmdCopyImageToBuffer(commandBuffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_TransferBuffer.getBuffer(), 1, &region);
+
+                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+            }
+
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+            void* data;
+            m_TransferBuffer.map();
+            data = m_TransferBuffer.getMappedRegion();
+            // Read and return the pixel value
+            uint32_t pixel_value = ((uint32_t*) data)[(x * 4) + (m_Width * 4 * y)];
+
+            m_TransferBuffer.unMap();
+
+            return pixel_value;
+        }
+
         void VKRenderTexture::init()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -498,7 +544,7 @@ namespace Razix {
 
             // Create the Vulkan Image and it's memory and Bind them together
             // We use a simple optimal tiling options
-            VKTexture2D::CreateImage(m_Width, m_Height, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0);
+            VKTexture2D::CreateImage(m_Width, m_Height, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0);
 
             // Create the Image view for the Vulkan image (uses color bit)
             m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 1);
