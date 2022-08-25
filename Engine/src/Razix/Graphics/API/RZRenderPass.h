@@ -12,18 +12,22 @@ namespace Razix {
         class RZFramebuffer;
 
         /* Gives information about the type of texture that is attached to the framebuffer render pass */
-        struct AttachmentInfo
+        struct RAZIX_MEM_ALIGN AttachmentInfo
         {
-            RZTexture::Type   type;   /* The type of the attachment   */
-            RZTexture::Format format; /* The format of the attachment */
+            RZTexture::Type   type;         /* The type of the attachment                           */
+            RZTexture::Format format;       /* The format of the attachment                         */
+            //glm::vec4         clearColor;   /* Clear color with which the attachment is cleared     */
+            // glm::vec2        depthClearColor;
+            //bool              clear = true; /* Whether or not to clear the particular attachment    */
         };
 
-        struct RenderPassInfo
+        struct RAZIX_MEM_ALIGN RenderPassInfo
         {
             std::string     name;
             AttachmentInfo* textureType;
-            int             attachmentCount;
+            uint32_t        attachmentCount;
             bool            clear = true;
+            uint8_t         _padding[3];
         };
 
         enum SubPassContents
@@ -33,10 +37,10 @@ namespace Razix {
         };
 
         /* Render Pass describes how the framebuffer is interpreted, provides multiple passes for transformations and attachments and helps with post-processing */
-        class RAZIX_API RZRenderPass : public RZRoot
+        class RAZIX_MEM_ALIGN RAZIX_API RZRenderPass : public RZRoot
         {
         public:
-            RZRenderPass() = default;
+            RZRenderPass() = default; 
             virtual ~RZRenderPass() {}
 
             /**
@@ -60,6 +64,7 @@ namespace Razix {
             virtual void BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height) = 0;
             /* Ends the render pass */
             virtual void EndRenderPass(RZCommandBuffer* commandBuffer) = 0;
+            // TODO: Implement this
             /* Adds another attachment to the render pass for additional pass read/writes */
             virtual void AddAttachment() = 0;
 
@@ -73,9 +78,9 @@ namespace Razix {
             RAZIX_INLINE AttachmentInfo* getAttachmentTypes() { return m_AttachmentTypes; }
 
         protected:
-            uint32_t        m_AttachmentsCount      = 0; /* The total number of attachments bounded to the render pass                       */
-            uint32_t        m_ColorAttachmentsCount = 0; /* The total number of color attachments bounded to the render pass                 */
-            AttachmentInfo* m_AttachmentTypes;           /* Types of attachments for the framebuffer that will be used by the render pass    */
+            uint32_t        m_AttachmentsCount      = 0;       /* The total number of attachments bounded to the render pass                       */
+            uint32_t        m_ColorAttachmentsCount = 0;       /* The total number of color attachments bounded to the render pass                 */
+            AttachmentInfo* m_AttachmentTypes       = nullptr; /* Types of attachments for the framebuffer that will be used by the render pass    */
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>356</width>
+    <width>350</width>
     <height>82</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>350</width>
+    <height>0</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -68,7 +74,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="PosX">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -82,6 +88,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="PosVal_X">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -100,7 +112,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="PosY">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -114,6 +126,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="PosVal_Y">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -129,7 +147,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="PosZ">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -143,6 +161,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="PosVal_Z">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -188,7 +212,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="RotX">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -202,6 +226,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="RotVal_X">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -220,7 +250,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="RotY">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -234,6 +264,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="RotVal_Y">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -249,7 +285,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="RotZ">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -263,6 +299,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="RotVal_Z">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -308,7 +350,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="ScaleX">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -322,6 +364,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="ScaleVal_X">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -340,7 +388,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="ScaleY">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -354,6 +402,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="ScaleVal_Y">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -369,7 +423,7 @@ border-bottom: 2px;
       <widget class="QPushButton" name="ScaleZ">
        <property name="maximumSize">
         <size>
-         <width>30</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
@@ -383,6 +437,12 @@ border-bottom: 2px;
      </item>
      <item>
       <widget class="QLineEdit" name="ScaleVal_Z">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>80</width>

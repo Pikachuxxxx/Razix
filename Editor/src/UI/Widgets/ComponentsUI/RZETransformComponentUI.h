@@ -3,11 +3,11 @@
 #include <glm/glm.hpp>
 #include <sol/sol.hpp>
 
-#include "Razix/Core/RZRoot.h"
 #include "Razix/Core/RZCore.h"
-#include "Razix/Scene/RZScene.h"
+#include "Razix/Core/RZRoot.h"
 #include "Razix/Scene/RZEntity.h"
-
+#include "Razix/Scene/RZScene.h"
+#include "Razix/Scene/Components/TransformComponent.h"
 
 #include <QWidget>
 
@@ -44,6 +44,7 @@ namespace Razix {
         private:
             Ui::TransformComponent ui;
             RZEntity               m_Entity;
+            TransformComponent     m_TC;
 
             // TODO: Add slots for pos, rot, scale edits (enter pressed action) + reset buttons to update the transform component linked with add (add method to link the component to it's entity)
         };
