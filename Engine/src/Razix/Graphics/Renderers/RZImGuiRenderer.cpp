@@ -260,8 +260,8 @@ namespace Razix {
                 idxDst += cmd_list->IdxBuffer.Size;
             }
 
-            m_ImGuiVBO->Flush();
-            m_ImGuiIBO->Flush();
+            //m_ImGuiVBO->Flush();
+            //m_ImGuiIBO->Flush();
 
 #endif
 

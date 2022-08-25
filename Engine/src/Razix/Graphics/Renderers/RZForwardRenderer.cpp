@@ -79,13 +79,15 @@ namespace Razix {
 
         void RZForwardRenderer::InitDisposableResources()
         {
+            constexpr uint32_t attachmentsCount = 3;
             // Render pass
-            Graphics::AttachmentInfo textureTypes[2] = {
+            Graphics::AttachmentInfo textureTypes[attachmentsCount] = {
                 {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::R32_INT},
                 {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
 
             Graphics::RenderPassInfo renderPassInfo{};
-            renderPassInfo.attachmentCount = 2;
+            renderPassInfo.attachmentCount = attachmentsCount;
             renderPassInfo.textureType     = textureTypes;
             renderPassInfo.name            = "Forward rendering";
             renderPassInfo.clear           = false;
@@ -100,29 +102,32 @@ namespace Razix {
             pipelineInfo.renderpass          = m_RenderPass;
             pipelineInfo.shader              = m_OverrideGlobalRHIShader;
             // This causes validation errors for some VK image formats that are not the typical color attachments
-            pipelineInfo.transparencyEnabled = true; // TODO: This should be configurable for each attachment in the renderpass
+            pipelineInfo.transparencyEnabled = false; // TODO: This should be configurable for each attachment in the renderpass
 
             m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
 
             // Framebuffer (we need on per frame ==> 3 in total)
             // Create the framebuffer
-            Graphics::RZTexture::Type attachmentTypes[2];
+            Graphics::RZTexture::Type attachmentTypes[attachmentsCount];
             attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
-            attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
+            attachmentTypes[1] = Graphics::RZTexture::Type::COLOR;
+            attachmentTypes[2] = Graphics::RZTexture::Type::DEPTH;
 
             auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
+            m_EntityIDsRT     = Graphics::RZRenderTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight, RZTexture::Format::R32_INT);
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             m_Framebuffers.clear();
             for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
-                Graphics::RZTexture* attachments[2];
+                Graphics::RZTexture* attachments[attachmentsCount];
                 attachments[0] = Graphics::RZAPIRenderer::getSwapchain()->GetImage(i);
-                attachments[1] = m_DepthTexture;
+                attachments[1] = m_EntityIDsRT;
+                attachments[2] = m_DepthTexture;
 
                 Graphics::FramebufferInfo frameBufInfo{};
                 frameBufInfo.width           = m_ScreenBufferWidth;
                 frameBufInfo.height          = m_ScreenBufferHeight;
-                frameBufInfo.attachmentCount = 2;
+                frameBufInfo.attachmentCount = attachmentsCount;
                 frameBufInfo.renderPass      = m_RenderPass;
                 frameBufInfo.attachments     = attachments;
 
@@ -267,6 +272,7 @@ namespace Razix {
 
             // Destroy the resources first
             m_DepthTexture->Release(true);
+            m_EntityIDsRT->Resize(width, height);
 
             for (auto frameBuf: m_Framebuffers)
                 frameBuf->Destroy();

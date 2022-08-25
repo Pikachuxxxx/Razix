@@ -113,7 +113,7 @@ project "Razix"
         "OpenFBX", 
         "lua",
         "optick",
-        --"tracy",
+        "tracy",
         -- Razix Internal Libraries 
         -- 1. Razix Memory
         "RazixMemory"
@@ -175,7 +175,8 @@ project "Razix"
             "_CRT_SECURE_NO_WARNINGS",
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
-            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
+            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
+            "TRACY_ENABLE"
         }
 
         -- Windows specific source files for compilation
