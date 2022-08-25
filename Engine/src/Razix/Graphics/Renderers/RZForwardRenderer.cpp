@@ -99,7 +99,8 @@ namespace Razix {
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
             pipelineInfo.renderpass          = m_RenderPass;
             pipelineInfo.shader              = m_OverrideGlobalRHIShader;
-            pipelineInfo.transparencyEnabled = true;
+            // This causes validation errors for some VK image formats that are not the typical color attachments
+            pipelineInfo.transparencyEnabled = true; // TODO: This should be configurable for each attachment in the renderpass
 
             m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
 

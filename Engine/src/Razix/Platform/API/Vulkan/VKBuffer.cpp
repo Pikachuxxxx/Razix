@@ -71,7 +71,7 @@ namespace Razix {
                 mappedRange.sType               = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
                 mappedRange.memory              = m_BufferMemory;
                 mappedRange.offset              = offset;
-                mappedRange.size                = size;
+                mappedRange.size                = m_BufferSize;
                 vkFlushMappedMemoryRanges(VKDevice::Get().getDevice(), 1, &mappedRange);
             }
         }
