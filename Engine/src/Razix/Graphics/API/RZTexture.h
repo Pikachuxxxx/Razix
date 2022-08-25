@@ -30,6 +30,9 @@ namespace Razix {
             enum class Format
             {
                 R8,
+                R32_INT,
+                R32_UINT,
+                R32F,
                 RG8,
                 RGB8,
                 RGBA8,
@@ -194,6 +197,8 @@ namespace Razix {
             static RZRenderTexture* Create(uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
 
             virtual void Resize(uint32_t width, uint32_t height) = 0;
+
+            virtual uint32_t ReadPixels(uint32_t x, uint32_t y) = 0;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -78,7 +78,7 @@ layout(set = 3, binding = 3) uniform sampler2D specularMap;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
-//layout(location = 1) out int outEntityID;
+layout(location = 1) out int outEntityID;
 //------------------------------------------------------------------------------
 // Functions
 
@@ -108,6 +108,6 @@ void main()
     //outFragColor = texture(diffuseMap, fs_in.fragTexCoord);
 
     // Placeholder for Entity ID
-    //outEntityID = 29;
+    outEntityID = 69;
 }
 //------------------------------------------------------------------------------

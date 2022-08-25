@@ -56,7 +56,7 @@ project "Sandbox"
        "OpenFBX",
        "lua",
        "optick",
-       "tracy",
+       --"tracy",
        -- Internal
        "RazixMemory"
    }
