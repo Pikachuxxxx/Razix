@@ -259,8 +259,8 @@ namespace Razix {
 
     bool RZApplication::RenderFrame()
     {
-        RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+        RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
 
         // TODO: Add Time stamp Queries for calculating GPU time here
 
@@ -422,7 +422,7 @@ namespace Razix {
         ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
         ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
         ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::SetNextWindowBgAlpha(0.35f);    // Transparent background
+        ImGui::SetNextWindowBgAlpha(0.15f);    // Transparent background
 
         ImGui::Begin("Engine Stats", 0, window_flags);
         {

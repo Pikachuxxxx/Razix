@@ -7,9 +7,9 @@
 
     #include "Razix/Core/RZLog.h"
 
+    #include "Razix/Graphics/API/RZPipeline.h"
     #include "Razix/Graphics/API/RZTexture.h"
     #include "Razix/Graphics/API/RZVertexBufferLayout.h"
-    #include "Razix/Graphics/API/RZPipeline.h"
 
 namespace Razix {
     namespace Graphics {
@@ -18,7 +18,7 @@ namespace Razix {
         namespace OpenGLUtilities {
 
     /* Check the OpenGL functions for any errors and reports them */
-    #define GL_CALL(x)                                       \
+    #define GL_CALL(x)                                      \
         ::Razix::Graphics::OpenGLUtilities::GLClearError(); \
         (x);                                                \
         RAZIX_CORE_ASSERT(::Razix::Graphics::OpenGLUtilities::GLLogCall(#x, __FILE__, __LINE__), "[OpenGL Assertion Error]")
@@ -51,6 +51,15 @@ namespace Razix {
                 switch (format) {
                     case RZTexture::Format::R8:
                         return GL_R8;
+                        break;
+                    case RZTexture::Format::R32_UINT:
+                        return GL_R32UI;
+                        break;
+                    case RZTexture::Format::R32_INT:
+                        return GL_R32I;
+                        break;
+                    case RZTexture::Format::R32F:
+                        return GL_RG32F;
                         break;
                     case RZTexture::Format::RG8:
                         return GL_RG8;
@@ -123,6 +132,9 @@ namespace Razix {
                         return GL_RGBA;
                     case GL_RGB:
                         return GL_RGB;
+                    case GL_R32I:
+                    case GL_R32UI:
+                    case GL_R32F:
                     case GL_R8:
                         return GL_RED;
                     case GL_RG8:

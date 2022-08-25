@@ -23,6 +23,8 @@ project "optick"
         "src/optick_gpu.vulkan.cpp"
     }
 
+    defines {"OPTICK_EXPORT"}
+
     -- Needed when using clang-cl on windows as it will default to linux as soon as it sees clang is being used
     --defines "OPTICK_MSVC"
 

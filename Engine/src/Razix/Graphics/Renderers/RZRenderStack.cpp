@@ -6,6 +6,9 @@
 
 #include "Razix/Graphics/API/RZAPIRenderer.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
+#include "Razix/Graphics/API/RZTexture.h"
+
+#include "Razix/Core/OS/RZInput.h"
 
 namespace Razix {
     namespace Graphics {
@@ -56,6 +59,10 @@ namespace Razix {
 
                 renderer->Present();
             }
+
+            // Get the EnitytIDsRT after full presentation
+            //if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonLeft))
+            RAZIX_CORE_WARN("mouse {0}, {1} | pixel : {2}", RZInput::GetMouseX(), RZInput::GetMouseY(), m_RenderersStack[1]->getEntityIDsRT()->ReadPixels(static_cast<uint32_t>(RZInput::GetMouseX()), static_cast<uint32_t>(RZInput::GetMouseY())));
         }
 
         void RZRenderStack::OnResize(uint32_t width, uint32_t height)

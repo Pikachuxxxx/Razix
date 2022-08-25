@@ -13,7 +13,7 @@ namespace Razix {
         {
             glGenBuffers(1, &m_SSBO);
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBO);
-            glBufferData(GL_SHADER_STORAGE_BUFFER, size, NULL, GL_DYNAMIC_DRAW);    //sizeof(data) only works for statically sized C/C++ arrays
+            glBufferData(GL_SHADER_STORAGE_BUFFER, size, NULL, GL_DYNAMIC_DRAW);    //sizeof(data) only works for statically sized C/C++ a arrays
             // now bind this buffer to the block index done using descriptors (not here)
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);    // unbind
         }

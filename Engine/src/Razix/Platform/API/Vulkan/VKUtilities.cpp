@@ -24,8 +24,14 @@ namespace Razix {
                         case RZTexture::Format::R8:
                             return VK_FORMAT_R8_SRGB;
                             break;
-                        case RZTexture::Format::RG8:
-                            return VK_FORMAT_R8G8_SRGB;
+                        case RZTexture::Format::R32_UINT:
+                            return VK_FORMAT_R32_UINT;
+                            break;
+                        case RZTexture::Format::R32_INT:
+                            return VK_FORMAT_R32_SINT;
+                            break;
+                        case RZTexture::Format::R32F:
+                            return VK_FORMAT_R32_SFLOAT;
                             break;
                         case RZTexture::Format::RGB8:
                             return VK_FORMAT_R8G8B8A8_SRGB;
@@ -46,7 +52,7 @@ namespace Razix {
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
                         case RZTexture::Format::RGBA32F:
-                            return VK_FORMAT_R32G32B32A32_SFLOAT; 
+                            return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
                         case RZTexture::Format::RGB:
                             return VK_FORMAT_R8G8B8_SRGB;
@@ -66,6 +72,15 @@ namespace Razix {
                     switch (format) {
                         case RZTexture::Format::R8:
                             return VK_FORMAT_R8_UNORM;
+                            break;
+                        case RZTexture::Format::R32_UINT:
+                            return VK_FORMAT_R32_UINT;
+                            break;
+                        case RZTexture::Format::R32_INT:
+                            return VK_FORMAT_R32_SINT;
+                            break;
+                        case RZTexture::Format::R32F:
+                            return VK_FORMAT_R32_SFLOAT;
                             break;
                         case RZTexture::Format::RG8:
                             return VK_FORMAT_R8G8_UNORM;
@@ -197,7 +212,7 @@ namespace Razix {
                     sourceStage           = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
                 } else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
                     barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-                    destinationStage      = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    sourceStage      = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
                 } else if (oldLayout == VK_IMAGE_LAYOUT_GENERAL) {
                     barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
                     sourceStage           = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;

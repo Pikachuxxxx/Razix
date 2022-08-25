@@ -4,6 +4,7 @@
 
     #include "Razix/Graphics/API/RZTexture.h"
 
+    #include "Razix/Platform/API/Vulkan/VKBuffer.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
     #include <vulkan/vulkan.h>
@@ -189,6 +190,8 @@ namespace Razix {
             void  Unbind(uint32_t slot) override;
             void* GetHandle() const override;
 
+            uint32_t ReadPixels(uint32_t x, uint32_t y) override;
+
         private:
             VkImage               m_Image;                                   /* Vulkan image handle for the Texture object                               */
             VkDeviceMemory        m_ImageMemory;                             /* Memory for the Vulkan image                                              */
@@ -196,6 +199,7 @@ namespace Razix {
             VkImageLayout         m_ImageLayout = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                */
             VkSampler             m_ImageSampler;                            /* Sampler information used by shaders to sample the texture                */
             VkDescriptorImageInfo m_Descriptor;                              /* Descriptor info encapsulation the image, view and the sampler            */
+            VKBuffer              m_TransferBuffer;
 
         private:
             /* recreates the render texture */

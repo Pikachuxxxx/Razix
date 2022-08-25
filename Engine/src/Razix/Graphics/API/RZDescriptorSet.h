@@ -79,14 +79,17 @@ namespace Razix {
         };
 
         /* Information about the uniform buffer members */
-        struct RZShaderBufferMemberInfo
+        struct RAZIX_MEM_ALIGN RZShaderBufferMemberInfo
         {
-            alignas(16) std::string name;     /* The name of the member variable                                                                             */
-            alignas(16) std::string fullName; /* The complete name of the member including uniform buffer as prefix                                          */
-            uint32_t       size;              /* The size of the member                                                                                      */
-            uint32_t       offset;            /* The offset of the member in the uniform buffer from the first member                                        */
-            ShaderDataType type;              /* The type of the member, this can be used to resolve the format                                              */
-            uint32_t       _padding;          /* Padding variable to pad the structure to 16-byte alignment                                                  */
+            std::string    name;     /* The name of the member variable                                                                             */
+            std::string    fullName; /* The complete name of the member including uniform buffer as prefix                                          */
+            uint32_t       size;     /* The size of the member                                                                                      */
+            uint32_t       offset;   /* The offset of the member in the uniform buffer from the first member                                        */
+            ShaderDataType type;     /* The type of the member, this can be used to resolve the format                                              */
+            uint32_t       _padding; /* Padding variable to pad the structure to 16-byte alignment                                                  */
+
+            RZShaderBufferMemberInfo() {}
+            ~RZShaderBufferMemberInfo() {}
         };
 
         // TODO: Add support for texture arrays
@@ -101,6 +104,9 @@ namespace Razix {
             uint32_t                              size;      //? The size of the descriptor data, can also be extracted from UBO/Texture??
             uint32_t                              offset;    //? I don't think this is needed
             RZDescriptorLayoutBinding             bindingInfo;
+
+            RZDescriptor() {}
+            ~RZDescriptor() {}
         };
 
         struct RZPushConstant
@@ -116,6 +122,7 @@ namespace Razix {
             uint32_t                              _padding;
 
             RZPushConstant() {}
+            ~RZPushConstant() {}
 
             RZPushConstant(const std::string& name, ShaderStage stage, uint8_t* data, uint32_t size, uint32_t offset)
                 : name(name), shaderStage(stage), data(data), size(size), offset(offset) {}
