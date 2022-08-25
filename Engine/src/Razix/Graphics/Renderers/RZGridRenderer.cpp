@@ -86,6 +86,58 @@ namespace Razix {
             }
         }
 
+        void RZGridRenderer::InitDisposableResources()
+        {
+            // Render pass
+            Graphics::AttachmentInfo textureTypes[2] = {
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
+                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
+
+            Graphics::RenderPassInfo renderPassInfo{};
+            renderPassInfo.attachmentCount = 2;
+            renderPassInfo.textureType     = textureTypes;
+            renderPassInfo.name            = "Grid rendering";
+            renderPassInfo.clear           = true;    // Since this the first in the render stack it needs a new clean SC image to render to
+
+            m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
+
+            // Create the graphics pipeline
+            Graphics::PipelineInfo pipelineInfo{};
+            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.depthBiasEnabled    = false;
+            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.renderpass          = m_RenderPass;
+            pipelineInfo.shader              = m_OverrideGlobalRHIShader;
+            pipelineInfo.transparencyEnabled = true;
+
+            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
+
+            // Framebuffer (we need on per frame ==> 3 in total)
+            // Create the framebuffer
+            Graphics::RZTexture::Type attachmentTypes[2];
+            attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
+            attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
+
+            auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
+            m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
+
+            m_Framebuffers.clear();
+            for (uint32_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
+                Graphics::RZTexture* attachments[2];
+                attachments[0] = Graphics::RZAPIRenderer::getSwapchain()->GetImage(i);
+                attachments[1] = m_DepthTexture;
+
+                Graphics::FramebufferInfo frameBufInfo{};
+                frameBufInfo.width           = m_ScreenBufferWidth;
+                frameBufInfo.height          = m_ScreenBufferHeight;
+                frameBufInfo.attachmentCount = 2;
+                frameBufInfo.renderPass      = m_RenderPass;
+                frameBufInfo.attachments     = attachments;
+
+                m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
+            }
+        }
+
         void RZGridRenderer::Begin()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -228,58 +280,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             throw std::logic_error("The method or operation is not implemented.");
-        }
-
-        void RZGridRenderer::InitDisposableResources()
-        {
-            // Render pass
-            Graphics::AttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
-                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
-
-            Graphics::RenderPassInfo renderPassInfo{};
-            renderPassInfo.attachmentCount = 2;
-            renderPassInfo.textureType     = textureTypes;
-            renderPassInfo.name            = "Grid rendering";
-            renderPassInfo.clear           = true;    // Since this the first in the render stack it needs a new clean SC image to render to
-
-            m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
-
-            // Create the graphics pipeline
-            Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-            pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.renderpass          = m_RenderPass;
-            pipelineInfo.shader              = m_OverrideGlobalRHIShader;
-            pipelineInfo.transparencyEnabled = true;
-
-            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
-
-            // Framebuffer (we need on per frame ==> 3 in total)
-            // Create the framebuffer
-            Graphics::RZTexture::Type attachmentTypes[2];
-            attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
-            attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
-
-            auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
-            m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
-
-            m_Framebuffers.clear();
-            for (uint32_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
-                Graphics::RZTexture* attachments[2];
-                attachments[0] = Graphics::RZAPIRenderer::getSwapchain()->GetImage(i);
-                attachments[1] = m_DepthTexture;
-
-                Graphics::FramebufferInfo frameBufInfo{};
-                frameBufInfo.width           = m_ScreenBufferWidth;
-                frameBufInfo.height          = m_ScreenBufferHeight;
-                frameBufInfo.attachmentCount = 2;
-                frameBufInfo.renderPass      = m_RenderPass;
-                frameBufInfo.attachments     = attachments;
-
-                m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
-            }
         }
     }    // namespace Graphics
 }    // namespace Razix

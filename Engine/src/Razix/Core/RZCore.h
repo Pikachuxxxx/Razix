@@ -1,18 +1,19 @@
 #pragma once
 
 /****************************************************************************************************
- *                                      Settings based on OS                                        *
+ *                                  Settings based on OS/Compiler                                   *
  ****************************************************************************************************/
-// TODO: Use inline macros such as RAZIX_INLINE to enable special optimizations of inline function based on OS
 // Settings for Windows OS
 #ifdef RAZIX_PLATFORM_WINDOWS
 
     // Disable any MSVC specific warnings
     #pragma warning(disable : 4251)
 
-    // 16-bit Memory alignment for the Windows OS
+    // 16-byte Memory alignment for the Windows OS/Engine
+    // Well I mean we might choose different alignments on different platforms so this is set per platform explicitly
     #define MEM_ALIGNMENT 16
-    #define RAZIX_MEM_ALIGN __declspec(align(MEM_ALIGNMENT)))
+    //#define RAZIX_MEM_ALIGN __declspec(align(MEM_ALIGNMENT))) // This is MSVC pre c++11 extension
+    #define RAZIX_MEM_ALIGN alignas(MEM_ALIGNMENT)    // This is from std c++ that is supposed to be available everywhere
 
     // Symbols Export settings for Engine
     #ifdef RAZIX_BUILD_DLL
@@ -22,15 +23,16 @@
     #endif
 
     // Debug functions for breaking the debugger or interrupting the code
-    #define RAZIX_DEBUG_BREAK() __debugbreak()
+    #define RAZIX_DEBUG_BREAK() __debugbreak()    // MSVC
 
-    // IDK what the fuck this is!
+    // IDK how to make a symbol to be hidden during exporting in MSVC I guess it does that explicitly where as MacOS/clang needs something explicit as shown below
     #define RAZIX_HIDDEN
 
 #else
     #define RAZXI_API           __attribute__((visibility("default")))
     #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
     #define RAZIX_DEBUG_BREAK() raise(SIGTRAP);
+    #define RAZIX_MEM_ALIGN     alignas(MEM_ALIGNMENT)
 
 #endif
 

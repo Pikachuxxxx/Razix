@@ -15,15 +15,15 @@ namespace Razix {
             ui.setupUi(this);
 
             // Accept only numerical input
-            ui.PosVal_X->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.PosVal_Y->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.PosVal_Z->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.RotVal_X->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.RotVal_Y->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.RotVal_Z->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.ScaleVal_X->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.ScaleVal_Y->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
-            ui.ScaleVal_Z->setValidator(new QDoubleValidator(-100000.0, 100000.0, 2, this));
+            ui.PosVal_X->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.PosVal_Y->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.PosVal_Z->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.RotVal_X->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.RotVal_Y->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.RotVal_Z->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.ScaleVal_X->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.ScaleVal_Y->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.ScaleVal_Z->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
 
             // mAKE CONNECTIONS TO REFLECT EDITING
             connect(ui.PosVal_X, SIGNAL(returnPressed()), this, SLOT(OnPosXEdited()));
@@ -61,7 +61,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnPosXEdited()
         {
-            TransformComponent m_TC;
             m_TC.Translation = glm::vec3(ui.PosVal_X->text().toDouble(), ui.PosVal_Y->text().toDouble(), ui.PosVal_Z->text().toDouble());
             auto& tc         = m_Entity.GetComponent<TransformComponent>();
             tc               = m_TC;
@@ -70,7 +69,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnPosYEdited()
         {
-            TransformComponent m_TC;
             m_TC.Translation = glm::vec3(ui.PosVal_X->text().toDouble(), ui.PosVal_Y->text().toDouble(), ui.PosVal_Z->text().toDouble());
             auto& tc         = m_Entity.GetComponent<TransformComponent>();
             tc               = m_TC;
@@ -78,7 +76,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnPosZEdited()
         {
-            TransformComponent m_TC;
             m_TC.Translation = glm::vec3(ui.PosVal_X->text().toDouble(), ui.PosVal_Y->text().toDouble(), ui.PosVal_Z->text().toDouble());
             auto& tc         = m_Entity.GetComponent<TransformComponent>();
             tc               = m_TC;
@@ -86,7 +83,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnRotXEdited()
         {
-            TransformComponent m_TC;
             m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
@@ -94,7 +90,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnRotYEdited()
         {
-            TransformComponent m_TC;
             m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
@@ -102,7 +97,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnRotZEdited()
         {
-            TransformComponent m_TC;
             m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
@@ -110,7 +104,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnScaleXEdited()
         {
-            TransformComponent m_TC;
             m_TC.Scale = glm::vec3(ui.ScaleVal_X->text().toDouble(), ui.ScaleVal_Y->text().toDouble(), ui.ScaleVal_Z->text().toDouble());
             auto& tc   = m_Entity.GetComponent<TransformComponent>();
             tc         = m_TC;
@@ -118,7 +111,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnScaleYEdited()
         {
-            TransformComponent m_TC;
             m_TC.Scale = glm::vec3(ui.ScaleVal_X->text().toDouble(), ui.ScaleVal_Y->text().toDouble(), ui.ScaleVal_Z->text().toDouble());
             auto& tc   = m_Entity.GetComponent<TransformComponent>();
             tc         = m_TC;
@@ -126,7 +118,6 @@ namespace Razix {
 
         void RZETransformComponentUI::OnScaleZEdited()
         {
-            TransformComponent m_TC;
             m_TC.Scale = glm::vec3(ui.ScaleVal_X->text().toDouble(), ui.ScaleVal_Y->text().toDouble(), ui.ScaleVal_Z->text().toDouble());
             auto& tc   = m_Entity.GetComponent<TransformComponent>();
             tc         = m_TC;
