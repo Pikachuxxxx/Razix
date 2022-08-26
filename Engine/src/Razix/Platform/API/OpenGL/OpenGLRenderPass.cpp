@@ -12,8 +12,6 @@ namespace Razix {
         {
             m_AttachmentsCount = renderPassInfo.attachmentCount;
             m_AttachmentTypes  = renderPassInfo.textureType;
-
-            shouldClear = renderPassInfo.clear;
         }
 
         OpenGLRenderPass::~OpenGLRenderPass()

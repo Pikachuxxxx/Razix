@@ -82,27 +82,26 @@ namespace Razix {
             constexpr uint32_t attachmentsCount = 3;
             // Render pass
             Graphics::AttachmentInfo textureTypes[attachmentsCount] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::R32_INT},
-                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM, false},
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::R32_INT, true},
+                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH, true}};
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = attachmentsCount;
             renderPassInfo.textureType     = textureTypes;
             renderPassInfo.name            = "Forward rendering";
-            renderPassInfo.clear           = false;
 
             m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
 
             // Create the graphics pipeline
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-            pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.renderpass          = m_RenderPass;
-            pipelineInfo.shader              = m_OverrideGlobalRHIShader;
+            pipelineInfo.cullMode         = Graphics::CullMode::NONE;
+            pipelineInfo.depthBiasEnabled = false;
+            pipelineInfo.drawType         = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.renderpass       = m_RenderPass;
+            pipelineInfo.shader           = m_OverrideGlobalRHIShader;
             // This causes validation errors for some VK image formats that are not the typical color attachments
-            pipelineInfo.transparencyEnabled = false; // TODO: This should be configurable for each attachment in the renderpass
+            pipelineInfo.transparencyEnabled = false;    // TODO: This should be configurable for each attachment in the renderpass
 
             m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
 
@@ -216,8 +215,15 @@ namespace Razix {
                 // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
                 auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
 
-                modelMatrix.data = glm::value_ptr(transform);
-                modelMatrix.size = sizeof(glm::mat4);
+                struct PCD
+                {
+                    glm::mat4 mat;
+                    int32_t   ID;
+                }pcData;
+                pcData.mat       = transform;
+                pcData.ID        = 984;
+                modelMatrix.data = &pcData;
+                modelMatrix.size = sizeof(PCD);
 
                 // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
                 Graphics::RZAPIRenderer::BindPushConstant(m_Pipeline, cmdBuf, modelMatrix);
