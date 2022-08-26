@@ -10,6 +10,8 @@
 
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
+#include <vendor/stb/stb_image_write.h>
+
 namespace Razix {
     namespace Graphics {
 
@@ -509,8 +511,8 @@ namespace Razix {
 
                 VkBufferImageCopy region               = {};
                 region.bufferOffset                    = 0;
-                region.bufferRowLength                 = 0;    // Try with m_Width
-                region.bufferImageHeight               = 0;    // Try with m_Height
+                region.bufferRowLength                 = m_Width;     // Try with m_Width
+                region.bufferImageHeight               = m_Height;    // Try with m_Height
                 region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
                 region.imageSubresource.mipLevel       = 0;
                 region.imageSubresource.baseArrayLayer = 0;
@@ -525,11 +527,18 @@ namespace Razix {
 
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-            void* data;
+            void* data = new char[m_Width * m_Height * 4];
             m_TransferBuffer.map();
             data = m_TransferBuffer.getMappedRegion();
             // Read and return the pixel value
-            uint32_t pixel_value = ((uint32_t*) data)[(x * 4) + (m_Width * 4 * y)];
+            uint32_t pixel_value = ((uint32_t*) data)[(x) + (m_Width * y)];
+
+            // save to disk
+            /*std::ofstream ofs("out.raw", std::ostream::binary);
+            ofs.write((char*) data, m_Width * m_Height * 4);*/
+
+            //int result = stbi_write_bmp("./rt.bmp", m_Width, m_Height, 4, data);
+            //RAZIX_CORE_ERROR("stb write result : {0}", result);
 
             m_TransferBuffer.unMap();
 
