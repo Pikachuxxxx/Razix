@@ -90,14 +90,13 @@ namespace Razix {
         {
             // Render pass
             Graphics::AttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM},
-                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM, true},
+                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH, true}};
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = 2;
             renderPassInfo.textureType     = textureTypes;
             renderPassInfo.name            = "Grid rendering";
-            renderPassInfo.clear           = true;    // Since this the first in the render stack it needs a new clean SC image to render to
 
             m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
 

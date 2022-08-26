@@ -100,8 +100,8 @@ namespace Razix {
             m_DepthOnly  = true;
             m_ClearDepth = false;
 
-            for (int i = 0; i < renderpassInfo.attachmentCount; i++) {
-                attachments.push_back(getAttachmentDescription(renderpassInfo.textureType[i], renderpassInfo.clear));
+            for (uint32_t i = 0; i < renderpassInfo.attachmentCount; i++) {
+                attachments.push_back(getAttachmentDescription(renderpassInfo.textureType[i], renderpassInfo.textureType[i].clear));
 
                 if (renderpassInfo.textureType[i].type == RZTexture::Type::COLOR) {
                     VkAttachmentReference colourAttachmentRef = {};
@@ -114,7 +114,7 @@ namespace Razix {
                     depthAttachmentRef.attachment            = uint32_t(i);
                     depthAttachmentRef.layout                = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                     depthAttachmentReferences.push_back(depthAttachmentRef);
-                    m_ClearDepth = renderpassInfo.clear;
+                    m_ClearDepth = renderpassInfo.textureType->clear;
                 }
             }
 
@@ -167,7 +167,7 @@ namespace Razix {
             vkRenderpassCI.pAttachments    = attachments.data();
             vkRenderpassCI.subpassCount    = 1;
             vkRenderpassCI.pSubpasses      = &subpass;
-            vkRenderpassCI.dependencyCount = dependencies.size();
+            vkRenderpassCI.dependencyCount = static_cast<uint32_t>(dependencies.size());
             vkRenderpassCI.pDependencies   = dependencies.data();
 
             if (VK_CHECK_RESULT(vkCreateRenderPass(VKDevice::Get().getDevice(), &vkRenderpassCI, nullptr, &m_RenderPass)))
