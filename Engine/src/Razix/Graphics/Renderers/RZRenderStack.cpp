@@ -61,7 +61,7 @@ namespace Razix {
             }
 
             // Get the EnitytIDsRT after full presentation
-            if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonLeft))
+            if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonLeft))
                 RAZIX_CORE_WARN("mouse {0}, {1} | pixel : {2}", RZInput::GetMouseX(), RZInput::GetMouseY(), m_RenderersStack[1]->getEntityIDsRT()->ReadPixels(static_cast<uint32_t>(RZInput::GetMouseX()), static_cast<uint32_t>(RZInput::GetMouseY())));
         }
 

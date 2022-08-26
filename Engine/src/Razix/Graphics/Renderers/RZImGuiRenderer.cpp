@@ -120,14 +120,13 @@ namespace Razix {
         {
             // Create the renderpass
             Graphics::AttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN},
-                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
+                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN, false},
+                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH, true}};
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = 2;
             renderPassInfo.textureType     = textureTypes;
             renderPassInfo.name            = "ImGui UI pass";
-            renderPassInfo.clear           = false;    // Always draw on top without clearing anything
 
             m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
 
