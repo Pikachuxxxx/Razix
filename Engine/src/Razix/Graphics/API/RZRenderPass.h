@@ -16,9 +16,9 @@ namespace Razix {
         {
             RZTexture::Type   type;         /* The type of the attachment                           */
             RZTexture::Format format;       /* The format of the attachment                         */
+            bool              clear = true; /* Whether or not to clear the particular attachment    */
             //glm::vec4         clearColor;   /* Clear color with which the attachment is cleared     */
             // glm::vec2        depthClearColor;
-            //bool              clear = true; /* Whether or not to clear the particular attachment    */
         };
 
         struct RAZIX_MEM_ALIGN RenderPassInfo
@@ -26,7 +26,6 @@ namespace Razix {
             std::string     name;
             AttachmentInfo* textureType;
             uint32_t        attachmentCount;
-            bool            clear = true;
             uint8_t         _padding[3];
         };
 
@@ -40,7 +39,7 @@ namespace Razix {
         class RAZIX_MEM_ALIGN RAZIX_API RZRenderPass : public RZRoot
         {
         public:
-            RZRenderPass() = default; 
+            RZRenderPass() = default;
             virtual ~RZRenderPass() {}
 
             /**

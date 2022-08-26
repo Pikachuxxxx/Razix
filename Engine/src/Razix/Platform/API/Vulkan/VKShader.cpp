@@ -264,7 +264,6 @@ namespace Razix {
                 // Uniform Buffers + Samplers
                 // Descriptor Bindings : These bindings describe where and what kind of resources are bound to the shaders at various stages, they also store the information of the nature of resource data that is bound
                 // Uniform variables usually have members and samplers none
-                // TODO: Use spvReflectEnumerateDescriptorSets instead to fill in the vulkan descriptor sets quickly
                 uint32_t descriptors_count = 0;
                 result                     = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, nullptr);
                 RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect descriptor bindings from SPIRV shader - ({0})", virtualPath);
@@ -344,9 +343,9 @@ namespace Razix {
                 // Create Push constants and store info about it
                 for (uint32_t i = 0; i < push_constants_count; i++) {
                     SpvReflectBlockVariable* pushConstant = pp_push_constant_blocks[i];
-                    std::cout << "Name      : " << pushConstant->name << std::endl;
-                    std::cout << "Size      : " << pushConstant->size << std::endl;
-                    std::cout << "Offset    : " << pushConstant->offset << std::endl;
+                    //std::cout << "Name      : " << pushConstant->name << std::endl;
+                    //std::cout << "Size      : " << pushConstant->size << std::endl;
+                    //std::cout << "Offset    : " << pushConstant->offset << std::endl;
 
                     RZPushConstant pc{};
                     pc.name = pushConstant->name;
