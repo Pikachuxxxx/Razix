@@ -39,6 +39,10 @@ namespace Razix {
         m_UpdateFunc = std::make_shared<sol::protected_function>((*m_Env)["OnUpdate"]);
         if (!m_UpdateFunc->valid())
             m_UpdateFunc.reset();
+
+        m_OnImGuiFunc = std::make_shared<sol::protected_function>((*m_Env)["OnImGui"]);
+        if (!m_OnImGuiFunc->valid())
+            m_OnImGuiFunc.reset();
     }
 
     void LuaScriptComponent::OnStart()
@@ -68,4 +72,19 @@ namespace Razix {
             }
         }
     }
+
+    void LuaScriptComponent::OnImGui()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
+
+        if (m_OnImGuiFunc) {
+            sol::protected_function_result result = m_OnImGuiFunc->call();
+            if (!result.valid()) {
+                sol::error err = result;
+                RAZIX_CORE_ERROR("Failed to Execute Script Lua OnImGui");
+                RAZIX_CORE_ERROR("Error : {0}", err.what());
+            }
+        }
+    }
+
 }    // namespace Razix

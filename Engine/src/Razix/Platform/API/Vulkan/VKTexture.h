@@ -190,7 +190,7 @@ namespace Razix {
             void  Unbind(uint32_t slot) override;
             void* GetHandle() const override;
 
-            uint32_t ReadPixels(uint32_t x, uint32_t y) override;
+            int32_t ReadPixels(uint32_t x, uint32_t y) override;
 
         private:
             VkImage               m_Image;                                   /* Vulkan image handle for the Texture object                               */

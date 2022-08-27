@@ -35,15 +35,26 @@ public:
         auto& modelEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
         if (!modelEnitties.size()) {
             // Avocado
-            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Armadillo");
+            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Avacado Model");
             armadilloModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Avocado.gltf");
         }
 
         // Add a directional light for test
         auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
-            auto& directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("DirLight");
+            auto& directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
             directionalLightEntity.AddComponent<Razix::LightComponent>();
+        }
+
+        auto scripts = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LuaScriptComponent>();
+        if (!scripts.size()) {
+     
+            Razix::RZEntity imguiEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("imgui_script_entity");
+            imguiEntity.AddComponent<Razix::LuaScriptComponent>();
+            if (imguiEntity.HasComponent<Razix::LuaScriptComponent>()) {
+                Razix::LuaScriptComponent& lsc = imguiEntity.GetComponent<Razix::LuaScriptComponent>();
+                lsc.loadScript("//Scripts/imgui_test.lua");
+            }
         }
     }
 };
