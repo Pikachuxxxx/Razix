@@ -20,6 +20,7 @@ namespace Razix {
 
         void OnStart();
         void OnUpdate(RZTimestep dt);
+        void OnImGui();
 
         template<typename Archive>
         void save(Archive& archive) const
@@ -42,5 +43,6 @@ namespace Razix {
         std::shared_ptr<sol::environment>        m_Env;
         std::shared_ptr<sol::protected_function> m_OnStartFunc;
         std::shared_ptr<sol::protected_function> m_UpdateFunc;
+        std::shared_ptr<sol::protected_function> m_OnImGuiFunc;
     };
 }    // namespace Razix

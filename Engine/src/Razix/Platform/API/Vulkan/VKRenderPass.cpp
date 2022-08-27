@@ -36,12 +36,14 @@ namespace Razix {
 
             commandBuffer->UpdateViewport(width, height);
 
+            // TODO: Support attachment color per attachment, also choose the union type based on format type for vulkan SINT/UINT/SFLOAT
+
             if (!m_DepthOnly) {
                 for (size_t i = 0; i < m_AttachmentsCount; i++) {
-                    m_ClearValue[i].color.float32[0] = clearColor.x;
-                    m_ClearValue[i].color.float32[1] = clearColor.y;
-                    m_ClearValue[i].color.float32[2] = clearColor.z;
-                    m_ClearValue[i].color.float32[3] = clearColor.w;
+                    m_ClearValue[i].color.int32[0] = -1;
+                    m_ClearValue[i].color.int32[1] = -1;
+                    m_ClearValue[i].color.int32[2] = -1;
+                    m_ClearValue[i].color.int32[3] = -1;
                 }
             }
             // Assuming that depth is always the last attachment 

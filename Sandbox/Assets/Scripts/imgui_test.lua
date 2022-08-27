@@ -32,10 +32,8 @@ end
 function OnUpdate(dt)
 end
 
--- This should be something like OnGui() or OnImGui() or OnGuiDraw()
-function OnUppppppdate(dt)
+function OnImGui()
     imgui.beginWindow("ImGui Lua Window")
-        imgui.text("FPS : " .. (1 / dt))
         imgui.checkbox("Label", value, get_value)
         imgui.button("somebutton")
         imgui.dragFloat("Range", range, get_dragFLoatVal)

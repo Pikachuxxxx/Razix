@@ -17,7 +17,7 @@ layout(location = 0) in VSOutput
     vec2 fragTexCoord;
     vec3 fragNormal;
     vec3 fragTangent;
-    vec2 IDdummy;
+    flat int ID;
 }fs_in;
  //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
@@ -109,6 +109,6 @@ void main()
     //outFragColor = texture(diffuseMap, fs_in.fragTexCoord);
 
     // Placeholder for Entity ID
-    outEntityID = int(fs_in.IDdummy.x);
+    outEntityID = fs_in.ID;
 }
 //------------------------------------------------------------------------------

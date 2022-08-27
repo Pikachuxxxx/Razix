@@ -32,7 +32,7 @@ layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 // The model push constant
 layout (push_constant, binding = 1) uniform ModelPushConstantData{
     mat4 model;
-    int ID;
+     int ID;
 }model_pc_data;
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
@@ -43,7 +43,7 @@ layout(location = 0) out VSOutput
     vec2 fragTexCoord;
     vec3 fragNormal;
     vec3 fragTangent;
-    vec2 IDdummy;
+    flat int ID;
 }vs_out;
   
 out gl_PerVertex
@@ -65,6 +65,6 @@ void main()
     // Okay for some reason we can't pass integers from VS to PS from the out semantic?
     // This is super weird hence we use this hack of passing a float vec2 insted for some reason float also doesn't work so
     // This needs more investigation so as to why this is happening
-    vs_out.IDdummy           = vec2(model_pc_data.ID, 2.021);//model_pc_data.ID;
+    vs_out.ID        = model_pc_data.ID;//model_pc_data.ID;
 }
 //------------------------------------------------------------------------------

@@ -215,13 +215,14 @@ namespace Razix {
                 // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
                 auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
 
+                // Ehhh... not the neatest thing to be here but I'll let this one slide for now
                 struct PCD
                 {
                     glm::mat4 mat;
                     int32_t   ID;
                 }pcData;
                 pcData.mat       = transform;
-                pcData.ID        = 984;
+                pcData.ID        = int32_t(entity);
                 modelMatrix.data = &pcData;
                 modelMatrix.size = sizeof(PCD);
 
