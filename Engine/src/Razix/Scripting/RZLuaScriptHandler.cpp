@@ -76,6 +76,23 @@ namespace Razix {
             }
         }
 
+        void RZLuaScriptHandler::OnImGui(RZScene* scene)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
+
+            auto& registry = scene->getRegistry();
+
+            auto view = registry.view<LuaScriptComponent>();
+
+            if (view.empty())
+                return;
+
+            for (auto entity: view) {
+                auto& luaScript = registry.get<LuaScriptComponent>(entity);
+                luaScript.OnImGui();
+            }
+        }
+
         void RZLuaScriptHandler::bindSceneManagerAPI()
         {
         }

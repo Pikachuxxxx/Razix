@@ -198,7 +198,7 @@ namespace Razix {
 
             virtual void Resize(uint32_t width, uint32_t height) = 0;
 
-            virtual uint32_t ReadPixels(uint32_t x, uint32_t y) = 0;
+            virtual int32_t ReadPixels(uint32_t x, uint32_t y) = 0;
         };
     }    // namespace Graphics
 }    // namespace Razix

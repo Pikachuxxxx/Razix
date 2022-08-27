@@ -393,7 +393,8 @@ namespace Razix {
 
         ImGui::NewFrame();
 
-        // TODO: Call the Lua Scripts OnGuiDraw method here
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnImGui(RZEngine::Get().getSceneManager().getCurrentScene());
 
         OnImGui();
 
@@ -407,10 +408,13 @@ namespace Razix {
             if (ImGui::Checkbox("Test", &some)) {
                 RAZIX_CORE_ERROR("Done!");
             }
-
             ImGui::Separator();
         }
         ImGui::End();
+
+        ImFont* font = ImGui::GetFont();
+        font->Scale  = 0.75f;
+        ImGui::PushFont(font);
 
         // Engine stats
         ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
@@ -422,7 +426,7 @@ namespace Razix {
         ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
         ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
         ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::SetNextWindowBgAlpha(0.15f);    // Transparent background
+        ImGui::SetNextWindowBgAlpha(0.35f);    // Transparent background
 
         ImGui::Begin("Engine Stats", 0, window_flags);
         {
@@ -444,6 +448,10 @@ namespace Razix {
             ImGui::Unindent();
         }
         ImGui::End();
+
+        ImGui::PopFont();
+        font        = ImGui::GetFont();
+        font->Scale = 1.0f;
 
         ImGui::Render();
     }

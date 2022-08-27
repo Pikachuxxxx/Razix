@@ -498,13 +498,12 @@ namespace Razix {
             return (void*) &m_Descriptor;
         }
 
-        uint32_t VKRenderTexture::ReadPixels(uint32_t x, uint32_t y)
+        int32_t VKRenderTexture::ReadPixels(uint32_t x, uint32_t y)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Change the image layout from shader read only optimal to transfer source
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-
             {
                 // 1.1 Copy from staging buffer to Image
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
@@ -524,22 +523,13 @@ namespace Razix {
 
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
             }
-
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
             void* data = new char[m_Width * m_Height * 4];
             m_TransferBuffer.map();
             data = m_TransferBuffer.getMappedRegion();
             // Read and return the pixel value
-            uint32_t pixel_value = ((uint32_t*) data)[(x) + (m_Width * y)];
-
-            // save to disk
-            /*std::ofstream ofs("out.raw", std::ostream::binary);
-            ofs.write((char*) data, m_Width * m_Height * 4);*/
-
-            //int result = stbi_write_bmp("./rt.bmp", m_Width, m_Height, 4, data);
-            //RAZIX_CORE_ERROR("stb write result : {0}", result);
-
+            int32_t pixel_value = ((int32_t*) data)[(x) + (m_Width * y)];
             m_TransferBuffer.unMap();
 
             return pixel_value;
