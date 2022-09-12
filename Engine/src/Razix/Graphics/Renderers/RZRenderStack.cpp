@@ -79,11 +79,11 @@ namespace Razix {
 
         void RZRenderStack::enableDebugRenderer(bool enable)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void RZRenderStack::sortRenderers()
         {
         }
-
     }    // namespace Graphics
 }    // namespace Razix

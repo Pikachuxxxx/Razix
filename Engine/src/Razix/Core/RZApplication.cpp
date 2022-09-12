@@ -398,29 +398,29 @@ namespace Razix {
 
         OnImGui();
 
-        ImGui::ShowDemoWindow();
-        if (ImGui::Begin("Razix Engine")) {
-            ImGui::Text("Indeed it is!");
-
-            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(50, 50));
-            ImGui::SameLine();
-            static bool some;
-            if (ImGui::Checkbox("Test", &some)) {
-                RAZIX_CORE_ERROR("Done!");
-            }
-            ImGui::Separator();
-        }
-        ImGui::End();
+        //ImGui::ShowDemoWindow();
+        //if (ImGui::Begin("Razix Engine")) {
+        //    ImGui::Text("Indeed it is!");
+        //
+        //    ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(50, 50));
+        //    ImGui::SameLine();
+        //    static bool some;
+        //    if (ImGui::Checkbox("Test", &some)) {
+        //        RAZIX_CORE_ERROR("Done!");
+        //    }
+        //    ImGui::Separator();
+        //}
+        //ImGui::End();
 
         ImFont* font = ImGui::GetFont();
-        font->Scale  = 0.75f;
+        font->Scale  = 0.90f;
         ImGui::PushFont(font);
 
         // Engine stats
         ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
         const float          DISTANCE         = 10.0f;
         const ImGuiViewport* viewport         = ImGui::GetMainViewport();
-        ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
+        ImVec2               work_area_pos    = viewport->WorkPos;          // Use work area to avoid menu-bar/task-bar, if any!
         ImVec2               work_area_size   = viewport->WorkSize;
         ImVec2               window_pos       = ImVec2((1 & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (1 & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
         ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
@@ -434,16 +434,20 @@ namespace Razix {
             ImGui::Text("Engine Stats");
             ImGui::Indent();
             ImGui::Text("FPS                    : %.4d", stats.FramesPerSecond);
-            ImGui::Text("render time (in ms)    : %0.2f", stats.DeltaTime);
+            ImGui::Text("render time            : %0.2f ms", stats.DeltaTime);
+            ImGui::Text("grid pass              : %0.2f ms", stats.GridPass);
+            ImGui::Text("forward lighting pass  : %0.2f ms", stats.ForwardLightingPass);
+            ImGui::Text("imgui pass             : %0.2f ms", stats.ImGuiPass);
 
             ImGui::Separator();
             ImGui::Text("API calls");
 
-            ImGui::Text("Total Draw calls       : %d", stats.NumDrawCalls);
-
+            ImGui::Text("Total Draw calls           : %d", stats.NumDrawCalls);
             ImGui::Indent();
-            ImGui::BulletText("Draws            : %d", stats.Draws);
-            ImGui::BulletText("Indexed Draws    : %d", stats.IndexedDraws);
+            ImGui::BulletText("Draws                : %d", stats.Draws);
+            ImGui::BulletText("Indexed Draws        : %d", stats.IndexedDraws);
+            ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
+
             ImGui::Unindent();
             ImGui::Unindent();
         }

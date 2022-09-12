@@ -2,25 +2,25 @@
 
 // TODO: https://nikitablack.github.io/post/how_to_use_vulkan_timestamp_queries/ use this to manually profile GPU timings
 
-    // Profilers cannot be switched at runtime and need to be decided before compile time itself
-    #define RZ_PROFILER_TRACY   1
-    #define RZ_PROFILER_OPTICK  0
-    #define RZ_PROFILER_NVSIGHT 0
+// Profilers cannot be switched at runtime and need to be decided before compile time itself
+#define RZ_PROFILER_TRACY   1
+#define RZ_PROFILER_OPTICK  0
+#define RZ_PROFILER_NVSIGHT 0
 
-    #define RZ_ENABLE_CALL_STACK_CAPTURE 1
-    #define RZ_CALL_STACK_DEPTH          15
+#define RZ_ENABLE_CALL_STACK_CAPTURE 1
+#define RZ_CALL_STACK_DEPTH          15
 
-    // Predefined colors for profiling engine systems and API parts
-    #define RZ_PROFILE_COLOR_CORE         0x8B0000
-    #define RZ_PROFILE_COLOR_APPLICATION  0xFFD700
-    #define RZ_PROFILE_COLOR_GRAPHICS     0xFF8C00
-    #define RZ_PROFILE_COLOR_RENDERERS    0xF08080
-    #define RZ_PROFILE_COLOR_SCENE        0x00BFFF
-    #define RZ_PROFILE_COLOR_SCRIPTING    0x8A2BE2
-    #define RZ_PROFILE_COLOR_ASSET_SYSTEM 0xFF8C00
+// Predefined colors for profiling engine systems and API parts
+#define RZ_PROFILE_COLOR_CORE         0x8B0000
+#define RZ_PROFILE_COLOR_APPLICATION  0xFFD700
+#define RZ_PROFILE_COLOR_GRAPHICS     0xFF8C00
+#define RZ_PROFILE_COLOR_RENDERERS    0xF08080
+#define RZ_PROFILE_COLOR_SCENE        0x00BFFF
+#define RZ_PROFILE_COLOR_SCRIPTING    0x8A2BE2
+#define RZ_PROFILE_COLOR_ASSET_SYSTEM 0xFF8C00
 
-    // Graphics API will have separate colors for different parts such as for draw commands, pipeline binds etc.
-    #define RZ_PROFILE_COLOR_GRAPHICS_API_DRAW_CALLS 0x8B0000
+// Graphics API will have separate colors for different parts such as for draw commands, pipeline binds etc.
+#define RZ_PROFILE_COLOR_GRAPHICS_API_DRAW_CALLS 0x8B0000
 
 #ifndef RAZIX_DISTRIBUTION
     // Tracy
@@ -70,7 +70,7 @@
         #define RAZIX_PROFILE_GPU_SCOPEC(name, color) OPTICK_GPU_EVENT(name)
         //#define RAZIX_PROFILE_GPU_FUNCTION()            OPTICK_GPU_EVENT(__FUNCTION__)
         //#define RAZIX_PROFILE_GPU_FUNCTION(color)       OPTICK_GPU_EVENT(__FUNCTION__)
-        #define RAZIX_PROFILE_GPU_FLIP(swapchain) OPTICK_GPU_FLIP(swapchain)
+        #define RAZIX_PROFILE_GPU_FLIP(swapchain)     OPTICK_GPU_FLIP(swapchain)
 
         #define RAZIX_PROFILE_LOCK(type, var, name)
         #define RAZIX_PROFILE_LOCKMARKER(var)

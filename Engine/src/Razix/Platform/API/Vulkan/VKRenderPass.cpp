@@ -19,16 +19,12 @@ namespace Razix {
             m_AttachmentsCount      = 0;
             m_ColorAttachmentsCount = 0;
 
-            m_AttachmentTypes = renderPassInfo.textureType;
+            m_AttachmentTypes = renderPassInfo.attachmentInfos;
 
             init(renderPassInfo);
         }
 
-        VKRenderPass::~VKRenderPass()
-        {
-            //delete[] m_ClearValue;
-            //vkDestroyRenderPass(VKDevice::Get().getDevice(), m_RenderPass, nullptr);
-        }
+        VKRenderPass::~VKRenderPass() {}
 
         void VKRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height)
         {
@@ -36,19 +32,25 @@ namespace Razix {
 
             commandBuffer->UpdateViewport(width, height);
 
-            // TODO: Support attachment color per attachment, also choose the union type based on format type for vulkan SINT/UINT/SFLOAT
+            // TODO: choose the union type based on format type for vulkan SINT/UINT/SFLOAT and update only that properly
 
             if (!m_DepthOnly) {
                 for (size_t i = 0; i < m_AttachmentsCount; i++) {
-                    m_ClearValue[i].color.int32[0] = -1;
-                    m_ClearValue[i].color.int32[1] = -1;
-                    m_ClearValue[i].color.int32[2] = -1;
-                    m_ClearValue[i].color.int32[3] = -1;
+                    //if (m_AttachmentTypes[i].format == RZTexture::Format::BGRA8_UNORM) {
+                    m_ClearValue[i].color.int32[0] = -1;    //m_AttachmentTypes[i].clearColor.x;
+                    m_ClearValue[i].color.int32[1] = -1;    //m_AttachmentTypes[i].clearColor.y;
+                    m_ClearValue[i].color.int32[2] = -1;    //m_AttachmentTypes[i].clearColor.x;
+                    m_ClearValue[i].color.int32[3] = -1;    //m_AttachmentTypes[i].clearColor.w;
+                    //} else if (m_AttachmentTypes[i].format == RZTexture::Format::R32_INT) {
+                    //m_ClearValue[i].color.int32[0] = -1;    //int32_t(m_AttachmentTypes[i].clearColor.x);
+                    //m_ClearValue[i].color.int32[1] = -1;    //int32_t(m_AttachmentTypes[i].clearColor.y);
+                    //m_ClearValue[i].color.int32[2] = -1;    //int32_t(m_AttachmentTypes[i].clearColor.x);
+                    //m_ClearValue[i].color.int32[3] = -1;    //int32_t(m_AttachmentTypes[i].clearColor.w);
+                    //}
                 }
             }
-            // Assuming that depth is always the last attachment 
+            // Assuming that depth is always the last attachment, and we clear it with a constant value no customization can be done here this needs to be supported in future as needed
             m_ClearValue[m_AttachmentsCount - 1].depthStencil = VkClearDepthStencilValue{1.0f, 0};
-            //if (m_ClearDepth)
 
             VkRenderPassBeginInfo rpBegin{};
             rpBegin.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -103,20 +105,20 @@ namespace Razix {
             m_ClearDepth = false;
 
             for (uint32_t i = 0; i < renderpassInfo.attachmentCount; i++) {
-                attachments.push_back(getAttachmentDescription(renderpassInfo.textureType[i], renderpassInfo.textureType[i].clear));
+                attachments.push_back(getAttachmentDescription(renderpassInfo.attachmentInfos[i], renderpassInfo.attachmentInfos[i].clear));
 
-                if (renderpassInfo.textureType[i].type == RZTexture::Type::COLOR) {
+                if (renderpassInfo.attachmentInfos[i].type == RZTexture::Type::COLOR) {
                     VkAttachmentReference colourAttachmentRef = {};
                     colourAttachmentRef.attachment            = uint32_t(i);
                     colourAttachmentRef.layout                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     colourAttachmentReferences.push_back(colourAttachmentRef);
                     m_DepthOnly = false;
-                } else if (renderpassInfo.textureType[i].type == RZTexture::Type::DEPTH) {
+                } else if (renderpassInfo.attachmentInfos[i].type == RZTexture::Type::DEPTH) {
                     VkAttachmentReference depthAttachmentRef = {};
                     depthAttachmentRef.attachment            = uint32_t(i);
                     depthAttachmentRef.layout                = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                     depthAttachmentReferences.push_back(depthAttachmentRef);
-                    m_ClearDepth = renderpassInfo.textureType->clear;
+                    m_ClearDepth = renderpassInfo.attachmentInfos->clear;
                 }
             }
 

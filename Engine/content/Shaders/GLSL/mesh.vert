@@ -30,7 +30,7 @@ layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 } view_proj_ubo;
 
 // The model push constant
-layout (push_constant, binding = 1) uniform ModelPushConstantData{
+layout (push_constant, binding = 5) uniform ModelPushConstantData{
     mat4 model;
      int ID;
 }model_pc_data;
