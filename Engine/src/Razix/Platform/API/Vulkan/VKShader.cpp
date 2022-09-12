@@ -275,7 +275,7 @@ namespace Razix {
 
                     SpvReflectDescriptorBinding* descriptor = pp_descriptor_bindings[i];
 
-                    RZDescriptor rzDescriptor;
+                    RZDescriptor rzDescriptor{};
 
                     //std::cout << "SPIRV ID                  : " << descriptor->spirv_id << std::endl;
                     //std::cout << "UBO Name                  : " << descriptor->name << std::endl;
@@ -305,7 +305,7 @@ namespace Razix {
                     m_VKSetBindingLayouts[descriptor->set].push_back(setLayoutBindingInfo);
 
                     // -->Also store all this data for the engine as well.
-                    RZDescriptorLayoutBinding bindingInfo;
+                    RZDescriptorLayoutBinding bindingInfo{};
                     bindingInfo.binding = descriptor->binding;
                     bindingInfo.count   = 1;
                     //bindingInfo.name    = descriptor->name;// already being stored in RZDescriptor::name
@@ -318,7 +318,7 @@ namespace Razix {
                     rzDescriptor.size        = descriptor->block.size;
 
                     for (size_t i = 0; i < descriptor->block.member_count; i++) {
-                        RZShaderBufferMemberInfo memberInfo;
+                        RZShaderBufferMemberInfo memberInfo{};
                         memberInfo.fullName = rzDescriptor.name + "." + descriptor->block.members[i].name;
                         memberInfo.name     = descriptor->block.members[i].name;
                         memberInfo.offset   = descriptor->block.members[i].offset;
@@ -369,7 +369,8 @@ namespace Razix {
                     m_PushConstants.push_back(pc);
                 }
                 // Destroy the reflection data when no longer required
-                spvReflectDestroyShaderModule(&module);
+                // FIXME: This is causing unnecessary crashes, investigate and resolve!
+                //spvReflectDestroyShaderModule(&module);
             }
 
             // Create the Vulkan set layouts for each set ID with the descriptors (bindings) it has

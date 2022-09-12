@@ -2,8 +2,6 @@
 
 #include "Razix/Graphics/API/RZTexture.h"
 
-#include <glm/glm.hpp>
-
 namespace Razix {
     namespace Graphics {
 
@@ -14,19 +12,19 @@ namespace Razix {
         /* Gives information about the type of texture that is attached to the framebuffer render pass */
         struct RAZIX_MEM_ALIGN AttachmentInfo
         {
-            RZTexture::Type   type;         /* The type of the attachment                           */
-            RZTexture::Format format;       /* The format of the attachment                         */
-            bool              clear = true; /* Whether or not to clear the particular attachment    */
-            //glm::vec4         clearColor;   /* Clear color with which the attachment is cleared     */
-            // glm::vec2        depthClearColor;
+            RZTexture::Type   type;         /* The type of the attachment                                                                                               */
+            RZTexture::Format format;       /* The format of the attachment                                                                                             */
+            bool              clear = true; /* Whether or not to clear the particular attachment                                                                        */
+            glm::vec4         clearColor;   /* Clear color with which the attachment is cleared, Note: x and y represent the depth clear values if clear is false       */
         };
 
+        /* Info to create a render pass */
         struct RAZIX_MEM_ALIGN RenderPassInfo
         {
-            std::string     name;
-            AttachmentInfo* textureType;
-            uint32_t        attachmentCount;
-            uint8_t         _padding[3];
+            std::string     name;            /* Name of the renderpass                               */
+            AttachmentInfo* attachmentInfos; /* Attachments and their info                           */
+            uint32_t        attachmentCount; /* The number of attachments in the current render pass */
+            uint8_t         _padding[3];     /* manual Padding for 16-byte alignment fill up         */
         };
 
         enum SubPassContents

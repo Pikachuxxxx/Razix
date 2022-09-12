@@ -125,7 +125,7 @@ namespace Razix {
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = 2;
-            renderPassInfo.textureType     = textureTypes;
+            renderPassInfo.attachmentInfos = textureTypes;
             renderPassInfo.name            = "ImGui UI pass";
 
             m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
@@ -391,6 +391,10 @@ namespace Razix {
         void RZImGuiRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            float now = m_RendererTimer.GetElapsedS();
+            m_PassTimer.Update(now);
+            RZEngine::Get().GetStatistics().ImGuiPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
 
             Graphics::RZAPIRenderer::SubmitWork();
             Graphics::RZAPIRenderer::Present();

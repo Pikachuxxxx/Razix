@@ -4,6 +4,7 @@
 #include "RZForwardRenderer.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
@@ -88,7 +89,7 @@ namespace Razix {
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = attachmentsCount;
-            renderPassInfo.textureType     = textureTypes;
+            renderPassInfo.attachmentInfos = textureTypes;
             renderPassInfo.name            = "Forward rendering";
 
             m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
@@ -173,7 +174,7 @@ namespace Razix {
             }
 
             // Update the View Projection UBO
-            //m_Camera->setPerspectiveFarClip(6000.0f);
+            m_Camera->setPerspectiveFarClip(6000.0f);
             m_ViewProjSystemUBOData.view       = m_Camera->getViewMatrix();
             m_ViewProjSystemUBOData.projection = m_Camera->getProjection();
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
@@ -220,7 +221,7 @@ namespace Razix {
                 {
                     glm::mat4 mat;
                     int32_t   ID;
-                }pcData;
+                } pcData;
                 pcData.mat       = transform;
                 pcData.ID        = int32_t(entity);
                 modelMatrix.data = &pcData;
@@ -265,6 +266,10 @@ namespace Razix {
         void RZForwardRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            float now = m_RendererTimer.GetElapsedS();
+            m_PassTimer.Update(now);
+            RZEngine::Get().GetStatistics().ForwardLightingPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
 
             //Graphics::RZAPIRenderer::SubmitWork();
             //Graphics::RZAPIRenderer::Present();
