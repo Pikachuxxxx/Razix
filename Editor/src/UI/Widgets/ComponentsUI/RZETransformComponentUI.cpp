@@ -64,7 +64,6 @@ namespace Razix {
             m_TC.Translation = glm::vec3(ui.PosVal_X->text().toDouble(), ui.PosVal_Y->text().toDouble(), ui.PosVal_Z->text().toDouble());
             auto& tc         = m_Entity.GetComponent<TransformComponent>();
             tc               = m_TC;
-            std::cout << ui.PosVal_X->text().toDouble() << std::endl;
         }
 
         void RZETransformComponentUI::OnPosYEdited()

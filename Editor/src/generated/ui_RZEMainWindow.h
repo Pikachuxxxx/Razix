@@ -205,7 +205,7 @@ public:
         menuWindows->setTitle(QCoreApplication::translate("MainWindow", "Windows", nullptr));
         menuGraphics->setTitle(QCoreApplication::translate("MainWindow", "Graphics", nullptr));
         menuCreate->setTitle(QCoreApplication::translate("MainWindow", "Create", nullptr));
-        menuComponent->setTitle(QCoreApplication::translate("MainWindow", "Component", nullptr));
+        menuComponent->setTitle(QCoreApplication::translate("MainWindow", "Add Component", nullptr));
         menuPrimitive->setTitle(QCoreApplication::translate("MainWindow", "Primitive", nullptr));
         menuImport->setTitle(QCoreApplication::translate("MainWindow", "Import", nullptr));
     } // retranslateUi

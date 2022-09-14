@@ -6,8 +6,11 @@
 #include <QComboBox>
 #include <QTimer>
 
-#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
+#include "Razix/Scene/RZEntity.h"
+
+#include "Razix/Scene/Components/MeshRendererComponent.h"
+#include "Razix/Graphics/RZMeshFactory.h"
 
 namespace Razix {
     namespace Editor {
@@ -69,15 +72,18 @@ namespace Razix {
             std::string stylesheet = R"(
                 border-color: rgb(147, 147, 147);
                 border:1px;
-                border-radius:5;
+                border-radius:5;b 
                 border-style : solid;)";
             m_FPSLblSB->setStyleSheet(stylesheet.c_str());
-            QWidget*     widget = new QWidget();
+            QWidget*     widget = new QWidget();    // Is this really needed?
             QGridLayout* layout = new QGridLayout(widget);
             layout->addWidget(m_FPSLblSB, 0, 1, 1, 1, Qt::AlignVCenter | Qt::AlignRight);
             layout->setMargin(0);
             ui.statusbar->addWidget(widget, 1);
             ui.statusbar->setContentsMargins(0, 0, 0, 0);
+
+            // Menu Init
+            SetupMenu();
         }
 
         void RZEMainWindow::OnSaveProjectPressed()
@@ -91,5 +97,24 @@ namespace Razix {
             m_FPSLblSB->setText(QString(fps.c_str()));
         }
 
+        void RZEMainWindow::SetupMenu()
+        {
+            // Create Menu commands
+            SetupCreateMenuCommands();
+        } 
+
+        void RZEMainWindow::SetupCreateMenuCommands()
+        {
+            connect(ui.actionEntity, &QAction::triggered, this, &RZEMainWindow::Create_Entity);
+        }
+
+        void RZEMainWindow::Create_Entity()
+        {
+            // Create an entity
+            auto& entity = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Random Entity");
+            entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Plane);
+            // Update the scene hierarchy panel to re-draw
+            emit OnEntityAddedToScene();
+        }
     }    // namespace Editor
 }    // namespace Razix

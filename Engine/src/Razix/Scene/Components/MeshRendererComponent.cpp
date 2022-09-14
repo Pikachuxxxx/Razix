@@ -11,7 +11,7 @@ namespace Razix {
     MeshRendererComponent::MeshRendererComponent()
         : Mesh(nullptr) {}
     MeshRendererComponent::MeshRendererComponent(Graphics::MeshPrimitive primitive)
-        : Mesh(Graphics::MeshFactory::CreatePrimitive(primitive)) {}
+        : Mesh(Graphics::MeshFactory::CreatePrimitive(primitive)), primitive(primitive) {}
     MeshRendererComponent::MeshRendererComponent(Graphics::RZMesh* mesh)
         : Mesh(mesh) {}
 

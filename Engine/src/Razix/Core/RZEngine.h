@@ -71,8 +71,8 @@ namespace Razix {
         RZVirtualFileSystem           m_VirtualFileSystem;      /* The Virtual File Engine System for managing files								*/
         RZSceneManager                m_SceneManagerSystem;     /* Scene Manager Engine System for managing scenes in game world					*/
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
-        Graphics::RZRenderStack       m_RenderStack;
-        Graphics::RZShaderLibrary     m_ShaderLibrary;
+        Graphics::RZRenderStack       m_RenderStack;            /* The render stack that will hold the renderers based on priority                 */
+        Graphics::RZShaderLibrary     m_ShaderLibrary;          /* Shader library that pre-loads shaders into memory                               */
 
     public:
         /* Starts up the Engine and it's sub-systems */

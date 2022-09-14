@@ -10,10 +10,12 @@
 
 namespace Razix {
     namespace Editor {
-        RZEVulkanWindow::RZEVulkanWindow(QWindow* parentWindow)
+        RZEVulkanWindow::RZEVulkanWindow(RZESceneHierarchyPanel* hierarchyPanel, QWindow* parentWindow)
             : QWindow(parentWindow)
         {
-            setSurfaceType(VulkanSurface);
+            setSurfaceType(VulkanSurface);            
+            
+            connect(this, &RZEVulkanWindow::OnEntitySelected, hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
         }
 
         RZEVulkanWindow::~RZEVulkanWindow()
@@ -73,7 +75,7 @@ namespace Razix {
             if (button == m_MousePressedButton - 1) {
                 m_MouseReleasedButton = -1;
                 return true;
-            } else      
+            } else
                 return false;
         }
 
@@ -90,10 +92,9 @@ namespace Razix {
         {
             if (button == m_MousePressedButton - 1 && button != m_MouseReleasedButton - 1) {
                 // m_MousePressedButton  = -1;
-                // m_MouseReleasedButton = -1; 
+                // m_MouseReleasedButton = -1;
                 return true;
-            }
-            else
+            } else
                 return false;
         }
 

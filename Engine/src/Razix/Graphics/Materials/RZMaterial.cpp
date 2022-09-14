@@ -31,7 +31,7 @@ namespace Razix {
         void RZMaterial::InitDefaultTexture()
         {
             uint32_t pinkTextureData = 0xff00ffff;
-            s_DefaultTexture         = Graphics::RZTexture2D::Create("Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA32);
+            s_DefaultTexture         = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_256.png", "DefaultTexture", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
         }
 
         void RZMaterial::ReleaseDefaultTexture()

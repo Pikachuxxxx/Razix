@@ -6,8 +6,8 @@
 
 namespace Razix {
     namespace Editor {
-        RZESceneHierarchyPanel::RZESceneHierarchyPanel(QWidget* parent)
-            : QFrame(parent)
+        RZESceneHierarchyPanel::RZESceneHierarchyPanel(RZEMainWindow* mainWindow, QWidget* parent)
+            : QFrame(parent), m_MainWindow(mainWindow)
         {
             ui.setupUi(this);
 
@@ -32,6 +32,10 @@ namespace Razix {
 
             // Connect the signals
             connect(ui.sceneTree, SIGNAL(itemSelectionChanged()), this, SLOT(OnItemSelected()));
+
+            connect(ui.sceneTree, SIGNAL(itemSelectionChanged()), this, SLOT(OnItemSelected()));
+
+            connect(mainWindow, SIGNAL(OnEntityAddedToScene()), this, SLOT(UpdatePanel()));
         }
 
         RZESceneHierarchyPanel::~RZESceneHierarchyPanel()
@@ -66,16 +70,14 @@ namespace Razix {
             // Set the entity as metadata, this way we don't have to search the registry when we select one from the list
             QVariant entityVariant = QVariant::fromValue<RZEntity>(entity);
             Entity->setData(0, Qt::UserRole, entityVariant);
-
-            std::cout << nameComponent.Tag << std::endl;
-
-            // Add the children using the Hierarchy component
         }
 
         void RZESceneHierarchyPanel::OnItemSelected()
         {
             // Find the entity selected by the name and emit a signal to the Inspector Window
             QList<QTreeWidgetItem*> selectedItems = ui.sceneTree->selectedItems();
+            if (!selectedItems.size())
+                return;
             std::cout << selectedItems[0]->text(0).toStdString() << std::endl;
 
             // Find the entity from the registry
@@ -97,12 +99,31 @@ namespace Razix {
             //    }
             //});
 
+            // TODO: Support multiple selection using the selectedItems list
             QVariant entityVariant = selectedItems[0]->data(0, Qt::UserRole);
             auto     entity        = entityVariant.value<RZEntity>();
             std::cout << entity.GetComponent<TagComponent>().Tag << std::endl;
             std::cout << entity.GetComponent<IDComponent>().UUID << std::endl;
             //  Now send this entity to the Inspector via signal
             emit OnEntitySelected(entity);
+        }
+
+        void RZESceneHierarchyPanel::OnEntitySelectedByUser(RZEntity entity)
+        {
+            ui.sceneTree->clearSelection();
+            // Select the item in the tree and Update the Inspector panel
+            std::string             itemName = entity.GetComponent<TagComponent>().Tag;
+            QList<QTreeWidgetItem*> clist    = ui.sceneTree->findItems(QString(itemName.c_str()), Qt::MatchContains | Qt::MatchRecursive, 0);
+            // TODO: Add support multi entity editing sometime in future
+            ui.sceneTree->setItemSelected(clist[0], true);
+            emit OnEntitySelected(entity);
+        }
+
+        void RZESceneHierarchyPanel::UpdatePanel()
+        {
+            ui.sceneTree->clear();
+            populateHierarchy();
+            repaint();
         }
 
     }    // namespace Editor

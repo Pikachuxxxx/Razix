@@ -347,7 +347,7 @@ namespace Razix {
             halt_execution.notify_one();
         }
 
-        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if no primary camera don't render!!!!
+        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
         RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
@@ -420,7 +420,7 @@ namespace Razix {
         ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
         const float          DISTANCE         = 10.0f;
         const ImGuiViewport* viewport         = ImGui::GetMainViewport();
-        ImVec2               work_area_pos    = viewport->WorkPos;          // Use work area to avoid menu-bar/task-bar, if any!
+        ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
         ImVec2               work_area_size   = viewport->WorkSize;
         ImVec2               window_pos       = ImVec2((1 & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (1 & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
         ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
@@ -474,7 +474,9 @@ namespace Razix {
         RZEngine::Get().getSceneManager().saveAllScenes();
         SaveApp();
 
-        Graphics::RZAPIRenderer::Release();
+        // FIXME: This is fucked up I'm not cleaning stuff for editor mode
+        if (RZApplication::Get().getAppType() == AppType::GAME)
+            Graphics::RZAPIRenderer::Release();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }
