@@ -1,9 +1,12 @@
 #pragma once
 
+#include <QCloseEvent>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QVulkanWindow>
 
 #include "RZENativeWindow.h"
+#include "RZESceneHierarchyPanel.h"
 
 #include "Razix/Core/OS/RZInput.h"
 #include "Razix/Core/RZApplication.h"
@@ -12,6 +15,8 @@
 #include "Razix/Events/ApplicationEvent.h"
 
 #include <glm/glm.hpp>
+
+#include <iostream>
 
 namespace Razix {
     namespace Editor {
@@ -22,7 +27,7 @@ namespace Razix {
 
         public:
             bool isExposed = false;
-            RZEVulkanWindow(QWindow* parentWindow = nullptr);
+            RZEVulkanWindow(RZESceneHierarchyPanel* hierarchyPanel, QWindow* parentWindow = nullptr);
             ~RZEVulkanWindow();
 
             void Init();
@@ -35,7 +40,6 @@ namespace Razix {
                 if ((event->type() == QEvent::MouseButtonRelease) || (event->type() == QEvent::NonClientAreaMouseButtonRelease)) {
                     QMouseEvent* pMouseEvent = dynamic_cast<QMouseEvent*>(event);
                     if ((pMouseEvent->button() == Qt::MouseButton::LeftButton) && m_UserIsResizing) {
-                        printf("Gotcha!\n");
                         m_UserIsResizing = false;    // reset user resizing flag
 
                         auto& callback = m_RZWindow->getEventCallbackFunc();
@@ -55,11 +59,9 @@ namespace Razix {
                 // Now stop the other thread first from rendering before we issue resize commands
                 std::lock_guard<std::mutex> lk(RZApplication::m);
                 RZApplication::ready_for_execution = false;
-                std::cout << "Triggering worker thread to halt execution :::: " << std::endl;
+                RAZIX_INFO("Triggering worker thread to halt execution ::::");
                 RZApplication::halt_execution.notify_one();
 
-                std::cout << "Resizing..."
-                          << " Width : " << this->width() << " , Height : " << this->height() << std::endl;
                 // override from QWidget that triggers whenever the user resizes the window
                 m_UserIsResizing = true;
             }
@@ -81,6 +83,24 @@ namespace Razix {
                 RZMouseButtonPressedEvent e(event->button());
                 m_MousePressedButton = event->button();
                 callback(e);
+
+                // Entity selection
+                int32_t selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
+                // Find the entity from the registry
+                Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
+                auto&           registry = scene->getRegistry();
+
+                registry.each([&](auto& entity) {
+                    if (registry.valid(entity)) {
+                        std::cout << uint32_t(entity) << std::endl;
+                        if (selectedEntity != -1 && entity == entt::entity(selectedEntity)) {
+                            RZEntity rzEntity(entity, scene);
+                            emit     OnEntitySelected(rzEntity);
+                            return;
+                        }
+                        // TODO: use ui.sceneTree->clearSelection() if we don't select on any entity
+                    }
+                });
             }
 
             void mouseReleaseEvent(QMouseEvent* event)
@@ -95,7 +115,8 @@ namespace Razix {
             void keyPressEvent(QKeyEvent* event)
             {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
-                m_KeyPressed   = event->key();
+
+                m_KeyPressed = event->key();
                 RZKeyPressedEvent e(event->key(), 1);
                 callback(e);
             }
@@ -103,13 +124,23 @@ namespace Razix {
             void keyReleaseEvent(QKeyEvent* event)
             {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
-                m_KeyReleased  = event->key();
+
+                m_KeyReleased = event->key();
                 RZKeyReleasedEvent e(event->key());
                 callback(e);
             }
 
+            void closeEvent(QCloseEvent* event)
+            {
+                // TODO: Engine should run despite not having a surface to render (without falling back to offline rendering)
+                event->ignore();
+            }
+
             QVulkanInstance& getQVKInstance() { return m_QVKInstance; }
             RZENativeWindow* getRZNativeWindow() { return m_RZWindow; }
+
+        signals:
+            void OnEntitySelected(RZEntity entity);
 
         private:
             QVulkanInstance  m_QVKInstance;

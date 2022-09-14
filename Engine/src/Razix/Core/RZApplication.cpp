@@ -347,7 +347,7 @@ namespace Razix {
             halt_execution.notify_one();
         }
 
-        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if no primary camera don't render!!!!
+        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
         RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
@@ -398,22 +398,22 @@ namespace Razix {
 
         OnImGui();
 
-        ImGui::ShowDemoWindow();
-        if (ImGui::Begin("Razix Engine")) {
-            ImGui::Text("Indeed it is!");
-
-            ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(50, 50));
-            ImGui::SameLine();
-            static bool some;
-            if (ImGui::Checkbox("Test", &some)) {
-                RAZIX_CORE_ERROR("Done!");
-            }
-            ImGui::Separator();
-        }
-        ImGui::End();
+        //ImGui::ShowDemoWindow();
+        //if (ImGui::Begin("Razix Engine")) {
+        //    ImGui::Text("Indeed it is!");
+        //
+        //    ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(50, 50));
+        //    ImGui::SameLine();
+        //    static bool some;
+        //    if (ImGui::Checkbox("Test", &some)) {
+        //        RAZIX_CORE_ERROR("Done!");
+        //    }
+        //    ImGui::Separator();
+        //}
+        //ImGui::End();
 
         ImFont* font = ImGui::GetFont();
-        font->Scale  = 0.75f;
+        font->Scale  = 0.90f;
         ImGui::PushFont(font);
 
         // Engine stats
@@ -434,16 +434,20 @@ namespace Razix {
             ImGui::Text("Engine Stats");
             ImGui::Indent();
             ImGui::Text("FPS                    : %.4d", stats.FramesPerSecond);
-            ImGui::Text("render time (in ms)    : %0.2f", stats.DeltaTime);
+            ImGui::Text("render time            : %0.2f ms", stats.DeltaTime);
+            ImGui::Text("grid pass              : %0.2f ms", stats.GridPass);
+            ImGui::Text("forward lighting pass  : %0.2f ms", stats.ForwardLightingPass);
+            ImGui::Text("imgui pass             : %0.2f ms", stats.ImGuiPass);
 
             ImGui::Separator();
             ImGui::Text("API calls");
 
-            ImGui::Text("Total Draw calls       : %d", stats.NumDrawCalls);
-
+            ImGui::Text("Total Draw calls           : %d", stats.NumDrawCalls);
             ImGui::Indent();
-            ImGui::BulletText("Draws            : %d", stats.Draws);
-            ImGui::BulletText("Indexed Draws    : %d", stats.IndexedDraws);
+            ImGui::BulletText("Draws                : %d", stats.Draws);
+            ImGui::BulletText("Indexed Draws        : %d", stats.IndexedDraws);
+            ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
+
             ImGui::Unindent();
             ImGui::Unindent();
         }
@@ -470,7 +474,9 @@ namespace Razix {
         RZEngine::Get().getSceneManager().saveAllScenes();
         SaveApp();
 
-        Graphics::RZAPIRenderer::Release();
+        // FIXME: This is fucked up I'm not cleaning stuff for editor mode
+        if (RZApplication::Get().getAppType() == AppType::GAME)
+            Graphics::RZAPIRenderer::Release();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }

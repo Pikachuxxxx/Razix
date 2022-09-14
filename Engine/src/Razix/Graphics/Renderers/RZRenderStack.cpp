@@ -61,8 +61,11 @@ namespace Razix {
             }
 
             // Get the EnitytIDsRT after full presentation
-            if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonLeft))
-                RAZIX_CORE_WARN("mouse {0}, {1} | pixel : {2}", RZInput::GetMouseX(), RZInput::GetMouseY(), m_RenderersStack[1]->getEntityIDsRT()->ReadPixels(static_cast<uint32_t>(RZInput::GetMouseX()), static_cast<uint32_t>(RZInput::GetMouseY())));
+            if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonLeft)) {
+                m_SelectedEntityID = m_RenderersStack[1]->getEntityIDsRT()->ReadPixels(static_cast<uint32_t>(RZInput::GetMouseX()), static_cast<uint32_t>(RZInput::GetMouseY()));
+                RAZIX_CORE_WARN("mouse {0}, {1} | pixel : {2}", RZInput::GetMouseX(), RZInput::GetMouseY(), m_SelectedEntityID);
+            } else
+                m_SelectedEntityID = -1;
         }
 
         void RZRenderStack::OnResize(uint32_t width, uint32_t height)
@@ -79,11 +82,11 @@ namespace Razix {
 
         void RZRenderStack::enableDebugRenderer(bool enable)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void RZRenderStack::sortRenderers()
         {
         }
-
     }    // namespace Graphics
 }    // namespace Razix

@@ -6,6 +6,9 @@
 
 #include "generated/ui_RZESceneHierarchyPanel.h"
 
+#include "UI/Windows/RZEMainWindow.h"
+
+#include <QMouseEvent>
 #include <QFrame>
 
 Q_DECLARE_METATYPE(Razix::RZEntity);
@@ -16,7 +19,7 @@ namespace Razix {
         {
             Q_OBJECT
         public:
-            RZESceneHierarchyPanel(QWidget* parent = nullptr);
+            RZESceneHierarchyPanel(RZEMainWindow* mainWindow, QWidget* parent = nullptr);
             ~RZESceneHierarchyPanel();
 
             void populateHierarchy();
@@ -27,10 +30,14 @@ namespace Razix {
 
         public slots:
             void OnItemSelected();
+            void OnEntitySelectedByUser(RZEntity entity);
+            void UpdatePanel();
+            //void ReDrawUI() { repaint(); }
 
         private:
             Ui::SceneHierarchyPanel ui;
             QHeaderView*            header;
+            RZEMainWindow*          m_MainWindow;
         };
     }    // namespace Editor
 }    // namespace Razix

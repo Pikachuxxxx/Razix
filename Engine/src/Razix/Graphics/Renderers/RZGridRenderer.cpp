@@ -4,6 +4,7 @@
 #include "RZGridRenderer.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
@@ -49,7 +50,7 @@ namespace Razix {
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
-            // Well don't use any binding tables here this is fine!!!! fuckin smart ass mf!! FUCK OFF!!!!
+            // Well don't use any binding tables for this simple Gird Renderer shader here this is fine!!!! fuckin keep it simple!!
             auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
             int  j        = 0;
             for (auto& setInfo: setInfos) {
@@ -95,7 +96,7 @@ namespace Razix {
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = 2;
-            renderPassInfo.textureType     = textureTypes;
+            renderPassInfo.attachmentInfos     = textureTypes;
             renderPassInfo.name            = "Grid rendering";
 
             m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
@@ -214,7 +215,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // End the render pass and recording
+            // End the render pass
             m_RenderPass->EndRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
 
             //Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
@@ -223,6 +224,10 @@ namespace Razix {
         void RZGridRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            float now = m_RendererTimer.GetElapsedS();
+            m_PassTimer.Update(now);
+            RZEngine::Get().GetStatistics().GridPass =  abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
 
             //Graphics::RZAPIRenderer::SubmitWork();
             //Graphics::RZAPIRenderer::Present();

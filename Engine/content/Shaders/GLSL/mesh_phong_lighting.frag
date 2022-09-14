@@ -108,7 +108,7 @@ void main()
     outFragColor = vec4(result, 1.0);
     //outFragColor = texture(diffuseMap, fs_in.fragTexCoord);
 
-    // Placeholder for Entity ID
+    //  Entity ID
     outEntityID = fs_in.ID;
 }
 //------------------------------------------------------------------------------

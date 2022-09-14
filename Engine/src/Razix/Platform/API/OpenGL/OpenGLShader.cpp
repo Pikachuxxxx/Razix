@@ -63,7 +63,7 @@ namespace Razix {
         void OpenGLShader::init()
         {
             uint32_t vertex_shader, pixel_shader;
-            // TODO: Add support for geometry, tesselation and compute shaders
+            // TODO: Add support for geometry, tessellation and compute shaders
             //, geom_shader, compute_shader;
             GLint    success;
             GLchar   infoLog[512];

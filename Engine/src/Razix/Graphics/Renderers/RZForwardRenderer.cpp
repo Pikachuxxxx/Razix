@@ -4,6 +4,7 @@
 #include "RZForwardRenderer.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
@@ -88,7 +89,7 @@ namespace Razix {
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = attachmentsCount;
-            renderPassInfo.textureType     = textureTypes;
+            renderPassInfo.attachmentInfos = textureTypes;
             renderPassInfo.name            = "Forward rendering";
 
             m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
@@ -173,7 +174,7 @@ namespace Razix {
             }
 
             // Update the View Projection UBO
-            //m_Camera->setPerspectiveFarClip(6000.0f);
+            m_Camera->setPerspectiveFarClip(6000.0f);
             m_ViewProjSystemUBOData.view       = m_Camera->getViewMatrix();
             m_ViewProjSystemUBOData.projection = m_Camera->getProjection();
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
@@ -220,7 +221,7 @@ namespace Razix {
                 {
                     glm::mat4 mat;
                     int32_t   ID;
-                }pcData;
+                } pcData;
                 pcData.mat       = transform;
                 pcData.ID        = int32_t(entity);
                 modelMatrix.data = &pcData;
@@ -245,6 +246,44 @@ namespace Razix {
                     Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getCurrentCommandBuffer(), mesh->getIndexCount());
                 }
             }
+
+            auto mesh_group = registry.group<MeshRendererComponent>(entt::get<TransformComponent, TagComponent>);
+            for (auto entity: mesh_group) {
+                // Draw the mesh renderer components
+                const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+                 
+                 // Bind push constants, VBO, IBO and draw
+                glm::mat4 transform = mesh_trans.GetTransform();
+
+                // Get the shader from the Mesh Material later
+                // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
+
+                // Ehhh... not the neatest thing to be here but I'll let this one slide for now
+                struct PCD
+                {
+                    glm::mat4 mat;
+                    int32_t   ID;
+                } pcData;
+                pcData.mat       = transform;
+                pcData.ID        = int32_t(entity);
+                modelMatrix.data = &pcData;
+                modelMatrix.size = sizeof(PCD);
+
+                Graphics::RZAPIRenderer::BindPushConstant(m_Pipeline, cmdBuf, modelMatrix);
+
+                std::vector<RZDescriptorSet*> SystemMat = m_DescriptorSets;
+                std::vector<RZDescriptorSet*> MatSets   = mrc.Mesh->getMaterial()->getDescriptorSets();
+                SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
+
+                
+                Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, SystemMat);
+
+                mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
+                mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);
+
+                Graphics::RZAPIRenderer::DrawIndexed(Graphics::RZAPIRenderer::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+            }
         }
 
         void RZForwardRenderer::EndScene(RZScene* scene)
@@ -265,6 +304,10 @@ namespace Razix {
         void RZForwardRenderer::Present()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            float now = m_RendererTimer.GetElapsedS();
+            m_PassTimer.Update(now);
+            RZEngine::Get().GetStatistics().ForwardLightingPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
 
             //Graphics::RZAPIRenderer::SubmitWork();
             //Graphics::RZAPIRenderer::Present();
