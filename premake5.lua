@@ -1,7 +1,7 @@
 -- Configuration settings
 include 'Scripts/premake/common/premake-config.lua'
 
--- System overrides to support PS4/PS5 and other hardware systems
+-- System overrides to support PS4/PS5/PS3 and XBOX ONE/X/SERIES X and other hardware systems
 include 'Scripts/premake/extensions/system-overides.lua'
 
 -- Workspace Settings
@@ -9,6 +9,7 @@ settings = { }
 settings.workspace_name     = 'Razix'
 settings.bundle_identifier  = 'com.PhaniSrikar'
 
+-- Output files directories signature for bin and int-bin
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Current root directory where the global premake file is located
@@ -67,17 +68,17 @@ workspace ( settings.workspace_name )
 
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
-        require("Engine/vendor/cereal/premake5")
-        require("Engine/vendor/glfw/premake5")
-        require("Engine/vendor/imgui/premake5")
-        require("Engine/vendor/spdlog/premake5")
-        require("Engine/vendor/SPIRVReflect/premake5")
-        require("Engine/vendor/SPIRVCross/premake5")
-        require("Engine/vendor/meshoptimizer/premake5")
-        require("Engine/vendor/OpenFBX/premake5")
-        require("Engine/vendor/lua/premake5")
-        include 'Engine/vendor/optick/optick.lua'
-        include 'Engine/vendor/tracy/tracy.lua'
+        include "Engine/vendor/cereal/cereal.lua"
+        include "Engine/vendor/glfw/glfw.lua"
+        include "Engine/vendor/imgui/imgui.lua"
+        include "Engine/vendor/lua/lua.lua"
+        include "Engine/vendor/meshoptimizer/meshoptimizer.lua"
+        include "Engine/vendor/OpenFBX/OpenFBX.lua"
+        include "Engine/vendor/optick/optick.lua"
+        include "Engine/vendor/spdlog/spdlog.lua"
+        include "Engine/vendor/SPIRVCross/SPIRVCross.lua"
+        include "Engine/vendor/SPIRVReflect/SPIRVReflect.lua"
+        include "Engine/vendor/tracy/tracy.lua"
     group ""
 
     -- Uses .NET 4.0

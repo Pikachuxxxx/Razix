@@ -13,7 +13,7 @@ namespace Razix {
         /// Initializes the delta time calculation function
         /// </summary>
         /// <param name="initialTime"> The time at which the runtime loop has started since the beggining of the initialization </param>
-        explicit inline RZTimestep(float initialTime)
+        RZTimestep(float initialTime = 0.0f)
             : m_Timestep(0.0f), m_LastTime(initialTime), m_Elapsed(0.0f) {}
 
         /// <summary>
@@ -54,5 +54,6 @@ namespace Razix {
         float m_LastTime;
         ///	Time elapsed since the beginning of the first frame
         float m_Elapsed;
+        bool  _padding[4];
     };
 }    // namespace Razix

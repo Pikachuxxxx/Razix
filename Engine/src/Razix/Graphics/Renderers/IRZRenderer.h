@@ -13,6 +13,9 @@
 
 #include "Razix/Scene/RZSceneCamera.h"
 
+#include "Razix/Utilities/RZTimestep.h"
+#include "Razix/Utilities/RZTimer.h"
+
 #include <string>
 
 namespace Razix {
@@ -52,7 +55,7 @@ namespace Razix {
         /**
          * Provides the Interface for Implementing renderers in Razix engine
          */
-        class RAZIX_API IRZRenderer : public RZRoot
+        class RAZIX_MEM_ALIGN RAZIX_API IRZRenderer : public RZRoot
         {
         public:
             IRZRenderer() = default;
@@ -102,7 +105,7 @@ namespace Razix {
              */
             virtual void Destroy() = 0;
 
-            // TODO: Other Utility Methods :: Yes to be designed after implementing Materials and Scene Culling
+            // TODO: Other Utility Methods ==> Yes to be designed after implementing Materials and Scene Culling
             //virtual void SubmitMesh();
             //virtual void SubmitCulledMesh();
 
@@ -122,7 +125,6 @@ namespace Razix {
             inline RZRenderTexture* getEntityIDsRT() { return m_EntityIDsRT; }
 
         protected:
-            // TODO: Use a vector to hold many shaders to support multiple render passes + multi-layered materials in future???
             RZSceneCamera*                          m_Camera;
             RZCommandBuffer*                        m_MainCommandBuffers[MAX_SWAPCHAIN_BUFFERS];
             RZShader*                               m_OverrideGlobalRHIShader;
@@ -142,6 +144,8 @@ namespace Razix {
             std::vector<RZFramebuffer*>             m_Framebuffers;
             std::vector<Graphics::RZDescriptorSet*> m_DescriptorSets;
             std::string                             m_RendererName;
+            RZTimestep                              m_PassTimer;
+            RZTimer                                 m_RendererTimer;
         };
     }    // namespace Graphics
 }    // namespace Razix

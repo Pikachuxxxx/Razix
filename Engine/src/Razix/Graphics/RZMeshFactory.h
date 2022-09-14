@@ -8,7 +8,7 @@ namespace Razix {
         class RZMesh;
 
         /* Mesh primitive describes the primitive geometry */
-        enum class MeshPrimitive : int
+        enum MeshPrimitive : int32_t
         {
             Plane      = 0,
             ScreenQuad = 1,
