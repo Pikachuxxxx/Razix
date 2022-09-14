@@ -30,8 +30,11 @@ namespace Razix {
             void enableDebugRenderer(bool enable);
             void sortRenderers();
 
+            inline const int32_t& getSelectedEntityID() { return m_SelectedEntityID; }
+
         private:
             std::vector<IRZRenderer*> m_RenderersStack;
+            int32_t                   m_SelectedEntityID;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -132,6 +132,8 @@ namespace Razix {
 
         inline AppType getAppType() { return m_appType; }
         void           setAppType(AppType appType) { m_appType = appType; }
+
+        void setAppState(AppState state) { m_CurrentState = state; }
         /* Application Serialization */
 
         // Load mechanism for the RZApplication class

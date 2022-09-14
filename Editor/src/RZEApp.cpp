@@ -28,6 +28,7 @@ Razix::Editor::RZEInspectorWindow*      inspectorWidget;
 Razix::Editor::RZEViewport*             viewportWidget;
 Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
 Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
+bool                                    didEngineClose = false;
 
 using namespace Razix;
 
@@ -85,7 +86,7 @@ public:
         // Since it will be locked/halted for initial resize that is called when the QT window is created we manually trigger it again to resume execution
         std::lock_guard<std::mutex> lk(RZApplication::m);
         RZApplication::ready_for_execution = true;
-        std::cout << "Triggering worker thread to resume execution :::: " << std::endl;
+        RAZIX_INFO("Triggering worker thread to halt execution ::::");
         RZApplication::halt_execution.notify_one();
     }
 
@@ -140,6 +141,12 @@ private:
             armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
         }
 
+        auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        if (!meshEnitties.size()) {
+            auto& planeMesh = activeScene->createEntity("CubeMesh");
+            planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
+        }
+
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             sceneHierarchyPanel->populateHierarchy();
         });
@@ -149,7 +156,7 @@ private:
     {
         std::lock_guard<std::mutex> lk(RZApplication::m);
         RZApplication::ready_for_execution = true;
-        std::cout << "Triggering worker thread to resume execution :::: " << std::endl;
+        RAZIX_INFO("Triggering worker thread to halt execution ::::");
         RZApplication::halt_execution.notify_one();
 
         RAZIX_TRACE("Window Resize override Editor application! | W : {0}, H : {1}", width, height);
@@ -169,6 +176,7 @@ void LoadEngineDLL(int argc, char** argv)
 {
     razixDll = LoadLibrary(L"Razix.dll");
     EngineMain(argc, argv);
+    didEngineClose = true;
 }
 
 int main(int argc, char** argv)
@@ -184,7 +192,7 @@ int main(int argc, char** argv)
     mainWindow->resize(1280, 720);
     mainWindow->setWindowTitle("Razix Engine Editor");
 
-    sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel;
+    sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow);
 
     inspectorWidget = new Razix::Editor::RZEInspectorWindow(sceneHierarchyPanel);
     viewportWidget  = new Razix::Editor::RZEViewport;
@@ -199,13 +207,13 @@ int main(int argc, char** argv)
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
     mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
 
-    vulkanWindow = new Razix::Editor::RZEVulkanWindow;
+    vulkanWindow = new Razix::Editor::RZEVulkanWindow(sceneHierarchyPanel);
     //vulkanWindow->show();
     auto vulkanWindowWidget = QWidget::createWindowContainer(vulkanWindow);
 
     vulkanWindowWidget->setWindowIcon(razixIcon);
     vulkanWindowWidget->setWindowTitle("Vulkan Window");
-
+    vulkanWindowWidget->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
     // Scene Hierarchy  
     mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
 
@@ -219,5 +227,8 @@ int main(int argc, char** argv)
 
     mainWindow->show();
 
-    return qrzeditorApp->exec();
+    int r = qrzeditorApp->exec();
+    // Wait for engine to completely close
+    while (!didEngineClose) { }
+    return r;
 }

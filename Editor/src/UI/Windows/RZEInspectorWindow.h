@@ -25,6 +25,9 @@ namespace Razix {
 
             QVBoxLayout& getBoxLayout() { return *(ui.verticalLayout_2); }
 
+        signals:
+            void InspectorPropertyChanged();
+
         public slots:
             void OnNameEdit();
             void OnEntitySelected(RZEntity entity);

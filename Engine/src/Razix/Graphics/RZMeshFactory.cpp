@@ -5,6 +5,7 @@
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZTexture.h"
@@ -89,7 +90,15 @@ namespace Razix {
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6, "Plane");
 
-                return new RZMesh(vb, ib, 4, 6);
+                RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
+
+                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+
+                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
+                forwardRendererMaterial->createDescriptorSet();
+                mesh->setMaterial(forwardRendererMaterial);
+
+                return mesh;
             }
 
             RZMesh* CreateCube()
@@ -213,10 +222,17 @@ namespace Razix {
 
                 uint16_t indices[36]{
                     0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
-
                 RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 36, "Cube");
 
-                return new RZMesh(vb, ib, 24, 36);
+                RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
+
+                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+
+                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
+                forwardRendererMaterial->createDescriptorSet();
+                mesh->setMaterial(forwardRendererMaterial);
+
+                return mesh;
             }
 
             RZMesh* CreateSphere(uint32_t xSegments /*= 64*/, uint32_t ySegments /*= 64*/)
@@ -284,7 +300,15 @@ namespace Razix {
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()), "Sphere");
 
-                return new RZMesh(vb, ib, data.size(), indices.size());
+                RZMesh* mesh = new RZMesh(vb, ib, data.size(), indices.size());
+
+                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+
+                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
+                forwardRendererMaterial->createDescriptorSet();
+                mesh->setMaterial(forwardRendererMaterial);
+
+                return mesh;
             }
 
             RZMesh* CreateScreenQuad()

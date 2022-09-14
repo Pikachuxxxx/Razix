@@ -4,8 +4,8 @@ namespace Razix {
 
     namespace Graphics {
         class RZMesh;
-        enum class MeshPrimitive: int;
-    }
+        enum MeshPrimitive : int;
+    }    // namespace Graphics
 
     /**
      * Mesh renderer component references a mesh that will taken by the render to render a mesh on the 3D scene
@@ -17,7 +17,8 @@ namespace Razix {
      */
     struct RAZIX_API MeshRendererComponent
     {
-        Graphics::RZMesh* Mesh;
+        Graphics::RZMesh*       Mesh;
+        Graphics::MeshPrimitive primitive;
 
         MeshRendererComponent();
         MeshRendererComponent(Graphics::MeshPrimitive primitive);
@@ -27,16 +28,19 @@ namespace Razix {
         template<class Archive>
         void load(Archive& archive)
         {
-            if (Mesh) {
-                std::string meshName;
-                archive(cereal::make_nvp("MeshName", meshName));
-                Mesh->setName(meshName);
-            }
+            int prim = -1;
+            archive(cereal::make_nvp("Primitive", prim));
+            primitive = Graphics::MeshPrimitive(prim);
+            Mesh      = Graphics::MeshFactory::CreatePrimitive(primitive);
+            std::string meshName;
+            archive(cereal::make_nvp("MeshName", meshName));
+            Mesh->setName(meshName);
         }
 
         template<class Archive>
         void save(Archive& archive) const
         {
+            archive(cereal::make_nvp("Primitive", primitive));
             if (Mesh)
                 archive(cereal::make_nvp("MeshName", Mesh->getName()));
         }

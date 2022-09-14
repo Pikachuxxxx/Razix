@@ -59,7 +59,7 @@
     </property>
     <widget class="QMenu" name="menuComponent">
      <property name="title">
-      <string>Component</string>
+      <string>Add Component</string>
      </property>
      <addaction name="actionID"/>
      <addaction name="actionTag"/>

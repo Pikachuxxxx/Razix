@@ -38,6 +38,8 @@ namespace Razix {
             connect(ui.EntityName, SIGNAL(returnPressed()), this, SLOT(OnNameEdit()));
             // On Entity selected
             connect(hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelected, this, &RZEInspectorWindow::OnEntitySelected);
+
+            connect(this, SIGNAL(InspectorPropertyChanged()), hierarchyPanel, SLOT(UpdatePanel()));
         }
 
         RZEInspectorWindow::~RZEInspectorWindow()
@@ -50,7 +52,8 @@ namespace Razix {
             auto& tagComponent = entity.GetComponent<TagComponent>();
             tagComponent.Tag   = ui.EntityName->text().toStdString();
             // TODO: Send the repaint event to RZESceneHierarchyPanel
-        }
+            emit InspectorPropertyChanged();
+         }
 
         void RZEInspectorWindow::OnEntitySelected(RZEntity entity)
         {
