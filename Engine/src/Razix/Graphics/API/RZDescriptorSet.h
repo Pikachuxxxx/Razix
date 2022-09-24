@@ -71,7 +71,6 @@ namespace Razix {
         /* Descriptor Binding layout describes the binding and set information of the shader uniform variable, to which shader stages the variable is accessible from */
         struct RAZIX_MEM_ALIGN RZDescriptorLayoutBinding
         {
-            //std::string    name;        /* The name of the descriptor resource                                                                      */
             DescriptorType type;        /* The type of the Descriptor, either a buffer or an texture image that is being consumed in the shader     */
             ShaderStage    stage;       /* The shader stage to which the descriptor is bound to                                                     */
             uint32_t       binding = 0; /* The binding index of the shader                                                                          */
