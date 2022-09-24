@@ -13,6 +13,43 @@ else
     print("Vulkan SDK found at : " .. VulkanSDK)
 end
 
+-- Shaders a separate project to build as cache
+group "Engine/content"
+    project "Shaders"
+        kind "Utility"
+
+        files
+        {
+            -- Shader files
+            -- GLSL
+            "content/Shaders/GLSL/*.vert",
+            "content/Shaders/GLSL/*.frag",
+            -- HLSL
+            "content/Shaders/HLSL/*.hlsl",
+            -- PSSL
+            "content/Shaders/PSSL/*.pssl",
+            "content/Shaders/PSSL/*.h",
+            "content/Shaders/PSSL/*.hs",
+            -- Cg
+            "content/Shaders/CG/*.cg",
+            -- Razix Shader Files
+            "content/Shaders/Razix/*.rzsf"
+        }
+group""
+    filter "system:windows"
+        -- TODO Add as rules, every shader file type will have it's own rule
+        -- Don't build the shaders, they are compiled by the engine once and cached
+       filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
+            flags { "ExcludeFromBuild"}
+
+        -- Build GLSL files based on their extension
+        filter {"files:**.vert or **.frag"}
+            removeflags "ExcludeFromBuild"
+            buildmessage 'Compiling glsl shader : %{file.name}'
+            buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{file.directory}/../Compiled/SPIRV/%{file.name}.spv" '
+            buildoutputs "%{file.directory}/../Compiled/SPIRV/%{file.name }.spv"
+
+group "Engine"
 -- Razix project
 project "Razix"
     kind "SharedLib"
@@ -45,23 +82,9 @@ project "Razix"
         "src/**.h",
         "src/**.c",
         "src/**.cpp",
-        "src/**.inl",
+        "src/**.inl"
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
-        -- Shader files
-        -- GLSL
-        "content/Shaders/GLSL/*.vert",
-        "content/Shaders/GLSL/*.frag",
-        -- HLSL
-        "content/Shaders/HLSL/*.hlsl",
-        -- PSSL
-        "content/Shaders/PSSL/*.pssl",
-        "content/Shaders/PSSL/*.h",
-        "content/Shaders/PSSL/*.hs",
-        -- Cg
-        "content/Shaders/CG/*.cg",
-        -- Razix Shader Files
-        "content/Shaders/Razix/*.rzsf"
     }
 
     -- Lazily add the platform files based on OS config
@@ -114,22 +137,12 @@ project "Razix"
         "lua",
         "optick",
         "tracy",
+        -- Shaders
+        "Shaders",
         -- Razix Internal Libraries 
         -- 1. Razix Memory
         "RazixMemory"
     }
-
-    -- TODO Add as rules, every shader file type will have it's own rule
-    -- Don't build the shaders, they are compiled by the engine once and cached
-   filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
-        flags { "ExcludeFromBuild"}
-
-    -- Build GLSL files based on their extension
-    filter {"files:**.vert or **.frag"}
-        removeflags "ExcludeFromBuild"
-        buildmessage 'Compiling glsl shader : %{file.name}'
-        buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{file.directory}/../Compiled/SPIRV/%{file.name}.spv" '
-        buildoutputs "%{file.directory}/../Compiled/SPIRV/%{file.name }.spv"
 
     -- Disable PCH for vendors
     filter 'files:vendor/**.cpp'
@@ -246,3 +259,4 @@ project "Razix"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
+group""

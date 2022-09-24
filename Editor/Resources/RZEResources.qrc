@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/rzeditor">
+        <file>Browse.png</file>
         <file>tag_icon.png</file>
         <file>transform_icon.png</file>
         <file>RazixLogo32.png</file>
@@ -13,5 +14,6 @@
         <file>branch-more.png</file>
         <file>branch-open.png</file>
         <file>vline.png</file>
+        <file>mesh.png</file>
     </qresource>
 </RCC>
