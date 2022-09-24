@@ -33,6 +33,10 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="actionSave_Project"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -45,6 +49,8 @@
     </property>
     <addaction name="actionInspector"/>
     <addaction name="actionViewport"/>
+    <addaction name="actionScene_Hierarchy"/>
+    <addaction name="actionContent_Browser"/>
    </widget>
    <widget class="QMenu" name="menuGraphics">
     <property name="title">
@@ -61,13 +67,12 @@
      <property name="title">
       <string>Add Component</string>
      </property>
-     <addaction name="actionID"/>
-     <addaction name="actionTag"/>
      <addaction name="actionCamera"/>
-     <addaction name="actionTransform"/>
-     <addaction name="actionMeshRenderer"/>
-     <addaction name="actionSpriteRenderer"/>
+     <addaction name="actionLight"/>
      <addaction name="actionLuaScript"/>
+     <addaction name="actionMeshRenderer"/>
+     <addaction name="actionModel_2"/>
+     <addaction name="actionSpriteRenderer"/>
     </widget>
     <widget class="QMenu" name="menuPrimitive">
      <property name="title">
@@ -91,6 +96,7 @@
     <addaction name="menuComponent"/>
     <addaction name="actionLua_Script"/>
     <addaction name="menuPrimitive"/>
+    <addaction name="separator"/>
     <addaction name="menuImport"/>
    </widget>
    <addaction name="menuFile"/>
@@ -203,6 +209,41 @@
   <action name="actionViewport">
    <property name="text">
     <string>Viewport</string>
+   </property>
+  </action>
+  <action name="actionModel_2">
+   <property name="text">
+    <string>Model</string>
+   </property>
+  </action>
+  <action name="actionLight">
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
+  <action name="actionScene_Hierarchy">
+   <property name="text">
+    <string>Scene Hierarchy</string>
+   </property>
+  </action>
+  <action name="actionContent_Browser">
+   <property name="text">
+    <string>Content Browser</string>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="text">
+    <string>Open Project</string>
+   </property>
+  </action>
+  <action name="actionSave_Project">
+   <property name="text">
+    <string>Save Project</string>
    </property>
   </action>
  </widget>

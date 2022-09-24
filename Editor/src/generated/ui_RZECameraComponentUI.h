@@ -42,7 +42,7 @@ public:
     {
         if (CameraComponent->objectName().isEmpty())
             CameraComponent->setObjectName(QString::fromUtf8("CameraComponent"));
-        CameraComponent->resize(341, 174);
+        CameraComponent->resize(341, 259);
         formLayout_2 = new QFormLayout(CameraComponent);
         formLayout_2->setSpacing(6);
         formLayout_2->setContentsMargins(11, 11, 11, 11);

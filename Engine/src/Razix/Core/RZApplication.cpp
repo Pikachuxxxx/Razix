@@ -292,7 +292,7 @@ namespace Razix {
         Render();
         m_Frames++;
 
-        // RenderGUI
+        // RenderGUI 
         RenderGUI();
 
         // Update the window and it's surface/video out

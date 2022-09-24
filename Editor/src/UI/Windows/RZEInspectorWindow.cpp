@@ -33,12 +33,16 @@ namespace Razix {
 
             this->setBaseSize(QSize(250, 100));
 
+            // 3. Add the Mesh Renderer Component
+            m_MeshRendererComponentUI = new RZEMeshRendererComponentUI;
+            this->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("MeshRenderer"), m_MeshRendererComponentUI, new QIcon(":/rzeditor/mesh.png")));
+
             // connections
             // Name change
             connect(ui.EntityName, SIGNAL(returnPressed()), this, SLOT(OnNameEdit()));
             // On Entity selected
             connect(hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelected, this, &RZEInspectorWindow::OnEntitySelected);
-
+            // repaint the hierarchy panel for name changes 
             connect(this, SIGNAL(InspectorPropertyChanged()), hierarchyPanel, SLOT(UpdatePanel()));
         }
 
