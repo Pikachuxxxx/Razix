@@ -205,7 +205,7 @@ int main(int argc, char** argv)
     viewportWidget->setWindowIcon(razixIcon);
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
-    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
+    //mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
 
     vulkanWindow = new Razix::Editor::RZEVulkanWindow(sceneHierarchyPanel);
     //vulkanWindow->show();
@@ -215,7 +215,7 @@ int main(int argc, char** argv)
     vulkanWindowWidget->setWindowTitle("Vulkan Window");
     vulkanWindowWidget->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
     // Scene Hierarchy  
-    mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+    mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.2f));
 
     // In order for event filter to work this is fookin important
     qrzeditorApp->installEventFilter(vulkanWindow);

@@ -224,7 +224,11 @@ namespace Razix {
 
                         // Create the buffer layout for Razix engine
                         pushBufferLayout((VkFormat) inputVar->format, inputVar->name, m_BufferLayout);
+
+                        //delete inputVar;
                     }
+
+                    free(input_vars);
 
                     if (spvSource.second == "Compiled/SPIRV/imgui.vert.spv") {
                         struct ImDrawVert
@@ -329,7 +333,10 @@ namespace Razix {
 
                     auto& descriptors_in_set = m_DescriptorSetsCreateInfos[descriptor->set];
                     descriptors_in_set.push_back(rzDescriptor);
+
+                    //delete descriptor;
                 }
+                free(pp_descriptor_bindings);
                 //if(!oldSet && setInfo->setID != -1)
                 //    m_DescriptorSetInfos.push_back(*setInfo);
 
@@ -367,10 +374,12 @@ namespace Razix {
                         pc.structMembers.push_back(mem);
                     }
                     m_PushConstants.push_back(pc);
+                    //delete pushConstant;
                 }
+                free(pp_push_constant_blocks);
                 // Destroy the reflection data when no longer required
                 // FIXME: This is causing unnecessary crashes, investigate and resolve!
-                //spvReflectDestroyShaderModule(&module);
+                spvReflectDestroyShaderModule(&module);
             }
 
             // Create the Vulkan set layouts for each set ID with the descriptors (bindings) it has
@@ -415,9 +424,8 @@ namespace Razix {
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
 
-            for (size_t i = 0; i < descriptorLayouts.size(); i++) {
+            for (size_t i = 0; i < descriptorLayouts.size(); i++)
                 vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), descriptorLayouts[i], nullptr);
-            }
         }
 
         void VKShader::createShaderModules()
