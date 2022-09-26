@@ -78,6 +78,7 @@ namespace Razix {
 
             void mousePressEvent(QMouseEvent* event)
             {
+
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseButtonPressedEvent e(event->button());
@@ -92,7 +93,6 @@ namespace Razix {
 
                 registry.each([&](auto& entity) {
                     if (registry.valid(entity)) {
-                        std::cout << uint32_t(entity) << std::endl;
                         if (selectedEntity != -1 && entity == entt::entity(selectedEntity)) {
                             RZEntity rzEntity(entity, scene);
                             emit     OnEntitySelected(rzEntity);

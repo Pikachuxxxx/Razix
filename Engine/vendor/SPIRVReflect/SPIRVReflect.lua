@@ -2,21 +2,21 @@ project "SPIRVReflect"
     kind "StaticLib"
     language "C"
 
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
     files
     {
         "common/output_stream.h",
         "common/output_stream.cpp",
         "include/spirv/unified1/spirv.h",
         "spirv_reflect.c",
-        "spirv_reflect.h"
+        "spirv_reflect.h",
+        "spirv_reflect.cpp"
+
     }
 
     includedirs
     {
-        "include"
+        "include",
+        "./"
     }
 
     filter "system:linux"

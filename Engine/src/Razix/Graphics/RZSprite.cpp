@@ -168,7 +168,6 @@ namespace Razix {
                 double y_range = (double) RZApplication::Get().getWindow()->getHeight();
 
                 glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
-                std::cout << "Ortho matrix : " << glm::to_string(view) << std::endl;
 
                 vertices[0].Position = view * glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);    // v1 top left
                 vertices[1].Position = view * glm::vec4(1.0f, -1.0f, 0.0f, 1.0f);     // v2 top right
