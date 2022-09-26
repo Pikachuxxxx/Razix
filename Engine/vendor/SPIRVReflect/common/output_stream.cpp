@@ -26,6 +26,7 @@ struct TextLine {
   uint32_t              padded_size;
   uint32_t              array_stride;
   uint32_t              block_variable_flags;
+  std::vector<uint32_t> array_dims;
   // Text Data
   uint32_t              text_line_flags;
   std::vector<TextLine> lines;
@@ -67,12 +68,14 @@ std::string ToStringGenerator(SpvReflectGenerator generator)
 
 std::string ToStringSpvSourceLanguage(SpvSourceLanguage lang) {
   switch(lang) {
-    case SpvSourceLanguageUnknown    : return "Unknown";
-    case SpvSourceLanguageESSL       : return "ESSL";
-    case SpvSourceLanguageGLSL       : return "GLSL";
-    case SpvSourceLanguageOpenCL_C   : return "OpenCL_C";
-    case SpvSourceLanguageOpenCL_CPP : return "OpenCL_CPP";
-    case SpvSourceLanguageHLSL       : return "HLSL";
+    case SpvSourceLanguageUnknown        : return "Unknown";
+    case SpvSourceLanguageESSL           : return "ESSL";
+    case SpvSourceLanguageGLSL           : return "GLSL";
+    case SpvSourceLanguageOpenCL_C       : return "OpenCL_C";
+    case SpvSourceLanguageOpenCL_CPP     : return "OpenCL_CPP";
+    case SpvSourceLanguageHLSL           : return "HLSL";
+    case SpvSourceLanguageCPP_for_OpenCL : return "CPP_for_OpenCL";
+    case SpvSourceLanguageSYCL           : return "SYCL";
 
     case SpvSourceLanguageMax:
       break;
@@ -151,7 +154,8 @@ std::string ToStringSpvStorageClass(SpvStorageClass storage_class) {
     case SpvStorageClassShaderRecordBufferKHR   : return "ShaderRecordBufferKHR";
     case SpvStorageClassPhysicalStorageBuffer   : return "PhysicalStorageBuffer";
     case SpvStorageClassCodeSectionINTEL        : return "CodeSectionINTEL";
-
+    case SpvStorageClassDeviceOnlyINTEL         : return "DeviceOnlyINTEL";
+    case SpvStorageClassHostOnlyINTEL           : return "HostOnlyINTEL";
     case SpvStorageClassMax:
       break;
   }
@@ -641,13 +645,30 @@ void ParseBlockMembersToTextLines(const char* indent, int indent_depth, bool fla
       tl = {};
       tl.indent = expanded_indent;
       tl.name = name;
-      if (member.array.dims_count > 0) {
-        std::stringstream ss_array;
-        for (uint32_t array_dim_index = 0; array_dim_index < member.array.dims_count; ++array_dim_index) {
-          uint32_t dim = member.array.dims[array_dim_index];
-          ss_array << "[" << dim << "]";
+      if ((member.array.dims_count > 0) || (member.type_description->traits.array.dims[0] > 0)) {
+        const SpvReflectArrayTraits* p_array_info = (member.array.dims_count > 0) ? &member.array : nullptr;
+        if (p_array_info == nullptr) {
+          //
+          // glslang based compilers stores array information in the type and not the variable
+          //
+          p_array_info = (member.type_description->traits.array.dims[0] > 0) ? &member.type_description->traits.array : nullptr;
         }
-        tl.name += ss_array.str();
+        if (p_array_info != nullptr) {
+          std::stringstream ss_array;
+          for (uint32_t array_dim_index = 0; array_dim_index < p_array_info->dims_count; ++array_dim_index) {            
+            uint32_t dim = p_array_info->dims[array_dim_index];
+            // 
+            // dim = 0 means it's an unbounded array 
+            //
+            if (dim > 0) {
+                ss_array << "[" << dim << "]";
+            }
+            else {
+                ss_array << "[]";
+            }
+          }
+          tl.name += ss_array.str();
+        }
       }
       tl.absolute_offset = member.absolute_offset;
       tl.relative_offset = member.offset;
@@ -907,6 +928,25 @@ void StreamWriteTextLines(std::ostream& os, const char* indent, bool flatten_cbu
   }
 }
 
+void StreamWritePushConstantsBlock(std::ostream& os, const SpvReflectBlockVariable& obj, bool flatten_cbuffers, const char* indent)
+{
+  const char* t = indent;
+  os << t << "spirv id : " << obj.spirv_id << "\n";
+  
+  os << t << "name     : " << ((obj.name != nullptr) ? obj.name : "<unnamed>");
+  if ((obj.type_description->type_name != nullptr) && (strlen(obj.type_description->type_name) > 0)) {
+    os << " " << "(" << obj.type_description->type_name << ")";
+  }
+
+  std::vector<TextLine> text_lines;
+  ParseBlockVariableToTextLines("    ",  flatten_cbuffers, obj, &text_lines);
+  if (!text_lines.empty()) {
+    os << "\n";
+    StreamWriteTextLines(os, t, flatten_cbuffers, text_lines);
+    os << "\n";
+  }
+}
+
 void StreamWriteDescriptorBinding(std::ostream& os, const SpvReflectDescriptorBinding& obj, bool write_set, bool flatten_cbuffers, const char* indent)
 {
   const char* t = indent;
@@ -986,7 +1026,11 @@ void StreamWriteInterfaceVariable(std::ostream& os, const SpvReflectInterfaceVar
   }
 
   os << t << "semantic  : " << (obj.semantic != NULL ? obj.semantic : "") << "\n";
-  os << t << "name      : " << (obj.name != NULL ? obj.name : "") << "\n";
+  os << t << "name      : " << (obj.name != NULL ? obj.name : "");
+  if ((obj.type_description->type_name != nullptr) && (strlen(obj.type_description->type_name) > 0)) {
+    os << " " << "(" << obj.type_description->type_name << ")";
+  }
+  os << "\n";
   os << t << "qualifier : ";
   if (obj.decoration_flags & SPV_REFLECT_DECORATION_FLAT) {
     os << "flat";
@@ -1043,6 +1087,7 @@ void WriteReflection(const spv_reflect::ShaderModule& obj, bool flatten_cbuffers
   std::vector<SpvReflectInterfaceVariable*> variables;
   std::vector<SpvReflectDescriptorBinding*> bindings;
   std::vector<SpvReflectDescriptorSet*> sets;
+  std::vector<SpvReflectBlockVariable*> push_constant_bocks;
 
   count = 0;
   SpvReflectResult result = obj.EnumerateInputVariables(&count, nullptr);
@@ -1087,6 +1132,25 @@ void WriteReflection(const spv_reflect::ShaderModule& obj, bool flatten_cbuffers
       }  
     }
   }
+
+  count = 0;
+  result = obj.EnumeratePushConstantBlocks(&count, nullptr);
+  USE_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
+  push_constant_bocks.resize(count);
+  result = obj.EnumeratePushConstantBlocks(&count, push_constant_bocks.data());
+  USE_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
+  if (count > 0) {
+    os << "\n";
+    os << "\n";
+    os << "\n";
+    os << t << "Push constant blocks: " << count << "\n\n";
+    for (size_t i = 0; i < push_constant_bocks.size(); ++i) {
+      auto p_block = push_constant_bocks[i];
+      os << tt << i << ":" << "\n";
+      StreamWritePushConstantsBlock(os, *p_block, flatten_cbuffers, ttt);
+    }
+  }
+
 
   count = 0;
   result = obj.EnumerateDescriptorBindings(&count, nullptr);
