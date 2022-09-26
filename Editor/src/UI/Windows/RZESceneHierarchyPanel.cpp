@@ -14,19 +14,8 @@ namespace Razix {
             header = ui.sceneTree->header();
             header->setWindowTitle("Empty Scene");
             ui.sceneTree->setHeader(header);
-
-            // Adding some child elements for test
-            //QTreeWidgetItem* Entity1 = new QTreeWidgetItem;
-            //Entity1->setText(0, "Entity_1");
-            //ui.sceneTree->addTopLevelItem(Entity1);
-            //QTreeWidgetItem* Entity2 = new QTreeWidgetItem;
-            //ui.sceneTree->addTopLevelItem(Entity2);
-            //Entity2->setText(0, "Entity_2");
-            //
-            //QTreeWidgetItem* Entity_2_child_1 = new QTreeWidgetItem;
-            //Entity_2_child_1->setText(0, "Entity_2_child_1");
-            //
-            //Entity2->addChild(Entity_2_child_1);
+            // Enable multi selection
+            //ui.sceneTree->setSelectionMode(QAbstractItemView::MultiSelection);
 
             this->setBaseSize(QSize(80, 100));
 
@@ -38,8 +27,7 @@ namespace Razix {
             connect(mainWindow, SIGNAL(OnEntityAddedToScene()), this, SLOT(UpdatePanel()));
         }
 
-        RZESceneHierarchyPanel::~RZESceneHierarchyPanel()
-        {}
+        RZESceneHierarchyPanel::~RZESceneHierarchyPanel() { }
 
         void RZESceneHierarchyPanel::populateHierarchy()
         {
@@ -78,32 +66,14 @@ namespace Razix {
             QList<QTreeWidgetItem*> selectedItems = ui.sceneTree->selectedItems();
             if (!selectedItems.size())
                 return;
-            std::cout << selectedItems[0]->text(0).toStdString() << std::endl;
 
             // Find the entity from the registry
             Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
             auto&           registry = scene->getRegistry();
 
-            // TODO: Find a better way to find the selected entity from the registry
-            //registry.each([&](auto& entity) {
-            //    if (registry.valid(entity)) {
-            //        TagComponent* tagComponent = registry.try_get<TagComponent>(entity);
-            //        if (tagComponent->Tag == selectedItems[0]->text(0).toStdString()) {
-            //            std::cout << tagComponent->Tag << std::endl;
-            //            RZEntity entity(entity, scene);
-            //            std::cout << entity.GetComponent<IDComponent>().UUID << std::endl;
-            //            // Now send this entity to the Inspector via signal (can you pass arguments via signals in QT????)
-            //            emit OnEntitySelected(entity);
-            //            return;
-            //        }
-            //    }
-            //});
-
             // TODO: Support multiple selection using the selectedItems list
             QVariant entityVariant = selectedItems[0]->data(0, Qt::UserRole);
             auto     entity        = entityVariant.value<RZEntity>();
-            std::cout << entity.GetComponent<TagComponent>().Tag << std::endl;
-            std::cout << entity.GetComponent<IDComponent>().UUID << std::endl;
             //  Now send this entity to the Inspector via signal
             emit OnEntitySelected(entity);
         }

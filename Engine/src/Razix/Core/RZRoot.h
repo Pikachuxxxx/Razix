@@ -13,7 +13,7 @@ namespace Razix {
      * Keep this simple and use it only for memory and serialization to 
      * minimize inheritance complexity
      */
-    class RAZIX_API RZRoot// : public RZMemoryRoot
+    class RAZIX_API RZRoot : public RZMemoryRoot
     {
     public:
         RZRoot() = default;

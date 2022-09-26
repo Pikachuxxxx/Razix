@@ -22,11 +22,6 @@ namespace Razix {
             // Link the UI file with this class
             ui.setupUi(this);
 
-            //ui.toolWindowManager->setToolWindowCreateCallback([this](const QString &objectName) -> QWidget * {
-            //    std::cout << "Window added : " << objectName.toStdString() << std::endl;
-            //    return
-            //});
-
             renderSettingsTB     = new QToolBar(this);
             QStringList commands = {"OpenGL", "Vulkan", "DX12"};
             QComboBox*  combo    = new QComboBox(this);

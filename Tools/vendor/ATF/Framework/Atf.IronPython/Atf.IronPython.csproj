@@ -15,7 +15,8 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <PlatformTarget>x64</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\..\bin\Debug-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Debug-windows-x86_64\obj\Debug\Atf.IronPython\</BaseIntermediateOutputPath>
@@ -26,7 +27,8 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <PlatformTarget>x64</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\..\bin\Release-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Release-windows-x86_64\obj\Release\Atf.IronPython\</BaseIntermediateOutputPath>
@@ -37,7 +39,8 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|x64' ">
     <PlatformTarget>x64</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\..\bin\Distribution-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Distribution-windows-x86_64\obj\Distribution\Atf.IronPython\</BaseIntermediateOutputPath>
@@ -46,7 +49,25 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="Microsoft.Dynamic" />
+    <Reference Include="Microsoft.Scripting" />
+    <Reference Include="IronPython" />
+    <Reference Include="IronPython.Modules" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="Microsoft.Dynamic" />
+    <Reference Include="Microsoft.Scripting" />
+    <Reference Include="IronPython" />
+    <Reference Include="IronPython.Modules" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|x64' ">
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Windows.Forms" />
