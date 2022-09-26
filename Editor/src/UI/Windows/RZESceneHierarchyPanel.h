@@ -8,8 +8,8 @@
 
 #include "UI/Windows/RZEMainWindow.h"
 
-#include <QMouseEvent>
 #include <QFrame>
+#include <QMouseEvent>
 
 Q_DECLARE_METATYPE(Razix::RZEntity);
 
@@ -24,6 +24,29 @@ namespace Razix {
 
             void populateHierarchy();
             void drawEntityNode(RZEntity& entity);
+
+            void keyPressEvent(QKeyEvent* event)
+            {
+                if (event->key() == Qt::Key::Key_Delete) {
+                    QList<QTreeWidgetItem*> selectedItems = ui.sceneTree->selectedItems();
+                    if (!selectedItems.size())
+                        return;
+
+                    Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
+                    auto&           registry = scene->getRegistry();
+
+                    for (size_t i = 0; i < selectedItems.size(); i++) {
+                        QVariant entityVariant = selectedItems[i]->data(0, Qt::UserRole);
+                        auto     entity        = entityVariant.value<RZEntity>();
+
+                        registry.destroy(entity);
+                    }
+
+                    ui.sceneTree->clear();
+                    populateHierarchy();
+                    repaint();
+                }
+            }
 
         signals:
             void OnEntitySelected(RZEntity entity);

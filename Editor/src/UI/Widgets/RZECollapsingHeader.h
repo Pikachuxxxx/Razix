@@ -48,7 +48,6 @@ namespace Razix {
         private:
             void mousePressEvent(QMouseEvent* event)
             {
-                std::cout << "Hmm" << std::endl;
                 emit clicked();
                 QFrame::mousePressEvent(event);
             }
@@ -71,7 +70,6 @@ namespace Razix {
         public slots:
             void toggleCollapse()
             {
-                std::cout << m_IsCollapsed << std::endl;
                 m_Header->arrow->setArrow(m_IsCollapsed);
                 m_IsCollapsed = !m_IsCollapsed;
 

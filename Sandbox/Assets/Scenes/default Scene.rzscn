@@ -2,9 +2,9 @@
     "Razix Scene": {
         "UUID": "4a1054a9-eeb1-48af-852d-a5dcc826b08b",
         "SceneName": "default Scene",
-        "Total Entities": 39
+        "Total Entities": 17
     },
-    "value0": 39,
+    "value0": 40,
     "value1": 0,
     "value2": 1,
     "value3": 2,
@@ -17,351 +17,176 @@
     "value10": 9,
     "value11": 10,
     "value12": 11,
-    "value13": 12,
+    "value13": 1048615,
     "value14": 13,
-    "value15": 14,
+    "value15": 1048588,
     "value16": 15,
     "value17": 16,
     "value18": 17,
     "value19": 18,
-    "value20": 19,
-    "value21": 20,
-    "value22": 21,
-    "value23": 22,
-    "value24": 23,
-    "value25": 24,
-    "value26": 25,
-    "value27": 26,
-    "value28": 27,
-    "value29": 28,
-    "value30": 29,
-    "value31": 30,
-    "value32": 31,
-    "value33": 32,
-    "value34": 33,
-    "value35": 34,
-    "value36": 35,
-    "value37": 36,
-    "value38": 37,
-    "value39": 38,
-    "value40": 39,
-    "value41": 0,
-    "value42": {
+    "value20": 2097151,
+    "value21": 1048595,
+    "value22": 1048596,
+    "value23": 1048597,
+    "value24": 1048598,
+    "value25": 1048599,
+    "value26": 1048600,
+    "value27": 1048601,
+    "value28": 1048602,
+    "value29": 1048603,
+    "value30": 1048604,
+    "value31": 1048605,
+    "value32": 1048606,
+    "value33": 1048607,
+    "value34": 1048608,
+    "value35": 1048609,
+    "value36": 1048610,
+    "value37": 1048611,
+    "value38": 1048612,
+    "value39": 1048613,
+    "value40": 1048614,
+    "value41": 17,
+    "value42": 0,
+    "value43": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value43": 1,
-    "value44": {
+    "value44": 1,
+    "value45": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value45": 2,
-    "value46": {
+    "value46": 2,
+    "value47": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value47": 3,
-    "value48": {
+    "value48": 3,
+    "value49": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value49": 4,
-    "value50": {
+    "value50": 4,
+    "value51": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value51": 5,
-    "value52": {
+    "value52": 5,
+    "value53": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value53": 6,
-    "value54": {
+    "value54": 6,
+    "value55": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value55": 7,
-    "value56": {
+    "value56": 7,
+    "value57": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value57": 8,
-    "value58": {
-        "UUID": "33333333-3333-3335-2d33-3333332d3333"
+    "value58": 8,
+    "value59": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value59": 9,
-    "value60": {
-        "UUID": "33333333-3333-3331-2d33-3333332d3333"
+    "value60": 9,
+    "value61": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value61": 10,
-    "value62": {
-        "UUID": "33333333-3333-3330-2d33-3333332d3333"
+    "value62": 10,
+    "value63": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value63": 11,
-    "value64": {
-        "UUID": "33333336-3333-3336-2d33-3333332d3333"
+    "value64": 11,
+    "value65": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value65": 12,
-    "value66": {
-        "UUID": "33333336-3333-3335-2d33-3333332d3333"
+    "value66": 18,
+    "value67": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value67": 13,
-    "value68": {
-        "UUID": "33333333-3333-3332-2d33-3333362d3333"
+    "value68": 13,
+    "value69": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value69": 14,
-    "value70": {
-        "UUID": "33333333-3333-3338-2d33-3333332d3333"
+    "value70": 17,
+    "value71": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value71": 15,
-    "value72": {
-        "UUID": "33333336-3333-3335-2d33-3333332d3333"
+    "value72": 15,
+    "value73": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value73": 16,
-    "value74": {
-        "UUID": "33333333-3333-3338-2d33-3333332d3333"
+    "value74": 16,
+    "value75": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value75": 17,
-    "value76": {
-        "UUID": "33333336-3333-3336-2d33-3333362d3333"
-    },
-    "value77": 18,
+    "value76": 17,
+    "value77": 0,
     "value78": {
-        "UUID": "33333336-3333-3333-2d33-3333362d3333"
-    },
-    "value79": 19,
-    "value80": {
-        "UUID": "33333333-3333-3336-2d33-3333332d3333"
-    },
-    "value81": 20,
-    "value82": {
-        "UUID": "33333333-3333-3332-2d33-3333332d3333"
-    },
-    "value83": 21,
-    "value84": {
-        "UUID": "33333333-3333-3337-2d33-3333362d3333"
-    },
-    "value85": 22,
-    "value86": {
-        "UUID": "33333336-3333-3331-2d33-3333332d3333"
-    },
-    "value87": 23,
-    "value88": {
-        "UUID": "33333333-3333-3332-2d33-3333332d3333"
-    },
-    "value89": 24,
-    "value90": {
-        "UUID": "33333333-3333-3339-2d33-3333332d3333"
-    },
-    "value91": 25,
-    "value92": {
-        "UUID": "33333333-3333-3333-2d33-3333332d3333"
-    },
-    "value93": 26,
-    "value94": {
-        "UUID": "33333333-3333-3337-2d33-3333332d3333"
-    },
-    "value95": 27,
-    "value96": {
-        "UUID": "33333336-3333-3334-2d33-3333362d3333"
-    },
-    "value97": 28,
-    "value98": {
-        "UUID": "33333336-3333-3336-2d33-3333332d3333"
-    },
-    "value99": 29,
-    "value100": {
-        "UUID": "33333336-3333-3334-2d33-3333332d3333"
-    },
-    "value101": 30,
-    "value102": {
-        "UUID": "33333333-3333-3334-2d33-3333362d3333"
-    },
-    "value103": 31,
-    "value104": {
-        "UUID": "33333333-3333-3330-2d33-3333362d3333"
-    },
-    "value105": 32,
-    "value106": {
-        "UUID": "33333333-3333-3330-2d33-3333332d3333"
-    },
-    "value107": 33,
-    "value108": {
-        "UUID": "33333336-3333-3336-2d33-3333332d3333"
-    },
-    "value109": 34,
-    "value110": {
-        "UUID": "33333333-3333-3331-2d33-3333362d3333"
-    },
-    "value111": 35,
-    "value112": {
-        "UUID": "33333333-3333-3339-2d33-3333362d3333"
-    },
-    "value113": 36,
-    "value114": {
-        "UUID": "33333336-3333-3333-2d33-3333362d3333"
-    },
-    "value115": 37,
-    "value116": {
-        "UUID": "33333333-3333-3333-2d33-3333362d3333"
-    },
-    "value117": 38,
-    "value118": {
-        "UUID": "33393636-3330-3331-2d33-3033312d3330"
-    },
-    "value119": 39,
-    "value120": 0,
-    "value121": {
         "Tag": "Camera"
     },
-    "value122": 1,
-    "value123": {
+    "value79": 1,
+    "value80": {
         "Tag": "hello_lua"
     },
-    "value124": 2,
-    "value125": {
+    "value81": 2,
+    "value82": {
         "Tag": "imgui_lua"
     },
-    "value126": 3,
-    "value127": {
+    "value83": 3,
+    "value84": {
         "Tag": "Avocado not Avakaya"
     },
-    "value128": 4,
-    "value129": {
+    "value85": 4,
+    "value86": {
         "Tag": "CubeMesh"
     },
-    "value130": 5,
-    "value131": {
+    "value87": 5,
+    "value88": {
         "Tag": "Sphere"
     },
-    "value132": 6,
-    "value133": {
+    "value89": 6,
+    "value90": {
         "Tag": "Directional Light"
     },
-    "value134": 7,
-    "value135": {
+    "value91": 7,
+    "value92": {
         "Tag": "this is a plane"
     },
-    "value136": 8,
-    "value137": {
+    "value93": 8,
+    "value94": {
         "Tag": "Random Entity"
     },
-    "value138": 9,
-    "value139": {
+    "value95": 9,
+    "value96": {
         "Tag": "Random Entity"
     },
-    "value140": 10,
-    "value141": {
+    "value97": 10,
+    "value98": {
         "Tag": "Random Entity"
     },
-    "value142": 11,
-    "value143": {
+    "value99": 11,
+    "value100": {
         "Tag": "Random Entity"
     },
-    "value144": 12,
-    "value145": {
-        "Tag": "Random Entity"
-    },
-    "value146": 13,
-    "value147": {
-        "Tag": "Random Entity"
-    },
-    "value148": 14,
-    "value149": {
-        "Tag": "Random Entity"
-    },
-    "value150": 15,
-    "value151": {
-        "Tag": "offset plane"
-    },
-    "value152": 16,
-    "value153": {
-        "Tag": "Random Entity"
-    },
-    "value154": 17,
-    "value155": {
-        "Tag": "Random Entity"
-    },
-    "value156": 18,
-    "value157": {
+    "value101": 18,
+    "value102": {
         "Tag": "Random Entity change name"
     },
-    "value158": 19,
-    "value159": {
+    "value103": 13,
+    "value104": {
         "Tag": "Random Entity"
     },
-    "value160": 20,
-    "value161": {
+    "value105": 17,
+    "value106": {
         "Tag": "Random Entity"
     },
-    "value162": 21,
-    "value163": {
+    "value107": 15,
+    "value108": {
+        "Tag": "offset plane"
+    },
+    "value109": 16,
+    "value110": {
         "Tag": "Random Entity"
     },
-    "value164": 22,
-    "value165": {
-        "Tag": "Random Entity"
-    },
-    "value166": 23,
-    "value167": {
-        "Tag": "Random Entity"
-    },
-    "value168": 24,
-    "value169": {
-        "Tag": "Random Entity"
-    },
-    "value170": 25,
-    "value171": {
-        "Tag": "Random Entity"
-    },
-    "value172": 26,
-    "value173": {
-        "Tag": "Random Entity"
-    },
-    "value174": 27,
-    "value175": {
-        "Tag": "Random Entity"
-    },
-    "value176": 28,
-    "value177": {
-        "Tag": "Random Entity"
-    },
-    "value178": 29,
-    "value179": {
-        "Tag": "Random Entity"
-    },
-    "value180": 30,
-    "value181": {
-        "Tag": "Random Entity"
-    },
-    "value182": 31,
-    "value183": {
-        "Tag": "Random Entity"
-    },
-    "value184": 32,
-    "value185": {
-        "Tag": "Random Entity"
-    },
-    "value186": 33,
-    "value187": {
-        "Tag": "Random Entity"
-    },
-    "value188": 34,
-    "value189": {
-        "Tag": "Random Entity"
-    },
-    "value190": 35,
-    "value191": {
-        "Tag": "Random Entity"
-    },
-    "value192": 36,
-    "value193": {
-        "Tag": "Random Entity"
-    },
-    "value194": 37,
-    "value195": {
-        "Tag": "Random Entity"
-    },
-    "value196": 38,
-    "value197": {
-        "Tag": "Entity"
-    },
-    "value198": 0,
-    "value199": 39,
-    "value200": 0,
-    "value201": {
+    "value111": 0,
+    "value112": 17,
+    "value113": 0,
+    "value114": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -378,8 +203,8 @@
             "z": 1.0
         }
     },
-    "value202": 1,
-    "value203": {
+    "value115": 1,
+    "value116": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -396,8 +221,8 @@
             "z": 1.0
         }
     },
-    "value204": 2,
-    "value205": {
+    "value117": 2,
+    "value118": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -414,8 +239,8 @@
             "z": 1.0
         }
     },
-    "value206": 3,
-    "value207": {
+    "value119": 3,
+    "value120": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -432,8 +257,8 @@
             "z": 1.0
         }
     },
-    "value208": 4,
-    "value209": {
+    "value121": 4,
+    "value122": {
         "Translation": {
             "x": 5.0,
             "y": 0.0,
@@ -450,8 +275,8 @@
             "z": 1.0
         }
     },
-    "value210": 5,
-    "value211": {
+    "value123": 5,
+    "value124": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -468,8 +293,8 @@
             "z": 1.0
         }
     },
-    "value212": 6,
-    "value213": {
+    "value125": 6,
+    "value126": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -486,8 +311,8 @@
             "z": 1.0
         }
     },
-    "value214": 7,
-    "value215": {
+    "value127": 7,
+    "value128": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -504,8 +329,8 @@
             "z": 1.0
         }
     },
-    "value216": 8,
-    "value217": {
+    "value129": 8,
+    "value130": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -522,8 +347,8 @@
             "z": 1.0
         }
     },
-    "value218": 9,
-    "value219": {
+    "value131": 9,
+    "value132": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -540,8 +365,8 @@
             "z": 1.0
         }
     },
-    "value220": 10,
-    "value221": {
+    "value133": 10,
+    "value134": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -558,8 +383,8 @@
             "z": 1.0
         }
     },
-    "value222": 11,
-    "value223": {
+    "value135": 11,
+    "value136": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -576,8 +401,8 @@
             "z": 1.0
         }
     },
-    "value224": 12,
-    "value225": {
+    "value137": 18,
+    "value138": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -594,8 +419,8 @@
             "z": 1.0
         }
     },
-    "value226": 13,
-    "value227": {
+    "value139": 13,
+    "value140": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -612,8 +437,8 @@
             "z": 1.0
         }
     },
-    "value228": 14,
-    "value229": {
+    "value141": 17,
+    "value142": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -630,8 +455,8 @@
             "z": 1.0
         }
     },
-    "value230": 15,
-    "value231": {
+    "value143": 15,
+    "value144": {
         "Translation": {
             "x": 20.0,
             "y": 0.0,
@@ -648,8 +473,8 @@
             "z": 1.0
         }
     },
-    "value232": 16,
-    "value233": {
+    "value145": 16,
+    "value146": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -666,434 +491,38 @@
             "z": 1.0
         }
     },
-    "value234": 17,
-    "value235": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value236": 18,
-    "value237": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value238": 19,
-    "value239": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value240": 20,
-    "value241": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value242": 21,
-    "value243": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value244": 22,
-    "value245": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value246": 23,
-    "value247": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value248": 24,
-    "value249": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value250": 25,
-    "value251": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value252": 26,
-    "value253": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value254": 27,
-    "value255": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value256": 28,
-    "value257": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value258": 29,
-    "value259": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value260": 30,
-    "value261": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value262": 31,
-    "value263": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value264": 32,
-    "value265": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value266": 33,
-    "value267": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value268": 34,
-    "value269": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value270": 35,
-    "value271": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value272": 36,
-    "value273": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value274": 37,
-    "value275": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value276": 38,
-    "value277": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value278": 1,
-    "value279": 0,
-    "value280": {
+    "value147": 1,
+    "value148": 0,
+    "value149": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 6.49945068359375,
-                "y": 27.956815719604493,
-                "z": 36.47324752807617
+                "x": -6.147347450256348,
+                "y": 16.7064151763916,
+                "z": -25.983076095581056
             },
             "Front": {
-                "x": -0.09631917625665665,
-                "y": -0.646124005317688,
-                "z": -0.7571303844451904
+                "x": 0.16544894874095918,
+                "y": -0.4617486000061035,
+                "z": 0.8714441061019898
             },
             "Up": {
-                "x": -0.08154020458459854,
-                "y": 0.7632324695587158,
-                "z": -0.6409581899642944
+                "x": 0.08612727373838425,
+                "y": 0.8870108723640442,
+                "z": 0.45364511013031008
             },
             "Right": {
-                "x": 0.992004930973053,
+                "x": -0.9824503064155579,
                 "y": 0.0,
-                "z": -0.12619900703430177
+                "z": 0.1865241527557373
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -97.25,
-            "Pitch": -40.25,
+            "Yaw": -280.75,
+            "Pitch": -27.5,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -1107,190 +536,85 @@
             "AspectRatio": 1.389830470085144
         }
     },
-    "value281": 0,
-    "value282": 33,
-    "value283": 4,
-    "value284": {
+    "value150": 0,
+    "value151": 12,
+    "value152": 4,
+    "value153": {
         "Primitive": 2,
         "MeshName": ""
     },
-    "value285": 5,
-    "value286": {
+    "value154": 5,
+    "value155": {
         "Primitive": 4,
         "MeshName": ""
     },
-    "value287": 7,
-    "value288": {
+    "value156": 7,
+    "value157": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value289": 8,
-    "value290": {
+    "value158": 8,
+    "value159": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value291": 9,
-    "value292": {
+    "value160": 9,
+    "value161": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value293": 10,
-    "value294": {
+    "value162": 10,
+    "value163": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value295": 11,
-    "value296": {
+    "value164": 11,
+    "value165": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value297": 12,
-    "value298": {
+    "value166": 18,
+    "value167": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value299": 13,
-    "value300": {
+    "value168": 13,
+    "value169": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value301": 14,
-    "value302": {
+    "value170": 17,
+    "value171": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value303": 15,
-    "value304": {
+    "value172": 15,
+    "value173": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value305": 16,
-    "value306": {
+    "value174": 16,
+    "value175": {
         "Primitive": 0,
         "MeshName": ""
     },
-    "value307": 17,
-    "value308": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value309": 18,
-    "value310": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value311": 19,
-    "value312": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value313": 20,
-    "value314": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value315": 21,
-    "value316": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value317": 22,
-    "value318": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value319": 23,
-    "value320": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value321": 24,
-    "value322": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value323": 25,
-    "value324": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value325": 26,
-    "value326": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value327": 27,
-    "value328": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value329": 28,
-    "value330": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value331": 29,
-    "value332": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value333": 30,
-    "value334": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value335": 31,
-    "value336": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value337": 32,
-    "value338": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value339": 33,
-    "value340": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value341": 34,
-    "value342": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value343": 35,
-    "value344": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value345": 36,
-    "value346": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value347": 37,
-    "value348": {
-        "Primitive": 0,
-        "MeshName": ""
-    },
-    "value349": 1,
-    "value350": 3,
-    "value351": {
+    "value176": 1,
+    "value177": 3,
+    "value178": {
         "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/Avocado.gltf"
     },
-    "value352": 2,
-    "value353": 1,
-    "value354": {
+    "value179": 2,
+    "value180": 1,
+    "value181": {
         "FilePath": "//Scripts/hello_razix.lua"
     },
-    "value355": 2,
-    "value356": {
+    "value182": 2,
+    "value183": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value357": 1,
-    "value358": 6,
-    "value359": {
+    "value184": 1,
+    "value185": 6,
+    "value186": {
         "Light": {
             "type": 0,
             "DirectionalLight": {

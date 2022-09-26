@@ -35,7 +35,6 @@ group "Engine/content"
             -- Razix Shader Files
             "content/Shaders/Razix/*.rzsf"
         }
-group""
     filter "system:windows"
         -- TODO Add as rules, every shader file type will have it's own rule
         -- Don't build the shaders, they are compiled by the engine once and cached
@@ -48,6 +47,7 @@ group""
             buildmessage 'Compiling glsl shader : %{file.name}'
             buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{file.directory}/../Compiled/SPIRV/%{file.name}.spv" '
             buildoutputs "%{file.directory}/../Compiled/SPIRV/%{file.name }.spv"
+group""
 
 group "Engine"
 -- Razix project

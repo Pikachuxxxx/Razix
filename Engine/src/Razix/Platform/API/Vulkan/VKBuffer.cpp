@@ -81,7 +81,8 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             map(size, 0);
-            memcpy(m_Mapped, data, size);
+            //memcpy(m_Mapped, data, size);
+            memmove(m_Mapped, data, size);
             unMap();
 
             //flush();
