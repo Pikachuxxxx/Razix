@@ -17,6 +17,8 @@
 
 #include <imgui/imgui.h>
 
+#include "internal/RazixMemory/include/RZMemoryFunctions.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -199,7 +201,7 @@ namespace Razix {
                 uint32_t var_count = 0;
                 result             = spvReflectEnumerateInputVariables(&module, &var_count, NULL);
                 RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV Input variables - ({0})!", virtualPath);
-                SpvReflectInterfaceVariable** input_vars = (SpvReflectInterfaceVariable**) malloc(var_count * sizeof(SpvReflectInterfaceVariable*));
+                SpvReflectInterfaceVariable** input_vars = (SpvReflectInterfaceVariable**) Razix::RZMalloc(var_count * sizeof(SpvReflectInterfaceVariable*));
                 result                                   = spvReflectEnumerateInputVariables(&module, &var_count, input_vars);
 
                 // Vertex Input attributes
@@ -273,7 +275,7 @@ namespace Razix {
                 uint32_t descriptors_count = 0;
                 result                     = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, nullptr);
                 RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect descriptor bindings from SPIRV shader - ({0})", virtualPath);
-                SpvReflectDescriptorBinding** pp_descriptor_bindings = (SpvReflectDescriptorBinding**) malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
+                SpvReflectDescriptorBinding** pp_descriptor_bindings = (SpvReflectDescriptorBinding**) Razix::RZMalloc(var_count * sizeof(SpvReflectDescriptorBinding*));    //malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
                 result                                               = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, pp_descriptor_bindings);
 
                 RZDescriptor rzDescriptor{};
@@ -347,7 +349,7 @@ namespace Razix {
                 uint32_t push_constants_count = 0;
                 spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, nullptr);
                 RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect push constants from shader - ({0})", virtualPath);
-                SpvReflectBlockVariable** pp_push_constant_blocks = (SpvReflectBlockVariable**) malloc(var_count * sizeof(SpvReflectBlockVariable*));
+                SpvReflectBlockVariable** pp_push_constant_blocks = (SpvReflectBlockVariable**) Razix::RZMalloc(var_count * sizeof(SpvReflectBlockVariable*));
                 spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, pp_push_constant_blocks);
 
                 // Create Push constants and store info about it

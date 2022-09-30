@@ -50,7 +50,6 @@ namespace Razix {
         bool RZEVulkanWindow::IsKeyPressedImpl(int keycode)
         {
             if (keycode == m_KeyPressed) {
-                m_KeyPressed = -1;
                 return true;
             } else
                 return false;
@@ -59,7 +58,6 @@ namespace Razix {
         bool RZEVulkanWindow::IsKeyReleasedImpl(int keycode)
         {
             if (keycode == m_KeyReleased) {
-                m_KeyReleased = -1;
                 return true;
             } else
                 return false;
@@ -67,7 +65,10 @@ namespace Razix {
 
         bool RZEVulkanWindow::IsIsKeyHeldImpl(int keycode)
         {
-            return false;
+            if (keycode == m_KeyPressed && keycode != m_KeyReleased) {
+                return true;
+            } else
+                return false;
         }
 
         bool RZEVulkanWindow::IsMouseButtonPressedImpl(int button)
