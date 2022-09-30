@@ -77,8 +77,7 @@ namespace Razix {
             }
 
             void mousePressEvent(QMouseEvent* event)
-            {
-
+            {                
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseButtonPressedEvent e(event->button());
@@ -95,6 +94,7 @@ namespace Razix {
                     if (registry.valid(entity)) {
                         if (selectedEntity != -1 && entity == entt::entity(selectedEntity)) {
                             RZEntity rzEntity(entity, scene);
+                            RZApplication::Get().setGuzimoForEntity(rzEntity);
                             emit     OnEntitySelected(rzEntity);
                             return;
                         }

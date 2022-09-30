@@ -26,10 +26,17 @@
 #include "Razix/Graphics/Renderers/RZForwardRenderer.h"
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
 
+#include "Razix/Scene/Components/TransformComponent.h"
+
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/plugins/ImGuizmo.h>
 
 #include <cereal/archives/json.hpp>
+
+#include <glm/gtc/type_ptr.hpp>
+
+#include <entt.hpp>
 
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
@@ -292,7 +299,7 @@ namespace Razix {
         Render();
         m_Frames++;
 
-        // RenderGUI 
+        // RenderGUI
         RenderGUI();
 
         // Update the window and it's surface/video out
@@ -392,6 +399,9 @@ namespace Razix {
             ImGui_ImplGlfw_NewFrame();
 
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
+        ImGuiIO& io = ImGui::GetIO();
+        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
         if (RZEngine::Get().getSceneManager().getCurrentScene())
             RZEngine::Get().getScriptHandler().OnImGui(RZEngine::Get().getSceneManager().getCurrentScene());
@@ -411,6 +421,37 @@ namespace Razix {
         //    ImGui::Separator();
         //}
         //ImGui::End();
+
+        // Guizmo Controls for an Entity
+        if (m_GuizmoEntity.entity() != entt::null)
+        {
+            auto           currentScene = RZEngine::Get().getSceneManager().getCurrentScene();
+            auto&          registry     = currentScene->getRegistry();
+            auto           cameraView   = registry.view<CameraComponent>();
+            RZSceneCamera* cam = nullptr;
+            if (!cameraView.empty()) {
+                // By using front we get the one and only or the first one in the list of camera entities
+                cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
+                //m_CamTransform = registry.try_get<TransformComponent>(cameraView.front());
+            }
+            // Guizmo Editing Here
+            float               delta[16];
+            TransformComponent& tc = m_GuizmoEntity.GetComponent<TransformComponent>();
+
+            glm::mat4 transformMatrix = tc.GetTransform();
+
+            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjection()), ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), delta);
+            float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+            ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
+
+            tc.Translation = glm::vec3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
+            tc.Rotation    = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
+            tc.Scale       = glm::vec3(matrixScale[0], matrixScale[1], matrixScale[2]);
+        }
+
+        // TODO: As for Icons of the components or any other entities we will get them using the entt
+        // Get their position in the worldspace and check it against the camera frustum and
+        // convert it to world space and render a non-clickable ImGui::Button with the FontIcon as image
 
         ImFont* font = ImGui::GetFont();
         font->Scale  = 0.90f;

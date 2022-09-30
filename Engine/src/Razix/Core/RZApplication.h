@@ -10,6 +10,8 @@
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
+#include "Razix/Scene/RZEntity.h"
+
 #include "Razix/Utilities/RZTimer.h"
 #include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
@@ -126,9 +128,10 @@ namespace Razix {
         inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
 
         void setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
-
         void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
         HWND getViewportHWND() { return viewportHWND; }
+
+        void setGuzimoForEntity(RZEntity& entity) { m_GuizmoEntity = entity; }
 
         inline AppType getAppType() { return m_appType; }
         void           setAppType(AppType appType) { m_appType = appType; }
@@ -219,6 +222,7 @@ namespace Razix {
         RZUUID                     m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
         std::vector<std::string>   sceneFilePaths;
         Graphics::RZTexture2D*     albedoTexture;
+        RZEntity                   m_GuizmoEntity;
 
     private:
         /**

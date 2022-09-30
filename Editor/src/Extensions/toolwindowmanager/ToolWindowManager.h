@@ -336,7 +336,7 @@ protected:
   virtual bool eventFilter(QObject *object, QEvent *event);
 
   /*!
-   * \brief Creates new splitter and sets its default properties. You may reimplement
+   * \brief Creates new splitter and sets its default properties. You may re implement
    * this function to change properties of all splitters used by this class.
    */
   virtual QSplitter *createSplitter();
