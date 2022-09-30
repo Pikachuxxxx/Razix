@@ -18,7 +18,7 @@ end
 
 local qt = premake.extensions.qt
 
-project "RazixLevelEditor"
+project "RazixEditor"
     kind "ConsoleApp"
     language "C++"
 
@@ -69,7 +69,9 @@ project "RazixLevelEditor"
         "**.ui",
         "**.qrc",
         "**.png",
-        "**.ico"
+        "**.ico",
+        -- TODO: Add this under windows only
+        "**.rc"
     }
 
     removefiles { "src/generated/**" }
@@ -154,6 +156,11 @@ project "RazixLevelEditor"
     filter "files:**.ui or **.qrc or **.png or **.ico"
             buildaction "Embed"
     filter ""
+
+    --filter "files:**.rc"
+    --    buildmessage "converting %{file.relpath} to dds ..."
+    --    buildaction "Resource"
+    --filter ""
 
     -- Disable warning for vendor
    filter { "files:vendor/**"}

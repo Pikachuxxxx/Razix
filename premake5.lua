@@ -108,7 +108,7 @@ workspace ( settings.workspace_name )
     -- Build Script for Razix Editor
     --------------------------------------------------------------------------------
     group "Editor"
-        include "Editor/razix_level_editor.lua"
+        include "Editor/razix_editor.lua"
     group ""
 
     --------------------------------------------------------------------------------

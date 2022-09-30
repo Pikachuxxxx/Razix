@@ -230,6 +230,7 @@ namespace Razix {
 
         VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
         {
+#ifndef RAZIX_DISTRIBUTION
             // Select prefix depending on flags passed to the callback
             // Note that multiple flags may be set for a single validation message
             // Error that may result in undefined behavior
@@ -269,6 +270,7 @@ namespace Razix {
             //     std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage  << std::endl;
             //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
             // }
+#endif
             return VK_FALSE;
         }
     }    // namespace Graphics
