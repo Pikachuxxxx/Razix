@@ -38,7 +38,7 @@ namespace Razix {
                     for (size_t i = 0; i < selectedItems.size(); i++) {
                         QVariant entityVariant = selectedItems[i]->data(0, Qt::UserRole);
                         auto     entity        = entityVariant.value<RZEntity>();
-
+                        //RZApplication::Get().setGuzimoForEntity(RZEntity(entt::null));
                         registry.destroy(entity);
                     }
 

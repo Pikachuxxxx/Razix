@@ -34,6 +34,8 @@
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
+#include <plugins/ImGuizmo.h>
+
 namespace Razix {
     namespace Graphics {
 
@@ -350,7 +352,8 @@ namespace Razix {
             m_ImGuiIBO->Bind(cmdBuffer);
 
             for (uint32_t i = 0; i < (uint32_t) imDrawData->CmdListsCount; ++i) {
-                const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+                ImDrawList* cmd_list = imDrawData->CmdLists[i];
+                ImGuizmo::SetDrawlist(cmd_list);
                 for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
