@@ -54,6 +54,8 @@ group "Engine"
 project "Razix"
     kind "SharedLib"
     language "C++"
+        -- Debugging directory = where the main premake5.lua is located
+    debugdir "%{wks.location}../"
 
     pchheader "src/rzxpch.h"
     pchsource "src/rzxpch.cpp"

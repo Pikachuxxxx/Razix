@@ -15,6 +15,11 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Current root directory where the global premake file is located
 -- TODO: Use a fixed installation directory in program files insted of an arbitrary thing/ infact use this to verify the proper installation directory
 root_dir = os.getcwd()
+-- Add this as the installation directory to the engine config file
+print("Generating Engine Config File...")
+config_file = io.open( root_dir .. "/Engine/content/config/razix_engine.config", "w+")
+io.output(config_file)
+io.write("installation_dir=" .. root_dir)
 
 -- Using the command line to get the selected architecture
 Arch = ""
@@ -46,6 +51,8 @@ workspace ( settings.workspace_name )
     targetdir ("bin/%{outputdir}/")
     -- Intermediate files Output directory
     objdir ("bin-int/%{outputdir}/obj/")
+    -- Debugging directory = where the main premake5.lua is located
+    debugdir "%{wks.location}../"
 
     -- Setting the architecture for the workspace
     if Arch == "arm" then

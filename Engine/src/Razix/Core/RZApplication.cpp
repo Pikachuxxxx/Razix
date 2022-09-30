@@ -54,7 +54,7 @@ namespace Razix {
         s_AppInstance = this;
 
         // Set the Application root path and Load the project settings
-        const std::string& razixRoot = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
+        const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();// RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
         // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored to use the proper project path to resolve the VFS to mount the project Assets
         m_AppFilePath = razixRoot + projectRoot;

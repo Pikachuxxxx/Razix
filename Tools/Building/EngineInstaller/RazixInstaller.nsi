@@ -1,45 +1,48 @@
 ;NSIS Modern User Interface
-;Basic Example Script
-;Written by Joost Verburg
-
+; Razix Engine and Tools Installer
 ;--------------------------------
 ;Include Modern UI
 
-  !include "MUI2.nsh"
+    !include "MUI2.nsh"
 
 ;--------------------------------
 ;General
 
-  ;Name and file
-  Name "Modern UI Test"
-  OutFile "RazixEngineInstaller_V_0_3_0_Dev.exe"
-  Unicode True
+    ;Name and file
+    Name "Razix Engine"
+    OutFile "RazixEngineInstaller-V.0.3.0.Dev.exe"
+    Unicode True
 
-  ;Default installation folder
-  InstallDir "$LOCALAPPDATA\Modern UI Test"
+    ;Default installation folder
+    InstallDir "$PROGRAMFILES64\Razix"
 
-  ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\Modern UI Test" ""
-
-  ;Request application privileges for Windows Vista
-  RequestExecutionLevel user
-
+    ;Request application privileges for Windows Vista
+    RequestExecutionLevel admin
 ;--------------------------------
 ;Interface Settings
 
-  !define MUI_ABORTWARNING
-  !define MUI_ICON "../../../Engine/content/Logos/RazixLogo32.ico"
-
+    !define MUI_ABORTWARNING
+    !define MUI_ICON "../../../Engine/content/Logos/RazixLogo32.ico"
+    !define MUI_FINISHPAGE_SHOWREADME ""
+    !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+    !define MUI_FINISHPAGE_SHOWREADME_TEXT "Create Desktop Shortcut"
+    !define MUI_FINISHPAGE_SHOWREADME_FUNCTION finishpageaction
 ;--------------------------------
 ;Pages
 
-  !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"
-  !insertmacro MUI_PAGE_COMPONENTS
-  !insertmacro MUI_PAGE_DIRECTORY
-  !insertmacro MUI_PAGE_INSTFILES
+    Function finishpageaction
+    CreateShortcut "$desktop\RazixEditor.lnk" "$INSTDIR\RazixEditor.exe"
+    FunctionEnd
 
-  !insertmacro MUI_UNPAGE_CONFIRM
-  !insertmacro MUI_UNPAGE_INSTFILES
+    !insertmacro MUI_PAGE_WELCOME
+    !insertmacro MUI_PAGE_LICENSE "../../../LICENSE"
+    !insertmacro MUI_PAGE_DIRECTORY
+    !insertmacro MUI_PAGE_INSTFILES
+    !insertmacro MUI_PAGE_FINISH
+
+    !insertmacro MUI_UNPAGE_CONFIRM
+    !insertmacro MUI_UNPAGE_INSTFILES
+    !insertmacro MUI_UNPAGE_FINISH
 
 ;--------------------------------
 ;Languages
@@ -49,30 +52,29 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "Dummy Section" SecDummy
+Section "Razix Engine Components" EngineInstallSec
 
-  SetOutPath "$INSTDIR"
+    SetOutPath $INSTDIR
 
-  ;ADD YOUR OWN FILES HERE...
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Razix.dll"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\RazixEditor.exe"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Core.dll"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Gui.dll"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Widgets.dll"
+    SetOutPath $INSTDIR\plugins
+    FILE /nonfatal /a /r "..\..\..\bin\Distribution-windows-x86_64\plugins\"
+    SetOutPath $INSTDIR\Engine\content
+    FILE /nonfatal /a /r "..\..\..\Engine\content\"
 
-  ;Store installation folder
-  WriteRegStr HKCU "Software\Modern UI Test" "" $INSTDIR
+    SetOutPath $INSTDIR\Engine\content\config
+    FileOpen $0 "$INSTDIR\Engine\content\config\razix_engine.config" w
+    FileWrite $0 "installation_dir=$INSTDIR"
+    FileClose $0
 
-  ;Create uninstaller
-  WriteUninstaller "$INSTDIR\Uninstall.exe"
+    ;Create uninstaller
+    WriteUninstaller "$INSTDIR\Razix Uninstaller.exe"
 
 SectionEnd
-
-;--------------------------------
-;Descriptions
-
-  ;Language strings
-  LangString DESC_SecDummy ${LANG_ENGLISH} "A test section."
-
-  ;Assign language strings to sections
-  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecDummy} $(DESC_SecDummy)
-  !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
 ;Uninstaller Section
@@ -80,11 +82,14 @@ SectionEnd
 Section "Uninstall"
 
   ;ADD YOUR OWN FILES HERE...
+  Delete "$INSTDIR\*.dll"
+  Delete "$INSTDIR\*.exe"
 
-  Delete "$INSTDIR\Uninstall.exe"
+  Delete "$INSTDIR\Razix Uninstaller.exe"
+  Delete "$DESKTOP\RazixEditor.lnk"
+  RMDir /r "$INSTDIR\plugins\"
+  RMDir /r "$INSTDIR\Engine\"
 
   RMDir "$INSTDIR"
-
-  DeleteRegKey /ifempty HKCU "Software\Modern UI Test"
 
 SectionEnd

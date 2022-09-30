@@ -103,6 +103,11 @@ namespace Razix {
             m_Stats.reset();
         }
 
+        void LoadEngineConfigFile();
+
+        /* Get engine installation directory */
+        inline const std::string& getEngineInstallationDir() { return m_EngineInstallationDir; }
+
         /// <summary>
         /// Gets the maximum number of frames that can be rendered
         /// </summary>
@@ -123,5 +128,6 @@ namespace Razix {
     private:
         Stats m_Stats;                                /* Current frame basic statistics	                                */
         float m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
+        std::string m_EngineInstallationDir;
     };
 }    // namespace Razix

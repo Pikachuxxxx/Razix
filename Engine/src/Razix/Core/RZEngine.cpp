@@ -102,4 +102,18 @@ namespace Razix {
     {
         RAZIX_UNIMPLEMENTED_METHOD
     }
+
+    void RZEngine::LoadEngineConfigFile()
+    {
+        std::ifstream config_file("./Engine/content/config/razix_engine.config");
+        if (config_file.good()) {
+            std::string line;
+            std::getline(config_file, line);
+            std::cout << line << std::endl;
+            auto installationDir    = line.substr(0, line.find("=")).length();
+            m_EngineInstallationDir = line.erase(0, installationDir + 1);
+            std::cout << m_EngineInstallationDir << std::endl;
+        }
+    }
+
 }    // namespace Razix
