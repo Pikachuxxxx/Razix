@@ -5,6 +5,7 @@
 
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/RZLog.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Utilities/RZStringUtilities.h"
 
@@ -19,9 +20,10 @@ namespace Razix {
 
         // Static Initialization load basic paths + root paths in consoles
         //  1.1. Mount engine specific Paths
-        RZVirtualFileSystem::Get().mount("RazixRoot", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/")));
-        RZVirtualFileSystem::Get().mount("RazixSource", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/src/")));
-        RZVirtualFileSystem::Get().mount("RazixContent", std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Engine/content/")));
+        auto& rootDir = RZEngine::Get().getEngineInstallationDir();
+        RZVirtualFileSystem::Get().mount("RazixRoot", rootDir + std::string("/Engine/"));
+        RZVirtualFileSystem::Get().mount("RazixSource", rootDir + std::string("/Engine/src/"));
+        RZVirtualFileSystem::Get().mount("RazixContent", rootDir + std::string("/Engine/content/"));
     }
 
     void RZVirtualFileSystem::ShutDown()
