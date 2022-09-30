@@ -35,7 +35,6 @@ using namespace Razix;
 class RazixEditorApp : public Razix::RZApplication
 {
 public:
-public:
     // TODO: In future we will pass multiple native window handles (for multiple viewports, debug rendering, content viewers etc) for now only a single viewport is sufficient
     RazixEditorApp()
         : RZApplication("/Sandbox/", "Razix Editor")

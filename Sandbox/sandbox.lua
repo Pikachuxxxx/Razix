@@ -7,7 +7,8 @@ include 'Scripts/premake/common/internal_includes.lua'
 project "Sandbox"
     kind "ConsoleApp"
     language "C++"
-
+        -- Debugging directory = where the main premake5.lua is located
+    debugdir "%{wks.location}../"
     -- Game source files
     files
     {
