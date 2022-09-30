@@ -74,6 +74,7 @@ namespace Razix {
             // TODO: Support multiple selection using the selectedItems list
             QVariant entityVariant = selectedItems[0]->data(0, Qt::UserRole);
             auto     entity        = entityVariant.value<RZEntity>();
+            RZApplication::Get().setGuzimoForEntity(entity);
             //  Now send this entity to the Inspector via signal
             emit OnEntitySelected(entity);
         }
@@ -86,6 +87,8 @@ namespace Razix {
             QList<QTreeWidgetItem*> clist    = ui.sceneTree->findItems(QString(itemName.c_str()), Qt::MatchContains | Qt::MatchRecursive, 0);
             // TODO: Add support multi entity editing sometime in future
             ui.sceneTree->setItemSelected(clist[0], true);
+            RZApplication::Get().setGuzimoForEntity(entity);
+
             emit OnEntitySelected(entity);
         }
 

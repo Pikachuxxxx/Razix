@@ -73,6 +73,8 @@ namespace Razix {
 
         std::vector<RZEntity> GetChildren();
 
+        entt::entity entity() { return m_Entity; }
+
         operator bool() const { return m_Entity != entt::null; }
         operator entt::entity() const { return m_Entity; }
         operator uint32_t() const { return (uint32_t) m_Entity; }

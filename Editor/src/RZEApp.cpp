@@ -220,7 +220,8 @@ int main(int argc, char** argv)
     // In order for event filter to work this is fookin important
     qrzeditorApp->installEventFilter(vulkanWindow);
 
-    mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+    mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.8f));
+    vulkanWindowWidget->activateWindow();
     // Load the engine DLL and Ignite it on a separate thread
     std::thread engineThread(LoadEngineDLL, argc, argv);
     engineThread.detach();

@@ -4,6 +4,11 @@ project "ImGui"
     cppdialect "C++17"
     staticruntime "off"
 
+     includedirs
+        {
+             "./"
+        }
+
     files
     {
         "imconfig.h",
@@ -16,7 +21,10 @@ project "ImGui"
         "imstb_textedit.h",
         "imstb_truetype.h",
         "imgui_demo.cpp",
-        "imgui_tables.cpp"
+        "imgui_tables.cpp",
+        "plugins/**.h",
+        "plugins/**.cpp",
+        "plugins/**.inl"
     }
 
     filter "system:windows"
