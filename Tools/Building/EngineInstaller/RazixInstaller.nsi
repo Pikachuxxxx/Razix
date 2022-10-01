@@ -12,6 +12,7 @@
     Name "Razix Engine"
     OutFile "RazixEngineInstaller-V.0.3.0.Dev.exe"
     Unicode True
+    ShowInstDetails show
 
     ;Default installation folder
     InstallDir "$PROGRAMFILES64\Razix"
