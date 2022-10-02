@@ -113,6 +113,12 @@ namespace Razix {
             auto installationDir    = line.substr(0, line.find("=")).length();
             m_EngineInstallationDir = line.erase(0, installationDir + 1);
             std::cout << m_EngineInstallationDir << std::endl;
+        } else {
+#ifdef RAZIX_DEBUG
+            m_EngineInstallationDir = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
+#elif defined RAZIX_DISTRIBUTION
+            m_EngineInstallationDir = "C:/Program Files/Razix";
+#endif
         }
     }
 

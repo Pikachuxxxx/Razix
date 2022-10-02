@@ -40,7 +40,7 @@
 
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
-
+     
     // Editor-Graphics API Resize primitives won't make into final game so not an issues as of now!!!
     bool                    RZApplication::ready_for_execution = false;
     std::mutex              RZApplication::m;
@@ -54,30 +54,13 @@ namespace Razix {
         s_AppInstance = this;
 
         // Set the Application root path and Load the project settings
-        const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();// RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
+        //const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();// RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
-        // TODO: Since the Engine will be installed elsewhere and and Project will be else where this logic has to be re-factored to use the proper project path to resolve the VFS to mount the project Assets
-        m_AppFilePath = razixRoot + projectRoot;
+        m_AppFilePath = projectRoot;
         RAZIX_CORE_TRACE("Project file path : {0}", m_AppFilePath);
 
         Razix::RZSplashScreen::Get().setLogString("Loading Shader Cache...");
         Razix::RZSplashScreen::Get().setLogString("Loading Project Assets..");
-
-        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labor work)
-        // First the default sandbox or sample project is loaded that is provided by the engine that resides with the engine
-        // Next it checks the command line for the project file directory
-        // Project root directory
-        RAZIX_CORE_TRACE("Mounting file systems... for Project at : {0}", m_AppFilePath);
-        Razix::RZSplashScreen::Get().setLogString("Mounting file systems...");
-
-        RZVirtualFileSystem::Get().mount("Project", m_AppFilePath);
-
-        RZVirtualFileSystem::Get().mount("Assets", m_AppFilePath + std::string("Assets"));
-        RZVirtualFileSystem::Get().mount("Meshes", m_AppFilePath + std::string("Assets/Meshes"));
-        RZVirtualFileSystem::Get().mount("Scenes", m_AppFilePath + std::string("Assets/Scenes"));
-        RZVirtualFileSystem::Get().mount("Scripts", m_AppFilePath + std::string("Assets/Scripts"));
-        RZVirtualFileSystem::Get().mount("Sounds", m_AppFilePath + std::string("Assets/Sounds"));
-        RZVirtualFileSystem::Get().mount("Textures", m_AppFilePath + std::string("Assets/Textures"));
     }
 
     void RZApplication::Init()
@@ -96,6 +79,22 @@ namespace Razix {
             std::string projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
             AppStream.open(projectFullPath, std::ifstream::in);
         }
+
+        // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labor work)
+        // First the default sandbox or sample project is loaded that is provided by the engine that resides with the engine
+        // Next it checks the command line for the project file directory
+        // Project root directory
+        RAZIX_CORE_TRACE("Mounting file systems... for Project at : {0}", m_AppFilePath);
+        Razix::RZSplashScreen::Get().setLogString("Mounting file systems...");
+
+        RZVirtualFileSystem::Get().mount("Project", m_AppFilePath);
+
+        RZVirtualFileSystem::Get().mount("Assets", m_AppFilePath + std::string("Assets"));
+        RZVirtualFileSystem::Get().mount("Meshes", m_AppFilePath + std::string("Assets/Meshes"));
+        RZVirtualFileSystem::Get().mount("Scenes", m_AppFilePath + std::string("Assets/Scenes"));
+        RZVirtualFileSystem::Get().mount("Scripts", m_AppFilePath + std::string("Assets/Scripts"));
+        RZVirtualFileSystem::Get().mount("Sounds", m_AppFilePath + std::string("Assets/Sounds"));
+        RZVirtualFileSystem::Get().mount("Textures", m_AppFilePath + std::string("Assets/Textures"));
 
         // Check the command line arguments for the rendering api
         if (RZEngine::Get().commandLineParser.isSet("rendering api"))
@@ -257,8 +256,6 @@ namespace Razix {
 
         Start();
 
-        albedoTexture = Graphics::RZTexture2D::CreateFromFile("//Textures/Avocado_baseColor.png", "Albedo", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
-        albedoTexture->generateDescriptorSet();
         while (RenderFrame()) {}
         Quit();
         SaveApp();
@@ -503,9 +500,6 @@ namespace Razix {
 
     void RZApplication::Quit()
     {
-        albedoTexture->getDescriptorSet()->Destroy();
-        albedoTexture->Release(true);
-
         Razix::RZEngine::Get().getRenderStack().Destroy();
 
         // Client side quit customization
