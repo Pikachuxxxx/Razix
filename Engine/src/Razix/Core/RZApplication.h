@@ -131,6 +131,8 @@ namespace Razix {
         void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
         HWND getViewportHWND() { return viewportHWND; }
 
+        void setProjectRoot(const std::string& projPath) { m_AppFilePath = projPath; }
+
         void setGuzimoForEntity(RZEntity& entity) { m_GuizmoEntity = entity; }
 
         inline AppType getAppType() { return m_appType; }
@@ -221,7 +223,6 @@ namespace Razix {
         WindowProperties           m_WindowProperties;                 /* The properties of the window to create with              */
         RZUUID                     m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
         std::vector<std::string>   sceneFilePaths;
-        Graphics::RZTexture2D*     albedoTexture;
         RZEntity                   m_GuizmoEntity;
 
     private:

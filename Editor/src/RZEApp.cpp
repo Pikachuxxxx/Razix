@@ -37,7 +37,7 @@ class RazixEditorApp : public Razix::RZApplication
 public:
     // TODO: In future we will pass multiple native window handles (for multiple viewports, debug rendering, content viewers etc) for now only a single viewport is sufficient
     RazixEditorApp()
-        : RZApplication("/Sandbox/", "Razix Editor")
+        : RZApplication(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/"), "Razix Editor")
     {
         // Show the Editor Application after the engine static initialization is complete
 

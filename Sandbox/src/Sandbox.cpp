@@ -17,7 +17,7 @@ private:
     }viewProjUBOData;
 
 public:
-    Sandbox() : RZApplication("/Sandbox/","Sandbox"), m_ActiveScene("Sandbox")
+    Sandbox() : RZApplication(RAZIX_ENGINE_ROOT_DIR + "/Sandbox/","Sandbox"), m_ActiveScene("Sandbox")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing

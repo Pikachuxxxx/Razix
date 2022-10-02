@@ -21,7 +21,8 @@
     <OutputPath>..\..\..\..\..\bin\Debug-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Debug-windows-x86_64\obj\Debug\Atf.Gui\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>..\..\..\..\..\bin\Release-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Release-windows-x86_64\obj\Release\Atf.Gui\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -45,7 +47,8 @@
     <OutputPath>..\..\..\..\..\bin\Distribution-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Distribution-windows-x86_64\obj\Distribution\Atf.Gui\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -96,7 +99,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Applications\ApplicationUtil.cs" />
-    <Compile Include="Applications\CanvasPrintDocument.cs" />
+    <Compile Include="Applications\CanvasPrintDocument.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Applications\CommandCount.cs" />
     <Compile Include="Applications\CommandHistory.cs" />
     <Compile Include="Applications\CommandId.cs" />
@@ -193,7 +198,9 @@
     <Compile Include="Applications\StandardSelectionCommands.cs" />
     <Compile Include="Applications\StandardShowCommands.cs" />
     <Compile Include="Applications\StandardViewCommands.cs" />
-    <Compile Include="Applications\TextPrintDocument.cs" />
+    <Compile Include="Applications\TextPrintDocument.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Applications\ThumbnailReadyEventArgs.cs" />
     <Compile Include="Applications\VersionControl\ISourceControlContext.cs" />
     <Compile Include="Applications\VersionControl\ISourceControlService.cs" />
