@@ -17,21 +17,20 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Support for OpenGL, Vulkan DirectX 11, GXM, GCM & GNM.
 - 3D audio using OpenAL.
 - Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
-- Level Editor & tools built using **[Sony WWS ATF](https://github.com/SonyWWS/ATF).**
+- Level Editor & tools built using QT
 - Multi Physics engine support.
-- 3D physics using PhysX, Bullet and Jolt.
+- 3D physics using Bullet and Jolt.
 - 2D physic using Box2D.
 - Basic lua scripting support for entities.
 - Extremely detailed profiling using Tracy, RenderDoc and Razor integrated deep into the engine systems.
 - Custom Animation and state machine engine
-- Supports GLSL, HLSL and PSSL shading languages to create custom materials
-- Supports Hull, Domain, Geometry, Compute shaders for all Platforms
+- Supports GLSL, HLSL shading languages to create custom materials + Custom Raziz Shaders files for easy compilation
 - Asset streaming pipeline and custom asset format
 - Future support for Falcor and Render Graph Editor
 - Data drive pipeline architecture
 - Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
-                                                                                                          
-                                                                                                          
+
+
 # Tools
 Razix also provides a rich set of GUI and Commmand Line [**Tools**](https://github.com/Pikachuxxxx/Razix/tree/master/Tools) along with the Editor for various purposes such as
 - [**Razix Code Editor**](https://github.com/Pikachuxxxx/RazixCodeEditor) - Shaders and Scripts code editor for Razix Engine
@@ -50,6 +49,9 @@ Razix also provides a rich set of GUI and Commmand Line [**Tools**](https://gith
 More information will be update on creating PRs and other ways to contribute to Razix Engine.
 ### Style Guide
 Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
+
+# Screenshots/Demos
+![Editor](./Branding/DemoImages/ReleaseNotes/Razix_editoDemo_Forward.png)
 
 # Architecture
 
