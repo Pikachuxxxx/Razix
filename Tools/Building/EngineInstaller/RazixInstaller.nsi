@@ -12,6 +12,7 @@
     Name "Razix Engine"
     OutFile "RazixEngineInstaller-V.0.3.0.Dev.exe"
     Unicode True
+    ShowInstDetails show
 
     ;Default installation folder
     InstallDir "$PROGRAMFILES64\Razix"
@@ -57,6 +58,7 @@ Section "Razix Engine Components" EngineInstallSec
     SetOutPath $INSTDIR
 
     FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Razix.dll"
+    SetOutPath $INSTDIR
     FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\RazixEditor.exe"
     FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Core.dll"
     FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Gui.dll"
@@ -70,6 +72,7 @@ Section "Razix Engine Components" EngineInstallSec
     FileOpen $0 "$INSTDIR\Engine\content\config\razix_engine.config" w
     FileWrite $0 "installation_dir=$INSTDIR"
     FileClose $0
+    SetOutPath $INSTDIR
 
     ;Create uninstaller
     WriteUninstaller "$INSTDIR\Razix Uninstaller.exe"
