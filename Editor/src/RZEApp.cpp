@@ -21,6 +21,7 @@
 
 #include <vulkan/vulkan.h>
 
+// TOOD: Clean this cluster fuck code!!!
 static QApplication*                    qrzeditorApp = nullptr;
 Razix::Editor::RZEMainWindow*           mainWindow;
 Razix::Editor::RZEVulkanWindow*         vulkanWindow;
@@ -51,8 +52,6 @@ public:
         Razix::Editor::RZENativeWindow::Construct();
         Razix::RZApplication::setViewportWindow(vulkanWindow->getRZNativeWindow() /*Razix::RZWindow::Create(&hWnd, properties)*/ /* TODO: Create the window by taking it from vulkanWindow and binding the event callbacks so update the properties properly */);
         Razix::RZApplication::Get().setViewportHWND(hWnd);
-
-        auto h = vulkanWindow->height();
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------
