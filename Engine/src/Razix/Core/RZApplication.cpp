@@ -40,7 +40,7 @@
 
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
-     
+
     // Editor-Graphics API Resize primitives won't make into final game so not an issues as of now!!!
     bool                    RZApplication::ready_for_execution = false;
     std::mutex              RZApplication::m;
@@ -405,27 +405,12 @@ namespace Razix {
 
         OnImGui();
 
-        //ImGui::ShowDemoWindow();
-        //if (ImGui::Begin("Razix Engine")) {
-        //    ImGui::Text("Indeed it is!");
-        //
-        //    ImGui::Image((void*) albedoTexture->getDescriptorSet(), ImVec2(50, 50));
-        //    ImGui::SameLine();
-        //    static bool some;
-        //    if (ImGui::Checkbox("Test", &some)) {
-        //        RAZIX_CORE_ERROR("Done!");
-        //    }
-        //    ImGui::Separator();
-        //}
-        //ImGui::End();
-
         // Guizmo Controls for an Entity
-        if (m_GuizmoEntity.entity() != entt::null)
-        {
+        if (m_GuizmoEntity.entity() != entt::null) {
             auto           currentScene = RZEngine::Get().getSceneManager().getCurrentScene();
             auto&          registry     = currentScene->getRegistry();
             auto           cameraView   = registry.view<CameraComponent>();
-            RZSceneCamera* cam = nullptr;
+            RZSceneCamera* cam          = nullptr;
             if (!cameraView.empty()) {
                 // By using front we get the one and only or the first one in the list of camera entities
                 cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
@@ -446,54 +431,68 @@ namespace Razix {
             tc.Scale       = glm::vec3(matrixScale[0], matrixScale[1], matrixScale[2]);
         }
 
+        ImGui::SetNextWindowBgAlpha(0.1f);    // Transparent background
+        ImGui::Begin("Icons Test");
+        {
+            ImGui::Text(ICON_FA_PAINT_BRUSH "  Paint");    // use string literal concatenation
+            ImGui::Button(ICON_FA_WATER);
+
+            ImGui::Button(ICON_FA_CAMERA);
+        }
+        ImGui::End();
+
         // TODO: As for Icons of the components or any other entities we will get them using the entt
         // Get their position in the worldspace and check it against the camera frustum and
         // convert it to world space and render a non-clickable ImGui::Button with the FontIcon as image
 
-        ImFont* font = ImGui::GetFont();
-        font->Scale  = 0.90f;
-        ImGui::PushFont(font);
-
-        // Engine stats
-        ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-        const float          DISTANCE         = 10.0f;
-        const ImGuiViewport* viewport         = ImGui::GetMainViewport();
-        ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
-        ImVec2               work_area_size   = viewport->WorkSize;
-        ImVec2               window_pos       = ImVec2((1 & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (1 & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
-        ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
-        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::SetNextWindowBgAlpha(0.35f);    // Transparent background
-
-        ImGui::Begin("Engine Stats", 0, window_flags);
+        // Engine Stats
         {
-            auto& stats = RZEngine::Get().GetStatistics();
-            ImGui::Text("Engine Stats");
-            ImGui::Indent();
-            ImGui::Text("FPS                    : %.4d", stats.FramesPerSecond);
-            ImGui::Text("render time            : %0.2f ms", stats.DeltaTime);
-            ImGui::Text("grid pass              : %0.2f ms", stats.GridPass);
-            ImGui::Text("forward lighting pass  : %0.2f ms", stats.ForwardLightingPass);
-            ImGui::Text("imgui pass             : %0.2f ms", stats.ImGuiPass);
+            ImFont* font = ImGui::GetFont();
+            font->Scale  = 0.90f;
+            ImGui::PushFont(font);
 
-            ImGui::Separator();
-            ImGui::Text("API calls");
+            // Engine stats
+            ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+            const float          DISTANCE         = 10.0f;
+            const ImGuiViewport* viewport         = ImGui::GetMainViewport();
+            ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
+            ImVec2               work_area_size   = viewport->WorkSize;
+            ImVec2               window_pos       = ImVec2((1 & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (1 & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
+            ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
+            ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+            ImGui::SetNextWindowViewport(viewport->ID);
+            ImGui::SetNextWindowBgAlpha(0.35f);    // Transparent background
 
-            ImGui::Text("Total Draw calls           : %d", stats.NumDrawCalls);
-            ImGui::Indent();
-            ImGui::BulletText("Draws                : %d", stats.Draws);
-            ImGui::BulletText("Indexed Draws        : %d", stats.IndexedDraws);
-            ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
+            ImGui::Begin("Engine Stats", 0, window_flags);
+            {
+                auto& stats = RZEngine::Get().GetStatistics();
+                ImGui::Text("Engine Stats");
+                ImGui::Indent();
+                // TODO: Add Average timings (CPU + GPU) and avg FPS
+                ImGui::Text("FPS                    : %.4d", stats.FramesPerSecond);
+                ImGui::Text("render time            : %0.2f ms", stats.DeltaTime);
+                ImGui::Text("grid pass              : %0.2f ms", stats.GridPass);
+                ImGui::Text("forward lighting pass  : %0.2f ms", stats.ForwardLightingPass);
+                ImGui::Text("imgui pass             : %0.2f ms", stats.ImGuiPass);
 
-            ImGui::Unindent();
-            ImGui::Unindent();
+                ImGui::Separator();
+                ImGui::Text("API calls");
+
+                ImGui::Text("Total Draw calls           : %d", stats.NumDrawCalls);
+                ImGui::Indent();
+                ImGui::BulletText("Draws                : %d", stats.Draws);
+                ImGui::BulletText("Indexed Draws        : %d", stats.IndexedDraws);
+                ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
+
+                ImGui::Unindent();
+                ImGui::Unindent();
+            }
+            ImGui::End();
+
+            ImGui::PopFont();
+            font        = ImGui::GetFont();
+            font->Scale = 1.0f;
         }
-        ImGui::End();
-
-        ImGui::PopFont();
-        font        = ImGui::GetFont();
-        font->Scale = 1.0f;
 
         ImGui::Render();
     }

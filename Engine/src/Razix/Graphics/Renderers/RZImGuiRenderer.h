@@ -2,6 +2,8 @@
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
 
+#include <imgui/plugins/IconsFontAwesome5.h>
+
 #include <glm/glm.hpp>
 
 namespace Razix {
