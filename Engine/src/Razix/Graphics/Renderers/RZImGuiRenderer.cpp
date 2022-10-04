@@ -34,7 +34,7 @@
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include <plugins/ImGuizmo.h>
+#include <imgui/plugins/ImGuizmo.h>
 
 namespace Razix {
     namespace Graphics {
@@ -82,11 +82,38 @@ namespace Razix {
             style.Colors[ImGuiCol_ButtonHovered]    = ImVec4(1.0f, 0.43f, 0.0f, 0.6f);
             style.Colors[ImGuiCol_ButtonActive]     = ImVec4(1.0f, 0.43f, 0.0f, 0.8f);
 
+            io.Fonts->AddFontDefault();
             // Upload the fonts to the GPU
-            uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
+            //uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
             auto& setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
+            //for (auto& setInfo: setInfos) {
+            //    // Fill the descriptors with buffers and textures
+            //    for (auto& descriptor: setInfo.second) {
+            //        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+            //            descriptor.texture = m_FontAtlasTexture;
+            //    }
+            //    m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second);
+            //}
+
+            // Add icon fonts to ImGui
+            // merge in icons from Font Awesome
+            static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+            ImFontConfig         icons_config;
+            icons_config.MergeMode  = true;
+            icons_config.PixelSnapH = true;
+            std::string trueFontPath;
+            RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/Fonts/" + std::string(FONT_ICON_FILE_NAME_FAS), trueFontPath);
+            io.Fonts->AddFontFromFileTTF(trueFontPath.c_str(), 16.0f, &icons_config, icons_ranges);
+
+            unsigned char* fontData;
+            int            texWidth, texHeight;
+            io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+            //size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
+
+            m_FontAtlasTexture = RZTexture2D::Create("Awesome Font Icon Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
+
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
@@ -96,10 +123,13 @@ namespace Razix {
                 m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second);
             }
 
+            io.Fonts->Build();
+
             ImFontAtlas* atlas = io.Fonts;
             // As ocornut mentioned we pass an engine abstracted object and bind it when doing stuff ourselves
-            ImTextureID set = m_FontAtlasDescriptorSet;
-            atlas->SetTexID(set);
+            ImTextureID set_2 = m_FontAtlasDescriptorSet;
+            atlas[0].SetTexID(set_2);
+
 
             InitDisposableResources();
 
@@ -333,8 +363,6 @@ namespace Razix {
 
             // Bind the pipeline and descriptor sets
             m_Pipeline->Bind(cmdBuffer);
-
-            RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuffer, &m_FontAtlasDescriptorSet, 1);
 
             // Update the push constants
             pushConstBlock.scale     = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
