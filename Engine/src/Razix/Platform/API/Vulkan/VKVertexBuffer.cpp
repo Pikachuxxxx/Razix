@@ -9,8 +9,8 @@
 namespace Razix {
     namespace Graphics {
 
-        VKVertexBuffer::VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage, const std::string& name)
-            : VKBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data, name)
+        VKVertexBuffer::VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
+            : VKBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data RZ_DEBUG_E_ARG_NAME)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -45,12 +45,12 @@ namespace Razix {
             VKBuffer::setData(size, data);
         }
 
-        void VKVertexBuffer::Resize(uint32_t size, const void* data)
+        void VKVertexBuffer::Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             Destroy();
-            VKBuffer::resize(size, data, "Add a name here stupid");
+            VKBuffer::resize(size, data RZ_DEBUG_E_ARG_NAME);
         }
 
         void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout) {}

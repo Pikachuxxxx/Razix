@@ -14,7 +14,7 @@ namespace Razix {
         {
         public:
             /* Creates a Vulkan render pass object with the given information */
-            VKRenderPass(const RenderPassInfo& renderPassInfo);
+            VKRenderPass(const RenderPassInfo& renderPassInfo RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKRenderPass();
 
             /* Begins the Vulkan render pass */
@@ -26,7 +26,7 @@ namespace Razix {
 
             void Destroy() override;
 
-            bool                       init(const RenderPassInfo& renderpassInfo);
+            bool                       init(const RenderPassInfo& renderpassInfo RZ_DEBUG_NAME_TAG_E_ARG);
             VkAttachmentDescription    getAttachmentDescription(AttachmentInfo info, bool clear = true);
             inline const VkRenderPass& getVKRenderPass() const { return m_RenderPass; }
 

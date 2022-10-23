@@ -16,13 +16,13 @@
 namespace Razix {
     namespace Graphics {
 
-        RZFramebuffer* RZFramebuffer::Create(const FramebufferInfo& frameBufInfo)
+        RZFramebuffer* RZFramebuffer::Create(const FramebufferInfo& frameBufInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLFrameBuffer(frameBufInfo); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKFramebuffer(frameBufInfo); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKFramebuffer(frameBufInfo RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

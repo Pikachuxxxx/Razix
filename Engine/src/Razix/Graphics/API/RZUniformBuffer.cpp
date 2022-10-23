@@ -11,13 +11,13 @@
 namespace Razix {
     namespace Graphics {
 
-        RZUniformBuffer* RZUniformBuffer::Create(uint32_t size, const void* data, const std::string& name)
+        RZUniformBuffer* RZUniformBuffer::Create(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLUniformBuffer(size, data, name); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKUniformBuffer(size, data, name); break;
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLUniformBuffer(size, data); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKUniformBuffer(size, data RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

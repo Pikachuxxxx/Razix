@@ -29,7 +29,7 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode NAME_TAG);
+            VKTexture2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
             /**
              * Creates a 2D Vulkan texture
              * 
@@ -38,7 +38,7 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode NAME_TAG);
+            VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
             /**
              * Creates a TRXTexture2D from the given image and it's view
              * @brief Used by swapchain and render passes to create their own texture resources
@@ -63,7 +63,7 @@ namespace Razix {
              * @param image The reference to the image to be created
              * @param imageMemory The reference to the image memory to created and will be bound to
              */
-            static void CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags NAME_TAG);
+            static void CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
 
             static void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
@@ -78,7 +78,7 @@ namespace Razix {
              * @param layerCount The layers of image views usually 1 unless stereoscopic 3D is used
              * @param baseArrayLayer used if sterescopic3D is used to identify the layer of image to create the image view for
              */
-            static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0 NAME_TAG = "someImageView! NAME IT !!! LAZY ASS MF#$");
+            static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG( = "someImageView! NAME IT !!! LAZY ASS MF#$"));
 
             /**
              * Creates a sampler to sampler the image in shader pipeline stage
@@ -93,7 +93,7 @@ namespace Razix {
              * @param modeV Texel V coordinate wrap mode
              * @param modeW Texel W coordinate wrap mode
              */
-            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE NAME_TAG = "someImageSampler! NAME IT !!! LAZY ASS MF#$");
+            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG( = "someImageSampler! NAME IT !!! LAZY ASS MF#$"));
 
             /* Binds the texture object to the given slot */
             void Bind(uint32_t slot) override {}
@@ -141,7 +141,7 @@ namespace Razix {
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
-            bool load(NAME_TAG_F);
+            bool load(RZ_DEBUG_NAME_TAG_S_ARG);
         };
 
         //-----------------------------------------------------------------------------------
@@ -181,11 +181,11 @@ namespace Razix {
         {
         public:
             VKRenderTexture(
-                uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {} NAME_TAG = "some RenderTExture! NAME IT !!! LAZY ASS MF#$");
+                uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG( = "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
             VKRenderTexture(VkImage image, VkImageView imageView);
             ~VKRenderTexture() {}
 
-            void  Resize(uint32_t width, uint32_t height NAME_TAG) override;
+            void  Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) override;
             void  Release(bool deleteImage = true) override;
             void  Bind(uint32_t slot) override;
             void  Unbind(uint32_t slot) override;
@@ -204,7 +204,7 @@ namespace Razix {
 
         private:
             /* recreates the render texture */
-            void init(NAME_TAG_F);
+            void init(RZ_DEBUG_NAME_TAG_S_ARG);
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
             void updateDescriptor();
         };

@@ -12,7 +12,7 @@ namespace Razix {
         class VKFramebuffer : public RZFramebuffer
         {
         public:
-            VKFramebuffer(const FramebufferInfo& frameBufInfo);
+            VKFramebuffer(const FramebufferInfo& frameBufInfo RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKFramebuffer();
 
             void Destroy() override;

@@ -177,7 +177,7 @@ namespace Razix {
             shader->Bind();
 
             // now use the push constant to create uniform buffer and bind it
-            OpenGLUniformBuffer ubo(pushConstant.size, pushConstant.data, pushConstant.name);
+            OpenGLUniformBuffer ubo(pushConstant.size, pushConstant.data);
             ubo.Bind();
             ubo.SetData(pushConstant.size, pushConstant.data);
 

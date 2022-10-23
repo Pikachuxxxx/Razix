@@ -23,7 +23,7 @@ namespace Razix {
             Reset();
         }
 
-        void VKCommandBuffer::Init(NAME_TAG_F)
+        void VKCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 

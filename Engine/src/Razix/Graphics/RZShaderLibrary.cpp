@@ -46,7 +46,7 @@ namespace Razix {
 
         void RZShaderLibrary::loadShader(std::string shaderPath)
         {
-            RZShader* shader = RZShader::Create(shaderPath);
+            RZShader* shader = RZShader::Create(shaderPath RZ_DEBUG_NAME_TAG_STR_E_ARG(shaderPath));
             m_Shaders.push_back(shader);
         }
 

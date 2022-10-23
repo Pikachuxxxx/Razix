@@ -17,7 +17,7 @@ namespace Razix {
             m_UVs = GetDefaultUVs();
 
             // Load the shaders before hand
-            m_SpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf");
+            m_SpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite.rzsf"));
 
             // Create the vertex buffer and index buffer
             createBuffers();
@@ -30,7 +30,7 @@ namespace Razix {
         {
             m_IsTextured           = true;
             m_UVs                  = GetDefaultUVs();
-            m_TexturedSpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite_textured.rzsf");
+            m_TexturedSpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite_textured.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("sprite_textured.rzsf"));
 
             // Create the vertex buffer and index buffer
             createBuffers();
@@ -44,7 +44,7 @@ namespace Razix {
             m_UVs = GetDefaultUVs();
 
             // Load the shaders before hand
-            m_SpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf");
+            m_SpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("sprite.rzsf"));
 
             // Create the vertex buffer and index buffer
             createBuffers();
@@ -189,7 +189,7 @@ namespace Razix {
                 0, 1, 2, 2, 3, 0};
 
             // Create the vertex buffer
-            m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::DYNAMIC, "Sprite");
+            m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite"));
             RZVertexBufferLayout layout;
             layout.push<glm::vec4>("Position");
             layout.push<glm::vec4>("Color");
@@ -197,7 +197,7 @@ namespace Razix {
             m_VBO->AddBufferLayout(layout);
 
             // Create the index buffer
-            m_IBO = RZIndexBuffer::Create(indices, 6, "Sprite", BufferUsage::STATIC);
+            m_IBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sprite") indices, 6, BufferUsage::STATIC);
         }
 
         void RZSprite::updateVertexData()
@@ -255,7 +255,7 @@ namespace Razix {
                             if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                                 descriptor.texture = m_Texture;
                         }
-                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second, __FUNCTION__);
+                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(__FUNCTION__));
                         m_TexturedSpriteDescriptorSets.push_back(descSet);
                     }
                 }

@@ -43,10 +43,10 @@ namespace Razix {
 
             // Create the uniform buffers
             // 1. Create the View Projection UBOs
-            m_ViewProjectionSystemUBO = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionSystemUBOData), &m_ViewProjSystemUBOData, "System_ViewProjUBO");
+            m_ViewProjectionSystemUBO = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionSystemUBOData), &m_ViewProjSystemUBOData RZ_DEBUG_NAME_TAG_STR_E_ARG("System_ViewProjUBO"));
 
             // 2. Create the Grid related UBO and data
-            m_GridUBO = Graphics::RZUniformBuffer::Create(sizeof(GridUBOData), &m_GridUBOData, "Grid Data");
+            m_GridUBO = Graphics::RZUniformBuffer::Create(sizeof(GridUBOData), &m_GridUBOData RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid Data"));
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
@@ -61,7 +61,7 @@ namespace Razix {
                         descriptor.uniformBuffer = m_GridUBO;
                     j++;
                 }
-                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second, "Grid Renderer Set");
+                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid Renderer Set"));
                 m_DescriptorSets.push_back(descSet);
             }
 
@@ -76,14 +76,14 @@ namespace Razix {
             bufferLayout.push<glm::vec3>("Position");
             bufferLayout.push<glm::vec2>("TexCoord");
 
-            gridVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 8 * 4, vertices, Graphics::BufferUsage::STATIC, "Grid VBO");
+            gridVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 8 * 4, vertices, Graphics::BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid VBO"));
             gridVBO->AddBufferLayout(bufferLayout);
-            gridIBO = Graphics::RZIndexBuffer::Create(indices, 6, "Grid IBO");
+            gridIBO = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Grid IBO") indices, 6);
 
             // TODO: This is also to be moved to the renderer static initialization
             for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(NAME_TAG_STR ("Grid Renderer Main Command Buffers"));
+                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Grid Renderer Main Command Buffers"));
             }
         }
 
@@ -96,10 +96,10 @@ namespace Razix {
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = 2;
-            renderPassInfo.attachmentInfos     = textureTypes;
+            renderPassInfo.attachmentInfos = textureTypes;
             renderPassInfo.name            = "Grid rendering";
 
-            m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
+            m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid Pass"));
 
             // Create the graphics pipeline
             Graphics::PipelineInfo pipelineInfo{};
@@ -110,7 +110,7 @@ namespace Razix {
             pipelineInfo.shader              = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled = true;
 
-            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
+            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid Pipeline"));
 
             // Framebuffer (we need on per frame ==> 3 in total)
             // Create the framebuffer
@@ -134,7 +134,7 @@ namespace Razix {
                 frameBufInfo.renderPass      = m_RenderPass;
                 frameBufInfo.attachments     = attachments;
 
-                m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
+                m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid Renderer FB")));
             }
         }
 
@@ -227,7 +227,7 @@ namespace Razix {
 
             float now = m_RendererTimer.GetElapsedS();
             m_PassTimer.Update(now);
-            RZEngine::Get().GetStatistics().GridPass =  abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
+            RZEngine::Get().GetStatistics().GridPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
 
             //Graphics::RZAPIRenderer::SubmitWork();
             //Graphics::RZAPIRenderer::Present();

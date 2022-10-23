@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZSmartPointers.h"
+#include "Razix/Core/RZDebugConfig.h"
 
 namespace Razix {
     namespace Graphics {
@@ -56,7 +57,7 @@ namespace Razix {
             RZPipeline() = default;
             virtual ~RZPipeline() {}
 
-            static RZPipeline* Create(const PipelineInfo& pipelineInfo);
+            static RZPipeline* Create(const PipelineInfo& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
 
             virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
             virtual void Destroy()                            = 0;
