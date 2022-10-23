@@ -23,9 +23,9 @@ namespace Razix {
             // well the type of UBO data to create depends on the shader since the pre-made shader reflection info for mat properties has to be stored somewhere
             // we store the types in the header file and use the preset to create the UBO with apt data
             if (s_MatPreset == MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING)
-                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PhongMaterialProperties), &m_PhongMaterialProperties, "Material Properties UBO (Phong)");
+                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PhongMaterialProperties), &m_PhongMaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO (Phong)"));
             else if (s_MatPreset == MaterialPreset::MAT_PRESET_DEFERRED_PBR)
-                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_PBRMaterialProperties, "Material Properties UBO (PBR)");
+                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_PBRMaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO (PBR)"));
         }
 
         void RZMaterial::Destroy()
@@ -43,7 +43,7 @@ namespace Razix {
         void RZMaterial::InitDefaultTexture()
         {
             uint32_t pinkTextureData = 0xff00ffff;
-            s_DefaultTexture         = Graphics::RZTexture2D::CreateFromFile("Default Texture", "//Textures/TestGrid_256.png", "DefaultTexture", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+            s_DefaultTexture         = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "//Textures/TestGrid_256.png", "DefaultTexture", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
         }
 
         void RZMaterial::ReleaseDefaultTexture()
@@ -75,7 +75,7 @@ namespace Razix {
                             descriptor.uniformBuffer = m_MaterialPropertiesUBO;
                         }
                     }
-                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second, "BINDING_SET_USER_MAT_PROPS"));
+                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_PROPS")));
                 } else if (setInfo.first == MatBindingTable_System::BINDING_SET_USER_MAT_SAMPLERS) {
                     for (auto& descriptor: setInfo.second) {
                         // Choose the mat textures based on the workflow & preset
@@ -112,11 +112,11 @@ namespace Razix {
                                 descriptor.texture = m_PBRMaterialTextures.emissive ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
                         }
                     }
-                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second, "BINDING_SET_USER_MAT_SAMPLERS"));
+                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_SAMPLERS")));
                 }
                 // This holds the descriptor sets for the material Properties and Samplers
                 // Now each mesh will have a material instance so each have their own sets so not a problem
-                // TODO: Make sure the material instances similar to unreal exist with different Desc Sets for mat props buth with same shader instance, Simple Solution: Use a shader library to load the same shader, ofc we give the shader so that's possible
+                // TODO: Make sure the material instances similar to unreal exist with different Desc Sets for mat props both with same shader instance, Simple Solution: Use a shader library to load the same shader, ofcourse we give the shader so that's possible
             }
         }
 

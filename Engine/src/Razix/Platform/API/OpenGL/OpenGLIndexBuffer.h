@@ -13,7 +13,7 @@ namespace Razix {
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;
             void Unbind() override;
             void Destroy() override {}
-            void Resize(uint32_t size, const void* data) override;
+            void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
 
             void Map(uint32_t size = 0, uint32_t offset = 0) override;
 

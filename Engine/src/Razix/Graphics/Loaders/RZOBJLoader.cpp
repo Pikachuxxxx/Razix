@@ -31,7 +31,7 @@ namespace Razix {
             }
 
             {    // If texture hasn't been loaded already, load it
-                auto texture = Graphics::RZTexture2D::CreateFromFile(name, directory + "/" + name, typeName, RZTexture::Wrapping::CLAMP_TO_EDGE);
+                auto texture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(name) directory + "/" + name, typeName, RZTexture::Wrapping::CLAMP_TO_EDGE);
                 textures_loaded.push_back(texture);    // Store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 
                 return texture;
@@ -165,7 +165,7 @@ namespace Razix {
                 forwardRendererMaterial->createDescriptorSet();
 
                 // Create the meshes
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * numVertices, vertices, BufferUsage::STATIC, name);
+                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * numVertices, vertices, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(name));
                 // TODO: Add buffer layout from the shader
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec3>("Position");
@@ -175,7 +175,7 @@ namespace Razix {
                 layout.push<glm::vec3>("Tangent");
                 vb->AddBufferLayout(layout);
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, numIndices, name);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(name)  indices, numIndices);
 
                 RZMesh* mesh = new RZMesh(vb, ib, numVertices, numIndices);
                 mesh->setIndexCount(numIndices);

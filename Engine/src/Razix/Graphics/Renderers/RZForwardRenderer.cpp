@@ -45,10 +45,10 @@ namespace Razix {
 
             // Create the uniform buffers
             // 1. Create the View Projection UBOs
-            m_ViewProjectionSystemUBO = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionSystemUBOData), &m_ViewProjSystemUBOData, "System_ViewProjUBO");
+            m_ViewProjectionSystemUBO = Graphics::RZUniformBuffer::Create(sizeof(ViewProjectionSystemUBOData), &m_ViewProjSystemUBOData RZ_DEBUG_NAME_TAG_STR_E_ARG("System_ViewProjUBO"));
 
             // 2. Lighting data
-            m_ForwardLightUBO = Graphics::RZUniformBuffer::Create(sizeof(ForwardLightData), &m_ForwardLightData, "Forward Renderer Light Data");
+            m_ForwardLightUBO = Graphics::RZUniformBuffer::Create(sizeof(ForwardLightData), &m_ForwardLightData RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Renderer Light Data"));
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
@@ -58,11 +58,11 @@ namespace Razix {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                         if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
                             descriptor.uniformBuffer = m_ViewProjectionSystemUBO;
-                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second, "BINDING_SET_SYSTEM_VIEW_PROJECTION");
+                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_VIEW_PROJECTION"));
                             m_DescriptorSets.push_back(descSet);
                         } else if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_FORWARD_LIGHTING) {
                             descriptor.uniformBuffer = m_ForwardLightUBO;
-                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second, "BINDING_SET_SYSTEM_FORWARD_LIGHTING");
+                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_FORWARD_LIGHTING"));
                             m_DescriptorSets.push_back(descSet);
                         }
                     }
@@ -74,7 +74,7 @@ namespace Razix {
             // TODO: This is also to be moved to the renderer static initialization
             for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(NAME_TAG_STR("Forward Renderer Main Command Buffers"));
+                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Forward Renderer Main Command Buffers"));
             }
         }
 
@@ -92,7 +92,7 @@ namespace Razix {
             renderPassInfo.attachmentInfos = textureTypes;
             renderPassInfo.name            = "Forward rendering";
 
-            m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo);
+            m_RenderPass = Graphics::RZRenderPass::Create(renderPassInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Pass"));
 
             // Create the graphics pipeline
             Graphics::PipelineInfo pipelineInfo{};
@@ -104,7 +104,7 @@ namespace Razix {
             // This causes validation errors for some VK image formats that are not the typical color attachments
             pipelineInfo.transparencyEnabled = false;    // TODO: This should be configurable for each attachment in the renderpass
 
-            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo);
+            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Pipeline"));
 
             // Framebuffer (we need on per frame ==> 3 in total)
             // Create the framebuffer
@@ -114,7 +114,7 @@ namespace Razix {
             attachmentTypes[2] = Graphics::RZTexture::Type::DEPTH;
 
             auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
-            m_EntityIDsRT     = Graphics::RZRenderTexture::Create("Entity IDs RT", m_ScreenBufferWidth, m_ScreenBufferHeight, RZTexture::Format::R32_INT);
+            m_EntityIDsRT     = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG ("Entity IDs RT") m_ScreenBufferWidth, m_ScreenBufferHeight, RZTexture::Format::R32_INT);
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             m_Framebuffers.clear();
@@ -131,7 +131,7 @@ namespace Razix {
                 frameBufInfo.renderPass      = m_RenderPass;
                 frameBufInfo.attachments     = attachments;
 
-                m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
+                m_Framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Renderer FB")));
             }
         }
 
@@ -251,8 +251,8 @@ namespace Razix {
             for (auto entity: mesh_group) {
                 // Draw the mesh renderer components
                 const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
-                 
-                 // Bind push constants, VBO, IBO and draw
+
+                // Bind push constants, VBO, IBO and draw
                 glm::mat4 transform = mesh_trans.GetTransform();
 
                 // Get the shader from the Mesh Material later
@@ -276,7 +276,6 @@ namespace Razix {
                 std::vector<RZDescriptorSet*> MatSets   = mrc.Mesh->getMaterial()->getDescriptorSets();
                 SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
 
-                
                 Graphics::RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuf, SystemMat);
 
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
@@ -322,7 +321,7 @@ namespace Razix {
 
             // Destroy the resources first
             m_DepthTexture->Release(true);
-            m_EntityIDsRT->Resize(width, height, "Entity IDs RT Forward Renderer");
+            m_EntityIDsRT->Resize(width, height RZ_DEBUG_NAME_TAG_STR_E_ARG ("Entity IDs RT Forward Renderer"));
 
             for (auto frameBuf: m_Framebuffers)
                 frameBuf->Destroy();

@@ -52,7 +52,7 @@ namespace Razix {
              * 
              * @param filePath The Virtual/absolute path to the compiled binary shader file
              */
-            static RZShader* Create(const std::string& filePath);
+            static RZShader* Create(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
 
             virtual void Bind() const                                                                                     = 0;
             virtual void Unbind() const                                                                                   = 0;

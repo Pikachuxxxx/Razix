@@ -41,7 +41,7 @@ namespace Razix {
              * 
              * @returns The pointer to the API implementation of the Framebuffer class
              */
-            static RZFramebuffer* Create(const FramebufferInfo& frameBufInfo);
+            static RZFramebuffer* Create(const FramebufferInfo& frameBufInfo RZ_DEBUG_NAME_TAG_E_ARG);
 
             virtual void Bind() {}
             virtual void Unbind() {}

@@ -3,6 +3,8 @@
 #include "Razix/Core/RZRoot.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
 
+#include "Razix/Core/RZDebugConfig.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -22,7 +24,7 @@ namespace Razix {
              * 
              * @returns The pointer to the underlying API implementation
              */
-            static RZIndexBuffer* Create(uint16_t* data, uint32_t count, const std::string& name, BufferUsage bufferUsage = BufferUsage::STATIC);
+            static RZIndexBuffer* Create(RZ_DEBUG_NAME_TAG_F_ARG uint16_t* data, uint32_t count, BufferUsage bufferUsage = BufferUsage::STATIC);
 
             /* Binds the Index buffer to the pipeline and the command buffer that is recorded and binded with */
             virtual void Bind(RZCommandBuffer* commandBuffer = nullptr) = 0;
@@ -31,7 +33,7 @@ namespace Razix {
             /* Destroys the buffer and it's resources allocated by the underlying API */
             virtual void Destroy() = 0;
             /* Resizes the buffer with new data */
-            virtual void Resize(uint32_t size, const void* data) = 0;
+            virtual void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
 
             virtual void  Map(uint32_t size = 0, uint32_t offset = 0) = 0;
             virtual void  UnMap()                                     = 0;

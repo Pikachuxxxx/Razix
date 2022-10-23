@@ -75,7 +75,7 @@ namespace Razix {
                 data[3].TexCoords = glm::vec2(1.0f, 0.0f);
                 data[3].Normal    = normal;
 
-                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC, "Plane");
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("Plane"));
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec3>("Position");
                 layout.push<glm::vec4>("Color");
@@ -88,7 +88,7 @@ namespace Razix {
                 uint16_t indices[6]{
                     0, 1, 2, 2, 3, 0};
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 6, "Plane");
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Plane") indices, 6);
 
                 RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
 
@@ -217,12 +217,12 @@ namespace Razix {
                     data[i * 4 + 3].TexCoords = glm::vec2(0.0f, 1.0f);
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC, "Cube");
+                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG( "Cube"));
                 delete[] data;
 
                 uint16_t indices[36]{
                     0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices, 36, "Cube");
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Cube")  indices, 36);
 
                 RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
 
@@ -272,7 +272,7 @@ namespace Razix {
                     }
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC, "Sphere");
+                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("Sphere"));
 
                 std::vector<uint16_t> indices;
                 uint16_t              k1, k2;
@@ -298,7 +298,7 @@ namespace Razix {
                     }
                 }
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(indices.data(), static_cast<uint32_t>(indices.size()), "Sphere");
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sphere") indices.data(), static_cast<uint32_t>(indices.size()));
 
                 RZMesh* mesh = new RZMesh(vb, ib, data.size(), indices.size());
 

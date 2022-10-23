@@ -20,13 +20,13 @@
 namespace Razix {
     namespace Graphics {
 
-        RZShader* RZShader::Create(const std::string& filePath)
+        RZShader* RZShader::Create(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLShader(filePath); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKShader(filePath); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKShader(filePath RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

@@ -3,6 +3,7 @@
 #include "Razix/Core/RZRoot.h"
 
 #include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZDebugConfig.h"
 
 #include "Razix/Graphics/API/RZVertexBufferLayout.h"
 
@@ -33,7 +34,7 @@ namespace Razix {
              * @param usage The usage Description of the buffer
              * @returns Returns a RZVertexBuffer pointer to the underlying Graphics API implementation
              */
-            static RZVertexBuffer* Create(uint32_t size, const void* data, BufferUsage usage, const std::string& name);
+            static RZVertexBuffer* Create(uint32_t size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
 
             /**
              * Binds the given Vertex buffer to the graphics pipeline before a draw command is issued
@@ -46,7 +47,7 @@ namespace Razix {
             /* Sets the data with some offset */
             virtual void SetData(uint32_t size, const void* data) = 0;
             /* Resizes and sets the buffer with new data */
-            virtual void Resize(uint32_t size, const void* data) = 0;
+            virtual void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
             /* Sets the vertex buffer layout */
             virtual void AddBufferLayout(RZVertexBufferLayout& layout) = 0;
             /* Destroys the buffer and it's resources allocated by the underlying API */

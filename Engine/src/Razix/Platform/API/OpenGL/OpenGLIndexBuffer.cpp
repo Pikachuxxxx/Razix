@@ -48,7 +48,7 @@ namespace Razix {
             GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         }
 
-        void OpenGLIndexBuffer::Resize(uint32_t size, const void* data)
+        void OpenGLIndexBuffer::Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }

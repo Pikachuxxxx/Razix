@@ -241,10 +241,10 @@ namespace Razix {
                 }
 
                 // Create the vertex buffer to hold the vertex data of the mesh
-                Graphics::RZVertexBuffer* vb = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * vertex_count, tempvertices, BufferUsage::STATIC, name);
+                Graphics::RZVertexBuffer* vb = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * vertex_count, tempvertices, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(name));
 
                 // Create the Index buffer to hold the index data
-                Graphics::RZIndexBuffer* ib = Graphics::RZIndexBuffer::Create(indicesArray, numIndices, name);
+                Graphics::RZIndexBuffer* ib = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(name)  indicesArray, numIndices);
 
                 // TODO: Query and iterate through the materials and create mat+ texture resources
 

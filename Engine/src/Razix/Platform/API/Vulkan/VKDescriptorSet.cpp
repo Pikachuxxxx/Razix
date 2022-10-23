@@ -12,7 +12,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors NAME_TAG)
+        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
