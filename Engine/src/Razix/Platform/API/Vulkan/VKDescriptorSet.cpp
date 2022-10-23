@@ -12,7 +12,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors)
+        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors NAME_TAG)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -59,6 +59,8 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor sets!");
             else
                 RAZIX_CORE_TRACE("[Vulkan] Descriptor sets successfully created!");
+
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_DESCRIPTOR_SET, (uint64_t) m_DescriptorSet);
 
             m_BufferInfoPool         = new VkDescriptorBufferInfo[MAX_BUFFER_INFOS];
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_IMAGE_INFOS];

@@ -38,8 +38,8 @@ namespace Razix {
         {
             // FIXME: This shut down is called after Graphics is done so...do whatever the fuck is necessary
             // Destroy all the shaders
-            //for (RZShader* shader: m_Shaders)
-            //    shader->Destroy();
+            for (RZShader* shader: m_Shaders)
+                shader->Destroy();
 
             RAZIX_CORE_ERROR("[Shader Library] Shutting Down Shader Library");
         }

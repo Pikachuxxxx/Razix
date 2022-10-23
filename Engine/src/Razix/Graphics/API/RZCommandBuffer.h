@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/RZDebugConfig.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -26,7 +28,7 @@ namespace Razix {
             static RZCommandBuffer* Create();
 
             /* Initializes the command buffer and creates them */
-            virtual void Init() = 0;
+            virtual void Init(NAME_TAG_F) = 0;
             /* Starts the recording of the commands onto the command buffer */
             virtual void BeginRecording() = 0;
             /* Ends the command buffer recording */

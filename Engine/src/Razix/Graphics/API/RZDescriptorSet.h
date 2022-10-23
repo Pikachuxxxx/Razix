@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZDebugConfig.h"
 
 #include <map>
 
@@ -152,7 +153,7 @@ namespace Razix {
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors);
+            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors NAME_TAG);
 
             /* Updates the descriptor set with the given descriptors */
             virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;

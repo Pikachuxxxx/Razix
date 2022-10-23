@@ -15,8 +15,8 @@ namespace Razix {
             VKCommandBuffer();
             ~VKCommandBuffer();
 
-            void Init() override;
-            void Init(VkCommandPool cmdPool = VK_NULL_HANDLE);
+            void Init(NAME_TAG_F) override;
+            //void Init(VkCommandPool cmdPool = VK_NULL_HANDLE NAME_TAG);
             void BeginRecording() override;
             void EndRecording() override;
             void Execute() override;

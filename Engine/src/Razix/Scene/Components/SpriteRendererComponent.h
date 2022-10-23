@@ -31,7 +31,7 @@ namespace Razix {
             std::string texturePath;
             archive(cereal::make_nvp("TexturePath", texturePath));
             if (!texturePath.empty()) {
-                Graphics::RZTexture2D* texture = Graphics::RZTexture2D::CreateFromFile(texturePath, "sprite", Graphics::RZTexture2D::Wrapping::CLAMP_TO_EDGE);
+                Graphics::RZTexture2D* texture = Graphics::RZTexture2D::CreateFromFile(texturePath, texturePath, "sprite", Graphics::RZTexture2D::Wrapping::CLAMP_TO_EDGE);
                 Sprite                         = new Graphics::RZSprite(texture);
             } else {
                 glm::vec4 color;

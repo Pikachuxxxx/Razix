@@ -17,7 +17,7 @@ namespace Razix {
         class VKDescriptorSet : public RZDescriptorSet
         {
         public:
-            VKDescriptorSet(const std::vector<RZDescriptor>& descriptors);
+            VKDescriptorSet(const std::vector<RZDescriptor>& descriptors NAME_TAG);
 
             void UpdateSet(const std::vector<RZDescriptor>& descriptors) override;
             void Destroy() override;

@@ -28,10 +28,22 @@ namespace Razix {
                 m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_PBRMaterialProperties, "Material Properties UBO (PBR)");
         }
 
+        void RZMaterial::Destroy()
+        {
+            //m_Shader->Destroy();
+            for (auto& set: m_DescriptorSets)
+                set->Destroy();
+
+            m_PBRMaterialTextures.Destroy();
+            //m_PhongMaterialTextures.Destroy();
+
+            m_MaterialPropertiesUBO->Destroy();
+        }
+
         void RZMaterial::InitDefaultTexture()
         {
             uint32_t pinkTextureData = 0xff00ffff;
-            s_DefaultTexture         = Graphics::RZTexture2D::CreateFromFile("//Textures/TestGrid_256.png", "DefaultTexture", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+            s_DefaultTexture         = Graphics::RZTexture2D::CreateFromFile("Default Texture", "//Textures/TestGrid_256.png", "DefaultTexture", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
         }
 
         void RZMaterial::ReleaseDefaultTexture()
@@ -63,7 +75,7 @@ namespace Razix {
                             descriptor.uniformBuffer = m_MaterialPropertiesUBO;
                         }
                     }
-                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second));
+                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second, "BINDING_SET_USER_MAT_PROPS"));
                 } else if (setInfo.first == MatBindingTable_System::BINDING_SET_USER_MAT_SAMPLERS) {
                     for (auto& descriptor: setInfo.second) {
                         // Choose the mat textures based on the workflow & preset
@@ -100,7 +112,7 @@ namespace Razix {
                                 descriptor.texture = m_PBRMaterialTextures.emissive ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
                         }
                     }
-                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second));
+                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second, "BINDING_SET_USER_MAT_SAMPLERS"));
                 }
                 // This holds the descriptor sets for the material Properties and Samplers
                 // Now each mesh will have a material instance so each have their own sets so not a problem
@@ -153,7 +165,7 @@ namespace Razix {
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
             if (!m_DescriptorSets.size() || getTexturesUpdated()) {
-                for (auto& descset : m_DescriptorSets)
+                for (auto& descset: m_DescriptorSets)
                     descset->Destroy();
                 m_DescriptorSets.clear();
                 createDescriptorSet();
@@ -163,6 +175,34 @@ namespace Razix {
             // This possible if do something like Unity does, have a Renderer Component for every renderable entity in the scene ==> this makes
             // it easy for get info about Culling too, using this we can easily get the System Sets and Bind them
             // For now since we use the same shader we can just let the renderer Bind it and the material will give the Renderer necessary Sets to bind
+        }
+
+        void PhongMaterialTextures::Destroy()
+        {
+            if (ambient && ambient != RZMaterial::GetDefaultTexture())
+                ambient->Release(true);
+            if (diffuse && diffuse != RZMaterial::GetDefaultTexture())
+                diffuse->Release(true);
+            if (normal && normal != RZMaterial::GetDefaultTexture())
+                normal->Release(true);
+            if (specular && specular != RZMaterial::GetDefaultTexture())
+                specular->Release(true);
+        }
+
+        void PBRMataterialTextures::Destroy()
+        {
+            if (albedo && albedo != RZMaterial::GetDefaultTexture())
+                albedo->Release(true);
+            if (normal && normal != RZMaterial::GetDefaultTexture())
+                normal->Release(true);
+            if (metallic && metallic != RZMaterial::GetDefaultTexture())
+                metallic->Release(true);
+            if (roughness && roughness != RZMaterial::GetDefaultTexture())
+                roughness->Release(true);
+            if (ao && ao != RZMaterial::GetDefaultTexture())
+                ao->Release(true);
+            if (emissive && emissive != RZMaterial::GetDefaultTexture())
+                emissive->Release(true);
         }
 
     }    // namespace Graphics

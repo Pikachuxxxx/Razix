@@ -24,7 +24,9 @@ namespace Razix {
             init(renderPassInfo);
         }
 
-        VKRenderPass::~VKRenderPass() {}
+        VKRenderPass::~VKRenderPass()
+        {
+        }
 
         void VKRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height)
         {
@@ -37,10 +39,10 @@ namespace Razix {
             if (!m_DepthOnly) {
                 for (size_t i = 0; i < m_AttachmentsCount; i++) {
                     //if (m_AttachmentTypes[i].format == RZTexture::Format::BGRA8_UNORM) {
-                    m_ClearValue[i].color.int32[0] = -1;    //m_AttachmentTypes[i].clearColor.x;
-                    m_ClearValue[i].color.int32[1] = -1;    //m_AttachmentTypes[i].clearColor.y;
-                    m_ClearValue[i].color.int32[2] = -1;    //m_AttachmentTypes[i].clearColor.x;
-                    m_ClearValue[i].color.int32[3] = -1;    //m_AttachmentTypes[i].clearColor.w;
+                    m_ClearValue[i].color = {clearColor.r, clearColor.g, clearColor.b, clearColor.a};
+                    //m_ClearValue[i].color.int32[1] = m_AttachmentTypes[i].clearColor.y;
+                    //m_ClearValue[i].color.int32[2] = m_AttachmentTypes[i].clearColor.x;
+                    //m_ClearValue[i].color.int32[3] = m_AttachmentTypes[i].clearColor.w;
                     //} else if (m_AttachmentTypes[i].format == RZTexture::Format::R32_INT) {
                     //m_ClearValue[i].color.int32[0] = -1;    //int32_t(m_AttachmentTypes[i].clearColor.x);
                     //m_ClearValue[i].color.int32[1] = -1;    //int32_t(m_AttachmentTypes[i].clearColor.y);

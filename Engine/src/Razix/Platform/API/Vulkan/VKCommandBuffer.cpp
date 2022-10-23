@@ -23,7 +23,7 @@ namespace Razix {
             Reset();
         }
 
-        void VKCommandBuffer::Init()
+        void VKCommandBuffer::Init(NAME_TAG_F)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -37,23 +37,27 @@ namespace Razix {
             cmdBufferCI.commandPool        = m_CommandPool;
 
             VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
+
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t) m_CommandBuffer)
         }
 
-        void VKCommandBuffer::Init(VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-            VkCommandBufferAllocateInfo cmdBufferCI = {};
-
-            m_CommandPool = cmdPool;
-
-            cmdBufferCI.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            cmdBufferCI.commandBufferCount = 1;
-            cmdBufferCI.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            cmdBufferCI.commandPool        = m_CommandPool;
-
-            VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
-        }
+        //void VKCommandBuffer::Init(VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
+        //{
+        //    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        //
+        //    VkCommandBufferAllocateInfo cmdBufferCI = {};
+        //
+        //    m_CommandPool = cmdPool;
+        //
+        //    cmdBufferCI.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        //    cmdBufferCI.commandBufferCount = 1;
+        //    cmdBufferCI.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        //    cmdBufferCI.commandPool        = m_CommandPool;
+        //
+        //    VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
+        //
+        //    VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t) m_CommandBuffer)
+        //}
 
         void VKCommandBuffer::BeginRecording()
         {
