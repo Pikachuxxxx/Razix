@@ -58,6 +58,8 @@ namespace Razix {
 
         void saveAllScenes();
 
+        void destroyAllScenes();
+
         const std::vector<std::string>& getSceneFilePaths() const { return m_LoadedSceneFilePaths; }
 
         RAZIX_INLINE uint32_t getCurrentSceneIndex() const { return m_CurrentSceneIdx; }

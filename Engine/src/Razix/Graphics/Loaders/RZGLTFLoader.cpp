@@ -99,7 +99,7 @@ namespace Razix {
                 }
 
                 if (imageAndSampler.Image) {
-                    Graphics::RZTexture2D* texture2D = Graphics::RZTexture2D::Create(imageAndSampler.Image->name, imageAndSampler.Image->width, imageAndSampler.Image->height, imageAndSampler.Image->image.data(), Graphics::RZTexture::Format::RGBA8);
+                    Graphics::RZTexture2D* texture2D = Graphics::RZTexture2D::Create(gltfTexture.name, imageAndSampler.Image->name, imageAndSampler.Image->width, imageAndSampler.Image->height, imageAndSampler.Image->image.data(), Graphics::RZTexture::Format::RGBA8);
                     loadedTextures.push_back(texture2D ? texture2D : nullptr);
                 }
             }

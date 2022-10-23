@@ -4,6 +4,8 @@
 
     #include <vulkan/vulkan.h>
 
+#include "Razix/Core/RZDebugConfig.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -18,7 +20,7 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer will be filled with
              */
-            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data, const std::string& bufferName);
+            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data NAME_TAG);
             /* Creates an empty buffer to be mapped with data later */
             VKBuffer();
             ~VKBuffer() {}
@@ -29,7 +31,7 @@ namespace Razix {
              * @param data The data with which the buffer will be filled with
              */
             // TODO: Refactor this signature to take the size and usage
-            void init(const void* data, const std::string& bufferName);
+            void init(const void* data NAME_TAG);
 
             /* Destroy the buffer and it's memory */
             void destroy();
@@ -44,7 +46,7 @@ namespace Razix {
             /* Sets the buffer with new given data */
             void setData(uint32_t size, const void* data);
             /* Resizes the buffer */
-            void resize(uint32_t size, const void* data);
+            void resize(uint32_t size, const void* data NAME_TAG);
 
             /* Gets the HOST mapped buffer */
             inline void* getMappedRegion() { return m_Mapped; }
@@ -66,7 +68,6 @@ namespace Razix {
             VkDescriptorBufferInfo m_DesciptorBufferInfo; /* The buffer description info          */
             VkBufferUsageFlags     m_UsageFlags;          /* Buffer usage description             */
             void*                  m_Mapped = nullptr;    /* The HOST mapped region of the buffer */
-            std::string            m_BufferName;
         };
 
     }    // namespace Graphics

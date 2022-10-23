@@ -506,6 +506,7 @@ namespace Razix {
 
         // Save the scene and the Application
         RZEngine::Get().getSceneManager().saveAllScenes();
+        RZEngine::Get().getSceneManager().destroyAllScenes();
         SaveApp();
 
         // FIXME: This is fucked up I'm not cleaning stuff for editor mode

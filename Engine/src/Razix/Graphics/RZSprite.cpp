@@ -255,7 +255,7 @@ namespace Razix {
                             if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                                 descriptor.texture = m_Texture;
                         }
-                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second);
+                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second, __FUNCTION__);
                         m_TexturedSpriteDescriptorSets.push_back(descSet);
                     }
                 }

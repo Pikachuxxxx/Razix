@@ -48,7 +48,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             Destroy();
-            VKBuffer::resize(size, data);
+            VKBuffer::resize(size, data, "Add a name here stupid");
         }
 
         void VKIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
