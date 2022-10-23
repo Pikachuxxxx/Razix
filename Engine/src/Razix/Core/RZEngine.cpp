@@ -83,8 +83,7 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
-        // Shutting down the shader library
-        Graphics::RZShaderLibrary::Get().ShutDown();
+
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager

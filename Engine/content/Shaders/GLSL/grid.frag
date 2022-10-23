@@ -43,7 +43,7 @@ vec4 Grid(float divisions)
 	vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
 	float line = min(grid.x, grid.y);
 	float lineResult = grid_ubo.Resolution - min(line, grid_ubo.Resolution);
-	vec3 colour = vec3(0.3, 0.3, 0.3);
+	vec3 colour = vec3(0.2, 0.2, 0.2);
 
 	return vec4(vec3(lineResult) * colour, 0.1 * lineResult);
 }

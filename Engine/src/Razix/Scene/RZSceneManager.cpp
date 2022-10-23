@@ -27,10 +27,6 @@ namespace Razix {
     void RZSceneManager::ShutDown()
     {
         // TODO: Unload everything from the memory and shut things property
-
-        for (auto scene: m_LoadedScenes)
-            scene->Destroy();
-
         RAZIX_CORE_ERROR("[Scene Manager] Shutting Down Scene Manager");
     }
 
@@ -170,6 +166,12 @@ namespace Razix {
             auto scene = m_LoadedScenes[i];
             scene->serialiseScene(path);
         }
+    }
+
+    void RZSceneManager::destroyAllScenes()
+    {
+        for (auto scene: m_LoadedScenes)
+            scene->Destroy();
     }
 
     void RZSceneManager::saveCurrentScene()

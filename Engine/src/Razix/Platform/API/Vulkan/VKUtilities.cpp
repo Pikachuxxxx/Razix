@@ -9,6 +9,9 @@
 #include "Razix/Graphics/API/RZShader.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
+#include "Razix/Platform/API/Vulkan/VKContext.h"
+#include "Razix/Platform/API/Vulkan/VKDevice.h"
+
 namespace Razix {
     namespace Graphics {
         namespace VKUtilities {
@@ -212,7 +215,7 @@ namespace Razix {
                     sourceStage           = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
                 } else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
                     barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-                    sourceStage      = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    sourceStage           = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
                 } else if (oldLayout == VK_IMAGE_LAYOUT_GENERAL) {
                     barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
                     sourceStage           = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
@@ -431,6 +434,64 @@ namespace Razix {
                         return VK_SHADER_STAGE_ALL_GRAPHICS;
                         break;
                 }
+            }
+
+            //-----------------------------------------------------------------------------------
+            // Debug Utils
+            //-----------------------------------------------------------------------------------
+
+            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color)
+            {
+                VkDebugUtilsLabelEXT label{};
+                label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+                label.pLabelName = name.c_str();
+                memcpy(label.color, &color[0], 4 * sizeof(float));
+
+                auto func = (PFN_vkCmdBeginDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdBeginDebugUtilsLabelEXT");
+                if (func != nullptr)
+                    func(cmdBuffer, &label);
+                else
+                    RAZIX_CORE_ERROR("Function not found");
+            }
+
+            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color)
+            {
+                VkDebugUtilsLabelEXT label{};
+                label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+                label.pLabelName = name.c_str();
+                memcpy(label.color, &color[0], 4 * sizeof(float));
+
+                auto func = (PFN_vkCmdInsertDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdInsertDebugUtilsLabelEXT");
+                if (func != nullptr)
+                    func(cmdBuffer, &label);
+                else
+                    RAZIX_CORE_ERROR("Function not found");
+            }
+
+            void CmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer)
+            {
+                auto func = (PFN_vkCmdEndDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdEndDebugUtilsLabelEXT");
+                if (func != nullptr)
+                    func(cmdBuffer);
+                else
+                    RAZIX_CORE_ERROR("Function not found");
+            }
+
+            VkResult CreateDebugObjName(const std::string& name, VkObjectType type, uint64_t handle)
+            {
+                RAZIX_CORE_ASSERT((handle != NULL), "NULL HANDLE DETECTED!");
+
+                VkDebugUtilsObjectNameInfoEXT info{};
+                info.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+                info.pObjectName  = name.c_str();
+                info.objectType   = type;
+                info.objectHandle = (uint64_t) handle;
+
+                auto func = (PFN_vkSetDebugUtilsObjectNameEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkSetDebugUtilsObjectNameEXT");
+                if (func != nullptr)
+                    return func(VKDevice::Get().getDevice(), &info);
+                else
+                    return VK_ERROR_EXTENSION_NOT_PRESENT;
             }
 
         }    // namespace VKUtilities

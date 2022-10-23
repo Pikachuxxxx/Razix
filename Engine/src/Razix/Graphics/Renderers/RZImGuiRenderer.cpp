@@ -112,7 +112,7 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             //size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZTexture2D::Create("Awesome Font Icon Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
+            m_FontAtlasTexture = RZTexture2D::Create("Awesome Font Icon Atlas", "Awesome Font Icon Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -120,7 +120,7 @@ namespace Razix {
                     if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                         descriptor.texture = m_FontAtlasTexture;
                 }
-                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second);
+                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second, "ImGui Font Atlas Desc Set");
             }
 
             io.Fonts->Build();
@@ -202,7 +202,7 @@ namespace Razix {
             // TODO: This is also to be moved to the renderer static initialization
             for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init();
+                m_MainCommandBuffers[i]->Init(NAME_TAG_STR("ImGui Renderer Main Command Buffers"));
             }
 
             //layout.push<glm::vec2>("inPos");
@@ -440,6 +440,7 @@ namespace Razix {
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
+            m_DepthTexture->Release(true);
 
             for (auto frameBuf: m_Framebuffers)
                 frameBuf->Destroy();
@@ -456,11 +457,10 @@ namespace Razix {
         {
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
-
+            m_DepthTexture->Release(true);
             for (auto frameBuf: m_Framebuffers)
                 frameBuf->Destroy();
 
-            m_OverrideGlobalRHIShader->Destroy();
             m_FontAtlasDescriptorSet->Destroy();
             m_FontAtlasTexture->Release(true);
             m_ImGuiVBO->Destroy();
@@ -497,7 +497,7 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             //size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZTexture2D::Create("ImGui Font Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
+            m_FontAtlasTexture = RZTexture2D::Create("ImGui Font Atlas", "ImGui Font Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
         }
     }    // namespace Graphics
 }    // namespace Razix
