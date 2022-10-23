@@ -19,7 +19,39 @@ namespace Razix {
         enum class DescriptorType : uint32_t;
 
         namespace VKUtilities {
-            
+
+            // Defines to help with debugging (can be disabled in prod builds)
+            // Vulkan Debug Markers
+
+            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color);
+
+            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color);
+
+            void CmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer);
+
+            // Vulkan Tagging
+            VkResult CreateDebugObjName(const std::string& name, VkObjectType type, uint64_t handle);
+
+#ifndef RAZIX_DISTRIBUTION
+
+    #define VK_BEGIN_MARKER(cmdBuf, name, labelColor) VKUtilities::CmdBeginDebugUtilsLabelEXT(cmdBuf, name, labelColor);
+
+    #define VK_INSERT_MARKER(cmdBuf, name, labelColor) VKUtilities::CmdInsertDebugUtilsLabelEXT(cmdBuf, name, labelColor);
+
+    #define VK_END_MARKER(cmdBuf) VKUtilities::CmdEndDebugUtilsLabelEXT(cmdBuf);
+
+    #define VK_TAG_OBJECT(name, type, handle) VKUtilities::CreateDebugObjName(name, type, handle);
+#else
+
+    #define VK_BEGIN_MARKER(cmdBuf, name, labelColor)
+
+    #define VK_INSERT_MARKER(cmdBuf, name, labelColor)
+
+    #define VK_END_MARKER(cmdBuf)
+
+    #define VK_TAG_OBJECT(name, Type, handle)
+
+#endif
             //-----------------------------------------------------------------------------------
             // VkResult enums and their error descriptions map
             static std::unordered_map<VkResult, std::string> ErrorDescriptions = {
@@ -27,7 +59,7 @@ namespace Razix {
                 {VK_NOT_READY, "A fence or query has not yet completed"},
                 {VK_TIMEOUT, "A wait operation has not completed in the specified time"},
                 {VK_EVENT_SET, "An event is signaled"},
-                {VK_EVENT_RESET, "An event is unsignaled"},
+                {VK_EVENT_RESET, "An event is unsignalled"},
                 {VK_INCOMPLETE, "A return array was too small for the result"},
                 {VK_SUBOPTIMAL_KHR, "A swapchain no longer matches the surface properties exactly, but can still be used to present to the surface successfully."},
                 {VK_THREAD_IDLE_KHR, "A deferred operation is not complete but there is currently no work for this thread to do at the time of this call."},
@@ -58,8 +90,7 @@ namespace Razix {
                 {VK_ERROR_INVALID_DEVICE_ADDRESS_EXT, "A buffer creation failed because the requested address is not available."},
                 {VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS, "A buffer creation or memory allocation failed because the requested address is not available. A shader group handle assignment failed because the requested shader group handle information is no longer valid."},
                 {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application’s control."},
-                {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}
-            };
+                {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}};
 
             /* 
              * Error reporting for Vulkan results
@@ -69,13 +100,13 @@ namespace Razix {
             {
                 if (x != VK_SUCCESS) {
                     //std::cout << "\033[1;31;49m **Vulkan Function Call Error** Description : \033[0m" << ErrorDescriptions[x] << " \033[2;90;49m [at Line : " << line << " in File : " << file << "\033[0m]" << std::endl;
-                    RAZIX_CORE_ERROR("[Vulkan] VKResult Error :: Description : {0} (by Function : {1} at Line : {2} in File : {3})", ErrorDescriptions[x],function, line, file);
+                    RAZIX_CORE_ERROR("[Vulkan] VKResult Error :: Description : {0} (by Function : {1} at Line : {2} in File : {3})", ErrorDescriptions[x], function, line, file);
                     //RAZIX_CORE_ERROR("[Vulkan] VKResult Error :: (by Function : {0} at Line : {1} in File : {2})", function, line, file);
                     return true;
                 } else
                     return false;
             }
-            
+
             //-----------------------------------------------------------------------------------
 
             //-----------------------------------------------------------------------------------

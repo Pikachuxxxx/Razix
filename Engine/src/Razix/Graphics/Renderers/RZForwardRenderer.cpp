@@ -58,11 +58,11 @@ namespace Razix {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                         if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
                             descriptor.uniformBuffer = m_ViewProjectionSystemUBO;
-                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second);
+                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second, "BINDING_SET_SYSTEM_VIEW_PROJECTION");
                             m_DescriptorSets.push_back(descSet);
                         } else if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_FORWARD_LIGHTING) {
                             descriptor.uniformBuffer = m_ForwardLightUBO;
-                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second);
+                            auto descSet             = Graphics::RZDescriptorSet::Create(setInfo.second, "BINDING_SET_SYSTEM_FORWARD_LIGHTING");
                             m_DescriptorSets.push_back(descSet);
                         }
                     }
@@ -74,7 +74,7 @@ namespace Razix {
             // TODO: This is also to be moved to the renderer static initialization
             for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init();
+                m_MainCommandBuffers[i]->Init(NAME_TAG_STR("Forward Renderer Main Command Buffers"));
             }
         }
 
@@ -114,7 +114,7 @@ namespace Razix {
             attachmentTypes[2] = Graphics::RZTexture::Type::DEPTH;
 
             auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
-            m_EntityIDsRT     = Graphics::RZRenderTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight, RZTexture::Format::R32_INT);
+            m_EntityIDsRT     = Graphics::RZRenderTexture::Create("Entity IDs RT", m_ScreenBufferWidth, m_ScreenBufferHeight, RZTexture::Format::R32_INT);
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             m_Framebuffers.clear();
@@ -322,7 +322,7 @@ namespace Razix {
 
             // Destroy the resources first
             m_DepthTexture->Release(true);
-            m_EntityIDsRT->Resize(width, height);
+            m_EntityIDsRT->Resize(width, height, "Entity IDs RT Forward Renderer");
 
             for (auto frameBuf: m_Framebuffers)
                 frameBuf->Destroy();
@@ -342,7 +342,7 @@ namespace Razix {
 
             // Destroy the resources first
             m_DepthTexture->Release(true);
-
+            m_EntityIDsRT->Release(true);
             //m_OverrideGlobalRHIShader->Destroy();
 
             m_ViewProjectionSystemUBO->Destroy();

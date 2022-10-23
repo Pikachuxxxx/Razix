@@ -86,6 +86,8 @@ namespace Razix {
             RZTexture2D* diffuse  = nullptr;
             RZTexture2D* normal   = nullptr;
             RZTexture2D* specular = nullptr;
+
+            void Destroy();
         };
 
         /* PBR lighting model textures */
@@ -97,6 +99,8 @@ namespace Razix {
             RZTexture2D* roughness = nullptr;
             RZTexture2D* ao        = nullptr;
             RZTexture2D* emissive  = nullptr;
+
+            void Destroy();
         };
 
         /* Presets that help load a shader/material provided by the engine during model loading */
@@ -115,10 +119,12 @@ namespace Razix {
             RZMaterial(RZShader* shader);
             virtual ~RZMaterial() {}
 
+            void Destroy();
+
             /* Creates a 1x1 default pink 2D texture */
             static void InitDefaultTexture();
             /* Destroys the default texture created */
-            static void ReleaseDefaultTexture();
+            static void         ReleaseDefaultTexture();
             static RZTexture2D* GetDefaultTexture() { return s_DefaultTexture; }
             /* Static Getter and setter for the material preset */
             RAZIX_INLINE static MaterialPreset GetMatPreset() { return s_MatPreset; }

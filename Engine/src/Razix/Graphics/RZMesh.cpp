@@ -157,6 +157,7 @@ namespace Razix {
         {
             m_VertexBuffer->Destroy();
             m_IndexBuffer->Destroy();
+            m_Material->Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix

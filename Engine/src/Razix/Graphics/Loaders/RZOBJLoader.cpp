@@ -31,7 +31,7 @@ namespace Razix {
             }
 
             {    // If texture hasn't been loaded already, load it
-                auto texture = Graphics::RZTexture2D::CreateFromFile(directory + "/" + name, typeName, RZTexture::Wrapping::CLAMP_TO_EDGE);
+                auto texture = Graphics::RZTexture2D::CreateFromFile(name, directory + "/" + name, typeName, RZTexture::Wrapping::CLAMP_TO_EDGE);
                 textures_loaded.push_back(texture);    // Store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 
                 return texture;

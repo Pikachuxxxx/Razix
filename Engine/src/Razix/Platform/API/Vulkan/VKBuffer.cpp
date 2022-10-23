@@ -13,32 +13,24 @@
 namespace Razix {
     namespace Graphics {
 
-        VkResult CreateDebugObjName(VkDevice device, const VkDebugUtilsObjectNameInfoEXT* pNameInfo)
-        {
-            auto func = (PFN_vkSetDebugUtilsObjectNameEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkSetDebugUtilsObjectNameEXT");
-            if (func != nullptr)
-                return func(device, pNameInfo);
-            else
-                return VK_ERROR_EXTENSION_NOT_PRESENT;
-        }
-
-        VKBuffer::VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data, const std::string& bufferName)
+        VKBuffer::VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data NAME_TAG)
             : m_UsageFlags(usage), m_BufferSize(size)
         {
-            init(data, bufferName);
+            init(data NAME_ARG_NAME);
         }
 
         VKBuffer::VKBuffer()
-            : m_UsageFlags(VK_BUFFER_USAGE_TRANSFER_SRC_BIT), m_BufferSize(0) {}
+            : m_UsageFlags(VK_BUFFER_USAGE_TRANSFER_SRC_BIT), m_BufferSize(0)
+        {
+        }
 
         void VKBuffer::destroy()
         {
             if (m_Buffer != VK_NULL_HANDLE) {
-                vkDestroyBuffer(VKDevice::Get().getDevice(), m_Buffer, nullptr);
-
                 if (m_BufferMemory) {
                     vkFreeMemory(VKDevice::Get().getDevice(), m_BufferMemory, nullptr);
                 }
+                vkDestroyBuffer(VKDevice::Get().getDevice(), m_Buffer, nullptr);
             }
         }
 
@@ -88,20 +80,22 @@ namespace Razix {
             //flush();
         }
 
-        void VKBuffer::resize(uint32_t size, const void* data)
+        void VKBuffer::resize(uint32_t size, const void* data NAME_TAG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             //destroy();
             m_BufferSize = size;
-            init(data, m_BufferName);
+            destroy();
+
+            // TODO: Find a better solution for this
+            init(data NAME_ARG_NAME);
         }
 
-        void VKBuffer::init(const void* data, const std::string& bufferName)
+        void VKBuffer::init(const void* data NAME_TAG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            m_BufferName                  = bufferName;
             VkBufferCreateInfo bufferInfo = {};
             bufferInfo.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
             bufferInfo.size               = m_BufferSize;
@@ -129,14 +123,9 @@ namespace Razix {
 
             // Bind the buffer to it's memory
             vkBindBufferMemory(VKDevice::Get().getDevice(), m_Buffer, m_BufferMemory, 0);
-            // Set name for the Buffer
-            VkDebugUtilsObjectNameInfoEXT bufferObjNameInfo{};
-            bufferObjNameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-            bufferObjNameInfo.pObjectName  = bufferName.c_str();
-            bufferObjNameInfo.objectType   = VK_OBJECT_TYPE_BUFFER;
-            bufferObjNameInfo.objectHandle = (uint64_t) m_Buffer;
 
-            CreateDebugObjName(VKDevice::Get().getDevice(), &bufferObjNameInfo);
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_BUFFER, (uint64_t) m_Buffer);
+            VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) m_BufferMemory);
         }
     }    // namespace Graphics
 }    // namespace Razix

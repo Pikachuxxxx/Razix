@@ -6,6 +6,8 @@
 #include "Razix/Core/RZApplication.h"
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/Materials/RZMaterial.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKAPIRenderer.h"
@@ -40,6 +42,10 @@ namespace Razix {
 
         void RZAPIRenderer::Release()
         {
+            Graphics::RZMaterial::ReleaseDefaultTexture();
+            // Shutting down the shader library
+            Graphics::RZShaderLibrary::Get().ShutDown();
+
             s_APIInstance->DestroyAPIImpl();
             delete s_APIInstance;
 

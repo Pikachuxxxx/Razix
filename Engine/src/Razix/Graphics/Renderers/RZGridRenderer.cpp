@@ -61,7 +61,7 @@ namespace Razix {
                         descriptor.uniformBuffer = m_GridUBO;
                     j++;
                 }
-                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second);
+                auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second, "Grid Renderer Set");
                 m_DescriptorSets.push_back(descSet);
             }
 
@@ -83,7 +83,7 @@ namespace Razix {
             // TODO: This is also to be moved to the renderer static initialization
             for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init();
+                m_MainCommandBuffers[i]->Init(NAME_TAG_STR ("Grid Renderer Main Command Buffers"));
             }
         }
 
