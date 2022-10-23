@@ -154,7 +154,7 @@ namespace Razix {
              * @param filterMode    The filtering mode of the texture
              * @returns Pointer to Texture object of the underlying API
              */
-            static RZTexture2D* Create(NAME_TAG_F, 
+            static RZTexture2D* Create(RZ_DEBUG_NAME_TAG_F_ARG  
                 const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering {});
             /**
              * Create a 2D texture resource from the given file
@@ -167,7 +167,7 @@ namespace Razix {
              * @returns Pointer to Texture object of the underlying API
              */
             static RZTexture2D* CreateFromFile(
-                NAME_TAG_F, 
+                RZ_DEBUG_NAME_TAG_F_ARG 
                 const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode = Filtering {});
 
             /**
@@ -197,10 +197,10 @@ namespace Razix {
         class RAZIX_API RZRenderTexture : public RZTexture
         {
         public:
-            static RZRenderTexture* Create(NAME_TAG_F,
+            static RZRenderTexture* Create(RZ_DEBUG_NAME_TAG_F_ARG 
                 uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {});
 
-            virtual void Resize(uint32_t width, uint32_t height NAME_TAG) = 0;
+            virtual void Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) = 0;
 
             virtual int32_t ReadPixels(uint32_t x, uint32_t y) = 0;
         };

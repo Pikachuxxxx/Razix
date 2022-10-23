@@ -12,12 +12,12 @@
 namespace Razix {
     namespace Graphics {
 
-        VKPipeline::VKPipeline(const PipelineInfo& pipelineInfo)
+        VKPipeline::VKPipeline(const PipelineInfo& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_Shader         = pipelineInfo.shader;
             m_PipelineLayout = static_cast<VKShader*>(m_Shader)->getPipelineLayout();
 
-            init(pipelineInfo);
+            init(pipelineInfo RZ_DEBUG_E_ARG_NAME);
         }
 
         void VKPipeline::Bind(RZCommandBuffer* commandBuffer)
@@ -34,7 +34,7 @@ namespace Razix {
             vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
         }
 
-        void VKPipeline::init(const PipelineInfo& pipelineInfo)
+        void VKPipeline::init(const PipelineInfo& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -214,6 +214,8 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[Vulkan] Cannot create graphics pipeline!");
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created graphics pipeline!");
+
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
         }
     }    // namespace Graphics
 }    // namespace Razix

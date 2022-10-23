@@ -16,13 +16,13 @@
 namespace Razix {
     namespace Graphics {
 
-        RZDescriptorSet* RZDescriptorSet::Create(const std::vector<RZDescriptor>& descriptors NAME_TAG)
+        RZDescriptorSet* RZDescriptorSet::Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLDescriptorSet(descriptors); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKDescriptorSet(descriptors NAME_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKDescriptorSet(descriptors RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:

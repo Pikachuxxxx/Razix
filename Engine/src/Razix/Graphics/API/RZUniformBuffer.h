@@ -8,6 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Razix/Core/RZDebugConfig.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -26,10 +28,10 @@ namespace Razix {
              * @parma data The data being stored in the uniform buffer
              * @returns The pointer handle to underlying Uniform buffer API implementation
              */
-            static RZUniformBuffer* Create(uint32_t size, const void* data, const std::string& name);
+            static RZUniformBuffer* Create(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
 
             /* Initializes the uniform buffer */
-            virtual void Init(const void* data, const std::string& name) = 0;
+            virtual void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
             /* Binds the buffer to the pipeline (relevant for DX and GL) */
             virtual void Bind() = 0;
             /**

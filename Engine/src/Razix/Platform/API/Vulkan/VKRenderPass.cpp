@@ -13,7 +13,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKRenderPass::VKRenderPass(const RenderPassInfo& renderPassInfo)
+        VKRenderPass::VKRenderPass(const RenderPassInfo& renderPassInfo RZ_DEBUG_NAME_TAG_E_ARG)
             : m_RenderPass(VK_NULL_HANDLE), m_ClearValue(nullptr), m_DepthOnly(false), m_ClearDepth(false)
         {
             m_AttachmentsCount      = 0;
@@ -21,7 +21,7 @@ namespace Razix {
 
             m_AttachmentTypes = renderPassInfo.attachmentInfos;
 
-            init(renderPassInfo);
+            init(renderPassInfo RZ_DEBUG_E_ARG_NAME);
         }
 
         VKRenderPass::~VKRenderPass()
@@ -91,7 +91,7 @@ namespace Razix {
             vkDestroyRenderPass(VKDevice::Get().getDevice(), m_RenderPass, nullptr);
         }
 
-        bool VKRenderPass::init(const RenderPassInfo& renderpassInfo)
+        bool VKRenderPass::init(const RenderPassInfo& renderpassInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -180,6 +180,8 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[Vulkan] Cannot create ({0}) render pass ", renderpassInfo.name);
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created render pass : {0}", renderpassInfo.name);
+
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_RENDER_PASS, (uint64_t) m_RenderPass);
 
             m_ClearValue       = new VkClearValue[renderpassInfo.attachmentCount];
             m_AttachmentsCount = renderpassInfo.attachmentCount;

@@ -13,10 +13,10 @@
 namespace Razix {
     namespace Graphics {
 
-        VKBuffer::VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data NAME_TAG)
+        VKBuffer::VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
             : m_UsageFlags(usage), m_BufferSize(size)
         {
-            init(data NAME_ARG_NAME);
+            init(data RZ_DEBUG_E_ARG_NAME);
         }
 
         VKBuffer::VKBuffer()
@@ -80,7 +80,7 @@ namespace Razix {
             //flush();
         }
 
-        void VKBuffer::resize(uint32_t size, const void* data NAME_TAG)
+        void VKBuffer::resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -89,10 +89,10 @@ namespace Razix {
             destroy();
 
             // TODO: Find a better solution for this
-            init(data NAME_ARG_NAME);
+            init(data RZ_DEBUG_E_ARG_NAME);
         }
 
-        void VKBuffer::init(const void* data NAME_TAG)
+        void VKBuffer::init(const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 

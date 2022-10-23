@@ -105,7 +105,7 @@ namespace Razix {
             return DescriptorType::UNIFORM_BUFFER;
         }
 
-        VKShader::VKShader(const std::string& filePath)
+        VKShader::VKShader(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -125,6 +125,10 @@ namespace Razix {
 
             // Create the shader modules and the pipeline shader stage create infos that will be bound to the pipeline
             createShaderModules();
+
+            for (const auto& spvSource: m_ParsedRZSF) {
+                VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t) m_ShaderCreateInfos[spvSource.first].module);
+            }
         }
 
         VKShader::~VKShader()
@@ -440,7 +444,7 @@ namespace Razix {
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create shader module!");
                 else
                     RAZIX_CORE_TRACE("[Vulkan] Successfully created shader module");
-                
+
                 delete spvByteCode;
             }
         }

@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Graphics {
 
-        OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t size, const void* data, const std::string& name)
+        OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t size, const void* data)
         {
             GL_CALL(glGenBuffers(1, &m_UBO));
             GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, m_UBO));
@@ -22,7 +22,7 @@ namespace Razix {
         {
         }
 
-        void OpenGLUniformBuffer::Init(const void* data, const std::string& name)
+        void OpenGLUniformBuffer::Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

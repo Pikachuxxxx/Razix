@@ -62,7 +62,7 @@ namespace Razix {
             //RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void OpenGLVertexBuffer::Resize(uint32_t size, const void* data)
+        void OpenGLVertexBuffer::Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }

@@ -11,7 +11,7 @@ namespace Razix {
             OpenGLCommandBuffer();
             ~OpenGLCommandBuffer();
 
-            void Init(NAME_TAG_F) override;
+            void Init(RZ_DEBUG_NAME_TAG_S_ARG) override;
             void BeginRecording() override;
             void EndRecording() override;
             void Execute() override;
