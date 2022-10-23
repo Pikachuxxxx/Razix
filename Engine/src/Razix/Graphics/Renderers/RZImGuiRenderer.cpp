@@ -114,6 +114,7 @@ namespace Razix {
 
             m_FontAtlasTexture = RZTexture2D::Create("Awesome Font Icon Atlas", "Awesome Font Icon Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
 
+
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
