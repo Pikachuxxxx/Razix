@@ -8,8 +8,8 @@
 namespace Razix {
     namespace Graphics {
 
-        VKIndexBuffer::VKIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage, const std::string& name)
-            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(uint32_t), data, name)
+        VKIndexBuffer::VKIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG)
+            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(uint32_t), data RZ_DEBUG_E_ARG_NAME)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -43,12 +43,12 @@ namespace Razix {
             VKBuffer::destroy();
         }
 
-        void VKIndexBuffer::Resize(uint32_t size, const void* data)
+        void VKIndexBuffer::Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             Destroy();
-            VKBuffer::resize(size, data, "Add a name here stupid");
+            VKBuffer::resize(size, data RZ_DEBUG_NAME_TAG_STR_E_ARG("Add a name here stupid"));
         }
 
         void VKIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)

@@ -47,7 +47,7 @@ namespace Razix {
              * 
              * @returns pointer to the underlying API implementation of the razix render pass
              */
-            static RZRenderPass* Create(const RenderPassInfo& renderPassInfo);
+            static RZRenderPass* Create(const RenderPassInfo& renderPassInfo RZ_DEBUG_NAME_TAG_E_ARG);
 
             /**
              *  Begins the render pass

@@ -11,7 +11,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKFramebuffer::VKFramebuffer(const FramebufferInfo& frameBufInfo)
+        VKFramebuffer::VKFramebuffer(const FramebufferInfo& frameBufInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -50,6 +50,8 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[Vulkan] cannot create framebuffer!");
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created framebuffer!");
+
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_FRAMEBUFFER, (uint64_t) m_Framebuffer);
         }
 
         VKFramebuffer::~VKFramebuffer() {}

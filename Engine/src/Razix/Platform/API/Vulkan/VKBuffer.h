@@ -20,7 +20,7 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer will be filled with
              */
-            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data NAME_TAG);
+            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
             /* Creates an empty buffer to be mapped with data later */
             VKBuffer();
             ~VKBuffer() {}
@@ -31,7 +31,7 @@ namespace Razix {
              * @param data The data with which the buffer will be filled with
              */
             // TODO: Refactor this signature to take the size and usage
-            void init(const void* data NAME_TAG);
+            void init(const void* data RZ_DEBUG_NAME_TAG_E_ARG);
 
             /* Destroy the buffer and it's memory */
             void destroy();
@@ -46,7 +46,7 @@ namespace Razix {
             /* Sets the buffer with new given data */
             void setData(uint32_t size, const void* data);
             /* Resizes the buffer */
-            void resize(uint32_t size, const void* data NAME_TAG);
+            void resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
 
             /* Gets the HOST mapped buffer */
             inline void* getMappedRegion() { return m_Mapped; }

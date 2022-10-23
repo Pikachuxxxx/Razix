@@ -153,7 +153,7 @@ namespace Razix {
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors NAME_TAG);
+            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG);
 
             /* Updates the descriptor set with the given descriptors */
             virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;

@@ -15,7 +15,7 @@ namespace Razix {
 
         OpenGLCommandBuffer::~OpenGLCommandBuffer() {}
 
-        void OpenGLCommandBuffer::Init(NAME_TAG_F) {}
+        void OpenGLCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG) {}
 
         void OpenGLCommandBuffer::BeginRecording() {}
 

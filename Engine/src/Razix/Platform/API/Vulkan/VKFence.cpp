@@ -17,6 +17,8 @@ namespace Razix {
             fenceCreateInfo.flags             = isSignalled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
             VK_CHECK_RESULT(vkCreateFence(VKDevice::Get().getDevice(), &fenceCreateInfo, nullptr, &m_Fence));
+
+            VK_TAG_OBJECT("Fence", VK_OBJECT_TYPE_FENCE, (uint64_t) m_Fence);
         }
 
         VKFence::~VKFence()

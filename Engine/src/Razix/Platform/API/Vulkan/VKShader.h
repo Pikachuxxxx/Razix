@@ -11,7 +11,7 @@ namespace Razix {
         class VKShader : public RZShader
         {
         public:
-            VKShader(const std::string& filePath);
+            VKShader(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKShader();
 
             void Bind() const override;

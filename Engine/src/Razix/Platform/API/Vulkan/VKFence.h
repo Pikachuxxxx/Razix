@@ -4,6 +4,8 @@
 
     #include <vulkan/vulkan.h>
 
+    #include "Razix/Core/RZDebugConfig.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -16,7 +18,7 @@ namespace Razix {
              * 
              * @param isSignalled Whether or not to create a fence in a signaled state or not
              */
-            VKFence(bool isSignalled = true);
+            VKFence( bool isSignalled = true);
             ~VKFence();
 
             /* Indicates whether the fence is in signaled or not */

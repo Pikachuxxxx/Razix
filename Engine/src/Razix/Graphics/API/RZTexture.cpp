@@ -72,20 +72,20 @@ namespace Razix {
 
             std::vector<RZDescriptor> descriptors = {descriptor};
 
-            m_DescriptorSet = Graphics::RZDescriptorSet::Create(descriptors, __FUNCTION__);
+            m_DescriptorSet = Graphics::RZDescriptorSet::Create(descriptors RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
         }
 
         //-----------------------------------------------------------------------------------
         // Texture 2D
         //-----------------------------------------------------------------------------------
 
-        RZTexture2D* RZTexture2D::Create(NAME_TAG_F, const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(name, width, height, data, format, wrapMode, filterMode NAME_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(name, width, height, data, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -95,13 +95,13 @@ namespace Razix {
             return nullptr;
         }
 
-        RZTexture2D* RZTexture2D::CreateFromFile(NAME_TAG_F, const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(filePath, name, wrapMode, filterMode); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(filePath, name, wrapMode, filterMode NAME_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(filePath, name, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -135,13 +135,13 @@ namespace Razix {
         // Render Texture
         //-----------------------------------------------------------------------------------
 
-        RZRenderTexture* RZRenderTexture::Create(NAME_TAG_F, uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZRenderTexture* RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_F_ARG uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKRenderTexture(width, height, format, wrapMode, filterMode NAME_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKRenderTexture(width, height, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::DIRECTX11:
                 case Razix::Graphics::RenderAPI::DIRECTX12:
                 case Razix::Graphics::RenderAPI::GXM:
