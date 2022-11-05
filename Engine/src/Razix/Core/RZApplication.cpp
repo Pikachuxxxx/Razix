@@ -22,6 +22,7 @@
 #include "Razix/Graphics/API/RZTexture.h"
 
 #include "Razix/Scene/Components/CameraComponent.h"
+#include "Razix/Scene/Components/LightComponent.h"
 
 #include "Razix/Graphics/Renderers/RZForwardRenderer.h"
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
@@ -54,9 +55,9 @@ namespace Razix {
         s_AppInstance = this;
 
         // Set the Application root path and Load the project settings
-        //const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();// RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
+        const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();// RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
-        m_AppFilePath = projectRoot;
+        m_AppFilePath = razixRoot + projectRoot;
         RAZIX_CORE_TRACE("Project file path : {0}", m_AppFilePath);
 
         Razix::RZSplashScreen::Get().setLogString("Loading Shader Cache...");
@@ -314,7 +315,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;
@@ -444,6 +445,28 @@ namespace Razix {
         // TODO: As for Icons of the components or any other entities we will get them using the entt
         // Get their position in the worldspace and check it against the camera frustum and
         // convert it to world space and render a non-clickable ImGui::Button with the FontIcon as image
+
+        // Icons for Components
+        //{
+        //    auto& registry = RZEngine::Get().getSceneManager().getCurrentScene()->getRegistry();
+        //    auto& scnCam   = RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
+        //    auto  group    = registry.group<LightComponent>(entt::get<TransformComponent>);
+        //
+        //    for (auto entity: group) {
+        //        const auto& [component, trans] = group.template get<LightComponent, TransformComponent>(entity);
+        //
+        //        glm::vec3 pos = trans.Translation;
+        //
+        //        glm::vec2 screenPos = pos;
+        //        //glm::project(pos, trans.GetTransform(), scnCam.Camera.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
+        //        ImGui::SetCursorPos({100.0f, 100.0f});
+        //        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.7f, 0.7f, 0.0f));
+        //
+        //        ImGui::Button(ICON_FA_CAMERA);
+        //
+        //        ImGui::PopStyleColor();
+        //    }
+        //}
 
         // Engine Stats
         {
