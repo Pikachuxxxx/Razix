@@ -65,12 +65,6 @@ namespace Razix {
                 m_SelectedEntityID = m_RenderersStack[1]->getEntityIDsRT()->ReadPixels(static_cast<uint32_t>(RZInput::GetMouseX()), static_cast<uint32_t>(RZInput::GetMouseY()));
                 RAZIX_CORE_ERROR("mouse {0}, {1} | pixel : {2}", RZInput::GetMouseX(), RZInput::GetMouseY(), m_SelectedEntityID);
             }
-
-            if (RZInput::IsMouseButtonReleased(KeyCode::MouseKey::ButtonLeft))
-                RAZIX_CORE_ERROR("Mouse button released");
-            
-            if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonLeft))
-                RAZIX_CORE_WARN("Mouse button held");
         }
 
         void RZRenderStack::OnResize(uint32_t width, uint32_t height)

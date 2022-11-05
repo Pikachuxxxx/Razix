@@ -23,7 +23,7 @@ namespace Razix {
                 float     _padding    = 0.0f;
                 float     scale       = 1000.0f;
                 float     resolution  = 2.25f;
-                float     maxDistance = 800.0f;
+                float     maxDistance = 200.0f;
                 float     _padding2   = 0.0f;
             };
 

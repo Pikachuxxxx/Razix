@@ -262,6 +262,7 @@ namespace Razix {
             /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
             m_ImGuiVBO->UnMap();
             m_ImGuiVBO->Destroy();
+            delete m_ImGuiVBO;
             m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("ImGUi VBO"));
             //vertexCount = imDrawData->TotalVtxCount;
             //m_ImGuiVBO->UnMap();
@@ -272,6 +273,7 @@ namespace Razix {
             //if ((dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->getBuffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
             m_ImGuiIBO->UnMap();
             m_ImGuiIBO->Destroy();
+            delete m_ImGuiIBO;
             m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, imDrawData->TotalIdxCount, BufferUsage::DYNAMIC);
             //indexCount = imDrawData->TotalIdxCount;
             //m_ImGuiIBO->UnMap();
