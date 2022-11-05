@@ -211,19 +211,19 @@ namespace Razix {
             //layout.push<uint32_t>("inColor");
             /*
 
-            ImDrawData* imDrawData = ImGui::GetDrawData();
-            bool updateCmdBuffers = false;
-            size_t vertexBufferSize = sizeof(ImDrawVert);
-            size_t indexBufferSize = sizeof(ImDrawVert);
-            if (imDrawData) {
-                vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
-                indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
-            }
+                ImDrawData* imDrawData = ImGui::GetDrawData();
+                bool updateCmdBuffers = false;
+                size_t vertexBufferSize = sizeof(ImDrawVert);
+                size_t indexBufferSize = sizeof(ImDrawVert);
+                if (imDrawData) {
+                    vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+                    indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+                }
              
-            m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC, "ImGui VBO");
-            m_ImGuiVBO->AddBufferLayout(layout);
+                m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC, "ImGui VBO");
+                m_ImGuiVBO->AddBufferLayout(layout);
 
-            m_ImGuiIBO = RZIndexBuffer::Create(nullptr, indexBufferSize, "ImGui IBO", BufferUsage::DYNAMIC);
+                m_ImGuiIBO = RZIndexBuffer::Create(nullptr, indexBufferSize, "ImGui IBO", BufferUsage::DYNAMIC);
             */
         }
 
@@ -235,7 +235,7 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Begin recording the command buffers
-            //Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
+            // Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
             Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);

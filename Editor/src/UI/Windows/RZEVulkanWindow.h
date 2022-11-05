@@ -77,10 +77,15 @@ namespace Razix {
             }
 
             void mousePressEvent(QMouseEvent* event)
-            {                
-                auto& callback = m_RZWindow->getEventCallbackFunc();
+            {
+                auto& callback        = m_RZWindow->getEventCallbackFunc();
+                m_MouseReleasedButton = -1;
+
+                RAZIX_CORE_INFO("QT mouse press event");
 
                 RZMouseButtonPressedEvent e(event->button());
+                m_MousePressDirty = true;
+
                 m_MousePressedButton = event->button();
                 callback(e);
 
@@ -95,7 +100,7 @@ namespace Razix {
                         if (selectedEntity != -1 && entity == entt::entity(selectedEntity)) {
                             RZEntity rzEntity(entity, scene);
                             RZApplication::Get().setGuzimoForEntity(rzEntity);
-                            emit     OnEntitySelected(rzEntity);
+                            emit OnEntitySelected(rzEntity);
                             return;
                         }
                         // TODO: use ui.sceneTree->clearSelection() if we don't select on any entity
@@ -105,9 +110,10 @@ namespace Razix {
 
             void mouseReleaseEvent(QMouseEvent* event)
             {
-                auto& callback = m_RZWindow->getEventCallbackFunc();
-
+                auto& callback       = m_RZWindow->getEventCallbackFunc();
+                m_MousePressedButton = -1;
                 RZMouseButtonReleasedEvent e(event->button());
+                m_MouseReleaseDirty   = true;
                 m_MouseReleasedButton = event->button();
                 callback(e);
             }
@@ -152,6 +158,8 @@ namespace Razix {
             int              m_MouseReleasedButton = -1;
             int              m_KeyPressed          = -1;
             int              m_KeyReleased         = -1;
+            bool             m_MousePressDirty;
+            bool             m_MouseReleaseDirty;
 
         protected:
             bool IsKeyPressedImpl(int keycode) override;
