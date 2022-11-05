@@ -7,7 +7,7 @@
 namespace Razix {
     namespace Graphics {
 
-        class RZRenderStack
+        class RAZIX_API RZRenderStack
         {
         public:
             RZRenderStack() {}
