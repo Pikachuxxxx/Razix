@@ -179,7 +179,8 @@ project "RazixEditor"
            "RAZIX_PLATFORM_WINDOWS",
            "RAZIX_USE_GLFW_WINDOWS",
            "RAZIX_IMGUI",
-           "RAZIX_ROOT_DIR="  .. root_dir,
+           -- Remove this as it's causing whitespace issues while using MOC to compile QT classes
+           --"RAZIX_ROOT_DIR="..'\"' .. root_dir .. '\"',
            -- API
            "RAZIX_RENDER_API_OPENGL",
            "RAZIX_RENDER_API_VULKAN",

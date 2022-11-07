@@ -211,19 +211,19 @@ namespace Razix {
             //layout.push<uint32_t>("inColor");
             /*
 
-            ImDrawData* imDrawData = ImGui::GetDrawData();
-            bool updateCmdBuffers = false;
-            size_t vertexBufferSize = sizeof(ImDrawVert);
-            size_t indexBufferSize = sizeof(ImDrawVert);
-            if (imDrawData) {
-                vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
-                indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
-            }
+                ImDrawData* imDrawData = ImGui::GetDrawData();
+                bool updateCmdBuffers = false;
+                size_t vertexBufferSize = sizeof(ImDrawVert);
+                size_t indexBufferSize = sizeof(ImDrawVert);
+                if (imDrawData) {
+                    vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+                    indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+                }
              
-            m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC, "ImGui VBO");
-            m_ImGuiVBO->AddBufferLayout(layout);
+                m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC, "ImGui VBO");
+                m_ImGuiVBO->AddBufferLayout(layout);
 
-            m_ImGuiIBO = RZIndexBuffer::Create(nullptr, indexBufferSize, "ImGui IBO", BufferUsage::DYNAMIC);
+                m_ImGuiIBO = RZIndexBuffer::Create(nullptr, indexBufferSize, "ImGui IBO", BufferUsage::DYNAMIC);
             */
         }
 
@@ -235,7 +235,7 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Begin recording the command buffers
-            //Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
+            // Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
             Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
@@ -260,8 +260,8 @@ namespace Razix {
 
 #if 1
             /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
-            m_ImGuiVBO->UnMap();
             m_ImGuiVBO->Destroy();
+            delete m_ImGuiVBO;
             m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("ImGUi VBO"));
             //vertexCount = imDrawData->TotalVtxCount;
             //m_ImGuiVBO->UnMap();
@@ -270,8 +270,8 @@ namespace Razix {
             //}
 
             //if ((dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->getBuffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
-            m_ImGuiIBO->UnMap();
             m_ImGuiIBO->Destroy();
+            delete m_ImGuiIBO;
             m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, imDrawData->TotalIdxCount, BufferUsage::DYNAMIC);
             //indexCount = imDrawData->TotalIdxCount;
             //m_ImGuiIBO->UnMap();
@@ -292,6 +292,8 @@ namespace Razix {
                 idxDst += cmd_list->IdxBuffer.Size;
             }
 
+            m_ImGuiVBO->UnMap();
+            m_ImGuiIBO->UnMap();
             //m_ImGuiVBO->Flush();
             //m_ImGuiIBO->Flush();
 

@@ -1,12 +1,6 @@
 #pragma once
 
 #ifdef RAZIX_PLATFORM_WINDOWS
-
-    #include <iostream>
-    #include <memory>
-    #include <optional>
-    #include <stdint.h>
-
     #include <Windows.h>
 
     #include "Razix/Core/RZCore.h"

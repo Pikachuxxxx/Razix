@@ -123,7 +123,10 @@ project "Razix"
         -- API related
         "%{VulkanSDK}",
         -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}"
+        "%{InternalIncludeDir.RazixMemory}",
+        "%{InternalIncludeDir.RZSTL}",
+        "%{InternalIncludeDir.EASTL}",
+        "%{InternalIncludeDir.EABase}"
     }
 
     -- Razix engine external linkage libraries (Global)
@@ -143,7 +146,8 @@ project "Razix"
         "Shaders",
         -- Razix Internal Libraries 
         -- 1. Razix Memory
-        "RazixMemory"
+        "RazixMemory",
+        "RZSTL"
     }
 
     -- Disable PCH for vendors
@@ -172,6 +176,18 @@ project "Razix"
 
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
+
+        -- Build options for Windows / Visual Studio (MSVC)
+        -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
+        buildoptions
+        {
+            "/MP", "/bigobj"
+        }
+
+        linkoptions
+        {
+            "/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+        }
 
         -- Windows specific defines
         defines
@@ -238,12 +254,6 @@ project "Razix"
             "vulkan-1",
             "d3d11",
             "D3DCompiler"
-        }
-
-        -- Build options for Windows / Visual Studio (MSVC)
-        buildoptions
-        {
-            "/MP", "/bigobj"
         }
 
     -- Config settings for Razix Engine project

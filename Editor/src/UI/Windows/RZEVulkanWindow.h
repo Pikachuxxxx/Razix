@@ -77,15 +77,20 @@ namespace Razix {
             }
 
             void mousePressEvent(QMouseEvent* event)
-            {                
-                auto& callback = m_RZWindow->getEventCallbackFunc();
+            {
+                auto& callback        = m_RZWindow->getEventCallbackFunc();
+                m_MouseReleasedButton = -1;
 
                 RZMouseButtonPressedEvent e(event->button());
+                m_MousePressDirty = true;
+
                 m_MousePressedButton = event->button();
                 callback(e);
 
                 // Entity selection
                 int32_t selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
+                selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
+                RAZIX_CORE_WARN("qt SELECTED ENTITY on button press : {0}", selectedEntity);
                 // Find the entity from the registry
                 Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
                 auto&           registry = scene->getRegistry();
@@ -95,7 +100,7 @@ namespace Razix {
                         if (selectedEntity != -1 && entity == entt::entity(selectedEntity)) {
                             RZEntity rzEntity(entity, scene);
                             RZApplication::Get().setGuzimoForEntity(rzEntity);
-                            emit     OnEntitySelected(rzEntity);
+                            emit OnEntitySelected(rzEntity);
                             return;
                         }
                         // TODO: use ui.sceneTree->clearSelection() if we don't select on any entity
@@ -105,9 +110,10 @@ namespace Razix {
 
             void mouseReleaseEvent(QMouseEvent* event)
             {
-                auto& callback = m_RZWindow->getEventCallbackFunc();
-
+                auto& callback       = m_RZWindow->getEventCallbackFunc();
+                m_MousePressedButton = -1;
                 RZMouseButtonReleasedEvent e(event->button());
+                m_MouseReleaseDirty   = true;
                 m_MouseReleasedButton = event->button();
                 callback(e);
             }
@@ -115,8 +121,8 @@ namespace Razix {
             void keyPressEvent(QKeyEvent* event)
             {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
-
-                m_KeyPressed = event->key();
+                m_KeyReleased  = -1;
+                m_KeyPressed   = event->key();
                 RZKeyPressedEvent e(event->key(), 1);
                 callback(e);
             }
@@ -124,8 +130,8 @@ namespace Razix {
             void keyReleaseEvent(QKeyEvent* event)
             {
                 auto& callback = m_RZWindow->getEventCallbackFunc();
-
-                m_KeyReleased = event->key();
+                m_KeyPressed   = -1;
+                m_KeyReleased  = event->key();
                 RZKeyReleasedEvent e(event->key());
                 callback(e);
             }
@@ -152,6 +158,8 @@ namespace Razix {
             int              m_MouseReleasedButton = -1;
             int              m_KeyPressed          = -1;
             int              m_KeyReleased         = -1;
+            bool             m_MousePressDirty;
+            bool             m_MouseReleaseDirty;
 
         protected:
             bool IsKeyPressedImpl(int keycode) override;
