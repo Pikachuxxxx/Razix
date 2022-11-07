@@ -104,6 +104,7 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     group "Engine/internal"
         include "Engine/internal/RazixMemory/razixmemory.lua"
+        include "Engine/internal/RZSTL/rzstl.lua"
     group ""
 
     -- Build Script for Razix Engine (Core)

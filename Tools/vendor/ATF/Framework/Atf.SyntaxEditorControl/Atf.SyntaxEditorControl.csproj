@@ -21,8 +21,7 @@
     <OutputPath>..\..\..\..\..\bin\Debug-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Debug-windows-x86_64\obj\Debug\Atf.SyntaxEditorControl\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>..\..\..\..\..\bin\Release-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Release-windows-x86_64\obj\Release\Atf.SyntaxEditorControl\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -47,8 +45,7 @@
     <OutputPath>..\..\..\..\..\bin\Distribution-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Distribution-windows-x86_64\obj\Distribution\Atf.SyntaxEditorControl\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -92,9 +89,7 @@
     <Compile Include="Controls\SyntaxEditorControl\LuaDynamicSyntaxLanguage.cs" />
     <Compile Include="Controls\SyntaxEditorControl\MouseHoverOverTokenEventArgs.cs" />
     <Compile Include="Controls\SyntaxEditorControl\ShowContextMenuEventArg.cs" />
-    <Compile Include="Controls\SyntaxEditorControl\SyntaxEditorControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\SyntaxEditorControl\SyntaxEditorControl.cs" />
     <Compile Include="Controls\SyntaxEditorControl\SyntaxEditorRegions.cs" />
     <Compile Include="Controls\SyntaxEditorControl\TextEditorFactory.cs" />
     <Compile Include="Controls\SyntaxEditorControl\Token.cs" />

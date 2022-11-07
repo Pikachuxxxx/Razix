@@ -9,6 +9,13 @@ project "Sandbox"
     language "C++"
         -- Debugging directory = where the main premake5.lua is located
     debugdir "%{wks.location}../"
+
+    buildoptions
+    {
+        -- Remove STL 
+        "-nostdlib"
+    }
+
     -- Game source files
     files
     {
@@ -39,7 +46,10 @@ project "Sandbox"
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}"
+        "%{InternalIncludeDir.RazixMemory}",
+        "%{InternalIncludeDir.RZSTL}",
+        "%{InternalIncludeDir.EASTL}",
+        "%{InternalIncludeDir.EABase}"
     }
 
    -- Razix Application linkage libraries
@@ -59,7 +69,8 @@ project "Sandbox"
        "optick",
        --"tracy",
        -- Internal
-       "RazixMemory"
+       "RazixMemory",
+       "RZSTL"
    }
 
    defines
@@ -82,6 +93,18 @@ project "Sandbox"
         staticruntime "off"
         systemversion "latest"
         -- entrypoint "WinMainCRTStartup"
+
+        -- Build options for Windows / Visual Studio (MSVC)
+        -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
+        buildoptions
+        {
+            "/MP", "/bigobj"
+        }
+
+        linkoptions
+        {
+            "/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+        }
 
         -- Windows specific defines
         defines

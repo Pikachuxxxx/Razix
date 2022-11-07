@@ -89,6 +89,7 @@ namespace Razix {
 
                 // Entity selection
                 int32_t selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
+                selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
                 RAZIX_CORE_WARN("qt SELECTED ENTITY on button press : {0}", selectedEntity);
                 // Find the entity from the registry
                 Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
