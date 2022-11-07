@@ -13,13 +13,14 @@ namespace Razix {
         RZEVulkanWindow::RZEVulkanWindow(RZESceneHierarchyPanel* hierarchyPanel, QWindow* parentWindow)
             : QWindow(parentWindow)
         {
-            setSurfaceType(VulkanSurface);            
-            
+            setSurfaceType(VulkanSurface);
+
             connect(this, &RZEVulkanWindow::OnEntitySelected, hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
         }
 
         RZEVulkanWindow::~RZEVulkanWindow()
-        {}
+        {
+        }
 
         void RZEVulkanWindow::Init()
         {
@@ -73,17 +74,18 @@ namespace Razix {
 
         bool RZEVulkanWindow::IsMouseButtonPressedImpl(int button)
         {
-            if (button == m_MousePressedButton - 1) {
-                m_MouseReleasedButton = -1;
+            if (button == m_MousePressedButton - 1 && m_MousePressDirty) {
+                m_MousePressDirty = false;
                 return true;
-            } else
+            }
+            else
                 return false;
         }
 
         bool RZEVulkanWindow::IsMouseButtonReleasedImpl(int button)
         {
-            if (button == m_MouseReleasedButton - 1) {
-                m_MousePressedButton = -1;
+            if (button == m_MouseReleasedButton - 1 && m_MouseReleaseDirty) {
+                m_MouseReleaseDirty = false;
                 return true;
             } else
                 return false;
@@ -91,11 +93,9 @@ namespace Razix {
 
         bool RZEVulkanWindow::IsMouseButtonHeldImpl(int button)
         {
-            if (button == m_MousePressedButton - 1 && button != m_MouseReleasedButton - 1) {
-                // m_MousePressedButton  = -1;
-                // m_MouseReleasedButton = -1;
+            if (button == m_MousePressedButton - 1 && button != m_MouseReleasedButton - 1)
                 return true;
-            } else
+            else
                 return false;
         }
 
