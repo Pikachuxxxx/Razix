@@ -2,9 +2,9 @@
     "Razix Scene": {
         "UUID": "637f8287-567e-494c-a960-3e3818310472",
         "SceneName": "default Scene",
-        "Total Entities": 8
+        "Total Entities": 9
     },
-    "value0": 8,
+    "value0": 9,
     "value1": 0,
     "value2": 1,
     "value3": 2,
@@ -14,75 +14,84 @@
     "value7": 6,
     "value8": 7,
     "value9": 8,
-    "value10": 0,
-    "value11": {
+    "value10": 9,
+    "value11": 0,
+    "value12": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value12": 1,
-    "value13": {
+    "value13": 1,
+    "value14": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value14": 2,
-    "value15": {
+    "value15": 2,
+    "value16": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value16": 3,
-    "value17": {
+    "value17": 3,
+    "value18": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value18": 4,
-    "value19": {
+    "value19": 4,
+    "value20": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value20": 5,
-    "value21": {
+    "value21": 5,
+    "value22": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value22": 6,
-    "value23": {
-        "UUID": "33333333-3333-3336-2d33-3333332d3333"
-    },
-    "value24": 7,
-    "value25": {
+    "value23": 6,
+    "value24": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value26": 8,
-    "value27": 0,
+    "value25": 7,
+    "value26": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value27": 8,
     "value28": {
+        "UUID": "31346537-6430-3637-2d34-6238622d3433"
+    },
+    "value29": 9,
+    "value30": 0,
+    "value31": {
         "Tag": "Camera"
     },
-    "value29": 1,
-    "value30": {
+    "value32": 1,
+    "value33": {
         "Tag": "Avacado Not Avakaya"
     },
-    "value31": 2,
-    "value32": {
+    "value34": 2,
+    "value35": {
         "Tag": "Directional Light"
     },
-    "value33": 3,
-    "value34": {
+    "value36": 3,
+    "value37": {
         "Tag": "imgui_script_entity"
     },
-    "value35": 4,
-    "value36": {
+    "value38": 4,
+    "value39": {
         "Tag": "CubeMesh"
     },
-    "value37": 5,
-    "value38": {
+    "value40": 5,
+    "value41": {
         "Tag": "stupid Entity"
     },
-    "value39": 6,
-    "value40": {
+    "value42": 6,
+    "value43": {
         "Tag": "Entity"
     },
-    "value41": 7,
-    "value42": {
+    "value44": 7,
+    "value45": {
         "Tag": "Sphere"
     },
-    "value43": 0,
-    "value44": 8,
-    "value45": 0,
-    "value46": {
+    "value46": 8,
+    "value47": {
+        "Tag": "Entity"
+    },
+    "value48": 0,
+    "value49": 9,
+    "value50": 0,
+    "value51": {
         "Translation": {
             "x": 7.269518852233887,
             "y": 0.0,
@@ -99,10 +108,10 @@
             "z": 1.0
         }
     },
-    "value47": 1,
-    "value48": {
+    "value52": 1,
+    "value53": {
         "Translation": {
-            "x": -1.2789714336395264,
+            "x": -4.741194725036621,
             "y": 2.917593002319336,
             "z": -6.5152716636657719
         },
@@ -117,8 +126,8 @@
             "z": 1.0
         }
     },
-    "value49": 2,
-    "value50": {
+    "value54": 2,
+    "value55": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -135,8 +144,8 @@
             "z": 1.0
         }
     },
-    "value51": 3,
-    "value52": {
+    "value56": 3,
+    "value57": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -153,8 +162,8 @@
             "z": 1.0
         }
     },
-    "value53": 4,
-    "value54": {
+    "value58": 4,
+    "value59": {
         "Translation": {
             "x": 6.718016147613525,
             "y": 1.7252808809280396,
@@ -171,8 +180,8 @@
             "z": 1.0
         }
     },
-    "value55": 5,
-    "value56": {
+    "value60": 5,
+    "value61": {
         "Translation": {
             "x": -5.233269691467285,
             "y": 0.0,
@@ -189,8 +198,8 @@
             "z": 1.0
         }
     },
-    "value57": 6,
-    "value58": {
+    "value62": 6,
+    "value63": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -207,11 +216,11 @@
             "z": 1.0
         }
     },
-    "value59": 7,
-    "value60": {
+    "value64": 7,
+    "value65": {
         "Translation": {
-            "x": 2.9802322387695315e-8,
-            "y": 3.725290298461914e-9,
+            "x": 0.0,
+            "y": 0.0,
             "z": -14.78763198852539
         },
         "Rotation": {
@@ -225,38 +234,56 @@
             "z": 1.0
         }
     },
-    "value61": 1,
-    "value62": 0,
-    "value63": {
+    "value66": 8,
+    "value67": {
+        "Translation": {
+            "x": 3.603595018386841,
+            "y": 0.0,
+            "z": -1.4901161193847657e-8
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value68": 1,
+    "value69": 0,
+    "value70": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": -6.0607428550720219,
-                "y": 10.51046371459961,
-                "z": -22.917156219482423
+                "x": -11.944159507751465,
+                "y": 20.461002349853517,
+                "z": -41.69686508178711
             },
             "Front": {
-                "x": 0.04835230112075806,
-                "y": -0.38268351554870608,
-                "z": 0.9226134419441223
+                "x": 0.25305938720703127,
+                "y": -0.45399048924446108,
+                "z": 0.8543146848678589
             },
             "Up": {
-                "x": 0.02002818137407303,
-                "y": 0.9238795638084412,
-                "z": 0.382159024477005
+                "x": 0.12894020974636079,
+                "y": 0.8910065293312073,
+                "z": 0.43529507517814639
             },
             "Right": {
-                "x": -0.998629629611969,
+                "x": -0.9588198065757752,
                 "y": 0.0,
-                "z": 0.05233615264296532
+                "z": 0.2840152084827423
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -273.0,
-            "Pitch": -22.5,
+            "Yaw": -286.5,
+            "Pitch": -27.0,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -270,31 +297,36 @@
             "AspectRatio": 1.7777777910232545
         }
     },
-    "value64": 0,
-    "value65": 2,
-    "value66": 4,
-    "value67": {
+    "value71": 0,
+    "value72": 3,
+    "value73": 4,
+    "value74": {
         "Primitive": 2,
         "MeshName": ""
     },
-    "value68": 7,
-    "value69": {
+    "value75": 7,
+    "value76": {
         "Primitive": 4,
         "MeshName": ""
     },
-    "value70": 1,
-    "value71": 1,
-    "value72": {
+    "value77": 8,
+    "value78": {
+        "Primitive": 4,
+        "MeshName": ""
+    },
+    "value79": 1,
+    "value80": 1,
+    "value81": {
         "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/Avocado.gltf"
     },
-    "value73": 1,
-    "value74": 3,
-    "value75": {
+    "value82": 1,
+    "value83": 3,
+    "value84": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value76": 1,
-    "value77": 2,
-    "value78": {
+    "value85": 1,
+    "value86": 2,
+    "value87": {
         "Light": {
             "type": 0,
             "DirectionalLight": {
