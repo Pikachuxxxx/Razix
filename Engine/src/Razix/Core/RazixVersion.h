@@ -1,6 +1,5 @@
 #pragma once
 
-#inc
 namespace Razix {
     /* Describes the current version details for Razix Engine */
     struct Version
@@ -43,9 +42,9 @@ namespace Razix {
         Date getReleaseDate() const { return m_ReleaseDate; }
 
         /* Returns the version as a string (Major.Minor.Patch) */
-        rzstl::string getVersionString() const { return (std::to_string(m_Major) + "." + std::to_string(m_Minor) + "." + std::to_string(m_Patch)); }
+        std::string getVersionString() const { return (std::to_string(m_Major) + "." + std::to_string(m_Minor) + "." + std::to_string(m_Patch)); }
         /* Returns the release stage as a string */
-        rzstl::string getReleaseStageString() const
+        std::string getReleaseStageString() const
         {
             switch (m_ReleaseStage) {
                 case Stage::Development:
@@ -66,7 +65,7 @@ namespace Razix {
             }
         }
         /* Returns the release data as a string (dd-mm-yyyy) */
-        rzstl::string getReleaseDateString() const { return (std::to_string(m_ReleaseDate.Day) + "-" + std::to_string(m_ReleaseDate.Month) + "-" + std::to_string(m_ReleaseDate.Year)); }
+        std::string getReleaseDateString() const { return (std::to_string(m_ReleaseDate.Day) + "-" + std::to_string(m_ReleaseDate.Month) + "-" + std::to_string(m_ReleaseDate.Year)); }
 
     private:
         int   m_Major = 0;    /* The Major release version of the engine  */
