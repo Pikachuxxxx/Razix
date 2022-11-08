@@ -3,10 +3,27 @@
 //-----C Standard Includes-----//
 #include <stdint.h>
 
-//-----STL-----///
-#include <RZSTL/config.h>
-#include <RZSTL/vector.h>
-#include <RZSTL/string.h>
+//-----System Includes-----//
+#include <algorithm>
+#include <cstdint>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <random>
+#include <sstream>
+#include <utility>
+
+//-----Data Structures-----//
+#include <map>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
 
 //-----Engine-----//
 #include "Razix/Core/RZRoot.h"
