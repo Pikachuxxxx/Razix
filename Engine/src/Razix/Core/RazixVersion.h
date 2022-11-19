@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace Razix {
     /* Describes the current version details for Razix Engine */
     struct Version

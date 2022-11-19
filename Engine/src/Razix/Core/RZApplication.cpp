@@ -48,14 +48,14 @@ namespace Razix {
     std::condition_variable RZApplication::halt_execution;
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
-        : m_AppName(appName), m_Timestep(RZTimestep(0.0f))
+        : m_AppName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE)
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
         s_AppInstance = this;
 
         // Set the Application root path and Load the project settings
-        const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();// RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
+        const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();    // RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
         m_AppFilePath = razixRoot + projectRoot;
         RAZIX_CORE_TRACE("Project file path : {0}", m_AppFilePath);
@@ -148,6 +148,10 @@ namespace Razix {
     void RZApplication::OnEvent(RZEvent& event)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
+        auto ctx = ImGui::GetCurrentContext();
+        if (!ctx)
+            return;
 
         RZEventDispatcher dispatcher(event);
         // Window close event
@@ -423,7 +427,7 @@ namespace Razix {
 
             glm::mat4 transformMatrix = tc.GetTransform();
 
-            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjection()), ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), delta);
+            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjection()), m_GuizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), delta);
             float matrixTranslation[3], matrixRotation[3], matrixScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
 

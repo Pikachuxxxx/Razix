@@ -15,5 +15,13 @@
         <file>branch-open.png</file>
         <file>vline.png</file>
         <file>mesh.png</file>
+        <file>new_scene.png</file>
+        <file>open_scene.png</file>
+        <file>save_scene.png</file>
+        <file>Razix_Settings_Icon.png</file>
+        <file>Move_Gizmo.png</file>
+        <file>Rotate_Gizmo.png</file>
+        <file>Scale_Gizmo.png</file>
+        <file>No_Gizmo.png</file>
     </qresource>
 </RCC>

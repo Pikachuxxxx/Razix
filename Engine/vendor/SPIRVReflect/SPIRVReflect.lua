@@ -30,14 +30,19 @@ project "SPIRVReflect"
         staticruntime "off"
 
     filter "configurations:Debug"
+        defines { "RAZIX_DEBUG", "_DEBUG", "_DISABLE_VECTOR_ANNOTATION " }
+        symbols "On"
         runtime "Debug"
-        symbols "on"
+        optimize "Off"
 
     filter "configurations:Release"
+        defines { "RAZIX_RELEASE", "NDEBUG" }
+        optimize "Speed"
+        symbols "On"
         runtime "Release"
-        optimize "on"
 
-    filter "configurations:Dist"
-        runtime "Release"
+    filter "configurations:Distribution"
+        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
+        runtime "Release"

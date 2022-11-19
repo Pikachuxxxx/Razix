@@ -42,13 +42,17 @@ namespace Razix {
                     if ((pMouseEvent->button() == Qt::MouseButton::LeftButton) && m_UserIsResizing) {
                         m_UserIsResizing = false;    // reset user resizing flag
 
+                        if (!m_RZWindow)
+                            return false;
+
                         auto& callback = m_RZWindow->getEventCallbackFunc();
 
                         m_RZWindow->setWidth(this->width());
                         m_RZWindow->setHeight(this->height());
 
                         RZWindowResizeEvent e(this->width(), this->height());
-                        callback(e);
+                        if (callback)
+                            callback(e);
                     }
                 }
                 return QObject::eventFilter(watched, event);    // pass it on without eating it
@@ -70,10 +74,14 @@ namespace Razix {
             {
                 m_MousePos = glm::vec2(event->pos().x(), event->pos().y());
 
+                if (!m_RZWindow)
+                    return;
+
                 auto& callback = m_RZWindow->getEventCallbackFunc();
 
                 RZMouseMovedEvent e(event->pos().x(), event->pos().y());
-                callback(e);
+                if (callback)
+                    callback(e);
             }
 
             void mousePressEvent(QMouseEvent* event)
@@ -81,15 +89,19 @@ namespace Razix {
                 auto& callback        = m_RZWindow->getEventCallbackFunc();
                 m_MouseReleasedButton = -1;
 
+                if (!m_RZWindow)
+                    return;
+
                 RZMouseButtonPressedEvent e(event->button());
                 m_MousePressDirty = true;
 
                 m_MousePressedButton = event->button();
-                callback(e);
+                if (callback)
+                    callback(e);
 
                 // Entity selection
                 int32_t selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
-                selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
+                selectedEntity         = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
                 RAZIX_CORE_WARN("qt SELECTED ENTITY on button press : {0}", selectedEntity);
                 // Find the entity from the registry
                 Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
@@ -110,30 +122,42 @@ namespace Razix {
 
             void mouseReleaseEvent(QMouseEvent* event)
             {
+                if (!m_RZWindow)
+                    return;
+
                 auto& callback       = m_RZWindow->getEventCallbackFunc();
                 m_MousePressedButton = -1;
                 RZMouseButtonReleasedEvent e(event->button());
                 m_MouseReleaseDirty   = true;
                 m_MouseReleasedButton = event->button();
-                callback(e);
+                if (callback)
+                    callback(e);
             }
 
             void keyPressEvent(QKeyEvent* event)
             {
+                if (!m_RZWindow)
+                    return;
+
                 auto& callback = m_RZWindow->getEventCallbackFunc();
                 m_KeyReleased  = -1;
                 m_KeyPressed   = event->key();
                 RZKeyPressedEvent e(event->key(), 1);
-                callback(e);
+                if (callback)
+                    callback(e);
             }
 
             void keyReleaseEvent(QKeyEvent* event)
             {
+                if (!m_RZWindow)
+                    return;
+
                 auto& callback = m_RZWindow->getEventCallbackFunc();
                 m_KeyPressed   = -1;
                 m_KeyReleased  = event->key();
                 RZKeyReleasedEvent e(event->key());
-                callback(e);
+                if (callback)
+                    callback(e);
             }
 
             void closeEvent(QCloseEvent* event)
@@ -152,7 +176,7 @@ namespace Razix {
             QVulkanInstance  m_QVKInstance;
             VkSurfaceKHR     m_vkSurface      = VK_NULL_HANDLE;
             bool             m_UserIsResizing = false;
-            RZENativeWindow* m_RZWindow;
+            RZENativeWindow* m_RZWindow       = nullptr;
             glm::vec2        m_MousePos;
             int              m_MousePressedButton  = -1;
             int              m_MouseReleasedButton = -1;
