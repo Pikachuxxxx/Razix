@@ -173,6 +173,7 @@ project "Razix"
          -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
         -- Only works with GCC and Clang
         --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
+        --buildoptions {"/fsanitize=address"}
 
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
@@ -207,7 +208,10 @@ project "Razix"
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE",
+            -- build options
+            "_DISABLE_VECTOR_ANNOTATION",
+            "_DISABLE_STRING_ANNOTATION"
         }
 
         -- Windows specific source files for compilation
@@ -258,17 +262,20 @@ project "Razix"
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "DEBUG"}
+        defines { "RAZIX_DEBUG", "_DEBUG" }
         symbols "On"
+        runtime "Debug"
         optimize "Off"
 
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
+        runtime "Release"
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
+        runtime "Release"
 group""

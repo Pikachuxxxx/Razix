@@ -40,6 +40,9 @@ namespace Razix {
         public slots:
             void on_save_project_pressed();
             void on_render_api_changed(int index);
+            void set_translate_guizmo();
+            void set_rotate_guizmo();
+            void set_scale_guizmo();
             void update();
 
         private:

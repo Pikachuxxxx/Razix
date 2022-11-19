@@ -136,12 +136,13 @@ project "Sandbox"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE" }
+        defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
         runtime "Release"
 
     filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION" }
+        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
+        runtime "Release"

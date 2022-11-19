@@ -12,6 +12,9 @@
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Scene/Components/MeshRendererComponent.h"
 
+#include <imgui.h>
+#include <ImGui/plugins/ImGuizmo.h>
+
 namespace Razix {
     namespace Editor {
 
@@ -58,6 +61,21 @@ namespace Razix {
 
         void RZEMainWindow::on_render_api_changed(int index)
         {
+        }
+
+        void RZEMainWindow::set_translate_guizmo()
+        {
+            RZApplication::Get().setGuizmoOperation(ImGuizmo::TRANSLATE);
+        }
+
+        void RZEMainWindow::set_rotate_guizmo()
+        {
+            RZApplication::Get().setGuizmoOperation(ImGuizmo::ROTATE);
+        }
+
+        void RZEMainWindow::set_scale_guizmo()
+        {
+            RZApplication::Get().setGuizmoOperation(ImGuizmo::SCALE);
         }
 
         void RZEMainWindow::update()
@@ -139,7 +157,7 @@ namespace Razix {
             QPushButton* scale = new QPushButton();
             scale->setIcon(QIcon(":/rzeditor/Scale_Gizmo.png"));
             scale->setIconSize(QSize(20, 20));
-            
+
             // Disable Guizmo
             QPushButton* noGuizmo = new QPushButton();
             noGuizmo->setIcon(QIcon(":/rzeditor/No_Gizmo.png"));
@@ -151,6 +169,10 @@ namespace Razix {
             transformTB->addWidget(noGuizmo);
 
             this->addToolBar(transformTB);
+
+            connect(pos, SIGNAL(clicked()), this, SLOT(set_translate_guizmo()));
+            connect(rot, SIGNAL(clicked()), this, SLOT(set_rotate_guizmo()));
+            connect(scale, SIGNAL(clicked()), this, SLOT(set_scale_guizmo()));
         }
 
         void RZEMainWindow::create_shading_modes_tb()

@@ -9,7 +9,7 @@ namespace Razix {
     namespace Graphics {
 
         VKIndexBuffer::VKIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG)
-            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(uint32_t), data RZ_DEBUG_E_ARG_NAME)
+            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(uint16_t), data RZ_DEBUG_E_ARG_NAME)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
