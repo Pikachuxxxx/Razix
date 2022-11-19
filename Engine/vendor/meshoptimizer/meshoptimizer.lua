@@ -6,15 +6,20 @@ project "spdlog"
 
     files { "src/*.h", "src/*.cpp" }
 
-    filter "configurations:Debug"
+	filter "configurations:Debug"
+        defines { "RAZIX_DEBUG", "_DEBUG" }
+        symbols "On"
         runtime "Debug"
-        symbols "on"
+        optimize "Off"
 
     filter "configurations:Release"
+        defines { "RAZIX_RELEASE", "NDEBUG" }
+        optimize "Speed"
+        symbols "On"
         runtime "Release"
-        optimize "on"
 
     filter "configurations:Distribution"
-        runtime "Release"
+        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
+        runtime "Release"

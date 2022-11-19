@@ -38,17 +38,28 @@ namespace Razix {
             void OnEntityAddedToScene();
 
         public slots:
-            void OnSaveProjectPressed();
+            void on_save_project_pressed();
+            void on_render_api_changed(int index);
+            void set_translate_guizmo();
+            void set_rotate_guizmo();
+            void set_scale_guizmo();
             void update();
 
         private:
             Ui::MainWindow ui;
             QWidget*       m_Viewport;
-            QToolBar*      renderSettingsTB;
-            QToolBar*      m_ProjectSettingsTB;
             QLabel*        m_FPSLblSB;
 
         private:
+            void SetupToolBars();
+            // Toolbar settings
+            void create_project_tb();
+            void create_scene_tb();
+            void create_transform_tb();
+            void create_shading_modes_tb();
+            void create_game_modes_tb();
+            void create_misc_tb();
+
             void SetupMenu();
             void SetupCreateMenuCommands();
             // Menu command functions

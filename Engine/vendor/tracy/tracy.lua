@@ -28,16 +28,19 @@ project "Tracy"
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "TRACY_ENABLE"}
+        defines { "RAZIX_DEBUG", "TRACY_ENABLE", "_DEBUG"}
         symbols "On"
+        runtime "Debug"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG", "TRACY_ENABLE" }
+        defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
+        runtime "Release"
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
         symbols "Off"
         optimize "Full"
+        runtime "Release"

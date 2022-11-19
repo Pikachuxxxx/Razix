@@ -38,7 +38,7 @@ project "SpirvCross"
 
     -- Cinfig settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG" }
+        defines { "RAZIX_DEBUG", "_DEBUG" }
         symbols "On"
         runtime "Debug"
         optimize "Off"

@@ -73,8 +73,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             map(size, 0);
-            //memcpy(m_Mapped, data, size);
-            memmove(m_Mapped, data, size);
+            memcpy(m_Mapped, data, size);
             unMap();
 
             //flush();
@@ -117,12 +116,12 @@ namespace Razix {
 
             VK_CHECK_RESULT(vkAllocateMemory(VKDevice::Get().getDevice(), &allocInfo, nullptr, &m_BufferMemory));
 
+            // Bind the buffer to it's memory
+            vkBindBufferMemory(VKDevice::Get().getDevice(), m_Buffer, m_BufferMemory, 0);
+
             //! Set the Data
             if (data != nullptr)
                 setData((uint32_t) m_BufferSize, data);
-
-            // Bind the buffer to it's memory
-            vkBindBufferMemory(VKDevice::Get().getDevice(), m_Buffer, m_BufferMemory, 0);
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_BUFFER, (uint64_t) m_Buffer);
             VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) m_BufferMemory);

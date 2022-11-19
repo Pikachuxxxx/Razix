@@ -204,36 +204,36 @@ namespace Razix {
                 // Also SPIRV-Reflect API enums use same integer codes as Vulkan hence they can be type casted safely and they will work fine, this is guaranteed by the API hence we need not do extra conversions
 
                 // Enumerate and extract shaders input variables
-                uint32_t var_count = 0;
-                result             = spvReflectEnumerateInputVariables(&module, &var_count, NULL);
-                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV Input variables - ({0})!", virtualPath);
-                SpvReflectInterfaceVariable** input_vars = (SpvReflectInterfaceVariable**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectInterfaceVariable*));
-                result                                   = spvReflectEnumerateInputVariables(&module, &var_count, input_vars);
+                //uint32_t var_count = 0;
+                //result             = spvReflectEnumerateInputVariables(&module, &var_count, NULL);
+                //RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV Input variables - ({0})!", virtualPath);
+                //SpvReflectInterfaceVariable** input_vars = (SpvReflectInterfaceVariable**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectInterfaceVariable));
+                //result = spvReflectEnumerateInputVariables(&module, &var_count, input_vars);
 
                 // Vertex Input attributes
                 if (spvSource.first == ShaderStage::VERTEX) {
                     m_VertexInputStride = 0;
 
                     //std::cout << "---------------------------------------------" << std::endl;
-                    for (size_t i = 0; i < var_count; i++) {
-                        SpvReflectInterfaceVariable* inputVar = input_vars[i];
+                    for (size_t i = 0; i < module.input_variable_count; i++) {
+                        SpvReflectInterfaceVariable inputVar = *module.input_variables[i];
 
-                        if (std::string(inputVar->name) == "gl_VertexIndex")
+                        if (std::string(inputVar.name) == "gl_VertexIndex" || inputVar.name == "vs_out")
                             break;
 
                         // Fill the vulkan input variables attribute information
                         VkVertexInputAttributeDescription verextInputattribDesc = {};
                         verextInputattribDesc.binding                           = 0;
-                        verextInputattribDesc.location                          = inputVar->location;
-                        verextInputattribDesc.format                            = (VkFormat) inputVar->format;
+                        verextInputattribDesc.location                          = inputVar.location;
+                        verextInputattribDesc.format                            = (VkFormat) inputVar.format;
                         verextInputattribDesc.offset                            = m_VertexInputStride;
 
                         m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc);
 
-                        m_VertexInputStride += GetStrideFromVulkanFormat((VkFormat) inputVar->format);
+                        m_VertexInputStride += GetStrideFromVulkanFormat((VkFormat) inputVar.format);
 
                         // Create the buffer layout for Razix engine
-                        pushBufferLayout((VkFormat) inputVar->format, inputVar->name, m_BufferLayout);
+                        pushBufferLayout((VkFormat) inputVar.format, inputVar.name, m_BufferLayout);
 
                         //delete inputVar;
                     }
@@ -272,75 +272,77 @@ namespace Razix {
                         m_VertexInputStride = 20;
                     }
                 }
-                Razix::Memory::RZFree(input_vars);
+                //delete[] input_vars;
+                //Razix::Memory::RZFree(input_vars);
 
                 // Uniform Buffers + Samplers
                 // Descriptor Bindings : These bindings describe where and what kind of resources are bound to the shaders at various stages, they also store the information of the nature of resource data that is bound
                 // Uniform variables usually have members and samplers none
-                uint32_t descriptors_count = 0;
-                result                     = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, nullptr);
-                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect descriptor bindings from SPIRV shader - ({0})", virtualPath);
-                SpvReflectDescriptorBinding** pp_descriptor_bindings = (SpvReflectDescriptorBinding**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectDescriptorBinding*));    //malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
-                result                                               = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, pp_descriptor_bindings);
+                //uint32_t descriptors_count = 0;
+                //result                     = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, nullptr);
+                //RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect descriptor bindings from SPIRV shader - ({0})", virtualPath);
+                //SpvReflectDescriptorBinding* pp_descriptor_bindings = new SpvReflectDescriptorBinding[descriptors_count];
+                ////(SpvReflectDescriptorBinding**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectDescriptorBinding*));    //malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
+                //result                                               = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, &pp_descriptor_bindings);
 
-                for (uint32_t i = 0; i < descriptors_count; i++) {
-                    SpvReflectDescriptorBinding* descriptor = pp_descriptor_bindings[i];
+                for (uint32_t i = 0; i < module.descriptor_binding_count; i++) {
+                    SpvReflectDescriptorBinding descriptor = module.descriptor_bindings[i];
 
                     RZDescriptor* rzDescriptor = new RZDescriptor;
 
                     // First create the descriptor layout bindings, these describe where and what kind of resources are being bound to the shader per descriptor set
                     // Which means each descriptor set (i.e. for a given set ID) it stores a list of binding layouts in a map
                     VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
-                    setLayoutBindingInfo.binding                      = descriptor->binding;
+                    setLayoutBindingInfo.binding                      = descriptor.binding;
                     setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
-                    setLayoutBindingInfo.descriptorType               = (VkDescriptorType) descriptor->descriptor_type;
+                    setLayoutBindingInfo.descriptorType               = (VkDescriptorType) descriptor.descriptor_type;
                     setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(spvSource.first);
 
-                    auto& layou_bindings_in_set = m_VKSetBindingLayouts[descriptor->set];
+                    auto& layou_bindings_in_set = m_VKSetBindingLayouts[descriptor.set];
                     layou_bindings_in_set.push_back(std::move(setLayoutBindingInfo));
 
                     // -->Also store all this data for the engine as well.
                     RZDescriptorLayoutBinding bindingInfo{};
-                    bindingInfo.binding = descriptor->binding;
+                    bindingInfo.binding = descriptor.binding;
                     bindingInfo.count   = 1;
-                    bindingInfo.type    = VKToEngineDescriptorType(descriptor->descriptor_type);
+                    bindingInfo.type    = VKToEngineDescriptorType(descriptor.descriptor_type);
                     bindingInfo.stage   = spvSource.first;
 
                     rzDescriptor->bindingInfo = bindingInfo;
-                    rzDescriptor->name        = descriptor->name;
-                    rzDescriptor->offset      = descriptor->block.offset;
-                    rzDescriptor->size        = descriptor->block.size;
+                    rzDescriptor->name        = descriptor.name;
+                    rzDescriptor->offset      = descriptor.block.offset;
+                    rzDescriptor->size        = descriptor.block.size;
 
-                    for (size_t i = 0; i < descriptor->block.member_count; i++) {
+                    for (size_t i = 0; i < descriptor.block.member_count; i++) {
                         RZShaderBufferMemberInfo memberInfo{};
-                        memberInfo.fullName = rzDescriptor->name + "." + descriptor->block.members[i].name;
-                        memberInfo.name     = descriptor->block.members[i].name;
-                        memberInfo.offset   = descriptor->block.members[i].offset;
-                        memberInfo.size     = descriptor->block.members[i].size;
+                        memberInfo.fullName = rzDescriptor->name + "." + descriptor.block.members[i].name;
+                        memberInfo.name     = descriptor.block.members[i].name;
+                        memberInfo.offset   = descriptor.block.members[i].offset;
+                        memberInfo.size     = descriptor.block.members[i].size;
 
                         rzDescriptor->uboMembers.push_back(std::move(memberInfo));
                     }
 
-                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[descriptor->set];
+                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[descriptor.set];
                     descriptors_in_set.push_back(std::move(*rzDescriptor));
 
-                    //delete rzDescriptor;
+                    delete rzDescriptor;
                 }
+                //delete[] pp_descriptor_bindings;
                 // FIXME: Investigate and delete this properly
                 //Razix::Memory::RZFree(pp_descriptor_bindings);
-                //if(!oldSet && setInfo->setID != -1)
-                //    m_DescriptorSetInfos.push_back(*setInfo);
 
                 // Get info about push constants
-                uint32_t push_constants_count = 0;
-                spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, nullptr);
-                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect push constants from shader - ({0})", virtualPath);
-                SpvReflectBlockVariable** pp_push_constant_blocks = (SpvReflectBlockVariable**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectBlockVariable*));
-                spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, pp_push_constant_blocks);
+                //uint32_t push_constants_count = 0;
+                //spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, nullptr);
+                //RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect push constants from shader - ({0})", virtualPath);
+                //SpvReflectBlockVariable* pp_push_constant_blocks = new SpvReflectBlockVariable[push_constants_count];
+                ////(SpvReflectBlockVariable**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectBlockVariable*));
+                //spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, &pp_push_constant_blocks);
 
                 // Create Push constants and store info about it
-                for (uint32_t i = 0; i < push_constants_count; i++) {
-                    SpvReflectBlockVariable* pushConstant = pp_push_constant_blocks[i];
+                for (uint32_t i = 0; i < module.push_constant_block_count; i++) {
+                    SpvReflectBlockVariable* pushConstant = &module.push_constant_blocks[i];
                     //std::cout << "Name      : " << pushConstant->name << std::endl;
                     //std::cout << "Size      : " << pushConstant->size << std::endl;
                     //std::cout << "Offset    : " << pushConstant->offset << std::endl;
@@ -367,10 +369,11 @@ namespace Razix {
                     }
                     m_PushConstants.push_back(std::move(pc));
                 }
-                Razix::Memory::RZFree(pp_push_constant_blocks);
+                //delete[] pp_push_constant_blocks;
+                //Razix::Memory::RZFree(pp_push_constant_blocks);
                 // Destroy the reflection data when no longer required
                 // FIXME: This is causing unnecessary crashes, investigate and resolve!
-                //spvReflectDestroyShaderModule(&module);
+                spvReflectDestroyShaderModule(&module);
             }
 
             // Create the Vulkan set layouts for each set ID with the descriptors (bindings) it has
