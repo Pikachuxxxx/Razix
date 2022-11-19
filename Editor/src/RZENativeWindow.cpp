@@ -1,6 +1,8 @@
 #include "rzxpch.h"
 #include "RZENativeWindow.h"
 
+#define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::Editor::RZENativeWindow::x, this, std::placeholders::_1)
+
 namespace Razix {
     namespace Editor {
         RZENativeWindow::RZENativeWindow(void* windowHandle, const WindowProperties& properties)
@@ -10,6 +12,8 @@ namespace Razix {
             m_Data.Height = properties.Height;
 
             m_NativeHandle = windowHandle;
+
+            SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZENativeWindow::OnEventDefaultBind));
         }
 
         void RZENativeWindow::OnWindowUpdate()

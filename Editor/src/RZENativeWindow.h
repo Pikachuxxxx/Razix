@@ -31,6 +31,8 @@ namespace Razix {
 
             EventCallbackFn& getEventCallbackFunc() { return EventCallback; }
 
+            void OnEventDefaultBind(RZEvent& event) {}
+
         private:
             WindowProperties m_Data;
             void*            m_NativeHandle;

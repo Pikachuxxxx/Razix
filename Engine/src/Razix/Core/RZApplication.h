@@ -20,7 +20,6 @@
 
 #include "Razix/Graphics/Renderers/RZGridRenderer.h"
 
-
 // glm
 //#include <glm/glm.hpp>
 
@@ -30,6 +29,10 @@
 #pragma warning(pop)
 
 //! Some style guide rules are waved off for RZApplication class
+
+namespace ImGuizmo {
+    enum OPERATION;
+}
 
 namespace Razix::Graphics {
     class RZTexture2D;
@@ -134,6 +137,7 @@ namespace Razix {
         void setProjectRoot(const std::string& projPath) { m_AppFilePath = projPath; }
 
         void setGuzimoForEntity(RZEntity& entity) { m_GuizmoEntity = entity; }
+        void setGuizmoOperation(ImGuizmo::OPERATION operation) { m_GuizmoOperation = operation; }
 
         inline AppType getAppType() { return m_appType; }
         void           setAppType(AppType appType) { m_appType = appType; }
@@ -207,23 +211,24 @@ namespace Razix {
         }
 
     private:
-        HWND                       viewportHWND;
-        static RZApplication*      s_AppInstance;                      /* The singleton instance of the application                */
-        AppState                   m_CurrentState = AppState::Loading; /* The current state of the application                     */
-        AppType                    m_appType      = AppType::GAME;     /* The type of the application                              */
-        std::string                m_AppName;                          /* The name of the application                              */
-        std::string                m_AppFilePath;                      /* The path of the Razix Project file (*.razixproject)      */
-        uint32_t                   m_RenderAPI;                        /* The Render API being used to render the application      */
-        uint32_t                   m_Frames  = 0;                      /* The number of frames per second                          */
-        uint32_t                   m_Updates = 0;                      /* The number of updated per second                         */
-        UniqueRef<RZTimer>         m_Timer;                            /* The timer used to calculate the delta time and timesteps */
-        float                      m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
-        RZTimestep                 m_Timestep;                         /* The timesteps taken to update the application            */
-        RZWindow*                  m_Window = nullptr;                 /* The window that will be used to view graphics            */
-        WindowProperties           m_WindowProperties;                 /* The properties of the window to create with              */
-        RZUUID                     m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
-        std::vector<std::string>   sceneFilePaths;
-        RZEntity                   m_GuizmoEntity;
+        HWND                     viewportHWND;
+        static RZApplication*    s_AppInstance;                      /* The singleton instance of the application                */
+        AppState                 m_CurrentState = AppState::Loading; /* The current state of the application                     */
+        AppType                  m_appType      = AppType::GAME;     /* The type of the application                              */
+        std::string              m_AppName;                          /* The name of the application                              */
+        std::string              m_AppFilePath;                      /* The path of the Razix Project file (*.razixproject)      */
+        uint32_t                 m_RenderAPI;                        /* The Render API being used to render the application      */
+        uint32_t                 m_Frames  = 0;                      /* The number of frames per second                          */
+        uint32_t                 m_Updates = 0;                      /* The number of updated per second                         */
+        UniqueRef<RZTimer>       m_Timer;                            /* The timer used to calculate the delta time and timesteps */
+        float                    m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
+        RZTimestep               m_Timestep;                         /* The timesteps taken to update the application            */
+        RZWindow*                m_Window = nullptr;                 /* The window that will be used to view graphics            */
+        WindowProperties         m_WindowProperties;                 /* The properties of the window to create with              */
+        RZUUID                   m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
+        std::vector<std::string> sceneFilePaths;
+        RZEntity                 m_GuizmoEntity;
+        ImGuizmo::OPERATION      m_GuizmoOperation;
 
     private:
         /**

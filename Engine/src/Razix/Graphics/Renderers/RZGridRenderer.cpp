@@ -23,6 +23,8 @@
 
 #include "Razix/Scene/Components/RZComponents.h"
 
+#include <RZMemoryFunctions.h>
+
 namespace Razix {
     namespace Graphics {
 
