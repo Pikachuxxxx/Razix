@@ -48,17 +48,18 @@ namespace Razix {
     std::condition_variable RZApplication::halt_execution;
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
-        : m_AppName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE)
+        : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE)
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
         s_AppInstance = this;
 
         // Set the Application root path and Load the project settings
-        const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();    // RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
+        //const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();    // RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
-        m_AppFilePath = razixRoot + projectRoot;
-        RAZIX_CORE_TRACE("Project file path : {0}", m_AppFilePath);
+        m_ProjectFilePath = projectRoot;
+        m_ProjectName     = appName;
+        RAZIX_CORE_TRACE("Project file path : {0}", m_ProjectFilePath);
 
         Razix::RZSplashScreen::Get().setLogString("Loading Shader Cache...");
         Razix::RZSplashScreen::Get().setLogString("Loading Project Assets..");
@@ -72,12 +73,12 @@ namespace Razix {
         if (RZEngine::Get().commandLineParser.isSet("project filename")) {
             std::string fullPath = RZEngine::Get().commandLineParser.getValueAsString("project filename");
             RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
-            AppStream.open(fullPath, std::ifstream::in);
-            m_AppFilePath = fullPath.substr(0, fullPath.find_last_of("\\/")) + "/";
+            AppStream.open(fullPath, std::ifstream::in); 
+            m_ProjectFilePath = fullPath.substr(0, fullPath.find_last_of("\\/")) + "/";
         } else {
             // TODO: If command line is not provided or doesn't use engine default sandbox project we need some way to resolve the project root directory, make this agnostic we need not redirect to sandbox by default it must be provided as a placeholder value instead as a fall back
             //m_AppFilePath = ??
-            std::string projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+            std::string projectFullPath = m_ProjectFilePath + "/" + m_ProjectName + std::string(".razixproject");
             AppStream.open(projectFullPath, std::ifstream::in);
         }
 
@@ -85,17 +86,17 @@ namespace Razix {
         // First the default sandbox or sample project is loaded that is provided by the engine that resides with the engine
         // Next it checks the command line for the project file directory
         // Project root directory
-        RAZIX_CORE_TRACE("Mounting file systems... for Project at : {0}", m_AppFilePath);
+        RAZIX_CORE_TRACE("Mounting file systems... for Project at : {0}", m_ProjectFilePath);
         Razix::RZSplashScreen::Get().setLogString("Mounting file systems...");
 
-        RZVirtualFileSystem::Get().mount("Project", m_AppFilePath);
+        RZVirtualFileSystem::Get().mount("Project", m_ProjectFilePath);
 
-        RZVirtualFileSystem::Get().mount("Assets", m_AppFilePath + std::string("Assets"));
-        RZVirtualFileSystem::Get().mount("Meshes", m_AppFilePath + std::string("Assets/Meshes"));
-        RZVirtualFileSystem::Get().mount("Scenes", m_AppFilePath + std::string("Assets/Scenes"));
-        RZVirtualFileSystem::Get().mount("Scripts", m_AppFilePath + std::string("Assets/Scripts"));
-        RZVirtualFileSystem::Get().mount("Sounds", m_AppFilePath + std::string("Assets/Sounds"));
-        RZVirtualFileSystem::Get().mount("Textures", m_AppFilePath + std::string("Assets/Textures"));
+        RZVirtualFileSystem::Get().mount("Assets", m_ProjectFilePath + std::string("/Assets"));
+        RZVirtualFileSystem::Get().mount("Meshes", m_ProjectFilePath + std::string("/Assets/Meshes"));
+        RZVirtualFileSystem::Get().mount("Scenes", m_ProjectFilePath + std::string("/Assets/Scenes"));
+        RZVirtualFileSystem::Get().mount("Scripts", m_ProjectFilePath + std::string("/Assets/Scripts"));
+        RZVirtualFileSystem::Get().mount("Sounds", m_ProjectFilePath + std::string("/Assets/Sounds"));
+        RZVirtualFileSystem::Get().mount("Textures", m_ProjectFilePath + std::string("/Assets/Textures"));
 
         // Check the command line arguments for the rendering api
         if (RZEngine::Get().commandLineParser.isSet("rendering api"))
@@ -109,7 +110,7 @@ namespace Razix {
         }
 
         // The Razix Application Signature Name is generated here and passed to the window
-        std::string SignatureTitle = m_AppName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = m_ProjectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
         m_Timer = CreateUniqueRef<RZTimer>();
@@ -130,7 +131,7 @@ namespace Razix {
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
             RAZIX_CORE_ERROR("Project File does not exist!");
-            std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+            std::string               projectFullPath = m_ProjectFilePath + m_ProjectName + std::string(".razixproject");
             std::ofstream             opAppStream(projectFullPath);
             cereal::JSONOutputArchive defArchive(opAppStream);
             RAZIX_CORE_TRACE("Creating a default Project file...");
@@ -547,7 +548,7 @@ namespace Razix {
     {
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
-        std::string               projectFullPath = m_AppFilePath + m_AppName + std::string(".razixproject");
+        std::string               projectFullPath = m_ProjectFilePath + m_ProjectName + std::string(".razixproject");
         std::ofstream             opAppStream(projectFullPath);
         cereal::JSONOutputArchive saveArchive(opAppStream);
         saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));

@@ -15,6 +15,8 @@
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
+#include "UI/RZEProjectBrowser.h"
+
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
 #include "Styles/StyleData.h"
@@ -29,7 +31,9 @@ Razix::Editor::RZEInspectorWindow*      inspectorWidget;
 Razix::Editor::RZEViewport*             viewportWidget;
 Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
 Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
-bool                                    didEngineClose = false;
+Razix::Editor::RZEProjectBrowser*       projectBrowserDialog;
+
+bool didEngineClose = false;
 
 using namespace Razix;
 
@@ -37,8 +41,8 @@ class RazixEditorApp : public Razix::RZApplication
 {
 public:
     // TODO: In future we will pass multiple native window handles (for multiple viewports, debug rendering, content viewers etc) for now only a single viewport is sufficient
-    RazixEditorApp()
-        : RZApplication(std::string("/Sandbox/"), "Razix Editor")
+    RazixEditorApp(std::string projectFilePath, std::string projectName)
+        : RZApplication(projectFilePath, projectName)
     {
         // Show the Editor Application after the engine static initialization is complete
 
@@ -164,7 +168,7 @@ private:
 Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Editor Application");
-    return new RazixEditorApp();
+    return new RazixEditorApp(projectBrowserDialog->getProjectPath(), projectBrowserDialog->getProjectName());
 }
 
 // TODO: move the ifdef for platforms defined in EntryPoint to here and to Sandbox
@@ -185,6 +189,15 @@ int main(int argc, char** argv)
     QStyle* style = StyleData::availStyles[1].creator();
     QApplication::setStyle(style);
     qrzeditorApp->setWindowIcon(QIcon(":/rzeditor/RazixLogo64.png"));
+
+    // First we kickoff the project browser Dialog before anything starts
+    projectBrowserDialog = new Razix::Editor::RZEProjectBrowser;
+    if (!projectBrowserDialog->exec())
+        return 69;
+
+
+    printf("Project Name : %s \n", projectBrowserDialog->getProjectName().c_str());
+    printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
 
     mainWindow = new Razix::Editor::RZEMainWindow;
     mainWindow->resize(1280, 720);
@@ -212,7 +225,7 @@ int main(int argc, char** argv)
     vulkanWindowWidget->setWindowIcon(razixIcon);
     vulkanWindowWidget->setWindowTitle("Vulkan Window");
     vulkanWindowWidget->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
-    // Scene Hierarchy  
+    // Scene Hierarchy
     mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.2f));
 
     // In order for event filter to work this is fookin important
@@ -228,6 +241,6 @@ int main(int argc, char** argv)
 
     int r = qrzeditorApp->exec();
     // Wait for engine to completely close
-    while (!didEngineClose) { }
+    while (!didEngineClose) {}
     return r;
 }
