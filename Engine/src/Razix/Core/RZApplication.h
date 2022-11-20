@@ -122,9 +122,9 @@ namespace Razix {
         /* Gets the window size */
         inline glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
         /* Returns a reference to the Application instance */
-        inline std::string RAZIX_CALL getAppName() const { return m_AppName; }
+        inline std::string RAZIX_CALL getAppName() const { return m_ProjectName; }
         /* Gets the razixproject file path */
-        inline std::string getAppFilePath() const { return m_AppFilePath; }
+        inline std::string getAppFilePath() const { return m_ProjectFilePath; }
         /* Gets the window properties */
         inline WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
         /* Gets the application render loop timer */
@@ -134,7 +134,7 @@ namespace Razix {
         void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
         HWND getViewportHWND() { return viewportHWND; }
 
-        void setProjectRoot(const std::string& projPath) { m_AppFilePath = projPath; }
+        void setProjectRoot(const std::string& projPath) { m_ProjectFilePath = projPath; }
 
         void setGuzimoForEntity(RZEntity& entity) { m_GuizmoEntity = entity; }
         void setGuizmoOperation(ImGuizmo::OPERATION operation) { m_GuizmoOperation = operation; }
@@ -152,7 +152,7 @@ namespace Razix {
         {
             std::string projectName;
             archive(cereal::make_nvp("Project Name", projectName));
-            RAZIX_ASSERT_MESSAGE((projectName == m_AppName), "Project name doesn't match with Executable");
+            RAZIX_ASSERT_MESSAGE((projectName == m_ProjectName), "Project name doesn't match with Executable");
             /**
              * Currently the project name will be verified with the one given in the sandbox or game project
              * If it doesn't match it updates the project name, it's not necessary that the name must match the 
@@ -161,7 +161,7 @@ namespace Razix {
              * There's not enforcement on the project names and other properties, the Razix Editor Application 
              * and can load any thing as long it is supplies with the required data to
              */
-            m_AppName = projectName;
+            m_ProjectName = projectName;
             // TODO: Verify these two!
             //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
             //archive(cereal::make_nvp("Project Version", 0));
@@ -191,13 +191,13 @@ namespace Razix {
         void save(Archive& archive) const
         {
             RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
-            archive(cereal::make_nvp("Project Name", m_AppName));
+            archive(cereal::make_nvp("Project Name", m_ProjectName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
             archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
             archive(cereal::make_nvp("Render API", (uint32_t) Graphics::RZGraphicsContext::GetRenderAPI()));
             archive(cereal::make_nvp("Width", m_Window->getWidth()));
             archive(cereal::make_nvp("Height", m_Window->getHeight()));
-            archive(cereal::make_nvp("Project Path", m_AppFilePath));    // Why am I even serializing this?
+            archive(cereal::make_nvp("Project Path", m_ProjectFilePath));    // Why am I even serializing this?
 
             auto& paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
 
@@ -215,8 +215,9 @@ namespace Razix {
         static RZApplication*    s_AppInstance;                      /* The singleton instance of the application                */
         AppState                 m_CurrentState = AppState::Loading; /* The current state of the application                     */
         AppType                  m_appType      = AppType::GAME;     /* The type of the application                              */
-        std::string              m_AppName;                          /* The name of the application                              */
-        std::string              m_AppFilePath;                      /* The path of the Razix Project file (*.razixproject)      */
+        std::string              m_ProjectName;                      /* The name of the application                              */
+        std::string              m_ProjectFilePath;                  /* The path of the Razix Project file (*.razixproject)      */
+        std::string              m_ProjectPath;                      /* The path of the Razix Project Assets folder              */
         uint32_t                 m_RenderAPI;                        /* The Render API being used to render the application      */
         uint32_t                 m_Frames  = 0;                      /* The number of frames per second                          */
         uint32_t                 m_Updates = 0;                      /* The number of updated per second                         */
