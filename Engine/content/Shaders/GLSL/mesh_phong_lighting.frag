@@ -85,18 +85,21 @@ layout(location = 1) out int outEntityID;
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal)
 {
-    vec3 lightDir = normalize(light.direction - fs_in.fragPos);
-    // diffuse shading
+    // Ambient
+    vec3 ambient  = light.color  * vec3(texture(diffuseMap, fs_in.fragTexCoord)) * 0.1f;
+
+    // Diffuse
+    vec3 lightDir = normalize(light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    // specular shading
+    vec3 diffuse = light.color * vec3(texture(diffuseMap, fs_in.fragTexCoord));
+
+    // Specular shading
     vec3 viewDir = normalize(forward_light_data.viewPos - fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec_map = 1.0f - texture(specularMap, fs_in.fragTexCoord).g;
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = spec * vec3(texture(specularMap, fs_in.fragTexCoord));
+
     // combine results
-    vec3 ambient  = light.color  * vec3(texture(diffuseMap, fs_in.fragTexCoord)) * 0.1f;
-    vec3 diffuse  = light.color  * diff * vec3(texture(diffuseMap, fs_in.fragTexCoord));
-    vec3 specular = vec3(spec_map, spec_map, spec_map);
     return ambient + diffuse;
 }  
 //------------------------------------------------------------------------------
@@ -106,7 +109,6 @@ void main()
     vec4 normal = texture(normalMap, fs_in.fragTexCoord);
     vec3 result = CalcDirLight(forward_light_data.lightData.dirLightData, normal.rgb);
     outFragColor = vec4(result, 1.0);
-    //outFragColor = texture(diffuseMap, fs_in.fragTexCoord);
 
     //  Entity ID
     outEntityID = fs_in.ID;

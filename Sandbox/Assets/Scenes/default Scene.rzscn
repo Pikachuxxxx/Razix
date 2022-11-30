@@ -2,9 +2,9 @@
     "Razix Scene": {
         "UUID": "637f8287-567e-494c-a960-3e3818310472",
         "SceneName": "default Scene",
-        "Total Entities": 9
+        "Total Entities": 10
     },
-    "value0": 9,
+    "value0": 10,
     "value1": 0,
     "value2": 1,
     "value3": 2,
@@ -15,83 +15,92 @@
     "value8": 7,
     "value9": 8,
     "value10": 9,
-    "value11": 0,
-    "value12": {
+    "value11": 10,
+    "value12": 0,
+    "value13": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value13": 1,
-    "value14": {
+    "value14": 1,
+    "value15": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value15": 2,
-    "value16": {
+    "value16": 2,
+    "value17": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value17": 3,
-    "value18": {
+    "value18": 3,
+    "value19": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value19": 4,
-    "value20": {
+    "value20": 4,
+    "value21": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value21": 5,
-    "value22": {
+    "value22": 5,
+    "value23": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value23": 6,
-    "value24": {
+    "value24": 6,
+    "value25": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value25": 7,
-    "value26": {
+    "value26": 7,
+    "value27": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value27": 8,
-    "value28": {
+    "value28": 8,
+    "value29": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value29": 9,
-    "value30": 0,
+    "value30": 9,
     "value31": {
+        "UUID": "63343934-3136-6635-2d64-6561612d3430"
+    },
+    "value32": 10,
+    "value33": 0,
+    "value34": {
         "Tag": "Camera"
     },
-    "value32": 1,
-    "value33": {
+    "value35": 1,
+    "value36": {
         "Tag": "Avacado Not Avakaya"
     },
-    "value34": 2,
-    "value35": {
+    "value37": 2,
+    "value38": {
         "Tag": "Directional Light"
     },
-    "value36": 3,
-    "value37": {
+    "value39": 3,
+    "value40": {
         "Tag": "imgui_script_entity"
     },
-    "value38": 4,
-    "value39": {
+    "value41": 4,
+    "value42": {
         "Tag": "Ground"
     },
-    "value40": 5,
-    "value41": {
+    "value43": 5,
+    "value44": {
         "Tag": "stupid Entity"
     },
-    "value42": 6,
-    "value43": {
+    "value45": 6,
+    "value46": {
         "Tag": "Entity"
     },
-    "value44": 7,
-    "value45": {
+    "value47": 7,
+    "value48": {
         "Tag": "Sphere"
     },
-    "value46": 8,
-    "value47": {
+    "value49": 8,
+    "value50": {
         "Tag": "Entity"
     },
-    "value48": 0,
-    "value49": 9,
-    "value50": 0,
-    "value51": {
+    "value51": 9,
+    "value52": {
+        "Tag": "Sponza Model"
+    },
+    "value53": 0,
+    "value54": 10,
+    "value55": 0,
+    "value56": {
         "Translation": {
             "x": 7.269518852233887,
             "y": 0.0,
@@ -103,13 +112,13 @@
             "z": 0.0
         },
         "Scale": {
-            "x": 1.0,
+            "x": 0.7572417259216309,
             "y": 1.0,
             "z": 1.0
         }
     },
-    "value52": 1,
-    "value53": {
+    "value57": 1,
+    "value58": {
         "Translation": {
             "x": -4.741194725036621,
             "y": 2.917593002319336,
@@ -126,8 +135,8 @@
             "z": 3.6499996185302736
         }
     },
-    "value54": 2,
-    "value55": {
+    "value59": 2,
+    "value60": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -144,8 +153,8 @@
             "z": 1.0
         }
     },
-    "value56": 3,
-    "value57": {
+    "value61": 3,
+    "value62": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -162,8 +171,8 @@
             "z": 1.0
         }
     },
-    "value58": 4,
-    "value59": {
+    "value63": 4,
+    "value64": {
         "Translation": {
             "x": 5.822906017303467,
             "y": 0.0,
@@ -180,8 +189,8 @@
             "z": 4.682013511657715
         }
     },
-    "value60": 5,
-    "value61": {
+    "value65": 5,
+    "value66": {
         "Translation": {
             "x": -5.233269691467285,
             "y": 0.0,
@@ -198,8 +207,8 @@
             "z": 1.0
         }
     },
-    "value62": 6,
-    "value63": {
+    "value67": 6,
+    "value68": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -216,8 +225,8 @@
             "z": 1.0
         }
     },
-    "value64": 7,
-    "value65": {
+    "value69": 7,
+    "value70": {
         "Translation": {
             "x": -2.825206756591797,
             "y": 7.450580596923828e-9,
@@ -234,8 +243,8 @@
             "z": 1.0
         }
     },
-    "value66": 8,
-    "value67": {
+    "value71": 8,
+    "value72": {
         "Translation": {
             "x": 8.925010681152344,
             "y": 5.212889671325684,
@@ -252,38 +261,56 @@
             "z": 1.6299999952316285
         }
     },
-    "value68": 1,
-    "value69": 0,
-    "value70": {
+    "value73": 9,
+    "value74": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 72.42852783203125
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.04959678277373314,
+            "y": 0.037800006568431857,
+            "z": 0.037800006568431857
+        }
+    },
+    "value75": 1,
+    "value76": 0,
+    "value77": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 20.314834594726564,
-                "y": 20.12607765197754,
-                "z": -35.35593032836914
+                "x": 96.1465835571289,
+                "y": 118.70814514160156,
+                "z": -9.402008056640625
             },
             "Front": {
-                "x": -0.6336937546730042,
-                "y": -0.4186597466468811,
-                "z": 0.6505046486854553
+                "x": -0.6039241552352905,
+                "y": -0.713250458240509,
+                "z": 0.3557378053665161
             },
             "Up": {
-                "x": -0.2921368181705475,
-                "y": 0.908143162727356,
-                "z": 0.2998867332935333
+                "x": -0.6145577430725098,
+                "y": 0.7009093165397644,
+                "z": 0.3620014488697052
             },
             "Right": {
-                "x": -0.7163017988204956,
+                "x": -0.5075376033782959,
                 "y": 0.0,
-                "z": -0.6977905631065369
+                "z": -0.8616296052932739
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -225.75,
-            "Pitch": -24.75,
+            "Yaw": -930.5,
+            "Pitch": -45.5,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -297,48 +324,52 @@
             "AspectRatio": 1.7777777910232545
         }
     },
-    "value71": 0,
-    "value72": 3,
-    "value73": 4,
-    "value74": {
+    "value78": 0,
+    "value79": 3,
+    "value80": 4,
+    "value81": {
         "Primitive": 2,
         "MeshName": ""
     },
-    "value75": 7,
-    "value76": {
+    "value82": 7,
+    "value83": {
         "Primitive": 4,
         "MeshName": ""
     },
-    "value77": 8,
-    "value78": {
+    "value84": 8,
+    "value85": {
         "Primitive": 4,
         "MeshName": ""
     },
-    "value79": 1,
-    "value80": 1,
-    "value81": {
+    "value86": 2,
+    "value87": 1,
+    "value88": {
         "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/Avocado.gltf"
     },
-    "value82": 1,
-    "value83": 3,
-    "value84": {
+    "value89": 9,
+    "value90": {
+        "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/Sponza/Sponza.gltf"
+    },
+    "value91": 1,
+    "value92": 3,
+    "value93": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value85": 1,
-    "value86": 2,
-    "value87": {
+    "value94": 1,
+    "value95": 2,
+    "value96": {
         "Light": {
             "type": 0,
             "DirectionalLight": {
                 "direction": {
-                    "x": 6.0,
-                    "y": 4.0,
-                    "z": 3.0
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
                 },
                 "color": {
-                    "x": 0.6000000238418579,
-                    "y": 0.30000001192092898,
-                    "z": 0.4000000059604645
+                    "x": 1.600000023841858,
+                    "y": 1.2999999523162842,
+                    "z": 1.399999976158142
                 },
                 "time": 0.0
             }

@@ -36,7 +36,7 @@ namespace Razix {
         RZVirtualFileSystem::Get().StartUp();
 
         // TODO: Temp code remove this!!!
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // 2. Scene Manager
         RZSceneManager::Get().StartUp();
@@ -44,7 +44,7 @@ namespace Razix {
         // 3. Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
@@ -53,7 +53,7 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Engine Ignited!");
 
         // TODO: Temp code remove this!!!
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Destroy the splash screen since the engine has Ignited successfully!
         //Razix::RZSplashScreen::Get().destroy();

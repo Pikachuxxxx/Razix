@@ -87,7 +87,7 @@ namespace Razix {
             QList<QTreeWidgetItem*> clist    = ui.sceneTree->findItems(QString(itemName.c_str()), Qt::MatchContains | Qt::MatchRecursive, 0);
             // TODO: Add support multi entity editing sometime in future
             ui.sceneTree->setItemSelected(clist[0], true);
-            //RZApplication::Get().setGuzimoForEntity(entity);
+            RZApplication::Get().setGuzimoForEntity(entity);
 
             emit OnEntitySelected(entity);
         }
