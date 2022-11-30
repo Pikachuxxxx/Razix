@@ -35,7 +35,7 @@ public:
         auto& modelEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
         if (!modelEnitties.size()) {
             // Avocado
-            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Avacado Model");
+            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Avocado Model");
             armadilloModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Avocado.gltf");
         }
 

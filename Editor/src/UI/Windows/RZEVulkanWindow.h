@@ -43,7 +43,7 @@ namespace Razix {
                         m_UserIsResizing = false;    // reset user resizing flag
 
                         if (!m_RZWindow)
-                            return false;
+                            return QObject::eventFilter(watched, event);
 
                         auto& callback = m_RZWindow->getEventCallbackFunc();
 
@@ -105,6 +105,8 @@ namespace Razix {
                 RAZIX_CORE_WARN("qt SELECTED ENTITY on button press : {0}", selectedEntity);
                 // Find the entity from the registry
                 Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
+                if (!scene)
+                    return;
                 auto&           registry = scene->getRegistry();
 
                 registry.each([&](auto& entity) {
