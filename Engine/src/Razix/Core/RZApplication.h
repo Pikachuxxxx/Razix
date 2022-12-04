@@ -58,9 +58,9 @@ namespace Razix {
     class RAZIX_API RZApplication : public RZRoot
     {
     public:
-        static std::mutex              m;
-        static std::condition_variable halt_execution;
-        static bool                    ready_for_execution;
+        //static std::mutex              m;
+        //static std::condition_variable halt_execution;
+        //static bool                    ready_for_execution;
 
     public:
         /**
@@ -85,6 +85,13 @@ namespace Razix {
 
         /* Save the application */
         void SaveApp();
+
+        /**
+         * Renders the frame and displays the graphics and updates the window
+         * 
+         * @returns True if the frame was successfully rendered by checking the state
+         */
+        bool RenderFrame();
 
         /**
          * Called before the application starts rendering
@@ -232,12 +239,6 @@ namespace Razix {
         ImGuizmo::OPERATION      m_GuizmoOperation;
 
     private:
-        /**
-         * Renders the frame and displays the graphics and updates the window
-         * 
-         * @returns True, if the frame was successfully rendered by checking the state
-         */
-        bool RenderFrame();
         /* Starts the application */
         void Start();
         /* Updates the engine and application runtime systems */

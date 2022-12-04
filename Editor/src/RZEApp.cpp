@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <QVulkanInstance>
 
+#include "RZEEngineLoop.h"
+
 #include "RZENativeWindow.h"
 #include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 #include "UI/Widgets/RZECollapsingHeader.h"
@@ -26,7 +28,6 @@
 // TOOD: Clean this cluster fuck code!!!
 static QApplication*                    qrzeditorApp = nullptr;
 Razix::Editor::RZEMainWindow*           mainWindow;
-Razix::Editor::RZEVulkanWindow*         vulkanWindow;
 Razix::Editor::RZEInspectorWindow*      inspectorWidget;
 Razix::Editor::RZEViewport*             viewportWidget;
 Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
@@ -49,13 +50,13 @@ public:
         Razix::RZApplication::Get().setAppType(Razix::AppType::EDITOR);
 
         // get the hwnd handle
-        HWND hWnd = (HWND) vulkanWindow->winId();
+        //HWND hWnd = (HWND) vulkanWindow->winId();
 
-        vulkanWindow->InitRZWindow();
+        //vulkanWindow->InitRZWindow();
 
         Razix::Editor::RZENativeWindow::Construct();
-        Razix::RZApplication::setViewportWindow(vulkanWindow->getRZNativeWindow() /*Razix::RZWindow::Create(&hWnd, properties)*/ /* TODO: Create the window by taking it from vulkanWindow and binding the event callbacks so update the properties properly */);
-        Razix::RZApplication::Get().setViewportHWND(hWnd);
+        //Razix::RZApplication::setViewportWindow(vulkanWindow->getRZNativeWindow() /*Razix::RZWindow::Create(&hWnd, properties)*/ /* TODO: Create the window by taking it from vulkanWindow and binding the event callbacks so update the properties properly */);
+        //Razix::RZApplication::Get().setViewportHWND(hWnd);
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------
@@ -65,17 +66,16 @@ public:
         RAZIX_CORE_INFO("Initializing Graphics Context...");
         Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
-
+        /*
         vulkanWindow->Init();
 
         vulkanWindow->setTitle("Vulkan Window");
 
         Razix::RZApplication::Get().Init();
 
-        QMetaObject::invokeMethod(qrzeditorApp, [] {
-            contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
-            mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
-        });
+        //QMetaObject::invokeMethod(qrzeditorApp, [] {
+
+        //});
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
         Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
@@ -84,12 +84,7 @@ public:
 
         vulkanWindow->getRZNativeWindow()->setWidth(vulkanWindow->width());
         vulkanWindow->getRZNativeWindow()->setHeight(vulkanWindow->height());
-
-        // Since it will be locked/halted for initial resize that is called when the QT window is created we manually trigger it again to resume execution
-        std::lock_guard<std::mutex> lk(RZApplication::m);
-        RZApplication::ready_for_execution = true;
-        RAZIX_INFO("Triggering worker thread to halt execution ::::");
-        RZApplication::halt_execution.notify_one();
+        */
     }
 
 private:
@@ -156,10 +151,10 @@ private:
 
     void RAZIX_CALL OnResize(uint32_t width, uint32_t height) override
     {
-        std::lock_guard<std::mutex> lk(RZApplication::m);
-        RZApplication::ready_for_execution = true;
-        RAZIX_INFO("Triggering worker thread to halt execution ::::");
-        RZApplication::halt_execution.notify_one();
+        //std::lock_guard<std::mutex> lk(RZApplication::m);
+        //RZApplication::ready_for_execution = true;
+        //RAZIX_INFO("Triggering worker thread to halt execution ::::");
+        //RZApplication::halt_execution.notify_one();
 
         RAZIX_TRACE("Window Resize override Editor application! | W : {0}, H : {1}", width, height);
     }
@@ -174,12 +169,12 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 // TODO: move the ifdef for platforms defined in EntryPoint to here and to Sandbox
 HINSTANCE razixDll;
 
-void LoadEngineDLL(int argc, char** argv)
-{
-    razixDll = LoadLibrary(L"Razix.dll");
-    EngineMain(argc, argv);
-    didEngineClose = true;
-}
+//void LoadEngineDLL(int argc, char** argv)
+//{
+//    razixDll = LoadLibrary(L"Razix.dll");
+//    EngineMain(argc, argv);
+//    didEngineClose = true;
+//}
 
 int main(int argc, char** argv)
 {
@@ -194,7 +189,6 @@ int main(int argc, char** argv)
     projectBrowserDialog = new Razix::Editor::RZEProjectBrowser;
     if (!projectBrowserDialog->exec())
         return 69;
-
 
     printf("Project Name : %s \n", projectBrowserDialog->getProjectName().c_str());
     printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
@@ -216,26 +210,33 @@ int main(int argc, char** argv)
     viewportWidget->setWindowIcon(razixIcon);
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
-    //mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
+    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
 
-    vulkanWindow = new Razix::Editor::RZEVulkanWindow(sceneHierarchyPanel);
+    //vulkanWindow = new Razix::Editor::RZEVulkanWindow();
     //vulkanWindow->show();
-    auto vulkanWindowWidget = QWidget::createWindowContainer(vulkanWindow);
+    ////auto vulkanWindowWidget = QWidget::createWindowContainer(vulkanWindow);
 
-    vulkanWindowWidget->setWindowIcon(razixIcon);
-    vulkanWindowWidget->setWindowTitle("Vulkan Window");
-    vulkanWindowWidget->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+    //vulkanWindow->setWindowIcon(razixIcon);
+    //vulkanWindow->setWindowTitle("Viewport Window (VK)");
+    // vulkanWindowWidget->resize(1280, 720);
+    // vulkanWindowWidget->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
     // Scene Hierarchy
     mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.2f));
 
     // In order for event filter to work this is fookin important
-    qrzeditorApp->installEventFilter(vulkanWindow);
+    //qrzeditorApp->installEventFilter(vulkanWindow);
 
-    mainWindow->getToolWindowManager()->addToolWindow(vulkanWindowWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.8f));
-    vulkanWindowWidget->activateWindow();
+    //mainWindow->getToolWindowManager()->addToolWindow(vulkanWindow, ToolWindowManager::AreaReference(ToolWindowManager::RightOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.8f));
+
+    //contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
+    //mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+
     // Load the engine DLL and Ignite it on a separate thread
-    std::thread engineThread(LoadEngineDLL, argc, argv);
-    engineThread.detach();
+    // std::thread engineThread(LoadEngineDLL, argc, argv);
+    // engineThread.detach();
+    // EngineMain(argc, argv);
+    // Razix::Editor::RZEEngineLoop engineLoop;
+    // engineLoop.launch();
 
     mainWindow->show();
 

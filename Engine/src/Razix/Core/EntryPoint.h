@@ -25,7 +25,7 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
-int EngineMain(int argc, char** argv)
+static int EngineMain(int argc, char** argv)
 {
     // Read the command line arguments
     static std::vector<const char*> args;
@@ -68,15 +68,19 @@ int EngineMain(int argc, char** argv)
 
     // Run the  Application with the master controlled given to the OS
     windowsOS->Run();
-    delete windowsOS;
+    //delete windowsOS;
 
+   
+    return EXIT_SUCCESS;
+}
+
+static void EngineExit()
+{
     // Shutdown the Engine
     Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
     Razix::Debug::RZLog::Shutdown();
-
-    return EXIT_SUCCESS;
 }
 
 #endif

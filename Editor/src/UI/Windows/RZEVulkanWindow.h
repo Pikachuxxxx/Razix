@@ -21,13 +21,13 @@
 namespace Razix {
     namespace Editor {
 
-        class RZEVulkanWindow : public QWindow, public Razix::RZInput
+        class RZEVulkanWindow : public QWindow//, public Razix::RZInput
         {
             Q_OBJECT
 
         public:
             bool isExposed = false;
-            RZEVulkanWindow(RZESceneHierarchyPanel* hierarchyPanel, QWindow* parentWindow = nullptr);
+            RZEVulkanWindow(QWindow* parentWindow = nullptr);
             ~RZEVulkanWindow();
 
             void Init();
@@ -61,10 +61,10 @@ namespace Razix {
             void resizeEvent(QResizeEvent* event)
             {
                 // Now stop the other thread first from rendering before we issue resize commands
-                std::lock_guard<std::mutex> lk(RZApplication::m);
-                RZApplication::ready_for_execution = false;
-                RAZIX_INFO("Triggering worker thread to halt execution ::::");
-                RZApplication::halt_execution.notify_one();
+                //std::lock_guard<std::mutex> lk(RZApplication::m);
+                //RZApplication::ready_for_execution = false;
+                //RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                //RZApplication::halt_execution.notify_one();
 
                 // override from QWidget that triggers whenever the user resizes the window
                 m_UserIsResizing = true;
@@ -104,10 +104,10 @@ namespace Razix {
                 selectedEntity         = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
                 RAZIX_CORE_WARN("qt SELECTED ENTITY on button press : {0}", selectedEntity);
                 // Find the entity from the registry
-                Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
+                Razix::RZScene* scene = RZEngine::Get().getSceneManager().getCurrentScene();
                 if (!scene)
                     return;
-                auto&           registry = scene->getRegistry();
+                auto& registry = scene->getRegistry();
 
                 registry.each([&](auto& entity) {
                     if (registry.valid(entity)) {
@@ -188,17 +188,17 @@ namespace Razix {
             bool             m_MouseReleaseDirty;
 
         protected:
-            bool IsKeyPressedImpl(int keycode) override;
-            bool IsKeyReleasedImpl(int keycode) override;
-            bool IsIsKeyHeldImpl(int keycode) override;
-            bool IsMouseButtonPressedImpl(int button) override;
-            bool IsMouseButtonReleasedImpl(int button) override;
-            bool IsMouseButtonHeldImpl(int button) override;
+            //bool IsKeyPressedImpl(int keycode) override;
+            //bool IsKeyReleasedImpl(int keycode) override;
+            //bool IsIsKeyHeldImpl(int keycode) override;
+            //bool IsMouseButtonPressedImpl(int button) override;
+            //bool IsMouseButtonReleasedImpl(int button) override;
+            //bool IsMouseButtonHeldImpl(int button) override;
 
-            float GetMouseXImpl() override;
-            float GetMouseYImpl() override;
+            //float GetMouseXImpl() override;
+            //float GetMouseYImpl() override;
 
-            std::pair<float, float> GetMousePositionImpl() override;
+            //std::pair<float, float> GetMousePositionImpl() override;
         };
     }    // namespace Editor
 }    // namespace Razix

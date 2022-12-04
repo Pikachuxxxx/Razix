@@ -43,9 +43,9 @@ namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
     // Editor-Graphics API Resize primitives won't make into final game so not an issues as of now!!!
-    bool                    RZApplication::ready_for_execution = false;
-    std::mutex              RZApplication::m;
-    std::condition_variable RZApplication::halt_execution;
+    //bool                    RZApplication::ready_for_execution = false;
+    //std::mutex              RZApplication::m;
+    //std::condition_variable RZApplication::halt_execution;
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
         : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE)
@@ -263,9 +263,9 @@ namespace Razix {
 
         Start();
 
-        while (RenderFrame()) {}
-        Quit();
-        SaveApp();
+        //while (RenderFrame()) {}
+        //Quit();
+        //SaveApp();
     }
 
     bool RZApplication::RenderFrame()
@@ -346,17 +346,17 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        if (RZApplication::Get().getAppType() != AppType::GAME) {
-            // Wait until Editor sends data
-            std::unique_lock<std::mutex> lk(m);
-            halt_execution.wait(lk, [] {
-                return ready_for_execution;
-            });
-            // Manual unlocking is done before notifying, to avoid waking up
-            // the waiting thread only to block again (see notify_one for details)
-            lk.unlock();
-            halt_execution.notify_one();
-        }
+        //if (RZApplication::Get().getAppType() != AppType::GAME) {
+        //    // Wait until Editor sends data
+        //    std::unique_lock<std::mutex> lk(m);
+        //    halt_execution.wait(lk, [] {
+        //        return ready_for_execution;
+        //    });
+        //    // Manual unlocking is done before notifying, to avoid waking up
+        //    // the waiting thread only to block again (see notify_one for details)
+        //    lk.unlock();
+        //    halt_execution.notify_one();
+        //}
 
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
@@ -375,7 +375,6 @@ namespace Razix {
 
         // Client App Update
         OnUpdate(dt);
-
 #if 1
 
 #endif
@@ -385,12 +384,14 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
+        // Disable rendering if needed here
+
         // We are not checking if the current is scene is null or not
-        Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        //Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-        Razix::RZEngine::Get().getRenderStack().OnRender();
+        //Razix::RZEngine::Get().getRenderStack().OnRender();
 
-        Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        //Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
         OnRender();
     }
