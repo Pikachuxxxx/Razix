@@ -49,14 +49,16 @@ public:
 
         Razix::RZApplication::Get().setAppType(Razix::AppType::EDITOR);
 
-        // get the hwnd handle
-        //HWND hWnd = (HWND) vulkanWindow->winId();
+        auto vulkanWindow = viewportWidget->getVulkanWindow();
 
-        //vulkanWindow->InitRZWindow();
+        // get the hwnd handle
+        HWND hWnd = (HWND) vulkanWindow->winId();
+
+        vulkanWindow->InitRZWindow();
 
         Razix::Editor::RZENativeWindow::Construct();
-        //Razix::RZApplication::setViewportWindow(vulkanWindow->getRZNativeWindow() /*Razix::RZWindow::Create(&hWnd, properties)*/ /* TODO: Create the window by taking it from vulkanWindow and binding the event callbacks so update the properties properly */);
-        //Razix::RZApplication::Get().setViewportHWND(hWnd);
+        Razix::RZApplication::setViewportWindow(vulkanWindow->getRZNativeWindow() /*Razix::RZWindow::Create(&hWnd, properties)*/ /* TODO: Create the window by taking it from vulkanWindow and binding the event callbacks so update the properties properly */);
+        Razix::RZApplication::Get().setViewportHWND(hWnd);
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------
@@ -66,16 +68,15 @@ public:
         RAZIX_CORE_INFO("Initializing Graphics Context...");
         Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
-        /*
+
         vulkanWindow->Init();
 
         vulkanWindow->setTitle("Vulkan Window");
 
         Razix::RZApplication::Get().Init();
 
-        //QMetaObject::invokeMethod(qrzeditorApp, [] {
-
-        //});
+        //contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
+        //mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
         Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
@@ -84,7 +85,6 @@ public:
 
         vulkanWindow->getRZNativeWindow()->setWidth(vulkanWindow->width());
         vulkanWindow->getRZNativeWindow()->setHeight(vulkanWindow->height());
-        */
     }
 
 private:
@@ -169,12 +169,12 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 // TODO: move the ifdef for platforms defined in EntryPoint to here and to Sandbox
 HINSTANCE razixDll;
 
-//void LoadEngineDLL(int argc, char** argv)
-//{
-//    razixDll = LoadLibrary(L"Razix.dll");
-//    EngineMain(argc, argv);
-//    didEngineClose = true;
-//}
+void LoadEngineDLL(int argc, char** argv)
+{
+    razixDll = LoadLibrary(L"Razix.dll");
+    EngineMain(argc, argv);
+    didEngineClose = true;
+}
 
 int main(int argc, char** argv)
 {
@@ -208,9 +208,10 @@ int main(int argc, char** argv)
     QIcon razixIcon(":/rzeditor/RazixLogo64.png");
     inspectorWidget->setWindowIcon(razixIcon);
     viewportWidget->setWindowIcon(razixIcon);
+    viewportWidget->show();
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
-    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
+    //mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
 
     //vulkanWindow = new Razix::Editor::RZEVulkanWindow();
     //vulkanWindow->show();
@@ -226,17 +227,14 @@ int main(int argc, char** argv)
     // In order for event filter to work this is fookin important
     //qrzeditorApp->installEventFilter(vulkanWindow);
 
-    //mainWindow->getToolWindowManager()->addToolWindow(vulkanWindow, ToolWindowManager::AreaReference(ToolWindowManager::RightOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.8f));
-
-    //contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
-    //mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::NewFloatingArea));
 
     // Load the engine DLL and Ignite it on a separate thread
-    // std::thread engineThread(LoadEngineDLL, argc, argv);
-    // engineThread.detach();
-    // EngineMain(argc, argv);
-    // Razix::Editor::RZEEngineLoop engineLoop;
-    // engineLoop.launch();
+    std::thread engineThread(LoadEngineDLL, argc, argv);
+    engineThread.detach();
+    //EngineMain(argc, argv);
+    //Razix::Editor::RZEEngineLoop engineLoop;
+    //engineLoop.launch();
 
     mainWindow->show();
 

@@ -21,7 +21,7 @@
 namespace Razix {
     namespace Editor {
 
-        class RZEVulkanWindow : public QWindow//, public Razix::RZInput
+        class RZEVulkanWindow : public QWindow, public Razix::RZInput
         {
             Q_OBJECT
 
@@ -188,17 +188,17 @@ namespace Razix {
             bool             m_MouseReleaseDirty;
 
         protected:
-            //bool IsKeyPressedImpl(int keycode) override;
-            //bool IsKeyReleasedImpl(int keycode) override;
-            //bool IsIsKeyHeldImpl(int keycode) override;
-            //bool IsMouseButtonPressedImpl(int button) override;
-            //bool IsMouseButtonReleasedImpl(int button) override;
-            //bool IsMouseButtonHeldImpl(int button) override;
+            bool IsKeyPressedImpl(int keycode) override;
+            bool IsKeyReleasedImpl(int keycode) override;
+            bool IsIsKeyHeldImpl(int keycode) override;
+            bool IsMouseButtonPressedImpl(int button) override;
+            bool IsMouseButtonReleasedImpl(int button) override;
+            bool IsMouseButtonHeldImpl(int button) override;
 
-            //float GetMouseXImpl() override;
-            //float GetMouseYImpl() override;
+            float GetMouseXImpl() override;
+            float GetMouseYImpl() override;
 
-            //std::pair<float, float> GetMousePositionImpl() override;
+            std::pair<float, float> GetMousePositionImpl() override;
         };
     }    // namespace Editor
 }    // namespace Razix

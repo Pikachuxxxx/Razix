@@ -36,6 +36,8 @@ namespace Razix {
                 m_UserIsResizing = true;
             }
 
+            inline RZEVulkanWindow* getVulkanWindow() { return m_VulkanViewportWindow; }
+
         private:
             Ui::Viewport     ui;
             bool             m_UserIsResizing = false;
