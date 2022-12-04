@@ -263,9 +263,9 @@ namespace Razix {
 
         Start();
 
-        //while (RenderFrame()) {}
-        //Quit();
-        //SaveApp();
+        while (RenderFrame()) {}
+        Quit();
+        SaveApp();
     }
 
     bool RZApplication::RenderFrame()
@@ -387,11 +387,11 @@ namespace Razix {
         // Disable rendering if needed here
 
         // We are not checking if the current is scene is null or not
-        //Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-        //Razix::RZEngine::Get().getRenderStack().OnRender();
+        Razix::RZEngine::Get().getRenderStack().OnRender();
 
-        //Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
         OnRender();
     }

@@ -14,7 +14,7 @@ namespace Razix {
         {
             setSurfaceType(VulkanSurface);
 
-            //connect(this, &RZEVulkanWindow::OnEntitySelected, hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
+            //connect(this, &RZEVulkanWindow::OnEntitySelected, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
         }
 
         RZEVulkanWindow::~RZEVulkanWindow()
@@ -23,7 +23,7 @@ namespace Razix {
 
         void RZEVulkanWindow::Init()
         {
-            /*Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
+            Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
 
             m_QVKInstance.setVkInstance(context->getInstance());
             auto result = m_QVKInstance.create();
@@ -32,7 +32,7 @@ namespace Razix {
 
             auto version = m_QVKInstance.apiVersion();
 
-            sInstance = this;*/
+            sInstance = this;
         }
 
         void RZEVulkanWindow::InitRZWindow()
@@ -47,7 +47,7 @@ namespace Razix {
             m_RZWindow = new RZENativeWindow(&hwnd, props);
         }
 
-        /*
+        
         bool RZEVulkanWindow::IsKeyPressedImpl(int keycode)
         {
             if (keycode == m_KeyPressed) {
@@ -113,7 +113,7 @@ namespace Razix {
         {
             return m_MousePos.y;
         }
-        */
+        
 
     }    // namespace Editor
 }    // namespace Razix

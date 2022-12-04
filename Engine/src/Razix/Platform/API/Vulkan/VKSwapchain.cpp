@@ -100,8 +100,6 @@ namespace Razix {
             m_IsResized = true;
 
             //  Wait for the device to be done executing all the commands
-            //VKContext::Get()->waitIdle();
-
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
             m_Width  = width;
@@ -125,8 +123,6 @@ namespace Razix {
             m_Swapchain = VK_NULL_HANDLE;
 
             Init(width, height);
-
-            //VKContext::Get()->setSwapchain(this);
         }
 
         void VKSwapchain::querySwapSurfaceProperties()
@@ -330,16 +326,17 @@ namespace Razix {
                 auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_Frames[nextCmdBufferIndex].presentSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
                     VK_CHECK_RESULT(result);
-                    //RAZIX_CORE_TRACE("[Vulkan] Acquire Image result : %s", );
 
                     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-                        /*             std::unique_lock<std::mutex> lk(RZApplication::m);
-                        RZApplication::halt_execution.wait(lk, [] {
-                            return RZApplication::ready_for_execution;
-                        });*/
-                        OnResize(m_Width, m_Height);
+                        /*             
+                            std::unique_lock<std::mutex> lk(RZApplication::m);
+                            RZApplication::halt_execution.wait(lk, [] {
+                                return RZApplication::ready_for_execution;
+                            });
+                        */
+                        //OnResize(m_Width, m_Height);
                         vkDeviceWaitIdle(VKDevice::Get().getDevice());
-                        acquireNextImage();
+                        //acquireNextImage();
                     }
                     return;
                 } else if (result != VK_SUCCESS)
@@ -427,7 +424,7 @@ namespace Razix {
             //VKUtilities::TransitionImageLayout(currentVKImage, m_ColorFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
             if (error == VK_ERROR_OUT_OF_DATE_KHR) {
-                //vkDeviceWaitIdle(VKDevice::Get().getDevice());
+                vkDeviceWaitIdle(VKDevice::Get().getDevice());
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
             } else if (error == VK_SUBOPTIMAL_KHR)
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
