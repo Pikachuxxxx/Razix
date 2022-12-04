@@ -5,6 +5,8 @@
 
 #include "generated/ui_RZEViewport.h"
 
+#include "UI/Windows/RZEVulkanWindow.h"
+
 namespace Razix {
     namespace Editor {
         class RZEViewport : public QWidget
@@ -35,8 +37,9 @@ namespace Razix {
             }
 
         private:
-            Ui::Viewport ui;
-            bool         m_UserIsResizing = false;
+            Ui::Viewport     ui;
+            bool             m_UserIsResizing = false;
+            RZEVulkanWindow* m_VulkanViewportWindow;
         };
     }    // namespace Editor
 }    // namespace Razix

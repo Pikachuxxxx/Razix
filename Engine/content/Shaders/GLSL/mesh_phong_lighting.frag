@@ -100,7 +100,7 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal)
     vec3 specular = spec * vec3(texture(specularMap, fs_in.fragTexCoord));
 
     // combine results
-    return ambient + diffuse;
+    return diffuse;//  ambient + diffuse;
 }  
 //------------------------------------------------------------------------------
 // Main
