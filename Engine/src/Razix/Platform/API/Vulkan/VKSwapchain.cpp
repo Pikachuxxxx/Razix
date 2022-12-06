@@ -97,7 +97,8 @@ namespace Razix {
             if (m_Width == width && m_Height == height)
                 return;
 
-            m_IsResized = true;
+            m_IsResized  = true;
+            m_IsResizing = true;
 
             //  Wait for the device to be done executing all the commands
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
@@ -123,6 +124,7 @@ namespace Razix {
             m_Swapchain = VK_NULL_HANDLE;
 
             Init(width, height);
+            m_IsResizing = false;
         }
 
         void VKSwapchain::querySwapSurfaceProperties()
@@ -321,6 +323,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            if (m_IsResizing)
+                return;
             uint32_t nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
             {
                 auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_Frames[nextCmdBufferIndex].presentSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
@@ -349,6 +353,8 @@ namespace Razix {
 
         void VKSwapchain::queueSubmit(CommandQueue& commandQueue)
         {
+            if (m_IsResizing)
+                return;
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto& frameData = getCurrentFrameSyncData();
@@ -387,6 +393,8 @@ namespace Razix {
 
         void VKSwapchain::present()
         {
+            if (m_IsResizing)
+                return;
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto& frameData = getCurrentFrameSyncData();

@@ -58,9 +58,9 @@ namespace Razix {
     class RAZIX_API RZApplication : public RZRoot
     {
     public:
-        //static std::mutex              m;
-        //static std::condition_variable halt_execution;
-        //static bool                    ready_for_execution;
+        static std::mutex              m;
+        static std::condition_variable halt_execution;
+        static bool                    ready_for_execution;
 
     public:
         /**
@@ -237,7 +237,6 @@ namespace Razix {
         std::vector<std::string> sceneFilePaths;
         RZEntity                 m_GuizmoEntity;
         ImGuizmo::OPERATION      m_GuizmoOperation;
-
     private:
         /* Starts the application */
         void Start();

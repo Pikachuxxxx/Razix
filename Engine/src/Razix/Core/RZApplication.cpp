@@ -43,9 +43,9 @@ namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
     // Editor-Graphics API Resize primitives won't make into final game so not an issues as of now!!!
-    //bool                    RZApplication::ready_for_execution = false;
-    //std::mutex              RZApplication::m;
-    //std::condition_variable RZApplication::halt_execution;
+    bool                    RZApplication::ready_for_execution = false;
+    std::mutex              RZApplication::m;
+    std::condition_variable RZApplication::halt_execution;
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
         : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE)
@@ -185,6 +185,11 @@ namespace Razix {
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
+        std::thread::id this_id = std::this_thread::get_id();
+        RAZIX_CORE_WARN("||||||||||||||||||");
+        RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
+        RAZIX_CORE_WARN("||||||||||||||||||");
+
         RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
@@ -263,15 +268,32 @@ namespace Razix {
 
         Start();
 
-        while (RenderFrame()) {}
-        Quit();
-        SaveApp();
+        //while (RenderFrame()) {}
+        //Quit();
+        //SaveApp();
     }
 
     bool RZApplication::RenderFrame()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
+
+        std::thread::id this_id = std::this_thread::get_id();
+        RAZIX_CORE_WARN("||||||||||||||||||");
+        RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
+        RAZIX_CORE_WARN("||||||||||||||||||");
+
+        if (RZApplication::Get().getAppType() != AppType::GAME) {
+            // Wait until Editor sends data
+            std::unique_lock<std::mutex> lk(m);
+            halt_execution.wait(lk, [] {
+                return ready_for_execution;
+            });
+            // Manual unlocking is done before notifying, to avoid waking up
+            // the waiting thread only to block again (see notify_one for details)
+            lk.unlock();
+            halt_execution.notify_one();
+        }
 
         // TODO: Add Time stamp Queries for calculating GPU time here
 
@@ -345,18 +367,6 @@ namespace Razix {
     void RZApplication::Update(const RZTimestep& dt)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        //if (RZApplication::Get().getAppType() != AppType::GAME) {
-        //    // Wait until Editor sends data
-        //    std::unique_lock<std::mutex> lk(m);
-        //    halt_execution.wait(lk, [] {
-        //        return ready_for_execution;
-        //    });
-        //    // Manual unlocking is done before notifying, to avoid waking up
-        //    // the waiting thread only to block again (see notify_one for details)
-        //    lk.unlock();
-        //    halt_execution.notify_one();
-        //}
 
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here

@@ -2,8 +2,9 @@
 
 #include <QObject>
 
-#include <Razix/Core/RZApplication.h>
+#include <Razix.h>
 #include <Razix/Core/EntryPoint.h>
+#include <Razix/Core/RZApplication.h>
 
 namespace Razix {
     namespace Editor {
@@ -12,17 +13,19 @@ namespace Razix {
             Q_OBJECT
 
         public:
-            RZEEngineLoop(QObject *parent = nullptr);
+            RZEEngineLoop(int argc, char** argv, QObject* parent = nullptr);
             ~RZEEngineLoop();
 
         public slots:
 
             void launch()
             {
+                EngineMain(argc, argv);
+
                 tickNext();
             }
 
-        private slots:
+        public slots:
 
             void tick()
             {
@@ -30,12 +33,7 @@ namespace Razix {
                 tickNext();
 
                 // Do the work Here
-                while (Razix::RZApplication::Get().RenderFrame()) {}
-
-                Razix::RZApplication::Get().Quit();
-                Razix::RZApplication::Get().SaveApp();
-
-                EngineExit();
+                Razix::RZApplication::Get().RenderFrame();
             }
 
         private:
@@ -44,6 +42,10 @@ namespace Razix {
                 // Trigger the tick() invokation when the event loop runs next time
                 QMetaObject::invokeMethod(this, "tick", Qt::QueuedConnection);
             }
+
+        private:
+            int    argc;
+            char** argv;
         };
     }    // namespace Editor
 }    // namespace Razix
