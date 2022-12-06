@@ -42,8 +42,13 @@ namespace Razix {
                     if ((pMouseEvent->button() == Qt::MouseButton::LeftButton) && m_UserIsResizing) {
                         m_UserIsResizing = false;    // reset user resizing flag
 
+                        std::thread::id this_id = std::this_thread::get_id();
+                        std::cout << ("||||||||||||||||||") << std::endl;
+                        std::cout << "| Thread ID : %d |" << this_id << std::endl;
+                        std::cout << ("||||||||||||||||||") << std::endl;
+
                         if (!m_RZWindow)
-                            return QObject::eventFilter(watched, event);
+                            return false;
 
                         auto& callback = m_RZWindow->getEventCallbackFunc();
 
@@ -61,10 +66,15 @@ namespace Razix {
             void resizeEvent(QResizeEvent* event)
             {
                 // Now stop the other thread first from rendering before we issue resize commands
-                //std::lock_guard<std::mutex> lk(RZApplication::m);
-                //RZApplication::ready_for_execution = false;
-                //RAZIX_INFO("Triggering worker thread to halt execution ::::");
-                //RZApplication::halt_execution.notify_one();
+                std::lock_guard<std::mutex> lk(RZApplication::m);
+                RZApplication::ready_for_execution = false;
+                RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                RZApplication::halt_execution.notify_one();
+
+                std::thread::id this_id = std::this_thread::get_id();
+                std::cout << ("||||||||||||||||||") << std::endl;
+                std::cout << "| Thread ID : %d |" << this_id << std::endl;
+                std::cout << ("||||||||||||||||||") << std::endl;
 
                 // override from QWidget that triggers whenever the user resizes the window
                 m_UserIsResizing = true;

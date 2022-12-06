@@ -2,9 +2,11 @@
 
 namespace Razix {
     namespace Editor {
-        RZEEngineLoop::RZEEngineLoop(QObject *parent)
+        RZEEngineLoop::RZEEngineLoop(int argc, char** argv, QObject* parent)
             : QObject(parent)
         {
+            this->argc = argc;
+            this->argv = argv;
         }
 
         RZEEngineLoop::~RZEEngineLoop()

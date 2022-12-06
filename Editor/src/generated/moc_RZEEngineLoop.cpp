@@ -58,7 +58,7 @@ static const uint qt_meta_data_Razix__Editor__RZEEngineLoop[] = {
 
  // slots: name, argc, parameters, tag, flags
        1,    0,   24,    2, 0x0a /* Public */,
-       3,    0,   25,    2, 0x08 /* Private */,
+       3,    0,   25,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
