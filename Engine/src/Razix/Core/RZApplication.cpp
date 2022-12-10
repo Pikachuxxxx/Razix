@@ -278,10 +278,10 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
 
-        std::thread::id this_id = std::this_thread::get_id();
-        RAZIX_CORE_WARN("||||||||||||||||||");
-        RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
-        RAZIX_CORE_WARN("||||||||||||||||||");
+        //std::thread::id this_id = std::this_thread::get_id();
+        //RAZIX_CORE_WARN("||||||||||||||||||");
+        //RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
+        //RAZIX_CORE_WARN("||||||||||||||||||");
 
         if (RZApplication::Get().getAppType() != AppType::GAME) {
             // Wait until Editor sends data

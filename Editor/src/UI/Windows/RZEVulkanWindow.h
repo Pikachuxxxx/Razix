@@ -68,7 +68,7 @@ namespace Razix {
                 // Now stop the other thread first from rendering before we issue resize commands
                 std::lock_guard<std::mutex> lk(RZApplication::m);
                 RZApplication::ready_for_execution = false;
-                RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                //RAZIX_INFO("Triggering worker thread to halt execution ::::");
                 RZApplication::halt_execution.notify_one();
 
                 std::thread::id this_id = std::this_thread::get_id();
