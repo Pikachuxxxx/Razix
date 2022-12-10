@@ -1,11 +1,11 @@
 {
     "Razix Application": {
-        "Project Name": "Razix Editor",
+        "Project Name": "RendererTest_ForwardRenderer",
         "Engine Version": "0.30.0",
-        "Project ID": "d48567dc-b51b-4b64-b349-ced69ea475ab",
+        "Project ID": "7ff2c30d-b54d-4801-b03e-6c167f8b2d9b",
         "Render API": 1,
-        "Width": 1514,
-        "Height": 746,
+        "Width": 1650,
+        "Height": 869,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox",
         "Scenes": [
             "//Scenes/default Scene.rzscn"

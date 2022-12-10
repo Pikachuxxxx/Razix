@@ -5,6 +5,7 @@
 
 #include <QComboBox>
 #include <QTimer>
+#include <QPushButton>
 
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Scene/RZEntity.h"
