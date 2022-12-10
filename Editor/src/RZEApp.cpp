@@ -76,8 +76,10 @@ public:
 
         Razix::RZApplication::Get().Init();
 
-        //contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
-        //mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+        QMetaObject::invokeMethod(qrzeditorApp, [] {
+            contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
+            mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+        });
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
         Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
@@ -200,8 +202,9 @@ int main(int argc, char** argv)
     printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
 
     mainWindow = new Razix::Editor::RZEMainWindow;
-    mainWindow->resize(1280, 720);
     mainWindow->setWindowTitle("Razix Engine Editor");
+    mainWindow->resize(1280, 720);
+    //mainWindow->setWindowState(Qt::WindowMaximized);
 
     sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow);
 
@@ -233,7 +236,7 @@ int main(int argc, char** argv)
     // In order for event filter to work this is fookin important
     qrzeditorApp->installEventFilter(viewportWidget->getVulkanWindow());
 
-    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.4f));
+    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
     viewportWidget->resize(1280, 720);
 
     // Load the engine DLL and Ignite it on a separate thread

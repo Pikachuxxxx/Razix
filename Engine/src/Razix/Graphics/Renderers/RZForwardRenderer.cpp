@@ -175,6 +175,7 @@ namespace Razix {
 
             // Update the View Projection UBO
             m_Camera->setPerspectiveFarClip(6000.0f);
+            m_Camera->setAspectRatio((float)m_ScreenBufferWidth / (float)m_ScreenBufferHeight);
             m_ViewProjSystemUBOData.view       = m_Camera->getViewMatrix();
             m_ViewProjSystemUBOData.projection = m_Camera->getProjection();
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
