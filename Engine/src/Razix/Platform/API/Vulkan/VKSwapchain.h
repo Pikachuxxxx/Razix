@@ -84,6 +84,7 @@ namespace Razix {
             FrameSyncData             m_Frames[MAX_SWAPCHAIN_BUFFERS];
             uint32_t                  m_CurrentBuffer = 0; /* Index of the current buffer being submitted for execution */
             bool                      m_IsResized     = false;
+            bool                      m_IsResizing    = false;
 
         private:
             /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */

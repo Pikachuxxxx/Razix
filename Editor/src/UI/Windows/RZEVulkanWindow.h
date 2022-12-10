@@ -27,7 +27,7 @@ namespace Razix {
 
         public:
             bool isExposed = false;
-            RZEVulkanWindow(RZESceneHierarchyPanel* hierarchyPanel, QWindow* parentWindow = nullptr);
+            RZEVulkanWindow(QWindow* parentWindow = nullptr);
             ~RZEVulkanWindow();
 
             void Init();
@@ -41,6 +41,11 @@ namespace Razix {
                     QMouseEvent* pMouseEvent = dynamic_cast<QMouseEvent*>(event);
                     if ((pMouseEvent->button() == Qt::MouseButton::LeftButton) && m_UserIsResizing) {
                         m_UserIsResizing = false;    // reset user resizing flag
+
+                        std::thread::id this_id = std::this_thread::get_id();
+                        std::cout << ("||||||||||||||||||") << std::endl;
+                        std::cout << "| Thread ID : %d |" << this_id << std::endl;
+                        std::cout << ("||||||||||||||||||") << std::endl;
 
                         if (!m_RZWindow)
                             return false;
@@ -63,8 +68,13 @@ namespace Razix {
                 // Now stop the other thread first from rendering before we issue resize commands
                 std::lock_guard<std::mutex> lk(RZApplication::m);
                 RZApplication::ready_for_execution = false;
-                RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                //RAZIX_INFO("Triggering worker thread to halt execution ::::");
                 RZApplication::halt_execution.notify_one();
+
+                std::thread::id this_id = std::this_thread::get_id();
+                std::cout << ("||||||||||||||||||") << std::endl;
+                std::cout << "| Thread ID : %d |" << this_id << std::endl;
+                std::cout << ("||||||||||||||||||") << std::endl;
 
                 // override from QWidget that triggers whenever the user resizes the window
                 m_UserIsResizing = true;
@@ -104,8 +114,10 @@ namespace Razix {
                 selectedEntity         = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
                 RAZIX_CORE_WARN("qt SELECTED ENTITY on button press : {0}", selectedEntity);
                 // Find the entity from the registry
-                Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
-                auto&           registry = scene->getRegistry();
+                Razix::RZScene* scene = RZEngine::Get().getSceneManager().getCurrentScene();
+                if (!scene)
+                    return;
+                auto& registry = scene->getRegistry();
 
                 registry.each([&](auto& entity) {
                     if (registry.valid(entity)) {

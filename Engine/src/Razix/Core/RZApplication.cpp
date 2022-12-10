@@ -73,7 +73,7 @@ namespace Razix {
         if (RZEngine::Get().commandLineParser.isSet("project filename")) {
             std::string fullPath = RZEngine::Get().commandLineParser.getValueAsString("project filename");
             RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
-            AppStream.open(fullPath, std::ifstream::in); 
+            AppStream.open(fullPath, std::ifstream::in);
             m_ProjectFilePath = fullPath.substr(0, fullPath.find_last_of("\\/")) + "/";
         } else {
             // TODO: If command line is not provided or doesn't use engine default sandbox project we need some way to resolve the project root directory, make this agnostic we need not redirect to sandbox by default it must be provided as a placeholder value instead as a fall back
@@ -150,10 +150,6 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        auto ctx = ImGui::GetCurrentContext();
-        if (!ctx)
-            return;
-
         RZEventDispatcher dispatcher(event);
         // Window close event
         dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
@@ -181,12 +177,18 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        //if (m_ImGuiRenderer != nullptr) {
-        // Resize ImGui
-        ImGuiIO& io                = ImGui::GetIO();
-        io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
-        io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-        //}
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            // Resize ImGui
+            ImGuiIO& io                = ImGui::GetIO();
+            io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
+            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+        }
+
+        std::thread::id this_id = std::this_thread::get_id();
+        RAZIX_CORE_WARN("||||||||||||||||||");
+        RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
+        RAZIX_CORE_WARN("||||||||||||||||||");
 
         RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
@@ -196,48 +198,52 @@ namespace Razix {
 
     bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
     {
-        //if (m_ImGuiRenderer != nullptr) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MousePos = ImVec2(e.GetX(), e.GetY());
-        //}
-
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            ImGuiIO& io = ImGui::GetIO();
+            io.MousePos = ImVec2(e.GetX(), e.GetY());
+        }
         return true;
     }
 
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
-        //if (m_ImGuiRenderer != nullptr) {
-        ImGuiIO& io                          = ImGui::GetIO();
-        io.MouseDown[e.GetMouseButton() - 1] = true;
-        io.MouseDown[e.GetMouseButton() - 1] = true;
-        //}
-
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            ImGuiIO& io                          = ImGui::GetIO();
+            io.MouseDown[e.GetMouseButton() - 1] = true;
+            io.MouseDown[e.GetMouseButton() - 1] = true;
+        }
         return true;
     }
 
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
-        //if (m_ImGuiRenderer != nullptr) {
-        ImGuiIO& io                          = ImGui::GetIO();
-        io.MouseDown[e.GetMouseButton() - 1] = false;
-        //}
-
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            ImGuiIO& io                          = ImGui::GetIO();
+            io.MouseDown[e.GetMouseButton() - 1] = false;
+        }
         return true;
     }
 
     bool RZApplication::OnKeyPress(RZKeyPressedEvent& e)
     {
-        ImGuiIO& io                 = ImGui::GetIO();
-        io.KeysDown[e.GetKeyCode()] = true;
-
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            ImGuiIO& io                 = ImGui::GetIO();
+            io.KeysDown[e.GetKeyCode()] = true;
+        }
         return true;
     }
 
     bool RZApplication::OnKeyRelease(RZKeyReleasedEvent& e)
     {
-        ImGuiIO& io                 = ImGui::GetIO();
-        io.KeysDown[e.GetKeyCode()] = false;
-
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            ImGuiIO& io                 = ImGui::GetIO();
+            io.KeysDown[e.GetKeyCode()] = false;
+        }
         return true;
     }
 
@@ -262,15 +268,32 @@ namespace Razix {
 
         Start();
 
-        while (RenderFrame()) {}
-        Quit();
-        SaveApp();
+        //while (RenderFrame()) {}
+        //Quit();
+        //SaveApp();
     }
 
     bool RZApplication::RenderFrame()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
+
+        //std::thread::id this_id = std::this_thread::get_id();
+        //RAZIX_CORE_WARN("||||||||||||||||||");
+        //RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
+        //RAZIX_CORE_WARN("||||||||||||||||||");
+
+        if (RZApplication::Get().getAppType() != AppType::GAME) {
+            // Wait until Editor sends data
+            std::unique_lock<std::mutex> lk(m);
+            halt_execution.wait(lk, [] {
+                return ready_for_execution;
+            });
+            // Manual unlocking is done before notifying, to avoid waking up
+            // the waiting thread only to block again (see notify_one for details)
+            lk.unlock();
+            halt_execution.notify_one();
+        }
 
         // TODO: Add Time stamp Queries for calculating GPU time here
 
@@ -345,34 +368,23 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        if (RZApplication::Get().getAppType() != AppType::GAME) {
-            // Wait until Editor sends data
-            std::unique_lock<std::mutex> lk(m);
-            halt_execution.wait(lk, [] {
-                return ready_for_execution;
-            });
-            // Manual unlocking is done before notifying, to avoid waking up
-            // the waiting thread only to block again (see notify_one for details)
-            lk.unlock();
-            halt_execution.notify_one();
-        }
-
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
         RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
-        // Update ImGui
-        ImGuiIO& io = ImGui::GetIO();
-        (void) io;
-        io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
-
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            // Update ImGui
+            ImGuiIO& io = ImGui::GetIO();
+            (void) io;
+            io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+        }
         // Run the OnUpdate for all the scripts
         if (RZEngine::Get().getSceneManager().getCurrentScene())
             RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
 
         // Client App Update
         OnUpdate(dt);
-
 #if 1
 
 #endif
@@ -381,6 +393,8 @@ namespace Razix {
     void RZApplication::Render()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
+        // Disable rendering if needed here
 
         // We are not checking if the current is scene is null or not
         Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());

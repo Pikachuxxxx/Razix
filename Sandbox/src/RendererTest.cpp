@@ -7,7 +7,7 @@ class RendererTest_GridRenderer : public Razix::RZApplication
 {
 public:
     RendererTest_GridRenderer()
-        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("Sandbox")), "RendererTest_ForwardRenderer")
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox")), "RendererTest_ForwardRenderer")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
@@ -35,7 +35,7 @@ public:
         auto& modelEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
         if (!modelEnitties.size()) {
             // Avocado
-            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Avacado Model");
+            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Avocado Model");
             armadilloModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Avocado.gltf");
         }
 
@@ -48,7 +48,6 @@ public:
 
         auto scripts = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LuaScriptComponent>();
         if (!scripts.size()) {
-     
             Razix::RZEntity imguiEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("imgui_script_entity");
             imguiEntity.AddComponent<Razix::LuaScriptComponent>();
             if (imguiEntity.HasComponent<Razix::LuaScriptComponent>()) {
@@ -68,4 +67,11 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 void main(int argc, char** argv)
 {
     EngineMain(argc, argv);
+
+    while (Razix::RZApplication::Get().RenderFrame()) {}
+
+    Razix::RZApplication::Get().Quit();
+    Razix::RZApplication::Get().SaveApp();
+
+    EngineExit();
 }

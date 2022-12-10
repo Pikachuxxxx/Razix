@@ -25,7 +25,9 @@ namespace Razix {
             Init(m_Width, m_Height);
         }
 
-        VKSwapchain::~VKSwapchain() {}
+        VKSwapchain::~VKSwapchain()
+        {
+        }
 
         void VKSwapchain::Init(uint32_t width, uint32_t height)
         {
@@ -55,6 +57,7 @@ namespace Razix {
             // Encapsulate the swapchain images and image views in a RZTexture2D
             m_SwapchainImageTextures.clear();
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+                VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
                 VKTexture2D* swapImageTexture = new VKTexture2D(images[i], imageView[i]);
                 m_SwapchainImageTextures.push_back(swapImageTexture);
             }
@@ -83,7 +86,9 @@ namespace Razix {
             vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
         }
 
-        void VKSwapchain::Flip() {}
+        void VKSwapchain::Flip()
+        {
+        }
 
         void VKSwapchain::OnResize(uint32_t width, uint32_t height)
         {
@@ -92,11 +97,10 @@ namespace Razix {
             if (m_Width == width && m_Height == height)
                 return;
 
-            m_IsResized = true;
+            m_IsResized  = true;
+            m_IsResizing = true;
 
             //  Wait for the device to be done executing all the commands
-            //VKContext::Get()->waitIdle();
-
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
             m_Width  = width;
@@ -104,19 +108,23 @@ namespace Razix {
 
             m_OldSwapChain = m_Swapchain;
 
+            //for (auto& frame: m_Frames) {
+            //    //frame.mainCommandBuffer->Reset();
+            //    vkDestroySemaphore(VKDevice::Get().getDevice(), frame.presentSemaphore, nullptr);
+            //    vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderSemaphore, nullptr);
+            //    vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
+            //}
+
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
                 auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                 tex->Release(false);
-                delete m_SwapchainImageTextures[i];
             }
             m_SwapchainImageTextures.clear();
-            //vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
 
             m_Swapchain = VK_NULL_HANDLE;
 
             Init(width, height);
-
-            //VKContext::Get()->setSwapchain(this);
+            m_IsResizing = false;
         }
 
         void VKSwapchain::querySwapSurfaceProperties()
@@ -199,7 +207,7 @@ namespace Razix {
             // Bound checking the swapchain image count only for triple buffer aka 2 frames in flight
             if (m_SwapSurfaceProperties.capabilities.maxImageCount > 0 && m_SwapchainImageCount > m_SwapSurfaceProperties.capabilities.maxImageCount)
                 m_SwapchainImageCount = m_SwapSurfaceProperties.capabilities.maxImageCount;
-            RAZIX_CORE_TRACE("[Vulkan] Swap images count : {0}", m_SwapchainImageCount);
+            RAZIX_CORE_TRACE("[Vulkan] Swap images count : %d", m_SwapchainImageCount);
 
             // Now create the Swapchain
             VkSwapchainCreateInfoKHR swcCI                            = {};
@@ -315,20 +323,24 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            if (m_IsResizing)
+                return;
             uint32_t nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
             {
                 auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_Frames[nextCmdBufferIndex].presentSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-                    RAZIX_CORE_TRACE("[Vulkan] Acquire Image result : {0}", result == VK_ERROR_OUT_OF_DATE_KHR ? "Out of Date" : "SubOptimal");
+                    VK_CHECK_RESULT(result);
 
                     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-                        /*             std::unique_lock<std::mutex> lk(RZApplication::m);
-                        RZApplication::halt_execution.wait(lk, [] {
-                            return RZApplication::ready_for_execution;
-                        });*/
+                        /*             
+                            std::unique_lock<std::mutex> lk(RZApplication::m);
+                            RZApplication::halt_execution.wait(lk, [] {
+                                return RZApplication::ready_for_execution;
+                            });
+                        */
                         //OnResize(m_Width, m_Height);
-                        //acquireNextImage();
                         vkDeviceWaitIdle(VKDevice::Get().getDevice());
+                        //acquireNextImage();
                     }
                     return;
                 } else if (result != VK_SUCCESS)
@@ -341,13 +353,15 @@ namespace Razix {
 
         void VKSwapchain::queueSubmit(CommandQueue& commandQueue)
         {
+            if (m_IsResizing)
+                return;
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            auto& frameData = getCurrentFrameSyncData();
             //if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
             //    vkWaitForFences(VKDevice::Get().getDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
             //imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
-            auto&        frameData        = getCurrentFrameSyncData();
             VkSubmitInfo submitInfo       = {};
             submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.pNext              = VK_NULL_HANDLE;
@@ -379,9 +393,15 @@ namespace Razix {
 
         void VKSwapchain::present()
         {
+            if (m_IsResizing)
+                return;
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto& frameData = getCurrentFrameSyncData();
+
+            auto currentVKImage = static_cast<Graphics::VKTexture2D*>(m_SwapchainImageTextures[m_AcquireImageIndex])->getImage();
+
+            //VKUtilities::TransitionImageLayout(currentVKImage, m_ColorFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
             VkPresentInfoKHR present{};
             present.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -408,6 +428,8 @@ namespace Razix {
             //    Init(m_Width, m_Height);
             //    return;
             //}
+
+            //VKUtilities::TransitionImageLayout(currentVKImage, m_ColorFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
             if (error == VK_ERROR_OUT_OF_DATE_KHR) {
                 vkDeviceWaitIdle(VKDevice::Get().getDevice());

@@ -239,8 +239,13 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            if (m_ScreenBufferHeight == height && m_ScreenBufferWidth == width)
+                return;
+
             m_ScreenBufferWidth  = width;
             m_ScreenBufferHeight = height;
+
+            Graphics::RZAPIRenderer::OnResize(width, height);
 
             // Destroy the resources first
             m_DepthTexture->Release(true);
@@ -251,8 +256,6 @@ namespace Razix {
             m_RenderPass->Destroy();
 
             m_Pipeline->Destroy();
-
-            Graphics::RZAPIRenderer::OnResize(width, height);
 
             InitDisposableResources();
         }

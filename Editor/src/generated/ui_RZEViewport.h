@@ -11,7 +11,7 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QPushButton>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -19,30 +19,17 @@ QT_BEGIN_NAMESPACE
 class Ui_Viewport
 {
 public:
-    QPushButton *pushButton;
-    QPushButton *pushButton_2;
-    QPushButton *pushButton_3;
-    QPushButton *pushButton_4;
+    QVBoxLayout *centralVLayout;
 
     void setupUi(QWidget *Viewport)
     {
         if (Viewport->objectName().isEmpty())
             Viewport->setObjectName(QString::fromUtf8("Viewport"));
-        Viewport->resize(400, 300);
+        Viewport->resize(761, 608);
         Viewport->setStyleSheet(QString::fromUtf8("border: 20px;\n"
 "border-color: rgb(255, 0, 4);"));
-        pushButton = new QPushButton(Viewport);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(80, 110, 75, 23));
-        pushButton_2 = new QPushButton(Viewport);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setGeometry(QRect(140, 170, 75, 23));
-        pushButton_3 = new QPushButton(Viewport);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-        pushButton_3->setGeometry(QRect(190, 120, 75, 23));
-        pushButton_4 = new QPushButton(Viewport);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
-        pushButton_4->setGeometry(QRect(240, 70, 75, 23));
+        centralVLayout = new QVBoxLayout(Viewport);
+        centralVLayout->setObjectName(QString::fromUtf8("centralVLayout"));
 
         retranslateUi(Viewport);
 
@@ -52,10 +39,6 @@ public:
     void retranslateUi(QWidget *Viewport)
     {
         Viewport->setWindowTitle(QCoreApplication::translate("Viewport", "Viewport", nullptr));
-        pushButton->setText(QCoreApplication::translate("Viewport", "PushButton", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("Viewport", "PushButton", nullptr));
-        pushButton_3->setText(QCoreApplication::translate("Viewport", "PushButton", nullptr));
-        pushButton_4->setText(QCoreApplication::translate("Viewport", "PushButton", nullptr));
     } // retranslateUi
 
 };

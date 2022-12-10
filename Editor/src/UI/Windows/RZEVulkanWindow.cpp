@@ -10,12 +10,11 @@
 
 namespace Razix {
     namespace Editor {
-        RZEVulkanWindow::RZEVulkanWindow(RZESceneHierarchyPanel* hierarchyPanel, QWindow* parentWindow)
-            : QWindow(parentWindow)
+        RZEVulkanWindow::RZEVulkanWindow(QWindow* parentWindow)
         {
             setSurfaceType(VulkanSurface);
 
-            connect(this, &RZEVulkanWindow::OnEntitySelected, hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
+            //connect(this, &RZEVulkanWindow::OnEntitySelected, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
         }
 
         RZEVulkanWindow::~RZEVulkanWindow()
@@ -48,6 +47,7 @@ namespace Razix {
             m_RZWindow = new RZENativeWindow(&hwnd, props);
         }
 
+        
         bool RZEVulkanWindow::IsKeyPressedImpl(int keycode)
         {
             if (keycode == m_KeyPressed) {
@@ -113,6 +113,7 @@ namespace Razix {
         {
             return m_MousePos.y;
         }
+        
 
     }    // namespace Editor
 }    // namespace Razix

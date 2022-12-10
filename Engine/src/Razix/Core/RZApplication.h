@@ -87,6 +87,13 @@ namespace Razix {
         void SaveApp();
 
         /**
+         * Renders the frame and displays the graphics and updates the window
+         * 
+         * @returns True if the frame was successfully rendered by checking the state
+         */
+        bool RenderFrame();
+
+        /**
          * Called before the application starts rendering
          * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
          */
@@ -230,14 +237,7 @@ namespace Razix {
         std::vector<std::string> sceneFilePaths;
         RZEntity                 m_GuizmoEntity;
         ImGuizmo::OPERATION      m_GuizmoOperation;
-
     private:
-        /**
-         * Renders the frame and displays the graphics and updates the window
-         * 
-         * @returns True, if the frame was successfully rendered by checking the state
-         */
-        bool RenderFrame();
         /* Starts the application */
         void Start();
         /* Updates the engine and application runtime systems */

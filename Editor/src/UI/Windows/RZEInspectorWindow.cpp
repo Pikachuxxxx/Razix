@@ -42,7 +42,7 @@ namespace Razix {
             connect(ui.EntityName, SIGNAL(returnPressed()), this, SLOT(OnNameEdit()));
             // On Entity selected
             connect(hierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelected, this, &RZEInspectorWindow::OnEntitySelected);
-            // repaint the hierarchy panel for name changes 
+            // repaint the hierarchy panel for name changes
             connect(this, SIGNAL(InspectorPropertyChanged()), hierarchyPanel, SLOT(UpdatePanel()));
         }
 
@@ -53,21 +53,27 @@ namespace Razix {
         void RZEInspectorWindow::OnNameEdit()
         {
             // Update the entity name and repaint the Hierarchy panel to reflect the name
-            auto& tagComponent = entity.GetComponent<TagComponent>();
+            auto& tagComponent = m_InspectingEntity.GetComponent<TagComponent>();
             tagComponent.Tag   = ui.EntityName->text().toStdString();
             // TODO: Send the repaint event to RZESceneHierarchyPanel
             emit InspectorPropertyChanged();
-         }
+        }
 
         void RZEInspectorWindow::OnEntitySelected(RZEntity entity)
         {
-            this->entity = entity;
+            m_InspectingEntity = entity;
 
             // Update the name label
             ui.EntityName->setText(entity.GetComponent<TagComponent>().Tag.c_str());
 
             // Update the UUID
             ui.UUIDLbl->setText(entity.GetComponent<IDComponent>().UUID.prettyString().c_str());
+
+            // Set the components to enable for the selected entity in the Inspector Panel
+            // By default every component has a ID, Tag and Transform component
+            m_ComponentsMask |= RZ_FLAG_COMPONENT_ID | RZ_FLAG_COMPONENT_TAG | RZ_FLAG_COMPONENT_TRANSFORM;
+            if (entity.HasComponent<CameraComponent>())
+                m_ComponentsMask |= RZ_FLAG_COMPONENT_CAMERA;
 
             // Update the transform component
             m_TrasformComponentUI->setEditingEntity(entity);
