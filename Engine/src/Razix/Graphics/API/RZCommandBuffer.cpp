@@ -23,8 +23,8 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLCommandBuffer(); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKCommandBuffer(); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11:
-                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;

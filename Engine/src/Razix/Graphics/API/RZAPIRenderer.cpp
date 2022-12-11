@@ -32,8 +32,8 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: s_APIInstance = new OpenGLAPIRenderer(width, height); break;
                 case Razix::Graphics::RenderAPI::VULKAN: s_APIInstance = new VKAPIRenderer(width, height); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11:
-                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: s_APIInstance = nullptr; break;

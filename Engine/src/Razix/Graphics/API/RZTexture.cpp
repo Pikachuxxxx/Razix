@@ -86,8 +86,8 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(name, width, height, data, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11:
-                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;
@@ -102,8 +102,8 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(filePath, name, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(filePath, name, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11:
-                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;
@@ -122,8 +122,8 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return nullptr; break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKDepthTexture(width, height); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11:
-                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;
@@ -142,8 +142,8 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKRenderTexture(width, height, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11:
-                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;
