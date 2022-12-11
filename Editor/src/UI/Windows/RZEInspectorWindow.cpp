@@ -18,24 +18,38 @@ namespace Razix {
 
             // Add the list of components that will be enabled and disables based on the entity
             // At index 0 and 1 we have the Tag and ID components in the box layout by the QDesigner
+            // And Check boxes for Active Component and Static Mesh
+            uint32_t idx = 2;    // Starting with 2 components already in (Tag + ID{Active+Static})
             // 1. Transform component
             m_TrasformComponentUI = new Razix::Editor::RZETransformComponentUI;
-            this->getBoxLayout().insertWidget(2, new Razix::Editor::RZECollapsingHeader(QString("Transform"), m_TrasformComponentUI, new QIcon(":/rzeditor/transform_icon.png")));
-
-            // --- Line break after transform component ---
-            QFrame* hFrame = new QFrame;
-            hFrame->setFrameShape(QFrame::HLine);
-            this->getBoxLayout().insertWidget(3, hFrame);
+            this->getBoxLayout().insertWidget(idx, (new Razix::Editor::RZECollapsingHeader(QString("Transform"), m_TrasformComponentUI, new QIcon(":/rzeditor/transform_icon.png"))));
 
             // 2. Add the camera component
             m_CameraComponentUI = new RZECameraComponentUI;
-            this->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("Camera"), m_CameraComponentUI, new QIcon(":/rzeditor/camera_icon.png")));
-
-            this->setBaseSize(QSize(250, 100));
+            idx++;
+            this->getBoxLayout().insertWidget(idx, (new Razix::Editor::RZECollapsingHeader(QString("Camera"), m_CameraComponentUI, new QIcon(":/rzeditor/camera_icon.png"))));
 
             // 3. Add the Mesh Renderer Component
             m_MeshRendererComponentUI = new RZEMeshRendererComponentUI;
-            this->getBoxLayout().insertWidget(4, new Razix::Editor::RZECollapsingHeader(QString("MeshRenderer"), m_MeshRendererComponentUI, new QIcon(":/rzeditor/mesh.png")));
+            idx++;
+            this->getBoxLayout().insertWidget(idx, (new Razix::Editor::RZECollapsingHeader(QString("MeshRenderer"), m_MeshRendererComponentUI, new QIcon(":/rzeditor/mesh.png"))));
+
+            // 4. Add the Lua Script Component
+            m_LuaScriptComponentUI = new RZELuaScriptComponentUI;
+            idx++;
+            this->getBoxLayout().insertWidget(idx, (new Razix::Editor::RZECollapsingHeader(QString("Lua Script"), m_LuaScriptComponentUI, new QIcon(":/rzeditor/RazixScriptFile.png"))));
+
+            // 5. Add the Light Component
+            m_LightComponentUI = new RZELightComponentUI;
+            idx++;
+            this->getBoxLayout().insertWidget(idx, (new Razix::Editor::RZECollapsingHeader(QString("Light Component"), m_LightComponentUI, new QIcon(":/rzeditor/LightIcon.png"))));
+
+            // 6. Add the Sprite Renderer Component
+            m_SpriteRendererComponentUI = new RZESpriteRendererComponentUI;
+            idx++;
+            this->getBoxLayout().insertWidget(idx, (new Razix::Editor::RZECollapsingHeader(QString("Sprite Renderer"), m_SpriteRendererComponentUI, new QIcon(":/rzeditor/sprite_can.png"))));
+
+            // TODO: Add "Add Component" Button
 
             // connections
             // Name change
@@ -55,7 +69,7 @@ namespace Razix {
             // Update the entity name and repaint the Hierarchy panel to reflect the name
             auto& tagComponent = m_InspectingEntity.GetComponent<TagComponent>();
             tagComponent.Tag   = ui.EntityName->text().toStdString();
-            // TODO: Send the repaint event to RZESceneHierarchyPanel
+            // Send the repaint event to RZESceneHierarchyPanel
             emit InspectorPropertyChanged();
         }
 

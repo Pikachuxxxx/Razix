@@ -53,6 +53,7 @@ namespace Razix {
             }
         };
 
+        // TODO: Add either delete/remove or more pop-up options button 
         class RZECollapsingHeader : public QFrame
         {
             Q_OBJECT

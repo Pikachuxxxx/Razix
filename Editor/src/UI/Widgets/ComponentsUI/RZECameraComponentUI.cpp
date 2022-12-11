@@ -14,6 +14,7 @@ namespace Razix {
         }
 
         RZECameraComponentUI::~RZECameraComponentUI()
-        {}
+        {
+        }
     }    // namespace Editor
 }    // namespace Razix

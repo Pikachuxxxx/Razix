@@ -8,7 +8,10 @@
 #include "RZESceneHierarchyPanel.h"
 
 #include "UI/Widgets/ComponentsUI/RZECameraComponentUI.h"
+#include "UI/Widgets/ComponentsUI/RZELightComponentUI.h"
+#include "UI/Widgets/ComponentsUI/RZELuaScriptComponentUI.h"
 #include "UI/Widgets/ComponentsUI/RZEMeshRendererComponentUI.h"
+#include "UI/Widgets/ComponentsUI/RZESpriteRendererComponentUI.h"
 #include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 
 enum ComponentsFlag : uint32_t
@@ -57,9 +60,12 @@ namespace Razix {
             ComponentMask m_ComponentsMask;
             RZEntity      m_InspectingEntity;
             // Hold the components here
-            RZETransformComponentUI*    m_TrasformComponentUI;
-            RZECameraComponentUI*       m_CameraComponentUI;
-            RZEMeshRendererComponentUI* m_MeshRendererComponentUI;
+            RZETransformComponentUI*      m_TrasformComponentUI;
+            RZECameraComponentUI*         m_CameraComponentUI;
+            RZEMeshRendererComponentUI*   m_MeshRendererComponentUI;
+            RZELuaScriptComponentUI*      m_LuaScriptComponentUI;
+            RZELightComponentUI*          m_LightComponentUI;
+            RZESpriteRendererComponentUI* m_SpriteRendererComponentUI;
         };
     }    // namespace Editor
 }    // namespace Razix

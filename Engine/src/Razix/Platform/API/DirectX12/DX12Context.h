@@ -5,6 +5,7 @@
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include <d3d12.h>
+    #include <wrl.h>
 
 namespace Razix {
     namespace Graphics {
@@ -17,6 +18,9 @@ namespace Razix {
             void Init() override;
             void Destroy() override;
             void ClearWithColor(float r, float g, float b) override;
+
+        private:
+            Microsoft::WRL::ComPtr<ID3D12Device> m_Device; /* DirectX 12 handle to the GPU device */
         };
     }    // namespace Graphics
 }    // namespace Razix
