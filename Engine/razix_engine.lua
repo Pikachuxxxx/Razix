@@ -234,6 +234,9 @@ project "Razix"
             "src/Razix/Platform/API/DirectX11/*.h",
             "src/Razix/Platform/API/DirectX11/*.cpp",
 
+            "src/Razix/Platform/API/DirectX12/*.h",
+            "src/Razix/Platform/API/DirectX12/*.cpp",
+
             -- Vendor source files
             "vendor/glad/src/glad.c"
         }
@@ -257,6 +260,7 @@ project "Razix"
             -- Redner API
             "vulkan-1",
             "d3d11",
+            "d3d12",
             "D3DCompiler"
         }
 
