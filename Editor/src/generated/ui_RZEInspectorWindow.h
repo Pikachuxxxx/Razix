@@ -29,6 +29,7 @@ public:
     QLabel *TagIcon;
     QLineEdit *EntityName;
     QCheckBox *IsStatic;
+    QCheckBox *checkBox;
     QHBoxLayout *horizontalLayout_2;
     QLabel *UUIDTitle;
     QLabel *UUIDLbl;
@@ -69,6 +70,11 @@ public:
         IsStatic->setMaximumSize(QSize(50, 25));
 
         horizontalLayout->addWidget(IsStatic);
+
+        checkBox = new QCheckBox(InspectorWindow);
+        checkBox->setObjectName(QString::fromUtf8("checkBox"));
+
+        horizontalLayout->addWidget(checkBox);
 
 
         verticalLayout_2->addLayout(horizontalLayout);
@@ -115,6 +121,7 @@ public:
         TagIcon->setText(QString());
         EntityName->setText(QCoreApplication::translate("InspectorWindow", "Character", nullptr));
         IsStatic->setText(QCoreApplication::translate("InspectorWindow", "Static", nullptr));
+        checkBox->setText(QCoreApplication::translate("InspectorWindow", "Active", nullptr));
         UUIDTitle->setText(QCoreApplication::translate("InspectorWindow", "UUID :", nullptr));
         UUIDLbl->setText(QCoreApplication::translate("InspectorWindow", "123e4567-e89b-12d3-a456-426614174000", nullptr));
     } // retranslateUi
