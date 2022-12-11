@@ -23,7 +23,7 @@ namespace Razix {
             QPixmap pixmap(fileName);
             QIcon   ButtonIcon(pixmap);
             ui.sprite->setIcon(ButtonIcon);
-            ui.sprite->setIconSize(pixmap.rect().size());
+            ui.sprite->setIconSize(QSize(60, 60));
 
             // Store the sprite absolute path
             m_SpriteAbsolutePath = fileName.toStdString();

@@ -6,6 +6,7 @@
 
 namespace Razix {
     namespace Editor {
+        // TODO: Sprite preview browse Icon fill settings
         class RZESpriteRendererComponentUI : public QWidget
         {
             Q_OBJECT

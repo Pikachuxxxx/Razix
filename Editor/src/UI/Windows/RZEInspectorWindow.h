@@ -45,7 +45,7 @@ namespace Razix {
             RZEInspectorWindow(RZESceneHierarchyPanel* hierarchyPanel, QFrame* parent = nullptr);
             ~RZEInspectorWindow();
 
-            QVBoxLayout& getBoxLayout() { return *(ui.verticalLayout_2); }
+            QVBoxLayout& getBoxLayout() { return *(ui.scrollLayout); }
 
         signals:
             void InspectorPropertyChanged();
