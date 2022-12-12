@@ -61,10 +61,8 @@ namespace Razix {
             }
 
             // Get the EnitytIDsRT after full presentation
-            if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonLeft)) {
+            if (RZInput::IsMouseButtonPressed(KeyCode::MouseKey::ButtonLeft))
                 m_SelectedEntityID = m_RenderersStack[1]->getEntityIDsRT()->ReadPixels(static_cast<uint32_t>(RZInput::GetMouseX()), static_cast<uint32_t>(RZInput::GetMouseY()));
-                RAZIX_CORE_ERROR("mouse {0}, {1} | pixel : {2}", RZInput::GetMouseX(), RZInput::GetMouseY(), m_SelectedEntityID);
-            }
         }
 
         void RZRenderStack::OnResize(uint32_t width, uint32_t height)

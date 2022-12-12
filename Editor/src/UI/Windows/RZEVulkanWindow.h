@@ -42,11 +42,6 @@ namespace Razix {
                     if ((pMouseEvent->button() == Qt::MouseButton::LeftButton) && m_UserIsResizing) {
                         m_UserIsResizing = false;    // reset user resizing flag
 
-                        std::thread::id this_id = std::this_thread::get_id();
-                        std::cout << ("||||||||||||||||||") << std::endl;
-                        std::cout << "| Thread ID : %d |" << this_id << std::endl;
-                        std::cout << ("||||||||||||||||||") << std::endl;
-
                         if (!m_RZWindow)
                             return false;
 
@@ -70,11 +65,6 @@ namespace Razix {
                 RZApplication::ready_for_execution = false;
                 //RAZIX_INFO("Triggering worker thread to halt execution ::::");
                 RZApplication::halt_execution.notify_one();
-
-                std::thread::id this_id = std::this_thread::get_id();
-                std::cout << ("||||||||||||||||||") << std::endl;
-                std::cout << "| Thread ID : %d |" << this_id << std::endl;
-                std::cout << ("||||||||||||||||||") << std::endl;
 
                 // override from QWidget that triggers whenever the user resizes the window
                 m_UserIsResizing = true;
@@ -111,8 +101,6 @@ namespace Razix {
 
                 // Entity selection
                 int32_t selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
-                selectedEntity         = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
-                RAZIX_CORE_WARN("qt SELECTED ENTITY on button press : {0}", selectedEntity);
                 // Find the entity from the registry
                 Razix::RZScene* scene = RZEngine::Get().getSceneManager().getCurrentScene();
                 if (!scene)

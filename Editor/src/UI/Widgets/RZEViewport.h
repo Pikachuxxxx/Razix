@@ -14,7 +14,7 @@ namespace Razix {
             Q_OBJECT
 
         public:
-            RZEViewport(QWidget* parent = nullptr);
+            RZEViewport(RZESceneHierarchyPanel* sceneHierarchyPanel, QWidget* parent = nullptr);
             ~RZEViewport();
 
             bool eventFilter(QObject* watched, QEvent* event)
