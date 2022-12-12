@@ -2,7 +2,7 @@
 
 namespace Razix {
     namespace Editor {
-        RZEViewport::RZEViewport(QWidget *parent)
+        RZEViewport::RZEViewport(RZESceneHierarchyPanel* sceneHierarchyPanel, QWidget* parent)
             : QWidget(parent)
         {
             ui.setupUi(this);
@@ -10,9 +10,13 @@ namespace Razix {
             m_VulkanViewportWindow = new RZEVulkanWindow;
 
             ui.centralVLayout->addWidget(QWidget::createWindowContainer(m_VulkanViewportWindow));
+
+            // Connections
+            connect(m_VulkanViewportWindow, &RZEVulkanWindow::OnEntitySelected, sceneHierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
         }
 
         RZEViewport::~RZEViewport()
-        {}
+        {
+        }
     }    // namespace Editor
 }    // namespace Razix

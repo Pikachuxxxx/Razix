@@ -209,7 +209,7 @@ int main(int argc, char** argv)
     sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow);
 
     inspectorWidget = new Razix::Editor::RZEInspectorWindow(sceneHierarchyPanel);
-    viewportWidget  = new Razix::Editor::RZEViewport;
+    viewportWidget  = new Razix::Editor::RZEViewport(sceneHierarchyPanel);
     viewportWidget->resize(1280, 720);
     viewportWidget->setWindowTitle("Viewport");
     inspectorWidget->setWindowTitle("Inspector");
@@ -259,6 +259,7 @@ int main(int argc, char** argv)
         Razix::RZApplication::Get().SaveApp();
 
         EngineExit();
+        didEngineClose = true;
     });
 
     //engineLoop->launch();

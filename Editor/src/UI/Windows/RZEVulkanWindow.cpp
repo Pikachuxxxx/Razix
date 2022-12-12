@@ -14,7 +14,6 @@ namespace Razix {
         {
             setSurfaceType(VulkanSurface);
 
-            //connect(this, &RZEVulkanWindow::OnEntitySelected, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
         }
 
         RZEVulkanWindow::~RZEVulkanWindow()
