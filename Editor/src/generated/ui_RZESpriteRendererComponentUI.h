@@ -40,7 +40,7 @@ public:
     {
         if (SpriteRendererComponent->objectName().isEmpty())
             SpriteRendererComponent->setObjectName(QString::fromUtf8("SpriteRendererComponent"));
-        SpriteRendererComponent->resize(169, 154);
+        SpriteRendererComponent->resize(169, 148);
         formLayout = new QFormLayout(SpriteRendererComponent);
         formLayout->setSpacing(6);
         formLayout->setContentsMargins(11, 11, 11, 11);
