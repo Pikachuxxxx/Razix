@@ -5,7 +5,9 @@
 
 #include "generated/ui_RZEInspectorWindow.h"
 
-#include "RZESceneHierarchyPanel.h"
+#include "UI/Windows/RZESceneHierarchyPanel.h"
+
+#include "UI/Widgets/RZECollapsingHeader.h"
 
 #include "UI/Widgets/ComponentsUI/RZECameraComponentUI.h"
 #include "UI/Widgets/ComponentsUI/RZELightComponentUI.h"
@@ -17,19 +19,22 @@
 enum ComponentsFlag : uint32_t
 {
     RZ_FLAG_COMPONENT_ID              = 0,
-    RZ_FLAG_COMPONENT_TAG             = 1 << 0,
-    RZ_FLAG_COMPONENT_ACTIVE          = 1 << 1,
-    RZ_FLAG_COMPONENT_HIERARCHY       = 1 << 2,
-    RZ_FLAG_COMPONENT_TRANSFORM       = 1 << 3,
-    RZ_FLAG_COMPONENT_CAMERA          = 1 << 4,
-    RZ_FLAG_COMPONENT_MESH_RENDERER   = 1 << 5,
-    RZ_FLAG_COMPONENT_SPRITE_RENDERER = 1 << 6,
-    RZ_FLAG_COMPONENT_LUA_SCRIPT      = 1 << 7,
-    RZ_FLAG_COMPONENT_MODEL           = 1 << 8,
-    RZ_FLAG_COMPONENT_LIGHT           = 1 << 9
+    RZ_FLAG_COMPONENT_TAG             = 1,
+    RZ_FLAG_COMPONENT_TRANSFORM       = 2,
+    RZ_FLAG_COMPONENT_CAMERA          = 3,
+    RZ_FLAG_COMPONENT_LIGHT           = 4,
+    RZ_FLAG_COMPONENT_LUA_SCRIPT      = 5,
+    RZ_FLAG_COMPONENT_MESH_RENDERER   = 6,
+    RZ_FLAG_COMPONENT_SPRITE_RENDERER = 7,
+    RZ_FLAG_COMPONENT_ACTIVE          = 8,
+    RZ_FLAG_COMPONENT_HIERARCHY       = 9,
     // Variable to keep track of the components count
+    RZ_FLAG_COMPONENTS_COUNT
 };
 
+// https://stackoverflow.com/questions/47981/how-do-i-set-clear-and-toggle-a-single-bit
+// For setting use flag |= flag_1 | flag_2;
+// To remove flag_1 use flag &= ~flag_1
 typedef uint32_t ComponentMask;
 
 // All components will be added to this window and will be enabled on a need to basis; We can remove or add (only single isntance for now)
@@ -66,6 +71,17 @@ namespace Razix {
             RZELuaScriptComponentUI*      m_LuaScriptComponentUI;
             RZELightComponentUI*          m_LightComponentUI;
             RZESpriteRendererComponentUI* m_SpriteRendererComponentUI;
+
+            RZECollapsingHeader* m_TrasformComponentSection;
+            RZECollapsingHeader* m_CameraComponentSection;
+            RZECollapsingHeader* m_LightComponentSection;
+            RZECollapsingHeader* m_LuaScriptComponentSection;
+            RZECollapsingHeader* m_MeshRendererComponentSection;
+            RZECollapsingHeader* m_SpriteRendererComponentSection;
+
+        private:
+            void initComponents();
+            void destroyComponents();
         };
     }    // namespace Editor
 }    // namespace Razix

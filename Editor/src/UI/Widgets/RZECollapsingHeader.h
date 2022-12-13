@@ -21,11 +21,11 @@ namespace Razix {
             void paintEvent(QPaintEvent* event)
             {
                 QPainter painter(this);
-                painter.begin(this);
+                //painter.begin(this);
                 painter.setBrush(QColor(192, 192, 192));
                 painter.setPen(QColor(64, 64, 64));
                 painter.drawPolygon(*arrow);
-                painter.end();
+                //painter.end();
             }
 
         private:
