@@ -4,7 +4,7 @@
 
 #include "RZRenderStack.h"
 
-#include "Razix/Graphics/API/RZAPIRenderer.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
@@ -53,7 +53,7 @@ namespace Razix {
             for (auto renderer: m_RenderersStack) {
                 renderer->Begin();
 
-                renderer->Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+                renderer->Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
 
                 renderer->End();
 

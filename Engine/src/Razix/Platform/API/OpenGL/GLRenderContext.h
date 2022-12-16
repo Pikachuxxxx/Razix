@@ -1,19 +1,19 @@
 #pragma once
-#include "Razix/Graphics/API/RZAPIRenderer.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 
 #include "Razix/Platform/API/OpenGL/OpenGLContext.h"
 
 namespace Razix {
     namespace Graphics {
 
-        class OpenGLAPIRenderer : public RZAPIRenderer
+        class GLRenderContext : public RZRenderContext
         {
         public:
         public:
-            OpenGLAPIRenderer(uint32_t width, uint32_t height);
-            ~OpenGLAPIRenderer();
+            GLRenderContext(uint32_t width, uint32_t height);
+            ~GLRenderContext();
 
-            static OpenGLAPIRenderer* GetGLRenderer() { return static_cast<OpenGLAPIRenderer*>(s_APIInstance); }
+            static GLRenderContext* GetGLRenderer() { return static_cast<GLRenderContext*>(s_APIInstance); }
 
         protected:
             void InitAPIImpl() override;

@@ -16,7 +16,7 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
-#include "Razix/Graphics/API/RZAPIRenderer.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
@@ -245,9 +245,9 @@ namespace Razix {
     void RZApplication::Run()
     {
         // Create the API renderer to issue render commands
-        Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
+        Graphics::RZRenderContext::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
-        Graphics::RZAPIRenderer::Init();
+        Graphics::RZRenderContext::Init();
 
         // Job system and Engine Systems(run-time) Initialization
         Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
@@ -543,7 +543,7 @@ namespace Razix {
 
         // FIXME: This is fucked up I'm not cleaning stuff for editor mode
         if (RZApplication::Get().getAppType() == AppType::GAME)
-            Graphics::RZAPIRenderer::Release();
+            Graphics::RZRenderContext::Release();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }
