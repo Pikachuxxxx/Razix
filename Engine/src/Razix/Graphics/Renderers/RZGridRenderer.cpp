@@ -5,6 +5,7 @@
 
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
@@ -147,11 +148,14 @@ namespace Razix {
             m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
+            auto cmdBuf = m_MainCommandBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
             // Get a swapchain image to render to
             Graphics::RZRenderContext::AcquireImage();
 
             // Begin recording the command buffers
-            Graphics::RZRenderContext::Begin(m_MainCommandBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()]);
+            Graphics::RZRenderContext::Begin(cmdBuf);
+
+            RAZIX_MARK_BEGIN(*(VkCommandBuffer*) cmdBuf->getAPIBuffer(), "Grid Pass", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
             // Update the viewport
             Graphics::RZRenderContext::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
@@ -221,6 +225,8 @@ namespace Razix {
             m_RenderPass->EndRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer());
 
             //Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+
+            RAZIX_MARK_END(*(VkCommandBuffer*) Graphics::RZRenderContext::getCurrentCommandBuffer()->getAPIBuffer());
         }
 
         void RZGridRenderer::Present()

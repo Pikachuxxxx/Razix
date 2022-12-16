@@ -5,6 +5,7 @@
 
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
@@ -114,7 +115,7 @@ namespace Razix {
             attachmentTypes[2] = Graphics::RZTexture::Type::DEPTH;
 
             auto swapImgCount = Graphics::RZRenderContext::getSwapchain()->GetSwapchainImageCount();
-            m_EntityIDsRT     = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG ("Entity IDs RT") m_ScreenBufferWidth, m_ScreenBufferHeight, RZTexture::Format::R32_INT);
+            m_EntityIDsRT     = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Entity IDs RT") m_ScreenBufferWidth, m_ScreenBufferHeight, RZTexture::Format::R32_INT);
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             m_Framebuffers.clear();
@@ -147,6 +148,8 @@ namespace Razix {
             // Begin recording the command buffers
             //Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
+            RAZIX_MARK_BEGIN(*(VkCommandBuffer*) Graphics::RZRenderContext::getCurrentCommandBuffer()->getAPIBuffer(), "FOrward Renderer Pass", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
             // Update the viewport
             Graphics::RZRenderContext::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
@@ -175,7 +178,7 @@ namespace Razix {
 
             // Update the View Projection UBO
             m_Camera->setPerspectiveFarClip(6000.0f);
-            m_Camera->setAspectRatio((float)m_ScreenBufferWidth / (float)m_ScreenBufferHeight);
+            m_Camera->setAspectRatio((float) m_ScreenBufferWidth / (float) m_ScreenBufferHeight);
             m_ViewProjSystemUBOData.view       = m_Camera->getViewMatrix();
             m_ViewProjSystemUBOData.projection = m_Camera->getProjection();
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
@@ -298,6 +301,8 @@ namespace Razix {
             // End the render pass and recording
             m_RenderPass->EndRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer());
 
+            RAZIX_MARK_END(*(VkCommandBuffer*) Graphics::RZRenderContext::getCurrentCommandBuffer()->getAPIBuffer());
+
             //Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
         }
 
@@ -322,7 +327,7 @@ namespace Razix {
 
             // Destroy the resources first
             m_DepthTexture->Release(true);
-            m_EntityIDsRT->Resize(width, height RZ_DEBUG_NAME_TAG_STR_E_ARG ("Entity IDs RT Forward Renderer"));
+            m_EntityIDsRT->Resize(width, height RZ_DEBUG_NAME_TAG_STR_E_ARG("Entity IDs RT Forward Renderer"));
 
             for (auto frameBuf: m_Framebuffers)
                 frameBuf->Destroy();
