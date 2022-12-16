@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZAPIRenderer.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -11,13 +11,13 @@
 namespace Razix {
     namespace Graphics {
 
-        class VKAPIRenderer : public RZAPIRenderer
+        class VKRenderContext : public RZRenderContext
         {
         public:
-            VKAPIRenderer(uint32_t width, uint32_t height);
-            ~VKAPIRenderer();
+            VKRenderContext(uint32_t width, uint32_t height);
+            ~VKRenderContext();
 
-            static VKAPIRenderer* GetVKRenderer() { return static_cast<VKAPIRenderer*>(s_APIInstance); }
+            static VKRenderContext* GetVKRenderer() { return static_cast<VKRenderContext*>(s_APIInstance); }
 
             inline const VkDescriptorPool& getDescriptorPool() const { return m_DescriptorPool; }
 

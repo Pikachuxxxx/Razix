@@ -28,16 +28,16 @@ namespace Razix {
          * and other operations that doesn't require the underlying API, since renderers do not actually need that we use this high-level abstraction
          * over the supported APIs to make things look simple and easier to interact with
          */
-        class RAZIX_API RZAPIRenderer : public RZRoot
+        class RAZIX_API RZRenderContext : public RZRoot
         {
         public:
-            RZAPIRenderer()          = default;
-            virtual ~RZAPIRenderer() = default;
+            RZRenderContext()          = default;
+            virtual ~RZRenderContext() = default;
 
             static void Create(uint32_t width, uint32_t height);
             static void Release();
 
-            static RZAPIRenderer& Get() { return *s_APIInstance; }
+            static RZRenderContext& Get() { return *s_APIInstance; }
 
             /* Initializes the API renderer with the resources it needs */
             RAZIX_FORCE_INLINE static void Init()
@@ -134,7 +134,7 @@ namespace Razix {
             virtual RZSwapchain* GetSwapchainImpl() = 0;
 
         protected:
-            static RZAPIRenderer* s_APIInstance;
+            static RZRenderContext* s_APIInstance;
 
             std::string      m_RendererTitle; /* The name of the renderer API that is being used */
             uint32_t         m_Width;

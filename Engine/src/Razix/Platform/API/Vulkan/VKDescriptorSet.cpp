@@ -4,7 +4,7 @@
 #include "VKDescriptorSet.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
-#include "Razix/Platform/API/Vulkan/VKAPIRenderer.h"
+#include "Razix/Platform/API/Vulkan/VKRenderContext.h"
 #include "Razix/Platform/API/Vulkan/VKSwapchain.h"
 #include "Razix/Platform/API/Vulkan/VKUniformBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
@@ -51,7 +51,7 @@ namespace Razix {
 
             VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
             descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            descriptorSetAllocateInfo.descriptorPool     = VKAPIRenderer::GetVKRenderer()->getDescriptorPool();
+            descriptorSetAllocateInfo.descriptorPool     = VKRenderContext::GetVKRenderer()->getDescriptorPool();
             descriptorSetAllocateInfo.descriptorSetCount = 1;
             descriptorSetAllocateInfo.pSetLayouts        = &setLayout;
 

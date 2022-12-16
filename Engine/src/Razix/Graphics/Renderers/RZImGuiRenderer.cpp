@@ -8,7 +8,7 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Graphics/API/RZAPIRenderer.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
@@ -181,13 +181,13 @@ namespace Razix {
             attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
             attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
 
-            auto swapImgCount = Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount();
+            auto swapImgCount = Graphics::RZRenderContext::getSwapchain()->GetSwapchainImageCount();
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             m_Framebuffers.clear();
-            for (uint32_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
+            for (uint32_t i = 0; i < Graphics::RZRenderContext::getSwapchain()->GetSwapchainImageCount(); i++) {
                 Graphics::RZTexture* attachments[2];
-                attachments[0] = Graphics::RZAPIRenderer::getSwapchain()->GetImage(i);
+                attachments[0] = Graphics::RZRenderContext::getSwapchain()->GetImage(i);
                 attachments[1] = m_DepthTexture;
 
                 Graphics::FramebufferInfo frameBufInfo{};
@@ -238,10 +238,10 @@ namespace Razix {
             // Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
             // Update the viewport
-            Graphics::RZAPIRenderer::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            Graphics::RZRenderContext::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // Begin the render pass
-            m_RenderPass->BeginRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
+            m_RenderPass->BeginRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
@@ -376,7 +376,7 @@ namespace Razix {
             model.size = sizeof(PushConstBlock);
             model.data = &pushConstBlock;
 
-            RZAPIRenderer::BindPushConstant(m_Pipeline, cmdBuffer, model);
+            RZRenderContext::BindPushConstant(m_Pipeline, cmdBuffer, model);
 
             // Bind the vertex and index buffers
             m_ImGuiVBO->Bind(cmdBuffer);
@@ -389,7 +389,7 @@ namespace Razix {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
                     RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
-                    RZAPIRenderer::BindDescriptorSets(m_Pipeline, cmdBuffer, &set, 1);
+                    RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuffer, &set, 1);
                     // TODO: Fix this for Vulkan
                     VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
 
@@ -400,7 +400,7 @@ namespace Razix {
                     // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
                     // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
                     // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                    RZAPIRenderer::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    RZRenderContext::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
 #ifdef RAZIX_RENDER_API_VULKAN
                     if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                         vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
@@ -417,9 +417,9 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // End the render pass and recording
-            m_RenderPass->EndRenderPass(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+            m_RenderPass->EndRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer());
             // Submit the render queue before presenting next
-            Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
+            Graphics::RZRenderContext::Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
         }
 
         void RZImGuiRenderer::Present()
@@ -430,8 +430,8 @@ namespace Razix {
             m_PassTimer.Update(now);
             RZEngine::Get().GetStatistics().ImGuiPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
 
-            Graphics::RZAPIRenderer::SubmitWork();
-            Graphics::RZAPIRenderer::Present();
+            Graphics::RZRenderContext::SubmitWork();
+            Graphics::RZRenderContext::Present();
         }
 
         void RZImGuiRenderer::Resize(uint32_t width, uint32_t height)
@@ -451,7 +451,7 @@ namespace Razix {
             m_Pipeline->Destroy();
             m_RenderPass->Destroy();
 
-            Graphics::RZAPIRenderer::OnResize(width, height);
+            Graphics::RZRenderContext::OnResize(width, height);
 
             InitDisposableResources();
         }

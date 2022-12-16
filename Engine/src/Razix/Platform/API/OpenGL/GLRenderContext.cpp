@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "OpenGLAPIRenderer.h"
+#include "GLRenderContext.h"
 
 #include "Razix/Core/RZEngine.h"
 
@@ -17,7 +17,7 @@
 namespace Razix {
     namespace Graphics {
 
-        OpenGLAPIRenderer::OpenGLAPIRenderer(uint32_t width, uint32_t height)
+        GLRenderContext::GLRenderContext(uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -26,12 +26,12 @@ namespace Razix {
             m_Height        = height;
         }
 
-        OpenGLAPIRenderer::~OpenGLAPIRenderer()
+        GLRenderContext::~GLRenderContext()
         {
             // m_context->Release();
         }
 
-        void OpenGLAPIRenderer::InitAPIImpl()
+        void GLRenderContext::InitAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -39,21 +39,21 @@ namespace Razix {
             m_Context = OpenGLContext::Get();
         }
 
-        void OpenGLAPIRenderer::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
+        void GLRenderContext::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             m_CurrentCommandBuffer = cmdBuffer;
         }
 
-        void OpenGLAPIRenderer::SubmitImpl(RZCommandBuffer* cmdBuffer)
+        void GLRenderContext::SubmitImpl(RZCommandBuffer* cmdBuffer)
         {
         }
 
-        void OpenGLAPIRenderer::SubmitWorkImpl()
+        void GLRenderContext::SubmitWorkImpl()
         {
         }
 
-        void OpenGLAPIRenderer::PresentAPIImpl()
+        void GLRenderContext::PresentAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -62,7 +62,7 @@ namespace Razix {
             //glfwSwapBuffers(m_Context->getGLFWWindow());
         }
 
-        void OpenGLAPIRenderer::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
+        void GLRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -97,7 +97,7 @@ namespace Razix {
             }
         }
 
-        void OpenGLAPIRenderer::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)
+        void GLRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -125,14 +125,14 @@ namespace Razix {
             }
         }
 
-        void OpenGLAPIRenderer::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)
+        void GLRenderContext::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             glScissor(x, y, width, height);
         }
 
-        void OpenGLAPIRenderer::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
+        void GLRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -142,7 +142,7 @@ namespace Razix {
             glDrawArrays(GL_TRIANGLES, 0, count);
         }
 
-        void OpenGLAPIRenderer::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount /*= 1*/, uint32_t firstIndex /*= 0*/, int32_t vertexOffset /*= 0*/, uint32_t firstInstance /*= 0*/)
+        void GLRenderContext::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount /*= 1*/, uint32_t firstIndex /*= 0*/, int32_t vertexOffset /*= 0*/, uint32_t firstInstance /*= 0*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -152,23 +152,23 @@ namespace Razix {
             glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, nullptr);
         }
 
-        void OpenGLAPIRenderer::DestroyAPIImpl()
+        void GLRenderContext::DestroyAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }
 
-        void OpenGLAPIRenderer::OnResizeAPIImpl(uint32_t width, uint32_t height)
+        void GLRenderContext::OnResizeAPIImpl(uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             glViewport(0, 0, width, height);
         }
 
-        Razix::Graphics::RZSwapchain* OpenGLAPIRenderer::GetSwapchainImpl()
+        Razix::Graphics::RZSwapchain* GLRenderContext::GetSwapchainImpl()
         {
             return static_cast<RZSwapchain*>(OpenGLContext::Get()->getSwapchain());
         }
 
-        void OpenGLAPIRenderer::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
+        void GLRenderContext::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -186,7 +186,7 @@ namespace Razix {
             ubo.Destroy();
         }
 
-        void OpenGLAPIRenderer::SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)
+        void GLRenderContext::SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }

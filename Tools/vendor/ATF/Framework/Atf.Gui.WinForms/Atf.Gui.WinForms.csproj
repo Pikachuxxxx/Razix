@@ -21,8 +21,7 @@
     <OutputPath>..\..\..\..\..\bin\Debug-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Debug-windows-x86_64\obj\Debug\Atf.Gui.WinForms\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>..\..\..\..\..\bin\Release-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Release-windows-x86_64\obj\Release\Atf.Gui.WinForms\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -47,8 +45,7 @@
     <OutputPath>..\..\..\..\..\bin\Distribution-windows-x86_64\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Distribution-windows-x86_64\obj\Distribution\Atf.Gui.WinForms\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -138,9 +135,7 @@
     <Compile Include="Applications\Listers\TreeListViewAdapter.cs" />
     <Compile Include="Applications\Listers\TreeListViewEditor.cs" />
     <Compile Include="Applications\Listers\WinFormsItemInfo.cs" />
-    <Compile Include="Applications\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\MainForm.cs" />
     <EmbeddedResource Include="Applications\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -149,16 +144,12 @@
     <Compile Include="Applications\MenuInfos.cs" />
     <Compile Include="Applications\NetworkTargetServices\ITargetService.cs" />
     <Compile Include="Applications\NetworkTargetServices\Target.cs" />
-    <Compile Include="Applications\NetworkTargetServices\TargetDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\NetworkTargetServices\TargetDialog.cs" />
     <Compile Include="Applications\NetworkTargetServices\TargetDialog.designer.cs" />
     <EmbeddedResource Include="Applications\NetworkTargetServices\TargetDialog.resx">
       <DependentUpon>TargetDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Applications\NetworkTargetServices\TargetEditDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\NetworkTargetServices\TargetEditDialog.cs" />
     <Compile Include="Applications\NetworkTargetServices\TargetEditDialog.designer.cs" />
     <EmbeddedResource Include="Applications\NetworkTargetServices\TargetEditDialog.resx">
       <DependentUpon>TargetEditDialog.cs</DependentUpon>
@@ -173,9 +164,7 @@
     <Compile Include="Applications\PropertyEditingCommands.cs" />
     <Compile Include="Applications\PropertyEditor.cs" />
     <Compile Include="Applications\RenameCommand.cs" />
-    <Compile Include="Applications\RenameCommandDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\RenameCommandDialog.cs" />
     <Compile Include="Applications\RenameCommandDialog.designer.cs" />
     <EmbeddedResource Include="Applications\RenameCommandDialog.resx">
       <DependentUpon>RenameCommandDialog.cs</DependentUpon>
@@ -187,15 +176,11 @@
     <Compile Include="Applications\SearchAndReplace\ISearchUI.cs" />
     <Compile Include="Applications\SearchAndReplace\ISearchableContext.cs" />
     <Compile Include="Applications\SearchAndReplace\ISearchableContextUI.cs" />
-    <Compile Include="Applications\SettingsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\SettingsDialog.cs" />
     <EmbeddedResource Include="Applications\SettingsDialog.resx">
       <DependentUpon>SettingsDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Applications\SettingsLoadSaveDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\SettingsLoadSaveDialog.cs" />
     <Compile Include="Applications\SettingsLoadSaveDialog.designer.cs" />
     <EmbeddedResource Include="Applications\SettingsLoadSaveDialog.resx">
       <DependentUpon>SettingsLoadSaveDialog.cs</DependentUpon>
@@ -207,9 +192,7 @@
     <Compile Include="Applications\SkinService\EmbeddedImage.cs" />
     <Compile Include="Applications\SkinService\FormNcRenderer.cs" />
     <Compile Include="Applications\SkinService\Schemas\SkinSchema.cs" />
-    <Compile Include="Applications\SkinService\SkinEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\SkinService\SkinEditor.cs" />
     <Compile Include="Applications\SkinService\SkinService.cs" />
     <Compile Include="Applications\StandardEditCommands.cs" />
     <Compile Include="Applications\StandardFileExitCommand.cs" />
@@ -241,9 +224,7 @@
       <DependentUpon>CheckInForm.cs</DependentUpon>
       <SubType>DesignerType</SubType>
     </EmbeddedResource>
-    <Compile Include="Applications\VersionControl\ReconcileForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\VersionControl\ReconcileForm.cs" />
     <Compile Include="Applications\VersionControl\ReconcileForm.designer.cs" />
     <EmbeddedResource Include="Applications\VersionControl\ReconcileForm.resx">
       <DependentUpon>ReconcileForm.cs</DependentUpon>
@@ -251,9 +232,7 @@
     <Compile Include="Applications\VersionControl\SourceControlCommands.cs" />
     <Compile Include="Applications\WebHelp.cs" />
     <Compile Include="Applications\WebHelpCommands.cs" />
-    <Compile Include="Applications\WebServices\FeedbackForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Applications\WebServices\FeedbackForm.cs" />
     <EmbeddedResource Include="Applications\WebServices\FeedbackForm.resx">
       <DependentUpon>FeedbackForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -263,21 +242,15 @@
     <Compile Include="Applications\WebServices\VersionUpdateService.cs" />
     <Compile Include="Applications\WindowLayoutServiceCommands.cs" />
     <Compile Include="ChartUtil.cs" />
-    <Compile Include="Controls\AboutDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\AboutDialog.cs" />
     <EmbeddedResource Include="Controls\AboutDialog.resx">
       <DependentUpon>AboutDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\AboutSysInfoDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\AboutSysInfoDialog.cs" />
     <EmbeddedResource Include="Controls\AboutSysInfoDialog.resx">
       <DependentUpon>AboutSysInfoDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\Adaptable\AdaptableControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\Adaptable\AdaptableControl.cs" />
     <Compile Include="Controls\Adaptable\AnnotatingCommands.cs" />
     <Compile Include="Controls\Adaptable\AnnotationAdapter.cs" />
     <Compile Include="Controls\Adaptable\AutoTranslateAdapter.cs" />
@@ -285,9 +258,7 @@
     <Compile Include="Controls\Adaptable\ContextMenuAdapter.cs" />
     <Compile Include="Controls\Adaptable\ControlAdapter.cs" />
     <Compile Include="Controls\Adaptable\CoordinateAxisAdapter.cs" />
-    <Compile Include="Controls\Adaptable\D2dAdaptableControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\Adaptable\D2dAdaptableControl.cs" />
     <Compile Include="Controls\Adaptable\D2dAnnotationAdapter.cs" />
     <Compile Include="Controls\Adaptable\D2dGridAdapter.cs" />
     <Compile Include="Controls\Adaptable\D2dRectangleDragRenderer.cs" />
@@ -353,60 +324,38 @@
     <Compile Include="Controls\Adaptable\ShowPinsToggle.cs" />
     <Compile Include="Controls\Adaptable\TransformAdapter.cs" />
     <Compile Include="Controls\Adaptable\ViewingAdapter.cs" />
-    <Compile Include="Controls\BoolInputControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Controls\BoolInputControl.cs" />
     <EmbeddedResource Include="Controls\BoolInputControl.resx">
       <DependentUpon>BoolInputControl.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\CanvasControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\CanvasControl.cs" />
     <EmbeddedResource Include="Controls\CanvasControl.resx">
       <DependentUpon>CanvasControl.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\CollapsibleGroupBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\CollapsibleGroupBox.cs" />
     <Compile Include="Controls\ColorPicker\AdobeColors.cs" />
-    <Compile Include="Controls\ColorPicker\ColorBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Controls\ColorPicker\ColorBox.cs" />
     <EmbeddedResource Include="Controls\ColorPicker\ColorBox.resx">
       <DependentUpon>ColorBox.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\ColorPicker\ColorPicker.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\ColorPicker\ColorPicker.cs" />
     <EmbeddedResource Include="Controls\ColorPicker\ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Controls\ColorPicker\ColorPickerEditor.cs" />
-    <Compile Include="Controls\ColorPicker\VerticalColorSlider.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Controls\ColorPicker\VerticalColorSlider.cs" />
     <EmbeddedResource Include="Controls\ColorPicker\VerticalColorSlider.resx">
       <DependentUpon>VerticalColorSlider.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\ConfirmationDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\ConfirmationDialog.cs" />
     <EmbeddedResource Include="Controls\ConfirmationDialog.resx">
       <DependentUpon>ConfirmationDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\ConsoleBox\ConsoleTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\ConsoleBox\ConsoleTextBox.cs" />
     <Compile Include="Controls\ConsoleBox\IConsoleTextBox.cs" />
-    <Compile Include="Controls\CurveEditing\Cartesian2dCanvas.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\CurveEditing\CurveCanvas.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\CurveEditing\CurveEditingControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\CurveEditing\Cartesian2dCanvas.cs" />
+    <Compile Include="Controls\CurveEditing\CurveCanvas.cs" />
+    <Compile Include="Controls\CurveEditing\CurveEditingControl.cs" />
     <Compile Include="Controls\CurveEditing\CurveEditor.cs" />
     <Compile Include="Controls\CurveEditing\CurveRenderer.cs" />
     <Compile Include="Controls\CustomColorTable.cs" />
@@ -414,25 +363,19 @@
     <Compile Include="Controls\CustomOpenFileDialog.cs" />
     <Compile Include="Controls\CustomSaveFileDialog.cs" />
     <Compile Include="Controls\CustomToolStripRenderer.cs" />
-    <Compile Include="Controls\CustomizeKeyboardDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\CustomizeKeyboardDialog.cs" />
     <Compile Include="Controls\CustomizeKeyboardDialog.designer.cs" />
     <EmbeddedResource Include="Controls\CustomizeKeyboardDialog.resx">
       <DependentUpon>CustomizeKeyboardDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\DataBoundListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\DataBoundListView.cs" />
     <Compile Include="Controls\DataEditing\BoolDataEditor.cs" />
     <Compile Include="Controls\DataEditing\ColorDataEditor.cs" />
     <Compile Include="Controls\DataEditing\DataEditor.cs" />
     <Compile Include="Controls\DataEditing\DataEditorTheme.cs" />
     <Compile Include="Controls\DataEditing\FloatDataEditor.cs" />
     <Compile Include="Controls\DataEditing\StringDataEditor.cs" />
-    <Compile Include="Controls\Direct2DControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\Direct2DControl.cs" />
     <Compile Include="Controls\ErrorDialog.Designer.cs">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
       <SubType>Dependency</SubType>
@@ -444,96 +387,66 @@
       <DependentUpon>ErrorDialog.cs</DependentUpon>
       <SubType>DesignerType</SubType>
     </EmbeddedResource>
-    <Compile Include="Controls\FilteredFileDialogBase.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\FilteredFileDialogBase.cs" />
     <Compile Include="Controls\FilteredFileDialogBase.designer.cs" />
     <EmbeddedResource Include="Controls\FilteredFileDialogBase.resx">
       <DependentUpon>FilteredFileDialogBase.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\FindFileDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\FindFileDialog.cs" />
     <Compile Include="Controls\FindFileDialog.designer.cs" />
     <EmbeddedResource Include="Controls\FindFileDialog.resx">
       <DependentUpon>FindFileDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\FindFileWithSuggestionDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\FindFileWithSuggestionDialog.cs" />
     <Compile Include="Controls\FindFileWithSuggestionDialog.designer.cs" />
     <EmbeddedResource Include="Controls\FindFileWithSuggestionDialog.resx">
       <DependentUpon>FindFileWithSuggestionDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\FloatInputControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Controls\FloatInputControl.cs" />
     <EmbeddedResource Include="Controls\FloatInputControl.resx">
       <DependentUpon>FloatInputControl.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Controls\FolderSelectDialog.cs" />
-    <Compile Include="Controls\HoverBase.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\HoverBase.cs" />
     <EmbeddedResource Include="Controls\HoverBase.resx">
       <DependentUpon>HoverBase.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Controls\HoverEventArgs.cs" />
-    <Compile Include="Controls\HoverLabel.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\HoverLabel.cs" />
     <EmbeddedResource Include="Controls\HoverLabel.resx">
       <DependentUpon>HoverLabel.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\IntInputControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Controls\IntInputControl.cs" />
     <EmbeddedResource Include="Controls\IntInputControl.resx">
       <DependentUpon>IntInputControl.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\NoFocusTrackBar.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\NumericMatrixControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\NumericTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\NumericTupleControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\OpenFilteredFileDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\NoFocusTrackBar.cs" />
+    <Compile Include="Controls\NumericMatrixControl.cs" />
+    <Compile Include="Controls\NumericTextBox.cs" />
+    <Compile Include="Controls\NumericTupleControl.cs" />
+    <Compile Include="Controls\OpenFilteredFileDialog.cs" />
     <Compile Include="Controls\OverlayButton.cs" />
     <Compile Include="Controls\PerformanceMonitorControl.Designer.cs">
       <DependentUpon>PerformanceMonitorControl.cs</DependentUpon>
       <SubType>Dependency</SubType>
     </Compile>
     <Compile Include="Controls\PerformanceMonitorControl.cs">
-      <SubType>UserControl</SubType>
+      <SubType>Form</SubType>
     </Compile>
     <EmbeddedResource Include="Controls\PerformanceMonitorControl.resx">
       <DependentUpon>PerformanceMonitorControl.cs</DependentUpon>
       <SubType>DesignerType</SubType>
     </EmbeddedResource>
-    <Compile Include="Controls\ProgressDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\ProgressDialog.cs" />
     <EmbeddedResource Include="Controls\ProgressDialog.resx">
       <DependentUpon>ProgressDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Controls\PropertyEditing\ArrayEditingControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\PropertyEditing\ArrayEditingControl.cs" />
     <Compile Include="Controls\PropertyEditing\ArrayEditor.cs" />
     <Compile Include="Controls\PropertyEditing\BoolEditor.cs" />
     <Compile Include="Controls\PropertyEditing\BoundedFloatEditor.cs" />
     <Compile Include="Controls\PropertyEditing\BoundedIntEditor.cs" />
-    <Compile Include="Controls\PropertyEditing\CollectionEditingControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\PropertyEditing\CollectionEditingControl.cs" />
     <Compile Include="Controls\PropertyEditing\CollectionEditor.cs" />
     <Compile Include="Controls\PropertyEditing\ColorPickerEditor.cs" />
     <Compile Include="Controls\PropertyEditing\CompositeOpenedEventArgs.cs" />
@@ -543,9 +456,7 @@
     <Compile Include="Controls\PropertyEditing\FlagsUITypeEditor.cs" />
     <Compile Include="Controls\PropertyEditing\FolderBrowserDialogUITypeEditor.cs" />
     <Compile Include="Controls\PropertyEditing\FolderUriEditor.cs" />
-    <Compile Include="Controls\PropertyEditing\GridControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\PropertyEditing\GridControl.cs" />
     <Compile Include="Controls\PropertyEditing\GridControlShowHidePropertiesDialog.Designer.cs">
       <DependentUpon>GridControlShowHidePropertiesDialog.cs</DependentUpon>
       <SubType>Dependency</SubType>
@@ -557,17 +468,13 @@
       <DependentUpon>GridControlShowHidePropertiesDialog.cs</DependentUpon>
       <SubType>DesignerType</SubType>
     </EmbeddedResource>
-    <Compile Include="Controls\PropertyEditing\GridView.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\PropertyEditing\GridView.cs" />
     <Compile Include="Controls\PropertyEditing\ICompositePropertyControl.cs" />
     <Compile Include="Controls\PropertyEditing\IFormsOwner.cs" />
     <Compile Include="Controls\PropertyEditing\IPropertyEditor.cs" />
     <Compile Include="Controls\PropertyEditing\LongEnumEditor.cs" />
     <Compile Include="Controls\PropertyEditing\NestedCollectionEditor.cs" />
-    <Compile Include="Controls\PropertyEditing\NestedCollectionEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Controls\PropertyEditing\NestedCollectionEditorForm.cs" />
     <Compile Include="Controls\PropertyEditing\NestedCollectionEditorForm.designer.cs" />
     <EmbeddedResource Include="Controls\PropertyEditing\NestedCollectionEditorForm.resx">
       <DependentUpon>NestedCollectionEditorForm.cs</DependentUpon>
@@ -575,37 +482,19 @@
     <Compile Include="Controls\PropertyEditing\NumericEditor.cs" />
     <Compile Include="Controls\PropertyEditing\NumericMatrixEditor.cs" />
     <Compile Include="Controls\PropertyEditing\NumericTupleEditor.cs" />
-    <Compile Include="Controls\PropertyEditing\PropertyEditingControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\PropertyEditing\PropertyEditingControl.cs" />
     <Compile Include="Controls\PropertyEditing\PropertyEditorControlContext.cs" />
-    <Compile Include="Controls\PropertyEditing\PropertyGrid.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\PropertyEditing\PropertyGridView.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\PropertyEditing\PropertyView.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\PropertyEditing\PropertyGrid.cs" />
+    <Compile Include="Controls\PropertyEditing\PropertyGridView.cs" />
+    <Compile Include="Controls\PropertyEditing\PropertyView.cs" />
     <Compile Include="Controls\PropertyEditing\TypeDescriptorContext.cs" />
     <Compile Include="Controls\PropertyEditing\UniformArrayEditor.cs" />
     <Compile Include="Controls\PropertyEditing\WinFormsPropertyUtils.cs" />
-    <Compile Include="Controls\QuadPanelControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\DomNodeNameSearchTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\DomNodeReplaceToolStrip.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\DomNodeSearchResultsListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\DomNodeSearchToolStrip.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\QuadPanelControl.cs" />
+    <Compile Include="Controls\SearchAndReplace\DomNodeNameSearchTextBox.cs" />
+    <Compile Include="Controls\SearchAndReplace\DomNodeReplaceToolStrip.cs" />
+    <Compile Include="Controls\SearchAndReplace\DomNodeSearchResultsListView.cs" />
+    <Compile Include="Controls\SearchAndReplace\DomNodeSearchToolStrip.cs" />
     <Compile Include="Controls\SearchAndReplace\QueryInputTree\DomNodeQueryRoot.cs" />
     <Compile Include="Controls\SearchAndReplace\QueryInputTree\QueryButton.cs" />
     <Compile Include="Controls\SearchAndReplace\QueryInputTree\QueryLabel.cs" />
@@ -616,27 +505,13 @@
     <Compile Include="Controls\SearchAndReplace\QueryInputTree\QuerySeparator.cs" />
     <Compile Include="Controls\SearchAndReplace\QueryInputTree\QueryTextInput.cs" />
     <Compile Include="Controls\SearchAndReplace\QueryInputTree\QueryTree.cs" />
-    <Compile Include="Controls\SearchAndReplace\ReplaceTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\ReplaceToolStrip.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\SearchResultsListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\SearchTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\SearchToolStrip.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchAndReplace\StringSearchInputUI.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SplitButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\SearchAndReplace\ReplaceTextBox.cs" />
+    <Compile Include="Controls\SearchAndReplace\ReplaceToolStrip.cs" />
+    <Compile Include="Controls\SearchAndReplace\SearchResultsListView.cs" />
+    <Compile Include="Controls\SearchAndReplace\SearchTextBox.cs" />
+    <Compile Include="Controls\SearchAndReplace\SearchToolStrip.cs" />
+    <Compile Include="Controls\SearchAndReplace\StringSearchInputUI.cs" />
+    <Compile Include="Controls\SplitButton.cs" />
     <Compile Include="Controls\TabbedControlSelectorDialog.Designer.cs">
       <DependentUpon>TabbedControlSelectorDialog.cs</DependentUpon>
       <SubType>Dependency</SubType>
@@ -649,9 +524,7 @@
       <SubType>DesignerType</SubType>
     </EmbeddedResource>
     <Compile Include="Controls\ThreadSafeProgressDialog.cs" />
-    <Compile Include="Controls\ThumbnailControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\ThumbnailControl.cs" />
     <Compile Include="Controls\ThumbnailControlItem.cs" />
     <Compile Include="Controls\Timelines\Direct2D\D2dDefaultTimelineRenderer.cs" />
     <Compile Include="Controls\Timelines\Direct2D\D2dMoveManipulator.cs" />
@@ -660,9 +533,7 @@
     <Compile Include="Controls\Timelines\Direct2D\D2dSelectionManipulator.cs" />
     <Compile Include="Controls\Timelines\Direct2D\D2dSnapManipulator.cs" />
     <Compile Include="Controls\Timelines\Direct2D\D2dSplitManipulator.cs" />
-    <Compile Include="Controls\Timelines\Direct2D\D2dTimelineControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\Timelines\Direct2D\D2dTimelineControl.cs" />
     <Compile Include="Controls\Timelines\Direct2D\D2dTimelineRenderer.cs" />
     <Compile Include="Controls\Timelines\Gdi\DefaultTimelineRenderer.cs" />
     <Compile Include="Controls\Timelines\Gdi\MoveManipulator.cs" />
@@ -671,27 +542,15 @@
     <Compile Include="Controls\Timelines\Gdi\SelectionManipulator.cs" />
     <Compile Include="Controls\Timelines\Gdi\SnapManipulator.cs" />
     <Compile Include="Controls\Timelines\Gdi\SplitManipulator.cs" />
-    <Compile Include="Controls\Timelines\Gdi\TimelineControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\Timelines\Gdi\TimelineControl.cs" />
     <Compile Include="Controls\Timelines\Gdi\TimelineRenderer.cs" />
     <Compile Include="Controls\Timelines\HitEventArgs.cs" />
-    <Compile Include="Controls\ToolStripAutoFitLabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ToolStripAutoFitTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ToolStripEx.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\TreeControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\ToolStripAutoFitLabel.cs" />
+    <Compile Include="Controls\ToolStripAutoFitTextBox.cs" />
+    <Compile Include="Controls\ToolStripEx.cs" />
+    <Compile Include="Controls\TreeControl.cs" />
     <Compile Include="Controls\TreeItemRenderer.cs" />
-    <Compile Include="Controls\TreeListControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\TreeListControl.cs" />
     <Compile Include="Controls\TreeListItemRenderer.cs" />
     <Compile Include="Controls\TreeListView.Column.cs" />
     <Compile Include="Controls\TreeListView.ListView.cs" />
@@ -740,9 +599,7 @@
     <Compile Include="FindFileResolver.cs" />
     <Compile Include="GdiUtil.cs" />
     <Compile Include="Interop\DragEventArgsInterop.cs" />
-    <Compile Include="Interop\InteropControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Interop\InteropControl.cs" />
     <Compile Include="Interop\KeyEventArgsInterop.cs" />
     <Compile Include="Interop\KeysInterop.cs" />
     <Compile Include="Interop\MessageInterop.cs" />
