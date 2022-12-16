@@ -4,16 +4,17 @@
 #include "RZImGuiRenderer.h"
 
 #include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZMarkers.h"
 #include "razix/Core/RZApplication.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZCommandBuffer.h"
 #include "Razix/Graphics/API/RZFramebuffer.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZRenderPass.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
@@ -114,14 +115,13 @@ namespace Razix {
 
             m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas") "Awesome Font Icon Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
 
-
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                         descriptor.texture = m_FontAtlasTexture;
                 }
-                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG ("ImGui Font Atlas Desc Set"));
+                m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Font Atlas Desc Set"));
             }
 
             io.Fonts->Build();
@@ -130,7 +130,6 @@ namespace Razix {
             // As ocornut mentioned we pass an engine abstracted object and bind it when doing stuff ourselves
             ImTextureID set_2 = m_FontAtlasDescriptorSet;
             atlas[0].SetTexID(set_2);
-
 
             InitDisposableResources();
 
@@ -143,7 +142,7 @@ namespace Razix {
                 return;
             }
 
-            m_ImGuiVBO = RZVertexBuffer::Create(10, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("ImGUi VBO"));
+            m_ImGuiVBO = RZVertexBuffer::Create(10, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
             //m_ImGuiVBO->Destroy();
             m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, 10);
             //m_ImGuiIBO->Destroy();
@@ -237,6 +236,8 @@ namespace Razix {
             // Begin recording the command buffers
             // Graphics::RZAPIRenderer::Begin(m_MainCommandBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]);
 
+            RAZIX_MARK_BEGIN(*(VkCommandBuffer*) Graphics::RZRenderContext::getCurrentCommandBuffer()->getAPIBuffer(), "Forward Renderer Pass", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
             // Update the viewport
             Graphics::RZRenderContext::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
@@ -262,7 +263,7 @@ namespace Razix {
             /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
             m_ImGuiVBO->Destroy();
             delete m_ImGuiVBO;
-            m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("ImGUi VBO"));
+            m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
             //vertexCount = imDrawData->TotalVtxCount;
             //m_ImGuiVBO->UnMap();
             m_ImGuiVBO->Map();
@@ -418,6 +419,9 @@ namespace Razix {
 
             // End the render pass and recording
             m_RenderPass->EndRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer());
+
+            RAZIX_MARK_END(*(VkCommandBuffer*) Graphics::RZRenderContext::getCurrentCommandBuffer()->getAPIBuffer());
+
             // Submit the render queue before presenting next
             Graphics::RZRenderContext::Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
         }
@@ -500,7 +504,7 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             //size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG ("ImGui Font Atlas (path one)") "ImGui Font Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
+            m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas (path one)") "ImGui Font Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
         }
     }    // namespace Graphics
 }    // namespace Razix

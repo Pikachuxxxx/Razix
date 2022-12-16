@@ -4,6 +4,8 @@
 
 #include "Razix/Graphics/API/RZTexture.h"
 
+#include <glm/glm.hpp>
+
 #define VK_CHECK_RESULT(x) VK_ERROR_REPORT(x)
 
 #define VK_ERROR_REPORT(x) Razix::Graphics::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
