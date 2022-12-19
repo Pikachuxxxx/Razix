@@ -6,12 +6,23 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            class RZFrameGraphRenderTexture
+            enum class TextureType
+            {
+                Texture_2D,
+                Texture_3D,
+                Texture_CubeMap,
+                Texture_Depth,
+                Texture_RenderTarget,
+                Texture_SwapchainImage
+            };
+
+            class RZFrameGraphTexture
             {
             public:
                 struct Desc
                 {
                     // TODO: Name only exists in debug mode or use the name while creating the resource
+                    TextureType                 type;
                     std::string                 name;
                     glm::vec2                   extent;
                     Graphics::RZTexture::Format format;
@@ -22,8 +33,10 @@ namespace Razix {
 
                 static std::string toString(const Desc& desc);
 
+                Graphics::RZTexture* getHandle() { return m_Texture; }
+
             private:
-                Graphics::RZRenderTexture* m_RenderTarget;
+                Graphics::RZTexture* m_Texture;
             };
         }    // namespace FrameGraph
     }        // namespace Graphics
