@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZFrameGraphRenderTexture.h"
+#include "RZFrameGraphTexture.h"
 
 namespace Razix {
     namespace Graphics {
@@ -72,17 +72,34 @@ namespace Razix {
                 }
             }
 
-            void RZFrameGraphRenderTexture::create(const Desc& desc, void* allocator)
+            void RZFrameGraphTexture::create(const Desc& desc, void* allocator)
             {
-                m_RenderTarget = Graphics::RZRenderTexture::Create(desc.name, desc.extent.x, desc.extent.y, desc.format);
+                switch (desc.type) {
+                    case TextureType::Texture_2D:
+                        m_Texture = Graphics::RZTexture2D::Create(desc.name, desc.name, desc.extent.x, desc.extent.y, nullptr, desc.format);
+                        break;
+                    case TextureType::Texture_3D:
+                        break;
+                    case TextureType::Texture_CubeMap:
+                        break;
+                    case TextureType::Texture_Depth:
+                        m_Texture = Graphics::RZDepthTexture::Create(desc.extent.x, desc.extent.y);
+                        break;
+                    case TextureType::Texture_RenderTarget:
+                        m_Texture = Graphics::RZRenderTexture::Create(desc.name, desc.extent.x, desc.extent.y, desc.format);
+                        break;
+                    case TextureType::Texture_SwapchainImage:
+                        //m_Texture = RZRenderContext::getSwapchain()->GetCurrentImage()
+                        break;
+                }
             }
 
-            void RZFrameGraphRenderTexture::destroy(const Desc& desc, void* allocator)
+            void RZFrameGraphTexture::destroy(const Desc& desc, void* allocator)
             {
-                m_RenderTarget->Release(true);
+                m_Texture->Release(true);
             }
 
-            std::string RZFrameGraphRenderTexture::toString(const Desc& desc)
+            std::string RZFrameGraphTexture::toString(const Desc& desc)
             {
                 // Size, Format
                 return "(" + std::to_string(desc.extent.x) + ", " + std::to_string(desc.extent.y) + ") - " + FormatToString(desc.format);

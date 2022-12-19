@@ -9,7 +9,7 @@
 #include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphRenderTexture.h"
+#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
 namespace Razix {
     namespace Graphics {
@@ -25,9 +25,9 @@ namespace Razix {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
-                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphRenderTexture>("Present Image", {"Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
+                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_2D, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::SCREEN});
 
-                    data.depthTexture = builder.create<FrameGraph::RZFrameGraphRenderTexture>("Depth Texture", {"Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH});
+                    data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", {FrameGraph::TextureType::Texture_Depth, "Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH});
 
                     // Writes from this pass
                     data.presentationTarget = builder.write(data.presentationTarget);
@@ -37,8 +37,15 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     // Create the render pass and frame buffer using FrameGraph Resources
+                    // Use the resources tp build the Render passes and Framebuffer
 
-                    Graphics::RZRenderContext::AcquireImage();
+                    auto presentImage = resources.get<FrameGraph::RZFrameGraphTexture>(data.presentationTarget).getHandle();
+
+                    m_RenderPass->AddAttachment();
+
+                    // So using these resources build the RenderPass, Framebuffer and Descriptor Sets and cache them, or find a way to update them after they've been created during runtime
+
+                    Graphics::RZRenderContext::AcquireImage(); 
 
                     auto cmdBuf = m_CmdBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuf);
