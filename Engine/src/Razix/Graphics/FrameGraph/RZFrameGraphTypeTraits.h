@@ -15,7 +15,7 @@ namespace Razix {
             {
             };
             template<typename T>
-            struct has_CreateDesc<T, std::void_t<typename T::CreateDesc>> : std::true_type
+            struct has_CreateDesc<T, std::void_t<typename T::Desc>> : std::true_type
             {
             };
             template<typename T>
@@ -32,7 +32,7 @@ namespace Razix {
                 template<typename U>
                 static constexpr auto test(U *u) ->
                     typename std::is_same<void,
-                        decltype(u->create(typename T::CreateDesc{},
+                        decltype(u->create(typename T::Desc{},
                             std::declval<void *>()))>::type
                 {
                     return {};
@@ -54,7 +54,7 @@ namespace Razix {
                 template<typename U>
                 static constexpr auto test(U *u) ->
                     typename std::is_same<void,
-                        decltype(u->destroy(typename T::CreateDesc{},
+                        decltype(u->destroy(typename T::Desc{},
                             std::declval<void *>()))>::type
                 {
                     return {};
@@ -84,7 +84,7 @@ namespace Razix {
             };
             template<class T>
             struct has_toString<T, std::void_t<decltype(T::toString)>>
-                : std::is_convertible<decltype(T::toString(typename T::CreateDesc{})),
+                : std::is_convertible<decltype(T::toString(typename T::Desc{})),
                       std::string_view>
             {
             };

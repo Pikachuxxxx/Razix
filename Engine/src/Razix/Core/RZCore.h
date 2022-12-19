@@ -181,5 +181,16 @@
 
 // TODO: Add Safe memory delete and unloading macros
 /****************************************************************************************************
- *                                         Platforms Settings                                       *
+ *                                         Graphics Settings                                        *
  ****************************************************************************************************/
+
+/* Triple buffering is enabled by default */
+#define RAZIX_ENABLE_TRIPLE_BUFFERING
+/* The total number of images that the swapchan can render/present to, by default we use triple buffering, defaults to double buffering if disabled */
+#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
+    /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
+    #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
+    #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
+#elif
+    #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
+#endif

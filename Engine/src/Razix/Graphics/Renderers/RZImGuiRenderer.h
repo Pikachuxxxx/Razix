@@ -57,7 +57,7 @@ namespace Razix {
 
             void Submit(RZCommandBuffer* cmdBuf) override;
 
-            void EndScene(RZScene* scene) override { }
+            void EndScene(RZScene* scene) override {}
 
             void End() override;
 
@@ -71,7 +71,7 @@ namespace Razix {
 
         public:
             RZImGuiRenderer() {}
-            ~RZImGuiRenderer(){}
+            ~RZImGuiRenderer() {}
 
         private:
             RZTexture2D*     m_FontAtlasTexture;

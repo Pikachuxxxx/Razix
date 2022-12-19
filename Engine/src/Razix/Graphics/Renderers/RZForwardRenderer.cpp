@@ -157,7 +157,7 @@ namespace Razix {
             m_RenderPass->BeginRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
         }
 
-        void RZForwardRenderer::BeginScene(RZScene* scene)
+        void RZForwardRenderer::BeginScene(Razix::RZScene* scene)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -289,7 +289,7 @@ namespace Razix {
             }
         }
 
-        void RZForwardRenderer::EndScene(RZScene* scene)
+        void RZForwardRenderer::EndScene(Razix::RZScene* scene)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }

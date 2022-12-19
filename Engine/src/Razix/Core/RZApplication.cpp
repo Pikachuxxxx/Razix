@@ -16,8 +16,8 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
@@ -185,7 +185,7 @@ namespace Razix {
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
-        RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
+        //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -250,9 +250,9 @@ namespace Razix {
         Graphics::RZRenderContext::Init();
 
         // Job system and Engine Systems(run-time) Initialization
-        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
-        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZForwardRenderer);
-        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
+        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
+        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZForwardRenderer);
+        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
@@ -260,6 +260,9 @@ namespace Razix {
 
         // Load a scene into memory
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
+
+        Graphics::RZRendererSettings settings;
+        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(settings, Razix::RZEngine::Get().getSceneManager().getCurrentScene());
 
         Start();
 
@@ -387,11 +390,14 @@ namespace Razix {
         // Disable rendering if needed here
 
         // We are not checking if the current is scene is null or not
-        Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        //Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-        Razix::RZEngine::Get().getRenderStack().OnRender();
+        //Razix::RZEngine::Get().getRenderStack().OnRender();
 
-        Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        //Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+
+        Graphics::RZRendererSettings settings;
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(settings, Razix::RZEngine::Get().getSceneManager().getCurrentScene());
 
         OnRender();
     }
@@ -531,7 +537,7 @@ namespace Razix {
 
     void RZApplication::Quit()
     {
-        Razix::RZEngine::Get().getRenderStack().Destroy();
+        //Razix::RZEngine::Get().getRenderStack().Destroy();
 
         // Client side quit customization
         OnQuit();

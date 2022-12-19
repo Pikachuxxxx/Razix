@@ -1,0 +1,24 @@
+digraph FrameGraph {
+graph [style=invis, rankdir="TB" ordering=out, splines=spline]
+node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
+
+P0 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 2<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
+
+R0_1 [label=<{ {<B>Present Image</B><BR/>(1280.000000, 720.000000) - RGBA32F} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R1_1 [label=<{ {<B>Depth Texture</B><BR/>(1280.000000, 720.000000) - DEPTH} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+
+P0 -> { R0_1 R1_1 } [color=orangered]
+
+R0_1 -> { } [color=olivedrab3]
+R1_1 -> { } [color=olivedrab3]
+
+subgraph cluster_0 {
+P0 R0_1 R1_1 
+}
+
+subgraph cluster_imported_resources {
+graph [style=dotted, fontname="helvetica", label=< <B>Imported</B> >]
+
+}
+
+}

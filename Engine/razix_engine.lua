@@ -84,7 +84,8 @@ project "Razix"
         "src/**.h",
         "src/**.c",
         "src/**.cpp",
-        "src/**.inl"
+        "src/**.inl",
+        "src/**.tpp"
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
     }

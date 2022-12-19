@@ -79,7 +79,7 @@ namespace Razix {
             /**
              * Begins rendering the scene by reading the scene and extracting the necessary information 
              */
-            virtual void BeginScene(RZScene* scene) = 0;
+            virtual void BeginScene(Razix::RZScene* scene) {}
             /**
              * Submits the draw calls to the GPU by binding the necessary resources + context information + pipeline
              */
@@ -87,7 +87,7 @@ namespace Razix {
             /**
              * Ends rendering the scene
              */
-            virtual void EndScene(RZScene* scene) = 0;
+            virtual void EndScene(Razix::RZScene* scene) {}
             /**
              * Ends the renderer for the frame
              */
