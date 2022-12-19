@@ -34,7 +34,7 @@ namespace Razix {
                 template<typename T>
                 struct RZTypeResource : RZConcept
                 {
-                    RZTypeResource(typename T::CreateDesc &&, T &&);
+                    RZTypeResource(typename T::Desc &&, T &&);
 
                     void create(void *allocator) final;
                     void destroy(void *allocator) final;
@@ -42,7 +42,7 @@ namespace Razix {
                     std::string toString() const final;
 
                     // Resource creation descriptor
-                    typename const T::CreateDesc descriptor;
+                    typename const T::Desc descriptor;
 
                     // Resource handle
                     T resource;
@@ -69,7 +69,7 @@ namespace Razix {
                 T &get();
 
                 template<typename T>
-                typename const T::CreateDesc &getDescriptor() const;
+                typename const T::Desc &getDescriptor() const;
 
             private:
                 const uint32_t             m_ID;
@@ -81,11 +81,13 @@ namespace Razix {
 
             private:
                 template<typename T>
-                RZResourceEntry(uint32_t id, typename T::CreateDesc &&, T &&, uint32_t version, bool imported = false);
+                RZResourceEntry(uint32_t id, typename T::Desc &&, T &&, uint32_t version, bool imported = false);
 
                 template<typename T>
                 auto *getTypeResource() const;
             };
+
+#include "RZResourceEntry.inl"
 
         }    // namespace FrameGraph
     }        // namespace Graphics

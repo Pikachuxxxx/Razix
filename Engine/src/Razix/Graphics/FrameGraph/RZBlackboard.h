@@ -35,6 +35,9 @@ namespace Razix {
             private:
                 std::unordered_map<std::type_index, std::any> m_Storage;
             };
+
+            #include "RZBlackboard.inl"
+
         }    // namespace FrameGraph
     }        // namespace Graphics
 }    // namespace Razix

@@ -13,12 +13,6 @@ namespace Razix {
             // Builder Class
             //-----------------------------------------------------------------------------------
 
-            ENFORCE_CONCEPT_IMPL inline RZFrameGraphResource RZFrameGraph::RZBuilder::create(const std::string_view name, typename T::CreateDesc &&desc)
-            {
-                const auto id = m_FrameGraph.create<T>(name, std::move(desc));
-                return m_PassNode.m_Creates.emplace_back(id);
-            }
-
             RZFrameGraphResource RZFrameGraph::RZBuilder::read(RZFrameGraphResource id)
             {
                 return m_PassNode.read(id);
@@ -43,16 +37,6 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             // Frame Graph Class
             //-----------------------------------------------------------------------------------
-
-            template<typename PassData, typename SetupFunc, typename ExecuteFunc>
-            const PassData &Razix::Graphics::FrameGraph::RZFrameGraph::addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
-            {
-            }
-
-            template<typename SetupFunc, typename ExecuteFunc>
-            void Razix::Graphics::FrameGraph::RZFrameGraph::addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
-            {
-            }
 
             void RZFrameGraph::compile()
             {
@@ -256,14 +240,6 @@ namespace Razix {
                 os << "}";
             }
 
-            ENFORCE_CONCEPT_IMPL RZFrameGraphResource RZFrameGraph::import(const std::string_view name, typename T::CreateDesc &&, T &&)
-            {
-                const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
-                m_ResourceRegistry.emplace_back(
-                    RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kResourceInitialVersion, true});
-                return createResourceNode(name, resourceId).m_id;
-            }
-
             bool RZFrameGraph::isValid(RZFrameGraphResource id)
             {
                 const auto &node     = getResourceNode(id);
@@ -271,35 +247,29 @@ namespace Razix {
                 return node.m_Version == resource.m_Version;
             }
 
-            ENFORCE_CONCEPT_IMPL typename const T::CreateDesc &RZFrameGraph::getDescriptor(RZFrameGraphResource id)
-            {
-                return getResourceEntry(id).getTypeResource()<T>()->descriptor;
-            }
-
-            const Razix::Graphics::FrameGraph::RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id) const
+            const RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id) const
             {
                 assert(id < m_ResourceNodes.size());
                 return m_ResourceNodes[id];
             }
 
-            Razix::Graphics::FrameGraph::RZResourceEntry &RZFrameGraph::getResourceEntry(RZFrameGraphResource id)
+            RZResourceEntry &RZFrameGraph::getResourceEntry(RZFrameGraphResource id)
             {
                 const auto &node = getResourceNode(id);
                 assert(node.m_ResourceID < m_ResourceRegistry.size());
                 return m_ResourceRegistry[node.m_ResourceID];
             }
 
-            Razix::Graphics::FrameGraph::RZPassNode &RZFrameGraph::createPassNode(const std::string_view name, std::unique_ptr<RZFrameGraphPassConcept> &&base)
+            std::ostream &operator<<(std::ostream &os, const RZFrameGraph &fg)
+            {
+                fg.exportToGraphViz(os);
+                return os;
+            }
+
+            RZPassNode &RZFrameGraph::createPassNode(const std::string_view name, std::unique_ptr<RZFrameGraphPassConcept> &&base)
             {
                 const auto id = static_cast<uint32_t>(m_PassNodes.size());
                 return m_PassNodes.emplace_back(RZPassNode(name, id, std::move(base)));
-            }
-
-            ENFORCE_CONCEPT_IMPL RZFrameGraphResource RZFrameGraph::createResource(const std::string_view name, typename T::CreateDesc &&desc)
-            {
-                const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
-                m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), T{}, kResourceInitialVersion});
-                return createResourceNode(name, resourceId).m_ID;
             }
 
             RZResourceNode &RZFrameGraph::createResourceNode(const std::string_view name, uint32_t resourceID)
@@ -327,20 +297,6 @@ namespace Razix {
             RZFrameGraphPassResources::RZFrameGraphPassResources(RZFrameGraph &fg, RZPassNode &passNode)
                 : m_FrameGraph(fg), m_PassNode(passNode)
             {
-            }
-
-            ENFORCE_CONCEPT_IMPL T &RZFrameGraphPassResources::get(RZFrameGraphResource id)
-            {
-                assert(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) ||
-                       m_PassNode.canWriteResouce(id));
-                return m_FrameGraph.getResourceEntry(id).get<T>();
-            }
-
-            ENFORCE_CONCEPT_IMPL typename const T::CreateDesc &RZFrameGraphPassResources::getDescriptor(RZFrameGraphResource id) const
-            {
-                assert(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) ||
-                       m_PassNode.canWriteResouce(id));
-                return m_FrameGraph.getResourceEntry(id).getDescriptor<T>();
             }
 
         }    // namespace FrameGraph

@@ -6,10 +6,13 @@
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "Razix/Scene/RZSceneManager.h"
-
 #include "Razix/Graphics/RZShaderLibrary.h"
-#include "Razix/Graphics/Renderers/RZRenderStack.h"
+
+#include "Razix/Graphics/Renderers/RZWorldRenderer.h"
+
+#include "Razix/Scene/RZSceneManager.h"
+#include "Razix/Scene/RZScene.h"
+
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
 //! Some style guide rules are waved off for RZEngine class
@@ -71,8 +74,9 @@ namespace Razix {
         RZVirtualFileSystem           m_VirtualFileSystem;      /* The Virtual File Engine System for managing files								*/
         RZSceneManager                m_SceneManagerSystem;     /* Scene Manager Engine System for managing scenes in game world					*/
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
-        Graphics::RZRenderStack       m_RenderStack;            /* The render stack that will hold the renderers based on priority                 */
-        Graphics::RZShaderLibrary     m_ShaderLibrary;          /* Shader library that pre-loads shaders into memory                               */
+        Graphics::RZWorldRenderer     m_WorldRenderer;          /* Razix world renderer that build and renders the frame graph passes in the scene  */
+        //Graphics::RZRenderStack       m_RenderStack;            /* The render stack that will hold the renderers based on priority                  */
+        Graphics::RZShaderLibrary m_ShaderLibrary; /* Shader library that pre-loads shaders into memory                                */
 
     public:
         /* Starts up the Engine and it's sub-systems */
@@ -119,15 +123,16 @@ namespace Razix {
         /// <param name="targetFPS"> The targeted FPS for the engine </param>
         void setTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
 
-        // TODO: Use a template method to get the systems automatically, hence use a system registration design with IRZSystem as parent
+        // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
+        Graphics::RZWorldRenderer&     getWorldRenderer() { return m_WorldRenderer; }
         RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
         Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        Graphics::RZRenderStack&       getRenderStack() { return m_RenderStack; }
-        Graphics::RZShaderLibrary&     getShaderLibrary() { return m_ShaderLibrary; }
+        //Graphics::RZRenderStack&       getRenderStack() { return m_RenderStack; }
+        Graphics::RZShaderLibrary& getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
-        Stats m_Stats;                                /* Current frame basic statistics	                                */
-        float m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
+        Stats       m_Stats;                                /* Current frame basic statistics	                                */
+        float       m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
         std::string m_EngineInstallationDir;
     };
 }    // namespace Razix
