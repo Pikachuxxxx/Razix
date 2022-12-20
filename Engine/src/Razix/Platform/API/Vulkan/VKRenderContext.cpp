@@ -11,6 +11,7 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKFence.h"
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
+#include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -189,16 +190,25 @@ namespace Razix {
             for (auto& attachment: renderingInfo.attachments) {
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
-                attachInfo.sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                auto apiHandle         = static_cast<VkDescriptorImageInfo*>(attachment.first->GetHandle());
-                attachInfo.imageView   = apiHandle->imageView;
-                attachInfo.imageLayout = apiHandle->imageLayout;
+                attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(attachment.first->GetHandle());
+                attachInfo.imageView = apiHandle->imageView;
+
+                auto vkImage = static_cast<VKTexture2D*>(attachment.first);
+
+                if (attachment.first->getFormat() == RZTexture::Format::SCREEN) {
+                    VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                    vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                    attachInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+                }
+
+                attachInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
 
                 if (attachment.second.clear) {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
                 } else {
-                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff w   render on top of what was presented previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 

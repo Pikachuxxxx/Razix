@@ -32,7 +32,7 @@ namespace Razix {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
-                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_2D, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::SCREEN});
+                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_SwapchainImage, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::SCREEN});
 
                     data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", {FrameGraph::TextureType::Texture_Depth, "Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH});
 
@@ -61,9 +61,9 @@ namespace Razix {
                     pipelineInfo.cullMode            = Graphics::CullMode::NONE;
                     pipelineInfo.depthBiasEnabled    = false;
                     pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-                    pipelineInfo.shader = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
+                    pipelineInfo.shader              = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
                     pipelineInfo.transparencyEnabled = false;
-                    pipelineInfo.attachmentFormats   = {RZTexture::Format::SCREEN, RZTexture::Format::DEPTH};
+                    pipelineInfo.attachmentFormats   = {RZTexture::Format::SCREEN};
 
                     m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
 
@@ -87,8 +87,16 @@ namespace Razix {
 
                     auto cmdBuf = m_CmdBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuf);
-
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
+
+                    cmdBuf->UpdateViewport(1280, 720);
+
+                    RenderingInfo info{};
+                    info.attachments = {
+                        {Graphics::RZRenderContext::getSwapchain()->GetCurrentImage(), {true, glm::vec4(1.0f, 0.8f, 0.0f, 1.0f)}}};
+                    info.extent = {1280, 720};
+
+                    RZRenderContext::BeginRendering(cmdBuf, info);
 
                     // Bind pipeline and stuff
                     m_Pipeline->Bind(cmdBuf);
@@ -99,12 +107,13 @@ namespace Razix {
                     // Bind the pipeline
                     m_ScreenQuadMesh->Draw(cmdBuf);
 
+                    RZRenderContext::EndRendering(cmdBuf);
+
+                    RAZIX_MARK_END();
                     RZRenderContext::Submit(cmdBuf);
 
                     RZRenderContext::SubmitWork();
                     RZRenderContext::Present();
-
-                    RAZIX_MARK_END();
                 });
         }
 
