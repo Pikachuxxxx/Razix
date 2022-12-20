@@ -25,7 +25,7 @@ namespace Razix {
             for (size_t i = 0; i < frameBufInfo.attachmentCount; i++) {
 
                 // Only bind color attachments
-                if (frameBufInfo.renderPass->getAttachmentTypes()[i].type != RZTexture::Type::COLOR)
+                if (frameBufInfo.renderPass->getAttachmentTypes()[i].type != RZTexture::Type::COLOR_2D)
                     return;
 
                 auto& attachment = frameBufInfo.attachments[i];

@@ -108,7 +108,8 @@ namespace Razix {
         {
             MAT_PRESET_FORWARD_PHONG_LIGHTING,
             MAT_PRESET_DEFERRED_PBR,
-            MAT_PRESET_SKYBOX
+            MAT_PRESET_SKYBOX,
+            MAT_PRESET_NONE
         };
 
         /* Not an interface yet, this is a hard coded PBR material as of this iteration of the engine */
@@ -225,8 +226,8 @@ namespace Razix {
             static RZTexture2D*   s_DefaultTexture;
             static MaterialPreset s_MatPreset;
 
-            RZShader* m_Shader;
-            // TODO: make this a vector equal to the number of user mat sets
+            RZShader*                     m_Shader;
+            //RZPipeline*                   m_Pipeline;       /* Since the shader is part of pipeline, the material can set this, however the Pass can override some of the properties */
             std::vector<RZDescriptorSet*> m_DescriptorSets;
 
             // Data for the UBO

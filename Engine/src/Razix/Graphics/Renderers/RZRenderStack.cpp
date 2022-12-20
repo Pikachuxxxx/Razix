@@ -1,3 +1,4 @@
+#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -87,3 +88,4 @@ namespace Razix {
         }
     }    // namespace Graphics
 }    // namespace Razix
+#endif

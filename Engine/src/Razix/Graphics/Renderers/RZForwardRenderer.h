@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
@@ -56,3 +57,4 @@ namespace Razix {
         };
     }    // namespace Graphics
 }    // namespace Razix
+#endif

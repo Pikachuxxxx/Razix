@@ -42,6 +42,9 @@ namespace Razix {
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets) override;
             void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) override;
 
+            void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo) override;
+            void EndRenderingImpl(RZCommandBuffer* cmdBuffer) override;
+
         private:
             VKContext*       m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
             VkDescriptorSet  m_DescriptorSetPool[16];

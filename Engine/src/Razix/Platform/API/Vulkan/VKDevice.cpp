@@ -88,7 +88,9 @@ namespace Razix {
             }
         }
 
-        VKPhysicalDevice::~VKPhysicalDevice() {}
+        VKPhysicalDevice::~VKPhysicalDevice()
+        {
+        }
 
         bool VKPhysicalDevice::isDeviceSuitable(VkPhysicalDevice gpu)
         {
@@ -158,9 +160,13 @@ namespace Razix {
         // Logical Device
         //-----------------------------------------------------------------------------------
 
-        VKDevice::VKDevice() {}
+        VKDevice::VKDevice()
+        {
+        }
 
-        VKDevice::~VKDevice() {}
+        VKDevice::~VKDevice()
+        {
+        }
 
         bool VKDevice::init()
         {
@@ -171,11 +177,6 @@ namespace Razix {
             // Get the device features of the selected GPU and Enable whatever features we need
             VkPhysicalDeviceFeatures physicalDeviceFeatures;
             vkGetPhysicalDeviceFeatures(m_PhysicalDevice->getVulkanPhysicalDevice(), &physicalDeviceFeatures);
-
-            // Enable any device specific extensions
-            // Ex. VK_KHR_RAY_TRACING etc.
-            std::vector<const char*> deviceExtensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
             if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 deviceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -190,9 +191,15 @@ namespace Razix {
             }
     #endif
 
+            // Enable Dynamic Rendering
+            VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures{};
+            dynamicRenderingFeatures.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
+            dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+
             // Device Create Info
             VkDeviceCreateInfo deviceCI{};
             deviceCI.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+            deviceCI.pNext                   = &dynamicRenderingFeatures;
             deviceCI.queueCreateInfoCount    = static_cast<uint32_t>(m_PhysicalDevice->m_QueueCreateInfos.size());
             deviceCI.pQueueCreateInfos       = m_PhysicalDevice->m_QueueCreateInfos.data();
             deviceCI.enabledExtensionCount   = static_cast<uint32_t>(deviceExtensions.size());

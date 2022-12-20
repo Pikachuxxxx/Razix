@@ -1,10 +1,19 @@
 #pragma once
 
-#include "Razix/Core/RZSmartPointers.h"
 #include "Razix/Core/RZDebugConfig.h"
+#include "Razix/Core/RZSmartPointers.h"
+
+#include "Razix/Graphics/API/RZTexture.h"
 
 namespace Razix {
     namespace Graphics {
+
+        /**
+         * NOTE:- The problem is though VK_EXT_dynamic_rendering eliminated render passes and framebuffers it still needs some before hand info while creating pipeline
+         * What this means is that the Pipeline cannot be the sole property of the material, cause in a FrameGraphPass it might have multiple R/W attachments
+         * and a multiple Materials will have different pipelines, since this is pre-baked info
+         * one needs to re-adjust the materials uses in a FrameGraph pass during Frame Graph compilation phase
+         */
 
         // Forward decelerations to reduce include files complexity
         class RZRenderPass;
@@ -14,7 +23,7 @@ namespace Razix {
         /* Culling mode describes which face of the polygon will be culled */
         enum class CullMode
         {
-            BACK, // default
+            BACK,    // default
             FRONT,
             FRONTANDBACK,
             NONE
@@ -39,12 +48,11 @@ namespace Razix {
         /* Information necessary to create the pipeline */
         struct PipelineInfo
         {
-            RZRenderPass* renderpass;
-            RZShader*     shader;
-
-            CullMode    cullMode    = CullMode::BACK;
-            PolygonMode polygonMode = PolygonMode::FILL;
-            DrawType    drawType    = DrawType::TRIANGLE;
+            RZShader*                      shader;
+            std::vector<RZTexture::Format> attachmentFormats;
+            CullMode                       cullMode    = CullMode::BACK;
+            PolygonMode                    polygonMode = PolygonMode::FILL;
+            DrawType                       drawType    = DrawType::TRIANGLE;
 
             bool transparencyEnabled = true;
             bool depthBiasEnabled    = false;

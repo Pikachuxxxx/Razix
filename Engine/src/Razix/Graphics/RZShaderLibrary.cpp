@@ -30,8 +30,9 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/sprite.rzsf");
             loadShader("//RazixContent/Shaders/Razix/sprite_textured.rzsf");
             //-------------------------------------------------------------------
-            // Utility shaders
-            loadShader("//RazixContent/Shaders/Razix/quad.rzsf");
+            // Frame Graph Pass Shaders
+            // Composite Pass
+            loadShader("//RazixContent/Shaders/Razix/composite_pass.rzsf");
         }
 
         void RZShaderLibrary::ShutDown()

@@ -1,3 +1,4 @@
+#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -83,7 +84,7 @@ namespace Razix {
         {
             constexpr uint32_t attachmentsCount = 3;
             // Render pass
-            Graphics::AttachmentInfo textureTypes[attachmentsCount] = {
+            Graphics::RenderPassAttachmentInfo textureTypes[attachmentsCount] = {
                 {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM, false},
                 {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::R32_INT, true},
                 {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH, true}};
@@ -374,3 +375,4 @@ namespace Razix {
 
     }    // namespace Graphics
 }    // namespace Razix
+#endif

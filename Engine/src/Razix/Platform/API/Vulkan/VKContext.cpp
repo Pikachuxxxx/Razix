@@ -230,7 +230,7 @@ namespace Razix {
 
         VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
         {
-#ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_DISTRIBUTION
             // Select prefix depending on flags passed to the callback
             // Note that multiple flags may be set for a single validation message
             // Error that may result in undefined behavior
@@ -262,15 +262,15 @@ namespace Razix {
                 std::cout << "\033[1;32m[VULKAN] \033[1;36m - Validation INFO : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
                 std::cout << "\033[1;36m ***************************************************************** \033[0m" << std::endl;
             }
-            // Diagnostic info from the Vulkan loader and layers
-            // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
-            // if(message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-            // {
-            //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
-            //     std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage  << std::endl;
-            //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
-            // }
-#endif
+                // Diagnostic info from the Vulkan loader and layers
+                // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
+                // if(message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+                // {
+                //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
+                //     std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage  << std::endl;
+                //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
+                // }
+    #endif
             return VK_FALSE;
         }
     }    // namespace Graphics

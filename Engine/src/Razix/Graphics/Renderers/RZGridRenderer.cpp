@@ -1,3 +1,4 @@
+#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -93,7 +94,7 @@ namespace Razix {
         void RZGridRenderer::InitDisposableResources()
         {
             // Render pass
-            Graphics::AttachmentInfo textureTypes[2] = {
+            Graphics::RenderPassAttachmentInfo textureTypes[2] = {
                 {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM, true},
                 {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH, true}};
 
@@ -298,3 +299,4 @@ namespace Razix {
         }
     }    // namespace Graphics
 }    // namespace Razix
+#endif
