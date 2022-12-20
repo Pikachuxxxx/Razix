@@ -21,6 +21,19 @@ namespace Razix {
             UNSIGNED_BYTE
         };
 
+        /* Gives information the attachment clear Info */
+        struct RAZIX_MEM_ALIGN AttachmentClearInfo
+        {
+            bool      clear = true; /* Whether or not to clear the particular attachment                                                */
+            glm::vec4 clearColor;   /* Clear color with which the attachment is cleared, Note: x and y represent the depth clear values */
+        };
+
+        struct RenderingInfo
+        {
+            glm::uvec2                                extent;
+            std::map<RZTexture*, AttachmentClearInfo> attachments;
+        };
+
         typedef std::vector<RZCommandBuffer*> CommandQueue;
 
         /* The Razix API Renderer provides a interface and a set of common methods that abstracts over other APIs rendering implementation
@@ -71,7 +84,7 @@ namespace Razix {
             /* Presents the rendered images to the presentation queue for the user to view */
             RAZIX_FORCE_INLINE static void Present()
             {
-                RAZIX_PROFILE_GPU_SCOPE("Submit and Present"); /*RAZIX_PROFILE_GPU_FLIP(getSwapchain()->GetAPIHandle());*/
+                RAZIX_PROFILE_GPU_SCOPE("Present Swapchain");
                 s_APIInstance->PresentAPIImpl();
             }
             RAZIX_FORCE_INLINE static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
@@ -105,6 +118,18 @@ namespace Razix {
                 s_APIInstance->OnResizeAPIImpl(width, height);
             }
 
+            RAZIX_FORCE_INLINE static void BeginRendering(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("Begin Rendering");
+                s_APIInstance->BeginRenderingImpl(cmdBuffer, renderingInfo);
+            }
+
+            RAZIX_FORCE_INLINE static void EndRendering(RZCommandBuffer* cmdBuffer)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("End Rendering");
+                s_APIInstance->EndRenderingImpl(cmdBuffer);
+            }
+
             RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer) { return s_APIInstance->SetDepthBiasImpl(cmdBuffer); }
             RAZIX_FORCE_INLINE static void SetScissorRect(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height) { return s_APIInstance->SetScissorRectImpl(cmdBuffer, x, y, width, height); }
 
@@ -130,6 +155,9 @@ namespace Razix {
             virtual void OnResizeAPIImpl(uint32_t width, uint32_t height)                                                                                                                               = 0;
             virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                   = 0;
             virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)                                                                          = 0;
+
+            virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo) = 0;
+            virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                       = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
 

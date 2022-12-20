@@ -96,7 +96,8 @@ namespace Razix {
 
             void RZFrameGraphTexture::destroy(const Desc& desc, void* allocator)
             {
-                m_Texture->Release(true);
+                if (m_Texture)
+                    m_Texture->Release(true);
             }
 
             std::string RZFrameGraphTexture::toString(const Desc& desc)

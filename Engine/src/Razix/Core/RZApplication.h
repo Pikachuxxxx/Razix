@@ -21,7 +21,7 @@
 #include "Razix/Graphics/Renderers/RZGridRenderer.h"
 
 // glm
-//#include <glm/glm.hpp>
+#include <glm/glm.hpp>
 
 // Cereal
 #pragma warning(push, 0)

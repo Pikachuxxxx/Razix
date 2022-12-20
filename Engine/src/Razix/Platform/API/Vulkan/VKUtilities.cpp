@@ -64,6 +64,7 @@ namespace Razix {
                             return VK_FORMAT_R8G8B8A8_SRGB;
                             break;
                         case RZTexture::Format::BGRA8_UNORM:
+                        case RZTexture::Format::SCREEN:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
                         case RZTexture::Format::DEPTH:

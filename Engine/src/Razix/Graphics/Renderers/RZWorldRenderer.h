@@ -8,13 +8,11 @@
 // Passes
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 
-#include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
-
 namespace Razix {
-    namespace Graphics {
-
         // Forward Declarations
         class RZScene;
+    namespace Graphics {
+
 
         // Renderer Settings + Debug flags
 
@@ -87,8 +85,6 @@ namespace Razix {
             FrameGraph::RZBlackboard m_Blackboard;
             // List of all passes and data in the frame graph
             RZFinalCompositionPass m_CompositePass;
-            // Renderers
-            RZImGuiRenderer m_ImGuiRenderer;
         };
     }    // namespace Graphics
 }    // namespace Razix

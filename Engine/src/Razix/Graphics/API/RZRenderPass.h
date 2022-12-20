@@ -10,7 +10,7 @@ namespace Razix {
         class RZFramebuffer;
 
         /* Gives information about the type of texture that is attached to the framebuffer render pass */
-        struct RAZIX_MEM_ALIGN AttachmentInfo
+        struct RAZIX_MEM_ALIGN RenderPassAttachmentInfo
         {
             RZTexture::Type   type;         /* The type of the attachment                                                                                               */
             RZTexture::Format format;       /* The format of the attachment                                                                                             */
@@ -22,7 +22,7 @@ namespace Razix {
         struct RAZIX_MEM_ALIGN RenderPassInfo
         {
             std::string     name;            /* Name of the renderpass                               */
-            AttachmentInfo* attachmentInfos; /* Attachments and their info                           */
+            RenderPassAttachmentInfo* attachmentInfos; /* Attachments and their info                           */
             uint32_t        attachmentCount; /* The number of attachments in the current render pass */
             uint8_t         _padding[3];     /* manual Padding for 16-byte alignment fill up         */
         };
@@ -72,12 +72,12 @@ namespace Razix {
             /* Gets the total number of attachments (color/depths/other) to the given render pass */
             inline uint32_t getAttachmentsCount() const { return m_AttachmentsCount; }
             /* Gets the attachments types info */
-            RAZIX_INLINE AttachmentInfo* getAttachmentTypes() { return m_AttachmentTypes; }
+            RAZIX_INLINE RenderPassAttachmentInfo* getAttachmentTypes() { return m_AttachmentTypes; }
 
         protected:
             uint32_t        m_AttachmentsCount      = 0;       /* The total number of attachments bounded to the render pass                       */
             uint32_t        m_ColorAttachmentsCount = 0;       /* The total number of color attachments bounded to the render pass                 */
-            AttachmentInfo* m_AttachmentTypes       = nullptr; /* Types of attachments for the framebuffer that will be used by the render pass    */
+            RenderPassAttachmentInfo* m_AttachmentTypes       = nullptr; /* Types of attachments for the framebuffer that will be used by the render pass    */
         };
     }    // namespace Graphics
 }    // namespace Razix

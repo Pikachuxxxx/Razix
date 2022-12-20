@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include "Razix/Core/RZRoot.h"
@@ -149,3 +150,4 @@ namespace Razix {
         };
     }    // namespace Graphics
 }    // namespace Razix
+#endif

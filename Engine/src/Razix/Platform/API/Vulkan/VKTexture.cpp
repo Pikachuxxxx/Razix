@@ -229,6 +229,8 @@ namespace Razix {
             m_VirtualPath = "";
             m_data        = static_cast<uint8_t*>(data);
 
+            m_TextureType = RZTexture::Type::COLOR_2D;
+
             // Build a render target texture here if the data is nullptr
 
             bool loadResult = load(RZ_DEBUG_S_ARG_NAME);
@@ -243,6 +245,8 @@ namespace Razix {
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
 
+            m_TextureType = RZTexture::Type::COLOR_2D;
+
             bool loadResult = load(RZ_DEBUG_S_ARG_NAME);
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0} at location : {1}", name, filePath);
             updateDescriptor();
@@ -251,6 +255,8 @@ namespace Razix {
         VKTexture2D::VKTexture2D(VkImage image, VkImageView imageView)
             : m_Image(image), m_ImageView(imageView), m_ImageSampler(VK_NULL_HANDLE), m_ImageMemory(VK_NULL_HANDLE)
         {
+            m_TextureType = RZTexture::Type::COLOR_2D;
+
             updateDescriptor();
         }
 
@@ -305,7 +311,7 @@ namespace Razix {
             VkDeviceSize imageSize = VkDeviceSize(m_Size);
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
-            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG ("Staging Buffer VKTexture"));
+            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
 
             uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //1;//
 
@@ -378,6 +384,8 @@ namespace Razix {
             m_Width  = width;
             m_Height = height;
 
+            m_TextureType = RZTexture::Type::DEPTH;
+
             init();
         }
 
@@ -424,7 +432,7 @@ namespace Razix {
 
             VkFormat depthFormat = VKUtilities::FindDepthFormat();
 
-            VKTexture2D::CreateImage(m_Width, m_Height, 1, depthFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_NAME_TAG_STR_E_ARG ("DepthTexture"));
+            VKTexture2D::CreateImage(m_Width, m_Height, 1, depthFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_NAME_TAG_STR_E_ARG("DepthTexture"));
 
             m_ImageView = VKTexture2D::CreateImageView(m_Image, depthFormat, 1, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
@@ -448,7 +456,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         VKRenderTexture::VKRenderTexture(uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
-            : m_TransferBuffer(VK_BUFFER_USAGE_TRANSFER_DST_BIT, width * height * 4, NULL RZ_DEBUG_NAME_TAG_STR_E_ARG ("Transfer RT Buffer"))
+            : m_TransferBuffer(VK_BUFFER_USAGE_TRANSFER_DST_BIT, width * height * 4, NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"))
         {
             m_Name        = "Render Target";
             m_Width       = width;
@@ -458,6 +466,8 @@ namespace Razix {
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+            m_TextureType = RZTexture::Type::COLOR_RT;
 
             init(RZ_DEBUG_S_ARG_NAME);
         }

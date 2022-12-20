@@ -10,6 +10,7 @@ namespace Razix {
         class RZMaterial;
         class RZVertexBuffer;
         class RZIndexBuffer;
+        class RZCommandBuffer;
 
         /**
          * Simple vertex encapsulates the minimum amount of data needed for rendering a simple mesh
@@ -72,6 +73,8 @@ namespace Razix {
             static void GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
             static void GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount);
 
+            void Draw(RZCommandBuffer* cmdBuf);
+
             void Destroy();
 
             RAZIX_INLINE const std::string& getName() const { return m_Name; }
@@ -81,9 +84,9 @@ namespace Razix {
             RAZIX_INLINE void        setMaterial(RZMaterial* mat) { m_Material = mat; }
 
             RAZIX_INLINE RZVertexBuffer* getVertexBuffer() { return m_VertexBuffer; }
-            RAZIX_INLINE RZIndexBuffer* getIndexBuffer() { return m_IndexBuffer; }
-            RAZIX_FORCE_INLINE uint32_t getVerticesCount() const { return m_VertexCount; }
-            RAZIX_FORCE_INLINE uint32_t getIndexCount() const { return m_IndexCount; }
+            RAZIX_INLINE RZIndexBuffer*  getIndexBuffer() { return m_IndexBuffer; }
+            RAZIX_FORCE_INLINE uint32_t  getVerticesCount() const { return m_VertexCount; }
+            RAZIX_FORCE_INLINE uint32_t  getIndexCount() const { return m_IndexCount; }
 
             void setIndexCount(uint32_t count) { m_IndexCount = count; }
             void setVertexCount(uint32_t count) { m_VertexCount = count; }

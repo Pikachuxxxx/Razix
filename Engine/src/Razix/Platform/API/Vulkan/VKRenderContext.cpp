@@ -9,9 +9,9 @@
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDescriptorSet.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKFence.h"
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
-#include "Razix/Platform/API/Vulkan/VKFence.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -19,6 +19,24 @@ namespace Razix {
     namespace Graphics {
 
         static constexpr uint32_t MAX_DESCRIPTOR_SET_COUNT = 1500;
+
+        static void CmdBeginRenderingKHR(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo)
+        {
+            auto func = (PFN_vkCmdBeginRenderingKHR) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdBeginRenderingKHR");
+            if (func != nullptr)
+                func(commandBuffer, pRenderingInfo);
+            else
+                RAZIX_CORE_ERROR("Function not found");
+        }
+
+        static void CmdEndRenderingKHR(VkCommandBuffer commandBuffer)
+        {
+            auto func = (PFN_vkCmdEndRenderingKHR) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdEndRenderingKHR");
+            if (func != nullptr)
+                func(commandBuffer);
+            else
+                RAZIX_CORE_ERROR("Function not found");
+        }
 
         VKRenderContext::VKRenderContext(uint32_t width, uint32_t height)
         {
@@ -78,7 +96,7 @@ namespace Razix {
             // Begin recording to the command buffer
             m_CurrentCommandBuffer = cmdBuffer;
 
-            if ( m_CurrentCommandBuffer->getState() == CommandBufferState::Submitted)
+            if (m_CurrentCommandBuffer->getState() == CommandBufferState::Submitted)
                 m_Context->getSwapchain()->getCurrentFrameSyncData().renderFence->wait();
 
             cmdBuffer->BeginRecording();
@@ -156,6 +174,56 @@ namespace Razix {
             scissorRect.extent.height = height;
 
             vkCmdSetScissor(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &scissorRect);
+        }
+
+        void VKRenderContext::BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)
+        {
+            VkRenderingInfoKHR renderingInfoKHR{};
+            renderingInfoKHR.sType             = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
+            renderingInfoKHR.renderArea.offset = {0, 0};
+            renderingInfoKHR.renderArea.extent = {renderingInfo.extent.x, renderingInfo.extent.y};
+            renderingInfoKHR.layerCount        = 1;
+
+            std::vector<VkRenderingAttachmentInfo> colorAttachments;
+
+            for (auto& attachment: renderingInfo.attachments) {
+                // Fill the color attachments first
+                VkRenderingAttachmentInfoKHR attachInfo{};
+                attachInfo.sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                auto apiHandle         = static_cast<VkDescriptorImageInfo*>(attachment.first->GetHandle());
+                attachInfo.imageView   = apiHandle->imageView;
+                attachInfo.imageLayout = apiHandle->imageLayout;
+
+                if (attachment.second.clear) {
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
+                } else {
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                }
+
+                auto& clearColor            = attachment.second.clearColor;
+                attachInfo.clearValue.color = {clearColor.r,
+                    clearColor.g,
+                    clearColor.b,
+                    clearColor.a};
+
+                attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
+
+                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_RT)
+                    colorAttachments.push_back(attachInfo);
+                else if (attachment.first->getType() == RZTexture::Type::DEPTH)
+                    renderingInfoKHR.pDepthAttachment = &attachInfo;
+            }
+            renderingInfoKHR.colorAttachmentCount = static_cast<uint32_t>(colorAttachments.size());
+            renderingInfoKHR.pColorAttachments    = colorAttachments.data();
+
+            CmdBeginRenderingKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), &renderingInfoKHR);
+        }
+
+        void VKRenderContext::EndRenderingImpl(RZCommandBuffer* cmdBuffer)
+        {
+            CmdEndRenderingKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer());
         }
 
         void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)

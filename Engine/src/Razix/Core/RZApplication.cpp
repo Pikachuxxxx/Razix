@@ -32,6 +32,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/plugins/ImGuizmo.h>
+#include <imgui/plugins/IconsFontAwesome5.h>
 
 #include <cereal/archives/json.hpp>
 
@@ -404,6 +405,10 @@ namespace Razix {
 
     void RZApplication::RenderGUI()
     {
+        auto ctx = ImGui::GetCurrentContext();
+        if (!ctx)
+            return;
+
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 

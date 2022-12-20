@@ -116,7 +116,7 @@ namespace Razix {
                 }
                 // This holds the descriptor sets for the material Properties and Samplers
                 // Now each mesh will have a material instance so each have their own sets so not a problem
-                // TODO: Make sure the material instances similar to unreal exist with different Desc Sets for mat props both with same shader instance, Simple Solution: Use a shader library to load the same shader, ofcourse we give the shader so that's possible
+                // TODO: Make sure the material instances similar to unreal exist with different Desc Sets for mat props both with same shader instance, Simple Solution: Use a shader library to load the same shader, of course we give the shader so that's possible
             }
         }
 

@@ -4,10 +4,17 @@
 #include "RZFinalCompositionPass.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
+#include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
+
+#include "Razix/Graphics/Materials/RZMaterial.h"
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
 
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
@@ -32,38 +39,70 @@ namespace Razix {
                     // Writes from this pass
                     data.presentationTarget = builder.write(data.presentationTarget);
                     data.depthTexture       = builder.write(data.depthTexture);
+
+                    /**
+                     * Issues:- Well pipeline creation needs a shader and some info from the Frame Graph, so if in a Frame Graph pass
+                     * if there are multiple renderables that uses different Materials (aka Shaders) then we can't use the same pipeline.
+                     * 
+                     * Some solutions:
+                     * 
+                     * 1. I need to generate multiple pipelines (or PCOs) with all the possible shaders and options and choose them from a cached hash map
+                     * 
+                     * 2. Lazily create the pipeline during the first frame and cache them, not sure about the overhead of first frame rendering, which should be same as loading phase ig?
+                     * Every time a new Material is encountered in the FrameGraph (first time only) it uses the attachment info from the FrameGraph Resources to set the R/W attachments
+                     * and creates the pipeline and uses it for the rest of the application life cycle, this also helps when one needs to resize the attachments
+                     * 
+                     * 3. (Current Workaround) Since the pass is what specifies the shader we can think of Material as a alias for setting the properties on "a" shader, it need not be it's own
+                     * It can set it for the current shader that the pass uses
+                     */
+
+                    // Build the pipeline here for this pass
+                    Graphics::PipelineInfo pipelineInfo{};
+                    pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+                    pipelineInfo.depthBiasEnabled    = false;
+                    pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
+                    pipelineInfo.shader = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
+                    pipelineInfo.transparencyEnabled = false;
+                    pipelineInfo.attachmentFormats   = {RZTexture::Format::SCREEN, RZTexture::Format::DEPTH};
+
+                    m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
+
+                    // Init the mesh
+                    m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
+
+                    // FIXME: until we use the new Descriptor Binding API which is resource faced we will do this manual linkage
+                    auto setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                    for (auto& setInfo: setInfos) {
+                        for (auto& descriptor: setInfo.second) {
+                            descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
+                        }
+                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid Renderer Set"));
+                        m_DescriptorSets.push_back(descSet);
+                    }
                 },
                 [=](const CompositeData& data, FrameGraph::RZFrameGraphPassResources& resources, void*) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    // Create the render pass and frame buffer using FrameGraph Resources
-                    // Use the resources tp build the Render passes and Framebuffer
-
-                    auto presentImage = resources.get<FrameGraph::RZFrameGraphTexture>(data.presentationTarget).getHandle();
-
-                    m_RenderPass->AddAttachment();
-
-                    // So using these resources build the RenderPass, Framebuffer and Descriptor Sets and cache them, or find a way to update them after they've been created during runtime
-
-                    Graphics::RZRenderContext::AcquireImage(); 
+                    Graphics::RZRenderContext::AcquireImage();
 
                     auto cmdBuf = m_CmdBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuf);
 
-                    // Bind pipeline and stuff
-                    m_RenderPass->BeginRenderPass(cmdBuf, glm::vec4(1.0f, 0.85f, 0.0f, 1.0f), m_FrameBuffer, Graphics::SubPassContents{}, );
+                    RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
-                    // Bind the pipeline
+                    // Bind pipeline and stuff
                     m_Pipeline->Bind(cmdBuf);
 
-                    m_RenderPass->EndRenderPass(cmdBuf);
+                    // Bind the descriptor sets
+                    Graphics::RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+
+                    // Bind the pipeline
+                    m_ScreenQuadMesh->Draw(cmdBuf);
 
                     RZRenderContext::Submit(cmdBuf);
 
                     RZRenderContext::SubmitWork();
                     RZRenderContext::Present();
-
-                    RAZIX_MARK_BEGIN(, "Final Composition", glm::vec4(0.5f));
 
                     RAZIX_MARK_END();
                 });

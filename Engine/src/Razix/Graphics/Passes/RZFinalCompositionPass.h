@@ -7,9 +7,12 @@
 namespace Razix {
     namespace Graphics {
 
+        class RZMesh;
+        class RZDescriptorSet;
+
         struct CompositeData
         {
-            FrameGraph::RZFrameGraphResource presentationTarget;
+            FrameGraph::RZFrameGraphResource presentationTarget;    // Not an actual resource unlike RTs or Textures
             FrameGraph::RZFrameGraphResource depthTexture;
         };
 
@@ -23,6 +26,10 @@ namespace Razix {
             ~RZFinalCompositionPass() {}
 
             void addPass(FrameGraph::RZFrameGraph& framegraph, const FrameGraph::RZBlackboard& blackboard) override;
+
+        private:
+            RZMesh*                                 m_ScreenQuadMesh;
+            std::vector<Graphics::RZDescriptorSet*> m_DescriptorSets;
 
         private:
             void init();

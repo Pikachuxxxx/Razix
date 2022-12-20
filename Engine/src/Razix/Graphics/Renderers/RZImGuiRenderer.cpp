@@ -1,3 +1,4 @@
+#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -151,8 +152,8 @@ namespace Razix {
         void RZImGuiRenderer::InitDisposableResources()
         {
             // Create the renderpass
-            Graphics::AttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN, false},
+            Graphics::RenderPassAttachmentInfo textureTypes[2] = {
+                {Graphics::RZTexture::Type::COLOR_2D, Graphics::RZTexture::Format::SCREEN, false},
                 {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH, true}};
 
             Graphics::RenderPassInfo renderPassInfo{};
@@ -508,3 +509,4 @@ namespace Razix {
         }
     }    // namespace Graphics
 }    // namespace Razix
+#endif

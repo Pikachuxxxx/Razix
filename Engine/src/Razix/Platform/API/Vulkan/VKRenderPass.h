@@ -27,7 +27,7 @@ namespace Razix {
             void Destroy() override;
 
             bool                       init(const RenderPassInfo& renderpassInfo RZ_DEBUG_NAME_TAG_E_ARG);
-            VkAttachmentDescription    getAttachmentDescription(AttachmentInfo info, bool clear = true);
+            VkAttachmentDescription    getAttachmentDescription(RenderPassAttachmentInfo info, bool clear = true);
             inline const VkRenderPass& getVKRenderPass() const { return m_RenderPass; }
 
         private:

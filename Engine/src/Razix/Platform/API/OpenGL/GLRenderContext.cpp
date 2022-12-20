@@ -1,4 +1,4 @@
-// clang-format off
+\    // clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "GLRenderContext.h"
@@ -14,7 +14,8 @@
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
-namespace Razix {
+    namespace Razix
+{
     namespace Graphics {
 
         GLRenderContext::GLRenderContext(uint32_t width, uint32_t height)
@@ -130,6 +131,16 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             glScissor(x, y, width, height);
+        }
+
+        void GLRenderContext::BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        void GLRenderContext::EndRenderingImpl(RZCommandBuffer* cmdBuffer)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
         }
 
         void GLRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)

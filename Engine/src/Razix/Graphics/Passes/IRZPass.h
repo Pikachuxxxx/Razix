@@ -22,8 +22,6 @@ namespace Razix {
 
         protected:
             RZCommandBuffer* m_CmdBuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
-            RZFramebuffer*   m_Framebuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
-            RZRenderPass*    m_RenderPass = nullptr;
             RZPipeline*      m_Pipeline   = nullptr;
         };
     }    // namespace Graphics
