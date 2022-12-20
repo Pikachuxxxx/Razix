@@ -38,5 +38,6 @@ void main()
 	//outFragColor = vec4(vec3(1.0-LinearizeDepth(depth)), 1.0);
     
     outFragColor = texture(renderTarget, fs_in.fragTexCoord);
+
 }
 //------------------------------------------------------------------------------

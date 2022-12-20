@@ -140,8 +140,8 @@ namespace Razix {
                 }
             }
 
-            //colorBlendSCI.attachmentCount   = static_cast<uint32_t>(blendAttachState.size());
-            //colorBlendSCI.pAttachments      = blendAttachState.data();
+            colorBlendSCI.attachmentCount   = static_cast<uint32_t>(blendAttachState.size());
+            colorBlendSCI.pAttachments      = blendAttachState.data();
             colorBlendSCI.logicOpEnable     = VK_FALSE;
             colorBlendSCI.logicOp           = VK_LOGIC_OP_NO_OP;
             colorBlendSCI.blendConstants[0] = 1.0f;
@@ -155,8 +155,8 @@ namespace Razix {
             VkPipelineDepthStencilStateCreateInfo depthStencilSCI{};
             depthStencilSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
             depthStencilSCI.pNext                 = nullptr;
-            depthStencilSCI.depthTestEnable       = VK_TRUE;
-            depthStencilSCI.depthWriteEnable      = VK_TRUE;
+            depthStencilSCI.depthTestEnable       = VK_FALSE;
+            depthStencilSCI.depthWriteEnable      = VK_FALSE;
             depthStencilSCI.depthCompareOp        = VK_COMPARE_OP_LESS_OR_EQUAL;
             depthStencilSCI.depthBoundsTestEnable = VK_FALSE;
             depthStencilSCI.stencilTestEnable     = VK_FALSE;
@@ -202,7 +202,7 @@ namespace Razix {
             }
             renderingCI.colorAttachmentCount    = c;    //static_cast<uint32_t>(pipelineInfo.attachmentFormats.size());
             renderingCI.pColorAttachmentFormats = formats.data();
-            renderingCI.depthAttachmentFormat   = VKUtilities::FindDepthFormat();
+            //renderingCI.depthAttachmentFormat   = VKUtilities::FindDepthFormat();
 
             //----------------------------
             // Graphics Pipeline
@@ -225,7 +225,7 @@ namespace Razix {
             std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(m_Shader)->getShaderStages();
             graphicsPipelineCI.pStages                                = shaderStages.data();
             graphicsPipelineCI.stageCount                             = static_cast<uint32_t>(shaderStages.size());
-            graphicsPipelineCI.renderPass                             = nullptr;    //static_cast<VKRenderPass*>(pipelineInfo.renderpass)->getVKRenderPass();
+            graphicsPipelineCI.renderPass                             = VK_NULL_HANDLE;    //static_cast<VKRenderPass*>(pipelineInfo.renderpass)->getVKRenderPass();
 
             // TODO: use pipeline cache
             if (VK_CHECK_RESULT(vkCreateGraphicsPipelines(VKDevice::Get().getDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineCI, nullptr, &m_Pipeline)))
