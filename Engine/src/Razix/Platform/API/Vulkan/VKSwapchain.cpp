@@ -108,13 +108,6 @@ namespace Razix {
 
             m_OldSwapChain = m_Swapchain;
 
-            //for (auto& frame: m_Frames) {
-            //    //frame.mainCommandBuffer->Reset();
-            //    vkDestroySemaphore(VKDevice::Get().getDevice(), frame.presentSemaphore, nullptr);
-            //    vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderSemaphore, nullptr);
-            //    vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
-            //}
-
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
                 auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                 tex->Release(false);
@@ -319,7 +312,7 @@ namespace Razix {
             }
         }
 
-        void VKSwapchain::acquireNextImage()
+        void VKSwapchain::acquireNextImage(VkSemaphore signalSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -327,7 +320,7 @@ namespace Razix {
                 return;
             uint32_t nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
             {
-                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_Frames[nextCmdBufferIndex].presentSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
+                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, signalSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
                     VK_CHECK_RESULT(result);
 
@@ -351,7 +344,7 @@ namespace Razix {
             }
         }
 
-        void VKSwapchain::queueSubmit(CommandQueue& commandQueue)
+        void VKSwapchain::queueSubmit(CommandQueue& commandQueue, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore)
         {
             if (m_IsResizing)
                 return;
@@ -376,11 +369,11 @@ namespace Razix {
 
             submitInfo.pWaitDstStageMask = &waitStage;
 
-            submitInfo.waitSemaphoreCount = 1;
-            submitInfo.pWaitSemaphores    = &frameData.presentSemaphore;
+            submitInfo.waitSemaphoreCount = waitSemaphore == VK_NULL_HANDLE ? 0 : 1;
+            submitInfo.pWaitSemaphores    = waitSemaphore == VK_NULL_HANDLE ? nullptr : &waitSemaphore;
 
             submitInfo.signalSemaphoreCount = 1;
-            submitInfo.pSignalSemaphores    = &frameData.renderSemaphore;
+            submitInfo.pSignalSemaphores    = &signalSemaphore;
 
             frameData.renderFence->reset();
 
@@ -391,7 +384,7 @@ namespace Razix {
             frameData.renderFence->wait();
         }
 
-        void VKSwapchain::present()
+        void VKSwapchain::present(VkSemaphore waitSemaphore)
         {
             if (m_IsResizing)
                 return;
@@ -410,7 +403,7 @@ namespace Razix {
             present.pSwapchains        = &m_Swapchain;
             present.pImageIndices      = &m_AcquireImageIndex;
             present.waitSemaphoreCount = 1;
-            present.pWaitSemaphores    = &frameData.renderSemaphore;
+            present.pWaitSemaphores    = &waitSemaphore;
             present.pResults           = VK_NULL_HANDLE;
             auto error                 = vkQueuePresentKHR(VKDevice::Get().getPresentQueue(), &present);
 

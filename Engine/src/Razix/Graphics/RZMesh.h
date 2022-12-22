@@ -17,14 +17,14 @@ namespace Razix {
          */
         struct RAZIX_API RZSimpleVertex
         {
-            glm::vec3 Position;
+            glm::vec4 Position;
             glm::vec2 TexCoords;
         };
 
         /**
          * Razix Engine vertex data format that will be used to render complex 3D meshes and models 
          */
-        struct RAZIX_API RZVertex
+        struct RAZIX_MEM_ALIGN RAZIX_API RZVertex
         {
             glm::vec3 Position;
             glm::vec4 Color;

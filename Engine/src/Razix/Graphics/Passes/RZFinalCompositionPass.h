@@ -12,8 +12,9 @@ namespace Razix {
 
         struct CompositeData
         {
-            FrameGraph::RZFrameGraphResource presentationTarget;    // Not an actual resource unlike RTs or Textures
-            FrameGraph::RZFrameGraphResource depthTexture;
+            FrameGraph::RZFrameGraphResource  presentationTarget;    // Not an actual resource unlike RTs or Textures
+            FrameGraph::RZFrameGraphResource  depthTexture;
+            FrameGraph::RZFrameGraphResource  presentationDoneSemaphore;
         };
 
         /**
@@ -25,7 +26,7 @@ namespace Razix {
             RZFinalCompositionPass() = default;
             ~RZFinalCompositionPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, const FrameGraph::RZBlackboard& blackboard) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard) override;
 
         private:
             RZMesh*                                 m_ScreenQuadMesh;

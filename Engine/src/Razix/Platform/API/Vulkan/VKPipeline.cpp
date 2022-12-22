@@ -117,7 +117,8 @@ namespace Razix {
             colorBlendSCI.flags = 0;
 
             std::vector<VkPipelineColorBlendAttachmentState> blendAttachState;
-            blendAttachState.resize(pipelineInfo.attachmentFormats.size());
+            if (pipelineInfo.attachmentFormats.size() > 1)
+                blendAttachState.resize(pipelineInfo.attachmentFormats.size() - 1);
 
             for (unsigned int i = 0; i < blendAttachState.size(); i++) {
                 blendAttachState[i]                = VkPipelineColorBlendAttachmentState();
@@ -155,8 +156,8 @@ namespace Razix {
             VkPipelineDepthStencilStateCreateInfo depthStencilSCI{};
             depthStencilSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
             depthStencilSCI.pNext                 = nullptr;
-            depthStencilSCI.depthTestEnable       = VK_FALSE;
-            depthStencilSCI.depthWriteEnable      = VK_FALSE;
+            depthStencilSCI.depthTestEnable       = VK_TRUE;
+            depthStencilSCI.depthWriteEnable      = VK_TRUE;
             depthStencilSCI.depthCompareOp        = VK_COMPARE_OP_LESS_OR_EQUAL;
             depthStencilSCI.depthBoundsTestEnable = VK_FALSE;
             depthStencilSCI.stencilTestEnable     = VK_FALSE;

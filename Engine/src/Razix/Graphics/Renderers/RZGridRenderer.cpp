@@ -1,8 +1,8 @@
-#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZGridRenderer.h"
+#if 0
 
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"

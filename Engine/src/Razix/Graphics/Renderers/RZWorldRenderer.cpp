@@ -3,9 +3,15 @@
 // clang-format on
 #include "RZWorldRenderer.h"
 
+#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
+
+#include "Razix/Graphics/FrameGraph/RZBlackboard.h"
+#include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
+#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
+#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/RZScene.h"
 
@@ -21,19 +27,44 @@ namespace Razix {
             //-------------------------------
             // ImGui Pass
             //-------------------------------
-            //m_FrameGraph.addCallbackPass(
-            //    "ImGui Pass",
-            //    [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto&) {
-            //        // Set this as a standalone pass (should not be culled)
-            //        builder.setAsStandAlonePass();
-            //    },
-            //    [=](const auto&, FrameGraph::RZFrameGraphPassResources& resources, void*) {
-            //        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            //
-            //        //RAZIX_MARK_BEGIN(, "ImGui Pass", glm::vec4(0.85f, 0.65f, 0.0f, 1.0f));
-            //
-            //        //RAZIX_MARK_END();
-            //    });
+            m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
+                "ImGui Pass",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTOnlyPassData& data) {
+                    builder.setAsStandAlonePass();
+
+                    // Upload to the Blackboard
+                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::BGRA8_UNORM});
+
+                    data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
+
+                    data.outputRT          = builder.write(data.outputRT);
+                    data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
+
+                    m_ImGuiRenderer.Init();
+                },
+                [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    m_ImGuiRenderer.Begin(scene);
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+
+                    RenderingInfo info{};
+                    info.attachments = {
+                        {rt, {true, glm::vec4(0.3f, 0.8f, 1.0f, 1.0f)}}};
+                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    RZRenderContext::BeginRendering(Graphics::RZRenderContext::getCurrentCommandBuffer(), info);
+
+                    m_ImGuiRenderer.Draw(Graphics::RZRenderContext::getCurrentCommandBuffer());
+
+                    m_ImGuiRenderer.End();
+
+                    // Submit the render queue before presenting next
+                    Graphics::RZRenderContext::Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
+
+                    // Wait on the Presentation done semaphore from the Final Composition pass
+                    //auto  waitOnPresentationDoneSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(compositeData.presentationDoneSemaphore).getHandle();
+                    // Signal on a semaphore for the Final Composition pass to wait on
+                    Graphics::RZRenderContext::SubmitWork(nullptr, resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle());
+                });
 
             //-------------------------------
             // Final Image Presentation

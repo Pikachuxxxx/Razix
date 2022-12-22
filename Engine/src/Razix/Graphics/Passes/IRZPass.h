@@ -18,7 +18,7 @@ namespace Razix {
             IRZPass()          = default;
             virtual ~IRZPass() = default;
 
-            virtual void addPass(FrameGraph::RZFrameGraph& framegraph, const FrameGraph::RZBlackboard& blackboard) = 0;
+            virtual void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard) = 0;
 
         protected:
             RZCommandBuffer* m_CmdBuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];

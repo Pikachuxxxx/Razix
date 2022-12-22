@@ -36,8 +36,8 @@ void main()
     // Visualizing the depth texture
     //float depth = texture(texSampler, fs_in.fragTexCoord).r;
 	//outFragColor = vec4(vec3(1.0-LinearizeDepth(depth)), 1.0);
+    outFragColor = vec4(fs_in.fragTexCoord, 0, 1.0f);
     
     outFragColor = texture(renderTarget, fs_in.fragTexCoord);
-
 }
 //------------------------------------------------------------------------------

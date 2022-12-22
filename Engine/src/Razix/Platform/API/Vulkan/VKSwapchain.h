@@ -52,10 +52,10 @@ namespace Razix {
             /* Creates synchronization primitives such as semaphores and fence for queue submit and present sync, basically syncs triple buffering */
             void createSynchronizationPrimitives() {}
             void createFrameData();
-            void acquireNextImage();
+            void acquireNextImage(VkSemaphore signalSemaphore);
             //void OnResize(uint32_t width, uint32_t height, bool forceResize = false);
-            void queueSubmit(CommandQueue& commandQueue);
-            void present();
+            void queueSubmit(CommandQueue& commandQueue, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore);
+            void present(VkSemaphore waitSemaphore);
 
             RZTexture*     GetImage(uint32_t index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }
             RZTexture*     GetCurrentImage() override { return static_cast<RZTexture*>(m_SwapchainImageTextures[m_AcquireImageIndex]); }
