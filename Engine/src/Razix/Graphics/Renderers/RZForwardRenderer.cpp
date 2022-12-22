@@ -1,7 +1,7 @@
-#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
+#if 0
 #include "RZForwardRenderer.h"
 
 #include "Razix/Core/RZApplication.h"

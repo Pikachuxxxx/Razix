@@ -50,11 +50,11 @@
         {
         }
 
-        void GLRenderContext::SubmitWorkImpl()
+        void GLRenderContext::SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)
         {
         }
 
-        void GLRenderContext::PresentAPIImpl()
+        void GLRenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

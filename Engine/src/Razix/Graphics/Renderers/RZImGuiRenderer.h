@@ -1,11 +1,11 @@
-#if 0
-#pragma once
+#if 1
+    #pragma once
 
-#include "Razix/Graphics/Renderers/IRZRenderer.h"
+    #include "Razix/Graphics/Renderers/IRZRenderer.h"
 
-#include <imgui/plugins/IconsFontAwesome5.h>
+    #include <imgui/plugins/IconsFontAwesome5.h>
 
-#include <glm/glm.hpp>
+    #include <glm/glm.hpp>
 
 namespace Razix {
 
@@ -17,7 +17,6 @@ namespace Razix {
         class RZVertexBuffer;
         class RZIndexBuffer;
         class RZPipeline;
-        class RZRenderPass;
         class RZShader;
         class RZTexture2D;
         class RZDescriptorSet;
@@ -50,25 +49,15 @@ namespace Razix {
 
             void Init() override;
 
-            void InitDisposableResources() override;
+            void Begin(RZScene* scene) override;
 
-            void Begin() override;
-
-            void BeginScene(RZScene* scene) override {}
-
-            void Submit(RZCommandBuffer* cmdBuf) override;
-
-            void EndScene(RZScene* scene) override {}
+            void Draw(RZCommandBuffer* cmdBuffer) override;
 
             void End() override;
-
-            void Present() override;
 
             void Resize(uint32_t width, uint32_t height) override;
 
             void Destroy() override;
-
-            void OnEvent(RZEvent& event) override;
 
         public:
             RZImGuiRenderer() {}
@@ -88,6 +77,7 @@ namespace Razix {
             std::vector<uint16_t>    m_IndexData;
 
         private:
+            void initDisposableResources();
             void uploadUIFont(const std::string& fontPath);
         };
 

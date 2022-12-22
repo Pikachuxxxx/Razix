@@ -313,23 +313,24 @@ namespace Razix {
 
             RZMesh* CreateScreenQuad()
             {
-                RZVertex* data   = new RZVertex[4];
-                data[0].Position = glm::vec3(-1.0f, -1.0f, 0.0f);
-                data[1].Position = glm::vec3(1.0f, -1.0f, 0.0f);
-                data[2].Position = glm::vec3(1.0f, 1.0f, 0.0f);
-                data[3].Position = glm::vec3(-1.0f, 1.0f, 0.0f);
+                RZSimpleVertex* data = new RZSimpleVertex[4];
+                data[0].Position     = glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);
+                data[0].TexCoords    = glm::vec2(0.0f, 0.0f);
 
-                data[0].TexCoords = glm::vec2(0.0f, 1.0f);
-                data[1].TexCoords = glm::vec2(1.0f, 1.0f);
-                data[2].TexCoords = glm::vec2(1.0f, 0.0f);
-                data[3].TexCoords = glm::vec2(0.0f, 0.0f);
+                data[1].Position  = glm::vec4(1.0f, -1.0f, 0.0f, 1.0f);
+                data[1].TexCoords = glm::vec2(1.0f, 0.0f);
 
-                data[0].Color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-                data[1].Color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-                data[2].Color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-                data[3].Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+                data[2].Position  = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+                data[2].TexCoords = glm::vec2(1.0f, 1.0f);
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Screen Quad VB"));
+                data[3].Position  = glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f);
+                data[3].TexCoords = glm::vec2(0.0f, 1.0f);
+
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZSimpleVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Screen Quad VB"));
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec4>("Position");
+                layout.push<glm::vec2>("TexCoords");
+                vb->AddBufferLayout(layout);
                 delete[] data;
 
                 uint16_t indices[6] = {0, 1, 2, 2, 3, 0};

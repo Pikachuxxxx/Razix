@@ -11,6 +11,7 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKFence.h"
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
+#include "Razix/Platform/API/Vulkan/VKSemaphore.h"
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -82,12 +83,14 @@ namespace Razix {
             m_Context = VKContext::Get();
         }
 
-        void VKRenderContext::AcquireImageAPIImpl()
+        void VKRenderContext::AcquireImageAPIImpl(RZSemaphore* signalSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            auto frameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
+
             // Get the next image to present
-            m_Context->getSwapchain()->acquireNextImage();
+            m_Context->getSwapchain()->acquireNextImage(signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
         }
 
         void VKRenderContext::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
@@ -111,22 +114,22 @@ namespace Razix {
             m_CommandQueue.push_back(cmdBuffer);
         }
 
-        void VKRenderContext::SubmitWorkImpl()
+        void VKRenderContext::SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Context->getSwapchain()->queueSubmit(m_CommandQueue);
-        }
-
-        void VKRenderContext::PresentAPIImpl()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            // Don't submit again
-            //m_Context->getSwapchain()->queueSubmit(m_CommandQueue);
-            m_Context->getSwapchain()->present();
+            auto frameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
+            m_Context->getSwapchain()->queueSubmit(m_CommandQueue, waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE, signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
 
             m_CommandQueue.clear();
+        }
+
+        void VKRenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            auto frameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
+            m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
         }
 
         void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
@@ -212,11 +215,8 @@ namespace Razix {
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                auto& clearColor            = attachment.second.clearColor;
-                attachInfo.clearValue.color = {clearColor.r,
-                    clearColor.g,
-                    clearColor.b,
-                    clearColor.a};
+                auto& clearColor = attachment.second.clearColor;
+                memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
 
                 attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
 

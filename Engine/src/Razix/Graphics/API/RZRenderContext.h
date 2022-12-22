@@ -12,6 +12,7 @@ namespace Razix {
         class RZDescriptorSet;
         class RZSwapchain;
         class RZDescriptorSet;
+        class RZSemaphore;
         struct RZPushConstant;
 
         enum class DataType
@@ -36,6 +37,8 @@ namespace Razix {
 
         typedef std::vector<RZCommandBuffer*> CommandQueue;
 
+        // TODO: Support multiple wait and signal semaphores
+
         /* The Razix API Renderer provides a interface and a set of common methods that abstracts over other APIs rendering implementation
          * The Renderers creates from the provided IRZRenderer interface of razix uses this to perform command recording/submission sets binding
          * and other operations that doesn't require the underlying API, since renderers do not actually need that we use this high-level abstraction
@@ -58,10 +61,10 @@ namespace Razix {
                 RAZIX_PROFILE_GPU_SCOPE("Init Rendering");
                 s_APIInstance->InitAPIImpl();
             }
-            RAZIX_FORCE_INLINE static void AcquireImage()
+            RAZIX_FORCE_INLINE static void AcquireImage(RZSemaphore* signalSemaphore)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Acquire swap image");
-                s_APIInstance->AcquireImageAPIImpl();
+                s_APIInstance->AcquireImageAPIImpl(signalSemaphore);
             }
             /* Begins recording of the command buffer */
             RAZIX_FORCE_INLINE static void Begin(RZCommandBuffer* cmdBuffer)
@@ -76,16 +79,16 @@ namespace Razix {
                 s_APIInstance->SubmitImpl(cmdBuffer);
             }
             /* Executes the the lists of command buffers stacked up in the Command Queue  */
-            RAZIX_FORCE_INLINE static void SubmitWork()
+            RAZIX_FORCE_INLINE static void SubmitWork(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)
             {
                 RAZIX_PROFILE_GPU_SCOPE("SubmitWork");
-                s_APIInstance->SubmitWorkImpl();
+                s_APIInstance->SubmitWorkImpl(waitSemaphore, signalSemaphore);
             }
             /* Presents the rendered images to the presentation queue for the user to view */
-            RAZIX_FORCE_INLINE static void Present()
+            RAZIX_FORCE_INLINE static void Present(RZSemaphore* waitSemaphore)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Present Swapchain");
-                s_APIInstance->PresentAPIImpl();
+                s_APIInstance->PresentAPIImpl(waitSemaphore);
             }
             RAZIX_FORCE_INLINE static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
             {
@@ -141,11 +144,11 @@ namespace Razix {
 
         protected:
             virtual void InitAPIImpl()                                                                                                                                                                  = 0;
-            virtual void AcquireImageAPIImpl()                                                                                                                                                          = 0;
+            virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                              = 0;
             virtual void BeginAPIImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                       = 0;
             virtual void SubmitImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                         = 0;
-            virtual void SubmitWorkImpl()                                                                                                                                                               = 0;
-            virtual void PresentAPIImpl()                                                                                                                                                               = 0;
+            virtual void SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)                                                                                                       = 0;
+            virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                                     = 0;
             virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)                                                      = 0;
             virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)                                               = 0;
             virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                                        = 0;

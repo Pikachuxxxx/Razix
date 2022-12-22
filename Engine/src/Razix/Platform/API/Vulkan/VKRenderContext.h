@@ -23,11 +23,11 @@ namespace Razix {
 
         protected:
             void InitAPIImpl() override;
-            void AcquireImageAPIImpl() override;
+            void AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override;
             void BeginAPIImpl(RZCommandBuffer* cmdBuffer) override;
             void SubmitImpl(RZCommandBuffer* cmdBuffer) override;
-            void SubmitWorkImpl() override;
-            void PresentAPIImpl() override;
+            void SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore) override;
+            void PresentAPIImpl(RZSemaphore* waitSemaphore) override;
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) override;
             void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) override;
             void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount = 1, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) override;

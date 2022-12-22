@@ -2,7 +2,7 @@
 
 #include "Razix/Core/RZCore.h"
 
-#include <internal/RazixMemory/include/RZMemory.h>
+#include "internal/RazixMemory/include/RZMemory.h"
 
 namespace Razix {
 

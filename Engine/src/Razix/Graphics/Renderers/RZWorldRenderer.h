@@ -5,14 +5,32 @@
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 
+#include "Razix/Graphics/FrameGraph/Resources/RZTransientResources.h"
+
 // Passes
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 
+// Renderers
+#include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
+
 namespace Razix {
-        // Forward Declarations
-        class RZScene;
+    // Forward Declarations
+    class RZScene;
     namespace Graphics {
 
+        // Default pass data types
+        struct RTOnlyPassData
+        {
+            FrameGraph::RZFrameGraphResource outputRT;          /* Render Texture to which this pass is drawn to                                                */
+            FrameGraph::RZFrameGraphResource passDoneSemaphore; /* Semaphore to notify the command buffers that this pass has completed execution on the GPU    */
+        };
+
+        struct RTDTPassData
+        {
+            FrameGraph::RZFrameGraphResource outputRT;
+            FrameGraph::RZFrameGraphResource depthRT;
+            FrameGraph::RZFrameGraphResource passDoneSemaphore;
+        };
 
         // Renderer Settings + Debug flags
 
@@ -83,8 +101,11 @@ namespace Razix {
         private:
             FrameGraph::RZFrameGraph m_FrameGraph;
             FrameGraph::RZBlackboard m_Blackboard;
+            FrameGraph::
             // List of all passes and data in the frame graph
             RZFinalCompositionPass m_CompositePass;
+            // Renderers
+            RZImGuiRenderer m_ImGuiRenderer;
         };
     }    // namespace Graphics
 }    // namespace Razix
