@@ -50,7 +50,7 @@
         {
         }
 
-        void GLRenderContext::SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)
+        void GLRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
         {
         }
 

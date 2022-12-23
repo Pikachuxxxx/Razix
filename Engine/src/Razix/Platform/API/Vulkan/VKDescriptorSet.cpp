@@ -6,6 +6,7 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKRenderContext.h"
 #include "Razix/Platform/API/Vulkan/VKSwapchain.h"
+#include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUniformBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -80,8 +81,14 @@ namespace Razix {
 
                 for (auto& descriptor: descriptors) {
                     if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
-                        VkDescriptorImageInfo& des              = *static_cast<VkDescriptorImageInfo*>(descriptor.texture->GetHandle());
-                        m_ImageInfoPool[imageIndex].imageLayout = des.imageLayout;
+                        VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(descriptor.texture->GetHandle());
+
+                        auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
+
+                        VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), des.imageLayout, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+                        m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                        //des.imageLayout;
                         m_ImageInfoPool[imageIndex].imageView   = des.imageView;
                         m_ImageInfoPool[imageIndex].sampler     = des.sampler;
 

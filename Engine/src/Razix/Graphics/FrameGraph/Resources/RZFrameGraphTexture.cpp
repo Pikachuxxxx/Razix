@@ -70,8 +70,11 @@ namespace Razix {
                         return "BGRA8_UNORM";
                         break;
                     default:
+                        return "BGRA8_UNORM";
+                        break;
                         break;
                 }
+                return "BGRA8_UNORM";
             }
 
             void RZFrameGraphTexture::create(const Desc& desc, void* allocator)

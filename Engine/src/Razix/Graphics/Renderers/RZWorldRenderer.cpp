@@ -63,7 +63,7 @@ namespace Razix {
                     // Wait on the Presentation done semaphore from the Final Composition pass
                     //auto  waitOnPresentationDoneSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(compositeData.presentationDoneSemaphore).getHandle();
                     // Signal on a semaphore for the Final Composition pass to wait on
-                    Graphics::RZRenderContext::SubmitWork(nullptr, resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle());
+                    Graphics::RZRenderContext::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
                 });
 
             //-------------------------------
@@ -93,6 +93,5 @@ namespace Razix {
             m_CompositePass.destoy();
             m_TransientResources.destroyResources();
         }
-
     }    // namespace Graphics
 }    // namespace Razix

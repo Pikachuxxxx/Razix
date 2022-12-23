@@ -79,10 +79,10 @@ namespace Razix {
                 s_APIInstance->SubmitImpl(cmdBuffer);
             }
             /* Executes the the lists of command buffers stacked up in the Command Queue  */
-            RAZIX_FORCE_INLINE static void SubmitWork(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)
+            RAZIX_FORCE_INLINE static void SubmitWork(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
             {
                 RAZIX_PROFILE_GPU_SCOPE("SubmitWork");
-                s_APIInstance->SubmitWorkImpl(waitSemaphore, signalSemaphore);
+                s_APIInstance->SubmitWorkImpl(waitSemaphores, signalSemaphores);
             }
             /* Presents the rendered images to the presentation queue for the user to view */
             RAZIX_FORCE_INLINE static void Present(RZSemaphore* waitSemaphore)
@@ -147,7 +147,7 @@ namespace Razix {
             virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                              = 0;
             virtual void BeginAPIImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                       = 0;
             virtual void SubmitImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                         = 0;
-            virtual void SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)                                                                                                       = 0;
+            virtual void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                           = 0;
             virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                                     = 0;
             virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)                                                      = 0;
             virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)                                               = 0;

@@ -59,6 +59,5 @@ namespace Razix {
 
             // TODO: If fails load it by searching all the VFS or return a default shader
         }
-
     }    // namespace Graphics
 }    // namespace Razix

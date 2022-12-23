@@ -64,7 +64,7 @@ namespace Razix {
 
                     switch (desc.type) {
                         case TextureType::Texture_2D:
-                            texture = Graphics::RZTexture2D::Create(desc.name, desc.name, w, h, nullptr, desc.format);
+                            texture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, nullptr, desc.format);
                             break;
                         case TextureType::Texture_3D:
                             break;
@@ -74,7 +74,7 @@ namespace Razix {
                             texture = Graphics::RZDepthTexture::Create(w, h);
                             break;
                         case TextureType::Texture_RenderTarget:
-                            texture = Graphics::RZRenderTexture::Create(desc.name, w, h, desc.format);
+                            texture = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) w, h, desc.format);
                             break;
                         case TextureType::Texture_SwapchainImage:
                             //m_Texture = RZRenderContext::getSwapchain()->GetCurrentImage()
@@ -103,7 +103,7 @@ namespace Razix {
                 const auto h    = std::hash<RZFrameGraphSemaphore::Desc>{}(desc);
                 auto      &pool = m_SemaphorePools[h];
                 if (pool.empty()) {
-                    auto buffer = RZSemaphore::Create(desc.name);
+                    auto buffer = RZSemaphore::Create(RZ_DEBUG_NAME_TAG_STR_S_ARG(desc.name));
                     m_Semaphores.push_back(std::make_unique<RZSemaphore *>(std::move(buffer)));
                     auto *ptr = m_Semaphores.back().get();
                     RAZIX_CORE_INFO("Created semaphore : {0}", fmt::ptr(ptr));
