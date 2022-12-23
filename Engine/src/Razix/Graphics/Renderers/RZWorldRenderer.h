@@ -98,10 +98,12 @@ namespace Razix {
             /* draws the frame by executing the frame graph */
             void drawFrame(RZRendererSettings settings, Razix::RZScene* scene);
 
+            void destroy();
+
         private:
-            FrameGraph::RZFrameGraph m_FrameGraph;
-            FrameGraph::RZBlackboard m_Blackboard;
-            FrameGraph::
+            FrameGraph::RZFrameGraph         m_FrameGraph;
+            FrameGraph::RZBlackboard         m_Blackboard;
+            FrameGraph::RZTransientResources m_TransientResources;
             // List of all passes and data in the frame graph
             RZFinalCompositionPass m_CompositePass;
             // Renderers

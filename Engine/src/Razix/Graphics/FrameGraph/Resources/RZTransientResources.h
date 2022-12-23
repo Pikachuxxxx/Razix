@@ -10,10 +10,11 @@ namespace Razix {
             class RAZIX_API RZTransientResources
             {
             public:
-                RZTransientResources()                                 = delete;
+                RZTransientResources()  = default;
+                ~RZTransientResources() = default;
+
                 RZTransientResources(const RZTransientResources &)     = delete;
                 RZTransientResources(RZTransientResources &&) noexcept = delete;
-                ~RZTransientResources() {}
 
                 RZTransientResources &operator=(const RZTransientResources &)     = delete;
                 RZTransientResources &operator=(RZTransientResources &&) noexcept = delete;
@@ -27,8 +28,8 @@ namespace Razix {
                 void         releaseSemaphore(const RZFrameGraphSemaphore::Desc &desc, RZSemaphore *semaphore);
 
             private:
-                std::vector<std::unique_ptr<RZTexture*>>   m_Textures;
-                std::vector<std::unique_ptr<RZSemaphore*>> m_Semaphores;
+                std::vector<std::unique_ptr<RZTexture *>>   m_Textures;
+                std::vector<std::unique_ptr<RZSemaphore *>> m_Semaphores;
 
                 template<typename T>
                 struct ResourceEntry

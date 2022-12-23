@@ -71,7 +71,7 @@ namespace Razix {
                     pipelineInfo.depthBiasEnabled    = false;
                     pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
                     pipelineInfo.shader              = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
-                    pipelineInfo.transparencyEnabled = false;
+                    pipelineInfo.transparencyEnabled = true;
                     pipelineInfo.attachmentFormats   = {RZTexture::Format::SCREEN, RZTexture::Format::DEPTH};
 
                     m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
@@ -113,7 +113,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.attachments = {
-                        {Graphics::RZRenderContext::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.3f, 0.8f, 1.0f, 1.0f)}},
+                        {Graphics::RZRenderContext::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}},
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}};
                     info.extent = {1280, 720};
 
@@ -151,6 +151,15 @@ namespace Razix {
             }
 
             // Create the render pass and the attachments
+        }
+
+        void RZFinalCompositionPass::destoy()
+        {
+            m_Pipeline->Destroy();
+            for (auto& set: m_DescriptorSets)
+                set->Destroy();
+
+            m_ScreenQuadMesh->Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix

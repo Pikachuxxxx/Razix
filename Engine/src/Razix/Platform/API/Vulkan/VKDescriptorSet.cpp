@@ -36,7 +36,7 @@ namespace Razix {
 
             VkDescriptorSetLayoutCreateInfo layoutInfo{};
             layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutInfo.bindingCount = setLayoutBindingInfos.size();
+            layoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindingInfos.size());
             layoutInfo.pBindings    = setLayoutBindingInfos.data();
 
             // Descriptor set layouts can be compatible if they are the same even if they are created in two different places.

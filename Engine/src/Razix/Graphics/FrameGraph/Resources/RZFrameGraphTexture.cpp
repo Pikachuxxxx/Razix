@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZFrameGraphTexture.h"
 
+#include "Razix/Graphics/FrameGraph/Resources/RZTransientResources.h"
+
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
@@ -74,30 +76,12 @@ namespace Razix {
 
             void RZFrameGraphTexture::create(const Desc& desc, void* allocator)
             {
-                switch (desc.type) {
-                    case TextureType::Texture_2D:
-                        m_Texture = Graphics::RZTexture2D::Create(desc.name, desc.name, desc.extent.x, desc.extent.y, nullptr, desc.format);
-                        break;
-                    case TextureType::Texture_3D:
-                        break;
-                    case TextureType::Texture_CubeMap:
-                        break;
-                    case TextureType::Texture_Depth:
-                        m_Texture = Graphics::RZDepthTexture::Create(desc.extent.x, desc.extent.y);
-                        break;
-                    case TextureType::Texture_RenderTarget:
-                        m_Texture = Graphics::RZRenderTexture::Create(desc.name, desc.extent.x, desc.extent.y, desc.format);
-                        break;
-                    case TextureType::Texture_SwapchainImage:
-                        //m_Texture = RZRenderContext::getSwapchain()->GetCurrentImage()
-                        break;
-                }
+                m_Texture = static_cast<FrameGraph::RZTransientResources*>(allocator)->acquireTexture(desc);
             }
 
             void RZFrameGraphTexture::destroy(const Desc& desc, void* allocator)
             {
-                //if (m_Texture)
-                    //m_Texture->Release(true);
+                static_cast<FrameGraph::RZTransientResources*>(allocator)->releaseTexture(desc, m_Texture);
             }
 
             std::string RZFrameGraphTexture::toString(const Desc& desc)

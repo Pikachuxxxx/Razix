@@ -33,7 +33,7 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     // Upload to the Blackboard
-                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::BGRA8_UNORM});
+                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
 
                     data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
 
@@ -49,7 +49,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.attachments = {
-                        {rt, {true, glm::vec4(0.3f, 0.8f, 1.0f, 1.0f)}}};
+                        {rt, {true, glm::vec4(0.0f)}}};
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     RZRenderContext::BeginRendering(Graphics::RZRenderContext::getCurrentCommandBuffer(), info);
 
@@ -83,7 +83,16 @@ namespace Razix {
 
         void RZWorldRenderer::drawFrame(RZRendererSettings settings, Razix::RZScene* scene)
         {
-            m_FrameGraph.execute();
+            // TODO: Since the Render Context is a singleton we don't need it, so remove it from the API
+            m_FrameGraph.execute(nullptr, &m_TransientResources);
         }
+
+        void RZWorldRenderer::destroy()
+        {
+            m_ImGuiRenderer.Destroy();
+            m_CompositePass.destoy();
+            m_TransientResources.destroyResources();
+        }
+
     }    // namespace Graphics
 }    // namespace Razix

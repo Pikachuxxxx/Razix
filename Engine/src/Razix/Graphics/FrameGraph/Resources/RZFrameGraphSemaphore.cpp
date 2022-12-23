@@ -3,18 +3,20 @@
 // clang-format on
 #include "RZFrameGraphSemaphore.h"
 
+#include "Razix/Graphics/FrameGraph/Resources/RZTransientResources.h"
+
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
             void RZFrameGraphSemaphore::create(const Desc& desc, void* allocator)
             {
-                m_SemaphoreHandle = Graphics::RZSemaphore::Create(desc.name);
+                m_SemaphoreHandle = static_cast<FrameGraph::RZTransientResources*>(allocator)->acquireSemaphore(desc);
             }
 
             void RZFrameGraphSemaphore::destroy(const Desc& desc, void* allocator)
             {
-                //m_SemaphoreHandle->Destroy();
+                static_cast<FrameGraph::RZTransientResources*>(allocator)->releaseSemaphore(desc, m_SemaphoreHandle);
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

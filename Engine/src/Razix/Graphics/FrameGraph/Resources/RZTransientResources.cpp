@@ -43,8 +43,10 @@ namespace Razix {
 
             void RZTransientResources::destroyResources()
             {
-                for (auto &texture: m_Textures)
-                    (*texture.get())->Release(true);
+                for (auto &texture: m_Textures) {
+                    if (*texture.get())
+                        (*texture.get())->Release(true);
+                }
 
                 for (auto &semaphore: m_Semaphores)
                     (*semaphore.get())->Destroy();
