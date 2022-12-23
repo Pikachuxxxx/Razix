@@ -54,7 +54,7 @@ namespace Razix {
             void createFrameData();
             void acquireNextImage(VkSemaphore signalSemaphore);
             //void OnResize(uint32_t width, uint32_t height, bool forceResize = false);
-            void queueSubmit(CommandQueue& commandQueue, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore);
+            void queueSubmit(CommandQueue& commandQueue, std::vector<VkSemaphore> waitSemaphores, std::vector<VkSemaphore> signalSemaphores);
             void present(VkSemaphore waitSemaphore);
 
             RZTexture*     GetImage(uint32_t index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }

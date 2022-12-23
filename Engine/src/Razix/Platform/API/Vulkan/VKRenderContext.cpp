@@ -87,7 +87,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
+            auto prevFrameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
+            auto frameIdx     = (prevFrameIdx + 1) % RAZIX_MAX_SWAP_IMAGES_COUNT;
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
@@ -114,12 +115,22 @@ namespace Razix {
             m_CommandQueue.push_back(cmdBuffer);
         }
 
-        void VKRenderContext::SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore)
+        void VKRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
-            m_Context->getSwapchain()->queueSubmit(m_CommandQueue, waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE, signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
+            auto frameIdx     = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
+            auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
+
+            std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
+            for (size_t i = 0; i < waitSemaphores.size(); i++)
+                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(prevFrameIdx);
+
+            std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
+            for (size_t i = 0; i < signalSemaphores.size(); i++)
+                vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(prevFrameIdx);
+
+            m_Context->getSwapchain()->queueSubmit(m_CommandQueue, vkWaitSemaphores, vkSignalSemaphores);
 
             m_CommandQueue.clear();
         }
@@ -128,8 +139,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
-            m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
+            auto frameIdx     = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
+            auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
+            m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(prevFrameIdx) : VK_NULL_HANDLE);
         }
 
         void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
@@ -202,10 +214,13 @@ namespace Razix {
                 if (attachment.first->getFormat() == RZTexture::Format::SCREEN) {
                     VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
                     vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                    attachInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                } else if (attachment.first->getType() == RZTexture::Type::DEPTH) {
+                    //VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+                    vkImage->setImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+                    attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+                } else
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
-                }
-
-                attachInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
 
                 if (attachment.second.clear) {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;

@@ -3,28 +3,30 @@ graph [style=invis, rankdir="TB" ordering=out, splines=spline]
 node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
 
 P0 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
-P1 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 3<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
+P1 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
 
 R0_1 [label=<{ {<B>ImGui RT</B><BR/>(1280.000000, 720.000000) - RGBA32} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R1_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R2_1 [label=<{ {<B>Present Image</B><BR/>(1280.000000, 720.000000) - Presentation} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R3_1 [label=<{ {<B>Depth Texture</B><BR/>(1280.000000, 720.000000) - DEPTH} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R4_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 4<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R5_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R0_1 R1_1 } [color=orangered]
-P1 -> { R2_1 R3_1 R4_1 } [color=orangered]
+P1 -> { R2_1 R3_1 R4_1 R5_1 } [color=orangered]
 
 R0_1 -> { P1 } [color=olivedrab3]
 R1_1 -> { P1 } [color=olivedrab3]
 R2_1 -> { } [color=olivedrab3]
 R3_1 -> { } [color=olivedrab3]
 R4_1 -> { } [color=olivedrab3]
+R5_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
 P0 R0_1 R1_1 
 }
 subgraph cluster_1 {
-P1 R2_1 R3_1 R4_1 
+P1 R2_1 R3_1 R4_1 R5_1 
 }
 
 subgraph cluster_imported_resources {

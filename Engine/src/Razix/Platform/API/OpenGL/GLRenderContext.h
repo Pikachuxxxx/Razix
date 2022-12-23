@@ -20,7 +20,7 @@ namespace Razix {
             void AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override {}
             void BeginAPIImpl(RZCommandBuffer* cmdBuffer) override;
             void SubmitImpl(RZCommandBuffer* cmdBuffer) override;
-            void SubmitWorkImpl(RZSemaphore* waitSemaphore, RZSemaphore* signalSemaphore) override;
+            void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores) override;
             void PresentAPIImpl(RZSemaphore* waitSemaphore) override;
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) override;
             void DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType = DataType::UNSIGNED_INT) override;

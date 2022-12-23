@@ -344,7 +344,7 @@ namespace Razix {
             }
         }
 
-        void VKSwapchain::queueSubmit(CommandQueue& commandQueue, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore)
+        void VKSwapchain::queueSubmit(CommandQueue& commandQueue, std::vector<VkSemaphore> waitSemaphores, std::vector<VkSemaphore> signalSemaphores)
         {
             if (m_IsResizing)
                 return;
@@ -364,16 +364,20 @@ namespace Razix {
             for (size_t i = 0; i < submitInfo.commandBufferCount; i++)
                 cmdBuffs.push_back(*((VkCommandBuffer*) commandQueue[i]->getAPIBuffer()));
 
-            submitInfo.pCommandBuffers     = cmdBuffs.data();
-            VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            submitInfo.pCommandBuffers = cmdBuffs.data();
+            std::vector<VkPipelineStageFlags> waitStages;
+            for (size_t i = 0; i < waitSemaphores.size(); i++)
+                waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-            submitInfo.pWaitDstStageMask = &waitStage;
+            if (!waitSemaphores.size())
+                waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-            submitInfo.waitSemaphoreCount = waitSemaphore == VK_NULL_HANDLE ? 0 : 1;
-            submitInfo.pWaitSemaphores    = waitSemaphore == VK_NULL_HANDLE ? nullptr : &waitSemaphore;
+            submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+            submitInfo.pWaitSemaphores    = waitSemaphores.data();
+            submitInfo.pWaitDstStageMask  = waitStages.data();
 
-            submitInfo.signalSemaphoreCount = 1;
-            submitInfo.pSignalSemaphores    = &signalSemaphore;
+            submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+            submitInfo.pSignalSemaphores    = signalSemaphores.data();
 
             frameData.renderFence->reset();
 

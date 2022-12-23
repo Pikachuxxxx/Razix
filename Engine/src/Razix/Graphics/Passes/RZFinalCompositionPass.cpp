@@ -41,12 +41,13 @@ namespace Razix {
 
                     data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", {FrameGraph::TextureType::Texture_Depth, "Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH});
 
-                    data.presentationDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("Present Semaphore", {"Composite Semaphore"});
-
+                    data.presentationDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("Present Semaphore", {"Composite Present Semaphore"});
+                    data.imageReadySemaphore       = builder.create<FrameGraph::RZFrameGraphSemaphore>("Image Ready Semaphore", {"Composite Image Acquire Semaphore"});
                     // Writes from this pass
                     data.presentationTarget        = builder.write(data.presentationTarget);
                     data.depthTexture              = builder.write(data.depthTexture);
                     data.presentationDoneSemaphore = builder.write(data.presentationDoneSemaphore);
+                    data.imageReadySemaphore       = builder.write(data.imageReadySemaphore);
                     builder.read(imguiPassData.passDoneSemaphore);
                     builder.read(imguiPassData.outputRT);
 
@@ -92,9 +93,9 @@ namespace Razix {
                 [=](const CompositeData& data, FrameGraph::RZFrameGraphPassResources& resources, void*) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto presentSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.presentationDoneSemaphore).getHandle();
+                    auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();
 
-                    Graphics::RZRenderContext::AcquireImage(presentSemaphore);
+                    Graphics::RZRenderContext::AcquireImage(imageReadySemaphore);
 
                     auto cmdBuf = m_CmdBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuf);
@@ -106,6 +107,7 @@ namespace Razix {
                     auto& setInfos = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf")->getSetsCreateInfos();
                     for (auto& setInfo: setInfos) {
                         for (auto& descriptor: setInfo.second) {
+                            // change the layout to be in Shader Read Only Optimal
                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
                         }
                         m_DescriptorSets[0]->UpdateSet(setInfo.second);
@@ -135,9 +137,10 @@ namespace Razix {
 
                     // Wait on the previous pass semaphore for stuff to be done
                     auto waitOnPreviousPassSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(imguiPassData.passDoneSemaphore).getHandle();
+                    auto presentSemaphore            = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.presentationDoneSemaphore).getHandle();
 
-                    RZRenderContext::SubmitWork(waitOnPreviousPassSemaphore, presentSemaphore);
-                    RZRenderContext::Present(waitOnPreviousPassSemaphore);
+                    RZRenderContext::SubmitWork({waitOnPreviousPassSemaphore, imageReadySemaphore}, {presentSemaphore});
+                    RZRenderContext::Present(presentSemaphore);
                 });
         }
 

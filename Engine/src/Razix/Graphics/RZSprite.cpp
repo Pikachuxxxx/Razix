@@ -106,7 +106,7 @@ namespace Razix {
             //glm::vec2 max = { ((index.x + spriteSize.x) * cellSize.x) / m_Texture->getWidth(), ((index.y + spriteSize.y) * cellSize.y) / m_Texture->getHeight() };
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            float x           = (int) (cellIndex.x - 1) % (int) sheetDimension.x;
+            float x           = static_cast<float>( (int) (cellIndex.x - 1) % (int) sheetDimension.x);
             float y           = -(cellIndex.y - 1) / (int) sheetDimension.x;
             float frameWidth  = m_Texture->getWidth() / sheetDimension.x;
             float frameHeight = m_Texture->getHeight() / sheetDimension.y;

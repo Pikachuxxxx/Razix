@@ -15,6 +15,7 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource presentationTarget;    // Not an actual resource unlike RTs or Textures
             FrameGraph::RZFrameGraphResource depthTexture;
             FrameGraph::RZFrameGraphResource presentationDoneSemaphore;
+            FrameGraph::RZFrameGraphResource imageReadySemaphore;
         };
 
         /**

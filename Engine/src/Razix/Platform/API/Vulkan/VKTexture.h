@@ -78,7 +78,7 @@ namespace Razix {
              * @param layerCount The layers of image views usually 1 unless stereoscopic 3D is used
              * @param baseArrayLayer used if sterescopic3D is used to identify the layer of image to create the image view for
              */
-            static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG( = "someImageView! NAME IT !!! LAZY ASS MF#$"));
+            static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageView! NAME IT !!! LAZY ASS MF#$"));
 
             /**
              * Creates a sampler to sampler the image in shader pipeline stage
@@ -93,7 +93,7 @@ namespace Razix {
              * @param modeV Texel V coordinate wrap mode
              * @param modeW Texel W coordinate wrap mode
              */
-            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG( = "someImageSampler! NAME IT !!! LAZY ASS MF#$"));
+            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageSampler! NAME IT !!! LAZY ASS MF#$"));
 
             /* Binds the texture object to the given slot */
             void Bind(uint32_t slot) override {}
@@ -160,6 +160,9 @@ namespace Razix {
             void  Unbind(uint32_t slot) override;
             void* GetHandle() const override;
 
+            /* Gets the vulkan image object */
+            VkImage getImage() const { return m_Image; };
+
         private:
             VkImage               m_Image;        /* Vulkan image handle for the Texture object                               */
             VkDeviceMemory        m_ImageMemory;  /* Memory for the Vulkan image                                              */
@@ -181,7 +184,7 @@ namespace Razix {
         {
         public:
             VKRenderTexture(
-                uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG( = "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
+                uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
             VKRenderTexture(VkImage image, VkImageView imageView);
             ~VKRenderTexture() {}
 
@@ -192,6 +195,9 @@ namespace Razix {
             void* GetHandle() const override;
 
             int32_t ReadPixels(uint32_t x, uint32_t y) override;
+
+            /* Gets the vulkan image object */
+            VkImage getImage() const { return m_Image; };
 
         private:
             VkImage               m_Image;                                   /* Vulkan image handle for the Texture object                               */
