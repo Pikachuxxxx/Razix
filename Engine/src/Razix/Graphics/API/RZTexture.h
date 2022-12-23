@@ -172,7 +172,7 @@ namespace Razix {
              * @returns Pointer to Texture object of the underlying API
              */
             static RZTexture2D* CreateFromFile(
-                RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode = Filtering{});
+                RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const std::string& name, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
 
             /**
              * Sets the pixel data for the 2D Texture 

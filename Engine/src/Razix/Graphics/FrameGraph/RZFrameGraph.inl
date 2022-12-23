@@ -44,7 +44,7 @@ ENFORCE_CONCEPT_IMPL inline RZFrameGraphResource RZFrameGraph::import(const std:
     const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
     m_ResourceRegistry.emplace_back(
         RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kResourceInitialVersion, true});
-    return createResourceNode(name, resourceId).m_id;
+    return createResourceNode(name, resourceId).m_ID;
 }
 ENFORCE_CONCEPT_IMPL inline typename const T::Desc &RZFrameGraph::getDescriptor(RZFrameGraphResource id)
 {
