@@ -46,10 +46,11 @@ namespace Razix {
             RendererFeature_Bloom    = 1 << 5,
             RendererFeature_FXAA     = 1 << 6,
             RendererFeature_Vignette = 1 << 7,
+            RendererFeature_ImGui    = 1 << 8,
 
             RendererFeature_Default = RendererFeature_Shadows | RendererFeature_SSAO |
                                       RendererFeature_Bloom | RendererFeature_FXAA |
-                                      RendererFeature_Vignette,
+                                      RendererFeature_Vignette | RendererFeature_ImGui,
 
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };

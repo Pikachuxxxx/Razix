@@ -7,7 +7,7 @@
 #define RZ_PROFILER_OPTICK  0
 #define RZ_PROFILER_NVSIGHT 0
 
-#define RZ_ENABLE_CALL_STACK_CAPTURE 1
+#define RZ_ENABLE_CALL_STACK_CAPTURE 0
 #define RZ_CALL_STACK_DEPTH          15
 
 // Predefined colors for profiling engine systems and API parts
