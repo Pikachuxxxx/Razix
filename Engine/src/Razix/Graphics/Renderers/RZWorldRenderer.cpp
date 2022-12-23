@@ -61,9 +61,7 @@ namespace Razix {
                         // Submit the render queue before presenting next
                         Graphics::RZRenderContext::Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
 
-                        // Wait on the Presentation done semaphore from the Final Composition pass
-                        //auto  waitOnPresentationDoneSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(compositeData.presentationDoneSemaphore).getHandle();
-                        // Signal on a semaphore for the Final Composition pass to wait on
+                        // Signal on a semaphore for the next pass (Final Composition pass) to wait on
                         Graphics::RZRenderContext::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
                     });
             }

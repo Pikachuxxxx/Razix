@@ -58,8 +58,8 @@ namespace Razix {
                     }
 
                     /**
-                     * Issues:- Well pipeline creation needs a shader and some info from the Frame Graph, so if in a Frame Graph pass
-                     * if there are multiple renderables that uses different Materials (aka Shaders) then we can't use the same pipeline.
+                     * Issues:- Well pipeline creation needs a shader and some info from the Frame Graph(all the output attachments that the current frame graph pas writes to)
+                     * so if in a Frame Graph pass if there are multiple renderables that uses different Materials (and diff Shaders) then we can't use the same pipeline.
                      * 
                      * Some solutions:
                      * 
