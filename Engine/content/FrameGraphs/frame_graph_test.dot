@@ -5,7 +5,7 @@ node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
 P0 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
 P1 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 3<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
 
-R0_1 [label=<{ {<B>ImGui RT</B><BR/>(1280.000000, 720.000000) - BGRA8_UNORM} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R0_1 [label=<{ {<B>ImGui RT</B><BR/>(1280.000000, 720.000000) - RGBA32} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R1_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R2_1 [label=<{ {<B>Present Image</B><BR/>(1280.000000, 720.000000) - Presentation} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R3_1 [label=<{ {<B>Depth Texture</B><BR/>(1280.000000, 720.000000) - DEPTH} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]

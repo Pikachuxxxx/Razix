@@ -31,8 +31,8 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
-#include <imgui/plugins/ImGuizmo.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
+#include <imgui/plugins/ImGuizmo.h>
 
 #include <cereal/archives/json.hpp>
 
@@ -182,7 +182,7 @@ namespace Razix {
         if (ctx) {
             // Resize ImGui
             ImGuiIO& io                = ImGui::GetIO();
-            io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
+            io.DisplaySize             = ImVec2(static_cast<float>(e.GetWidth()), static_cast<float>(e.GetHeight()));
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
@@ -371,7 +371,7 @@ namespace Razix {
             // Update ImGui
             ImGuiIO& io = ImGui::GetIO();
             (void) io;
-            io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+            io.DisplaySize = ImVec2(static_cast<float>(getWindow()->getWidth()), static_cast<float>(getWindow()->getHeight()));
         }
         // Run the OnUpdate for all the scripts
         if (RZEngine::Get().getSceneManager().getCurrentScene())
@@ -430,7 +430,7 @@ namespace Razix {
         if (m_GuizmoEntity.entity() != entt::null) {
             auto           currentScene = RZEngine::Get().getSceneManager().getCurrentScene();
             auto&          registry     = currentScene->getRegistry();
-            auto           cameraView   = registry.view<CameraComponent>();
+            auto&          cameraView   = registry.view<CameraComponent>();
             RZSceneCamera* cam          = nullptr;
             if (!cameraView.empty()) {
                 // By using front we get the one and only or the first one in the list of camera entities
@@ -543,6 +543,8 @@ namespace Razix {
     void RZApplication::Quit()
     {
         //Razix::RZEngine::Get().getRenderStack().Destroy();
+
+        Razix::RZEngine::Get().getWorldRenderer().destroy();
 
         // Client side quit customization
         OnQuit();
