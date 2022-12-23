@@ -105,6 +105,8 @@ namespace Razix {
             FrameGraph::RZFrameGraph         m_FrameGraph;
             FrameGraph::RZBlackboard         m_Blackboard;
             FrameGraph::RZTransientResources m_TransientResources;
+            // Frame Graph Import Data
+            RZTexture2D* brdfLUTTexture;
             // List of all passes and data in the frame graph
             RZFinalCompositionPass m_CompositePass;
             // Renderers

@@ -32,7 +32,7 @@ namespace Razix {
             void destoy() override;
 
         private:
-            RZMesh*                                 m_ScreenQuadMesh;
+            RZMesh*                                 m_ScreenQuadMesh = nullptr;
             std::vector<Graphics::RZDescriptorSet*> m_DescriptorSets;
 
         private:

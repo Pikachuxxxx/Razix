@@ -37,7 +37,7 @@ namespace Razix {
                             return VK_FORMAT_R32_SFLOAT;
                             break;
                         case RZTexture::Format::RGB8:
-                            return VK_FORMAT_R8G8B8A8_SRGB;
+                            return VK_FORMAT_R8G8B8_SRGB;
                             break;
                         case RZTexture::Format::RGBA8:
                             return VK_FORMAT_R8G8B8A8_SRGB;
@@ -94,7 +94,7 @@ namespace Razix {
                             return VK_FORMAT_R8G8_UNORM;
                             break;
                         case RZTexture::Format::RGB8:
-                            return VK_FORMAT_R8G8B8_UNORM;
+                            return VK_FORMAT_R8G8B8_UINT;
                             break;
                         case RZTexture::Format::RGBA8:
                             return VK_FORMAT_R8G8B8A8_UNORM;

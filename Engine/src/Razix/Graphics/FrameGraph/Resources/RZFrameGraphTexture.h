@@ -35,7 +35,7 @@ namespace Razix {
 
                 Graphics::RZTexture* getHandle() { return m_Texture; }
 
-            private:
+            public:
                 Graphics::RZTexture* m_Texture;
             };
         }    // namespace FrameGraph
