@@ -22,12 +22,15 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard)
+        void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZRendererSettings& settings)
         {
             // Initialize the resources for the Pass
             init();
 
-            auto&                     imguiPassData = blackboard.get<RTOnlyPassData>();
+            RTOnlyPassData imguiPassData;
+            if (settings.renderFeatures & RendererFeature_ImGui)
+                imguiPassData = blackboard.get<RTOnlyPassData>();
+
             DescriptorSetsCreateInfos setInfos;
             Graphics::PipelineInfo    pipelineInfo{};
 
@@ -48,8 +51,11 @@ namespace Razix {
                     data.depthTexture              = builder.write(data.depthTexture);
                     data.presentationDoneSemaphore = builder.write(data.presentationDoneSemaphore);
                     data.imageReadySemaphore       = builder.write(data.imageReadySemaphore);
-                    builder.read(imguiPassData.passDoneSemaphore);
-                    builder.read(imguiPassData.outputRT);
+
+                    if (settings.renderFeatures & RendererFeature_ImGui) {
+                        builder.read(imguiPassData.passDoneSemaphore);
+                        builder.read(imguiPassData.outputRT);
+                    }
 
                     /**
                      * Issues:- Well pipeline creation needs a shader and some info from the Frame Graph, so if in a Frame Graph pass
@@ -104,13 +110,17 @@ namespace Razix {
                     cmdBuf->UpdateViewport(1280, 720);
 
                     // Update the Descriptor Set with the new texture once
-                    auto& setInfos = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf")->getSetsCreateInfos();
-                    for (auto& setInfo: setInfos) {
-                        for (auto& descriptor: setInfo.second) {
-                            // change the layout to be in Shader Read Only Optimal
-                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
+                    static bool updatedRT = false;
+                    if (!updatedRT) {
+                        auto& setInfos = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf")->getSetsCreateInfos();
+                        for (auto& setInfo: setInfos) {
+                            for (auto& descriptor: setInfo.second) {
+                                // change the layout to be in Shader Read Only Optimal
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
+                            }
+                            m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }
-                        m_DescriptorSets[0]->UpdateSet(setInfo.second);
+                        updatedRT = true;
                     }
 
                     RenderingInfo info{};

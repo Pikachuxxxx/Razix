@@ -87,8 +87,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto prevFrameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
-            auto frameIdx     = (prevFrameIdx + 1) % RAZIX_MAX_SWAP_IMAGES_COUNT;
+            auto frameIdx = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
@@ -128,7 +127,7 @@ namespace Razix {
 
             std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
             for (size_t i = 0; i < signalSemaphores.size(); i++)
-                vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(prevFrameIdx);
+                vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(frameIdx);
 
             m_Context->getSwapchain()->queueSubmit(m_CommandQueue, vkWaitSemaphores, vkSignalSemaphores);
 
@@ -141,7 +140,7 @@ namespace Razix {
 
             auto frameIdx     = RZRenderContext::Get().getSwapchain()->getCurrentImageIndex();
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
-            m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(prevFrameIdx) : VK_NULL_HANDLE);
+            m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
         }
 
         void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)

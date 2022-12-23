@@ -5,6 +5,8 @@
 
 namespace Razix {
     namespace Graphics {
+        
+        struct RZRendererSettings;
 
         class RZCommandBuffer;
         class RZPipeline;
@@ -18,7 +20,7 @@ namespace Razix {
             IRZPass()          = default;
             virtual ~IRZPass() = default;
 
-            virtual void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard) = 0;
+            virtual void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZRendererSettings& settings) = 0;
 
             virtual void destoy() = 0;
 
