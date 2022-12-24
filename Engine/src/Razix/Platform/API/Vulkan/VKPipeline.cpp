@@ -119,6 +119,8 @@ namespace Razix {
             std::vector<VkPipelineColorBlendAttachmentState> blendAttachState;
             if (pipelineInfo.attachmentFormats.size() > 1)
                 blendAttachState.resize(pipelineInfo.attachmentFormats.size() - 1);
+            else
+                blendAttachState.resize(pipelineInfo.attachmentFormats.size());
 
             for (unsigned int i = 0; i < blendAttachState.size(); i++) {
                 blendAttachState[i]                = VkPipelineColorBlendAttachmentState();

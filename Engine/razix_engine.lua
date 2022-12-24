@@ -22,18 +22,18 @@ group "Engine/content"
         {
             -- Shader files
             -- GLSL
-            "content/Shaders/GLSL/*.vert",
-            "content/Shaders/GLSL/*.frag",
+            "content/Shaders/GLSL/**.vert",
+            "content/Shaders/GLSL/**.frag",
             -- HLSL
-            "content/Shaders/HLSL/*.hlsl",
+            "content/Shaders/HLSL/**.hlsl",
             -- PSSL
-            "content/Shaders/PSSL/*.pssl",
-            "content/Shaders/PSSL/*.h",
-            "content/Shaders/PSSL/*.hs",
+            "content/Shaders/PSSL/**.pssl",
+            "content/Shaders/PSSL/**.h",
+            "content/Shaders/PSSL/**.hs",
             -- Cg
-            "content/Shaders/CG/*.cg",
+            "content/Shaders/CG/**.cg",
             -- Razix Shader Files
-            "content/Shaders/Razix/*.rzsf"
+            "content/Shaders/Razix/**.rzsf"
         }
     filter "system:windows"
         -- TODO Add as rules, every shader file type will have it's own rule
@@ -45,8 +45,8 @@ group "Engine/content"
         filter {"files:**.vert or **.frag"}
             removeflags "ExcludeFromBuild"
             buildmessage 'Compiling glsl shader : %{file.name}'
-            buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{file.directory}/../Compiled/SPIRV/%{file.name}.spv" '
-            buildoutputs "%{file.directory}/../Compiled/SPIRV/%{file.name }.spv"
+            buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
+            buildoutputs "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"
 group""
 
 group "Engine"

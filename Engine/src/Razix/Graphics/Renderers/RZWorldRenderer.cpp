@@ -13,6 +13,8 @@
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
+#include "Razix/Graphics/Lighting/RZIBL.h"
+
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
 
 #include "Razix/Scene/RZScene.h"
@@ -24,11 +26,11 @@ namespace Razix {
         {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            brdfLUTTexture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", "BRDF LUT");
-            //m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {}, {}}, {brdfLUTTexture});
+            brdfLUTTexture                   = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", "BRDF LUT");
+            m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {brdfLUTTexture->getWidth(), brdfLUTTexture->getHeight()}, {brdfLUTTexture->getFormat()}}, {brdfLUTTexture});
 
             //-------------------------------
-            // Grid Pass
+            //
             //-------------------------------
 
             //-------------------------------
@@ -96,6 +98,9 @@ namespace Razix {
 
         void RZWorldRenderer::destroy()
         {
+            // Destroy Imported Resources
+            brdfLUTTexture->Release(true);
+
             m_ImGuiRenderer.Destroy();
             m_CompositePass.destoy();
             m_TransientResources.destroyResources();

@@ -26,8 +26,7 @@ namespace Razix {
                 COLOR_3D,
                 COLOR_RT,
                 DEPTH,
-                STENCIL,
-                CUBE
+                CUBEMAP
             };
 
             /* The format of the Texture resource */
@@ -112,6 +111,8 @@ namespace Razix {
             Format getFormat() const { return m_Format; }
             /* Returns the virtual path of the texture resource */
             std::string getPath() const { return m_VirtualPath; }
+            Filtering   getFilterMode() { return m_FilterMode; }
+            Wrapping    getWrapMode() { return m_WrapMode; }
 
             /* Binds the Texture resource to the Pipeline */
             virtual void Bind(uint32_t slot) = 0;
@@ -180,6 +181,18 @@ namespace Razix {
              * @param pixels The pixel data to set
              */
             virtual void SetData(const void* pixels) = 0;
+        };
+
+        //-----------------------------------------------------------------------------------
+        // Cube Map Texture
+        //-----------------------------------------------------------------------------------
+        class RAZIX_API RZCubeMap : public RZTexture
+        {
+        public:
+            static RZCubeMap* Create(
+                RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+
+            void setCubeMap(const std::string& hdrFilePath);
         };
 
         //-----------------------------------------------------------------------------------

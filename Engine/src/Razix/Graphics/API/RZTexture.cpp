@@ -61,7 +61,6 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-
             RZDescriptor descriptor{};
             descriptor.name                = m_Name;
             descriptor.bindingInfo.binding = 0;
@@ -102,6 +101,26 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(filePath, name, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(filePath, name, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
+                case Razix::Graphics::RenderAPI::GXM:
+                case Razix::Graphics::RenderAPI::GCM:
+                default: return nullptr; break;
+            }
+            return nullptr;
+        }
+
+        //-----------------------------------------------------------------------------------
+        // Cube Map Texture
+        //-----------------------------------------------------------------------------------
+
+        RZCubeMap* RZCubeMap::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+                case Razix::Graphics::RenderAPI::OPENGL: break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKCubeMap(name, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:

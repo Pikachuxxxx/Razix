@@ -235,7 +235,7 @@ namespace Razix {
                 if (attachment.first->getFormat() == RZTexture::Format::DEPTH)
                     attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
 
-                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_RT)
+                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::CUBEMAP)
                     colorAttachments.push_back(attachInfo);
                 else if (attachment.first->getType() == RZTexture::Type::DEPTH)
                     renderingInfoKHR.pDepthAttachment = &attachInfo;

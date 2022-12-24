@@ -15,8 +15,6 @@ void BeginMarker(const std::string& name, glm::vec4 color)
 {
     // Get the current command buffer
     auto cmdBuf = Razix::Graphics::RZRenderContext::getCurrentCommandBuffer();
-    if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
-    }
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
         case Razix::Graphics::RenderAPI::VULKAN:

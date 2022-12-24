@@ -11,10 +11,23 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 #endif
 
 namespace Razix {
     namespace Graphics {
+
+        RZCommandBuffer* RZCommandBuffer::BeginSingleTimeCommandBuffer()
+        {
+            auto             vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+            VKCommandBuffer* cmdBuffer   = new VKCommandBuffer(vkCmdBuffer);
+            return (RZCommandBuffer*) cmdBuffer;
+        }
+
+        void RZCommandBuffer::EndSingleTimeCommandBuffer(RZCommandBuffer* cmdBuffer)
+        {
+            return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer());
+        }
 
         RZCommandBuffer* RZCommandBuffer::Create()
         {

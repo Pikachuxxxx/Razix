@@ -284,11 +284,22 @@ namespace Razix {
             m_Descriptor.imageLayout = m_ImageLayout;
         }
 
+        void convert(unsigned char* dst, const unsigned char* src, size_t num)
+        {
+            size_t i;
+            for (i = 0; i < num / 3; i++) {
+                dst[4 * i]     = src[3 * i];
+                dst[4 * i + 1] = src[3 * i + 1];
+                dst[4 * i + 2] = src[3 * i + 2];
+                dst[4 * i + 3] = 1;
+            }
+        }
+
         bool VKTexture2D::load(RZ_DEBUG_NAME_TAG_S_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            uint8_t* pixels = nullptr;
+            unsigned char* pixels = nullptr;
 
             if (m_data != nullptr) {
                 pixels = reinterpret_cast<uint8_t*>(m_data);
@@ -299,7 +310,7 @@ namespace Razix {
                     // Width and Height are extracted here
                     pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Width, &m_Height, &bpp);
                     // Here the format for the texture is extracted based on bits per pixel
-                    m_Format = Razix::Graphics::RZTexture::bitsToTextureFormat(bpp);
+                    m_Format = Razix::Graphics::RZTexture::bitsToTextureFormat(4);
                     // Size of the texture
                     m_Size = m_Width * m_Height * bpp;    // Divided by 8 cause char* is 8 bits and size is in bytes
                 }
@@ -308,10 +319,17 @@ namespace Razix {
             if (pixels == nullptr)
                 return false;
 
-            VkDeviceSize imageSize = VkDeviceSize(m_Size);
+            VkDeviceSize imageSize = VkDeviceSize(m_Width * m_Height * 4);
+
+            std::vector<unsigned char> pixelData(imageSize);
+            //if (m_Size != imageSize)
+            //    convert(pixelData.data(), pixels, m_Size);
+            //else
+                memcpy(pixelData.data(), pixels, m_Size);
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
-            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
+            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixelData.data() RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
+            //stagingBuffer->setData(imageSize, pixels);
 
             uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //1;//
 
@@ -589,6 +607,70 @@ namespace Razix {
             m_Descriptor.imageView   = m_ImageView;
             m_Descriptor.sampler     = m_ImageSampler;
             m_Descriptor.imageLayout = m_ImageLayout;
+        }
+
+        //-----------------------------------------------------------------------------------
+        // CubeMap Texture
+        //-----------------------------------------------------------------------------------
+
+        VKCubeMap::VKCubeMap(const std::string& hdrFilePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        {
+            m_Name        = name;
+            m_FilterMode  = filterMode;
+            m_WrapMode    = wrapMode;
+            m_TextureType = RZTexture::Type::CUBEMAP;
+            m_VirtualPath = hdrFilePath;
+
+            updateDescriptor();
+        }
+
+        VKCubeMap::VKCubeMap(const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        {
+            m_Name        = name;
+            m_FilterMode  = filterMode;
+            m_WrapMode    = wrapMode;
+            m_TextureType = RZTexture::Type::CUBEMAP;
+
+            auto format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            VKTexture2D::CreateImage(512, 512, 1, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, format, 1, VK_IMAGE_VIEW_TYPE_CUBE, VK_IMAGE_ASPECT_COLOR_BIT, 6);
+
+            m_ImageSampler = VKTexture2D::CreateImageSampler(VK_FILTER_LINEAR, VK_FILTER_LINEAR, 0.0f, 1.0f, true, VKDevice::Get().getPhysicalDevice()->getProperties().limits.maxSamplerAnisotropy, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+
+            //VKUtilities::TransitionImageLayout(m_Image, VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+
+            updateDescriptor();
+        }
+
+        void VKCubeMap::Release(bool deleteImage /*= true*/)
+        {
+        }
+
+        void VKCubeMap::Bind(uint32_t slot)
+        {
+        }
+
+        void VKCubeMap::Unbind(uint32_t slot)
+        {
+        }
+
+        void* VKCubeMap::GetHandle() const
+        {
+            return (void*) &m_Descriptor;
+        }
+
+        void VKCubeMap::convertEquirectangularToCubemap()
+        {
+        }
+
+        void VKCubeMap::updateDescriptor()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_Descriptor.sampler     = m_ImageSampler;
+            m_Descriptor.imageView   = m_ImageView;
+            m_Descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         }
 
     }    // namespace Graphics
