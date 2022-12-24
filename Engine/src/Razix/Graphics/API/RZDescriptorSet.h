@@ -153,10 +153,10 @@ namespace Razix {
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG);
+            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG, bool layoutTransition = true);
 
             /* Updates the descriptor set with the given descriptors */
-            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
+            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition = true) = 0;
             virtual void Destroy()                                               = 0;
         };
     }    // namespace Graphics

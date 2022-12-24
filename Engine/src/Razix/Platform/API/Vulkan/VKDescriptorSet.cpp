@@ -13,7 +13,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG)
+        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition RZ_DEBUG_NAME_TAG_E_ARG)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -67,10 +67,10 @@ namespace Razix {
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_IMAGE_INFOS];
             m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCTIPTORS];
 
-            UpdateSet(descriptors);
+            UpdateSet(descriptors, layoutTransition);
         }
 
-        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
+        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -85,8 +85,8 @@ namespace Razix {
 
                         auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
 
-                        //if (vkImage->getType() != RZTexture::Type::CUBEMAP)
-                        //    VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                        if (layoutTransition)
+                            VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
                         m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                         //des.imageLayout;

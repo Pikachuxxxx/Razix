@@ -365,9 +365,6 @@ namespace Razix {
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
             }
 
-            // Now since we have copied it properly we know the image is accessible from the DEVICE
-            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
             // 2. Transition from transfer to shader layout (This causing some error, some kind of unnecessary layout transition for the mip maps)
             //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
 
@@ -376,6 +373,9 @@ namespace Razix {
 
             // Create the Image view for the Vulkan image (uses color bit)
             m_ImageView = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 1, 0 RZ_DEBUG_E_ARG_NAME);
+
+            // Now since we have copied it properly we know the image is accessible from the DEVICE
+            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();

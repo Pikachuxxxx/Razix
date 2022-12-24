@@ -15,7 +15,7 @@ namespace Razix {
         {
         }
 
-        void OpenGLDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
+        void OpenGLDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition)
         {
             // Update the uniform buffers here (don't we already get updated ones?)
         }
