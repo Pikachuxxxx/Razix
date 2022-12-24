@@ -13,6 +13,7 @@ namespace Razix {
         {
         public:
             VKCommandBuffer();
+            VKCommandBuffer(VkCommandBuffer vulkanHandle);
             ~VKCommandBuffer();
 
             void Init(RZ_DEBUG_NAME_TAG_S_ARG) override;

@@ -1,0 +1,18 @@
+/*
+ * Razix Shader File 
+ * EnvToCubeMap.rzsf : Converts a equirectangular environment map to Cubemap
+ * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/EnvToCubeMap.vert.spv
+    #endif
+#end
+
+// Including the default fragment shader
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/EnvToCubeMap.frag.spv
+    #endif
+#end

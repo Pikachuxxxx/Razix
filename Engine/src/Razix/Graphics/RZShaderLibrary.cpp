@@ -33,6 +33,10 @@ namespace Razix {
             // Frame Graph Pass Shaders
             // Composite Pass
             loadShader("//RazixContent/Shaders/Razix/composite_pass.rzsf");
+            //-------------------------------------------------------------------
+            // Utility Shaders (Graphics + Compute)
+            // Env to CubeMap
+            loadShader("//RazixContent/Shaders/Razix/EnvToCubeMap.rzsf");
         }
 
         void RZShaderLibrary::ShutDown()

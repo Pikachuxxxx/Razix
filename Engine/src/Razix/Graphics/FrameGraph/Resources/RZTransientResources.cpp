@@ -82,7 +82,7 @@ namespace Razix {
 
                     m_Textures.push_back(std::make_unique<RZTexture *>(std::move(texture)));
                     auto *ptr = m_Textures.back().get();
-                    RAZIX_CORE_INFO("Created texture : {0}", fmt::ptr(ptr));
+                    RAZIX_CORE_INFO("[Transient Resources] Created Texture resource : {0}", fmt::ptr(ptr));
                     return *ptr;
                 } else {
                     auto *texture = pool.back().resource;
@@ -105,7 +105,7 @@ namespace Razix {
                     auto buffer = RZSemaphore::Create(RZ_DEBUG_NAME_TAG_STR_S_ARG(desc.name));
                     m_Semaphores.push_back(std::make_unique<RZSemaphore *>(std::move(buffer)));
                     auto *ptr = m_Semaphores.back().get();
-                    RAZIX_CORE_INFO("Created semaphore : {0}", fmt::ptr(ptr));
+                    RAZIX_CORE_INFO("[Transient Resources] Created Semaphore resource : {0}", fmt::ptr(ptr));
                     return *ptr;
                 } else {
                     auto *buffer = pool.back().resource;

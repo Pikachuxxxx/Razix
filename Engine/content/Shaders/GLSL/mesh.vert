@@ -22,7 +22,7 @@ layout(location = 3) in vec3 inNormal;
 layout(location = 4) in vec3 inTangent;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
-// Thew view projection matrix
+// view projection matrix
 layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 {
     mat4 view;

@@ -145,6 +145,41 @@ namespace Razix {
         };
 
         //-----------------------------------------------------------------------------------
+        // CubeMap Texture
+        //-----------------------------------------------------------------------------------
+
+        class VKCubeMap : public RZCubeMap
+        {
+        public:
+            /* This is used to generate cube map from equirectangular maps or multiple texture files */
+            VKCubeMap(const std::string& hdrFilePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            /* This is used to create a empty cube map that can be used to write data into */
+            VKCubeMap(const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            ~VKCubeMap() {}
+
+            void  Release(bool deleteImage = true) override;
+            void  Bind(uint32_t slot) override;
+            void  Unbind(uint32_t slot) override;
+            void* GetHandle() const override;
+
+            /* Gets the vulkan image object */
+            VkImage getImage() const { return m_Image; };
+
+        private:
+            VkImage               m_Image;        /* Vulkan image handle for the Texture object                               */
+            VkDeviceMemory        m_ImageMemory;  /* Memory for the Vulkan image                                              */
+            VkImageView           m_ImageView;    /* Image view for the image, all images need a view to look into the image  */
+            VkSampler             m_ImageSampler; /* Sampler information used by shaders to sample the texture                */
+            VkImageLayout         m_ImageLayout;  /* Layout aka usage description of the image                                */
+            VkDescriptorImageInfo m_Descriptor;   /* Descriptor info encapsulation the image, view and the sampler            */
+
+        private:
+            void convertEquirectangularToCubemap();
+            /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
+            void updateDescriptor();
+        };
+
+        //-----------------------------------------------------------------------------------
         // Depth Texture
         //-----------------------------------------------------------------------------------
 

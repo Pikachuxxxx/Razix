@@ -79,7 +79,7 @@ namespace Razix {
                     pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
                     pipelineInfo.shader              = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
                     pipelineInfo.transparencyEnabled = true;
-                    pipelineInfo.attachmentFormats   = {RZTexture::Format::SCREEN, RZTexture::Format::DEPTH};
+                    pipelineInfo.attachmentFormats   = {RZTexture::Format::BGRA8_UNORM, RZTexture::Format::DEPTH};
 
                     m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
 

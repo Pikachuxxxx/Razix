@@ -142,6 +142,8 @@ namespace Razix {
             RAZIX_FORCE_INLINE const uint32_t& getWidth() { return m_Width; }
             RAZIX_FORCE_INLINE const uint32_t& getHeight() { return m_Height; }
 
+            static void SetCmdBuffer(RZCommandBuffer* cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
+
         protected:
             virtual void InitAPIImpl()                                                                                                                                                                  = 0;
             virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                              = 0;

@@ -1,4 +1,5 @@
 import glob, os
+from pathlib import Path
 
 # List of all glsl files files that will be compiled
 glsl_files = []
@@ -33,12 +34,12 @@ def compile_shaders():
 
 if __name__ == "__main__":
     # First we get the list of all *.glsl files
-    for file in glob.glob("*.vert"):
-        print(file)
-        glsl_files.append(file)
+    for path in Path('./').rglob('*.vert'):
+        print(path.name)
+        glsl_files.append(path.name)
 
-    for file in glob.glob("*.frag"):
-        print(file)
-        glsl_files.append(file)
+    for path in Path('./').rglob('*.frag'):
+        print(path.name)
+        glsl_files.append(path.name)
     # Compile the shaders
     compile_shaders()
