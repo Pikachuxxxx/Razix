@@ -85,12 +85,13 @@ namespace Razix {
 
                         auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
 
-                        VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                        if (vkImage->getType() != RZTexture::Type::CUBEMAP)
+                            VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
                         m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                         //des.imageLayout;
-                        m_ImageInfoPool[imageIndex].imageView   = des.imageView;
-                        m_ImageInfoPool[imageIndex].sampler     = des.sampler;
+                        m_ImageInfoPool[imageIndex].imageView = des.imageView;
+                        m_ImageInfoPool[imageIndex].sampler   = des.sampler;
 
                         VkWriteDescriptorSet writeDescriptorSet{};
                         writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

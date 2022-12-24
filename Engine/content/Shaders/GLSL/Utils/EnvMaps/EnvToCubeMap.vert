@@ -43,6 +43,6 @@ void main()
 {
     //gl_Layer = view_proj_ubo.layer;
     gl_Position = view_proj_ubo.proj * view_proj_ubo.view * vec4(inPosition, 1.0f);
-    vs_out.localPos = inPosition;
+    vs_out.localPos = vec3(inTexCoord, 1.0f);
     vs_out.layer = view_proj_ubo.layer;
 }

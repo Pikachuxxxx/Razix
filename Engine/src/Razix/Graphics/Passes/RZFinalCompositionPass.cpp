@@ -117,7 +117,7 @@ namespace Razix {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
-                            }
+                            } 
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }
                         updatedRT = true;
