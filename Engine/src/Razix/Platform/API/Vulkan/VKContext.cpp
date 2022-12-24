@@ -101,7 +101,7 @@ namespace Razix {
             appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);    // TODO: Add this feature later! once we add it to the Application class
             appInfo.pEngineName        = "Razix Engine";
             appInfo.engineVersion      = VK_MAKE_VERSION(RazixVersion.getVersionMajor(), RazixVersion.getVersionMinor(), RazixVersion.getVersionPatch());
-            appInfo.apiVersion         = VK_API_VERSION_1_1;
+            appInfo.apiVersion         = VK_API_VERSION_1_3;
 
             // Instance Create Info
             VkInstanceCreateInfo instanceCI{};

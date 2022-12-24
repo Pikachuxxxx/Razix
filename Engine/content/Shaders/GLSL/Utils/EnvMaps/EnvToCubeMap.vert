@@ -9,7 +9,7 @@
 #extension GL_ARB_shading_language_420pack : enable
 // This extension is for #include support in glsl, this extension is usually not supported to force enable it perhaps?
 //#extension GL_ARB_shading_language_include : enable
-//#extension GL_ARB_shader_viewport_layer_array : enable
+#extension GL_ARB_shader_viewport_layer_array : enable
 
 //------------------------------------------------------------------------------
 // Vertex Input
@@ -41,8 +41,8 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    //gl_Layer = view_proj_ubo.layer;
+    gl_Layer = view_proj_ubo.layer;
     gl_Position = view_proj_ubo.proj * view_proj_ubo.view * vec4(inPosition, 1.0f);
-    vs_out.localPos = vec3(inTexCoord, 1.0f);
+    vs_out.localPos = inPosition;
     vs_out.layer = view_proj_ubo.layer;
 }

@@ -197,7 +197,7 @@ namespace Razix {
             renderingInfoKHR.sType             = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
             renderingInfoKHR.renderArea.offset = {0, 0};
             renderingInfoKHR.renderArea.extent = {renderingInfo.extent.x, renderingInfo.extent.y};
-            renderingInfoKHR.layerCount        = 1;
+            renderingInfoKHR.layerCount        = renderingInfo.layerCount;
 
             std::vector<VkRenderingAttachmentInfo> colorAttachments;
 

@@ -16,7 +16,8 @@ static std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     VK_KHR_dynamic_rendering_NAME,
     "VK_KHR_depth_stencil_resolve",
-    "VK_KHR_create_renderpass2"};
+    "VK_KHR_create_renderpass2",
+    VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME};
 
 namespace Razix {
     namespace Graphics {
