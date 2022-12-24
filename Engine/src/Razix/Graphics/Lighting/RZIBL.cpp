@@ -44,6 +44,9 @@ namespace Razix {
 
         RZCubeMap* RZIBL::convertEquirectangularToCubemap(const std::string& hdrFilePath)
         {
+            // https://www.reddit.com/r/vulkan/comments/mtx6ar/gl_layer_value_assigned_in_vertex_shader_but/
+            // https://www.reddit.com/r/vulkan/comments/xec0vg/multilayered_rendering_to_create_a_cubemap/
+
             // First create the 2D Equirectangular texture
             uint32_t              width, height, bpp;
             unsigned char*        pixels = Razix::Utilities::LoadImageData(hdrFilePath, &width, &height, &bpp);
@@ -53,6 +56,7 @@ namespace Razix {
             RZTexture2D* equirectangularMap = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("HDR Cube Map Texture") "HDR Cube Map Texture", width, height, pixelData.data(), RZTexture::Format::RGBA, RZTexture::Wrapping::CLAMP_TO_EDGE);
 
             std::vector<RZDescriptorSet*> envMapSets;
+            std::vector<RZUniformBuffer*> UBOs;
 
             struct ViewProjLayerUBOData
             {
@@ -61,7 +65,7 @@ namespace Razix {
                 alignas(4) int layer             = 0;
             } uboData;
 
-
+            // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behaviour is unknown
 
             // Load the shader
             auto  shader   = RZShaderLibrary::Get().getShader("EnvToCubeMap.rzsf");
@@ -72,6 +76,7 @@ namespace Razix {
                 uboData.layer      = i;
 
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
+                UBOs.push_back(viewProjLayerUBO);
 
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
@@ -99,7 +104,6 @@ namespace Razix {
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
             RZCubeMap* cubeMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR ") "HDR");
-            //RZTexture* rt = RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR RT") 512, 512, RZTexture::Format::RGBA32F);
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
@@ -118,6 +122,7 @@ namespace Razix {
                 info.attachments = {
                     {cubeMap, {true, glm::vec4(0.0f)}}};
                 info.extent = {512, 512};
+                // NOTE: This is very important for layers to work
                 info.layerCount = 6;
                 RZRenderContext::BeginRendering(cmdBuffer, info);
 
@@ -127,7 +132,6 @@ namespace Razix {
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
                 for (uint32_t i = 0; i < layerCount; i++) {
-
                     RZRenderContext::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
                     RZRenderContext::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
@@ -138,10 +142,13 @@ namespace Razix {
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
             equirectangularMap->Release(true);
-            //envMapSet[0]->Destroy();
+
+            for (size_t i = 0; i < envMapSets.size(); i++) {
+                envMapSets[i]->Destroy();
+                UBOs[i]->Destroy();
+            }
             envMapPipeline->Destroy();
             cubeMap->Release(true);
-            //rt->Release(true);
             cubeMesh->Destroy();
 
             return nullptr;
@@ -156,6 +163,5 @@ namespace Razix {
         {
             return nullptr;
         }
-
     }    // namespace Graphics
 }    // namespace Razix
