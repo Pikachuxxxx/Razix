@@ -33,6 +33,7 @@ namespace Razix {
         {
             glm::uvec2                                extent;
             std::map<RZTexture*, AttachmentClearInfo> attachments;
+            int                                       layerCount = 1;
         };
 
         typedef std::vector<RZCommandBuffer*> CommandQueue;

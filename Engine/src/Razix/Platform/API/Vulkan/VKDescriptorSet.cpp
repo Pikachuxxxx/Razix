@@ -85,8 +85,8 @@ namespace Razix {
 
                         auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
 
-                        if (vkImage->getType() != RZTexture::Type::CUBEMAP)
-                            VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                        //if (vkImage->getType() != RZTexture::Type::CUBEMAP)
+                        //    VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
                         m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                         //des.imageLayout;

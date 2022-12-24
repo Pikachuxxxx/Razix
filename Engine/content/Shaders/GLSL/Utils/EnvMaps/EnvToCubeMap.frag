@@ -9,7 +9,6 @@
 #extension GL_ARB_shading_language_420pack : enable
 // This extension is for #include support in glsl, this extension is usually not supported to force enable it perhaps?
 #extension GL_ARB_shader_viewport_layer_array : enable
-
  //------------------------------------------------------------------------------
  // Vertex Input
  layout(location = 0) in VSOutput
@@ -37,7 +36,7 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(fs_in.localPos));
-    vec3 color = texture(equirectangularMap, fs_in.localPos.xy).rgb;
+    vec3 color = texture(equirectangularMap, uv).rgb;
 
     outFragColor = vec4(color, 1.0f);
 }
