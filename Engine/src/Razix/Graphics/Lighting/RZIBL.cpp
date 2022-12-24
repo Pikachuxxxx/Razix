@@ -83,10 +83,10 @@ namespace Razix {
                     for (auto& descriptor: setInfo.second) {
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
                             descriptor.texture = equirectangularMap;
-                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)  
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
-                    auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)));
+                    auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)), false);
                     envMapSets.push_back(set);
                 }
             }
