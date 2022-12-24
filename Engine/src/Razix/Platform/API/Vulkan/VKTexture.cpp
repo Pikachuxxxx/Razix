@@ -325,7 +325,7 @@ namespace Razix {
             //if (m_Size != imageSize)
             //    convert(pixelData.data(), pixels, m_Size);
             //else
-                memcpy(pixelData.data(), pixels, m_Size);
+            memcpy(pixelData.data(), pixels, m_Size);
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
             VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixelData.data() RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
@@ -645,6 +645,17 @@ namespace Razix {
 
         void VKCubeMap::Release(bool deleteImage /*= true*/)
         {
+            if (m_ImageSampler != VK_NULL_HANDLE)
+                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
+
+            if (m_ImageView != VK_NULL_HANDLE)
+                vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageView, nullptr);
+
+            if (deleteImage)
+                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
+
+            if (m_ImageMemory != VK_NULL_HANDLE)
+                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
         }
 
         void VKCubeMap::Bind(uint32_t slot)

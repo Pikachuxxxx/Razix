@@ -37,8 +37,7 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(fs_in.localPos));
-    float mipmapLevel = textureQueryLod(equirectangularMap, uv).x;
-    vec3 color = textureLod(equirectangularMap, uv, mipmapLevel).rgb;
+    vec3 color = texture(equirectangularMap, fs_in.localPos.xy).rgb;
 
     outFragColor = vec4(color, 1.0f);
 }

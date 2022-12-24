@@ -20,6 +20,8 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
+#include "Razix/Utilities/LoadImage.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <vulkan/vulkan.h>
@@ -43,7 +45,12 @@ namespace Razix {
         RZCubeMap* RZIBL::convertEquirectangularToCubemap(const std::string& hdrFilePath)
         {
             // First create the 2D Equirectangular texture
-            RZTexture2D* equirectangularMap = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(hdrFilePath) hdrFilePath, "Cube Map Name");
+            uint32_t              width, height, bpp;
+            unsigned char*        pixels = Razix::Utilities::LoadImageData(hdrFilePath, &width, &height, &bpp);
+            std::vector<uint32_t> pixelData(width * height * 4);
+            memcpy(pixelData.data(), pixels, (width * height * bpp));
+
+            RZTexture2D* equirectangularMap = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("HDR Cube Map Texture") "HDR Cube Map Texture", width, height, pixelData.data(), RZTexture::Format::RGBA);
 
             std::vector<RZDescriptorSet*> envMapSet;
 
@@ -63,12 +70,11 @@ namespace Razix {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
-                        descriptor.texture = equirectangularMap;
+                        descriptor.texture = RZMaterial::GetDefaultTexture();    //equirectangularMap;
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
                         descriptor.uniformBuffer = viewProjLayerUBO;
                 }
                 auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set"));
-                set->UpdateSet(setInfo.second);
                 envMapSet.push_back(set);
             }
 
@@ -84,8 +90,8 @@ namespace Razix {
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
-            //RZCubeMap* cubeMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR ") "HDR");
-            RZTexture* rt = RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR RT") 512, 512, RZTexture::Format::RGBA32F);
+            RZCubeMap* cubeMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR ") "HDR");
+            //RZTexture* rt = RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR RT") 512, 512, RZTexture::Format::RGBA32F);
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
@@ -109,23 +115,11 @@ namespace Razix {
 
                         RenderingInfo info{};
                         info.attachments = {
-                            {rt, {true, glm::vec4(0.0f)}}};
+                            {cubeMap, {true, glm::vec4(0.0f)}}};
                         info.extent = {512, 512};
                         RZRenderContext::BeginRendering(cmdBuffer, info);
 
                         envMapPipeline->Bind(cmdBuffer);
-
-                        auto& setInfos = shader->getSetsCreateInfos();
-                        for (auto& setInfo: setInfos) {
-                            // Fill the descriptors with buffers and textures
-                            for (auto& descriptor: setInfo.second) {
-                                if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
-                                    descriptor.texture = equirectangularMap;
-                                if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
-                                    descriptor.uniformBuffer = viewProjLayerUBO;
-                            }
-                            envMapSet[0]->UpdateSet(setInfo.second);
-                        }
 
                         RZRenderContext::BindDescriptorSets(envMapPipeline, cmdBuffer, envMapSet);
 
@@ -137,10 +131,18 @@ namespace Razix {
                         RZRenderContext::EndRendering(cmdBuffer);
 
                         RAZIX_MARK_END()
+                        RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
                     }
-                    RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
                 }
             }
+            equirectangularMap->Release(true);
+            envMapSet[0]->Destroy();
+            envMapPipeline->Destroy();
+            cubeMap->Release(true);
+            //rt->Release(true);
+            cubeMesh->Destroy();
+            viewProjLayerUBO->Destroy();
+
             return nullptr;
         }
 

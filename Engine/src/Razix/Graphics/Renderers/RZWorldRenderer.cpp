@@ -29,6 +29,8 @@ namespace Razix {
             brdfLUTTexture                   = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", "BRDF LUT");
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {brdfLUTTexture->getWidth(), brdfLUTTexture->getHeight()}, {brdfLUTTexture->getFormat()}}, {brdfLUTTexture});
 
+            RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
+
             //-------------------------------
             //
             //-------------------------------
