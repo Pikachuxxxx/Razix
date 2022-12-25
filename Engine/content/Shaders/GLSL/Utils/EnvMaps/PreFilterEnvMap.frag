@@ -1,31 +1,33 @@
-#version 410 core
+#version 450
+/*
+ * Razix Engine GLSL Vertex Shader File
+ * Pre filteres a cubemap
+ */
+ // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
+#extension GL_ARB_separate_shader_objects : enable
+// This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
+#extension GL_ARB_shading_language_420pack : enable
 
-////////////////////////////////////////////////////////////////////////////////
-// Constants, Input, Output and Uniforms
-
+//------------------------------------------------------------------------------
+// Constants
 const float PI = 3.14159265359;
-// -----------------------------------------------------------------------------
-// Input from the Vertex Shader
-in VS_OUT {
+const float roughness = 0.5f;
+//------------------------------------------------------------------------------
+// Vertex Input
+ layout(location = 0) in VSOutput
+ {
     vec3 normal;
-    vec2 texCoords;
-    vec4 FragPos;
+    vec2 texCoord;
     vec3 localPos;
-} vs_in;
-
-// -----------------------------------------------------------------------------
-// Uniforms
-// Irradiance Map and Roughness
-uniform samplerCube envMap;
-uniform float roughness;
-
-// lights
-uniform vec3 lightPositions[4];
-uniform vec3 lightColors[4];
-
-// -----------------------------------------------------------------------------
-// Final Output color of the Fragment
-out vec4 FragColor;
+    int layer;
+ }vs_in;
+//------------------------------------------------------------------------------
+// Fragment Shader Stage Uniforms
+layout (set = 0, binding = 1) uniform samplerCube envMap;
+//------------------------------------------------------------------------------
+// Output from Fragment Shader or Output to Framebuffer attachments 
+layout(location = 0) out vec4 outFragColor;
+//------------------------------------------------------------------------------
 
 ////////////////////////////////////////////////////////////////////////////////
 // BRDF Functions
@@ -145,13 +147,13 @@ void main()
     }
 
     prefilteredColor = prefilteredColor / totalWeight;
-
+     
     // Tonemapping
     vec3 color = lottes(prefilteredColor);
 
     // Gamma correction
     color = pow(prefilteredColor, vec3(1.0/2.2));
 
-    FragColor = vec4(color, 1.0);
+    outFragColor = vec4(color, 1.0);
 }
 ////////////////////////////////////////////////////////////////////////////////

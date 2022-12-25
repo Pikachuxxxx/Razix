@@ -37,6 +37,8 @@ namespace Razix {
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap
             loadShader("//RazixContent/Shaders/Razix/EnvToCubeMap.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/GenerateIrradianceMap.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/GeneratePreFilteredMap.rzsf");
         }
 
         void RZShaderLibrary::ShutDown()
