@@ -364,7 +364,7 @@ namespace Razix {
 
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
-        RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
+        RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {

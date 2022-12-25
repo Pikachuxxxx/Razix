@@ -4,4 +4,7 @@
 #include "RZFrustum.h"
 
 namespace Razix {
-}
+    namespace Maths {
+
+    }
+}    // namespace Razix

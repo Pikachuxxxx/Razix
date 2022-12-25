@@ -10,6 +10,7 @@
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
+#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
@@ -18,6 +19,7 @@
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
 #include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 
+#include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZScene.h"
 
 namespace Razix {
@@ -37,56 +39,63 @@ namespace Razix {
             // Import this into the Frame Graph
             importGlobalLightProbes(m_GlobalLightProbes);
 
+            // Cull Lights (Directional + Point) on CPU against camera Frustum First
+            // TODO: Get the list of lights in the scene and cull them against the camera frustum and disable ActiveComponent for culled lights, but for now we can just ignore that
+            auto                 group = scene->getRegistry().group<LightComponent>(entt::get<ActiveComponent>);
+            std::vector<RZLight> sceneLights;
+            for (auto& entity: group)
+                sceneLights.push_back(group.get<LightComponent>(entity).light);
+
             //-------------------------------
-            //
+            // Cascaded Shadow Maps
             //-------------------------------
+            m_CascadedShadowsRenderer.Init();
+            m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // ImGui Pass
             //-------------------------------
-            if (settings.renderFeatures & RendererFeature_ImGui) {
-                m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
-                    "ImGui Pass",
-                    [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTOnlyPassData& data) {
-                        builder.setAsStandAlonePass();
+            m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
+                "ImGui Pass",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTOnlyPassData& data) {
+                    builder.setAsStandAlonePass();
 
-                        // Upload to the Blackboard
-                        data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
+                    // Upload to the Blackboard
+                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
 
-                        data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
+                    data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
 
-                        data.outputRT          = builder.write(data.outputRT);
-                        data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
+                    data.outputRT          = builder.write(data.outputRT);
+                    data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
-                        m_ImGuiRenderer.Init();
-                    },
-                    [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
-                        m_ImGuiRenderer.Begin(scene);
+                    m_ImGuiRenderer.Init();
+                },
+                [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    m_ImGuiRenderer.Begin(scene);
 
-                        auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
 
-                        RenderingInfo info{};
-                        info.attachments = {
-                            {rt, {true, glm::vec4(0.0f)}}};
-                        info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                        RZRenderContext::BeginRendering(Graphics::RZRenderContext::getCurrentCommandBuffer(), info);
+                    RenderingInfo info{};
+                    info.attachments = {
+                        {rt, {true, glm::vec4(0.0f)}}};
+                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    RZRenderContext::BeginRendering(Graphics::RZRenderContext::getCurrentCommandBuffer(), info);
 
-                        m_ImGuiRenderer.Draw(Graphics::RZRenderContext::getCurrentCommandBuffer());
+                    m_ImGuiRenderer.Draw(Graphics::RZRenderContext::getCurrentCommandBuffer());
 
-                        m_ImGuiRenderer.End();
+                    m_ImGuiRenderer.End();
 
-                        // Submit the render queue before presenting next
-                        Graphics::RZRenderContext::Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
+                    // Submit the render queue before presenting next
+                    Graphics::RZRenderContext::Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
 
-                        // Signal on a semaphore for the next pass (Final Composition pass) to wait on
-                        Graphics::RZRenderContext::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
-                    });
-            }
+                    // Signal on a semaphore for the next pass (Final Composition pass) to wait on
+                    Graphics::RZRenderContext::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
+                });
 
             //-------------------------------
             // Final Image Presentation
             //-------------------------------
-            m_CompositePass.addPass(m_FrameGraph, m_Blackboard, settings);
+            m_CompositePass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             // Compile the Frame Graph
             m_FrameGraph.compile();
@@ -126,6 +135,5 @@ namespace Razix {
 
             globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {FrameGraph::TextureType::Texture_CubeMap, "Specular PreFiltered", {globalLightProbe.specular->getWidth(), globalLightProbe.specular->getHeight()}, {globalLightProbe.specular->getFormat()}}, {globalLightProbe.specular});
         }
-
     }    // namespace Graphics
 }    // namespace Razix

@@ -5,6 +5,8 @@
 
 #include "Razix/Core/RZUUID.h"
 
+#include "Razix/Scene/RZSceneCamera.h"
+
 namespace Razix {
 
     class RZEntity;
@@ -41,9 +43,9 @@ namespace Razix {
         void deSerialiseScene(const std::string& filePath);
 
         /**
-         * Gets the scene camera component with which the world is rendered (if exists)
+         * Gets the scene camera with which the world is rendered (if exists)
          */
-        CameraComponent& getSceneCamera();
+        RZSceneCamera getSceneCamera();
 
         // TODO: Add ability to query for multiple components types followed a comma
         // TODO: Get the reference to the components instead

@@ -12,10 +12,16 @@
 
 // Renderers
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
+#include "Razix/Graphics/Renderers/RZShadowRenderer.h"
 
 namespace Razix {
     // Forward Declarations
     class RZScene;
+
+    namespace Maths {
+        class RZFrustum;
+    }
+
     namespace Graphics {
 
         /**
@@ -81,11 +87,11 @@ namespace Razix {
             {
                 float radius{0.005f};
                 float strength{0.04f};
-            } bloom;
+            } bloomConfig;
             struct
             {
                 int32_t numPropagations{6};
-            } globalIllumination;
+            } globalIlluminationConfig;
             uint32_t debugFlags{0u};
             // TODO: Add tone mapping settings here
         };
@@ -111,19 +117,21 @@ namespace Razix {
             void destroy();
 
             void importGlobalLightProbes(GlobalLightProbe globalLightProbe);
+            void cullLights(Maths::RZFrustum& frustum);
 
         private:
             FrameGraph::RZFrameGraph         m_FrameGraph;
             FrameGraph::RZBlackboard         m_Blackboard;
             FrameGraph::RZTransientResources m_TransientResources;
             // Frame Graph Import Data
-            RZTexture2D*     m_BRDFfLUTTexture;
-            RZCubeMap*       m_Skybox;
-            GlobalLightProbe m_GlobalLightProbes;
+            RZTexture2D*     m_BRDFfLUTTexture = nullptr;
+            RZCubeMap*       m_Skybox          = nullptr;
+            GlobalLightProbe m_GlobalLightProbes{};
             // List of all passes and data in the frame graph
             RZFinalCompositionPass m_CompositePass;
             // Renderers
-            RZImGuiRenderer m_ImGuiRenderer;
+            RZImGuiRenderer  m_ImGuiRenderer;
+            RZShadowRenderer m_CascadedShadowsRenderer;
         };
     }    // namespace Graphics
 }    // namespace Razix

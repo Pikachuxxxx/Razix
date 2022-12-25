@@ -20,7 +20,20 @@ namespace Razix {
 
             RZFrameGraphResource RZFrameGraph::RZBuilder::write(RZFrameGraphResource id)
             {
-                return m_PassNode.write(id);
+                if (m_FrameGraph.getResourceEntry(id).isImported())
+                    setAsStandAlonePass();
+
+                if (m_PassNode.canCreateResouce(id)) {
+                    return m_PassNode.write(id);
+                } else {
+                    // Writing to a texture produces a renamed handle.
+                    // This allows us to catch errors when resources are modified in
+                    // undefined order (when same resource is written by different passes).
+                    // Renaming resources enforces a specific execution order of the render
+                    // passes.
+                    m_PassNode.read(id);
+                    return m_PassNode.write(m_FrameGraph.cloneResource(id));
+                }
             }
 
             RZFrameGraph::RZBuilder &RZFrameGraph::RZBuilder::setAsStandAlonePass()

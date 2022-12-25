@@ -111,14 +111,14 @@ namespace Razix {
         entt::snapshot_loader{m_Registry}.entities(inputArchive).component<RAZIX_COMPONENTS>(inputArchive);
     }
 
-    CameraComponent& RZScene::getSceneCamera()
+    RZSceneCamera RZScene::getSceneCamera()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         auto view = m_Registry.view<CameraComponent>();
         for (auto& entity: view) {
             // check it it's primary and only then return only a single camera component
-            return view.get<CameraComponent>(entity);
+            return view.get<CameraComponent>(entity).Camera;
         }
     }
 

@@ -34,6 +34,16 @@ namespace std {
             return h;
         }
     };
+    template<>
+    struct hash<Razix::Graphics::FrameGraph::RZFrameGraphBuffer::Desc>
+    {
+        std::size_t operator()(const Razix::Graphics::FrameGraph::RZFrameGraphBuffer::Desc &desc) const noexcept
+        {
+            std::size_t h{0};
+            hashCombine(h, desc.name, desc.size);
+            return h;
+        }
+    };
 
 }    // namespace std
 
@@ -120,6 +130,30 @@ namespace Razix {
                 const auto h = std::hash<RZFrameGraphSemaphore::Desc>{}(desc);
                 m_SemaphorePools[h].push_back({std::move(semaphore), 0.0f});
             }
+
+            RZUniformBuffer *RZTransientResources::acquireBuffer(const RZFrameGraphBuffer::Desc &desc)
+            {
+                const auto h    = std::hash<RZFrameGraphBuffer::Desc>{}(desc);
+                auto      &pool = m_BufferPools[h];
+                if (pool.empty()) {
+                    auto buffer = RZUniformBuffer::Create(desc.size, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+                    m_Buffers.push_back(std::make_unique<RZUniformBuffer *>(std::move(buffer)));
+                    auto *ptr = m_Buffers.back().get();
+                    RAZIX_CORE_INFO("[Transient Resources] Created Uniform Buffer : {0}", fmt::ptr(ptr));
+                    return *ptr;
+                } else {
+                    auto *buffer = pool.back().resource;
+                    pool.pop_back();
+                    return buffer;
+                }
+            }
+
+            void RZTransientResources::releaseBuffer(const RZFrameGraphBuffer::Desc &desc, RZUniformBuffer *buffer)
+            {
+                const auto h = std::hash<RZFrameGraphBuffer::Desc>{}(desc);
+                m_BufferPools[h].push_back({std::move(buffer), 0.0f});
+            }
+
         }    // namespace FrameGraph
     }        // namespace Graphics
 }    // namespace Razix
