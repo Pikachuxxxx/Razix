@@ -621,6 +621,10 @@ namespace Razix {
             m_TextureType = RZTexture::Type::CUBEMAP;
             m_VirtualPath = hdrFilePath;
 
+            // FIXME: hard coded shit!
+            m_Width  = 512;
+            m_Height = 512;
+
             updateDescriptor();
         }
 
@@ -630,6 +634,10 @@ namespace Razix {
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
             m_TextureType = RZTexture::Type::CUBEMAP;
+
+            // FIXME: hard coded shit!
+            m_Width  = 512;
+            m_Height = 512;
 
             auto format = VK_FORMAT_R32G32B32A32_SFLOAT;
             VKTexture2D::CreateImage(512, 512, 1, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));

@@ -47,6 +47,7 @@ namespace Razix {
                 RGB,
                 RGBA,
                 DEPTH,
+                DEPTH32,
                 STENCIL,
                 DEPTH_STENCIL,
                 SCREEN,

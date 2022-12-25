@@ -27,7 +27,7 @@ namespace Razix {
             RZFinalCompositionPass() = default;
             ~RZFinalCompositionPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZRendererSettings& settings) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZScene* scene, RZRendererSettings& settings) override;
 
             void destoy() override;
 

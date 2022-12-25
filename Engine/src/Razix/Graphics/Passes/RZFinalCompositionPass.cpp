@@ -22,7 +22,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZRendererSettings& settings)
+        void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZScene* scene, RZRendererSettings& settings)
         {
             // Initialize the resources for the Pass
             init();
