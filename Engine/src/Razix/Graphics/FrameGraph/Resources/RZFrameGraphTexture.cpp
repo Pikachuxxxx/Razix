@@ -77,6 +77,34 @@ namespace Razix {
                 return "BGRA8_UNORM";
             }
 
+            static std::string TypeToString(TextureType type)
+            {
+                switch (type) {
+                    case Razix::Graphics::FrameGraph::TextureType::Texture_2D:
+                        return "2D";
+                        break;
+                    case Razix::Graphics::FrameGraph::TextureType::Texture_3D:
+                        return "3D";
+                        break;
+                    case Razix::Graphics::FrameGraph::TextureType::Texture_CubeMap:
+                        return "CubeMap";
+                        break;
+                    case Razix::Graphics::FrameGraph::TextureType::Texture_Depth:
+                        return "Depth";
+                        break;
+                    case Razix::Graphics::FrameGraph::TextureType::Texture_RenderTarget:
+                        return "RT";
+                        break;
+                    case Razix::Graphics::FrameGraph::TextureType::Texture_SwapchainImage:
+                        return "Swapchain Image";
+                        break;
+                    default:
+                        return "NONE";
+                        break;
+                }
+                return "NONE";
+            }
+
             void RZFrameGraphTexture::create(const Desc& desc, void* allocator)
             {
                 m_Texture = static_cast<FrameGraph::RZTransientResources*>(allocator)->acquireTexture(desc);
@@ -90,7 +118,7 @@ namespace Razix {
             std::string RZFrameGraphTexture::toString(const Desc& desc)
             {
                 // Size, Format
-                return "(" + std::to_string(desc.extent.x) + ", " + std::to_string(desc.extent.y) + ") - " + FormatToString(desc.format);
+                return "(" + std::to_string(desc.extent.x) + ", " + std::to_string(desc.extent.y) + ") - " + FormatToString(desc.format) + " [" + TypeToString(desc.type) + "]";
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

@@ -16,6 +16,7 @@
 #include "Razix/Graphics/Lighting/RZIBL.h"
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
+#include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 
 #include "Razix/Scene/RZScene.h"
 
@@ -26,16 +27,16 @@ namespace Razix {
         {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            brdfLUTTexture                   = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", "BRDF LUT");
-            m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {brdfLUTTexture->getWidth(), brdfLUTTexture->getHeight()}, {brdfLUTTexture->getFormat()}}, {brdfLUTTexture});
+            m_BRDFfLUTTexture                = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", "BRDF LUT");
+            m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
-            auto cubeMap        = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
-            auto irradianceMap  = RZIBL::generateIrradianceMap(cubeMap);
-            auto preFilteredMap = RZIBL::generatePreFilteredMap(cubeMap);
+            // Load the Skybox and Global Light Probes
+            m_Skybox                     = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
+            m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_Skybox);
+            m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_Skybox);
+            // Import this into the Frame Graph
+            importGlobalLightProbes(m_GlobalLightProbes);
 
-            cubeMap->Release(true);
-            irradianceMap->Release(true);
-            preFilteredMap->Release(true);
             //-------------------------------
             //
             //-------------------------------
@@ -106,11 +107,25 @@ namespace Razix {
         void RZWorldRenderer::destroy()
         {
             // Destroy Imported Resources
-            brdfLUTTexture->Release(true);
+            m_BRDFfLUTTexture->Release(true);
+
+            m_Skybox->Release(true);
+            m_GlobalLightProbes.diffuse->Release(true);
+            m_GlobalLightProbes.specular->Release(true);
 
             m_ImGuiRenderer.Destroy();
             m_CompositePass.destoy();
             m_TransientResources.destroyResources();
         }
+
+        void RZWorldRenderer::importGlobalLightProbes(GlobalLightProbe globalLightProbe)
+        {
+            auto& globalLightProbeData = m_Blackboard.add<GlobalLightProbeData>();
+
+            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {FrameGraph::TextureType::Texture_CubeMap, "Diffuse Irradiance", {globalLightProbe.diffuse->getWidth(), globalLightProbe.diffuse->getHeight()}, {globalLightProbe.diffuse->getFormat()}}, {globalLightProbe.diffuse});
+
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {FrameGraph::TextureType::Texture_CubeMap, "Specular PreFiltered", {globalLightProbe.specular->getWidth(), globalLightProbe.specular->getHeight()}, {globalLightProbe.specular->getFormat()}}, {globalLightProbe.specular});
+        }
+
     }    // namespace Graphics
 }    // namespace Razix
