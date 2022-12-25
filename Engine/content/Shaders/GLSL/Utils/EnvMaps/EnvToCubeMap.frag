@@ -13,6 +13,8 @@
  // Vertex Input
  layout(location = 0) in VSOutput
  {
+    vec3 normal;
+    vec2 texCoord;
     vec3 localPos;
     int layer;
  }fs_in;
