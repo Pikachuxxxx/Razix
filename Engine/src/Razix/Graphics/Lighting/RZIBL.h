@@ -15,6 +15,8 @@ namespace Razix {
             RZIBL()  = default;
             ~RZIBL() = default;
 
+            // TODO: set CubeMap width and height
+
             static RZCubeMap* convertEquirectangularToCubemap(const std::string& hdrFilePath);
             static RZCubeMap* generateIrradianceMap(RZCubeMap* cubeMap);
             static RZCubeMap* generatePreFilteredMap(RZCubeMap* cubeMap);

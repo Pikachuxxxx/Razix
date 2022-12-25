@@ -68,6 +68,7 @@ namespace Razix {
                         case TextureType::Texture_3D:
                             break;
                         case TextureType::Texture_CubeMap:
+                            texture = Graphics::RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name);
                             break;
                         case TextureType::Texture_Depth:
                             texture = Graphics::RZDepthTexture::Create(w, h);

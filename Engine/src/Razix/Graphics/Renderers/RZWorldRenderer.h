@@ -18,6 +18,15 @@ namespace Razix {
     class RZScene;
     namespace Graphics {
 
+        /**
+         * Global light probes for PBR lighting
+         */
+        struct GlobalLightProbe
+        {
+            RZCubeMap* diffuse;
+            RZCubeMap* specular;
+        };
+
         // Default pass data types
         struct RTOnlyPassData
         {
@@ -98,15 +107,19 @@ namespace Razix {
             void buildFrameGraph(RZRendererSettings settings, Razix::RZScene* scene);
             /* draws the frame by executing the frame graph */
             void drawFrame(RZRendererSettings settings, Razix::RZScene* scene);
-
+            /* Destroy frame graph passes and it's resources */
             void destroy();
+
+            void importGlobalLightProbes(GlobalLightProbe globalLightProbe);
 
         private:
             FrameGraph::RZFrameGraph         m_FrameGraph;
             FrameGraph::RZBlackboard         m_Blackboard;
             FrameGraph::RZTransientResources m_TransientResources;
             // Frame Graph Import Data
-            RZTexture2D* brdfLUTTexture;
+            RZTexture2D*     m_BRDFfLUTTexture;
+            RZCubeMap*       m_Skybox;
+            GlobalLightProbe m_GlobalLightProbes;
             // List of all passes and data in the frame graph
             RZFinalCompositionPass m_CompositePass;
             // Renderers
