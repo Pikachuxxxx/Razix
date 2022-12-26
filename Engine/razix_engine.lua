@@ -22,6 +22,7 @@ group "Engine/content"
         {
             -- Shader files
             -- GLSL
+            "content/Shaders/GLSL/**.glsl",
             "content/Shaders/GLSL/**.vert",
             "content/Shaders/GLSL/**.frag",
             -- HLSL
@@ -45,7 +46,7 @@ group "Engine/content"
         filter {"files:**.vert or **.frag"}
             removeflags "ExcludeFromBuild"
             buildmessage 'Compiling glsl shader : %{file.name}'
-            buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
+            buildcommands 'glslc.exe -I "%{wks.location}/../Engine/content/Shaders/GLSL" "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
             buildoutputs "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"
 group""
 

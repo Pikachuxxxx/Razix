@@ -9,10 +9,13 @@
 
 // Passes
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
+#include "Razix/Graphics/Passes/RZGIPass.h"
 
 // Renderers
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
 #include "Razix/Graphics/Renderers/RZShadowRenderer.h"
+
+#include "Razix/Maths/RZGrid.h"
 
 namespace Razix {
     // Forward Declarations
@@ -127,11 +130,13 @@ namespace Razix {
             RZTexture2D*     m_BRDFfLUTTexture = nullptr;
             RZCubeMap*       m_Skybox          = nullptr;
             GlobalLightProbe m_GlobalLightProbes{};
-            // List of all passes and data in the frame graph
+            // List of all passes, renderers and data in the frame graph
+            RZShadowRenderer       m_CascadedShadowsRenderer;
+            RZGIPass               m_GIPass;
+            RZImGuiRenderer        m_ImGuiRenderer;
             RZFinalCompositionPass m_CompositePass;
-            // Renderers
-            RZImGuiRenderer  m_ImGuiRenderer;
-            RZShadowRenderer m_CascadedShadowsRenderer;
+            // Other Variables
+            Maths::RZAABB m_SceneAABB;
         };
     }    // namespace Graphics
 }    // namespace Razix

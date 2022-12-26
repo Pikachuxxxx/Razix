@@ -19,19 +19,14 @@ layout(location = 2) in vec2 inTexCoord;
 layout(location = 3) in vec3 inNormal;
 layout(location = 4) in vec3 inTangent;
 //------------------------------------------------------------------------------
-// Vertex Shader Stage Output
-layout(location = 0) out VSOutput{ 
-    vec2 texCoord;
-} vs_out;
-//------------------------------------------------------------------------------
 // Uniforms and Push Constants 
 // view projection matrix
-layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
+layout(set = 0, binding = 0) uniform ModelViewProjectionSystemUBO
 {
     mat4 model;
     mat4 viewProj;
     int layer;
-} view_proj_ubo;
+} mvp_layer;
  //------------------------------------------------------------------------------ 
 out gl_PerVertex
 {
@@ -40,7 +35,6 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    gl_Layer = view_proj_ubo.layer;
-    gl_Position = view_proj_ubo.viewProj * view_proj_ubo.model * vec4(inPosition, 1.0f);
-    vs_out.texCoord = inTexCoord;
+    gl_Layer = mvp_layer.layer;
+    gl_Position = mvp_layer.viewProj * mvp_layer.model * mvp_layer.model * vec4(inPosition, 1.0f);
 }

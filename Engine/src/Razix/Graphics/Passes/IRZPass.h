@@ -16,6 +16,9 @@ namespace Razix {
         class RZRenderPass;
         class RZFramebuffer;
         class RZRenderTexture;
+        class RZUniformBuffer;
+        class RZTexture;
+        class RZDescriptorSet;
 
         class IRZPass
         {

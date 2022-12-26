@@ -48,11 +48,22 @@ namespace Razix {
             for (auto& entity: group)
                 sceneLights.push_back(group.get<LightComponent>(entity).light);
 
+            // Pass the Scene AABB and Grid info for GI + Tiled lighting
+            // TODO: Make this dynamic as scene glows larger
+            m_SceneAABB = {glm::vec3(-250.0f), glm::vec3(250.0f)};
+            const Maths::RZGrid sceneGrid(m_SceneAABB);
+
             //-------------------------------
             // Cascaded Shadow Maps
             //-------------------------------
             m_CascadedShadowsRenderer.Init();
             m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+
+            //-------------------------------
+            // GI - Radiance Pass
+            //-------------------------------
+            m_GIPass.setGrid(sceneGrid);
+            m_GIPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // ImGui Pass
