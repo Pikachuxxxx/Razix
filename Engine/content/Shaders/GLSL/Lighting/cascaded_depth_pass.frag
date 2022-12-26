@@ -10,13 +10,8 @@
 // This extension enables ussage og gl_Layer in the Vertex Shader stage itself instead of using GS 
 // also needs VK_EXT_shader_viewport_index_layer device extension enabled and layersCount in VkRenderingInfo
 #extension GL_ARB_shader_viewport_layer_array : enable
-
 //------------------------------------------------------------------------------
-// Vertex Shader Stage Output
-layout(location = 0) in VSOutput{ 
-    vec2 texCoord;
-} vs_in;
-//------------------------------------------------------------------------------
+// Enable early fragment depth testing 
 layout(early_fragment_tests) in;
 //------------------------------------------------------------------------------
 void main() { }

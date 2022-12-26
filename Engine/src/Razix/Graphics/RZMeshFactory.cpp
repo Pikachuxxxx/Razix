@@ -227,7 +227,6 @@ namespace Razix {
                 RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
 
                 auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
-                RZMaterial::SetMatPreset(MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -303,7 +302,6 @@ namespace Razix {
                 RZMesh* mesh = new RZMesh(vb, ib, static_cast<uint32_t>(data.size()), static_cast<uint32_t>(indices.size()));
 
                 auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
-                RZMaterial::SetMatPreset(MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -343,7 +341,6 @@ namespace Razix {
 
                 RZMaterial* compositePassMaterial = new RZMaterial(shader);
                 compositePassMaterial->createDescriptorSet();
-                RZMaterial::SetMatPreset(MaterialPreset::MAT_PRESET_NONE);
                 mesh->setMaterial(compositePassMaterial);
 
                 return mesh;

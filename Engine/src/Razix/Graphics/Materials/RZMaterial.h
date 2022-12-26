@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZSmartPointers.h"
 
+#include <glm/glm.hpp>
+
 namespace Razix {
     namespace Graphics {
 
@@ -17,28 +19,20 @@ namespace Razix {
          */
         enum MatBindingTable_System : uint32_t
         {
-            BINDING_SET_USER_MAT_PROPS    = 2,    // continued from after the System variables table
-            BINDING_SET_USER_MAT_SAMPLERS = 3
+            BINDING_SET_SYSTEM_MAT_PROPS    = 2,    // continued from after the System variables table
+            BINDING_SET_SYSTEM_MAT_SAMPLERS = 3
         };
 
         /* Phong lighting model texture binding slots */
-        enum PhongBindinngTable : uint32_t
+        enum TextureBindingTable : uint32_t
         {
-            PHONG_TEX_BINDING_IDX_AMBIENT  = 0,
-            PHONG_TEX_BINDING_IDX_DIFFUSE  = 1,
-            PHONG_TEX_BINDING_IDX_NORMAL   = 2,
-            PHONG_TEX_BINDING_IDX_SPECULAR = 3
-        };
-
-        /* PBR lighting model texture binding slots */
-        enum PBRBindingTable : uint32_t
-        {
-            PBR_TEX_BINDING_IDX_ALBEDO    = 0,
-            PBR_TEX_BINDING_IDX_NORMAL    = 1,
-            PBR_TEX_BINDING_IDX_METALLLIC = 2,
-            PBR_TEX_BINDING_IDX_ROUGHNESS = 3,
-            PBR_TEX_BINDING_IDX_AO        = 4,
-            PBR_TEX_BINDING_IDX_EMISSIVE  = 5,
+            TEX_BINDING_IDX_ALBEDO    = 0,
+            TEX_BINDING_IDX_NORMAL    = 1,
+            TEX_BINDING_IDX_METALLLIC = 2,
+            TEX_BINDING_IDX_ROUGHNESS = 3,
+            TEX_BINDING_IDX_SPECULAR  = 4,
+            TEX_BINDING_IDX_EMISSIVE  = 5,
+            TEX_BINDING_IDX_AO        = 6,
         };
 
         // Forward declaration
@@ -56,60 +50,39 @@ namespace Razix {
         };
 
         /* PBR material properties */
-        struct PBRMaterialProperties
+        struct MaterialProperties
         {
-            alignas(16) glm::vec4 albedoColor    = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            alignas(16) glm::vec4 roughnessColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            alignas(16) glm::vec4 metallicColor  = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            alignas(16) glm::vec4 emissiveColor  = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            alignas(16) bool isUsingAlbedoMap    = true;
-            alignas(16) bool isUsingNormalMap    = false;
-            alignas(16) bool isUsingMetallicMap  = false;
-            alignas(16) bool isUsingRoughnessMap = false;
-            alignas(16) bool isUsingAOMap        = false;
-            alignas(16) bool isUsingEmissiveMap  = false;
-            alignas(16) WorkFlow workflow        = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
+            glm::vec3 albedoColor         = glm::vec3(1.0f, 0.0f, 0.0f);
+            glm::vec3 normal              = glm::vec3(1.0f, 0.0f, 0.0f);
+            float     metallicColor       = 1.0f;
+            float     roughnessColor      = 0.0f;
+            float     specularColor       = 1.0f;
+            glm::vec3 emissiveColor       = glm::vec3(0.0f, 0.0f, 0.0f);
+            float     opacity             = 1.0f;
+            float     ambientOcclusion    = 1.0f;
+            bool      visible             = true;
+            bool      isUsingAlbedoMap    = true;
+            bool      isUsingNormalMap    = false;
+            bool      isUsingMetallicMap  = false;
+            bool      isUsingRoughnessMap = false;
+            bool      isUsingSpecular     = false;
+            bool      isUsingEmissiveMap  = false;
+            bool      isUsingAOMap        = false;
+            WorkFlow  workflow            = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
         };
 
-        /* Phong Material properties for forward lighting */
-        struct PhongMaterialProperties
-        {
-            alignas(16) glm::vec4 ambientColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            alignas(16) glm::vec4 diffuseColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            alignas(16) uint32_t shininess     = 32;
-        };
-
-        /* Phong lighting model light maps */
-        struct PhongMaterialTextures
-        {
-            RZTexture2D* ambient  = nullptr;
-            RZTexture2D* diffuse  = nullptr;
-            RZTexture2D* normal   = nullptr;
-            RZTexture2D* specular = nullptr;
-
-            void Destroy();
-        };
-
-        /* PBR lighting model textures */
-        struct PBRMataterialTextures
+        /* lighting model textures */
+        struct MaterialTextures
         {
             RZTexture2D* albedo    = nullptr;
             RZTexture2D* normal    = nullptr;
             RZTexture2D* metallic  = nullptr;
             RZTexture2D* roughness = nullptr;
-            RZTexture2D* ao        = nullptr;
+            RZTexture2D* specular  = nullptr;
             RZTexture2D* emissive  = nullptr;
+            RZTexture2D* ao        = nullptr;
 
             void Destroy();
-        };
-
-        /* Presets that help load a shader/material provided by the engine during model loading */
-        enum class MaterialPreset : uint32_t
-        {
-            MAT_PRESET_FORWARD_PHONG_LIGHTING,
-            MAT_PRESET_DEFERRED_PBR,
-            MAT_PRESET_SKYBOX,
-            MAT_PRESET_NONE
         };
 
         /* Not an interface yet, this is a hard coded PBR material as of this iteration of the engine */
@@ -127,16 +100,15 @@ namespace Razix {
             /* Destroys the default texture created */
             static void         ReleaseDefaultTexture();
             static RZTexture2D* GetDefaultTexture() { return s_DefaultTexture; }
-            /* Static Getter and setter for the material preset */
-            RAZIX_INLINE static MaterialPreset GetMatPreset() { return s_MatPreset; }
-            RAZIX_INLINE static void           SetMatPreset(MaterialPreset preset) { s_MatPreset = preset; }
+            /* Static Getter and setter for the material workflow */
+            WorkFlow          getWorkflow() { return m_Workflow; }
+            RAZIX_INLINE void setWorkflow(WorkFlow workflow) { m_Workflow = workflow; }
 
             /* Overrides the default material properties and textures by loading the material file and de-serializing it */
-            void loadMaterial(const std::string& name, const std::string& path);
-            void loadShader(const std::string& path);
+            void loadMaterialFromFile(const std::string& name, const std::string& path);
             void createDescriptorSet();
-            void setTextures(PBRMataterialTextures& textures);
-            void setProperties(PBRMaterialProperties& props);
+            void setTextures(MaterialTextures& textures);
+            void setProperties(MaterialProperties& props);
 
             void Bind();
 
@@ -223,24 +195,18 @@ namespace Razix {
             }
 
         private:
-            static RZTexture2D*   s_DefaultTexture;
-            static MaterialPreset s_MatPreset;
+            //RZPipeline*                   m_Pipeline; // Diffifult to be own as Material can't have knowledge of the RTs in a pass and RZPipeline needs that before hand along with shader
 
-            RZShader*                     m_Shader;
-            //RZPipeline*                   m_Pipeline;       /* Since the shader is part of pipeline, the material can set this, however the Pass can override some of the properties */
+            static RZTexture2D* s_DefaultTexture;
+
+            std::string                   m_Name;
+            RZShader*                     m_Shader = nullptr;
             std::vector<RZDescriptorSet*> m_DescriptorSets;
-
-            // Data for the UBO
-            PBRMaterialProperties   m_PBRMaterialProperties;
-            PhongMaterialProperties m_PhongMaterialProperties;
-            PBRMataterialTextures   m_PBRMaterialTextures;
-            PhongMaterialTextures   m_PhongMaterialTextures;
-
-            RZUniformBuffer* m_MaterialPropertiesUBO;
-            //uint32_t              m_MaterialBufferSize;
-            //uint8_t*              m_MaterialBufferData;
-            std::string m_Name;
-            bool        m_TexturesUpdated = false;
+            MaterialProperties            m_MaterialProperties;
+            MaterialTextures              m_MaterialTextures;
+            RZUniformBuffer*              m_MaterialPropertiesUBO;
+            bool                          m_TexturesUpdated = false;
+            WorkFlow                      m_Workflow        = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
         };
 
     }    // namespace Graphics

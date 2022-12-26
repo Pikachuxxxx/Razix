@@ -10,8 +10,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZTexture2D*   RZMaterial::s_DefaultTexture = nullptr;
-        MaterialPreset RZMaterial::s_MatPreset      = MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING;
+        RZTexture2D* RZMaterial::s_DefaultTexture = nullptr;
 
         RZMaterial::RZMaterial(RZShader* shader)
         {
@@ -20,22 +19,16 @@ namespace Razix {
             m_MaterialPropertiesUBO = nullptr;
 
             // Create the uniform buffer first
-            // well the type of UBO data to create depends on the shader since the pre-made shader reflection info for mat properties has to be stored somewhere
-            // we store the types in the header file and use the preset to create the UBO with apt data
-            if (s_MatPreset == MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING)
-                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PhongMaterialProperties), &m_PhongMaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO (Phong)"));
-            else if (s_MatPreset == MaterialPreset::MAT_PRESET_DEFERRED_PBR)
-                m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(PBRMaterialProperties), &m_PBRMaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO (PBR)"));
+
+            m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(MaterialProperties), &m_MaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO"));
         }
 
         void RZMaterial::Destroy()
         {
-            //m_Shader->Destroy();
             for (auto& set: m_DescriptorSets)
                 set->Destroy();
 
-            m_PBRMaterialTextures.Destroy();
-            //m_PhongMaterialTextures.Destroy();
+            m_MaterialTextures.Destroy();
             if (m_MaterialPropertiesUBO)
                 m_MaterialPropertiesUBO->Destroy();
         }
@@ -43,7 +36,7 @@ namespace Razix {
         void RZMaterial::InitDefaultTexture()
         {
             uint32_t pinkTextureData = 0xff00ffff;
-            s_DefaultTexture         = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "//Textures/TestGrid_256.png", "DefaultTexture", Graphics::RZTexture::Wrapping::CLAMP_TO_EDGE);
+            s_DefaultTexture         = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
         }
 
         void RZMaterial::ReleaseDefaultTexture()
@@ -51,15 +44,10 @@ namespace Razix {
             s_DefaultTexture->Release(true);
         }
 
-        void RZMaterial::loadMaterial(const std::string& name, const std::string& path)
+        void RZMaterial::loadMaterialFromFile(const std::string& name, const std::string& path)
         {
             m_Name = name;
             // TODO: Deserialize using the path
-        }
-
-        void RZMaterial::loadShader(const std::string& path)
-        {
-            // TODO: if its just a name search the VFS and ShaderLibrary of not load it into memory and do all the shit work needed thereafter
         }
 
         void RZMaterial::createDescriptorSet()
@@ -68,7 +56,7 @@ namespace Razix {
             // How about renderer data for forward lights info + system vars???? How to associate and update?
             auto setInfos = m_Shader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
-                if (setInfo.first == MatBindingTable_System::BINDING_SET_USER_MAT_PROPS) {
+                if (setInfo.first == MatBindingTable_System::BINDING_SET_SYSTEM_MAT_PROPS) {
                     for (auto& descriptor: setInfo.second) {
                         // Find the material properties UBO and assign it's UBO to this slot
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER) {
@@ -76,40 +64,34 @@ namespace Razix {
                         }
                     }
                     m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_PROPS")));
-                } else if (setInfo.first == MatBindingTable_System::BINDING_SET_USER_MAT_SAMPLERS) {
+                } else if (setInfo.first == MatBindingTable_System::BINDING_SET_SYSTEM_MAT_SAMPLERS) {
                     for (auto& descriptor: setInfo.second) {
                         // Choose the mat textures based on the workflow & preset
-                        if (s_MatPreset == MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING) {
-                            switch (descriptor.bindingInfo.binding) {
-                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_AMBIENT:
-                                    descriptor.texture = m_PhongMaterialTextures.ambient ? m_PhongMaterialTextures.diffuse : s_DefaultTexture;
-                                    break;
-                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_DIFFUSE:
-                                    descriptor.texture = m_PhongMaterialTextures.diffuse ? m_PhongMaterialTextures.diffuse : s_DefaultTexture;
-                                    break;
-                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_NORMAL:
-                                    descriptor.texture = m_PhongMaterialTextures.normal ? m_PhongMaterialTextures.normal : s_DefaultTexture;
-                                    break;
-                                case PhongBindinngTable::PHONG_TEX_BINDING_IDX_SPECULAR:
-                                    descriptor.texture = m_PhongMaterialTextures.specular ? m_PhongMaterialTextures.specular : s_DefaultTexture;
-                                    break;
-                                default:
-                                    descriptor.texture = s_DefaultTexture;
-                                    break;
-                            }
-                        } else if (s_MatPreset == MaterialPreset::MAT_PRESET_DEFERRED_PBR) {
-                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_ALBEDO)
-                                descriptor.texture = m_PBRMaterialTextures.albedo ? m_PBRMaterialTextures.albedo : s_DefaultTexture;
-                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_NORMAL)
-                                descriptor.texture = m_PBRMaterialTextures.normal ? m_PBRMaterialTextures.normal : s_DefaultTexture;
-                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_METALLLIC)
-                                descriptor.texture = m_PBRMaterialTextures.metallic ? m_PBRMaterialTextures.metallic : s_DefaultTexture;
-                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_ROUGHNESS)
-                                descriptor.texture = m_PBRMaterialTextures.roughness ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
-                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_AO)
-                                descriptor.texture = m_PBRMaterialTextures.ao ? m_PBRMaterialTextures.ao : s_DefaultTexture;
-                            if (descriptor.bindingInfo.binding == PBRBindingTable::PBR_TEX_BINDING_IDX_EMISSIVE)
-                                descriptor.texture = m_PBRMaterialTextures.emissive ? m_PBRMaterialTextures.roughness : s_DefaultTexture;
+                        switch (descriptor.bindingInfo.binding) {
+                            case TextureBindingTable::TEX_BINDING_IDX_ALBEDO:
+                                descriptor.texture = m_MaterialTextures.albedo ? m_MaterialTextures.albedo : s_DefaultTexture;
+                                break;
+                            case TextureBindingTable::TEX_BINDING_IDX_NORMAL:
+                                descriptor.texture = m_MaterialTextures.normal ? m_MaterialTextures.normal : s_DefaultTexture;
+                                break;
+                            case TextureBindingTable::TEX_BINDING_IDX_METALLLIC:
+                                descriptor.texture = m_MaterialTextures.metallic ? m_MaterialTextures.metallic : s_DefaultTexture;
+                                break;
+                            case TextureBindingTable::TEX_BINDING_IDX_ROUGHNESS:
+                                descriptor.texture = m_MaterialTextures.roughness ? m_MaterialTextures.roughness : s_DefaultTexture;
+                                break;
+                            case TextureBindingTable::TEX_BINDING_IDX_SPECULAR:
+                                descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.specular : s_DefaultTexture;
+                                break;
+                            case TextureBindingTable::TEX_BINDING_IDX_EMISSIVE:
+                                descriptor.texture = m_MaterialTextures.emissive ? m_MaterialTextures.emissive : s_DefaultTexture;
+                                break;
+                            case TextureBindingTable::TEX_BINDING_IDX_AO:
+                                descriptor.texture = m_MaterialTextures.ao ? m_MaterialTextures.ao : s_DefaultTexture;
+                                break;
+                            default:
+                                descriptor.texture = s_DefaultTexture;
+                                break;
                         }
                     }
                     m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_SAMPLERS")));
@@ -120,45 +102,23 @@ namespace Razix {
             }
         }
 
-        void RZMaterial::setTextures(PBRMataterialTextures& textures)
+        void RZMaterial::setTextures(MaterialTextures& textures)
         {
-            m_PBRMaterialTextures.albedo    = textures.albedo;
-            m_PBRMaterialTextures.normal    = textures.normal;
-            m_PBRMaterialTextures.roughness = textures.roughness;
-            m_PBRMaterialTextures.metallic  = textures.metallic;
-            m_PBRMaterialTextures.ao        = textures.ao;
-            m_PBRMaterialTextures.emissive  = textures.emissive;
-
-            m_PhongMaterialTextures.ambient  = m_PBRMaterialTextures.ao;
-            m_PhongMaterialTextures.diffuse  = m_PBRMaterialTextures.albedo;
-            m_PhongMaterialTextures.normal   = m_PBRMaterialTextures.normal;
-            m_PhongMaterialTextures.specular = m_PBRMaterialTextures.metallic;
+            m_MaterialTextures.albedo    = textures.albedo;
+            m_MaterialTextures.normal    = textures.normal;
+            m_MaterialTextures.metallic  = textures.metallic;
+            m_MaterialTextures.roughness = textures.roughness;
+            m_MaterialTextures.specular  = textures.specular;
+            m_MaterialTextures.emissive  = textures.emissive;
+            m_MaterialTextures.ao        = textures.ao;
 
             setTexturesUpdated(true);
         }
 
-        void RZMaterial::setProperties(PBRMaterialProperties& props)
+        void RZMaterial::setProperties(MaterialProperties& props)
         {
-            m_PBRMaterialProperties.albedoColor         = props.albedoColor;
-            m_PBRMaterialProperties.metallicColor       = props.metallicColor;
-            m_PBRMaterialProperties.roughnessColor      = props.roughnessColor;
-            m_PBRMaterialProperties.isUsingAlbedoMap    = props.isUsingAlbedoMap;
-            m_PBRMaterialProperties.isUsingNormalMap    = props.isUsingNormalMap;
-            m_PBRMaterialProperties.isUsingMetallicMap  = props.isUsingMetallicMap;
-            m_PBRMaterialProperties.isUsingRoughnessMap = props.isUsingRoughnessMap;
-            m_PBRMaterialProperties.isUsingAOMap        = props.isUsingAOMap;
-            m_PBRMaterialProperties.isUsingEmissiveMap  = props.isUsingEmissiveMap;
-            m_PBRMaterialProperties.workflow            = props.workflow;
-            m_PBRMaterialProperties.emissiveColor       = props.emissiveColor;
-
-            m_PhongMaterialProperties.ambientColor = props.albedoColor;
-            m_PhongMaterialProperties.diffuseColor = props.albedoColor;
-            m_PhongMaterialProperties.shininess    = 32;
-
-            if (s_MatPreset == MaterialPreset::MAT_PRESET_FORWARD_PHONG_LIGHTING)
-                m_MaterialPropertiesUBO->SetData(sizeof(PhongMaterialProperties), &m_PhongMaterialProperties);
-            else if (s_MatPreset == MaterialPreset::MAT_PRESET_DEFERRED_PBR)
-                m_MaterialPropertiesUBO->SetData(sizeof(PBRMaterialProperties), &m_PBRMaterialProperties);
+            memcpy(&m_MaterialProperties, &props, sizeof(MaterialProperties));
+            m_MaterialPropertiesUBO->SetData(sizeof(MaterialProperties), &m_MaterialProperties);
         }
 
         void RZMaterial::Bind()
@@ -171,25 +131,13 @@ namespace Razix {
                 createDescriptorSet();
                 setTexturesUpdated(false);
             }
-            // Since we need to bind all the sets at once idk about using bind, how does the mat get the Render System Descriptors to bind???
+            // Since we need to bind all the sets at once IDK about using bind, how does the mat get the Render System Descriptors to bind???
             // This possible if do something like Unity does, have a Renderer Component for every renderable entity in the scene ==> this makes
             // it easy for get info about Culling too, using this we can easily get the System Sets and Bind them
             // For now since we use the same shader we can just let the renderer Bind it and the material will give the Renderer necessary Sets to bind
         }
 
-        void PhongMaterialTextures::Destroy()
-        {
-            if (ambient && ambient != RZMaterial::GetDefaultTexture())
-                ambient->Release(true);
-            if (diffuse && diffuse != RZMaterial::GetDefaultTexture())
-                diffuse->Release(true);
-            if (normal && normal != RZMaterial::GetDefaultTexture())
-                normal->Release(true);
-            if (specular && specular != RZMaterial::GetDefaultTexture())
-                specular->Release(true);
-        }
-
-        void PBRMataterialTextures::Destroy()
+        void MaterialTextures::Destroy()
         {
             if (albedo && albedo != RZMaterial::GetDefaultTexture())
                 albedo->Release(true);
@@ -199,11 +147,12 @@ namespace Razix {
                 metallic->Release(true);
             if (roughness && roughness != RZMaterial::GetDefaultTexture())
                 roughness->Release(true);
-            if (ao && ao != RZMaterial::GetDefaultTexture())
-                ao->Release(true);
+            if (specular && specular != RZMaterial::GetDefaultTexture())
+                specular->Release(true);
             if (emissive && emissive != RZMaterial::GetDefaultTexture())
                 emissive->Release(true);
+            if (ao && ao != RZMaterial::GetDefaultTexture())
+                ao->Release(true);
         }
-
     }    // namespace Graphics
 }    // namespace Razix

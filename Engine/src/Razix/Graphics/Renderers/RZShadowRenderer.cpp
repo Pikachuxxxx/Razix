@@ -244,7 +244,7 @@ namespace Razix {
                 FrameGraph::RZFrameGraphResource cascadeOuput;
             };
 
-            struct ViewProjLayerUBOData
+            struct ModelViewProjLayerUBOData
             {
                 alignas(16) glm::mat4 model    = glm::mat4(1.0f);
                 alignas(16) glm::mat4 viewProj = glm::mat4(1.0f);
@@ -261,7 +261,7 @@ namespace Razix {
             auto  shader   = RZShaderLibrary::Get().getShader("cascaded_shadow_maps.rzsf");
             auto& setInfos = shader->getSetsCreateInfos();
 
-            cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));
+            cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ModelViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -308,7 +308,7 @@ namespace Razix {
 
                     // Update the desc sets data
                     constexpr float      kFarPlane{1.0f};
-                    ViewProjLayerUBOData uboData;
+                    ModelViewProjLayerUBOData uboData;
                     uboData.layer    = cascadeIdx;
                     uboData.viewProj = lightViewProj;
 
@@ -343,7 +343,7 @@ namespace Razix {
                         glm::mat4 transform = trans.GetTransform();
 
                         uboData.model = transform;
-                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ViewProjLayerUBOData), &uboData);
+                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
 
                         // Bind IBO and VBO
                         for (auto& mesh: meshes) {
@@ -365,7 +365,7 @@ namespace Razix {
                         glm::mat4 transform = mesh_trans.GetTransform();
 
                         uboData.model = transform;
-                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ViewProjLayerUBOData), &uboData);
+                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);

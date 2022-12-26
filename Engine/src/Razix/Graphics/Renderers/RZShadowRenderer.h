@@ -57,8 +57,13 @@ namespace Razix {
              * 
              * @returns The split distance and the cascade view proj matrix
              */
-            std::vector<Cascade> buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, uint32_t numCascades, float lambda, uint32_t shadowMapSize);
-            std::vector<float>   buildCascadeSplits(uint32_t numCascades, float lambda, float nearPlane, float clipRange);
+            static std::vector<Cascade> buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, uint32_t numCascades, float lambda, uint32_t shadowMapSize);
+            static std::vector<float>   buildCascadeSplits(uint32_t numCascades, float lambda, float nearPlane, float clipRange);
+
+            static FrustumCorners buildFrustumCorners(const glm::mat4& inversedViewProj, float splitDist, float lastSplitDist);
+            static auto           measureFrustum(const FrustumCorners& frustumCorners);
+            static void           eliminateShimmering(glm::mat4& projection, const glm::mat4& view, uint32_t shadowMapSize);
+            static glm::mat4      buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, uint32_t shadowMapSize, float splitDist, float lastSplitDist);
 
         private:
             RZUniformBuffer* m_CascadedMatricesUBO;
@@ -69,12 +74,6 @@ namespace Razix {
                 std::vector<RZDescriptorSet*> CascadeVPSet;
                 RZPipeline*                   CascadePassPipeline;
             } cascadeGPUResources[kNumCascades];
-
-        private:
-            FrustumCorners buildFrustumCorners(const glm::mat4& inversedViewProj, float splitDist, float lastSplitDist);
-            auto           measureFrustum(const FrustumCorners& frustumCorners);
-            void           eliminateShimmering(glm::mat4& projection, const glm::mat4& view, uint32_t shadowMapSize);
-            glm::mat4      buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, uint32_t shadowMapSize, float splitDist, float lastSplitDist);
 
             FrameGraph::RZFrameGraphResource addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, const glm::mat4& lightViewProj, Razix::RZScene* scene, uint32_t cascadeIdx);
         };
