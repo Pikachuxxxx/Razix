@@ -12,6 +12,7 @@
 #include "Razix/Graphics/API/RZTexture.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
 
 #include "Razix/Graphics/API/RZRenderContext.h"
 
@@ -214,6 +215,8 @@ namespace Razix {
             const auto view       = glm::lookAt(eye, center, {0.0f, 1.0f, 0.0f});
             auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, (maxExtents - minExtents).z);
             eliminateShimmering(projection, view, shadowMapSize);
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+                projection[1][1] *= -1;
             return projection * view;
         }
 
