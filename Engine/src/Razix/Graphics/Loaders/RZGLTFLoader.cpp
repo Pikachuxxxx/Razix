@@ -158,6 +158,7 @@ namespace Razix {
                     if (metallicGlossinessWorkflow->second.Has("diffuseTexture")) {
                         int index       = metallicGlossinessWorkflow->second.Get("diffuseTexture").Get("index").Get<int>();
                         textures.albedo = loadedTextures[gltfModel.textures[index].source];
+                        properties.isUsingAlbedoMap = true;
                     }
 
                     if (metallicGlossinessWorkflow->second.Has("metallicGlossinessTexture")) {

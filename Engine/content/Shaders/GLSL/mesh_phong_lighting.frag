@@ -58,12 +58,12 @@ struct LightData
     SpotLight           spotLightData;
 };
 // Forward Light Data
- layout(set = 1, binding = 0) uniform ForwardLightData
-{
-    vec3        position;
-    vec3        viewPos;
-    LightData   lightData;
-}forward_light_data;
+// layout(set = 1, binding = 0) uniform ForwardLightData
+//{
+//    vec3        position;
+//    vec3        viewPos;
+//    LightData   lightData;
+//}forward_light_data;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
@@ -81,7 +81,7 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal)
     vec3 diffuse = light.color * vec3(texture(albedoMap, fs_in.fragTexCoord));
 
     // Specular shading
-    vec3 viewDir = normalize(forward_light_data.viewPos - fs_in.fragPos);
+    vec3 viewDir = normalize(- fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = spec * vec3(texture(specularMap, fs_in.fragTexCoord));
@@ -94,7 +94,7 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal)
 void main()
 {
     vec4 normal = texture(normalMap, fs_in.fragTexCoord);
-    vec3 result = CalcDirLight(forward_light_data.lightData.dirLightData, normal.rgb);
+    vec3 result;// = CalcDirLight(forward_light_data.lightData.dirLightData, normal.rgb);
     outFragColor = vec4(result, 1.0);
 }
 //------------------------------------------------------------------------------

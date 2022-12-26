@@ -21,7 +21,6 @@ layout(location = 0) in VSOutput
     vec3 fragNormal;
     vec3 fragTangent;
 }vs_in;
-
 //------------------------------------------------------------------------------
 // RTs
 layout(location = 0) out vec4 worldPos;
@@ -36,7 +35,13 @@ void main()
     if(material.isUsingNormalMap)
         normal = texture(normalMap, vs_in.fragTexCoord);
     else 
-        normal = vec4(normalize(material.normal), 1.0f);
+        normal = vec4(normalize(vs_in.fragNormal), 1.0f);
         
-    flux = vec4((material.baseColor) + material.emissiveColor, 1.0f);
+    vec3 color;
+    if(material.isUsingAlbedoMap)
+        color = material.baseColor;
+    else 
+        color =  texture(albedoMap, vs_in.fragTexCoord).rgb;
+
+    flux = vec4((color) + material.emissiveColor, 1.0f);
 }
