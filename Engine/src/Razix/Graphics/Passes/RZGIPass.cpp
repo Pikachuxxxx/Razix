@@ -84,6 +84,7 @@ namespace Razix {
             }
 
             // Create the command buffers
+            m_CmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
             for (uint32_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_CmdBuffers[i] = RZCommandBuffer::Create();
                 m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("GI Pass Command Buffers"));
@@ -97,16 +98,17 @@ namespace Razix {
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
             // Depth, worldPos, normal, flux
-            pipelineInfo.attachmentFormats = {Graphics::RZTexture::Format::DEPTH32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F};
+            pipelineInfo.attachmentFormats = {Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::DEPTH16_UNORM};
 
             m_RSMPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("RSM pipeline"));
 
-            const auto& data = framegraph.addCallbackPass<ReflectiveShadowMapData>(
+            const auto data = framegraph.addCallbackPass<ReflectiveShadowMapData>(
                 "Reflective Shadow Map",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, ReflectiveShadowMapData& data) {
+                    builder.setAsStandAlonePass();
+
                     // Create the output RTs
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", {FrameGraph::TextureType::Texture_Depth, "RSM/Depth", {kRSMResolution, kRSMResolution}, RZTexture::Format::DEPTH32F});
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", {FrameGraph::TextureType::Texture_Depth, "RSM/Depth", {kRSMResolution, kRSMResolution}, RZTexture::Format::DEPTH32F});
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", {FrameGraph::TextureType::Texture_Depth, "RSM/Depth", {kRSMResolution, kRSMResolution}, RZTexture::Format::DEPTH16_UNORM});
 
                     data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", {FrameGraph::TextureType::Texture_RenderTarget, "RSM/Position", {kRSMResolution, kRSMResolution}, RZTexture::Format::RGBA32F});
 
@@ -131,10 +133,10 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.attachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true}},
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.position).getHandle(), {true, glm::vec4(0.0f)}},
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.normal).getHandle(), {true, glm::vec4(0.0f)}},
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.flux).getHandle(), {true, glm::vec4(0.0f)}},
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.normal).getHandle(), {true, glm::vec4(0.0f)}},
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true}},
                     };
                     info.extent = {kRSMResolution, kRSMResolution};
                     info.resize = false;
@@ -154,6 +156,7 @@ namespace Razix {
                         glm::mat4 transform = trans.GetTransform();
 
                         m_ModelViewProjSystemUBOData.model = transform;
+                        m_ModelViewProjSystemUBOData.viewProjection = lightViewProj;
                         m_ModelViewProjectionSystemUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &m_ModelViewProjSystemUBOData);
 
                         // Bind IBO and VBO
@@ -165,7 +168,7 @@ namespace Razix {
                             std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
                             std::vector<RZDescriptorSet*> MatSets   = mesh->getMaterial()->getDescriptorSets();
                             SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
-                            Graphics::RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
+                            Graphics::RZRenderContext::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
                             Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
@@ -188,7 +191,7 @@ namespace Razix {
                         std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
                         std::vector<RZDescriptorSet*> MatSets   = mrc.Mesh->getMaterial()->getDescriptorSets();
                         SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
-                        Graphics::RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
+                        Graphics::RZRenderContext::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
@@ -196,7 +199,6 @@ namespace Razix {
                         Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
-
 
                     RAZIX_MARK_END();
                     RZRenderContext::EndRendering(cmdBuffer);

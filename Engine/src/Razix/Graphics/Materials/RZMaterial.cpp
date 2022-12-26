@@ -7,6 +7,8 @@
 #include "Razix/Graphics/API/RZTexture.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
 
+#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -56,7 +58,7 @@ namespace Razix {
             // How about renderer data for forward lights info + system vars???? How to associate and update?
             auto setInfos = m_Shader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
-                if (setInfo.first == MatBindingTable_System::BINDING_SET_SYSTEM_MAT_PROPS) {
+                if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_MAT_PROPS) {
                     for (auto& descriptor: setInfo.second) {
                         // Find the material properties UBO and assign it's UBO to this slot
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER) {
@@ -64,34 +66,36 @@ namespace Razix {
                         }
                     }
                     m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_PROPS")));
-                } else if (setInfo.first == MatBindingTable_System::BINDING_SET_SYSTEM_MAT_SAMPLERS) {
+                } else if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_MAT_SAMPLERS) {
                     for (auto& descriptor: setInfo.second) {
-                        // Choose the mat textures based on the workflow & preset
-                        switch (descriptor.bindingInfo.binding) {
-                            case TextureBindingTable::TEX_BINDING_IDX_ALBEDO:
-                                descriptor.texture = m_MaterialTextures.albedo ? m_MaterialTextures.albedo : s_DefaultTexture;
-                                break;
-                            case TextureBindingTable::TEX_BINDING_IDX_NORMAL:
-                                descriptor.texture = m_MaterialTextures.normal ? m_MaterialTextures.normal : s_DefaultTexture;
-                                break;
-                            case TextureBindingTable::TEX_BINDING_IDX_METALLLIC:
-                                descriptor.texture = m_MaterialTextures.metallic ? m_MaterialTextures.metallic : s_DefaultTexture;
-                                break;
-                            case TextureBindingTable::TEX_BINDING_IDX_ROUGHNESS:
-                                descriptor.texture = m_MaterialTextures.roughness ? m_MaterialTextures.roughness : s_DefaultTexture;
-                                break;
-                            case TextureBindingTable::TEX_BINDING_IDX_SPECULAR:
-                                descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.specular : s_DefaultTexture;
-                                break;
-                            case TextureBindingTable::TEX_BINDING_IDX_EMISSIVE:
-                                descriptor.texture = m_MaterialTextures.emissive ? m_MaterialTextures.emissive : s_DefaultTexture;
-                                break;
-                            case TextureBindingTable::TEX_BINDING_IDX_AO:
-                                descriptor.texture = m_MaterialTextures.ao ? m_MaterialTextures.ao : s_DefaultTexture;
-                                break;
-                            default:
-                                descriptor.texture = s_DefaultTexture;
-                                break;
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
+                            // Choose the mat textures based on the workflow & preset
+                            switch (descriptor.bindingInfo.binding) {
+                                case TextureBindingTable::TEX_BINDING_IDX_ALBEDO:
+                                    descriptor.texture = m_MaterialTextures.albedo ? m_MaterialTextures.albedo : s_DefaultTexture;
+                                    break;
+                                case TextureBindingTable::TEX_BINDING_IDX_NORMAL:
+                                    descriptor.texture = m_MaterialTextures.normal ? m_MaterialTextures.normal : s_DefaultTexture;
+                                    break;
+                                case TextureBindingTable::TEX_BINDING_IDX_METALLLIC:
+                                    descriptor.texture = m_MaterialTextures.metallic ? m_MaterialTextures.metallic : s_DefaultTexture;
+                                    break;
+                                case TextureBindingTable::TEX_BINDING_IDX_ROUGHNESS:
+                                    descriptor.texture = m_MaterialTextures.roughness ? m_MaterialTextures.roughness : s_DefaultTexture;
+                                    break;
+                                case TextureBindingTable::TEX_BINDING_IDX_SPECULAR:
+                                    descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.specular : s_DefaultTexture;
+                                    break;
+                                case TextureBindingTable::TEX_BINDING_IDX_EMISSIVE:
+                                    descriptor.texture = m_MaterialTextures.emissive ? m_MaterialTextures.emissive : s_DefaultTexture;
+                                    break;
+                                case TextureBindingTable::TEX_BINDING_IDX_AO:
+                                    descriptor.texture = m_MaterialTextures.ao ? m_MaterialTextures.ao : s_DefaultTexture;
+                                    break;
+                                default:
+                                    descriptor.texture = s_DefaultTexture;
+                                    break;
+                            }
                         }
                     }
                     m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_SAMPLERS")));

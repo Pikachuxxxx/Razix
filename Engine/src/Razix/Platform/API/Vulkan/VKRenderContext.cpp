@@ -221,15 +221,15 @@ namespace Razix {
                 auto apiHandle       = static_cast<VkDescriptorImageInfo*>(attachment.first->GetHandle());
                 attachInfo.imageView = apiHandle->imageView;
 
-                auto vkImage = static_cast<VKTexture2D*>(attachment.first);
-
                 if (attachment.first->getFormat() == RZTexture::Format::SCREEN) {
+                    auto vkImage = static_cast<VKTexture2D*>(attachment.first);
                     VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
                     vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 } else if (attachment.first->getType() == RZTexture::Type::DEPTH) {
+                    auto vkImage = static_cast<VKDepthTexture*>(attachment.first);
                     //VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-                    vkImage->setImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+                    //vkImage->setImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
                 } else
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
@@ -238,20 +238,18 @@ namespace Razix {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
                 } else {
-                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff w   render on top of what was presented previously
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                auto& clearColor = attachment.second.clearColor;
-                memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
-
-                if (attachment.first->getFormat() == RZTexture::Format::DEPTH16_UNORM)
-                    attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
-
-                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::CUBEMAP)
+                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::CUBEMAP) {
+                    auto& clearColor = attachment.second.clearColor;
+                    memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
                     colorAttachments.push_back(attachInfo);
-                else if (attachment.first->getType() == RZTexture::Type::DEPTH)
-                    renderingInfoKHR.pDepthAttachment = &attachInfo;
+                } else if (attachment.first->getType() == RZTexture::Type::DEPTH) {
+                    attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
+                    renderingInfoKHR.pDepthAttachment  = &attachInfo;
+                }
             }
             renderingInfoKHR.colorAttachmentCount = static_cast<uint32_t>(colorAttachments.size());
             renderingInfoKHR.pColorAttachments    = colorAttachments.data();

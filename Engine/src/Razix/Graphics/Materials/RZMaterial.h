@@ -7,34 +7,6 @@
 namespace Razix {
     namespace Graphics {
 
-        /**
-         * All the sets at index 0 is for View Projection UBO (no samplers)
-         * Set index 1 is for Lighting Buffers only (no textures)
-         * Set index 2 is for Material buffer data + Textures (How do we fit sampler and fill the data it's a bit of messy for now)
-         * other sets will be allocated for GI, Decals etc up to 32/16
-         */
-
-        /**
-         * binding/slot IDs for the engine material instances
-         */
-        enum MatBindingTable_System : uint32_t
-        {
-            BINDING_SET_SYSTEM_MAT_PROPS    = 2,    // continued from after the System variables table
-            BINDING_SET_SYSTEM_MAT_SAMPLERS = 3
-        };
-
-        /* Phong lighting model texture binding slots */
-        enum TextureBindingTable : uint32_t
-        {
-            TEX_BINDING_IDX_ALBEDO    = 0,
-            TEX_BINDING_IDX_NORMAL    = 1,
-            TEX_BINDING_IDX_METALLLIC = 2,
-            TEX_BINDING_IDX_ROUGHNESS = 3,
-            TEX_BINDING_IDX_SPECULAR  = 4,
-            TEX_BINDING_IDX_EMISSIVE  = 5,
-            TEX_BINDING_IDX_AO        = 6,
-        };
-
         // Forward declaration
         class RZShader;
         class RZTexture2D;
@@ -62,7 +34,7 @@ namespace Razix {
             float     ambientOcclusion    = 1.0f;
             bool      visible             = true;
             bool      isUsingAlbedoMap    = true;
-            bool      isUsingNormalMap    = false;
+            bool      isUsingNormalMap    = true;
             bool      isUsingMetallicMap  = false;
             bool      isUsingRoughnessMap = false;
             bool      isUsingSpecular     = false;

@@ -24,8 +24,7 @@ layout(location = 4) in vec3 inTangent;
 layout(set = 0, binding = 0) uniform ModelViewProjectionSystemUBO
 {
     mat4 model;
-    mat4 view;
-	mat4 proj;
+    mat4 viewProjection;
 } mvp;
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
@@ -46,7 +45,7 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = mvp.proj * mvp.view * mvp.model * vec4(inPosition, 1.0);
+    gl_Position = mvp.viewProjection * mvp.model * vec4(inPosition, 1.0);
 
     // Out from vertex shader
     vs_out.fragPos      = vec3(mvp.model * vec4(inPosition, 1.0));
