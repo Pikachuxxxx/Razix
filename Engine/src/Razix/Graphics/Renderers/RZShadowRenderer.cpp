@@ -7,12 +7,12 @@
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/API/RZCommandBuffer.h"
+#include "Razix/Graphics/API/RZGraphicsContext.h"
 #include "Razix/Graphics/API/RZIndexBuffer.h"
 #include "Razix/Graphics/API/RZPipeline.h"
 #include "Razix/Graphics/API/RZTexture.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
 #include "Razix/Graphics/API/RZVertexBuffer.h"
-#include "Razix/Graphics/API/RZGraphicsContext.h"
 
 #include "Razix/Graphics/API/RZRenderContext.h"
 
@@ -88,6 +88,21 @@ namespace Razix {
                 cascaseShadowMaps              = addCascadePass(framegraph, cascaseShadowMaps, lightViewProj, scene, i);
             }
             shadowMapData.cascadedShadowMaps = cascaseShadowMaps;
+
+            // Since the above texture passes are cascaded we do an extra pass to constantly update the data into a buffer after all the cascade calculations are done whilst filling the TextureArray2D
+            framegraph.addCallbackPass(
+                "Upload Cascade Matrices (post CSM calculation)",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto&) {
+                    shadowMapData.viewProjMatrices = builder.write(shadowMapData.viewProjMatrices);
+                },
+                [=](const auto&, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    CasdacesUBOData data{};
+                    for (uint32_t i{0}; i < cascades.size(); ++i) {
+                        data.splitDepth[i]     = cascades[i].splitDepth;
+                        data.viewProjMatrices[i] = cascades[i].viewProjMatrix;
+                    }
+                    m_CascadedMatricesUBO->SetData(sizeof(CasdacesUBOData), &data);
+                });
         }
 
         //--------------------------------------------------------------------------
