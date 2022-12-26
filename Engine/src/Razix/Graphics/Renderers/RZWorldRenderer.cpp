@@ -33,11 +33,13 @@ namespace Razix {
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
             // Load the Skybox and Global Light Probes
+#if 0
             m_Skybox                     = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_Skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_Skybox);
             // Import this into the Frame Graph
             importGlobalLightProbes(m_GlobalLightProbes);
+#endif
 
             // Cull Lights (Directional + Point) on CPU against camera Frustum First
             // TODO: Get the list of lights in the scene and cull them against the camera frustum and disable ActiveComponent for culled lights, but for now we can just ignore that
@@ -118,9 +120,11 @@ namespace Razix {
             // Destroy Imported Resources
             m_BRDFfLUTTexture->Release(true);
 
+#if 0
             m_Skybox->Release(true);
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
+#endif
 
             // Destroy Renderers
             m_CascadedShadowsRenderer.Destroy();

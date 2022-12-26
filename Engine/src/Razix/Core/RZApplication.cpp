@@ -188,6 +188,8 @@ namespace Razix {
 
         //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
+        Graphics::RZRenderContext::OnResize(e.GetWidth(), e.GetHeight());
+
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
     }

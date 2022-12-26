@@ -79,7 +79,7 @@ namespace Razix {
                     pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
                     pipelineInfo.shader              = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
                     pipelineInfo.transparencyEnabled = true;
-                    pipelineInfo.attachmentFormats   = {RZTexture::Format::BGRA8_UNORM, RZTexture::Format::DEPTH};
+                    pipelineInfo.attachmentFormats   = {RZTexture::Format::BGRA8_UNORM};
 
                     m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
 
@@ -120,14 +120,15 @@ namespace Razix {
                             } 
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }
-                        updatedRT = true;
+                        //updatedRT = true;
                     }
 
                     RenderingInfo info{};
                     info.attachments = {
-                        {Graphics::RZRenderContext::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}},
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}};
-                    info.extent = {1280, 720};
+                        {Graphics::RZRenderContext::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
+                    };
+                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
 
                     RZRenderContext::BeginRendering(cmdBuf, info);
 

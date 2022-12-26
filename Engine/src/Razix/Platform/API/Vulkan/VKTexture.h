@@ -195,7 +195,7 @@ namespace Razix {
             VKDepthTexture(uint32_t width, uint32_t height);
             ~VKDepthTexture();
 
-            void  Resize(uint32_t width, uint32_t height) override;
+            void  Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) override;
             void  Release(bool deleteImage = true) override;
             void  Bind(uint32_t slot) override;
             void  Unbind(uint32_t slot) override;

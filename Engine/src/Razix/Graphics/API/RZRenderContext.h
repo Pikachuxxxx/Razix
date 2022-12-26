@@ -34,6 +34,7 @@ namespace Razix {
             glm::uvec2                                extent;
             std::map<RZTexture*, AttachmentClearInfo> attachments;
             int                                       layerCount = 1;
+            bool                                      resize = true;
         };
 
         typedef std::vector<RZCommandBuffer*> CommandQueue;
@@ -173,6 +174,8 @@ namespace Razix {
             std::string      m_RendererTitle; /* The name of the renderer API that is being used */
             uint32_t         m_Width;
             uint32_t         m_Height;
+            uint32_t         m_PrevWidth;
+            uint32_t         m_PrevHeight;
             CommandQueue     m_CommandQueue; /* The queue of recorded commands that needs execution */
             RZCommandBuffer* m_CurrentCommandBuffer;
         };

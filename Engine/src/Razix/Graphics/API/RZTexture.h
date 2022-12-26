@@ -120,6 +120,9 @@ namespace Razix {
             /* Unbinds the Texture resource from the pipeline */
             virtual void Unbind(uint32_t slot) = 0;
 
+            /* Resize the texture */
+            virtual void Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) {}
+
             /* Gets the handle to the underlying API texture instance */
             virtual void* GetHandle() const = 0;
 
@@ -230,8 +233,6 @@ namespace Razix {
         {
         public:
             static RZDepthTexture* Create(uint32_t width, uint32_t height);
-
-            virtual void Resize(uint32_t width, uint32_t height) = 0;
         };
 
         //-----------------------------------------------------------------------------------
@@ -244,8 +245,6 @@ namespace Razix {
             static RZRenderTexture* Create(RZ_DEBUG_NAME_TAG_F_ARG
                                                uint32_t width,
                 uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
-
-            virtual void Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) = 0;
 
             virtual int32_t ReadPixels(uint32_t x, uint32_t y) = 0;
         };
