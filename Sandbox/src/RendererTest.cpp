@@ -7,7 +7,7 @@ class RendererTest_GridRenderer : public Razix::RZApplication
 {
 public:
     RendererTest_GridRenderer()
-        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox")), "FrameGraphTest")
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "FrameGraphTest")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
