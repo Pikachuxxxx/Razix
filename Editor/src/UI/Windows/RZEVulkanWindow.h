@@ -100,6 +100,7 @@ namespace Razix {
                     callback(e);
 
                 // Entity selection
+#if 0
                 int32_t selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
                 // Find the entity from the registry
                 Razix::RZScene* scene = RZEngine::Get().getSceneManager().getCurrentScene();
@@ -118,6 +119,7 @@ namespace Razix {
                         // TODO: use ui.sceneTree->clearSelection() if we don't select on any entity
                     }
                 });
+#endif
             }
 
             void mouseReleaseEvent(QMouseEvent* event)
