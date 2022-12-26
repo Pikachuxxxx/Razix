@@ -29,7 +29,7 @@ namespace Razix {
 
             void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZScene* scene, RZRendererSettings& settings) override;
 
-            void destoy() override;
+            void destroy() override;
 
         private:
             RZMesh*                                 m_ScreenQuadMesh = nullptr;

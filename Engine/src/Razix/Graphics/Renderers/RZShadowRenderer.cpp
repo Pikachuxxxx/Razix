@@ -3,10 +3,29 @@
 // clang-format on
 #include "RZShadowRenderer.h"
 
+#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZMarkers.h"
+
+#include "Razix/Graphics/API/RZCommandBuffer.h"
+#include "Razix/Graphics/API/RZIndexBuffer.h"
+#include "Razix/Graphics/API/RZPipeline.h"
+#include "Razix/Graphics/API/RZTexture.h"
 #include "Razix/Graphics/API/RZUniformBuffer.h"
+#include "Razix/Graphics/API/RZVertexBuffer.h"
+
+#include "Razix/Graphics/API/RZRenderContext.h"
+
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Graphics/RZModel.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
+
+#include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
+
+#include "Razix/Scene/Components/RZComponents.h"
 
 #include "Razix/Scene/RZScene.h"
 
@@ -16,7 +35,7 @@ namespace Razix {
         void RZShadowRenderer::Init()
         {
             // Init the resources (API & Frame Graph) needed for Cascaded Shadow Mapping
-            // Import the ShadowMapData as a Buffer into the FrameGraph
+            // Import the ShadowMapData as a Buffer into the FrameGraph (used to upload to GPU later)
             m_CascadedMatricesUBO = Graphics::RZUniformBuffer::Create(sizeof(CasdacesUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascades UBO"));
         }
 
@@ -43,6 +62,12 @@ namespace Razix {
         void RZShadowRenderer::Destroy()
         {
             m_CascadedMatricesUBO->Destroy();
+            for (uint32_t i = 0; i < kNumCascades; i++) {
+                cascadeGPUResources[i].ViewProjLayerUBO->Destroy();
+                for (auto& set: cascadeGPUResources[i].CascadeVPSet)
+                    set->Destroy();
+                cascadeGPUResources[i].CascadePassPipeline->Destroy();
+            }
         }
 
         //--------------------------------------------------------------------------
@@ -61,13 +86,7 @@ namespace Razix {
                 const glm::mat4& lightViewProj = cascades[i].viewProjMatrix;
                 cascaseShadowMaps              = addCascadePass(framegraph, cascaseShadowMaps, lightViewProj, scene, i);
             }
-
             shadowMapData.cascadedShadowMaps = cascaseShadowMaps;
-        }
-
-        void RZShadowRenderer::destoy()
-        {
-            throw std::logic_error("The method or operation is not implemented.");
         }
 
         //--------------------------------------------------------------------------
@@ -207,15 +226,140 @@ namespace Razix {
                 FrameGraph::RZFrameGraphResource cascadeOuput;
             };
 
+            struct ViewProjLayerUBOData
+            {
+                alignas(16) glm::mat4 model    = glm::mat4(1.0f);
+                alignas(16) glm::mat4 viewProj = glm::mat4(1.0f);
+                alignas(4) int layer           = 0;
+            };
+
+            for (uint32_t j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
+                auto cmdBuffer = RZCommandBuffer::Create();
+                cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("CSM cmd buffer [cascade :" + std::to_string(cascadeIdx) + "]"));
+                cascadeGPUResources[cascadeIdx].CmdBuffers.push_back(cmdBuffer);
+            }
+
+            // Load the shader
+            auto  shader   = RZShaderLibrary::Get().getShader("cascaded_shadow_maps.rzsf");
+            auto& setInfos = shader->getSetsCreateInfos();
+
+            cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));
+
+            for (auto& setInfo: setInfos) {
+                // Fill the descriptors with buffers and textures
+                for (auto& descriptor: setInfo.second) {
+                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                        descriptor.uniformBuffer = cascadeGPUResources[cascadeIdx].ViewProjLayerUBO;
+                }
+                cascadeGPUResources[cascadeIdx].CascadeVPSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass set")));
+            }
+
+            // Create the Pipeline
+            Graphics::PipelineInfo pipelineInfo{};
+            pipelineInfo.cullMode                               = Graphics::CullMode::NONE;
+            pipelineInfo.drawType                               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.shader                                 = shader;
+            pipelineInfo.transparencyEnabled                    = true;
+            pipelineInfo.depthBiasEnabled                       = false;
+            pipelineInfo.attachmentFormats                      = {Graphics::RZTexture::Format::DEPTH32};
+            cascadeGPUResources[cascadeIdx].CascadePassPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascade Pass Pipeline"));
+
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
                 name,
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CascadeSubPassData& data) {
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CascadeSubPassData& data) { 
+                        builder.setAsStandAlonePass();
                     if (cascadeIdx == 0) {
-                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMaps:" + std::to_string(cascadeIdx), {FrameGraph::TextureType::Texture_RenderTarget, "CascadedShadowMaps:" + std::to_string(cascadeIdx), {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32});
+                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapsArray", {FrameGraph::TextureType::Texture_2D, "CascadedShadowMapsArray", {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32, kNumCascades});
                     }
                     data.cascadeOuput = builder.write(cascadeShadowMap); },
                 [=](const CascadeSubPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
-                    constexpr float kFarPlane{1.0f};
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    /**
+                     * Since the resource is cloned and we maintain different version of it, the same resource is handled to us every time we ask it
+                     */
+
+                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
+
+                    // Begin Command Buffer Recording
+                    RZRenderContext::Begin(cmdBuf);
+                    RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.8f) * float((cascadeIdx + 1) / kNumCascades));
+
+                    // Update Viewport and Scissor Rect
+                    cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
+
+                    // Update the desc sets data
+                    constexpr float      kFarPlane{1.0f};
+                    ViewProjLayerUBOData uboData;
+                    uboData.layer    = cascadeIdx;
+                    uboData.viewProj = lightViewProj;
+
+                    // Begin Rendering
+                    RenderingInfo info{};
+                    info.attachments = {
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {true, glm::vec4(kFarPlane)}}};
+                    info.extent = {kShadowMapSize, kShadowMapSize};
+                    RZRenderContext::BeginRendering(cmdBuf, info);
+
+                    // Bind pipeline
+                    cascadeGPUResources[cascadeIdx].CascadePassPipeline->Bind(cmdBuf);
+
+                    // Bind Sets
+                    RZRenderContext::BindDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
+
+                    // Draw calls
+                    // Get the meshes and the models from the Scene and render them
+
+                    // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
+                    auto group = scene->getRegistry().group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
+                    for (auto entity: group) {
+                        const auto& [model, trans] = group.get<Razix::Graphics::RZModel, TransformComponent>(entity);
+
+                        auto& meshes = model.getMeshes();
+
+                        glm::mat4 transform = trans.GetTransform();
+
+                        uboData.model = transform;
+                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ViewProjLayerUBOData), &uboData);
+
+                        // Bind IBO and VBO
+                        for (auto& mesh: meshes) {
+                            mesh->getVertexBuffer()->Bind(cmdBuf);
+                            mesh->getIndexBuffer()->Bind(cmdBuf);
+
+                            Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mesh->getIndexCount());
+                        }
+                    }
+                    // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
+
+                    // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
+                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    for (auto entity: mesh_group) {
+                        // Draw the mesh renderer components
+                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+
+                        // Bind push constants, VBO, IBO and draw
+                        glm::mat4 transform = mesh_trans.GetTransform();
+
+                        uboData.model = transform;
+                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ViewProjLayerUBOData), &uboData);
+
+                        mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
+                        mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);
+
+                        Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                    }
+                    // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
+
+                    // End Rendering
+                    RZRenderContext::EndRendering(cmdBuf);
+
+                    // End Command Buffer Recording
+                    RZRenderContext::Submit(cmdBuf);
+
+                    // Submit the work for execution + synchronization
+                    // Signal a passDoneSemaphore only on the last cascade pass
+                    RZRenderContext::SubmitWork({}, {/*PassDoneSemaphore*/});
                 });
 
             return pass.cascadeOuput;

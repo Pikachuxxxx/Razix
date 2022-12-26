@@ -26,6 +26,7 @@ namespace Razix {
                     std::string                 name;
                     glm::vec2                   extent;
                     Graphics::RZTexture::Format format;
+                    uint32_t                    numLayers = 1;
                 };
 
                 void create(const Desc& desc, void* allocator);

@@ -163,6 +163,12 @@ namespace Razix {
              * @returns Pointer to Texture object of the underlying API
              */
             static RZTexture2D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+
+            /**
+             * Creates an Empty 2D array texture that can be used as an Render Target
+             */
+            static RZTexture2D* CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, uint32_t numLayers, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+
             /**
              * Create a 2D texture resource from the given file
              * 
@@ -185,6 +191,28 @@ namespace Razix {
         };
 
         //-----------------------------------------------------------------------------------
+        // Texture 3D
+        //-----------------------------------------------------------------------------------
+        /* 3D Texture interface */
+        class RAZIX_API RZTexture3D : public RZTexture
+        {
+        public:
+            /**
+             * Create a 3D texture resource from the given data
+             * 
+             * @param name          The name of the texture resource 
+             * @param width         The Width of the texture
+             * @param height        The height of the texture
+             * @param data          The pixel data to fill the texture with
+             * @param format        The internal format of the texture
+             * @param wrapMode      The wrapping mode of the texture
+             * @param filterMode    The filtering mode of the texture
+             * @returns Pointer to Texture object of the underlying API
+             */
+            static RZTexture3D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+        };
+
+        //-----------------------------------------------------------------------------------
         // Cube Map Texture
         //-----------------------------------------------------------------------------------
         class RAZIX_API RZCubeMap : public RZTexture
@@ -192,8 +220,6 @@ namespace Razix {
         public:
             static RZCubeMap* Create(
                 RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
-
-            void setCubeMap(const std::string& hdrFilePath);
         };
 
         //-----------------------------------------------------------------------------------
