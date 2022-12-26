@@ -15,10 +15,10 @@ R2_1 [label=<{ {<B>CascadedShadowMapsArray</B><BR/>(2048, 2048) - BGRA8_UNORM [2
 R2_2 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v2</FONT><BR/>(2048, 2048) - BGRA8_UNORM [2D]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R2_3 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v3</FONT><BR/>(2048, 2048) - BGRA8_UNORM [2D]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R2_4 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v4</FONT><BR/>(2048, 2048) - BGRA8_UNORM [2D]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R3_1 [label=<{ {<B>ImGui RT</B><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 3<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R3_1 [label=<{ {<B>ImGui RT</B><BR/>(1480, 390) - RGBA32 [RT]} | {Index: 3<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R4_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 4<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R5_1 [label=<{ {<B>Present Image</B><BR/>(1280, 720) - Presentation [Swapchain Image]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R6_1 [label=<{ {<B>Depth Texture</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R5_1 [label=<{ {<B>Present Image</B><BR/>(1480, 390) - Presentation [Swapchain Image]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R6_1 [label=<{ {<B>Depth Texture</B><BR/>(1480, 390) - DEPTH [Depth]} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R7_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R8_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
