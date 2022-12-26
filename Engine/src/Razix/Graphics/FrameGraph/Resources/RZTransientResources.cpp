@@ -84,7 +84,11 @@ namespace Razix {
                             texture = Graphics::RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name);
                             break;
                         case TextureType::Texture_Depth:
-                            texture = Graphics::RZDepthTexture::Create(w, h);
+                            if (desc.numLayers > 1) {
+                                texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
+                                texture->setType(RZTexture::Type::DEPTH);
+                            } else
+                                texture = Graphics::RZDepthTexture::Create(w, h);
                             break;
                         case TextureType::Texture_RenderTarget:
                             texture = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) w, h, desc.format);

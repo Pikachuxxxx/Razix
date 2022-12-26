@@ -67,13 +67,13 @@ namespace Razix {
                         case RZTexture::Format::SCREEN:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case RZTexture::Format::DEPTH:
-                            //return VK_FORMAT_D16_UNORM;
-                            //break;
+                        case RZTexture::Format::DEPTH16_UNORM:
+                            return VK_FORMAT_D16_UNORM;
+                            break;
                         case RZTexture::Format::DEPTH_STENCIL:
                             return VK_FORMAT_D32_SFLOAT_S8_UINT;
                             break;
-                        case RZTexture::Format::DEPTH32:
+                        case RZTexture::Format::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
                             break;
                         default:
@@ -128,7 +128,13 @@ namespace Razix {
                         case RZTexture::Format::BGRA8_UNORM:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case RZTexture::Format::DEPTH32:
+                        case RZTexture::Format::DEPTH16_UNORM:
+                            return VK_FORMAT_D16_UNORM;
+                            break;
+                        case RZTexture::Format::DEPTH_STENCIL:
+                            return VK_FORMAT_D32_SFLOAT_S8_UINT;
+                            break;
+                        case RZTexture::Format::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
                             break;
                         default:

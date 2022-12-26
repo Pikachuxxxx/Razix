@@ -274,10 +274,10 @@ namespace Razix {
             uint32_t mipLevels = 1;    // static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
 
             VkImageUsageFlagBits usageBit{};
-            if (format == RZTexture::Format::DEPTH32 || format == RZTexture::Format::DEPTH || format == RZTexture::Format::DEPTH_STENCIL)
-                usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-            else
+            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
                 usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            else
+                usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
             // Create the Vulkan Image and it's memory and Bind them together
             // We use a simple optimal tiling options
@@ -285,7 +285,7 @@ namespace Razix {
 
             // Create the Image view for the Vulkan image (uses color bit)
             VkImageAspectFlagBits aspectBit{};
-            if (format == RZTexture::Format::DEPTH32 || format == RZTexture::Format::DEPTH || format == RZTexture::Format::DEPTH_STENCIL)
+            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
                 aspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
             else
                 aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;

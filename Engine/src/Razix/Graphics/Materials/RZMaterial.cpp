@@ -36,8 +36,8 @@ namespace Razix {
 
             m_PBRMaterialTextures.Destroy();
             //m_PhongMaterialTextures.Destroy();
-
-            m_MaterialPropertiesUBO->Destroy();
+            if (m_MaterialPropertiesUBO)
+                m_MaterialPropertiesUBO->Destroy();
         }
 
         void RZMaterial::InitDefaultTexture()

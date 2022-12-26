@@ -182,7 +182,7 @@ namespace Razix {
 
                 forwardRendererMaterial->setTextures(textures);
                 forwardRendererMaterial->setProperties(properties);
-                forwardRendererMaterial->createDescriptorSet();
+                //forwardRendererMaterial->createDescriptorSet();
 
                 loadedMaterials.push_back(forwardRendererMaterial);
             }

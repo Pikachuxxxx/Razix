@@ -46,8 +46,8 @@ namespace Razix {
                 RGBA32F,
                 RGB,
                 RGBA,
-                DEPTH,
-                DEPTH32,
+                DEPTH16_UNORM,
+                DEPTH32F,
                 STENCIL,
                 DEPTH_STENCIL,
                 SCREEN,
@@ -108,6 +108,7 @@ namespace Razix {
             uint64_t getSize() const { return m_Size; }
             /* Returns the type of the texture */
             Type getType() const { return m_TextureType; }
+            void setType(Type type) { m_TextureType = type; }
             /* Returns the internal format of the texture */
             Format getFormat() const { return m_Format; }
             /* Returns the virtual path of the texture resource */

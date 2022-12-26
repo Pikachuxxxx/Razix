@@ -1,8 +1,8 @@
 {
     "Razix Application": {
-        "Project Name": "RendererTest_ForwardRenderer",
+        "Project Name": "FrameGraphTest",
         "Engine Version": "0.30.0",
-        "Project ID": "7ff2c30d-b54d-4801-b03e-6c167f8b2d9b",
+        "Project ID": "2964417c-1ec4-4edb-b90d-2704e6853cd6",
         "Render API": 1,
         "Width": 1280,
         "Height": 720,

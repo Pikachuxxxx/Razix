@@ -54,7 +54,7 @@ namespace Razix {
                     case Razix::Graphics::RZTexture::Format::RGBA:
                         return "RGBA";
                         break;
-                    case Razix::Graphics::RZTexture::Format::DEPTH:
+                    case Razix::Graphics::RZTexture::Format::DEPTH16_UNORM:
                         return "DEPTH";
                         break;
                     case Razix::Graphics::RZTexture::Format::STENCIL:

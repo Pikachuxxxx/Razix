@@ -198,8 +198,8 @@ namespace Razix {
             std::vector<VkFormat> formats;
             uint32_t              c = 0;
             for (auto& attachment: pipelineInfo.attachmentFormats) {
-                if (attachment == RZTexture::Format::DEPTH) {
-                    renderingCI.depthAttachmentFormat = VKUtilities::FindDepthFormat();
+                if (attachment == RZTexture::Format::DEPTH16_UNORM || attachment == RZTexture::Format::DEPTH32F || attachment == RZTexture::Format::DEPTH_STENCIL) {
+                    renderingCI.depthAttachmentFormat = VKUtilities::TextureFormatToVK(attachment);
                     continue;
                 }
                 formats.push_back(VKUtilities::TextureFormatToVK(attachment));
