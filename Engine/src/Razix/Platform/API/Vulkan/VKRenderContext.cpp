@@ -48,6 +48,9 @@ namespace Razix {
             m_Width         = width;
             m_Height        = height;
 
+            m_PrevWidth  = width;
+            m_PrevHeight = height;
+
             // Create any extra descriptor pools here such as for ImGui and other needs
             std::array<VkDescriptorPoolSize, 5> pool_sizes = {
                 VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_SAMPLER, 100},
@@ -202,6 +205,16 @@ namespace Razix {
             std::vector<VkRenderingAttachmentInfo> colorAttachments;
 
             for (auto& attachment: renderingInfo.attachments) {
+                // Resize attachments when resized
+                if (renderingInfo.resize) {
+                    if (m_Width != m_PrevWidth || m_Height != m_PrevHeight) {
+                        m_PrevWidth  = m_Width;
+                        m_PrevHeight = m_Height;
+                        if (attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::DEPTH)
+                            attachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(attachment.first->getName()));
+                    }
+                }
+
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
                 attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;

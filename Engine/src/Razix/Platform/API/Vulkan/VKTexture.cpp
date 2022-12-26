@@ -450,9 +450,14 @@ namespace Razix {
         {
         }
 
-        void VKDepthTexture::Resize(uint32_t width, uint32_t height)
+        void VKDepthTexture::Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            m_Width  = width;
+            m_Height = height;
+
+            Release(true);
+
+            init();
         }
 
         void VKDepthTexture::Release(bool deleteImage /*= true*/)
@@ -544,12 +549,12 @@ namespace Razix {
             m_Width  = width;
             m_Height = height;
 
-            m_TransferBuffer.destroy();
+            Release(true);
             m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
             m_TransferBuffer.setSize(width * height * 4);
             m_TransferBuffer.init(NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
 
-            Release(true);
+            init(RZ_DEBUG_NAME_TAG_STR_S_ARG(m_Name));
         }
 
         void VKRenderTexture::Release(bool deleteImage /*= true*/)
@@ -730,6 +735,5 @@ namespace Razix {
             m_Descriptor.imageView   = m_ImageView;
             m_Descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         }
-
     }    // namespace Graphics
 }    // namespace Razix

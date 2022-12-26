@@ -283,7 +283,7 @@ namespace Razix {
 
                     // Begin Command Buffer Recording
                     RZRenderContext::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.8f) * float((cascadeIdx + 1) / kNumCascades));
+                    RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.45, 0.23, 0.56f, 1.0f) * float((cascadeIdx + 1) / kNumCascades));
 
                     // Update Viewport and Scissor Rect
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
@@ -298,7 +298,12 @@ namespace Razix {
                     RenderingInfo info{};
                     info.attachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {true, glm::vec4(kFarPlane)}}};
-                    info.extent = {kShadowMapSize, kShadowMapSize};
+                    info.extent     = {kShadowMapSize, kShadowMapSize};
+                    /////////////////////////////////
+                    // !!! VERY IMPORTANT !!!
+                    info.layerCount = kNumCascades;
+                    /////////////////////////////////
+                    info.resize     = false;
                     RZRenderContext::BeginRendering(cmdBuf, info);
 
                     // Bind pipeline
