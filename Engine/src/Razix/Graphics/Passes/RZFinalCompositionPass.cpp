@@ -107,7 +107,7 @@ namespace Razix {
                     RZRenderContext::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
-                    cmdBuf->UpdateViewport(1280, 720);
+                    cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
@@ -166,7 +166,7 @@ namespace Razix {
             // Create the render pass and the attachments
         }
 
-        void RZFinalCompositionPass::destoy()
+        void RZFinalCompositionPass::destroy()
         {
             m_Pipeline->Destroy();
             for (auto& set: m_DescriptorSets)

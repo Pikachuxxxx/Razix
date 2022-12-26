@@ -34,6 +34,9 @@ namespace Razix {
             // Composite Pass
             loadShader("//RazixContent/Shaders/Razix/composite_pass.rzsf");
             //-------------------------------------------------------------------
+            // Lighting
+            loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
+            //-------------------------------------------------------------------
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap
             loadShader("//RazixContent/Shaders/Razix/EnvToCubeMap.rzsf");

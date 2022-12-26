@@ -30,6 +30,12 @@ namespace Razix {
              * @param filterMode The filtering to use for the texture
              */
             VKTexture2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+
+            /**
+             * Creates an Empty 2D array texture
+             */
+            VKTexture2D(const std::string& name, uint32_t width, uint32_t height, uint32_t numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+
             /**
              * Creates a 2D Vulkan texture
              * 

@@ -118,7 +118,7 @@ namespace Razix {
             std::string RZFrameGraphTexture::toString(const Desc& desc)
             {
                 // Size, Format
-                return "(" + std::to_string(desc.extent.x) + ", " + std::to_string(desc.extent.y) + ") - " + FormatToString(desc.format) + " [" + TypeToString(desc.type) + "]";
+                return "(" + std::to_string(int(desc.extent.x)) + ", " + std::to_string(int(desc.extent.y)) + ") - " + FormatToString(desc.format) + " [" + TypeToString(desc.type) + "]";
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

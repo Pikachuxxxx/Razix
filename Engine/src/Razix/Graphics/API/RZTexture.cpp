@@ -94,6 +94,22 @@ namespace Razix {
             return nullptr;
         }
 
+        RZTexture2D* RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, uint32_t numLayers, Format format, Wrapping wrapMode, Filtering filterMode)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(name, width, height, nullptr, format, wrapMode, filterMode); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(name, width, height, numLayers, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
+                case Razix::Graphics::RenderAPI::GXM:
+                case Razix::Graphics::RenderAPI::GCM:
+                default: return nullptr; break;
+            }
+            return nullptr;
+        }
+
         RZTexture2D* RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

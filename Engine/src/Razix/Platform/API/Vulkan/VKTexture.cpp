@@ -260,6 +260,45 @@ namespace Razix {
             updateDescriptor();
         }
 
+        VKTexture2D::VKTexture2D(const std::string& name, uint32_t width, uint32_t height, uint32_t numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            m_TextureType = RZTexture::Type::COLOR_2D;    // It is also an Render Target
+            m_Name        = name;
+            m_Width       = width;
+            m_Height      = height;
+            m_Format      = format;
+            m_FilterMode  = filterMode;
+            m_WrapMode    = wrapMode;
+            m_VirtualPath = "";
+
+            uint32_t mipLevels = 1;    // static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
+
+            VkImageUsageFlagBits usageBit{};
+            if (format == RZTexture::Format::DEPTH32 || format == RZTexture::Format::DEPTH || format == RZTexture::Format::DEPTH_STENCIL)
+                usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            else
+                usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+            // Create the Vulkan Image and it's memory and Bind them together
+            // We use a simple optimal tiling options
+            VKTexture2D::CreateImage(m_Width, m_Height, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, numLayers, 0 RZ_DEBUG_E_ARG_NAME);
+
+            // Create the Image view for the Vulkan image (uses color bit)
+            VkImageAspectFlagBits aspectBit{};
+            if (format == RZTexture::Format::DEPTH32 || format == RZTexture::Format::DEPTH || format == RZTexture::Format::DEPTH_STENCIL)
+                aspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
+            else
+                aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
+
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D_ARRAY, aspectBit, numLayers, 0 RZ_DEBUG_E_ARG_NAME);
+
+            // Create a sampler view for the image
+            auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
+            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<float>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
+
+            updateDescriptor();
+        }
+
         void VKTexture2D::Release(bool deleteImage)
         {
             if (m_ImageSampler != VK_NULL_HANDLE)

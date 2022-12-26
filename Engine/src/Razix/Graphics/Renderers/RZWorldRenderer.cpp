@@ -122,8 +122,14 @@ namespace Razix {
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
 
+            // Destroy Renderers
+            m_CascadedShadowsRenderer.Destroy();
             m_ImGuiRenderer.Destroy();
-            m_CompositePass.destoy();
+
+            // Destroy Passes
+            m_CompositePass.destroy();
+
+            // Destroy Frame Graph Resources
             m_TransientResources.destroyResources();
         }
 

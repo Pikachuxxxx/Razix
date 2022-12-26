@@ -74,7 +74,10 @@ namespace Razix {
 
                     switch (desc.type) {
                         case TextureType::Texture_2D:
-                            texture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, nullptr, desc.format);
+                            if (desc.numLayers > 1)
+                                texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
+                            else
+                                texture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, nullptr, desc.format);
                         case TextureType::Texture_3D:
                             break;
                         case TextureType::Texture_CubeMap:
