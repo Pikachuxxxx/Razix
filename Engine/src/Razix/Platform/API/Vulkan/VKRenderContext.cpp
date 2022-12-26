@@ -245,7 +245,7 @@ namespace Razix {
                 auto& clearColor = attachment.second.clearColor;
                 memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
 
-                if (attachment.first->getFormat() == RZTexture::Format::DEPTH)
+                if (attachment.first->getFormat() == RZTexture::Format::DEPTH16_UNORM)
                     attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
 
                 if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::CUBEMAP)

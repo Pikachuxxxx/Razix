@@ -259,9 +259,9 @@ namespace Razix {
             pipelineInfo.cullMode                               = Graphics::CullMode::NONE;
             pipelineInfo.drawType                               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                                 = shader;
-            pipelineInfo.transparencyEnabled                    = true;
+            pipelineInfo.transparencyEnabled                    = false;
             pipelineInfo.depthBiasEnabled                       = false;
-            pipelineInfo.attachmentFormats                      = {Graphics::RZTexture::Format::DEPTH32};
+            pipelineInfo.attachmentFormats                      = {Graphics::RZTexture::Format::DEPTH32F};
             cascadeGPUResources[cascadeIdx].CascadePassPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascade Pass Pipeline"));
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
@@ -269,7 +269,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CascadeSubPassData& data) { 
                         builder.setAsStandAlonePass();
                     if (cascadeIdx == 0) {
-                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapsArray", {FrameGraph::TextureType::Texture_2D, "CascadedShadowMapsArray", {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32, kNumCascades});
+                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapsArray", {FrameGraph::TextureType::Texture_Depth, "CascadedShadowMapsArray", {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32F, kNumCascades});
                     }
                     data.cascadeOuput = builder.write(cascadeShadowMap); },
                 [=](const CascadeSubPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
@@ -283,7 +283,7 @@ namespace Razix {
 
                     // Begin Command Buffer Recording
                     RZRenderContext::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.45, 0.23, 0.56f, 1.0f) * float((cascadeIdx + 1) / kNumCascades));
+                    RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.45, 0.23, 0.56f, 1.0f));
 
                     // Update Viewport and Scissor Rect
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
@@ -298,12 +298,12 @@ namespace Razix {
                     RenderingInfo info{};
                     info.attachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {true, glm::vec4(kFarPlane)}}};
-                    info.extent     = {kShadowMapSize, kShadowMapSize};
+                    info.extent = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!
                     info.layerCount = kNumCascades;
                     /////////////////////////////////
-                    info.resize     = false;
+                    info.resize = false;
                     RZRenderContext::BeginRendering(cmdBuf, info);
 
                     // Bind pipeline
@@ -358,6 +358,8 @@ namespace Razix {
 
                     // End Rendering
                     RZRenderContext::EndRendering(cmdBuf);
+
+                    RAZIX_MARK_END();
 
                     // End Command Buffer Recording
                     RZRenderContext::Submit(cmdBuf);
