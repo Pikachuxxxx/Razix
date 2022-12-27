@@ -7,57 +7,67 @@ P1 [label=<{ {<B>CSM #1</B>} | {&#x2605; Refs: 1<BR/> Index: 1} }> style="rounde
 P2 [label=<{ {<B>CSM #2</B>} | {&#x2605; Refs: 1<BR/> Index: 2} }> style="rounded,filled", fillcolor=orange]
 P3 [label=<{ {<B>CSM #3</B>} | {&#x2605; Refs: 1<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
 P4 [label=<{ {<B>Upload Cascade Matrices (post CSM calculation)</B>} | {&#x2605; Refs: 1<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
-P5 [label=<{ {<B>Reflective Shadow Map</B>} | {&#x2605; Refs: 4<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
-P6 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 6} }> style="rounded,filled", fillcolor=orange]
-P7 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 7} }> style="rounded,filled", fillcolor=orange]
+P5 [label=<{ {<B>Reflective Shadow Map</B>} | {Refs: 4<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
+P6 [label=<{ {<B>Radiance Injection</B>} | {Refs: 1<BR/> Index: 6} }> style="rounded,filled", fillcolor=orange]
+P7 [label=<{ {<B>ImGui Pass</B>} | {Refs: 2<BR/> Index: 7} }> style="rounded,filled", fillcolor=orange]
+P8 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 8} }> style="rounded,filled", fillcolor=orange]
 
-R0_1 [label=<{ {<B>BRDF lut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
-R1_1 [label=<{ {<B>Cascade Matrices</B><BR/>size : 272 bytes} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
-R2_1 [label=<{ {<B>CascadedShadowMapsArray</B><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R2_2 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v2</FONT><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R2_3 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v3</FONT><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R2_4 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v4</FONT><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R1_2 [label=<{ {<B>Cascade Matrices</B>   <FONT>v2</FONT><BR/>size : 272 bytes} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
-R3_1 [label=<{ {<B>RSM/Depth</B><BR/>(512, 512) - DEPTH [Depth]} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R4_1 [label=<{ {<B>RSM/Position</B><BR/>(512, 512) - RGBA32F [RT]} | {Index: 4<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R5_1 [label=<{ {<B>RSM/Normal</B><BR/>(512, 512) - RGBA32F [RT]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R6_1 [label=<{ {<B>RSM/Flux</B><BR/>(512, 512) - RGBA32F [RT]} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R7_1 [label=<{ {<B>ImGui RT</B><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 7<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R8_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 8<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R9_1 [label=<{ {<B>Present Image</B><BR/>(1280, 720) - Presentation [Swapchain Image]} | {Index: 9<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R10_1 [label=<{ {<B>Depth Texture</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 10<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R11_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R0_1 [label=<{ {<B>Cascade Matrices</B><BR/>size : 272 bytes} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
+R1_1 [label=<{ {<B>CascadedShadowMapsArray</B><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R1_2 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v2</FONT><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R1_3 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v3</FONT><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R1_4 [label=<{ {<B>CascadedShadowMapsArray</B>   <FONT>v4</FONT><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R0_2 [label=<{ {<B>Cascade Matrices</B>   <FONT>v2</FONT><BR/>size : 272 bytes} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
+R2_1 [label=<{ {<B>RSM/Position</B><BR/>(512, 512) - RGBA32F [RT]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R3_1 [label=<{ {<B>RSM/Normal</B><BR/>(512, 512) - RGBA32F [RT]} | {Index: 3<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R4_1 [label=<{ {<B>RSM/Flux</B><BR/>(512, 512) - RGBA32F [RT]} | {Index: 4<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R5_1 [label=<{ {<B>RSM/Depth</B><BR/>(512, 512) - DEPTH [Depth]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R6_1 [label=<{ {<B>RSM pass done</B><BR/>Semaphore} | {Index: 6<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R7_1 [label=<{ {<B>SH/R</B><BR/>(32, 32) - RGBA32F [RT]} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R8_1 [label=<{ {<B>SH/G</B><BR/>(32, 32) - RGBA32F [RT]} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R9_1 [label=<{ {<B>SH/B</B><BR/>(32, 32) - RGBA32F [RT]} | {Index: 9<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R10_1 [label=<{ {<B>Injection pass done</B><BR/>Semaphore} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R11_1 [label=<{ {<B>ImGui RT</B><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 12<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R13_1 [label=<{ {<B>Present Image</B><BR/>(1280, 720) - Presentation [Swapchain Image]} | {Index: 13<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R14_1 [label=<{ {<B>Depth Texture</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 14<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R15_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 15<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R16_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 16<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
-P0 -> { R2_1 } [color=orangered]
-P1 -> { R2_2 } [color=orangered]
-P2 -> { R2_3 } [color=orangered]
-P3 -> { R2_4 } [color=orangered]
-P4 -> { R1_2 } [color=orangered]
-P5 -> { R3_1 R4_1 R5_1 R6_1 } [color=orangered]
-P6 -> { R7_1 R8_1 } [color=orangered]
-P7 -> { R9_1 R10_1 R11_1 R12_1 } [color=orangered]
+P0 -> { R1_1 } [color=orangered]
+P1 -> { R1_2 } [color=orangered]
+P2 -> { R1_3 } [color=orangered]
+P3 -> { R1_4 } [color=orangered]
+P4 -> { R0_2 } [color=orangered]
+P5 -> { R2_1 R3_1 R4_1 R5_1 R6_1 } [color=orangered]
+P6 -> { R7_1 R8_1 R9_1 R10_1 } [color=orangered]
+P7 -> { R11_1 R12_1 } [color=orangered]
+P8 -> { R13_1 R14_1 R15_1 R16_1 } [color=orangered]
 
-R0_1 -> { } [color=olivedrab3]
-R1_1 -> { P4 } [color=olivedrab3]
-R2_1 -> { P1 } [color=olivedrab3]
-R2_2 -> { P2 } [color=olivedrab3]
-R2_3 -> { P3 } [color=olivedrab3]
-R2_4 -> { } [color=olivedrab3]
-R1_2 -> { } [color=olivedrab3]
-R3_1 -> { } [color=olivedrab3]
-R4_1 -> { } [color=olivedrab3]
+R0_1 -> { P4 } [color=olivedrab3]
+R1_1 -> { P1 } [color=olivedrab3]
+R1_2 -> { P2 } [color=olivedrab3]
+R1_3 -> { P3 } [color=olivedrab3]
+R1_4 -> { } [color=olivedrab3]
+R0_2 -> { } [color=olivedrab3]
+R2_1 -> { P6 } [color=olivedrab3]
+R3_1 -> { P6 } [color=olivedrab3]
+R4_1 -> { P6 } [color=olivedrab3]
 R5_1 -> { } [color=olivedrab3]
-R6_1 -> { } [color=olivedrab3]
-R7_1 -> { P7 } [color=olivedrab3]
-R8_1 -> { P7 } [color=olivedrab3]
+R6_1 -> { P6 } [color=olivedrab3]
+R7_1 -> { } [color=olivedrab3]
+R8_1 -> { } [color=olivedrab3]
 R9_1 -> { } [color=olivedrab3]
-R10_1 -> { } [color=olivedrab3]
-R11_1 -> { } [color=olivedrab3]
-R12_1 -> { } [color=olivedrab3]
+R10_1 -> { P7 } [color=olivedrab3]
+R11_1 -> { P8 } [color=olivedrab3]
+R12_1 -> { P8 } [color=olivedrab3]
+R13_1 -> { } [color=olivedrab3]
+R14_1 -> { } [color=olivedrab3]
+R15_1 -> { } [color=olivedrab3]
+R16_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
-P0 R2_1 
+P0 R1_1 
 }
 subgraph cluster_1 {
 P1 
@@ -72,18 +82,21 @@ subgraph cluster_4 {
 P4 
 }
 subgraph cluster_5 {
-P5 R3_1 R4_1 R5_1 R6_1 
+P5 R2_1 R3_1 R4_1 R5_1 R6_1 
 }
 subgraph cluster_6 {
-P6 R7_1 R8_1 
+P6 R7_1 R8_1 R9_1 R10_1 
 }
 subgraph cluster_7 {
-P7 R9_1 R10_1 R11_1 R12_1 
+P7 R11_1 R12_1 
+}
+subgraph cluster_8 {
+P8 R13_1 R14_1 R15_1 R16_1 
 }
 
 subgraph cluster_imported_resources {
 graph [style=dotted, fontname="helvetica", label=< <B>Imported</B> >]
-R0_1 R1_1 
+R0_1 
 }
 
 }

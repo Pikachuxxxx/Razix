@@ -28,10 +28,16 @@ namespace Razix {
             RZUniformBuffer*                 m_ModelViewProjectionSystemUBO = nullptr;
             ModelViewProjectionSystemUBOData m_ModelViewProjSystemUBOData;
             Graphics::RZDescriptorSet*       m_MVPDescriptorSet;
-            std::vector<RZCommandBuffer*>    m_CmdBuffers;
+            Graphics::RZDescriptorSet*       m_RIDescriptorSet;
+            std::vector<RZCommandBuffer*>    m_RSMCmdBuffers;
+            std::vector<RZCommandBuffer*>    m_RadianceInjectionCmdBuffers;
+            RZUniformBuffer*                 m_RadianceInjectionUBO = nullptr;
+            RZPipeline*                      m_RIPipeline;
+            RadianceInjectionUBOData         radianceInjectionData;
 
         private:
-            ReflectiveShadowMapData addRSMPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity);
+            ReflectiveShadowMapData     addRSMPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity);
+            LightPropagationVolumesData addRadianceInjectionPass(FrameGraph::RZFrameGraph& framegraph, const ReflectiveShadowMapData& RSM, const Maths::RZGrid& grid);
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -53,11 +53,13 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-250.0f), glm::vec3(250.0f)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
+#if 0
             //-------------------------------
             // Cascaded Shadow Maps
             //-------------------------------
             m_CascadedShadowsRenderer.Init();
             m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+#endif
 
             //-------------------------------
             // GI - Radiance Pass
@@ -65,6 +67,7 @@ namespace Razix {
             m_GIPass.setGrid(sceneGrid);
             m_GIPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
+#if 1
             //-------------------------------
             // ImGui Pass
             //-------------------------------
@@ -89,7 +92,7 @@ namespace Razix {
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
 
                     RenderingInfo info{};
-                    info.attachments = {
+                    info.colorAttachments = {
                         {rt, {true, glm::vec4(0.0f)}}};
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     RZRenderContext::BeginRendering(Graphics::RZRenderContext::getCurrentCommandBuffer(), info);
@@ -109,6 +112,8 @@ namespace Razix {
             // Final Image Presentation
             //-------------------------------
             m_CompositePass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+#endif
+
 
             // Compile the Frame Graph
             m_FrameGraph.compile();

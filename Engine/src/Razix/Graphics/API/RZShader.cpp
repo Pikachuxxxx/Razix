@@ -57,7 +57,12 @@ namespace Razix {
                         stage                                           = ShaderStage::VERTEX;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
-                    } else if (Razix::Utilities::StringContains(str, "fragment")) {
+                    } else if (Razix::Utilities::StringContains(str, "geometry")) {
+                        stage                                           = ShaderStage::GEOMETRY;
+                        std::map<ShaderStage, std::string>::iterator it = shaders.begin();
+                        shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
+                    }
+                    else if (Razix::Utilities::StringContains(str, "fragment")) {
                         stage                                           = ShaderStage::PIXEL;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));

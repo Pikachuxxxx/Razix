@@ -100,7 +100,7 @@ namespace Razix {
 
                     m_Textures.push_back(std::make_unique<RZTexture *>(std::move(texture)));
                     auto *ptr = m_Textures.back().get();
-                    RAZIX_CORE_INFO("[Transient Resources] Created Texture resource : {0}", fmt::ptr(ptr));
+                    RAZIX_CORE_INFO("[Transient Resources] Created Texture resource : {0}, name : {1}", fmt::ptr(ptr), desc.name);
                     return *ptr;
                 } else {
                     auto *texture = pool.back().resource;
@@ -123,7 +123,7 @@ namespace Razix {
                     auto buffer = RZSemaphore::Create(RZ_DEBUG_NAME_TAG_STR_S_ARG(desc.name));
                     m_Semaphores.push_back(std::make_unique<RZSemaphore *>(std::move(buffer)));
                     auto *ptr = m_Semaphores.back().get();
-                    RAZIX_CORE_INFO("[Transient Resources] Created Semaphore : {0}", fmt::ptr(ptr));
+                    RAZIX_CORE_INFO("[Transient Resources] Created Semaphore : {0}, name : {1}", fmt::ptr(ptr), desc.name);
                     return *ptr;
                 } else {
                     auto *buffer = pool.back().resource;
@@ -146,7 +146,7 @@ namespace Razix {
                     auto buffer = RZUniformBuffer::Create(desc.size, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
                     m_Buffers.push_back(std::make_unique<RZUniformBuffer *>(std::move(buffer)));
                     auto *ptr = m_Buffers.back().get();
-                    RAZIX_CORE_INFO("[Transient Resources] Created Uniform Buffer : {0}", fmt::ptr(ptr));
+                    RAZIX_CORE_INFO("[Transient Resources] Created Uniform Buffer : {0}, name : {1}", fmt::ptr(ptr), desc.name);
                     return *ptr;
                 } else {
                     auto *buffer = pool.back().resource;

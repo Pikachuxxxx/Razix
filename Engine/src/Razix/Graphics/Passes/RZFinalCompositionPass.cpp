@@ -74,12 +74,12 @@ namespace Razix {
                      */
 
                     // Build the pipeline here for this pass
-                    pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-                    pipelineInfo.depthBiasEnabled    = false;
-                    pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-                    pipelineInfo.shader              = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
-                    pipelineInfo.transparencyEnabled = true;
-                    pipelineInfo.attachmentFormats   = {RZTexture::Format::BGRA8_UNORM};
+                    pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+                    pipelineInfo.depthBiasEnabled       = false;
+                    pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+                    pipelineInfo.shader                 = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
+                    pipelineInfo.transparencyEnabled    = true;
+                    pipelineInfo.colorAttachmentFormats = {RZTexture::Format::BGRA8_UNORM};
 
                     m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
 
@@ -117,14 +117,14 @@ namespace Razix {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
-                            } 
+                            }
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }
                         //updatedRT = true;
                     }
 
                     RenderingInfo info{};
-                    info.attachments = {
+                    info.colorAttachments = {
                         {Graphics::RZRenderContext::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
                     };

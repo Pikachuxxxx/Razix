@@ -126,7 +126,7 @@ namespace Razix {
 
             std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
             for (size_t i = 0; i < waitSemaphores.size(); i++)
-                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(prevFrameIdx);
+                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(frameIdx);
 
             std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
             for (size_t i = 0; i < signalSemaphores.size(); i++)
@@ -204,7 +204,7 @@ namespace Razix {
 
             std::vector<VkRenderingAttachmentInfo> colorAttachments;
 
-            for (auto& attachment: renderingInfo.attachments) {
+            for (auto& attachment: renderingInfo.colorAttachments) {
                 // Resize attachments when resized
                 if (renderingInfo.resize) {
                     if (m_Width != m_PrevWidth || m_Height != m_PrevHeight) {
@@ -226,11 +226,6 @@ namespace Razix {
                     VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
                     vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                } else if (attachment.first->getType() == RZTexture::Type::DEPTH) {
-                    auto vkImage = static_cast<VKDepthTexture*>(attachment.first);
-                    //VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-                    //vkImage->setImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-                    attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
                 } else
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
 
@@ -251,8 +246,30 @@ namespace Razix {
                     renderingInfoKHR.pDepthAttachment  = &attachInfo;
                 }
             }
+
             renderingInfoKHR.colorAttachmentCount = static_cast<uint32_t>(colorAttachments.size());
             renderingInfoKHR.pColorAttachments    = colorAttachments.data();
+
+            // Depth
+            if (renderingInfo.depthAttachment.first) {
+                // Fill the color attachments first
+                VkRenderingAttachmentInfoKHR attachInfo{};
+                attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(renderingInfo.depthAttachment.first->GetHandle());
+                attachInfo.imageView = apiHandle->imageView;
+
+                attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+
+                if (renderingInfo.depthAttachment.second.clear) {
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
+                } else {
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                }
+                attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
+                renderingInfoKHR.pDepthAttachment  = &attachInfo;
+            }
 
             CmdBeginRenderingKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), &renderingInfoKHR);
         }

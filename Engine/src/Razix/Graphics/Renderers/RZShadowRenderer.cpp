@@ -98,7 +98,7 @@ namespace Razix {
                 [=](const auto&, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     CasdacesUBOData data{};
                     for (uint32_t i{0}; i < cascades.size(); ++i) {
-                        data.splitDepth[i]     = cascades[i].splitDepth;
+                        data.splitDepth[i]       = cascades[i].splitDepth;
                         data.viewProjMatrices[i] = cascades[i].viewProjMatrix;
                     }
                     m_CascadedMatricesUBO->SetData(sizeof(CasdacesUBOData), &data);
@@ -279,7 +279,7 @@ namespace Razix {
             pipelineInfo.shader                                 = shader;
             pipelineInfo.transparencyEnabled                    = false;
             pipelineInfo.depthBiasEnabled                       = false;
-            pipelineInfo.attachmentFormats                      = {Graphics::RZTexture::Format::DEPTH32F};
+            pipelineInfo.depthFormat                            = {Graphics::RZTexture::Format::DEPTH32F};
             cascadeGPUResources[cascadeIdx].CascadePassPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascade Pass Pipeline"));
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
@@ -307,16 +307,15 @@ namespace Razix {
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
                     // Update the desc sets data
-                    constexpr float      kFarPlane{1.0f};
+                    constexpr float           kFarPlane{1.0f};
                     ModelViewProjLayerUBOData uboData;
                     uboData.layer    = cascadeIdx;
                     uboData.viewProj = lightViewProj;
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.attachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {true, glm::vec4(kFarPlane)}}};
-                    info.extent = {kShadowMapSize, kShadowMapSize};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {true, glm::vec4(kFarPlane)}};
+                    info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!
                     info.layerCount = kNumCascades;

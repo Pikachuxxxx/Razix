@@ -31,10 +31,11 @@ namespace Razix {
 
         struct RenderingInfo
         {
-            glm::uvec2                                extent;
-            std::map<RZTexture*, AttachmentClearInfo> attachments;
-            int                                       layerCount = 1;
-            bool                                      resize = true;
+            glm::uvec2                                              extent;
+            std::vector<std::pair<RZTexture*, AttachmentClearInfo>> colorAttachments;
+            std::pair<RZTexture*, AttachmentClearInfo>              depthAttachment;
+            int                                                     layerCount = 1;
+            bool                                                    resize     = true;
         };
 
         typedef std::vector<RZCommandBuffer*> CommandQueue;
