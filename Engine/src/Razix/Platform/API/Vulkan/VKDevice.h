@@ -18,7 +18,8 @@ static std::vector<const char*> deviceExtensions = {
     "VK_KHR_depth_stencil_resolve",
     "VK_KHR_create_renderpass2",
     VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
-    "VK_NV_device_diagnostic_checkpoints"};
+    //"VK_NV_device_diagnostic_checkpoints"
+};
 
 namespace Razix {
     namespace Graphics {

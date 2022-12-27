@@ -126,11 +126,13 @@ namespace Razix {
 #endif
 
             // Compile the Frame Graph
+            RAZIX_CORE_INFO("Compiling FrameGraph ....");
             m_FrameGraph.compile();
 
             // Dump the Frame Graph for visualization
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
+            RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
             std::ofstream os(outPath + "/frame_graph_test.dot");
             os << m_FrameGraph;
         }
