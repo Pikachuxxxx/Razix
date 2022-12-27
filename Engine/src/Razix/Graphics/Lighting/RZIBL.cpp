@@ -93,13 +93,13 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader              = shader;
-            pipelineInfo.transparencyEnabled = true;
-            pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.attachmentFormats   = {Graphics::RZTexture::Format::RGBA32F};
-            RZPipeline* envMapPipeline       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Envmap Pipeline"));
+            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.shader                 = shader;
+            pipelineInfo.transparencyEnabled    = true;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
+            RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Envmap Pipeline"));
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
@@ -119,7 +119,7 @@ namespace Razix {
                 cmdBuffer->UpdateViewport(512, 512);
 
                 RenderingInfo info{};
-                info.attachments = {
+                info.colorAttachments = {
                     {cubeMap, {true, glm::vec4(0.0f)}}};
                 info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
@@ -199,13 +199,13 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader              = cubemapConvolutionShader;
-            pipelineInfo.transparencyEnabled = true;
-            pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.attachmentFormats   = {Graphics::RZTexture::Format::RGBA32F};
-            RZPipeline* envMapPipeline       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance Pipeline"));
+            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.shader                 = cubemapConvolutionShader;
+            pipelineInfo.transparencyEnabled    = true;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
+            RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance Pipeline"));
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
@@ -223,7 +223,7 @@ namespace Razix {
                 cmdBuffer->UpdateViewport(512, 512);
 
                 RenderingInfo info{};
-                info.attachments = {
+                info.colorAttachments = {
                     {irradianceMap, {true, glm::vec4(0.0f)}}};
                 info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
@@ -302,13 +302,13 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader              = cubemapConvolutionShader;
-            pipelineInfo.transparencyEnabled = true;
-            pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.attachmentFormats   = {Graphics::RZTexture::Format::RGBA32F};
-            RZPipeline* envMapPipeline       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map Pipeline"));
+            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.shader                 = cubemapConvolutionShader;
+            pipelineInfo.transparencyEnabled    = true;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
+            RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map Pipeline"));
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
@@ -326,7 +326,7 @@ namespace Razix {
                 cmdBuffer->UpdateViewport(512, 512);
 
                 RenderingInfo info{};
-                info.attachments = {
+                info.colorAttachments = {
                     {preFilteredMap, {true, glm::vec4(0.0f)}}};
                 info.extent = {512, 512};
                 // NOTE: This is very important for layers to work

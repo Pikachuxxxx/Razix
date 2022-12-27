@@ -76,6 +76,9 @@ namespace Razix {
                         case RZTexture::Format::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
                             break;
+                        case RZTexture::Format::NONE:
+                            return VK_FORMAT_UNDEFINED;
+                            break;
                         default:
                             RAZIX_CORE_WARN("[Texture] Unsupported Texture format");
                             return VK_FORMAT_UNDEFINED;
@@ -136,6 +139,9 @@ namespace Razix {
                             break;
                         case RZTexture::Format::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
+                            break;
+                        case RZTexture::Format::NONE:
+                            return VK_FORMAT_UNDEFINED;
                             break;
                         default:
                             RAZIX_CORE_WARN("[Texture] Unsupported Texture format");

@@ -325,7 +325,7 @@ namespace Razix {
             pipelineInfo.shader              = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.attachmentFormats   = {Graphics::RZTexture::Format::RGBA32};
+            pipelineInfo.colorAttachmentFormats   = {Graphics::RZTexture::Format::RGBA32};
 
             if (m_OverrideGlobalRHIShader)
                 m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Pipeline"));

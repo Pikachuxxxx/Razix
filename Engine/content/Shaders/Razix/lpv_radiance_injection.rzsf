@@ -1,0 +1,23 @@
+/*
+ * Razix Shader File 
+ * RadianceInjection.rzsf : Scene Radiance injection pass to cascade and calculate indirect lighting 
+ * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/RadianceInjection.vert.spv
+    #endif
+#end
+
+#shader geometry
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/RadianceInjection.geom.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/RadianceInjection.frag.spv
+    #endif
+#end

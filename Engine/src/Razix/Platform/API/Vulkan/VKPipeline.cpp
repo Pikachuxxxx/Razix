@@ -52,8 +52,8 @@ namespace Razix {
             VkPipelineVertexInputStateCreateInfo vertexInputSCI{};
             vertexInputSCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             vertexInputSCI.pNext                           = nullptr;
-            vertexInputSCI.vertexBindingDescriptionCount   = 1;
-            vertexInputSCI.pVertexBindingDescriptions      = &vertexBindingDescription;
+            vertexInputSCI.vertexBindingDescriptionCount   = vertexBindingDescription.stride == 0 ? 0 : 1;
+            vertexInputSCI.pVertexBindingDescriptions      = vertexBindingDescription.stride == 0 ? nullptr : &vertexBindingDescription;
             vertexInputSCI.vertexAttributeDescriptionCount = uint32_t(vertexInputAttributeDescription.size());
             vertexInputSCI.pVertexAttributeDescriptions    = vertexInputAttributeDescription.data();
 
@@ -117,10 +117,8 @@ namespace Razix {
             colorBlendSCI.flags = 0;
 
             std::vector<VkPipelineColorBlendAttachmentState> blendAttachState;
-            if (pipelineInfo.attachmentFormats.size() > 1)
-                blendAttachState.resize(pipelineInfo.attachmentFormats.size() - 1);
-            else
-                blendAttachState.resize(pipelineInfo.attachmentFormats.size());
+
+            blendAttachState.resize(pipelineInfo.colorAttachmentFormats.size());
 
             for (unsigned int i = 0; i < blendAttachState.size(); i++) {
                 blendAttachState[i]                = VkPipelineColorBlendAttachmentState();
@@ -196,17 +194,11 @@ namespace Razix {
             VkPipelineRenderingCreateInfoKHR renderingCI{};
             renderingCI.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
             std::vector<VkFormat> formats;
-            uint32_t              c = 0;
-            for (auto& attachment: pipelineInfo.attachmentFormats) {
-                if (attachment == RZTexture::Format::DEPTH16_UNORM || attachment == RZTexture::Format::DEPTH32F || attachment == RZTexture::Format::DEPTH_STENCIL) {
-                    renderingCI.depthAttachmentFormat = VKUtilities::TextureFormatToVK(attachment);
-                    continue;
-                }
+            for (auto& attachment: pipelineInfo.colorAttachmentFormats)
                 formats.push_back(VKUtilities::TextureFormatToVK(attachment));
-                c++;
-            }
-            renderingCI.colorAttachmentCount    = c;    //static_cast<uint32_t>(pipelineInfo.attachmentFormats.size());
+            renderingCI.colorAttachmentCount    = static_cast<uint32_t>(pipelineInfo.colorAttachmentFormats.size());
             renderingCI.pColorAttachmentFormats = formats.data();
+            renderingCI.depthAttachmentFormat   = VKUtilities::TextureFormatToVK(pipelineInfo.depthFormat);  // defaults to VK_FORMAT_UNDEFINED
 
             //----------------------------
             // Graphics Pipeline

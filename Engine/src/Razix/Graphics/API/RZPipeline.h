@@ -49,7 +49,8 @@ namespace Razix {
         struct PipelineInfo
         {
             RZShader*                      shader;
-            std::vector<RZTexture::Format> attachmentFormats;
+            std::vector<RZTexture::Format> colorAttachmentFormats;
+            RZTexture::Format              depthFormat = RZTexture::Format::NONE;
             CullMode                       cullMode    = CullMode::BACK;
             PolygonMode                    polygonMode = PolygonMode::FILL;
             DrawType                       drawType    = DrawType::TRIANGLE;
