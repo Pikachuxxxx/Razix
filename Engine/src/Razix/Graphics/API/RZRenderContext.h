@@ -147,6 +147,11 @@ namespace Razix {
 
             static void SetCmdBuffer(RZCommandBuffer* cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
 
+            static void SetCmdCheckpoint(RZCommandBuffer* cmdbuffer, void* markerData)
+            {
+                s_APIInstance->SetCmdCheckpointImpl(cmdbuffer, markerData);
+            }
+
         protected:
             virtual void InitAPIImpl()                                                                                                                                                                  = 0;
             virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                              = 0;
@@ -168,6 +173,8 @@ namespace Razix {
             virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                       = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
+
+            virtual void SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData) {}
 
         protected:
             static RZRenderContext* s_APIInstance;

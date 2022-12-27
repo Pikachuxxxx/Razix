@@ -16,6 +16,13 @@
 namespace Razix {
     namespace Graphics {
 
+        static void GetQueueCheckpointDataNV(VkQueue queue, uint32_t* pCheckpointDataCount, VkCheckpointDataNV* pCheckPointData)
+        {
+            auto func = (PFN_vkGetQueueCheckpointDataNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkGetQueueCheckpointDataNV");
+            if (func != nullptr)
+                func(queue, pCheckpointDataCount, pCheckPointData);
+        }
+
         VKSwapchain::VKSwapchain(uint32_t width, uint32_t height)
         {
             m_Width  = width;
@@ -351,9 +358,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto& frameData = getCurrentFrameSyncData();
-            //if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
-            //    vkWaitForFences(VKDevice::Get().getDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-            //imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
             VkSubmitInfo submitInfo       = {};
             submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -367,10 +371,10 @@ namespace Razix {
             submitInfo.pCommandBuffers = cmdBuffs.data();
             std::vector<VkPipelineStageFlags> waitStages;
             for (size_t i = 0; i < waitSemaphores.size(); i++)
-                waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+                waitStages.push_back(VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT);
 
             if (!waitSemaphores.size())
-                waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+                waitStages.push_back(VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT);
 
             submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
             submitInfo.pWaitSemaphores    = waitSemaphores.data();
@@ -382,7 +386,22 @@ namespace Razix {
             frameData.renderFence->reset();
 
             {
-                VK_CHECK_RESULT(vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence()));
+                auto result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence());
+                VK_CHECK_RESULT(result);
+                if (result == VK_ERROR_DEVICE_LOST) {
+                    uint32_t checkpointDataCount = 0;
+                    GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, nullptr);
+
+                    std::vector<VkCheckpointDataNV> checkpointData(checkpointDataCount);
+                    for (uint32_t i = 0; i < checkpointDataCount; i++)
+                        checkpointData[i].sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
+
+                    GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, checkpointData.data());
+
+                    for (auto& data: checkpointData) {
+                        RAZIX_CORE_INFO("Checkpoint marker location : {0} | Stage : {1}", data.pCheckpointMarker, data.stage);
+                    }
+                }
             }
 
             frameData.renderFence->wait();

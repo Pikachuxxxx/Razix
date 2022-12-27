@@ -45,6 +45,8 @@ namespace Razix {
             void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo) override;
             void EndRenderingImpl(RZCommandBuffer* cmdBuffer) override;
 
+            void SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData) override;
+
         private:
             VKContext*       m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
             VkDescriptorSet  m_DescriptorSetPool[16];

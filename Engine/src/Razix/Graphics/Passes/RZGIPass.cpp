@@ -24,8 +24,8 @@
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
+#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 
@@ -124,20 +124,24 @@ namespace Razix {
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", {FrameGraph::TextureType::Texture_Depth, "RSM/Depth", {kRSMResolution, kRSMResolution}, RZTexture::Format::DEPTH16_UNORM});
 
-                    data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("RSM pass done", { "RSM pass done"});
-
                     data.position = builder.write(data.position);
                     data.normal   = builder.write(data.normal);
                     data.flux     = builder.write(data.flux);
                     data.depth    = builder.write(data.depth);
-                    data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
-
                 },
                 [=](const ReflectiveShadowMapData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RSMCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuffer);
+
+                    
+                    struct CheckpointData
+                    {
+                        std::string RenderPassName = "RSM Pass";
+                    } checkpointData;
+
+                    RZRenderContext::SetCmdCheckpoint(cmdBuffer, &checkpointData);
 
                     RAZIX_MARK_BEGIN("ReflectiveShadowMap", glm::vec4(.23f, .45f, .76f, 1.0f))
 
@@ -217,7 +221,7 @@ namespace Razix {
                     RZRenderContext::EndRendering(cmdBuffer);
 
                     RZRenderContext::Submit(cmdBuffer);
-                    RZRenderContext::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle(});
+                    RZRenderContext::SubmitWork({}, {});
                 });
 
             return data;
@@ -267,18 +271,24 @@ namespace Razix {
                     data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_RenderTarget, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
                     data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_RenderTarget, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
                     data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_RenderTarget, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("Injection pass done", {"Injection pass done"});
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);
                     data.b = builder.write(data.b);
-                    data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
                 },
                 [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RadianceInjectionCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuffer);
+
+                    struct CheckpointData
+                    {
+                        std::string RenderPassName = "Radiance Injection Pass";
+                    } checkpointData;
+
+                    RZRenderContext::SetCmdCheckpoint(cmdBuffer, &checkpointData);
+
 
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 

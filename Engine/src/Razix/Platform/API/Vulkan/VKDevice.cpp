@@ -177,6 +177,7 @@ namespace Razix {
             // Get the device features of the selected GPU and Enable whatever features we need
             VkPhysicalDeviceFeatures physicalDeviceFeatures;
             vkGetPhysicalDeviceFeatures(m_PhysicalDevice->getVulkanPhysicalDevice(), &physicalDeviceFeatures);
+            physicalDeviceFeatures.geometryShader = VK_TRUE;
 
             if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 deviceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

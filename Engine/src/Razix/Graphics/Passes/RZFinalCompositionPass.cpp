@@ -107,6 +107,13 @@ namespace Razix {
                     RZRenderContext::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
+                    struct CheckpointData
+                    {
+                        std::string RenderPassName = "Composite Pass";
+                    } checkpointData;
+
+                    RZRenderContext::SetCmdCheckpoint(Graphics::RZRenderContext::getCurrentCommandBuffer(), &checkpointData);
+
                     cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     // Update the Descriptor Set with the new texture once
