@@ -7,6 +7,8 @@
  #extension GL_ARB_separate_shader_objects : enable
  // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
  #extension GL_ARB_shading_language_420pack : enable
+ // also needs VK_EXT_shader_viewport_index_layer device extension enabled and layersCount in VkRenderingInfo
+#extension GL_ARB_shader_viewport_layer_array : enable
 
 layout(points) in;
 layout(location = 0) in VSOutput {

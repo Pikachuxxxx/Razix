@@ -281,11 +281,13 @@ namespace Razix {
 
         void VKRenderContext::SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData)
         {
+#if 0
             RAZIX_CORE_WARN("Marker Data set : {0} at memory location : {1}", *static_cast<std::string*>(markerData), markerData);
 
             auto func = (PFN_vkCmdSetCheckpointNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdSetCheckpointNV");
             if (func != nullptr)
                 func(static_cast<VKCommandBuffer*>(cmdbuffer)->getBuffer(), markerData);
+#endif
         }
 
         void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)

@@ -55,7 +55,7 @@ namespace Razix {
             auto rsmLightViewProj = RZShadowRenderer::buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), 1, 1.0f, kRSMResolution)[0].viewProjMatrix;
 
             // RSM pass
-            auto RSM = addRSMPass(framegraph, blackboard, scene, rsmLightViewProj, glm::vec3(1.0f));
+            ReflectiveShadowMapData RSM = addRSMPass(framegraph, blackboard, scene, rsmLightViewProj, glm::vec3(1.0f));
 
             // Add this to the blackboard
             blackboard.add<ReflectiveShadowMapData>(RSM);
@@ -135,7 +135,6 @@ namespace Razix {
                     auto cmdBuffer = m_RSMCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuffer);
 
-                    
                     struct CheckpointData
                     {
                         std::string RenderPassName = "RSM Pass";
@@ -160,6 +159,7 @@ namespace Razix {
 
                     RZRenderContext::BeginRendering(cmdBuffer, info);
 
+#if 1
                     // Bind the pipeline
                     m_RSMPipeline->Bind(cmdBuffer);
 
@@ -216,6 +216,7 @@ namespace Razix {
                         Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
+#endif
 
                     RAZIX_MARK_END();
                     RZRenderContext::EndRendering(cmdBuffer);
@@ -268,9 +269,9 @@ namespace Razix {
                     builder.read(RSM.flux);
 
                     // Create the resource for this pass
-                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_RenderTarget, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_RenderTarget, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_RenderTarget, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_2D, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_2D, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_2D, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);
@@ -279,6 +280,7 @@ namespace Razix {
                 [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+#if 1
                     auto cmdBuffer = m_RadianceInjectionCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
                     RZRenderContext::Begin(cmdBuffer);
 
@@ -289,11 +291,11 @@ namespace Razix {
 
                     RZRenderContext::SetCmdCheckpoint(cmdBuffer, &checkpointData);
 
-
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 
                     cmdBuffer->UpdateViewport(kRSMResolution, kRSMResolution);
 
+    #if 1
                     static bool setsCreated = false;
                     if (!setsCreated) {
                         auto setInfos = shader->getSetsCreateInfos();
@@ -319,6 +321,7 @@ namespace Razix {
                         }
                         setsCreated = true;
                     }
+    #endif
 
                     RenderingInfo info{};
                     info.extent           = {grid.size.x, grid.size.y};
@@ -352,6 +355,7 @@ namespace Razix {
 
                     RZRenderContext::Submit(cmdBuffer);
                     RZRenderContext::SubmitWork({}, {});
+#endif
                 });
             return data;
         }

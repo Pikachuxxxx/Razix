@@ -388,6 +388,7 @@ namespace Razix {
             {
                 auto result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence());
                 VK_CHECK_RESULT(result);
+#if 0
                 if (result == VK_ERROR_DEVICE_LOST) {
                     uint32_t checkpointDataCount = 0;
                     GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, nullptr);
@@ -402,6 +403,7 @@ namespace Razix {
                         RAZIX_CORE_INFO("Checkpoint marker location : {0} | Stage : {1}", data.pCheckpointMarker, data.stage);
                     }
                 }
+#endif
             }
 
             frameData.renderFence->wait();
