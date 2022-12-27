@@ -17,7 +17,7 @@
     #include <vulkan/vulkan.h>
     #include <vulkan/vulkan_win32.h>
 
-    #define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
+    #define VK_LAYER_KHRONOS_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
 namespace Razix {
     namespace Graphics {
@@ -144,8 +144,9 @@ namespace Razix {
         std::vector<const char*> VKContext::getRequiredLayers()
         {
             std::vector<const char*> layers;
-            if (m_EnabledValidationLayer)
-                layers.emplace_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
+            if (m_EnabledValidationLayer) {
+                layers.emplace_back(VK_LAYER_KHRONOS_VALIDATION_NAME);
+            }
             return layers;
         }
 

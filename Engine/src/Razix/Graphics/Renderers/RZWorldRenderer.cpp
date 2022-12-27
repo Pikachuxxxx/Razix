@@ -8,6 +8,8 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/Graphics/API/RZGraphicsContext.h"
+
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
@@ -53,7 +55,7 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-250.0f), glm::vec3(250.0f)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
-#if 0
+#if 1
             //-------------------------------
             // Cascaded Shadow Maps
             //-------------------------------
@@ -87,7 +89,16 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    RZGraphicsContext::GetContext()->Wait();
+
                     m_ImGuiRenderer.Begin(scene);
+
+                    struct CheckpointData
+                    {
+                        std::string RenderPassName = "ImGui Pass";
+                    } checkpointData;
+
+                    RZRenderContext::SetCmdCheckpoint(Graphics::RZRenderContext::getCurrentCommandBuffer(), &checkpointData);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
 
@@ -113,7 +124,6 @@ namespace Razix {
             //-------------------------------
             m_CompositePass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 #endif
-
 
             // Compile the Frame Graph
             m_FrameGraph.compile();

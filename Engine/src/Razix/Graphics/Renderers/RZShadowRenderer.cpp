@@ -323,6 +323,13 @@ namespace Razix {
                     info.resize = false;
                     RZRenderContext::BeginRendering(cmdBuf, info);
 
+                    struct CheckpointData
+                    {
+                        std::string RenderPassName = "CSM Pass";
+                    }checkpointData;
+
+                    RZRenderContext::SetCmdCheckpoint(cmdBuf, &checkpointData);
+
                     // Bind pipeline
                     cascadeGPUResources[cascadeIdx].CascadePassPipeline->Bind(cmdBuf);
 

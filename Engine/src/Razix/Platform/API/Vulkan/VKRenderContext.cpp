@@ -126,7 +126,7 @@ namespace Razix {
 
             std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
             for (size_t i = 0; i < waitSemaphores.size(); i++)
-                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(frameIdx);
+                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(prevFrameIdx);
 
             std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
             for (size_t i = 0; i < signalSemaphores.size(); i++)
@@ -277,6 +277,15 @@ namespace Razix {
         void VKRenderContext::EndRenderingImpl(RZCommandBuffer* cmdBuffer)
         {
             CmdEndRenderingKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer());
+        }
+
+        void VKRenderContext::SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData)
+        {
+            RAZIX_CORE_WARN("Marker Data set : {0} at memory location : {1}", *static_cast<std::string*>(markerData), markerData);
+
+            auto func = (PFN_vkCmdSetCheckpointNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdSetCheckpointNV");
+            if (func != nullptr)
+                func(static_cast<VKCommandBuffer*>(cmdbuffer)->getBuffer(), markerData);
         }
 
         void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)

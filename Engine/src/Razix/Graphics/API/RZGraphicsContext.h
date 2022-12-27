@@ -45,6 +45,8 @@ namespace Razix {
             /* Clears the screen with the given color */
             virtual void ClearWithColor(float r, float g, float b) = 0;
 
+            virtual void Wait() {}
+
             /* Returns the pointer to the underlying graphics API */
             static RZGraphicsContext* GetContext();
 
