@@ -26,10 +26,10 @@ R6_1 [label=<{ {<B>RSM/Depth</B><BR/>(512, 512) - DEPTH [Depth]} | {Index: 6<BR/
 R7_1 [label=<{ {<B>SH/R</B><BR/>(32, 13, 20) - RGBA32F [3D]} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R8_1 [label=<{ {<B>SH/G</B><BR/>(32, 13, 20) - RGBA32F [3D]} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R9_1 [label=<{ {<B>SH/B</B><BR/>(32, 13, 20) - RGBA32F [3D]} | {Index: 9<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R10_1 [label=<{ {<B>ImGui RT</B><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R10_1 [label=<{ {<B>ImGui RT</B><BR/>(845, 400) - RGBA32 [RT]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R11_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Present Image</B><BR/>(1280, 720) - Presentation [Swapchain Image]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R13_1 [label=<{ {<B>Depth Texture</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 13<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Present Image</B><BR/>(845, 400) - Presentation [Swapchain Image]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R13_1 [label=<{ {<B>Depth Texture</B><BR/>(845, 400) - DEPTH [Depth]} | {Index: 13<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R14_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 14<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R15_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 15<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 

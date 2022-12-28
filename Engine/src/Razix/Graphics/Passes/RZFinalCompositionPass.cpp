@@ -136,6 +136,7 @@ namespace Razix {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
                     };
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize = true;
 
                     RZRenderContext::BeginRendering(cmdBuf, info);
 

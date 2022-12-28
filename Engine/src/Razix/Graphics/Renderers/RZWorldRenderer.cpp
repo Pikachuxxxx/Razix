@@ -106,6 +106,8 @@ namespace Razix {
                     info.colorAttachments = {
                         {rt, {true, glm::vec4(0.0f)}}};
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize = true;
+
                     RZRenderContext::BeginRendering(Graphics::RZRenderContext::getCurrentCommandBuffer(), info);
 
                     m_ImGuiRenderer.Draw(Graphics::RZRenderContext::getCurrentCommandBuffer());

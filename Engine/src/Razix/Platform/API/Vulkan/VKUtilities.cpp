@@ -345,6 +345,7 @@ namespace Razix {
                     }
                 }
                 RAZIX_CORE_WARN("Could not find supported format");
+                return VK_FORMAT_UNDEFINED;
             }
 
             VkFormat FindDepthFormat()
@@ -417,6 +418,120 @@ namespace Razix {
                         return VK_POLYGON_MODE_FILL;
                         break;
                 }
+            }
+
+            VkBlendOp BlendOpToVK(Razix::Graphics::BlendOp blendOp)
+            {
+                switch (blendOp) {
+                    case Razix::Graphics::BlendOp::Add:
+                        return VK_BLEND_OP_ADD;
+                        break;
+                    case Razix::Graphics::BlendOp::Subtract:
+                        return VK_BLEND_OP_SUBTRACT;
+                        break;
+                    case Razix::Graphics::BlendOp::ReverseSubtract:
+                        return VK_BLEND_OP_REVERSE_SUBTRACT;
+                        break;
+                    case Razix::Graphics::BlendOp::Min:
+                        return VK_BLEND_OP_MIN;
+                        break;
+                    case Razix::Graphics::BlendOp::Max:
+                        return VK_BLEND_OP_MAX;
+                        break;
+                    default:
+                        return VK_BLEND_OP_ADD;
+                        break;
+                }
+                return VK_BLEND_OP_ADD;
+            }
+
+            VkBlendFactor BlendFactorToVK(Razix::Graphics::BlendFactor blendFactor)
+            {
+                switch (blendFactor) {
+                    case Razix::Graphics::BlendFactor::Zero:
+                        return VK_BLEND_FACTOR_ZERO;
+                        break;
+                    case Razix::Graphics::BlendFactor::One:
+                        return VK_BLEND_FACTOR_ONE;
+                        break;
+                    case Razix::Graphics::BlendFactor::SrcColor:
+                        return VK_BLEND_FACTOR_SRC_COLOR;
+                        break;
+                    case Razix::Graphics::BlendFactor::OneMinusSrcColor:
+                        return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+                        break;
+                    case Razix::Graphics::BlendFactor::DstColor:
+                        return VK_BLEND_FACTOR_DST_COLOR;
+                        break;
+                    case Razix::Graphics::BlendFactor::OneMinusDstColor:
+                        return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+                        break;
+                    case Razix::Graphics::BlendFactor::SrcAlpha:
+                        return VK_BLEND_FACTOR_SRC_ALPHA;
+                        break;
+                    case Razix::Graphics::BlendFactor::OneMinusSrcAlpha:
+                        return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+                        break;
+                    case Razix::Graphics::BlendFactor::DstAlpha:
+                        return VK_BLEND_FACTOR_DST_ALPHA;
+                        break;
+                    case Razix::Graphics::BlendFactor::OneMinusDstAlpha:
+                        return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+                        break;
+                    case Razix::Graphics::BlendFactor::ConstantColor:
+                        return VK_BLEND_FACTOR_CONSTANT_COLOR;
+                        break;
+                    case BlendFactor::OneMinusConstantColor:
+                        return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+                        break;
+                    case Razix::Graphics::BlendFactor::ConstantAlpha:
+                        return VK_BLEND_FACTOR_CONSTANT_ALPHA;
+                        break;
+                    case Razix::Graphics::BlendFactor::OneMinusConstantAlpha:
+                        return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+                        break;
+                    case Razix::Graphics::BlendFactor::SrcAlphaSaturate:
+                        return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+                        break;
+                    default:
+                        return VK_BLEND_FACTOR_ONE;
+                        break;
+                }
+                return VK_BLEND_FACTOR_ONE;
+            }
+
+            VkCompareOp CompareOpToVK(Razix::Graphics::CompareOp compareOp)
+            {
+                switch (compareOp) {
+                    case Razix::Graphics::CompareOp::Never:
+                        return VK_COMPARE_OP_NEVER;
+                        break;
+                    case Razix::Graphics::CompareOp::Less:
+                        return VK_COMPARE_OP_LESS;
+                        break;
+                    case Razix::Graphics::CompareOp::Equal:
+                        return VK_COMPARE_OP_EQUAL;
+                        break;
+                    case Razix::Graphics::CompareOp::LessOrEqual:
+                        return VK_COMPARE_OP_LESS_OR_EQUAL;
+                        break;
+                    case Razix::Graphics::CompareOp::Greater:
+                        return VK_COMPARE_OP_GREATER;
+                        break;
+                    case Razix::Graphics::CompareOp::NotEqual:
+                        return VK_COMPARE_OP_NOT_EQUAL;
+                        break;
+                    case Razix::Graphics::CompareOp::GreaterOrEqual:
+                        return VK_COMPARE_OP_GREATER_OR_EQUAL;
+                        break;
+                    case Razix::Graphics::CompareOp::Always:
+                        return VK_COMPARE_OP_ALWAYS;
+                        break;
+                    default:
+                        return VK_COMPARE_OP_LESS_OR_EQUAL;
+                        break;
+                }
+                return VK_COMPARE_OP_LESS_OR_EQUAL;
             }
 
             VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType)

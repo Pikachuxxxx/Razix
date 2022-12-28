@@ -123,21 +123,21 @@ namespace Razix {
             for (unsigned int i = 0; i < blendAttachState.size(); i++) {
                 blendAttachState[i]                = VkPipelineColorBlendAttachmentState();
                 blendAttachState[i].colorWriteMask = 0x0f;
-                blendAttachState[i].alphaBlendOp   = VK_BLEND_OP_ADD;
-                blendAttachState[i].colorBlendOp   = VK_BLEND_OP_ADD;
+                blendAttachState[i].colorBlendOp   = VKUtilities::BlendOpToVK(pipelineInfo.colorOp);
+                blendAttachState[i].alphaBlendOp   = VKUtilities::BlendOpToVK(pipelineInfo.alphaOp);
 
                 if (pipelineInfo.transparencyEnabled) {
                     blendAttachState[i].blendEnable         = VK_TRUE;
-                    blendAttachState[i].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-                    blendAttachState[i].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-                    blendAttachState[i].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-                    blendAttachState[i].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+                    blendAttachState[i].srcColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorSrc);
+                    blendAttachState[i].dstColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorDst);
+                    blendAttachState[i].srcAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaSrc);
+                    blendAttachState[i].dstAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaDst);
                 } else {
                     blendAttachState[i].blendEnable         = VK_FALSE;
-                    blendAttachState[i].srcColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-                    blendAttachState[i].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-                    blendAttachState[i].srcAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-                    blendAttachState[i].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+                    blendAttachState[i].srcColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorSrc);
+                    blendAttachState[i].dstColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorDst);
+                    blendAttachState[i].srcAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaSrc);
+                    blendAttachState[i].dstAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaDst);
                 }
             }
 
@@ -158,8 +158,10 @@ namespace Razix {
             depthStencilSCI.pNext                 = nullptr;
             depthStencilSCI.depthTestEnable       = pipelineInfo.depthTestEnabled;
             depthStencilSCI.depthWriteEnable      = pipelineInfo.depthWriteEnabled;
-            depthStencilSCI.depthCompareOp        = VK_COMPARE_OP_LESS_OR_EQUAL;
+            depthStencilSCI.depthCompareOp        = VKUtilities::CompareOpToVK(pipelineInfo.depthOp);    
             depthStencilSCI.depthBoundsTestEnable = VK_FALSE;
+
+            // Stencil Testing is always disabled so no need to care about it's operations
             depthStencilSCI.stencilTestEnable     = VK_FALSE;
 
             depthStencilSCI.back.failOp      = VK_STENCIL_OP_KEEP;
