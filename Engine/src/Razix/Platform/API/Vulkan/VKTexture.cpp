@@ -625,6 +625,8 @@ namespace Razix {
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
+            m_TextureType = RZTexture::Type::COLOR_RT;
+
             updateDescriptor();
         }
 
@@ -632,6 +634,8 @@ namespace Razix {
         {
             m_Width  = width;
             m_Height = height;
+
+            m_TextureType = RZTexture::Type::COLOR_RT;
 
             Release(true);
             m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -711,6 +715,7 @@ namespace Razix {
         void VKRenderTexture::init(RZ_DEBUG_NAME_TAG_S_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            m_TextureType = RZTexture::Type::COLOR_RT;
 
             uint32_t mipLevels = 1;    // static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
 

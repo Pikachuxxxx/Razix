@@ -35,7 +35,7 @@ namespace Razix {
             std::vector<std::pair<RZTexture*, AttachmentClearInfo>> colorAttachments;
             std::pair<RZTexture*, AttachmentClearInfo>              depthAttachment;
             int                                                     layerCount = 1;
-            bool                                                    resize     = true;
+            bool                                                    resize     = false;
         };
 
         typedef std::vector<RZCommandBuffer*> CommandQueue;
