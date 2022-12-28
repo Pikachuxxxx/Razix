@@ -17,6 +17,9 @@ namespace Razix {
         enum class DrawType;
         enum class CullMode;
         enum class PolygonMode;
+        enum class BlendOp;
+        enum class BlendFactor;
+        enum class CompareOp;
         enum class ShaderStage;
         enum class DescriptorType : uint32_t;
 
@@ -178,6 +181,12 @@ namespace Razix {
             VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode);
 
             VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode);
+
+            VkBlendOp BlendOpToVK(Razix::Graphics::BlendOp blendOp);
+
+            VkBlendFactor BlendFactorToVK(Razix::Graphics::BlendFactor blendFactor);
+
+            VkCompareOp CompareOpToVK(Razix::Graphics::CompareOp compareOp);
 
             VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType);
 

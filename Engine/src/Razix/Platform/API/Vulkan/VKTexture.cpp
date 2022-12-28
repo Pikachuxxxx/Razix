@@ -445,7 +445,7 @@ namespace Razix {
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
 
-            uint32_t mipLevels = 1;//static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //
+            uint32_t mipLevels = 1;    //static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //
 
             VkImageUsageFlagBits usageBit{};
             if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
@@ -458,6 +458,8 @@ namespace Razix {
             VKTexture2D::CreateImage(m_Width, m_Height, depth, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_3D, VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_E_ARG_NAME);
 
             //VKTexture2D::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Format), m_Width, m_Height, mipLevels);
+
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
 
             // Create the Image view for the Vulkan image (uses color bit)
             VkImageAspectFlagBits aspectBit{};

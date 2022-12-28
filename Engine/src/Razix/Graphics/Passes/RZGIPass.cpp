@@ -62,6 +62,13 @@ namespace Razix {
 
             // Radiance Injection Pass
             auto radiance = addRadianceInjectionPass(framegraph, RSM, m_Grid);
+
+            LightPropagationVolumesData LPV{-1};
+
+            //for (uint32_t i = 0; i < kDefaultNumPropagations; i++)
+            //    LPV = addRadiancePropagationPass(framegraph, i == 0 ? radiance : LPV, m_Grid, i);
+
+            blackboard.add<LightPropagationVolumesData>(LPV);
         }
 
         void RZGIPass::destroy()
@@ -230,6 +237,8 @@ namespace Razix {
 
         LightPropagationVolumesData RZGIPass::addRadianceInjectionPass(FrameGraph::RZFrameGraph& framegraph, const ReflectiveShadowMapData& RSM, const Maths::RZGrid& grid)
         {
+            // FIXME!!!: invert the RT as vulkan need inverted Y
+
             // Load the shader properly
             auto shader = RZShaderLibrary::Get().getShader("lpv_radiance_injection.rzsf");
 
@@ -254,6 +263,11 @@ namespace Razix {
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthTestEnabled    = false;
             pipelineInfo.depthWriteEnabled   = false;
+            // Additive Blending
+            pipelineInfo.colorSrc = BlendFactor::One;
+            pipelineInfo.colorDst = BlendFactor::One;
+            pipelineInfo.alphaSrc = BlendFactor::One;
+            pipelineInfo.alphaDst = BlendFactor::One;
             // Depth, worldPos, normal, flux
             pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F};
 
@@ -358,6 +372,19 @@ namespace Razix {
                     RZRenderContext::Submit(cmdBuffer);
                     RZRenderContext::SubmitWork({}, {});
 #endif
+                });
+            return data;
+        }
+
+        LightPropagationVolumesData RZGIPass::addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, uint32_t propagationIdx)
+        {
+            // First order of business get the shader
+
+            const auto data = framegraph.addCallbackPass<LightPropagationVolumesData>(
+                "Radiance Propagation #" + std::to_string(propagationIdx),
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, LightPropagationVolumesData& data) {
+                },
+                [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                 });
             return data;
         }

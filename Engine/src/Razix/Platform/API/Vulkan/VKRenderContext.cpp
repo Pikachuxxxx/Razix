@@ -47,9 +47,8 @@ namespace Razix {
             m_RendererTitle = "Vulkan";
             m_Width         = width;
             m_Height        = height;
-
-            m_PrevWidth  = width;
-            m_PrevHeight = height;
+            m_PrevWidth     = width;
+            m_PrevHeight    = height;
 
             // Create any extra descriptor pools here such as for ImGui and other needs
             std::array<VkDescriptorPoolSize, 5> pool_sizes = {
