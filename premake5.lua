@@ -53,6 +53,7 @@ workspace ( settings.workspace_name )
     objdir ("bin-int/%{outputdir}/obj/")
     -- Debugging directory = where the main premake5.lua is located
     debugdir "%{wks.location}../"
+    --symbolspath "bin-int/%{outputdir}/pdb/"
 
     -- Setting the architecture for the workspace
     if Arch == "arm" then

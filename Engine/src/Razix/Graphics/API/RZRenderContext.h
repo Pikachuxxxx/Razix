@@ -180,12 +180,12 @@ namespace Razix {
             static RZRenderContext* s_APIInstance;
 
             std::string      m_RendererTitle; /* The name of the renderer API that is being used */
-            uint32_t         m_Width;
-            uint32_t         m_Height;
-            uint32_t         m_PrevWidth;
-            uint32_t         m_PrevHeight;
+            uint32_t         m_Width      = 0;
+            uint32_t         m_Height     = 0;
+            uint32_t         m_PrevWidth  = 0;
+            uint32_t         m_PrevHeight = 0;
             CommandQueue     m_CommandQueue; /* The queue of recorded commands that needs execution */
-            RZCommandBuffer* m_CurrentCommandBuffer;
+            RZCommandBuffer* m_CurrentCommandBuffer = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

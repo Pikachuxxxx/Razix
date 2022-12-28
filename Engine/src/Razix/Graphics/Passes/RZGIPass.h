@@ -24,16 +24,25 @@ namespace Razix {
 
         private:
             Maths::RZGrid                    m_Grid;
+            RZPipeline*                      m_RIPipeline;
             RZPipeline*                      m_RSMPipeline;
+            RZPipeline*                      m_RPropagationPipeline;
             RZUniformBuffer*                 m_ModelViewProjectionSystemUBO = nullptr;
             ModelViewProjectionSystemUBOData m_ModelViewProjSystemUBOData;
             Graphics::RZDescriptorSet*       m_MVPDescriptorSet;
             Graphics::RZDescriptorSet*       m_RIDescriptorSet;
             std::vector<RZCommandBuffer*>    m_RSMCmdBuffers;
             std::vector<RZCommandBuffer*>    m_RadianceInjectionCmdBuffers;
-            RZUniformBuffer*                 m_RadianceInjectionUBO = nullptr;
-            RZPipeline*                      m_RIPipeline;
+            std::vector<RZCommandBuffer*>    m_RadiancePropagationCmdBuffers;
             RadianceInjectionUBOData         radianceInjectionData;
+            RZUniformBuffer*                 m_RadianceInjectionUBO = nullptr;
+            RadiancePropagationUBOData       radiancePropagationData;
+            RZUniformBuffer*                 m_RadiancePropagationUBO = nullptr;
+
+            struct PropagationGPUResources
+            {
+                Graphics::RZDescriptorSet* PropagationDescriptorSet = nullptr;
+            } m_PropagationGPUResources[kDefaultNumPropagations];
 
         private:
             ReflectiveShadowMapData     addRSMPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity);

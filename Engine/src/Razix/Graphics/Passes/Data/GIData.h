@@ -33,3 +33,9 @@ struct RadianceInjectionUBOData
     glm::vec3 GridSize;
     //char       _padding__;
 };
+
+struct RadiancePropagationUBOData
+{
+    glm::vec3 GridSize;
+    char      _padding;
+};

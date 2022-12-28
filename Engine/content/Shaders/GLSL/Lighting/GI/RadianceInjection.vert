@@ -7,6 +7,7 @@
  #extension GL_ARB_separate_shader_objects : enable
  // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
  #extension GL_ARB_shading_language_420pack : enable
+
 //------------------------------------------------------------------------------
 #include <Lighting/GI/LPV.glsl>
 //------------------------------------------------------------------------------
@@ -31,7 +32,6 @@ layout(location = 0) out VSOutput
     flat ivec3 cellIndex;
 }vs_out;
 //------------------------------------------------------------------------------
-
 void main()
 {
     const ivec2 coord = ivec2(unflatten2D(gl_VertexIndex, radianceInjectionData.RSMResolution));
@@ -48,6 +48,6 @@ void main()
 
     const vec2 ndc = (vec2(gridCell.xy) + 0.5) / radianceInjectionData.GridSize.xy * 2.0 - 1.0;
     gl_Position = vec4(ndc, 0.0, 1.0);
-
+    gl_Position.y = -gl_Position.y;	
     gl_PointSize = 2.0;
 }

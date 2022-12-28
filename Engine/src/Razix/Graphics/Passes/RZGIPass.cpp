@@ -65,8 +65,15 @@ namespace Razix {
 
             LightPropagationVolumesData LPV{-1};
 
-            //for (uint32_t i = 0; i < kDefaultNumPropagations; i++)
-            //    LPV = addRadiancePropagationPass(framegraph, i == 0 ? radiance : LPV, m_Grid, i);
+            // Create command buffers
+            m_RadiancePropagationCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
+            for (uint32_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
+                m_RadiancePropagationCmdBuffers[i] = RZCommandBuffer::Create();
+                m_RadiancePropagationCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Radiance Propagation Command Buffers"));
+            }
+
+            for (uint32_t i = 0; i < kDefaultNumPropagations; i++)
+                LPV = addRadiancePropagationPass(framegraph, i == 0 ? radiance : LPV, m_Grid, i);
 
             blackboard.add<LightPropagationVolumesData>(LPV);
         }
@@ -243,7 +250,6 @@ namespace Razix {
             auto shader = RZShaderLibrary::Get().getShader("lpv_radiance_injection.rzsf");
 
             // Get the setinfo ==> allocate UBOs and Textures and bind them to the descriptor sets
-
             m_RadianceInjectionUBO = RZUniformBuffer::Create(sizeof(RadianceInjectionUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("RI UBO"));
 
             // Create command buffers
@@ -253,7 +259,6 @@ namespace Razix {
                 m_RadianceInjectionCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Radiance Injection Command Buffers"));
             }
 
-            // create pipeline
             // Create the Pipeline
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
@@ -309,7 +314,7 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 
-                    cmdBuffer->UpdateViewport(kRSMResolution, kRSMResolution);
+                    cmdBuffer->UpdateViewport(grid.size.x, grid.size.y);
 
     #if 1
                     static bool setsCreated = false;
@@ -379,12 +384,117 @@ namespace Razix {
         LightPropagationVolumesData RZGIPass::addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, uint32_t propagationIdx)
         {
             // First order of business get the shader
+            auto shader = RZShaderLibrary::Get().getShader("lpv_radiance_propagation.rzsf");
+            // Get the setinfo ==> allocate UBOs and Textures and bind them to the descriptor sets
+            m_RadiancePropagationUBO = RZUniformBuffer::Create(sizeof(RadiancePropagationUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("RPropagation UBO"));
 
-            const auto data = framegraph.addCallbackPass<LightPropagationVolumesData>(
+            // Create the Pipeline
+            Graphics::PipelineInfo pipelineInfo{};
+            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.shader              = shader;
+            pipelineInfo.drawType            = Graphics::DrawType::POINT;
+            pipelineInfo.transparencyEnabled = true;
+            pipelineInfo.depthBiasEnabled    = false;
+            pipelineInfo.depthTestEnabled    = false;
+            pipelineInfo.depthWriteEnabled   = false;
+            // Additive Blending
+            pipelineInfo.colorSrc = BlendFactor::One;
+            pipelineInfo.colorDst = BlendFactor::One;
+            pipelineInfo.alphaSrc = BlendFactor::One;
+            pipelineInfo.alphaDst = BlendFactor::One;
+            // Depth, worldPos, normal, flux
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F};
+
+            m_RPropagationPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Propagation pipeline"));
+
+            const auto& data = framegraph.addCallbackPass<LightPropagationVolumesData>(
                 "Radiance Propagation #" + std::to_string(propagationIdx),
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, LightPropagationVolumesData& data) {
+                    builder.setAsStandAlonePass();
+
+                    builder.read(LPV.r);
+                    builder.read(LPV.g);
+                    builder.read(LPV.b);
+
+                    // Create the resource for this pass
+                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+
+                    data.r = builder.write(data.r);
+                    data.g = builder.write(data.g);
+                    data.b = builder.write(data.b);
                 },
                 [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    auto cmdBuffer = m_RadiancePropagationCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
+                    RZRenderContext::Begin(cmdBuffer);
+
+                    struct CheckpointData
+                    {
+                        std::string RenderPassName = "Radiance Propagation Pass";
+                    } checkpointData;
+
+                    RZRenderContext::SetCmdCheckpoint(cmdBuffer, &checkpointData);
+
+                    RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
+
+                    cmdBuffer->UpdateViewport(grid.size.x, grid.size.y);
+
+                    if (!m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet) {
+                        auto setInfos = shader->getSetsCreateInfos();
+                        for (auto& setInfo: setInfos) {
+                            for (auto& descriptor: setInfo.second) {
+                                if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                    descriptor.uniformBuffer = m_RadiancePropagationUBO;
+                                } else {
+                                    switch (descriptor.bindingInfo.binding) {
+                                        case 1:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.r).getHandle();
+                                            break;
+                                        case 2:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.g).getHandle();
+                                            break;
+                                        case 3:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.b).getHandle();
+                                            break;
+                                    }
+                                }
+                            }
+                            m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Propagation Pass Set #" + std::to_string(propagationIdx)));
+                        }
+                    }
+
+                    RenderingInfo info{};
+                    info.extent           = {grid.size.x, grid.size.y};
+                    info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture the only have a single layer
+                    info.colorAttachments = {
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, glm::vec4(0.0f)}},    // location = 2 // SH_B
+                    };
+
+                    RZRenderContext::BeginRendering(cmdBuffer, info);
+
+                    // Bind the sets and update the data
+                    radiancePropagationData.GridSize = grid.size;
+
+                    m_RadiancePropagationUBO->SetData(sizeof(RadianceInjectionUBOData), &radiancePropagationData);
+
+                    // Bind the pipeline
+                    m_RPropagationPipeline->Bind(cmdBuffer);
+
+                    // Bind the desc sets
+                    RZRenderContext::BindDescriptorSets(m_RPropagationPipeline, cmdBuffer, &m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet, 1);
+
+                    RZRenderContext::Draw(cmdBuffer, kNumVPL);
+
+                    RAZIX_MARK_END();
+                    RZRenderContext::EndRendering(cmdBuffer);
+
+                    RZRenderContext::Submit(cmdBuffer);
+                    RZRenderContext::SubmitWork({}, {});
                 });
             return data;
         }
