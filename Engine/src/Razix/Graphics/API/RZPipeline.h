@@ -57,6 +57,10 @@ namespace Razix {
 
             bool transparencyEnabled = true;
             bool depthBiasEnabled    = false;
+            bool depthTestEnabled    = true;
+            bool depthWriteEnabled   = true;
+
+            // TODO: Add DepthFunc and BlendFunc settings
         };
 
         /* Pipeline binds all the resources together that are necessary to render geometry such as shaders, buffers, uniforms, descriptors and pipeline info */

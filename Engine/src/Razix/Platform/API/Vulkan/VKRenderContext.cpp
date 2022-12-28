@@ -237,7 +237,7 @@ namespace Razix {
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::CUBEMAP) {
+                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_3D || attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::CUBEMAP) {
                     auto& clearColor = attachment.second.clearColor;
                     memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
                     colorAttachments.push_back(attachInfo);

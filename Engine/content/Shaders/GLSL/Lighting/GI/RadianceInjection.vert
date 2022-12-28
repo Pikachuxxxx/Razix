@@ -14,9 +14,9 @@
 layout(set = 0, binding = 0) uniform RadianceInjectionUBO
 {
     int RSMResolution;
+    float CellSize;
     vec3 MinCorner;
     vec3 GridSize;
-    float CellSize;
 }radianceInjectionData;
 
 layout(set = 0, binding = 1) uniform sampler2D worldPosRT;
@@ -49,5 +49,5 @@ void main()
     const vec2 ndc = (vec2(gridCell.xy) + 0.5) / radianceInjectionData.GridSize.xy * 2.0 - 1.0;
     gl_Position = vec4(ndc, 0.0, 1.0);
 
-    gl_PointSize = 1.0;
+    gl_PointSize = 2.0;
 }

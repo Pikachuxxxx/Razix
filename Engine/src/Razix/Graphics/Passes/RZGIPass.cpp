@@ -55,7 +55,7 @@ namespace Razix {
             auto rsmLightViewProj = RZShadowRenderer::buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), 1, 1.0f, kRSMResolution)[0].viewProjMatrix;
 
             // RSM pass
-            ReflectiveShadowMapData RSM = addRSMPass(framegraph, blackboard, scene, rsmLightViewProj, glm::vec3(1.0f));
+            ReflectiveShadowMapData RSM = addRSMPass(framegraph, blackboard, scene, rsmLightViewProj, glm::vec3(3.0f));
 
             // Add this to the blackboard
             blackboard.add<ReflectiveShadowMapData>(RSM);
@@ -215,7 +215,7 @@ namespace Razix {
 
                         Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
-                    // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
+                // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 #endif
 
                     RAZIX_MARK_END();
@@ -250,8 +250,10 @@ namespace Razix {
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::POINT;
-            pipelineInfo.transparencyEnabled = false;
+            pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
+            pipelineInfo.depthTestEnabled    = false;
+            pipelineInfo.depthWriteEnabled   = false;
             // Depth, worldPos, normal, flux
             pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F};
 
@@ -269,9 +271,9 @@ namespace Razix {
                     builder.read(RSM.flux);
 
                     // Create the resource for this pass
-                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_2D, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_2D, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_2D, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);
@@ -325,7 +327,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.extent           = {grid.size.x, grid.size.y};
-                    info.layerCount       = grid.size.z;
+                    info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture the only have a single layer
                     info.colorAttachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G
