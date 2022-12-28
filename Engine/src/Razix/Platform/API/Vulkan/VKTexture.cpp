@@ -19,13 +19,13 @@ namespace Razix {
         // Texture Utility Functions
         //-----------------------------------------------------------------------------------
 
-        void VKTexture2D::CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKTexture2D::CreateImage(uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
         {
             // We pass the image as reference because we need the memory for it as well
             VkImageCreateInfo imageInfo = {};
             imageInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
             imageInfo.imageType         = imageType;
-            imageInfo.extent            = {width, height, 1};
+            imageInfo.extent            = {width, height, depth};
             imageInfo.mipLevels         = mipLevels;
             imageInfo.format            = format;
             imageInfo.tiling            = tiling;
@@ -281,7 +281,7 @@ namespace Razix {
 
             // Create the Vulkan Image and it's memory and Bind them together
             // We use a simple optimal tiling options
-            VKTexture2D::CreateImage(m_Width, m_Height, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, numLayers, 0 RZ_DEBUG_E_ARG_NAME);
+            VKTexture2D::CreateImage(m_Width, m_Height, 1, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, numLayers, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Create the Image view for the Vulkan image (uses color bit)
             VkImageAspectFlagBits aspectBit{};
@@ -374,7 +374,7 @@ namespace Razix {
 
             // Create the Vulkan Image and it's memory and Bind them together
             // We use a simple optimal tiling options
-            CreateImage(m_Width, m_Height, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_E_ARG_NAME);
+            CreateImage(m_Width, m_Height, 1, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_E_ARG_NAME);
 
             //  There are two transitions we need to handle:
             //      1. Undefined -> transfer destination: transfer writes that don't need to wait on anything
@@ -428,6 +428,88 @@ namespace Razix {
             delete stagingBuffer;
 
             return true;
+        }
+
+        //-----------------------------------------------------------------------------------
+        // Texture3D
+        //-----------------------------------------------------------------------------------
+
+        VKTexture3D::VKTexture3D(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            m_TextureType = RZTexture::Type::COLOR_3D;
+            m_Name        = name;
+            m_Width       = width;
+            m_Height      = height;
+            m_Format      = format;
+            m_FilterMode  = filterMode;
+            m_WrapMode    = wrapMode;
+            m_VirtualPath = "";
+
+            uint32_t mipLevels = 1;//static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //
+
+            VkImageUsageFlagBits usageBit{};
+            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
+                usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            else
+                usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+            // Create the Vulkan Image and it's memory and Bind them together
+            // We use a simple optimal tiling options
+            VKTexture2D::CreateImage(m_Width, m_Height, depth, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_3D, VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_E_ARG_NAME);
+
+            //VKTexture2D::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Format), m_Width, m_Height, mipLevels);
+
+            // Create the Image view for the Vulkan image (uses color bit)
+            VkImageAspectFlagBits aspectBit{};
+            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
+                aspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
+            else
+                aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
+
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_3D, aspectBit, 1, 0 RZ_DEBUG_E_ARG_NAME);
+
+            // Create a sampler view for the image
+            auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
+            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<float>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
+
+            updateDescriptor();
+        }
+
+        void VKTexture3D::Release(bool deleteImage /*= true*/)
+        {
+            if (m_ImageSampler != VK_NULL_HANDLE)
+                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
+
+            if (m_ImageView != VK_NULL_HANDLE)
+                vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageView, nullptr);
+
+            if (deleteImage)
+                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
+
+            if (m_ImageMemory != VK_NULL_HANDLE)
+                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+        }
+
+        void VKTexture3D::Bind(uint32_t slot)
+        {
+        }
+
+        void VKTexture3D::Unbind(uint32_t slot)
+        {
+        }
+
+        void* VKTexture3D::GetHandle() const
+        {
+            return (void*) &m_Descriptor;
+        }
+
+        void VKTexture3D::updateDescriptor()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_Descriptor.imageView   = m_ImageView;
+            m_Descriptor.sampler     = m_ImageSampler;
+            m_Descriptor.imageLayout = m_ImageLayout;
         }
 
         //-----------------------------------------------------------------------------------
@@ -494,7 +576,7 @@ namespace Razix {
 
             VkFormat depthFormat = VKUtilities::FindDepthFormat();
 
-            VKTexture2D::CreateImage(m_Width, m_Height, 1, depthFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_NAME_TAG_STR_E_ARG("DepthTexture"));
+            VKTexture2D::CreateImage(m_Width, m_Height, 1, 1, depthFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_NAME_TAG_STR_E_ARG("DepthTexture"));
 
             m_ImageView = VKTexture2D::CreateImageView(m_Image, depthFormat, 1, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
@@ -632,7 +714,7 @@ namespace Razix {
 
             // Create the Vulkan Image and it's memory and Bind them together
             // We use a simple optimal tiling options
-            VKTexture2D::CreateImage(m_Width, m_Height, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_E_ARG_NAME);
+            VKTexture2D::CreateImage(m_Width, m_Height, 1, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Create the Image view for the Vulkan image (uses color bit)
             m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 1, 0 RZ_DEBUG_E_ARG_NAME);
@@ -684,7 +766,7 @@ namespace Razix {
             m_Height = 512;
 
             auto format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            VKTexture2D::CreateImage(512, 512, 1, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            VKTexture2D::CreateImage(512, 512, 1, 1, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
 
             m_ImageView = VKTexture2D::CreateImageView(m_Image, format, 1, VK_IMAGE_VIEW_TYPE_CUBE, VK_IMAGE_ASPECT_COLOR_BIT, 6);
 

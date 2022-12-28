@@ -156,8 +156,8 @@ namespace Razix {
             VkPipelineDepthStencilStateCreateInfo depthStencilSCI{};
             depthStencilSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
             depthStencilSCI.pNext                 = nullptr;
-            depthStencilSCI.depthTestEnable       = VK_TRUE;
-            depthStencilSCI.depthWriteEnable      = VK_TRUE;
+            depthStencilSCI.depthTestEnable       = pipelineInfo.depthTestEnabled;
+            depthStencilSCI.depthWriteEnable      = pipelineInfo.depthWriteEnabled;
             depthStencilSCI.depthCompareOp        = VK_COMPARE_OP_LESS_OR_EQUAL;
             depthStencilSCI.depthBoundsTestEnable = VK_FALSE;
             depthStencilSCI.stencilTestEnable     = VK_FALSE;

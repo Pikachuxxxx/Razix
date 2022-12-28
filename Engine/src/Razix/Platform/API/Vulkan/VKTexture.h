@@ -69,7 +69,7 @@ namespace Razix {
              * @param image The reference to the image to be created
              * @param imageMemory The reference to the image memory to created and will be bound to
              */
-            static void CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
+            static void CreateImage(uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
 
             static void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
@@ -148,6 +148,38 @@ namespace Razix {
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
             bool load(RZ_DEBUG_NAME_TAG_S_ARG);
+        };
+
+        //-----------------------------------------------------------------------------------
+        // Texture3D
+        //-----------------------------------------------------------------------------------
+
+        class VKTexture3D : public RZTexture3D
+        {
+        public:
+            /* This is used to generate cube map from equirectangular maps or multiple texture files */
+            VKTexture3D(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            ~VKTexture3D() {}
+
+            void  Release(bool deleteImage = true) override;
+            void  Bind(uint32_t slot) override;
+            void  Unbind(uint32_t slot) override;
+            void* GetHandle() const override;
+
+            /* Gets the vulkan image object */
+            VkImage getImage() const { return m_Image; };
+
+        private:
+            VkImage               m_Image;        /* Vulkan image handle for the Texture object                               */
+            VkDeviceMemory        m_ImageMemory;  /* Memory for the Vulkan image                                              */
+            VkImageView           m_ImageView;    /* Image view for the image, all images need a view to look into the image  */
+            VkSampler             m_ImageSampler; /* Sampler information used by shaders to sample the texture                */
+            VkImageLayout         m_ImageLayout;  /* Layout aka usage description of the image                                */
+            VkDescriptorImageInfo m_Descriptor;   /* Descriptor info encapsulation the image, view and the sampler            */
+
+        private:
+            /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
+            void updateDescriptor();
         };
 
         //-----------------------------------------------------------------------------------

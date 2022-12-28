@@ -52,7 +52,7 @@ namespace Razix {
 
             // Pass the Scene AABB and Grid info for GI + Tiled lighting
             // TODO: Make this dynamic as scene glows larger
-            m_SceneAABB = {glm::vec3(-250.0f), glm::vec3(250.0f)};
+            m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
 #if 1

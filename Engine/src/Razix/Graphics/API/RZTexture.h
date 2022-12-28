@@ -214,7 +214,7 @@ namespace Razix {
              * @param filterMode    The filtering mode of the texture
              * @returns Pointer to Texture object of the underlying API
              */
-            static RZTexture3D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+            static RZTexture3D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, uint32_t depth, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
         };
 
         //-----------------------------------------------------------------------------------

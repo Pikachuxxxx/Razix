@@ -11,6 +11,7 @@
 #extension GL_ARB_shader_viewport_layer_array : enable
 
 layout(points) in;
+
 layout(location = 0) in VSOutput {
   vec3 N;
   vec4 flux;
