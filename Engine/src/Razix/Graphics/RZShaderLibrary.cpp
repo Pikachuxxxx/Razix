@@ -38,6 +38,7 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
             loadShader("//RazixContent/Shaders/Razix/RSM.rzsf");
             loadShader("//RazixContent/Shaders/Razix/lpv_radiance_injection.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
             //-------------------------------------------------------------------
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap

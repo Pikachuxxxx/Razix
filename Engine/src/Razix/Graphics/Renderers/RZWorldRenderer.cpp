@@ -70,7 +70,7 @@ namespace Razix {
             m_GIPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
 #if 1
-            //-------------------------------
+            //-------------------------------  
             // ImGui Pass
             //-------------------------------
             m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
@@ -89,8 +89,6 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
-                    RZGraphicsContext::GetContext()->Wait();
-
                     m_ImGuiRenderer.Begin(scene);
 
                     struct CheckpointData

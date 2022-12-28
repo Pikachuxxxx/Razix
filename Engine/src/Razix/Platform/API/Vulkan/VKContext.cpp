@@ -72,6 +72,11 @@ namespace Razix {
             vkDestroyInstance(m_Instance, nullptr);
         }
 
+        void VKContext::Wait()
+        {
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+        }
+
         void VKContext::SetupDeviceAndSC()
         {
             // Create the Logical Device
