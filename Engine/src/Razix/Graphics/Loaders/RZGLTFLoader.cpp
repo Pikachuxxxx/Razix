@@ -130,7 +130,7 @@ namespace Razix {
                 textures.roughness                        = TextureName(pbr.metallicRoughnessTexture.index);
                 textures.emissive                         = TextureName(mat.emissiveTexture.index);
                 textures.ao                               = TextureName(mat.occlusionTexture.index);
-                properties.workflow                       = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+                //properties.workflow                       = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
 
                 // metallic-roughness workflow:
                 auto baseColorFactor = mat.values.find("baseColorFactor");
@@ -158,12 +158,13 @@ namespace Razix {
                     if (metallicGlossinessWorkflow->second.Has("diffuseTexture")) {
                         int index       = metallicGlossinessWorkflow->second.Get("diffuseTexture").Get("index").Get<int>();
                         textures.albedo = loadedTextures[gltfModel.textures[index].source];
-                        properties.isUsingAlbedoMap = true;
+                        //properties.isUsingAlbedoMap = true;
                     }
 
                     if (metallicGlossinessWorkflow->second.Has("metallicGlossinessTexture")) {
                         int index          = metallicGlossinessWorkflow->second.Get("metallicGlossinessTexture").Get("index").Get<int>();
                         textures.roughness = loadedTextures[gltfModel.textures[index].source];
+                        //properties.isUsingMetallicMap = true;
                     }
 
                     if (metallicGlossinessWorkflow->second.Has("diffuseFactor")) {

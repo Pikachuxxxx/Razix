@@ -174,7 +174,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-            for (std::unordered_map<ShaderStage, VkPipelineShaderStageCreateInfo>::iterator it = m_ShaderCreateInfos.begin(); it != m_ShaderCreateInfos.end(); ++it) {
+            for (std::map<ShaderStage, VkPipelineShaderStageCreateInfo>::iterator it = m_ShaderCreateInfos.begin(); it != m_ShaderCreateInfos.end(); ++it) {
                 shaderStages.push_back(it->second);
             }
             return shaderStages;
@@ -392,7 +392,7 @@ namespace Razix {
             }
 
             std::vector<VkDescriptorSetLayout> descriptorLayouts;
-            for (std::unordered_map<uint32_t, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {
+            for (std::map<uint32_t, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {
                 descriptorLayouts.push_back(it->second);
             }
 

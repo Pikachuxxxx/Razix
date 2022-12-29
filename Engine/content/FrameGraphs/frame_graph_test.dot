@@ -15,8 +15,9 @@ P9 [label=<{ {<B>Radiance Propagation #2</B>} | {&#x2605; Refs: 3<BR/> Index: 9}
 P10 [label=<{ {<B>Radiance Propagation #3</B>} | {&#x2605; Refs: 3<BR/> Index: 10} }> style="rounded,filled", fillcolor=orange]
 P11 [label=<{ {<B>Radiance Propagation #4</B>} | {&#x2605; Refs: 3<BR/> Index: 11} }> style="rounded,filled", fillcolor=orange]
 P12 [label=<{ {<B>Radiance Propagation #5</B>} | {&#x2605; Refs: 3<BR/> Index: 12} }> style="rounded,filled", fillcolor=orange]
-P13 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 13} }> style="rounded,filled", fillcolor=orange]
-P14 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 14} }> style="rounded,filled", fillcolor=orange]
+P13 [label=<{ {<B>GBuffer</B>} | {&#x2605; Refs: 5<BR/> Index: 13} }> style="rounded,filled", fillcolor=orange]
+P14 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 14} }> style="rounded,filled", fillcolor=orange]
+P15 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 15} }> style="rounded,filled", fillcolor=orange]
 
 R0_1 [label=<{ {<B>BRDF lut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
 R1_1 [label=<{ {<B>Cascade Matrices</B><BR/>size : 272 bytes} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
@@ -50,12 +51,17 @@ R24_1 [label=<{ {<B>SH/B</B><BR/>(32, 13, 20) - RGBA32F [3D]} | {Index: 24<BR/>R
 R25_1 [label=<{ {<B>SH/R</B><BR/>(32, 13, 20) - RGBA32F [3D]} | {Index: 25<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R26_1 [label=<{ {<B>SH/G</B><BR/>(32, 13, 20) - RGBA32F [3D]} | {Index: 26<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R27_1 [label=<{ {<B>SH/B</B><BR/>(32, 13, 20) - RGBA32F [3D]} | {Index: 27<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R28_1 [label=<{ {<B>ImGui RT</B><BR/>(1445, 780) - RGBA32 [RT]} | {Index: 28<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R29_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 29<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R30_1 [label=<{ {<B>Present Image</B><BR/>(1445, 780) - Presentation [Swapchain Image]} | {Index: 30<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R31_1 [label=<{ {<B>Depth Texture</B><BR/>(1445, 780) - DEPTH [Depth]} | {Index: 31<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R32_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 32<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R33_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 33<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R28_1 [label=<{ {<B>Normal</B><BR/>(1445, 780) - RGBA32F [RT]} | {Index: 28<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R29_1 [label=<{ {<B>Albedo</B><BR/>(1445, 780) - RGBA32F [RT]} | {Index: 29<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R30_1 [label=<{ {<B>Emissive</B><BR/>(1445, 780) - RGBA32F [RT]} | {Index: 30<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R31_1 [label=<{ {<B>MetRougAOSpec</B><BR/>(1445, 780) - RGBA32F [RT]} | {Index: 31<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R32_1 [label=<{ {<B>Depth</B><BR/>(1445, 780) - DEPTH [Depth]} | {Index: 32<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R33_1 [label=<{ {<B>ImGui RT</B><BR/>(1445, 780) - RGBA32 [RT]} | {Index: 33<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R34_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 34<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R35_1 [label=<{ {<B>Present Image</B><BR/>(1445, 780) - Presentation [Swapchain Image]} | {Index: 35<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R36_1 [label=<{ {<B>Depth Texture</B><BR/>(1445, 780) - DEPTH [Depth]} | {Index: 36<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R37_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 37<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R38_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 38<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R2_1 } [color=orangered]
 P1 -> { R2_2 } [color=orangered]
@@ -70,8 +76,9 @@ P9 -> { R16_1 R17_1 R18_1 } [color=orangered]
 P10 -> { R19_1 R20_1 R21_1 } [color=orangered]
 P11 -> { R22_1 R23_1 R24_1 } [color=orangered]
 P12 -> { R25_1 R26_1 R27_1 } [color=orangered]
-P13 -> { R28_1 R29_1 } [color=orangered]
-P14 -> { R30_1 R31_1 R32_1 R33_1 } [color=orangered]
+P13 -> { R28_1 R29_1 R30_1 R31_1 R32_1 } [color=orangered]
+P14 -> { R33_1 R34_1 } [color=orangered]
+P15 -> { R35_1 R36_1 R37_1 R38_1 } [color=orangered]
 
 R0_1 -> { } [color=olivedrab3]
 R1_1 -> { P4 } [color=olivedrab3]
@@ -105,12 +112,17 @@ R24_1 -> { P12 } [color=olivedrab3]
 R25_1 -> { } [color=olivedrab3]
 R26_1 -> { } [color=olivedrab3]
 R27_1 -> { } [color=olivedrab3]
-R28_1 -> { P14 } [color=olivedrab3]
-R29_1 -> { P14 } [color=olivedrab3]
+R28_1 -> { } [color=olivedrab3]
+R29_1 -> { } [color=olivedrab3]
 R30_1 -> { } [color=olivedrab3]
 R31_1 -> { } [color=olivedrab3]
 R32_1 -> { } [color=olivedrab3]
-R33_1 -> { } [color=olivedrab3]
+R33_1 -> { P15 } [color=olivedrab3]
+R34_1 -> { P15 } [color=olivedrab3]
+R35_1 -> { } [color=olivedrab3]
+R36_1 -> { } [color=olivedrab3]
+R37_1 -> { } [color=olivedrab3]
+R38_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
 P0 R2_1 
@@ -152,10 +164,13 @@ subgraph cluster_12 {
 P12 R25_1 R26_1 R27_1 
 }
 subgraph cluster_13 {
-P13 R28_1 R29_1 
+P13 R28_1 R29_1 R30_1 R31_1 R32_1 
 }
 subgraph cluster_14 {
-P14 R30_1 R31_1 R32_1 R33_1 
+P14 R33_1 R34_1 
+}
+subgraph cluster_15 {
+P15 R35_1 R36_1 R37_1 R38_1 
 }
 
 subgraph cluster_imported_resources {
