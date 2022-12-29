@@ -346,7 +346,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.extent           = {grid.size.x, grid.size.y};
-                    info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture the only have a single layer
+                    info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G
@@ -468,7 +468,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.extent           = {grid.size.x, grid.size.y};
-                    info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture the only have a single layer
+                    info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G

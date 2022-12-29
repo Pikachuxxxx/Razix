@@ -9,6 +9,7 @@
 
 // Passes
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
+#include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
 
 // Renderers
@@ -133,6 +134,7 @@ namespace Razix {
             // List of all passes, renderers and data in the frame graph
             RZShadowRenderer       m_CascadedShadowsRenderer;
             RZGIPass               m_GIPass;
+            RZGBufferPass          m_GBufferPass;
             RZImGuiRenderer        m_ImGuiRenderer;
             RZFinalCompositionPass m_CompositePass;
             // Other Variables

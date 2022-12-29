@@ -123,43 +123,43 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
+                "x": 13.095588684082032,
+                "y": 18.627225875854493,
+                "z": -30.884031295776368
             },
             "Front": {
-                "x": -4.371138828673793e-8,
-                "y": 0.0,
-                "z": -1.0
+                "x": -0.39756539463996889,
+                "y": -0.45399054884910586,
+                "z": 0.7973923683166504
             },
             "Up": {
-                "x": 0.0,
-                "y": 1.0,
-                "z": 0.0
+                "x": -0.20256966352462769,
+                "y": 0.8910065293312073,
+                "z": 0.406291663646698
             },
             "Right": {
-                "x": 1.0,
+                "x": -0.8949342966079712,
                 "y": 0.0,
-                "z": -4.371138828673793e-8
+                "z": -0.446198046207428
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -90.0,
-            "Pitch": 0.0,
+            "Yaw": -243.5,
+            "Pitch": -27.0,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
             "ProjectionType": 0,
             "PerspectiveFOV": 0.7853981852531433,
-            "PerspectiveNearClip": 1.0,
-            "PerspectiveFarClip": 10.0,
+            "PerspectiveNearClip": 0.10000000149011612,
+            "PerspectiveFarClip": 6000.0,
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.7777777910232545
+            "AspectRatio": 1.898734211921692
         }
     },
     "value36": 0,

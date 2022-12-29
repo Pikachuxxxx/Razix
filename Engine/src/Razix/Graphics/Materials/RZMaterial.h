@@ -21,26 +21,29 @@ namespace Razix {
             PBR_WORKFLOW_SPECULAR_ROUGHNESS
         };
 
-        /* PBR material properties */
+        /* Material properties (16-byte aligned as per optimal GPU requirements) */
         struct MaterialProperties
         {
-            glm::vec3 albedoColor         = glm::vec3(1.0f, 0.0f, 0.0f);
-            glm::vec3 normal              = glm::vec3(1.0f, 0.0f, 0.0f);
+            glm::vec3 albedoColor = glm::vec3(1.0f, 0.0f, 0.0f);
+            bool      _padding[4];
+            glm::vec3 normal = glm::vec3(1.0f, 0.0f, 0.0f);
+            bool      _padding_[4];
+            glm::vec3 emissiveColor = glm::vec3(0.0f, 0.0f, 0.0f);
+            bool      _padding__[4];
             float     metallicColor       = 1.0f;
             float     roughnessColor      = 0.0f;
             float     specularColor       = 1.0f;
-            glm::vec3 emissiveColor       = glm::vec3(0.0f, 0.0f, 0.0f);
             float     opacity             = 1.0f;
             float     ambientOcclusion    = 1.0f;
             bool      visible             = true;
             bool      isUsingAlbedoMap    = true;
             bool      isUsingNormalMap    = true;
-            bool      isUsingMetallicMap  = false;
+            bool      isUsingMetallicMap  = true;
             bool      isUsingRoughnessMap = false;
             bool      isUsingSpecular     = false;
             bool      isUsingEmissiveMap  = false;
             bool      isUsingAOMap        = false;
-            WorkFlow  workflow            = WorkFlow::PBR_WORKFLOW_SEPARATE_TEXTURES;
+            bool      _padding___[4];
         };
 
         /* lighting model textures */
@@ -99,6 +102,7 @@ namespace Razix {
                     RZVirtualFileSystem::Get().absolutePathToVFS(path, shaderPath);
                 }
 
+#if 0
                 archive(cereal::make_nvp("Albedo", m_PBRMaterialTextures.albedo ? m_PBRMaterialTextures.albedo->getPath() : ""),
                     cereal::make_nvp("Normal", m_PBRMaterialTextures.normal ? m_PBRMaterialTextures.normal->getPath() : ""),
                     cereal::make_nvp("Metallic", m_PBRMaterialTextures.metallic ? m_PBRMaterialTextures.metallic->getPath() : ""),
@@ -117,6 +121,7 @@ namespace Razix {
                     cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties->isUsingEmissiveMap),
                     cereal::make_nvp("workflow", m_MaterialProperties->workflow),
                     cereal::make_nvp("shader", shaderPath));
+#endif
             }
 
             template<typename Archive>
@@ -130,6 +135,7 @@ namespace Razix {
                 std::string aoFilePath;
                 std::string shaderFilePath;
 
+#if 0
                 archive(cereal::make_nvp("Albedo", albedoFilePath),
                     cereal::make_nvp("Normal", normalFilePath),
                     cereal::make_nvp("Metallic", metallicFilePath),
@@ -164,6 +170,7 @@ namespace Razix {
                     m_PBRMaterialTextures.emissive = (Graphics::Texture2D::CreateFromFile("emissive", emissiveFilePath));
                 if (!aoFilePath.empty())
                     m_PBRMaterialTextures.ao = (Graphics::Texture2D::CreateFromFile("ao", aoFilePath));
+#endif
             }
 
         private:

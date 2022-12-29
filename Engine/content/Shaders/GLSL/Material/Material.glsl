@@ -5,12 +5,12 @@ layout(set = 1, binding = 0) uniform Material
 {
     vec3  baseColor;
     vec3  normal;
+    vec3  emissiveColor;
     float metallic;     
     float roughness;    
     float specular;     
-    vec3  emissiveColor;
-    float ambientOcclusion;   
     float opacity;            
+    float ambientOcclusion;   
     bool  visible;            
 
     bool isUsingAlbedoMap;

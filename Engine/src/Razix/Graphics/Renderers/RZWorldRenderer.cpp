@@ -55,13 +55,11 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
-#if 1
             //-------------------------------
             // Cascaded Shadow Maps
             //-------------------------------
             m_CascadedShadowsRenderer.Init();
             m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-#endif
 
             //-------------------------------
             // GI - Radiance Pass
@@ -69,8 +67,12 @@ namespace Razix {
             m_GIPass.setGrid(sceneGrid);
             m_GIPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
-#if 1
-            //-------------------------------  
+            //-------------------------------
+            // GBuffer Pass
+            //-------------------------------
+            m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+
+            //-------------------------------
             // ImGui Pass
             //-------------------------------
             m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
@@ -123,7 +125,6 @@ namespace Razix {
             // Final Image Presentation
             //-------------------------------
             m_CompositePass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-#endif
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");
@@ -160,6 +161,8 @@ namespace Razix {
 
             // Destroy Passes
             m_CompositePass.destroy();
+            //m_GIPass.destroy();
+            //m_GBufferPass.destroy();
 
             // Destroy Frame Graph Resources
             m_TransientResources.destroyResources();

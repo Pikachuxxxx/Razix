@@ -20,6 +20,8 @@ namespace Razix {
         RZSceneCamera();
         virtual ~RZSceneCamera() = default;
 
+        RAZIX_FORCE_INLINE glm::mat4 getViewProjection() { return getProjection() * getViewMatrix(); }
+
         RAZIX_FORCE_INLINE const glm::mat4& getProjection();
 
         void setPerspective(float verticalFOV, float nearClip, float farClip);
