@@ -15,6 +15,7 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QScrollArea>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -24,11 +25,15 @@ QT_BEGIN_NAMESPACE
 class Ui_InspectorWindow
 {
 public:
-    QVBoxLayout *verticalLayout_2;
+    QVBoxLayout *verticalLayout;
+    QScrollArea *scrollArea;
+    QWidget *scrollWidget;
+    QVBoxLayout *scrollLayout;
     QHBoxLayout *horizontalLayout;
     QLabel *TagIcon;
     QLineEdit *EntityName;
     QCheckBox *IsStatic;
+    QCheckBox *checkBox;
     QHBoxLayout *horizontalLayout_2;
     QLabel *UUIDTitle;
     QLabel *UUIDLbl;
@@ -38,15 +43,29 @@ public:
     {
         if (InspectorWindow->objectName().isEmpty())
             InspectorWindow->setObjectName(QString::fromUtf8("InspectorWindow"));
-        InspectorWindow->resize(412, 486);
+        InspectorWindow->resize(469, 311);
         InspectorWindow->setStyleSheet(QString::fromUtf8(""));
-        verticalLayout_2 = new QVBoxLayout(InspectorWindow);
-        verticalLayout_2->setSpacing(10);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        verticalLayout = new QVBoxLayout(InspectorWindow);
+        verticalLayout->setSpacing(0);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setContentsMargins(5, 5, 5, 5);
+        scrollArea = new QScrollArea(InspectorWindow);
+        scrollArea->setObjectName(QString::fromUtf8("scrollArea"));
+        scrollArea->setFrameShape(QFrame::NoFrame);
+        scrollArea->setFrameShadow(QFrame::Sunken);
+        scrollArea->setLineWidth(1);
+        scrollArea->setWidgetResizable(true);
+        scrollWidget = new QWidget();
+        scrollWidget->setObjectName(QString::fromUtf8("scrollWidget"));
+        scrollWidget->setGeometry(QRect(0, 0, 459, 301));
+        scrollLayout = new QVBoxLayout(scrollWidget);
+        scrollLayout->setSpacing(5);
+        scrollLayout->setObjectName(QString::fromUtf8("scrollLayout"));
+        scrollLayout->setContentsMargins(0, 0, 0, 0);
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(-1, 5, -1, 5);
-        TagIcon = new QLabel(InspectorWindow);
+        TagIcon = new QLabel(scrollWidget);
         TagIcon->setObjectName(QString::fromUtf8("TagIcon"));
         TagIcon->setMaximumSize(QSize(25, 25));
         TagIcon->setPixmap(QPixmap(QString::fromUtf8(":/rzeditor/tag_icon.png")));
@@ -54,12 +73,12 @@ public:
 
         horizontalLayout->addWidget(TagIcon);
 
-        EntityName = new QLineEdit(InspectorWindow);
+        EntityName = new QLineEdit(scrollWidget);
         EntityName->setObjectName(QString::fromUtf8("EntityName"));
 
         horizontalLayout->addWidget(EntityName);
 
-        IsStatic = new QCheckBox(InspectorWindow);
+        IsStatic = new QCheckBox(scrollWidget);
         IsStatic->setObjectName(QString::fromUtf8("IsStatic"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
@@ -70,12 +89,17 @@ public:
 
         horizontalLayout->addWidget(IsStatic);
 
+        checkBox = new QCheckBox(scrollWidget);
+        checkBox->setObjectName(QString::fromUtf8("checkBox"));
 
-        verticalLayout_2->addLayout(horizontalLayout);
+        horizontalLayout->addWidget(checkBox);
+
+
+        scrollLayout->addLayout(horizontalLayout);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        UUIDTitle = new QLabel(InspectorWindow);
+        UUIDTitle = new QLabel(scrollWidget);
         UUIDTitle->setObjectName(QString::fromUtf8("UUIDTitle"));
         UUIDTitle->setMaximumSize(QSize(60, 16777215));
         QFont font;
@@ -85,7 +109,7 @@ public:
 
         horizontalLayout_2->addWidget(UUIDTitle);
 
-        UUIDLbl = new QLabel(InspectorWindow);
+        UUIDLbl = new QLabel(scrollWidget);
         UUIDLbl->setObjectName(QString::fromUtf8("UUIDLbl"));
         UUIDLbl->setMinimumSize(QSize(0, 25));
         UUIDLbl->setMaximumSize(QSize(16777215, 25));
@@ -97,11 +121,15 @@ public:
         horizontalLayout_2->addWidget(UUIDLbl);
 
 
-        verticalLayout_2->addLayout(horizontalLayout_2);
+        scrollLayout->addLayout(horizontalLayout_2);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        verticalLayout_2->addItem(verticalSpacer);
+        scrollLayout->addItem(verticalSpacer);
+
+        scrollArea->setWidget(scrollWidget);
+
+        verticalLayout->addWidget(scrollArea);
 
 
         retranslateUi(InspectorWindow);
@@ -115,6 +143,7 @@ public:
         TagIcon->setText(QString());
         EntityName->setText(QCoreApplication::translate("InspectorWindow", "Character", nullptr));
         IsStatic->setText(QCoreApplication::translate("InspectorWindow", "Static", nullptr));
+        checkBox->setText(QCoreApplication::translate("InspectorWindow", "Active", nullptr));
         UUIDTitle->setText(QCoreApplication::translate("InspectorWindow", "UUID :", nullptr));
         UUIDLbl->setText(QCoreApplication::translate("InspectorWindow", "123e4567-e89b-12d3-a456-426614174000", nullptr));
     } // retranslateUi

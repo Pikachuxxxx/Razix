@@ -16,8 +16,8 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
-#include "Razix/Graphics/API/RZAPIRenderer.h"
 #include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/API/RZRenderContext.h"
 #include "Razix/Graphics/API/RZSwapchain.h"
 #include "Razix/Graphics/API/RZTexture.h"
 
@@ -31,6 +31,7 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/plugins/IconsFontAwesome5.h>
 #include <imgui/plugins/ImGuizmo.h>
 
 #include <cereal/archives/json.hpp>
@@ -181,16 +182,13 @@ namespace Razix {
         if (ctx) {
             // Resize ImGui
             ImGuiIO& io                = ImGui::GetIO();
-            io.DisplaySize             = ImVec2(e.GetWidth(), e.GetHeight());
+            io.DisplaySize             = ImVec2(static_cast<float>(e.GetWidth()), static_cast<float>(e.GetHeight()));
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
-        std::thread::id this_id = std::this_thread::get_id();
-        RAZIX_CORE_WARN("||||||||||||||||||");
-        RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
-        RAZIX_CORE_WARN("||||||||||||||||||");
+        //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
-        RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
+        Graphics::RZRenderContext::OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -250,14 +248,14 @@ namespace Razix {
     void RZApplication::Run()
     {
         // Create the API renderer to issue render commands
-        Graphics::RZAPIRenderer::Create(getWindow()->getWidth(), getWindow()->getHeight());
+        Graphics::RZRenderContext::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
-        Graphics::RZAPIRenderer::Init();
+        Graphics::RZRenderContext::Init();
 
         // Job system and Engine Systems(run-time) Initialization
-        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
-        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZForwardRenderer);
-        Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
+        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
+        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZForwardRenderer);
+        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
@@ -265,6 +263,9 @@ namespace Razix {
 
         // Load a scene into memory
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
+
+        Graphics::RZRendererSettings settings;
+        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(settings, Razix::RZEngine::Get().getSceneManager().getCurrentScene());
 
         Start();
 
@@ -277,11 +278,6 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
-
-        //std::thread::id this_id = std::this_thread::get_id();
-        //RAZIX_CORE_WARN("||||||||||||||||||");
-        //RAZIX_CORE_WARN("| Thread ID : {0} |", this_id);
-        //RAZIX_CORE_WARN("||||||||||||||||||");
 
         if (RZApplication::Get().getAppType() != AppType::GAME) {
             // Wait until Editor sends data
@@ -370,14 +366,14 @@ namespace Razix {
 
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
-        RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().Camera.update(dt.GetTimestepMs());
+        RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             // Update ImGui
             ImGuiIO& io = ImGui::GetIO();
             (void) io;
-            io.DisplaySize = ImVec2(getWindow()->getWidth(), getWindow()->getHeight());
+            io.DisplaySize = ImVec2(static_cast<float>(getWindow()->getWidth()), static_cast<float>(getWindow()->getHeight()));
         }
         // Run the OnUpdate for all the scripts
         if (RZEngine::Get().getSceneManager().getCurrentScene())
@@ -397,17 +393,24 @@ namespace Razix {
         // Disable rendering if needed here
 
         // We are not checking if the current is scene is null or not
-        Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        //Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-        Razix::RZEngine::Get().getRenderStack().OnRender();
+        //Razix::RZEngine::Get().getRenderStack().OnRender();
 
-        Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+        //Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
+
+        Graphics::RZRendererSettings settings;
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(settings, Razix::RZEngine::Get().getSceneManager().getCurrentScene());
 
         OnRender();
     }
 
     void RZApplication::RenderGUI()
     {
+        auto ctx = ImGui::GetCurrentContext();
+        if (!ctx)
+            return;
+
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 
@@ -429,7 +432,7 @@ namespace Razix {
         if (m_GuizmoEntity.entity() != entt::null) {
             auto           currentScene = RZEngine::Get().getSceneManager().getCurrentScene();
             auto&          registry     = currentScene->getRegistry();
-            auto           cameraView   = registry.view<CameraComponent>();
+            auto&          cameraView   = registry.view<CameraComponent>();
             RZSceneCamera* cam          = nullptr;
             if (!cameraView.empty()) {
                 // By using front we get the one and only or the first one in the list of camera entities
@@ -541,7 +544,9 @@ namespace Razix {
 
     void RZApplication::Quit()
     {
-        Razix::RZEngine::Get().getRenderStack().Destroy();
+        //Razix::RZEngine::Get().getRenderStack().Destroy();
+
+        Razix::RZEngine::Get().getWorldRenderer().destroy();
 
         // Client side quit customization
         OnQuit();
@@ -553,7 +558,7 @@ namespace Razix {
 
         // FIXME: This is fucked up I'm not cleaning stuff for editor mode
         if (RZApplication::Get().getAppType() == AppType::GAME)
-            Graphics::RZAPIRenderer::Release();
+            Graphics::RZRenderContext::Release();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }

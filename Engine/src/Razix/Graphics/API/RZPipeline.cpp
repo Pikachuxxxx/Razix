@@ -5,7 +5,7 @@
 
 #include "Razix/Graphics/API/RZGraphicsContext.h"
 
-#ifdef RAZIX_RENDER_API_VULKAN
+#ifdef RAZIX_RENDER_API_VULKAN 
     #include "Razix/Platform/API/Vulkan/VKPipeline.h"
 #endif
 
@@ -23,8 +23,8 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLPipeline(pipelineInfo); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKPipeline(pipelineInfo RZ_DEBUG_E_ARG_NAME); break;
-                case Razix::Graphics::RenderAPI::DIRECTX11:
-                case Razix::Graphics::RenderAPI::DIRECTX12:
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;

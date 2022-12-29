@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZSceneCamera.h"
 
+#include "Razix/Graphics/API/RZGraphicsContext.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Razix {
@@ -12,6 +14,14 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         recalculateProjection();
+    }
+
+    RAZIX_FORCE_INLINE const glm::mat4& RZSceneCamera::getProjection()
+    {
+        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+            m_Projection[1][1] *= -1;
+
+        return m_Projection;
     }
 
     void RZSceneCamera::setPerspective(float verticalFOV, float nearClip, float farClip)

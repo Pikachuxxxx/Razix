@@ -109,7 +109,7 @@ namespace Razix {
             for (uint32_t i = 0; i < renderpassInfo.attachmentCount; i++) {
                 attachments.push_back(getAttachmentDescription(renderpassInfo.attachmentInfos[i], renderpassInfo.attachmentInfos[i].clear));
 
-                if (renderpassInfo.attachmentInfos[i].type == RZTexture::Type::COLOR) {
+                if (renderpassInfo.attachmentInfos[i].type == RZTexture::Type::COLOR_2D) {
                     VkAttachmentReference colourAttachmentRef = {};
                     colourAttachmentRef.attachment            = uint32_t(i);
                     colourAttachmentRef.layout                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -188,12 +188,12 @@ namespace Razix {
             return true;
         }
 
-        VkAttachmentDescription VKRenderPass::getAttachmentDescription(AttachmentInfo info, bool clear /*= true*/)
+        VkAttachmentDescription VKRenderPass::getAttachmentDescription(RenderPassAttachmentInfo info, bool clear /*= true*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             VkAttachmentDescription attachment = {};
-            if (info.type == RZTexture::Type::COLOR) {
+            if (info.type == RZTexture::Type::COLOR_2D) {
                 attachment.format      = info.format == RZTexture::Format::SCREEN ? VKContext::Get()->getSwapchain()->getColorFormat() : VKUtilities::TextureFormatToVK(info.format, true);
                 attachment.finalLayout = info.format == RZTexture::Format::SCREEN ? VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             } else if (info.type == RZTexture::Type::DEPTH) {

@@ -1,0 +1,17 @@
+/*
+ * Razix Shader File 
+ * cascaded_shadow_maps.rzsf : Generate Cascaded Shadow Depth Maps
+ * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/cascaded_depth_pass.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/cascaded_depth_pass.frag.spv
+    #endif
+#end

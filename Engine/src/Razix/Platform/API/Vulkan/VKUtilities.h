@@ -4,6 +4,8 @@
 
 #include "Razix/Graphics/API/RZTexture.h"
 
+#include <glm/glm.hpp>
+
 #define VK_CHECK_RESULT(x) VK_ERROR_REPORT(x)
 
 #define VK_ERROR_REPORT(x) Razix::Graphics::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
@@ -15,6 +17,9 @@ namespace Razix {
         enum class DrawType;
         enum class CullMode;
         enum class PolygonMode;
+        enum class BlendOp;
+        enum class BlendFactor;
+        enum class CompareOp;
         enum class ShaderStage;
         enum class DescriptorType : uint32_t;
 
@@ -120,7 +125,7 @@ namespace Razix {
              * @param sRGB Whether or not to convert it to sRGB format
              * @returns Vulkan texture format
              */
-            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb = true);
+            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb = false);
 
             /**
              * Engine wrap mode to Vulkan conversion
@@ -176,6 +181,12 @@ namespace Razix {
             VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode);
 
             VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode);
+
+            VkBlendOp BlendOpToVK(Razix::Graphics::BlendOp blendOp);
+
+            VkBlendFactor BlendFactorToVK(Razix::Graphics::BlendFactor blendFactor);
+
+            VkCompareOp CompareOpToVK(Razix::Graphics::CompareOp compareOp);
 
             VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType);
 

@@ -30,8 +30,22 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/sprite.rzsf");
             loadShader("//RazixContent/Shaders/Razix/sprite_textured.rzsf");
             //-------------------------------------------------------------------
-            // Utility shaders
-            loadShader("//RazixContent/Shaders/Razix/quad.rzsf");
+            // Frame Graph Pass Shaders
+            // Composite Pass
+            loadShader("//RazixContent/Shaders/Razix/composite_pass.rzsf");
+            //-------------------------------------------------------------------
+            // Lighting
+            loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/RSM.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/lpv_radiance_injection.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
+            //-------------------------------------------------------------------
+            // Utility Shaders (Graphics + Compute)
+            // Env to CubeMap
+            loadShader("//RazixContent/Shaders/Razix/EnvToCubeMap.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/GenerateIrradianceMap.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/GeneratePreFilteredMap.rzsf");
         }
 
         void RZShaderLibrary::ShutDown()
@@ -58,6 +72,5 @@ namespace Razix {
 
             // TODO: If fails load it by searching all the VFS or return a default shader
         }
-
     }    // namespace Graphics
 }    // namespace Razix

@@ -22,10 +22,10 @@ namespace Razix {
             glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
             // Get and bind the attachments (multiple color or depth)
-            for (size_t i = 0; i < frameBufInfo.attachmentCount; i++) {
+            for (uint32_t i = 0; i < frameBufInfo.attachmentCount; i++) {
 
                 // Only bind color attachments
-                if (frameBufInfo.renderPass->getAttachmentTypes()[i].type != RZTexture::Type::COLOR)
+                if (frameBufInfo.renderPass->getAttachmentTypes()[i].type != RZTexture::Type::COLOR_2D)
                     return;
 
                 auto& attachment = frameBufInfo.attachments[i];

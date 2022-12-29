@@ -115,36 +115,41 @@ namespace Razix {
             };
 
             for (tinygltf::Material& mat: gltfModel.materials) {
-                //TODO : if(isAnimated) Load deferredColorAnimated;
+
+                // TODO: Fix this use a more robust default shader
                 auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
 
-                RZMaterial*                     forwardRendererMaterial = new RZMaterial(shader);
-                PBRMataterialTextures           textures;
-                Graphics::PBRMaterialProperties properties;
+                RZMaterial*                  forwardRendererMaterial = new RZMaterial(shader);
+                MaterialTextures             textures;
+                Graphics::MaterialProperties properties;
 
                 const tinygltf::PbrMetallicRoughness& pbr = mat.pbrMetallicRoughness;
                 textures.albedo                           = TextureName(pbr.baseColorTexture.index);
                 textures.normal                           = TextureName(mat.normalTexture.index);
-                textures.ao                               = TextureName(mat.occlusionTexture.index);
-                textures.emissive                         = TextureName(mat.emissiveTexture.index);
                 textures.metallic                         = TextureName(pbr.metallicRoughnessTexture.index);
-                properties.workflow = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+                textures.roughness                        = TextureName(pbr.metallicRoughnessTexture.index);
+                textures.emissive                         = TextureName(mat.emissiveTexture.index);
+                textures.ao                               = TextureName(mat.occlusionTexture.index);
+                //properties.workflow                       = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
 
                 // metallic-roughness workflow:
                 auto baseColorFactor = mat.values.find("baseColorFactor");
                 auto roughnessFactor = mat.values.find("roughnessFactor");
                 auto metallicFactor  = mat.values.find("metallicFactor");
+                auto emissiveFactor  = mat.values.find("emissiveFactor");
 
                 if (roughnessFactor != mat.values.end()) {
-                    properties.roughnessColor = glm::vec4(static_cast<float>(roughnessFactor->second.Factor()));
+                    properties.roughnessColor = glm::vec4(static_cast<float>(roughnessFactor->second.Factor())).a;
                 }
 
                 if (metallicFactor != mat.values.end()) {
-                    properties.metallicColor = glm::vec4(static_cast<float>(metallicFactor->second.Factor()));
+                    properties.metallicColor = glm::vec4(static_cast<float>(metallicFactor->second.Factor())).r;
                 }
 
                 if (baseColorFactor != mat.values.end()) {
-                    properties.albedoColor = glm::vec4((float) baseColorFactor->second.ColorFactor()[0], (float) baseColorFactor->second.ColorFactor()[1], (float) baseColorFactor->second.ColorFactor()[2], 1.0f);
+                    properties.albedoColor = glm::vec3((float) baseColorFactor->second.ColorFactor()[0], (float) baseColorFactor->second.ColorFactor()[1], (float) baseColorFactor->second.ColorFactor()[2]);
+
+                    properties.opacity = (float) baseColorFactor->second.ColorFactor()[3];
                 }
 
                 // Extensions
@@ -153,11 +158,13 @@ namespace Razix {
                     if (metallicGlossinessWorkflow->second.Has("diffuseTexture")) {
                         int index       = metallicGlossinessWorkflow->second.Get("diffuseTexture").Get("index").Get<int>();
                         textures.albedo = loadedTextures[gltfModel.textures[index].source];
+                        //properties.isUsingAlbedoMap = true;
                     }
 
                     if (metallicGlossinessWorkflow->second.Has("metallicGlossinessTexture")) {
                         int index          = metallicGlossinessWorkflow->second.Get("metallicGlossinessTexture").Get("index").Get<int>();
                         textures.roughness = loadedTextures[gltfModel.textures[index].source];
+                        //properties.isUsingMetallicMap = true;
                     }
 
                     if (metallicGlossinessWorkflow->second.Has("diffuseFactor")) {
@@ -165,18 +172,18 @@ namespace Razix {
                         properties.albedoColor.x = factor.ArrayLen() > 0 ? float(factor.Get(0).IsNumber() ? factor.Get(0).Get<double>() : factor.Get(0).Get<int>()) : 1.0f;
                         properties.albedoColor.y = factor.ArrayLen() > 1 ? float(factor.Get(1).IsNumber() ? factor.Get(1).Get<double>() : factor.Get(1).Get<int>()) : 1.0f;
                         properties.albedoColor.z = factor.ArrayLen() > 2 ? float(factor.Get(2).IsNumber() ? factor.Get(2).Get<double>() : factor.Get(2).Get<int>()) : 1.0f;
-                        properties.albedoColor.w = factor.ArrayLen() > 3 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
+                        properties.opacity       = factor.ArrayLen() > 3 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
                     }
                     if (metallicGlossinessWorkflow->second.Has("metallicFactor")) {
                         auto& factor               = metallicGlossinessWorkflow->second.Get("metallicFactor");
-                        properties.metallicColor.x = factor.ArrayLen() > 0 ? float(factor.Get(0).IsNumber() ? factor.Get(0).Get<double>() : factor.Get(0).Get<int>()) : 1.0f;
-                        properties.metallicColor.y = factor.ArrayLen() > 0 ? float(factor.Get(1).IsNumber() ? factor.Get(1).Get<double>() : factor.Get(1).Get<int>()) : 1.0f;
-                        properties.metallicColor.z = factor.ArrayLen() > 0 ? float(factor.Get(2).IsNumber() ? factor.Get(2).Get<double>() : factor.Get(2).Get<int>()) : 1.0f;
-                        properties.metallicColor.w = factor.ArrayLen() > 0 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
+                        properties.metallicColor = factor.ArrayLen() > 0 ? float(factor.Get(0).IsNumber() ? factor.Get(0).Get<double>() : factor.Get(0).Get<int>()) : 1.0f;
+                        //properties.metallicColor.y = factor.ArrayLen() > 0 ? float(factor.Get(1).IsNumber() ? factor.Get(1).Get<double>() : factor.Get(1).Get<int>()) : 1.0f;
+                        //properties.metallicColor.z = factor.ArrayLen() > 0 ? float(factor.Get(2).IsNumber() ? factor.Get(2).Get<double>() : factor.Get(2).Get<int>()) : 1.0f;
+                        //properties.metallicColor.w = factor.ArrayLen() > 0 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
                     }
                     if (metallicGlossinessWorkflow->second.Has("glossinessFactor")) {
                         auto& factor              = metallicGlossinessWorkflow->second.Get("glossinessFactor");
-                        properties.roughnessColor = glm::vec4(1.0f - float(factor.IsNumber() ? factor.Get<double>() : factor.Get<int>()));
+                        properties.roughnessColor = 1.0f - float(factor.IsNumber() ? factor.Get<double>() : factor.Get<int>());
                     }
                 }
 

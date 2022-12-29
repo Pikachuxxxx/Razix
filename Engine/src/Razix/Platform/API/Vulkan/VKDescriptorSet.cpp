@@ -4,15 +4,16 @@
 #include "VKDescriptorSet.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
-#include "Razix/Platform/API/Vulkan/VKAPIRenderer.h"
+#include "Razix/Platform/API/Vulkan/VKRenderContext.h"
 #include "Razix/Platform/API/Vulkan/VKSwapchain.h"
+#include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUniformBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
     namespace Graphics {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG)
+        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition RZ_DEBUG_NAME_TAG_E_ARG)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -36,7 +37,7 @@ namespace Razix {
 
             VkDescriptorSetLayoutCreateInfo layoutInfo{};
             layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutInfo.bindingCount = setLayoutBindingInfos.size();
+            layoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindingInfos.size());
             layoutInfo.pBindings    = setLayoutBindingInfos.data();
 
             // Descriptor set layouts can be compatible if they are the same even if they are created in two different places.
@@ -51,7 +52,7 @@ namespace Razix {
 
             VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
             descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            descriptorSetAllocateInfo.descriptorPool     = VKAPIRenderer::GetVKRenderer()->getDescriptorPool();
+            descriptorSetAllocateInfo.descriptorPool     = VKRenderContext::GetVKRenderer()->getDescriptorPool();
             descriptorSetAllocateInfo.descriptorSetCount = 1;
             descriptorSetAllocateInfo.pSetLayouts        = &setLayout;
 
@@ -66,10 +67,10 @@ namespace Razix {
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_IMAGE_INFOS];
             m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCTIPTORS];
 
-            UpdateSet(descriptors);
+            UpdateSet(descriptors, layoutTransition);
         }
 
-        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
+        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -80,10 +81,17 @@ namespace Razix {
 
                 for (auto& descriptor: descriptors) {
                     if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
-                        VkDescriptorImageInfo& des              = *static_cast<VkDescriptorImageInfo*>(descriptor.texture->GetHandle());
-                        m_ImageInfoPool[imageIndex].imageLayout = des.imageLayout;
-                        m_ImageInfoPool[imageIndex].imageView   = des.imageView;
-                        m_ImageInfoPool[imageIndex].sampler     = des.sampler;
+                        VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(descriptor.texture->GetHandle());
+
+                        auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
+
+                        if (layoutTransition)
+                            VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+                        m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                        //des.imageLayout;
+                        m_ImageInfoPool[imageIndex].imageView = des.imageView;
+                        m_ImageInfoPool[imageIndex].sampler   = des.sampler;
 
                         VkWriteDescriptorSet writeDescriptorSet{};
                         writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

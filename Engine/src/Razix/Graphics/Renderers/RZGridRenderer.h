@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
@@ -37,11 +38,11 @@ namespace Razix {
 
             void Begin() override;
 
-            void BeginScene(RZScene* scene) override;
+            void BeginScene(Razix::RZScene* scene) override;
 
             void Submit(RZCommandBuffer* cmdBuf) override;
 
-            void EndScene(RZScene* scene) override;
+            void EndScene(Razix::RZScene* scene) override;
 
             void End() override;
 
@@ -63,3 +64,4 @@ namespace Razix {
         };
     }    // namespace Graphics
 }    // namespace Razix
+#endif

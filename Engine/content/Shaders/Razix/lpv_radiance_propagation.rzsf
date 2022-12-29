@@ -1,0 +1,23 @@
+/*
+ * Razix Shader File 
+ * RadiancePropagation.rzsf : Scene Radiance propagation pass to cascade and calculate indirect lighting 
+ * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/RadiancePropagation.vert.spv
+    #endif
+#end
+
+#shader geometry
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/RadiancePropagation.geom.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/RadiancePropagation.frag.spv
+    #endif
+#end

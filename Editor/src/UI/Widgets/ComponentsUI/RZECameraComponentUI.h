@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QColorDialog>
 #include <QWidget>
+
 #include "generated/ui_RZECameraComponentUI.h"
 
 namespace Razix {

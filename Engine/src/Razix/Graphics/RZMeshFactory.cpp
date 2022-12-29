@@ -26,7 +26,7 @@ namespace Razix {
                         return CreatePlane();
                         break;
                     case MeshPrimitive::ScreenQuad:
-                        RAZIX_UNIMPLEMENTED_METHOD
+                        return CreateScreenQuad();
                         break;
                     case MeshPrimitive::Cube:
                         return CreateCube();
@@ -75,7 +75,7 @@ namespace Razix {
                 data[3].TexCoords = glm::vec2(1.0f, 0.0f);
                 data[3].Normal    = normal;
 
-                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("Plane"));
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Plane"));
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec3>("Position");
                 layout.push<glm::vec4>("Color");
@@ -217,17 +217,16 @@ namespace Razix {
                     data[i * 4 + 3].TexCoords = glm::vec2(0.0f, 1.0f);
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG( "Cube"));
+                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Cube"));
                 delete[] data;
 
                 uint16_t indices[36]{
                     0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
-                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Cube")  indices, 36);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Cube") indices, 36);
 
                 RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
 
                 auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
-
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -241,14 +240,14 @@ namespace Razix {
 
                 float sectorCount = static_cast<float>(xSegments);
                 float stackCount  = static_cast<float>(ySegments);
-                float sectorStep  = 2 * M_PI / sectorCount;
-                float stackStep   = M_PI / stackCount;
+                float sectorStep  = static_cast<float>(2 * M_PI / sectorCount);
+                float stackStep   = static_cast<float>(M_PI / stackCount);
                 float radius      = 1.0f;
 
                 for (int i = 0; i <= stackCount; ++i) {
-                    float stackAngle = M_PI / 2 - i * stackStep;    // starting from pi/2 to -pi/2
-                    float xy         = radius * cos(stackAngle);    // r * cos(u)
-                    float z          = radius * sin(stackAngle);    // r * sin(u)
+                    float stackAngle = static_cast<float>(M_PI / 2 - i * stackStep);    // starting from pi/2 to -pi/2
+                    float xy         = radius * cos(stackAngle);                        // r * cos(u)
+                    float z          = radius * sin(stackAngle);                        // r * sin(u)
 
                     // add (sectorCount+1) vertices per stack
                     // the first and last vertices have same position and normal, but different tex coords
@@ -272,7 +271,7 @@ namespace Razix {
                     }
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG ("Sphere"));
+                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Sphere"));
 
                 std::vector<uint16_t> indices;
                 uint16_t              k1, k2;
@@ -300,10 +299,9 @@ namespace Razix {
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sphere") indices.data(), static_cast<uint32_t>(indices.size()));
 
-                RZMesh* mesh = new RZMesh(vb, ib, data.size(), indices.size());
+                RZMesh* mesh = new RZMesh(vb, ib, static_cast<uint32_t>(data.size()), static_cast<uint32_t>(indices.size()));
 
                 auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
-
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -313,7 +311,39 @@ namespace Razix {
 
             RZMesh* CreateScreenQuad()
             {
-                return nullptr;
+                RZSimpleVertex* data = new RZSimpleVertex[4];
+                data[0].Position     = glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);
+                data[0].TexCoords    = glm::vec2(0.0f, 0.0f);
+
+                data[1].Position  = glm::vec4(1.0f, -1.0f, 0.0f, 1.0f);
+                data[1].TexCoords = glm::vec2(1.0f, 0.0f);
+
+                data[2].Position  = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+                data[2].TexCoords = glm::vec2(1.0f, 1.0f);
+
+                data[3].Position  = glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f);
+                data[3].TexCoords = glm::vec2(0.0f, 1.0f);
+
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZSimpleVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Screen Quad VB"));
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec4>("Position");
+                layout.push<glm::vec2>("TexCoords");
+                vb->AddBufferLayout(layout);
+                delete[] data;
+
+                uint16_t indices[6] = {0, 1, 2, 2, 3, 0};
+
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Screen Quad IB") indices, 6);
+
+                RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
+                // Set the material
+                auto shader = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
+
+                RZMaterial* compositePassMaterial = new RZMaterial(shader);
+                compositePassMaterial->createDescriptorSet();
+                mesh->setMaterial(compositePassMaterial);
+
+                return mesh;
             }
         }    // namespace MeshFactory
     }        // namespace Graphics

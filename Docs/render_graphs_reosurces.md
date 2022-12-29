@@ -7,6 +7,7 @@ https://andrewcjp.wordpress.com/2019/09/28/the-render-graph-architecture/
 ## Github projects
 https://github.com/Themaister/Granite
 https://github.com/acdemiralp/fg
+https://github.com/skaarj1989/FrameGraph
 
 ## GDC talks
 https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in

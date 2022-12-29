@@ -20,6 +20,10 @@ namespace Razix {
             RZCommandBuffer()          = default;
             virtual ~RZCommandBuffer() = default;
 
+            static RZCommandBuffer* BeginSingleTimeCommandBuffer();
+
+            static void EndSingleTimeCommandBuffer(RZCommandBuffer* cmdBuffer);
+
             /**
              * Creates a command buffer to record draw command onto and bind pipeline and it's resources while drawing
              * 

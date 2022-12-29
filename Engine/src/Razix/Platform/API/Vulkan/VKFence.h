@@ -18,7 +18,7 @@ namespace Razix {
              * 
              * @param isSignalled Whether or not to create a fence in a signaled state or not
              */
-            VKFence( bool isSignalled = true);
+            VKFence( bool isSignalled = false);
             ~VKFence();
 
             /* Indicates whether the fence is in signaled or not */

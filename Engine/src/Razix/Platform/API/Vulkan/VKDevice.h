@@ -8,6 +8,19 @@
 
     #include <vulkan/vulkan.h>
 
+    #define VK_KHR_dynamic_rendering_NAME "VK_KHR_dynamic_rendering"
+
+// Enable any device specific extensions
+// Ex. VK_KHR_RAY_TRACING etc.
+static std::vector<const char*> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    VK_KHR_dynamic_rendering_NAME,
+    "VK_KHR_depth_stencil_resolve",
+    "VK_KHR_create_renderpass2",
+    VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
+    //"VK_NV_device_diagnostic_checkpoints"
+};
+
 namespace Razix {
     namespace Graphics {
 

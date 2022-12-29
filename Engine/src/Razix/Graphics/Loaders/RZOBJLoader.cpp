@@ -119,7 +119,7 @@ namespace Razix {
 
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
 
-                PBRMataterialTextures textures{};
+                MaterialTextures textures{};
 
                 if (shape.mesh.material_ids[0] >= 0) {
                     tinyobj::material_t* mp = &materials[shape.mesh.material_ids[0]];
@@ -151,7 +151,7 @@ namespace Razix {
                     if (mp->specular_highlight_texname.length() > 0) {
                         Graphics::RZTexture2D* texture = LoadMaterialTextures("Specular", m_Textures, mp->specular_texname, m_Directory);
                         if (texture)
-                            textures.metallic = texture;
+                            textures.specular = texture;
                     }
 
                     if (mp->emissive_texname.length() > 0) {

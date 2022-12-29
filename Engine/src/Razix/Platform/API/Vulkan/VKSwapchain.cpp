@@ -16,6 +16,13 @@
 namespace Razix {
     namespace Graphics {
 
+        static void GetQueueCheckpointDataNV(VkQueue queue, uint32_t* pCheckpointDataCount, VkCheckpointDataNV* pCheckPointData)
+        {
+            auto func = (PFN_vkGetQueueCheckpointDataNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkGetQueueCheckpointDataNV");
+            if (func != nullptr)
+                func(queue, pCheckpointDataCount, pCheckPointData);
+        }
+
         VKSwapchain::VKSwapchain(uint32_t width, uint32_t height)
         {
             m_Width  = width;
@@ -107,13 +114,6 @@ namespace Razix {
             m_Height = height;
 
             m_OldSwapChain = m_Swapchain;
-
-            //for (auto& frame: m_Frames) {
-            //    //frame.mainCommandBuffer->Reset();
-            //    vkDestroySemaphore(VKDevice::Get().getDevice(), frame.presentSemaphore, nullptr);
-            //    vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderSemaphore, nullptr);
-            //    vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
-            //}
 
             for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
                 auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
@@ -319,7 +319,7 @@ namespace Razix {
             }
         }
 
-        void VKSwapchain::acquireNextImage()
+        void VKSwapchain::acquireNextImage(VkSemaphore signalSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -327,7 +327,7 @@ namespace Razix {
                 return;
             uint32_t nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
             {
-                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, m_Frames[nextCmdBufferIndex].presentSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
+                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, signalSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
                     VK_CHECK_RESULT(result);
 
@@ -351,16 +351,13 @@ namespace Razix {
             }
         }
 
-        void VKSwapchain::queueSubmit(CommandQueue& commandQueue)
+        void VKSwapchain::queueSubmit(CommandQueue& commandQueue, std::vector<VkSemaphore> waitSemaphores, std::vector<VkSemaphore> signalSemaphores)
         {
             if (m_IsResizing)
                 return;
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto& frameData = getCurrentFrameSyncData();
-            //if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
-            //    vkWaitForFences(VKDevice::Get().getDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-            //imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
             VkSubmitInfo submitInfo       = {};
             submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -371,27 +368,48 @@ namespace Razix {
             for (size_t i = 0; i < submitInfo.commandBufferCount; i++)
                 cmdBuffs.push_back(*((VkCommandBuffer*) commandQueue[i]->getAPIBuffer()));
 
-            submitInfo.pCommandBuffers     = cmdBuffs.data();
-            VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            submitInfo.pCommandBuffers = cmdBuffs.data();
+            std::vector<VkPipelineStageFlags> waitStages;
+            for (size_t i = 0; i < waitSemaphores.size(); i++)
+                waitStages.push_back(VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT);
 
-            submitInfo.pWaitDstStageMask = &waitStage;
+            if (!waitSemaphores.size())
+                waitStages.push_back(VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT);
 
-            submitInfo.waitSemaphoreCount = 1;
-            submitInfo.pWaitSemaphores    = &frameData.presentSemaphore;
+            submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+            submitInfo.pWaitSemaphores    = waitSemaphores.data();
+            submitInfo.pWaitDstStageMask  = waitStages.data();
 
-            submitInfo.signalSemaphoreCount = 1;
-            submitInfo.pSignalSemaphores    = &frameData.renderSemaphore;
+            submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+            submitInfo.pSignalSemaphores    = signalSemaphores.data();
 
             frameData.renderFence->reset();
 
             {
-                VK_CHECK_RESULT(vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence()));
+                auto result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence());
+                VK_CHECK_RESULT(result);
+#if 0
+                if (result == VK_ERROR_DEVICE_LOST) {
+                    uint32_t checkpointDataCount = 0;
+                    GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, nullptr);
+
+                    std::vector<VkCheckpointDataNV> checkpointData(checkpointDataCount);
+                    for (uint32_t i = 0; i < checkpointDataCount; i++)
+                        checkpointData[i].sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
+
+                    GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, checkpointData.data());
+
+                    for (auto& data: checkpointData) {
+                        RAZIX_CORE_INFO("Checkpoint marker location : {0} | Stage : {1}", data.pCheckpointMarker, data.stage);
+                    }
+                }
+#endif
             }
 
             frameData.renderFence->wait();
         }
 
-        void VKSwapchain::present()
+        void VKSwapchain::present(VkSemaphore waitSemaphore)
         {
             if (m_IsResizing)
                 return;
@@ -410,7 +428,7 @@ namespace Razix {
             present.pSwapchains        = &m_Swapchain;
             present.pImageIndices      = &m_AcquireImageIndex;
             present.waitSemaphoreCount = 1;
-            present.pWaitSemaphores    = &frameData.renderSemaphore;
+            present.pWaitSemaphores    = &waitSemaphore;
             present.pResults           = VK_NULL_HANDLE;
             auto error                 = vkQueuePresentKHR(VKDevice::Get().getPresentQueue(), &present);
 

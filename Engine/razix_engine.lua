@@ -22,18 +22,21 @@ group "Engine/content"
         {
             -- Shader files
             -- GLSL
-            "content/Shaders/GLSL/*.vert",
-            "content/Shaders/GLSL/*.frag",
+            "content/Shaders/GLSL/**.glsl",
+            "content/Shaders/GLSL/**.vert",
+            "content/Shaders/GLSL/**.geom",
+            "content/Shaders/GLSL/**.frag",
+            "content/Shaders/GLSL/**.comp",
             -- HLSL
-            "content/Shaders/HLSL/*.hlsl",
+            "content/Shaders/HLSL/**.hlsl",
             -- PSSL
-            "content/Shaders/PSSL/*.pssl",
-            "content/Shaders/PSSL/*.h",
-            "content/Shaders/PSSL/*.hs",
+            "content/Shaders/PSSL/**.pssl",
+            "content/Shaders/PSSL/**.h",
+            "content/Shaders/PSSL/**.hs",
             -- Cg
-            "content/Shaders/CG/*.cg",
+            "content/Shaders/CG/**.cg",
             -- Razix Shader Files
-            "content/Shaders/Razix/*.rzsf"
+            "content/Shaders/Razix/**.rzsf"
         }
     filter "system:windows"
         -- TODO Add as rules, every shader file type will have it's own rule
@@ -42,11 +45,11 @@ group "Engine/content"
             flags { "ExcludeFromBuild"}
 
         -- Build GLSL files based on their extension
-        filter {"files:**.vert or **.frag"}
+        filter {"files:**.vert or **.frag or **.geom"}
             removeflags "ExcludeFromBuild"
             buildmessage 'Compiling glsl shader : %{file.name}'
-            buildcommands 'glslc.exe "%{file.directory}/%{file.name}" -o "%{file.directory}/../Compiled/SPIRV/%{file.name}.spv" '
-            buildoutputs "%{file.directory}/../Compiled/SPIRV/%{file.name }.spv"
+            buildcommands 'glslc.exe -I "%{wks.location}/../Engine/content/Shaders/GLSL" "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
+            buildoutputs "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"
 group""
 
 group "Engine"
@@ -84,7 +87,8 @@ project "Razix"
         "src/**.h",
         "src/**.c",
         "src/**.cpp",
-        "src/**.inl"
+        "src/**.inl",
+        "src/**.tpp"
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
     }
@@ -234,6 +238,9 @@ project "Razix"
             "src/Razix/Platform/API/DirectX11/*.h",
             "src/Razix/Platform/API/DirectX11/*.cpp",
 
+            "src/Razix/Platform/API/DirectX12/*.h",
+            "src/Razix/Platform/API/DirectX12/*.cpp",
+
             -- Vendor source files
             "vendor/glad/src/glad.c"
         }
@@ -257,6 +264,7 @@ project "Razix"
             -- Redner API
             "vulkan-1",
             "d3d11",
+            "d3d12",
             "D3DCompiler"
         }
 

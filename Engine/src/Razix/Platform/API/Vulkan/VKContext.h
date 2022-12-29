@@ -27,6 +27,8 @@ namespace Razix {
             void Destroy() override;
             void ClearWithColor(float r, float g, float b) override {}
 
+            void Wait() override;
+
             // TODO: Remove this and use a method on the RZGraphicsContext side to retrieve this!
             /* Gets the underlying Vulkan context object */
             static VKContext* Get() { return static_cast<VKContext*>(s_Context); }

@@ -7,7 +7,7 @@ class RendererTest_GridRenderer : public Razix::RZApplication
 {
 public:
     RendererTest_GridRenderer()
-        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox")), "RendererTest_ForwardRenderer")
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "FrameGraphTest")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
@@ -55,6 +55,11 @@ public:
                 lsc.loadScript("//Scripts/imgui_test.lua");
             }
         }
+    }
+
+    void OnResize(uint32_t width, uint32_t height) override
+    {
+        
     }
 };
 

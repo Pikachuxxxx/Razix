@@ -10,7 +10,7 @@
 
 //------------------------------------------------------------------------------
 // Vertex Input
-layout(location = 0) in vec3 inPosition;
+layout(location = 0) in vec4 inPosition;
 layout(location = 1) in vec2 inTexCoord;
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
@@ -26,7 +26,7 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    gl_Position = vec4(inPosition, 1.0);
+    gl_Position = vec4(inPosition.xyz, 1.0);
     // Out from vertex shader
 	vs_out.fragTexCoord     = inTexCoord;
 }

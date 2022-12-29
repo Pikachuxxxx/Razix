@@ -18,6 +18,11 @@ namespace Razix {
             m_State = CommandBufferState::Idle;
         }
 
+        VKCommandBuffer::VKCommandBuffer(VkCommandBuffer vulkanHandle)
+            : m_CommandBuffer(vulkanHandle)
+        {
+        }
+
         VKCommandBuffer::~VKCommandBuffer()
         {
             Reset();

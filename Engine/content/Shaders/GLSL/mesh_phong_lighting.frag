@@ -8,6 +8,8 @@
  // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
  #extension GL_ARB_shading_language_420pack : enable
 
+ #include <Material/Material.glsl>
+
  //------------------------------------------------------------------------------
  // Vertex Input
 layout(location = 0) in VSOutput
@@ -17,11 +19,11 @@ layout(location = 0) in VSOutput
     vec2 fragTexCoord;
     vec3 fragNormal;
     vec3 fragTangent;
-    flat int ID;
 }fs_in;
- //------------------------------------------------------------------------------
- // Fragment Shader Stage Uniforms
- // Uniforms and Push Constants
+//------------------------------------------------------------------------------
+// Fragment Shader Stage Uniforms
+// Uniforms and Push Constants
+// TODO: Move this to Lights.glsl file
 // Lighting information
 struct DirectionalLight
 {
@@ -56,45 +58,30 @@ struct LightData
     SpotLight           spotLightData;
 };
 // Forward Light Data
- layout(set = 1, binding = 0) uniform ForwardLightData
-{
-    vec3        position;
-    vec3        viewPos;
-    LightData   lightData;
-}forward_light_data;
-//------------------------------------------------------------------------------
-// Materials and lightmaps
- layout(set = 2, binding = 0) uniform PhongMaterialProperties
- {
-    vec4 ambient;
-    vec4 diffuse;
-    float shininess;
- }material;
-// Having the samplers in the same set is adding to the Descriptor Block size which is fucked up
-layout(set = 3, binding = 0) uniform sampler2D aoMap;
-layout(set = 3, binding = 1) uniform sampler2D diffuseMap;
-layout(set = 3, binding = 2) uniform sampler2D normalMap;
-layout(set = 3, binding = 3) uniform sampler2D specularMap;
-// TODO: Add booleans to check if the sampler is available or not
+// layout(set = 1, binding = 0) uniform ForwardLightData
+//{
+//    vec3        position;
+//    vec3        viewPos;
+//    LightData   lightData;
+//}forward_light_data;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
-layout(location = 1) out int outEntityID;
 //------------------------------------------------------------------------------
 // Functions
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal)
 {
     // Ambient
-    vec3 ambient  = light.color  * vec3(texture(diffuseMap, fs_in.fragTexCoord)) * 0.1f;
+    vec3 ambient  = light.color  * vec3(texture(albedoMap, fs_in.fragTexCoord)) * 0.1f;
 
     // Diffuse
     vec3 lightDir = normalize(light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = light.color * vec3(texture(diffuseMap, fs_in.fragTexCoord));
+    vec3 diffuse = light.color * vec3(texture(albedoMap, fs_in.fragTexCoord));
 
     // Specular shading
-    vec3 viewDir = normalize(forward_light_data.viewPos - fs_in.fragPos);
+    vec3 viewDir = normalize(- fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = spec * vec3(texture(specularMap, fs_in.fragTexCoord));
@@ -107,10 +94,7 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal)
 void main()
 {
     vec4 normal = texture(normalMap, fs_in.fragTexCoord);
-    vec3 result = CalcDirLight(forward_light_data.lightData.dirLightData, normal.rgb);
+    vec3 result;// = CalcDirLight(forward_light_data.lightData.dirLightData, normal.rgb);
     outFragColor = vec4(result, 1.0);
-
-    //  Entity ID
-    outEntityID = fs_in.ID;
 }
 //------------------------------------------------------------------------------

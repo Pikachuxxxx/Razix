@@ -57,7 +57,7 @@ public:
     {
         if (TransformComponent->objectName().isEmpty())
             TransformComponent->setObjectName(QString::fromUtf8("TransformComponent"));
-        TransformComponent->resize(350, 82);
+        TransformComponent->resize(350, 88);
         TransformComponent->setMinimumSize(QSize(350, 0));
         TransformComponent->setStyleSheet(QString::fromUtf8("border-left: 2px;\n"
 "border-right: 2px;\n"

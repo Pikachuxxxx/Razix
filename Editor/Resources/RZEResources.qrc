@@ -23,5 +23,8 @@
         <file>Rotate_Gizmo.png</file>
         <file>Scale_Gizmo.png</file>
         <file>No_Gizmo.png</file>
+        <file>RazixScriptFile.png</file>
+        <file>LightIcon.png</file>
+        <file>sprite_can.png</file>
     </qresource>
 </RCC>

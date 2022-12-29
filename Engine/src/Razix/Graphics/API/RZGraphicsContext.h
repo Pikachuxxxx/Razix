@@ -13,13 +13,13 @@ namespace Razix {
         /* The Render API to use for rendering the application */
         enum class RenderAPI
         {
-            NONE      = -1,
-            OPENGL    = 0,
-            VULKAN    = 1,
-            DIRECTX11 = 2,
-            DIRECTX12 = 3,    // Not Supported yet!
-            GXM       = 4,    // Not Supported yet! (PSVita)
-            GCM       = 5     // Not Supported yet! (PS3)
+            NONE   = -1,
+            OPENGL = 0,
+            VULKAN = 1,
+            D3D11  = 2,
+            D3D12  = 3,    // Not Supported yet!
+            GXM    = 4,    // Not Supported yet! (PSVita)
+            GCM    = 5     // Not Supported yet! (PS3)
         };
 
         /**
@@ -44,6 +44,8 @@ namespace Razix {
             virtual void Destroy() = 0;
             /* Clears the screen with the given color */
             virtual void ClearWithColor(float r, float g, float b) = 0;
+
+            virtual void Wait() {}
 
             /* Returns the pointer to the underlying graphics API */
             static RZGraphicsContext* GetContext();

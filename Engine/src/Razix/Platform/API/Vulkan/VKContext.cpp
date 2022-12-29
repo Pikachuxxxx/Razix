@@ -17,7 +17,7 @@
     #include <vulkan/vulkan.h>
     #include <vulkan/vulkan_win32.h>
 
-    #define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
+    #define VK_LAYER_KHRONOS_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
 namespace Razix {
     namespace Graphics {
@@ -72,6 +72,11 @@ namespace Razix {
             vkDestroyInstance(m_Instance, nullptr);
         }
 
+        void VKContext::Wait()
+        {
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+        }
+
         void VKContext::SetupDeviceAndSC()
         {
             // Create the Logical Device
@@ -101,7 +106,7 @@ namespace Razix {
             appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);    // TODO: Add this feature later! once we add it to the Application class
             appInfo.pEngineName        = "Razix Engine";
             appInfo.engineVersion      = VK_MAKE_VERSION(RazixVersion.getVersionMajor(), RazixVersion.getVersionMinor(), RazixVersion.getVersionPatch());
-            appInfo.apiVersion         = VK_API_VERSION_1_1;
+            appInfo.apiVersion         = VK_API_VERSION_1_3;
 
             // Instance Create Info
             VkInstanceCreateInfo instanceCI{};
@@ -144,8 +149,9 @@ namespace Razix {
         std::vector<const char*> VKContext::getRequiredLayers()
         {
             std::vector<const char*> layers;
-            if (m_EnabledValidationLayer)
-                layers.emplace_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
+            if (m_EnabledValidationLayer) {
+                layers.emplace_back(VK_LAYER_KHRONOS_VALIDATION_NAME);
+            }
             return layers;
         }
 
@@ -230,7 +236,7 @@ namespace Razix {
 
         VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
         {
-#ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_DISTRIBUTION
             // Select prefix depending on flags passed to the callback
             // Note that multiple flags may be set for a single validation message
             // Error that may result in undefined behavior
@@ -262,15 +268,15 @@ namespace Razix {
                 std::cout << "\033[1;32m[VULKAN] \033[1;36m - Validation INFO : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
                 std::cout << "\033[1;36m ***************************************************************** \033[0m" << std::endl;
             }
-            // Diagnostic info from the Vulkan loader and layers
-            // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
-            // if(message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-            // {
-            //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
-            //     std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage  << std::endl;
-            //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
-            // }
-#endif
+                // Diagnostic info from the Vulkan loader and layers
+                // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
+                // if(message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+                // {
+                //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
+                //     std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage  << std::endl;
+                //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
+                // }
+    #endif
             return VK_FALSE;
         }
     }    // namespace Graphics

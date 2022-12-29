@@ -15,13 +15,22 @@ namespace Razix {
     namespace Graphics {
 
         RZMesh::RZMesh()
-            : m_VertexBuffer(nullptr), m_IndexBuffer(nullptr), m_Indices(), m_Vertices(), m_Material(nullptr) { RZEngine::Get().GetStatistics().MeshesRendered++; }
+            : m_VertexBuffer(nullptr), m_IndexBuffer(nullptr), m_Indices(), m_Vertices(), m_Material(nullptr)
+        {
+            RZEngine::Get().GetStatistics().MeshesRendered++;
+        }
 
         RZMesh::RZMesh(const RZMesh& mesh)
-            : m_VertexBuffer(mesh.m_VertexBuffer), m_IndexBuffer(mesh.m_IndexBuffer), m_Indices(mesh.m_Indices), m_Vertices(mesh.m_Vertices), m_Material(mesh.m_Material) { RZEngine::Get().GetStatistics().MeshesRendered++; }
+            : m_VertexBuffer(mesh.m_VertexBuffer), m_IndexBuffer(mesh.m_IndexBuffer), m_Indices(mesh.m_Indices), m_Vertices(mesh.m_Vertices), m_Material(mesh.m_Material)
+        {
+            RZEngine::Get().GetStatistics().MeshesRendered++;
+        }
 
         RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, uint32_t vtxcount, uint32_t idxcount)
-            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount) { RZEngine::Get().GetStatistics().MeshesRendered++; }
+            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
+        {
+            RZEngine::Get().GetStatistics().MeshesRendered++;
+        }
 
         RZMesh::RZMesh(const std::vector<uint16_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold /*= 1.0f*/)
         {
@@ -33,8 +42,8 @@ namespace Razix {
             size_t indexCount         = indices.size();
             size_t target_index_count = size_t(indices.size() * optimiseThreshold);
 
-            m_IndexCount  = indices.size();
-            m_VertexCount = vertices.size();
+            m_IndexCount  = static_cast<uint32_t>(indices.size());
+            m_VertexCount = static_cast<uint32_t>(vertices.size());
 
             float  target_error = 1e-3f;
             float* resultError  = nullptr;
@@ -53,7 +62,7 @@ namespace Razix {
             RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", indexCount, m_Vertices.size(), newIndexCount, newVertexCount);
 
             m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) m_Indices.data(), (uint16_t) newIndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * newVertexCount, m_Vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<uint32_t>(newVertexCount), m_Vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
             // TODO: Add buffer layout by reflecting from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");
@@ -151,6 +160,16 @@ namespace Razix {
                 vertices[i].Tangent = glm::normalize(tangents[i]);
 
             delete[] tangents;
+        }
+
+        void RZMesh::Draw(RZCommandBuffer* cmdBuf)
+        {
+            m_VertexBuffer->Bind(cmdBuf);
+            m_IndexBuffer->Bind(cmdBuf);
+
+            m_Material->Bind();
+
+            RZRenderContext::DrawIndexed(cmdBuf, m_IndexCount, 1, 0, 0, 0);
         }
 
         void RZMesh::Destroy()
