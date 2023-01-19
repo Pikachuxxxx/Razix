@@ -5,8 +5,8 @@
 
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include <meshoptimizer/src/meshoptimizer.h>
@@ -169,7 +169,7 @@ namespace Razix {
 
             m_Material->Bind();
 
-            RZRenderContext::DrawIndexed(cmdBuf, m_IndexCount, 1, 0, 0, 0);
+            RZRHI::DrawIndexed(cmdBuf, m_IndexCount, 1, 0, 0, 0);
         }
 
         void RZMesh::Destroy()

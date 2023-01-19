@@ -6,15 +6,15 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/API/RZCommandBuffer.h"
-#include "Razix/Graphics/API/RZGraphicsContext.h"
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZUniformBuffer.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
@@ -101,8 +101,8 @@ namespace Razix {
                 [=](const GBufferData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_CmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
-                    RZRenderContext::Begin(cmdBuffer);
+                    auto cmdBuffer = m_CmdBuffers[RZRHI::getSwapchain()->getCurrentImageIndex()];
+                    RZRHI::Begin(cmdBuffer);
 
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
 
@@ -120,7 +120,7 @@ namespace Razix {
                     info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize          = true;
 
-                    RZRenderContext::BeginRendering(cmdBuffer, info);
+                    RZRHI::BeginRendering(cmdBuffer, info);
 
                     m_Pipeline->Bind(cmdBuffer);
 
@@ -148,9 +148,9 @@ namespace Razix {
                             std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
                             std::vector<RZDescriptorSet*> MatSets   = mesh->getMaterial()->getDescriptorSets();
                             SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
-                            Graphics::RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
+                            Graphics::RZRHI::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
 
-                            Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mesh->getIndexCount());
+                            Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
@@ -171,20 +171,20 @@ namespace Razix {
                         std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
                         std::vector<RZDescriptorSet*> MatSets   = mrc.Mesh->getMaterial()->getDescriptorSets();
                         SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
-                        Graphics::RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
+                        Graphics::RZRHI::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                        Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 
                     RAZIX_MARK_END();
-                    RZRenderContext::EndRendering(cmdBuffer);
+                    RZRHI::EndRendering(cmdBuffer);
 
-                    RZRenderContext::Submit(cmdBuffer);
-                    RZRenderContext::SubmitWork({}, {});
+                    RZRHI::Submit(cmdBuffer);
+                    RZRHI::SubmitWork({}, {});
                 });
         }
 

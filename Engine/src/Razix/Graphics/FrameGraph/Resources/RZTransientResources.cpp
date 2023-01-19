@@ -99,7 +99,7 @@ namespace Razix {
                                 RAZIX_CORE_ASSERT(desc.numLayers == 1, "Use TextureType::Texture_2D type for Render Targets whose depth/layers > 1");
                             break;
                         case TextureType::Texture_SwapchainImage:
-                            //m_Texture = RZRenderContext::getSwapchain()->GetCurrentImage()
+                            //m_Texture = RZRHI::getSwapchain()->GetCurrentImage()
                             break;
                     }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include "Razix/Platform/API/Vulkan/VKBuffer.h"

@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZTexture.h"
 
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
     #include "Razix/Platform/API/OpenGL/OpenGLTexture.h"
@@ -13,7 +13,7 @@
     #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #endif
 
-#include "Razix/Graphics/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
 
 namespace Razix {
     namespace Graphics {

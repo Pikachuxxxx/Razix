@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZLight.h"
 
-#include "Razix/Graphics/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 
 // Constant scaling for objects when objects are moving
 //const double fov                  = Math.PI / 4.0;    //suppose 45 degrees FOV

@@ -5,14 +5,14 @@
 
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/API/RZCommandBuffer.h"
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZUniformBuffer.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
@@ -112,7 +112,7 @@ namespace Razix {
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
             {
-                RZRenderContext::SetCmdBuffer(cmdBuffer);
+                RZRHI::SetCmdBuffer(cmdBuffer);
 
                 RAZIX_MARK_BEGIN("Cubemap", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
 
@@ -124,7 +124,7 @@ namespace Razix {
                 info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
-                RZRenderContext::BeginRendering(cmdBuffer, info);
+                RZRHI::BeginRendering(cmdBuffer, info);
 
                 envMapPipeline->Bind(cmdBuffer);
 
@@ -132,11 +132,11 @@ namespace Razix {
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
                 for (uint32_t i = 0; i < layerCount; i++) {
-                    RZRenderContext::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
-                    RZRenderContext::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                    RZRHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
+                    RZRHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
 
-                RZRenderContext::EndRendering(cmdBuffer);
+                RZRHI::EndRendering(cmdBuffer);
 
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
@@ -216,7 +216,7 @@ namespace Razix {
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
             {
-                RZRenderContext::SetCmdBuffer(cmdBuffer);
+                RZRHI::SetCmdBuffer(cmdBuffer);
 
                 RAZIX_MARK_BEGIN("Irradiance cubemap Convolution", glm::vec4(0.8f, 0.4f, 0.3f, 1.0f))
 
@@ -228,7 +228,7 @@ namespace Razix {
                 info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
-                RZRenderContext::BeginRendering(cmdBuffer, info);
+                RZRHI::BeginRendering(cmdBuffer, info);
 
                 envMapPipeline->Bind(cmdBuffer);
 
@@ -236,11 +236,11 @@ namespace Razix {
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
                 for (uint32_t i = 0; i < layerCount; i++) {
-                    RZRenderContext::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
-                    RZRenderContext::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                    RZRHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
+                    RZRHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
 
-                RZRenderContext::EndRendering(cmdBuffer);
+                RZRHI::EndRendering(cmdBuffer);
 
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
@@ -319,7 +319,7 @@ namespace Razix {
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
             {
-                RZRenderContext::SetCmdBuffer(cmdBuffer);
+                RZRHI::SetCmdBuffer(cmdBuffer);
 
                 RAZIX_MARK_BEGIN("PreFiltering cubemap", glm::vec4(0.8f, 0.8f, 0.3f, 1.0f))
 
@@ -331,7 +331,7 @@ namespace Razix {
                 info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
-                RZRenderContext::BeginRendering(cmdBuffer, info);
+                RZRHI::BeginRendering(cmdBuffer, info);
 
                 envMapPipeline->Bind(cmdBuffer);
 
@@ -339,11 +339,11 @@ namespace Razix {
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
                 for (uint32_t i = 0; i < layerCount; i++) {
-                    RZRenderContext::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
-                    RZRenderContext::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                    RZRHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
+                    RZRHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
 
-                RZRenderContext::EndRendering(cmdBuffer);
+                RZRHI::EndRendering(cmdBuffer);
 
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);

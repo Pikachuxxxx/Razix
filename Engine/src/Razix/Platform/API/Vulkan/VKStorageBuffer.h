@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZStorageBuffer.h"
+#include "Razix/Graphics/RHI/API/RZStorageBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 

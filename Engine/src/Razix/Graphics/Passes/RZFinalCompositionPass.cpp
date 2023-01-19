@@ -7,10 +7,10 @@
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/API/RZCommandBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZRenderContext.h"
-#include "Razix/Graphics/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/API/RZSwapchain.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 #include "Razix/Graphics/RZMesh.h"
@@ -101,10 +101,10 @@ namespace Razix {
 
                     auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();
 
-                    Graphics::RZRenderContext::AcquireImage(imageReadySemaphore);
+                    Graphics::RZRHI::AcquireImage(imageReadySemaphore);
 
-                    auto cmdBuf = m_CmdBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
-                    RZRenderContext::Begin(cmdBuf);
+                    auto cmdBuf = m_CmdBuffers[Graphics::RZRHI::getSwapchain()->getCurrentImageIndex()];
+                    RZRHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
                     struct CheckpointData
@@ -112,7 +112,7 @@ namespace Razix {
                         std::string RenderPassName = "Composite Pass";
                     } checkpointData;
 
-                    RZRenderContext::SetCmdCheckpoint(Graphics::RZRenderContext::getCurrentCommandBuffer(), &checkpointData);
+                    RZRHI::SetCmdCheckpoint(Graphics::RZRHI::getCurrentCommandBuffer(), &checkpointData);
 
                     cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
@@ -132,34 +132,34 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {Graphics::RZRenderContext::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
+                        {Graphics::RZRHI::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
                     };
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
-                    RZRenderContext::BeginRendering(cmdBuf, info);
+                    RZRHI::BeginRendering(cmdBuf, info);
 
                     // Bind pipeline and stuff
                     m_Pipeline->Bind(cmdBuf);
 
                     // Bind the descriptor sets
-                    Graphics::RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+                    Graphics::RZRHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
                     // Bind the pipeline
                     m_ScreenQuadMesh->Draw(cmdBuf);
 
-                    RZRenderContext::EndRendering(cmdBuf);
+                    RZRHI::EndRendering(cmdBuf);
 
                     RAZIX_MARK_END();
-                    RZRenderContext::Submit(cmdBuf);
+                    RZRHI::Submit(cmdBuf);
 
                     // Wait on the previous pass semaphore for stuff to be done
                     auto waitOnPreviousPassSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(imguiPassData.passDoneSemaphore).getHandle();
                     auto presentSemaphore            = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.presentationDoneSemaphore).getHandle();
 
-                    RZRenderContext::SubmitWork({waitOnPreviousPassSemaphore, imageReadySemaphore}, {presentSemaphore});
-                    RZRenderContext::Present(presentSemaphore);
+                    RZRHI::SubmitWork({waitOnPreviousPassSemaphore, imageReadySemaphore}, {presentSemaphore});
+                    RZRHI::Present(presentSemaphore);
                 });
         }
 

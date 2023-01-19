@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZRoot.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Core/RZDebugConfig.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZRenderContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -11,7 +11,7 @@
 namespace Razix {
     namespace Graphics {
 
-        class VKRenderContext : public RZRenderContext
+        class VKRenderContext : public RZRHI
         {
         public:
             VKRenderContext(uint32_t width, uint32_t height);
