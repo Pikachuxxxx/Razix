@@ -8,20 +8,20 @@
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/API/RZCommandBuffer.h"
-#include "Razix/Graphics/API/RZFramebuffer.h"
-#include "Razix/Graphics/API/RZGraphicsContext.h"
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZRenderPass.h"
-#include "Razix/Graphics/API/RZSwapchain.h"
-#include "Razix/Graphics/API/RZUniformBuffer.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZFramebuffer.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZRenderPass.h"
+#include "Razix/Graphics/RHI/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 
@@ -122,13 +122,13 @@ namespace Razix {
             attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
             attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
 
-            auto swapImgCount = Graphics::RZRenderContext::getSwapchain()->GetSwapchainImageCount();
+            auto swapImgCount = Graphics::RZRHI::getSwapchain()->GetSwapchainImageCount();
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             m_Framebuffers.clear();
-            for (uint32_t i = 0; i < Graphics::RZRenderContext::getSwapchain()->GetSwapchainImageCount(); i++) {
+            for (uint32_t i = 0; i < Graphics::RZRHI::getSwapchain()->GetSwapchainImageCount(); i++) {
                 Graphics::RZTexture* attachments[2];
-                attachments[0] = Graphics::RZRenderContext::getSwapchain()->GetImage(i);
+                attachments[0] = Graphics::RZRHI::getSwapchain()->GetImage(i);
                 attachments[1] = m_DepthTexture;
 
                 Graphics::FramebufferInfo frameBufInfo{};
@@ -149,20 +149,20 @@ namespace Razix {
             m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
-            auto cmdBuf = m_MainCommandBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
+            auto cmdBuf = m_MainCommandBuffers[Graphics::RZRHI::getSwapchain()->getCurrentImageIndex()];
             // Get a swapchain image to render to
-            Graphics::RZRenderContext::AcquireImage();
+            Graphics::RZRHI::AcquireImage();
 
             // Begin recording the command buffers
-            Graphics::RZRenderContext::Begin(cmdBuf);
+            Graphics::RZRHI::Begin(cmdBuf);
 
             RAZIX_MARK_BEGIN(*(VkCommandBuffer*) cmdBuf->getAPIBuffer(), "Grid Pass", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
             // Update the viewport
-            Graphics::RZRenderContext::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            Graphics::RZRHI::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // Begin the render pass
-            m_RenderPass->BeginRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
+            m_RenderPass->BeginRenderPass(Graphics::RZRHI::getCurrentCommandBuffer(), glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), m_Framebuffers[Graphics::RZRHI::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, m_ScreenBufferWidth, m_ScreenBufferHeight);
         }
 
         void RZGridRenderer::BeginScene(Razix::RZScene* scene)
@@ -203,14 +203,14 @@ namespace Razix {
             m_Pipeline->Bind(cmdBuf);
 
             // Bind the descriptor set
-            Graphics::RZRenderContext::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+            Graphics::RZRHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
             // Bind the appropriate buffers/mesh
             gridVBO->Bind(cmdBuf);
             gridIBO->Bind(cmdBuf);
 
             // Issues the Draw Commands
-            Graphics::RZRenderContext::DrawIndexed(cmdBuf, 6);
+            Graphics::RZRHI::DrawIndexed(cmdBuf, 6);
         }
 
         void RZGridRenderer::EndScene(Razix::RZScene* scene)
@@ -223,11 +223,11 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // End the render pass
-            m_RenderPass->EndRenderPass(Graphics::RZRenderContext::getCurrentCommandBuffer());
+            m_RenderPass->EndRenderPass(Graphics::RZRHI::getCurrentCommandBuffer());
 
             //Graphics::RZAPIRenderer::Submit(Graphics::RZAPIRenderer::getCurrentCommandBuffer());
 
-            RAZIX_MARK_END(*(VkCommandBuffer*) Graphics::RZRenderContext::getCurrentCommandBuffer()->getAPIBuffer());
+            RAZIX_MARK_END(*(VkCommandBuffer*) Graphics::RZRHI::getCurrentCommandBuffer()->getAPIBuffer());
         }
 
         void RZGridRenderer::Present()
@@ -252,7 +252,7 @@ namespace Razix {
             m_ScreenBufferWidth  = width;
             m_ScreenBufferHeight = height;
 
-            Graphics::RZRenderContext::OnResize(width, height);
+            Graphics::RZRHI::OnResize(width, height);
 
             // Destroy the resources first
             m_DepthTexture->Release(true);

@@ -16,7 +16,7 @@
 #include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "Razix/Graphics/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/API/RZSwapchain.h"
 
 #include "Razix/Graphics/Renderers/RZGridRenderer.h"
 

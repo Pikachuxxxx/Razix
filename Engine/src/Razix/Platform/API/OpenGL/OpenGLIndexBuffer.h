@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 
 namespace Razix {
     namespace Graphics {

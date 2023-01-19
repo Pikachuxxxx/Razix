@@ -18,7 +18,7 @@
 // clang-format on
 #endif
 
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
     namespace Razix
 {

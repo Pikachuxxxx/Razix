@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/API/RZSwapchain.h"
 #include "Razix/Platform/API/OpenGL/OpenGLCommandBuffer.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL

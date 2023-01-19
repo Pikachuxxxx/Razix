@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZUniformBuffer.h"
 
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Platform/API/Vulkan/VKUniformBuffer.h"
 #include "Razix/Platform/API/OpenGL/OpenGLUniformBuffer.h"

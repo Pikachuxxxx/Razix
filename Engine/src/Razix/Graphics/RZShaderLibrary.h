@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
 
