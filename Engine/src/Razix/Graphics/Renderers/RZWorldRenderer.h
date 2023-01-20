@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZRenderContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"

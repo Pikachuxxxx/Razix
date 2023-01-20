@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
 

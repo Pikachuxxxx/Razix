@@ -2,9 +2,9 @@
 
 #include "Razix/Core/RZSmartPointers.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
-#include "Razix/Graphics/API/RZSwapchain.h"
-#include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 

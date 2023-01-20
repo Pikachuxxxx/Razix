@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
 
 #include <glm/glm.hpp>
 

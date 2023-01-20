@@ -2,7 +2,7 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX11
 

@@ -3,8 +3,8 @@
 // clang-format on
 #include "RZMarkers.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
@@ -14,7 +14,7 @@
 void BeginMarker(const std::string& name, glm::vec4 color)
 {
     // Get the current command buffer
-    auto cmdBuf = Razix::Graphics::RZRenderContext::getCurrentCommandBuffer();
+    auto cmdBuf = Razix::Graphics::RZRHI::getCurrentCommandBuffer();
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
         case Razix::Graphics::RenderAPI::VULKAN:
@@ -27,7 +27,7 @@ void BeginMarker(const std::string& name, glm::vec4 color)
 void InsertMarker(const std::string& name, glm::vec4 color)
 {
     // Get the current command buffer
-    auto cmdBuf = Razix::Graphics::RZRenderContext::getCurrentCommandBuffer();
+    auto cmdBuf = Razix::Graphics::RZRHI::getCurrentCommandBuffer();
     if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
     }
 
@@ -42,7 +42,7 @@ void InsertMarker(const std::string& name, glm::vec4 color)
 void EndMarker()
 {
     // Get the current command buffer
-    auto cmdBuf = Razix::Graphics::RZRenderContext::getCurrentCommandBuffer();
+    auto cmdBuf = Razix::Graphics::RZRHI::getCurrentCommandBuffer();
     if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
     }
 

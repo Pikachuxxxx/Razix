@@ -5,7 +5,7 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 

@@ -2,7 +2,7 @@
 
 #include "Razix/Core/RZProfiling.h"
 
-#include "Razix/Graphics/API/RZDescriptorSet.h"
+#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 
 namespace Razix {
     namespace Graphics {
@@ -42,21 +42,21 @@ namespace Razix {
 
         // TODO: Support multiple wait and signal semaphores
 
-        /* The Razix API Renderer provides a interface and a set of common methods that abstracts over other APIs rendering implementation
+        /* The Razix RHI (Render Hardware Interface ) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
          * The Renderers creates from the provided IRZRenderer interface of razix uses this to perform command recording/submission sets binding
          * and other operations that doesn't require the underlying API, since renderers do not actually need that we use this high-level abstraction
          * over the supported APIs to make things look simple and easier to interact with
          */
-        class RAZIX_API RZRenderContext : public RZRoot
+        class RAZIX_API RZRHI : public RZRoot
         {
         public:
-            RZRenderContext()          = default;
-            virtual ~RZRenderContext() = default;
+            RZRHI()          = default;
+            virtual ~RZRHI() = default;
 
             static void Create(uint32_t width, uint32_t height);
             static void Release();
 
-            static RZRenderContext& Get() { return *s_APIInstance; }
+            static RZRHI& Get() { return *s_APIInstance; }
 
             /* Initializes the API renderer with the resources it needs */
             RAZIX_FORCE_INLINE static void Init()
@@ -177,7 +177,7 @@ namespace Razix {
             virtual void SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData) {}
 
         protected:
-            static RZRenderContext* s_APIInstance;
+            static RZRHI* s_APIInstance;
 
             std::string      m_RendererTitle; /* The name of the renderer API that is being used */
             uint32_t         m_Width      = 0;

@@ -3,7 +3,7 @@
 // clang-format on
 #include "VKRenderPass.h"
 
-#include "Razix/Graphics/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"

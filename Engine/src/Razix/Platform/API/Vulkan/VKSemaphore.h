@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZSemaphore.h"
+#include "Razix/Graphics/RHI/API/RZSemaphore.h"
 
 #include <vulkan/vulkan.h>
 

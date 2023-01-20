@@ -3,9 +3,9 @@
 // clang-format on
 #include "RZMaterial.h"
 
-#include "Razix/Graphics/API/RZShader.h"
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 
 #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 

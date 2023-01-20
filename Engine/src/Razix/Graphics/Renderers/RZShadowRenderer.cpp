@@ -6,15 +6,15 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/API/RZCommandBuffer.h"
-#include "Razix/Graphics/API/RZGraphicsContext.h"
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZUniformBuffer.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
@@ -297,10 +297,10 @@ namespace Razix {
                      * Since the resource is cloned and we maintain different version of it, the same resource is handled to us every time we ask it
                      */
 
-                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RZRenderContext::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RZRHI::getSwapchain()->getCurrentImageIndex()];
 
                     // Begin Command Buffer Recording
-                    RZRenderContext::Begin(cmdBuf);
+                    RZRHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.45, 0.23, 0.56f, 1.0f));
 
                     // Update Viewport and Scissor Rect
@@ -321,20 +321,20 @@ namespace Razix {
                     info.layerCount = kNumCascades;
                     /////////////////////////////////
                     info.resize = false;
-                    RZRenderContext::BeginRendering(cmdBuf, info);
+                    RZRHI::BeginRendering(cmdBuf, info);
 
                     struct CheckpointData
                     {
                         std::string RenderPassName = "CSM Pass";
                     }checkpointData;
 
-                    RZRenderContext::SetCmdCheckpoint(cmdBuf, &checkpointData);
+                    RZRHI::SetCmdCheckpoint(cmdBuf, &checkpointData);
 
                     // Bind pipeline
                     cascadeGPUResources[cascadeIdx].CascadePassPipeline->Bind(cmdBuf);
 
                     // Bind Sets
-                    RZRenderContext::BindDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
+                    RZRHI::BindDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
 
                     // Draw calls
                     // Get the meshes and the models from the Scene and render them
@@ -356,7 +356,7 @@ namespace Razix {
                             mesh->getVertexBuffer()->Bind(cmdBuf);
                             mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                            Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mesh->getIndexCount());
+                            Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
@@ -376,21 +376,21 @@ namespace Razix {
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                        Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 
                     // End Rendering
-                    RZRenderContext::EndRendering(cmdBuf);
+                    RZRHI::EndRendering(cmdBuf);
 
                     RAZIX_MARK_END();
 
                     // End Command Buffer Recording
-                    RZRenderContext::Submit(cmdBuf);
+                    RZRHI::Submit(cmdBuf);
 
                     // Submit the work for execution + synchronization
                     // Signal a passDoneSemaphore only on the last cascade pass
-                    RZRenderContext::SubmitWork({}, {/*PassDoneSemaphore*/});
+                    RZRHI::SubmitWork({}, {/*PassDoneSemaphore*/});
                 });
 
             return pass.cascadeOuput;

@@ -3,10 +3,10 @@
 // clang-format on
 #include "VKUtilities.h"
 
-#include "Razix/Graphics/API/RZDescriptorSet.h"
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"

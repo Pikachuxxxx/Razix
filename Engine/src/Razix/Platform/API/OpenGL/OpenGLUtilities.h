@@ -7,9 +7,9 @@
 
     #include "Razix/Core/RZLog.h"
 
-    #include "Razix/Graphics/API/RZPipeline.h"
-    #include "Razix/Graphics/API/RZTexture.h"
-    #include "Razix/Graphics/API/RZVertexBufferLayout.h"
+    #include "Razix/Graphics/RHI/API/RZPipeline.h"
+    #include "Razix/Graphics/RHI/API/RZTexture.h"
+    #include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
 
 namespace Razix {
     namespace Graphics {

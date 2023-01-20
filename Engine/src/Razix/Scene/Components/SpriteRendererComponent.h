@@ -3,7 +3,7 @@
 // TODO: This should be removed!!!!!
 #include <glm/glm.hpp>
 
-#include "Razix/Graphics/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RZSprite.h"
 
 namespace Razix {

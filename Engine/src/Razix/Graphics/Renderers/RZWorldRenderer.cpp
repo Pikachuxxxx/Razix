@@ -8,7 +8,7 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
@@ -35,7 +35,7 @@ namespace Razix {
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
             // Load the Skybox and Global Light Probes
-#if 0
+#if 1
             m_Skybox                     = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_Skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_Skybox);
@@ -98,7 +98,7 @@ namespace Razix {
                         std::string RenderPassName = "ImGui Pass";
                     } checkpointData;
 
-                    RZRenderContext::SetCmdCheckpoint(Graphics::RZRenderContext::getCurrentCommandBuffer(), &checkpointData);
+                    RZRHI::SetCmdCheckpoint(Graphics::RZRHI::getCurrentCommandBuffer(), &checkpointData);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
 
@@ -108,17 +108,17 @@ namespace Razix {
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
-                    RZRenderContext::BeginRendering(Graphics::RZRenderContext::getCurrentCommandBuffer(), info);
+                    RZRHI::BeginRendering(Graphics::RZRHI::getCurrentCommandBuffer(), info);
 
-                    m_ImGuiRenderer.Draw(Graphics::RZRenderContext::getCurrentCommandBuffer());
+                    m_ImGuiRenderer.Draw(Graphics::RZRHI::getCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
 
                     // Submit the render queue before presenting next
-                    Graphics::RZRenderContext::Submit(Graphics::RZRenderContext::getCurrentCommandBuffer());
+                    Graphics::RZRHI::Submit(Graphics::RZRHI::getCurrentCommandBuffer());
 
                     // Signal on a semaphore for the next pass (Final Composition pass) to wait on
-                    Graphics::RZRenderContext::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
+                    Graphics::RZRHI::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
                 });
 
             //-------------------------------

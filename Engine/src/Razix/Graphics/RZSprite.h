@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZShader.h"
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include <glm/glm.hpp>
 

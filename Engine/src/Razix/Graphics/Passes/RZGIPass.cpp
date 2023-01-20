@@ -6,15 +6,15 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/API/RZCommandBuffer.h"
-#include "Razix/Graphics/API/RZGraphicsContext.h"
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZPipeline.h"
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZUniformBuffer.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Graphics/API/RZRenderContext.h"
+#include "Razix/Graphics/RHI/RZRHI.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
@@ -146,15 +146,15 @@ namespace Razix {
                 [=](const ReflectiveShadowMapData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_RSMCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
-                    RZRenderContext::Begin(cmdBuffer);
+                    auto cmdBuffer = m_RSMCmdBuffers[RZRHI::getSwapchain()->getCurrentImageIndex()];
+                    RZRHI::Begin(cmdBuffer);
 
                     struct CheckpointData
                     {
                         std::string RenderPassName = "RSM Pass";
                     } checkpointData;
 
-                    RZRenderContext::SetCmdCheckpoint(cmdBuffer, &checkpointData);
+                    RZRHI::SetCmdCheckpoint(cmdBuffer, &checkpointData);
 
                     RAZIX_MARK_BEGIN("ReflectiveShadowMap", glm::vec4(.23f, .45f, .76f, 1.0f))
 
@@ -171,7 +171,7 @@ namespace Razix {
                     info.extent          = {kRSMResolution, kRSMResolution};
                     info.resize          = false;
 
-                    RZRenderContext::BeginRendering(cmdBuffer, info);
+                    RZRHI::BeginRendering(cmdBuffer, info);
 
 #if 1
                     // Bind the pipeline
@@ -199,9 +199,9 @@ namespace Razix {
                             std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
                             std::vector<RZDescriptorSet*> MatSets   = mesh->getMaterial()->getDescriptorSets();
                             SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
-                            Graphics::RZRenderContext::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
+                            Graphics::RZRHI::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
-                            Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mesh->getIndexCount());
+                            Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
@@ -222,21 +222,21 @@ namespace Razix {
                         std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
                         std::vector<RZDescriptorSet*> MatSets   = mrc.Mesh->getMaterial()->getDescriptorSets();
                         SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
-                        Graphics::RZRenderContext::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
+                        Graphics::RZRHI::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                        Graphics::RZRenderContext::DrawIndexed(Graphics::RZRenderContext::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                 // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 #endif
 
                     RAZIX_MARK_END();
-                    RZRenderContext::EndRendering(cmdBuffer);
+                    RZRHI::EndRendering(cmdBuffer);
 
-                    RZRenderContext::Submit(cmdBuffer);
-                    RZRenderContext::SubmitWork({}, {});
+                    RZRHI::Submit(cmdBuffer);
+                    RZRHI::SubmitWork({}, {});
                 });
 
             return data;
@@ -302,15 +302,15 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
 #if 1
-                    auto cmdBuffer = m_RadianceInjectionCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
-                    RZRenderContext::Begin(cmdBuffer);
+                    auto cmdBuffer = m_RadianceInjectionCmdBuffers[RZRHI::getSwapchain()->getCurrentImageIndex()];
+                    RZRHI::Begin(cmdBuffer);
 
                     struct CheckpointData
                     {
                         std::string RenderPassName = "Radiance Injection Pass";
                     } checkpointData;
 
-                    RZRenderContext::SetCmdCheckpoint(cmdBuffer, &checkpointData);
+                    RZRHI::SetCmdCheckpoint(cmdBuffer, &checkpointData);
 
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 
@@ -353,7 +353,7 @@ namespace Razix {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, glm::vec4(0.0f)}},    // location = 2 // SH_B
                     };
 
-                    RZRenderContext::BeginRendering(cmdBuffer, info);
+                    RZRHI::BeginRendering(cmdBuffer, info);
 
                     // Bind the sets and update the data
                     radianceInjectionData.RSMResolution = kRSMResolution;
@@ -367,15 +367,15 @@ namespace Razix {
                     m_RIPipeline->Bind(cmdBuffer);
 
                     // Bind the desc sets
-                    RZRenderContext::BindDescriptorSets(m_RIPipeline, cmdBuffer, &m_RIDescriptorSet, 1);
+                    RZRHI::BindDescriptorSets(m_RIPipeline, cmdBuffer, &m_RIDescriptorSet, 1);
 
-                    RZRenderContext::Draw(cmdBuffer, kNumVPL);
+                    RZRHI::Draw(cmdBuffer, kNumVPL);
 
                     RAZIX_MARK_END();
-                    RZRenderContext::EndRendering(cmdBuffer);
+                    RZRHI::EndRendering(cmdBuffer);
 
-                    RZRenderContext::Submit(cmdBuffer);
-                    RZRenderContext::SubmitWork({}, {});
+                    RZRHI::Submit(cmdBuffer);
+                    RZRHI::SubmitWork({}, {});
 #endif
                 });
             return data;
@@ -428,15 +428,15 @@ namespace Razix {
                 [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_RadiancePropagationCmdBuffers[RZRenderContext::getSwapchain()->getCurrentImageIndex()];
-                    RZRenderContext::Begin(cmdBuffer);
+                    auto cmdBuffer = m_RadiancePropagationCmdBuffers[RZRHI::getSwapchain()->getCurrentImageIndex()];
+                    RZRHI::Begin(cmdBuffer);
 
                     struct CheckpointData
                     {
                         std::string RenderPassName = "Radiance Propagation Pass";
                     } checkpointData;
 
-                    RZRenderContext::SetCmdCheckpoint(cmdBuffer, &checkpointData);
+                    RZRHI::SetCmdCheckpoint(cmdBuffer, &checkpointData);
 
                     RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
 
@@ -475,7 +475,7 @@ namespace Razix {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, glm::vec4(0.0f)}},    // location = 2 // SH_B
                     };
 
-                    RZRenderContext::BeginRendering(cmdBuffer, info);
+                    RZRHI::BeginRendering(cmdBuffer, info);
 
                     // Bind the sets and update the data
                     radiancePropagationData.GridSize = grid.size;
@@ -486,15 +486,15 @@ namespace Razix {
                     m_RPropagationPipeline->Bind(cmdBuffer);
 
                     // Bind the desc sets
-                    RZRenderContext::BindDescriptorSets(m_RPropagationPipeline, cmdBuffer, &m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet, 1);
+                    RZRHI::BindDescriptorSets(m_RPropagationPipeline, cmdBuffer, &m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet, 1);
 
-                    RZRenderContext::Draw(cmdBuffer, kNumVPL);
+                    RZRHI::Draw(cmdBuffer, kNumVPL);
 
                     RAZIX_MARK_END();
-                    RZRenderContext::EndRendering(cmdBuffer);
+                    RZRHI::EndRendering(cmdBuffer);
 
-                    RZRenderContext::Submit(cmdBuffer);
-                    RZRenderContext::SubmitWork({}, {});
+                    RZRHI::Submit(cmdBuffer);
+                    RZRHI::SubmitWork({}, {});
                 });
             return data;
         }

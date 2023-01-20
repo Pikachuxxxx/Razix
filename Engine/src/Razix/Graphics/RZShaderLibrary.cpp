@@ -6,7 +6,7 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/RZSplashScreen.h"
 
-#include "Razix/Graphics/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
 
 namespace Razix {
     namespace Graphics {

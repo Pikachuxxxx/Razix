@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZSwapchain.h"
 
-#include "Razix/Graphics/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
     #include "Razix/Platform/API/OpenGL/OpenGLSwapchain.h"

@@ -8,9 +8,9 @@
 #include "Razix/Graphics/RZModel.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
-#include "Razix/Graphics/API/RZIndexBuffer.h"
-#include "Razix/Graphics/API/RZTexture.h"
-#include "Razix/Graphics/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 

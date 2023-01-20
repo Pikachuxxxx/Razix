@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/API/RZDescriptorSet.h"
+#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
