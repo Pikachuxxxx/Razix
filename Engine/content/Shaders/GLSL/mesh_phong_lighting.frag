@@ -9,6 +9,7 @@
  #extension GL_ARB_shading_language_420pack : enable
 
  #include <Material/Material.glsl>
+ #include <Lighting/Light.glsl>
 
  //------------------------------------------------------------------------------
  // Vertex Input
