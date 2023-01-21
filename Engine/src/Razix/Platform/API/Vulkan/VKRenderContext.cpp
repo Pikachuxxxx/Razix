@@ -206,10 +206,8 @@ namespace Razix {
             for (auto& attachment: renderingInfo.colorAttachments) {
                 // Resize attachments when resized
                 if (renderingInfo.resize) {
-                    if (m_Width != attachment.first->getWidth() || m_Height != attachment.first->getHeight()) {;
-                        if (attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::DEPTH)
-                            attachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(attachment.first->getName()));
-                    }
+                    if (m_Width != attachment.first->getWidth() || m_Height != attachment.first->getHeight()) 
+                        attachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(attachment.first->getName()));
                 }
 
                 // Fill the color attachments first

@@ -122,6 +122,7 @@ project "Razix"
         "%{IncludeDir.lua}",
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
+        "%{IncludeDir.Jolt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
@@ -146,6 +147,7 @@ project "Razix"
         "lua",
         "optick",
         "tracy",
+        "Jolt",
         -- Shaders
         "Shaders",
         -- Razix Internal Libraries 

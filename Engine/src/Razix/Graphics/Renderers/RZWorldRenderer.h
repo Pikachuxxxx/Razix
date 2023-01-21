@@ -8,6 +8,7 @@
 #include "Razix/Graphics/FrameGraph/Resources/RZTransientResources.h"
 
 // Passes
+#include "Razix/Graphics/Passes/RZDeferredLightingPass.h"
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
@@ -135,6 +136,7 @@ namespace Razix {
             RZShadowRenderer       m_CascadedShadowsRenderer;
             RZGIPass               m_GIPass;
             RZGBufferPass          m_GBufferPass;
+            RZDeferredLightingPass m_DeferredPass;
             RZImGuiRenderer        m_ImGuiRenderer;
             RZFinalCompositionPass m_CompositePass;
             // Other Variables
