@@ -38,9 +38,8 @@ namespace Razix {
             bool                                                    resize     = false;
         };
 
+        /* Command Queue is a collection of command buffers that will be submitted for execution at once */
         typedef std::vector<RZCommandBuffer*> CommandQueue;
-
-        // TODO: Support multiple wait and signal semaphores
 
         /* The Razix RHI (Render Hardware Interface ) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
          * The Renderers creates from the provided IRZRenderer interface of razix uses this to perform command recording/submission sets binding

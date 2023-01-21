@@ -72,6 +72,32 @@ namespace Razix {
             //-------------------------------
             m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
+            // TODO: will be implemented once proper point lights support is completed
+            //-------------------------------
+            // [ ] Tiled Lighting Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] SSAO Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] Deferred Lighting Pass
+            //-------------------------------
+            m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+
+            //-------------------------------
+            // [ ] Skybox Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] SSR Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] Bloom Pass
+            //-------------------------------
+
             //-------------------------------
             // ImGui Pass
             //-------------------------------
@@ -149,7 +175,7 @@ namespace Razix {
             // Destroy Imported Resources
             m_BRDFfLUTTexture->Release(true);
 
-#if 0
+#if 1
             m_Skybox->Release(true);
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
@@ -161,8 +187,8 @@ namespace Razix {
 
             // Destroy Passes
             m_CompositePass.destroy();
-            //m_GIPass.destroy();
-            //m_GBufferPass.destroy();
+            m_GIPass.destroy();
+            m_GBufferPass.destroy();
 
             // Destroy Frame Graph Resources
             m_TransientResources.destroyResources();

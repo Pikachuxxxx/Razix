@@ -43,6 +43,7 @@ project "Sandbox"
         "%{IncludeDir.lua}",
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
+        "%{IncludeDir.Jolt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Internal libraries
@@ -67,6 +68,7 @@ project "Sandbox"
        "OpenFBX",
        "lua",
        "optick",
+       "Jolt",
        --"tracy",
        -- Internal
        "RazixMemory",
