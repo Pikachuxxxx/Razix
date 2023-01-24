@@ -17,7 +17,7 @@
 #include "Razix/Events/ApplicationEvent.h"
 
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 
@@ -188,7 +188,7 @@ namespace Razix {
 
         //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
-        Graphics::RZRHI::OnResize(e.GetWidth(), e.GetHeight());
+        Graphics::RHI::OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -248,9 +248,9 @@ namespace Razix {
     void RZApplication::Run()
     {
         // Create the API renderer to issue render commands
-        Graphics::RZRHI::Create(getWindow()->getWidth(), getWindow()->getHeight());
+        Graphics::RHI::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
-        Graphics::RZRHI::Init();
+        Graphics::RHI::Init();
 
         // Job system and Engine Systems(run-time) Initialization
         //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
@@ -558,7 +558,7 @@ namespace Razix {
 
         // FIXME: This is fucked up I'm not cleaning stuff for editor mode
         if (RZApplication::Get().getAppType() == AppType::GAME)
-            Graphics::RZRHI::Release();
+            Graphics::RHI::Release();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }

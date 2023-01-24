@@ -1,12 +1,12 @@
 #pragma once
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Platform/API/OpenGL/OpenGLContext.h"
 
 namespace Razix {
     namespace Graphics {
 
-        class GLRenderContext : public RZRHI
+        class GLRenderContext : public RHI
         {
         public:
         public:

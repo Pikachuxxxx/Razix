@@ -5,8 +5,12 @@ namespace Razix {
 
         class RAZIX_API RZRigidBody
         {
+        public:
+            RZRigidBody() {}
+            ~RZRigidBody() {}
+
+        private:
         };
 
     }    // namespace Physics
 }    // namespace Razix
-

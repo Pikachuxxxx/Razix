@@ -169,7 +169,7 @@ namespace Razix {
 
             m_Material->Bind();
 
-            RZRHI::DrawIndexed(cmdBuf, m_IndexCount, 1, 0, 0, 0);
+            RHI::DrawIndexed(cmdBuf, m_IndexCount, 1, 0, 0, 0);
         }
 
         void RZMesh::Destroy()

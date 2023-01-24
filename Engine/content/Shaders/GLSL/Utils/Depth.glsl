@@ -11,6 +11,7 @@
 #endif
 
 #include <Common/Math.glsl>
+#include <Utils/SpaceUtils.glsl>
 
 // Returns depth in clip-space
 float getDepth(sampler2D depthMap, vec2 texCoord) {
@@ -41,9 +42,9 @@ float linearizeDepth(float n, float f, float sampledDepth) {
   return n * f / (f + z * (n - f));
 }
 
-//vec3 viewPositionFromDepth(float z, vec2 texCoord) {
-//  // https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy/46118945#46118945
-//  return clipToView(vec4(texCoord * 2.0 - 1.0, z, 1.0));
-//}
+vec3 viewPositionFromDepth(float z, vec2 texCoord) {
+  // https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy/46118945#46118945
+  return clipToView(vec4(texCoord * 2.0 - 1.0, z, 1.0));
+}
 
 #endif

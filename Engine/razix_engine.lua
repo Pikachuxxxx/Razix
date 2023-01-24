@@ -13,6 +13,19 @@ else
     print("Vulkan SDK found at : " .. VulkanSDK)
 end
 
+-- WWise SDK
+WWiseSDK = os.getenv("WWISESDK")
+
+if (WWiseSDK == nil or WWiseSDK == '') then
+    print("WWISESDK Enviroment variable is not found! Please check your development environment settings")
+    os.exit()
+else
+    print("WWise SDK found at : " .. WWiseSDK)
+end
+-- WWIse SDK include directory
+WWiseSDKIncludeDir = WWiseSDK .. "/include"
+
+
 -- Shaders a separate project to build as cache
 group "Engine/content"
     project "Shaders"
@@ -100,7 +113,7 @@ project "Razix"
     }
 
     -- For MacOS
-    sysincludedirs
+    externalincludedirs
     {
         -- Engine
         "./",
@@ -126,7 +139,10 @@ project "Razix"
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
+        -- Vulkan
         "%{VulkanSDK}",
+        -- WWise
+        "%{WWiseSDKIncludeDir}",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
         "%{InternalIncludeDir.RZSTL}",
@@ -148,6 +164,13 @@ project "Razix"
         "optick",
         "tracy",
         "Jolt",
+        -- WWise Libraries (AudioKinetic sound engine)
+        "AkSoundEngine",
+        "AkMemoryMgr",
+        "AkStreamMgr",
+        "AkMusicEngin",
+        "AkSpatialAudio",
+        "CommunicationCentral", -- (TODO: not needed in release)
         -- Shaders
         "Shaders",
         -- Razix Internal Libraries 
@@ -174,6 +197,13 @@ project "Razix"
         disablewarnings { 4307 }
         characterset ("MBCS")
         editandcontinue "Off"
+
+        -- Library directory for WWise SDK
+        if(_ACTION == "vs2022") then
+            -- Arch is already set as x64 on main premake5.lua file
+            WWiseLibrDirPlatform = WWiseSDK .. "/x64_vc170/"
+            print(WWiseLibrDirPlatform)
+        end
 
          -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
          -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
@@ -276,6 +306,13 @@ project "Razix"
         symbols "On"
         runtime "Debug"
         optimize "Off"
+
+        -- WWise library directories
+
+        libdirs
+        {
+            "%{WWiseLibrDirPlatform}/" .. "Debug(StaticCRT)/lib"
+        }
 
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }

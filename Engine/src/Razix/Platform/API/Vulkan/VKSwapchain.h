@@ -2,7 +2,7 @@
 
 #include "Razix/Core/RZSmartPointers.h"
 
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 

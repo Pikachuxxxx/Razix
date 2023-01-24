@@ -18,7 +18,7 @@ project "meshoptimizer"
 		"include/**.h",
 	}
 
-	sysincludedirs
+	externalincludedirs
 	{
 		"include",
 	}

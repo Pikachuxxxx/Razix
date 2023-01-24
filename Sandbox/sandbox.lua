@@ -26,7 +26,7 @@ project "Sandbox"
     }
 
     -- Macos include paths
-    sysincludedirs
+    externalincludedirs
     {
         "../Engine/src/Razix",
         "../Engine",
@@ -121,7 +121,7 @@ project "Sandbox"
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_DIRECTX11",
             "RAZIX_RENDER_API_DIRECTX12",
-            -- Windows / Vidual Studio
+            -- Windows / Visual Studio
             "WIN32_LEAN_AND_MEAN",
             "_CRT_SECURE_NO_WARNINGS",
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",

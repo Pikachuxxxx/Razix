@@ -124,7 +124,7 @@ namespace Razix {
                         std::string RenderPassName = "ImGui Pass";
                     } checkpointData;
 
-                    RZRHI::SetCmdCheckpoint(Graphics::RZRHI::getCurrentCommandBuffer(), &checkpointData);
+                    RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
 
@@ -134,17 +134,17 @@ namespace Razix {
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
-                    RZRHI::BeginRendering(Graphics::RZRHI::getCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
 
-                    m_ImGuiRenderer.Draw(Graphics::RZRHI::getCurrentCommandBuffer());
+                    m_ImGuiRenderer.Draw(Graphics::RHI::getCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
 
                     // Submit the render queue before presenting next
-                    Graphics::RZRHI::Submit(Graphics::RZRHI::getCurrentCommandBuffer());
+                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
 
                     // Signal on a semaphore for the next pass (Final Composition pass) to wait on
-                    Graphics::RZRHI::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
+                    Graphics::RHI::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
                 });
 
             //-------------------------------

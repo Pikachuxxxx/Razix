@@ -41,7 +41,7 @@
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
 
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 // Graphics/Cameras
 #include "Razix/Graphics/Cameras/Camera3D.h"
