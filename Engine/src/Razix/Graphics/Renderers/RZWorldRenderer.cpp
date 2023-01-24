@@ -84,7 +84,7 @@ namespace Razix {
             //-------------------------------
             // [ ] Deferred Lighting Pass
             //-------------------------------
-            m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            //m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [ ] Skybox Pass

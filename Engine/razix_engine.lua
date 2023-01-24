@@ -168,7 +168,7 @@ project "Razix"
         "AkSoundEngine",
         "AkMemoryMgr",
         "AkStreamMgr",
-        "AkMusicEngin",
+        "AkMusicEngine",
         "AkSpatialAudio",
         "CommunicationCentral", -- (TODO: not needed in release)
         -- Shaders

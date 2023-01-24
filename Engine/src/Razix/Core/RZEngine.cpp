@@ -38,10 +38,13 @@ namespace Razix {
         // TODO: Temp code remove this!!!
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        // 2. Scene Manager
+        // 2. Sound Engine
+        Audio::RZSoundEngine::Get().StartUp();
+
+        // 3. Scene Manager
         RZSceneManager::Get().StartUp();
 
-        // 3. Script Handler
+        // 4. Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -87,6 +90,8 @@ namespace Razix {
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager
+        RZSceneManager::Get().ShutDown();
+        // Shutdown the Sound Engine
         RZSceneManager::Get().ShutDown();
         // Shutdown the VFS last
         RZVirtualFileSystem::Get().ShutDown();

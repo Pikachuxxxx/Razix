@@ -16,7 +16,7 @@ namespace Razix {
             void ShutDown();
 
             /* Gets the body interface that is used to create, manage and destroy the bodies in the physics world */
-            RAZIX_FORCE_INLINE JPH::BodyInterface& getBodyManager() { m_BodyInterface; }
+            RAZIX_FORCE_INLINE JPH::BodyInterface& getBodyManager() { return m_BodyInterface; }
 
         private:
             JPH::PhysicsSystem m_PhysicsSystem;
