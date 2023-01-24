@@ -1,4 +1,4 @@
-project "Premake"
+project "Premake Re-Generate Project Files"
 	kind "Utility"
 
 	excludes { "%{wks.location}../../../.modules/**premake5.lua" }

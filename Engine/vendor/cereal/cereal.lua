@@ -15,7 +15,7 @@ project "cereal"
         "include",
     }
 
-	sysincludedirs
+	externalincludedirs
 	{
 		"include",
 	}

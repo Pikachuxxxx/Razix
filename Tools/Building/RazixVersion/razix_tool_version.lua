@@ -16,7 +16,7 @@ project "RazixVersion"
     }
 
     -- Macos include paths
-    sysincludedirs
+    externalincludedirs
     {
         "../../../Engine/src"
     }

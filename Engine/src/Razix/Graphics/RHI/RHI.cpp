@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZRHI.h"
+#include "RHI.h"
 
 #include "Razix/Core/RZApplication.h"
 
@@ -20,9 +20,9 @@
 namespace Razix {
     namespace Graphics {
 
-        RZRHI* RZRHI::s_APIInstance = nullptr;
+        RHI* RHI::s_APIInstance = nullptr;
 
-        void RZRHI::Create(uint32_t width, uint32_t height)
+        void RHI::Create(uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -37,7 +37,7 @@ namespace Razix {
             }
         }
 
-        void RZRHI::Release()
+        void RHI::Release()
         {
             Graphics::RZMaterial::ReleaseDefaultTexture();
             // Shutting down the shader library

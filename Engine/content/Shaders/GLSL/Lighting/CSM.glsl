@@ -1,7 +1,7 @@
 #ifndef _CSM_GLSL_
 #define _CSM_GLSL_
 
-#include <Resources/Cascades.glsl>
+#include <Lighting/Cascades.glsl>
 
 float _getDirLightVisibility(uint cascadeIndex, vec3 fragPos, float NdotL) {
   vec4 shadowCoord =
@@ -10,7 +10,7 @@ float _getDirLightVisibility(uint cascadeIndex, vec3 fragPos, float NdotL) {
   const float bias = 0.0;
 
 #if !SOFT_SHADOWS
-  return texture(t_CascadedShadowMaps,
+  return texture(CascadedShadowMaps,
                  vec4(shadowCoord.xy, cascadeIndex, shadowCoord.z - bias));
 #else
   const ivec2 shadowMapSize = textureSize(t_CascadedShadowMaps, 0).xy;

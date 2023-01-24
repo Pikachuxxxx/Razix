@@ -14,7 +14,7 @@
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
@@ -149,12 +149,12 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Begin recording the command buffers
-            Graphics::RZRHI::Begin(m_MainCommandBuffers[Graphics::RZRHI::getSwapchain()->getCurrentImageIndex()]);
+            Graphics::RHI::Begin(m_MainCommandBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()]);
 
             RAZIX_MARK_BEGIN("ImGui Pass", glm::vec4(1.0f, 7.0f, 0.0f, 1.0f));
 
             // Update the viewport
-            Graphics::RZRHI::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            Graphics::RHI::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
@@ -238,7 +238,7 @@ namespace Razix {
             model.size = sizeof(PushConstBlock);
             model.data = &pushConstBlock;
 
-            RZRHI::BindPushConstant(m_Pipeline, cmdBuffer, model);
+            RHI::BindPushConstant(m_Pipeline, cmdBuffer, model);
 
             // Bind the vertex and index buffers
             m_ImGuiVBO->Bind(cmdBuffer);
@@ -251,7 +251,7 @@ namespace Razix {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
                     RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
-                    RZRHI::BindDescriptorSets(m_Pipeline, cmdBuffer, &set, 1);
+                    RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, &set, 1);
                     // TODO: Fix this for Vulkan
                     VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
 
@@ -262,7 +262,7 @@ namespace Razix {
                     // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
                     // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
                     // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                    RZRHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    RHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
 #ifdef RAZIX_RENDER_API_VULKAN
                     if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                         vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
@@ -278,7 +278,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RZRHI::EndRendering(Graphics::RZRHI::getCurrentCommandBuffer());
+            RHI::EndRendering(Graphics::RHI::getCurrentCommandBuffer());
 
             RAZIX_MARK_END();
 
@@ -300,7 +300,7 @@ namespace Razix {
 
             m_Pipeline->Destroy();
 
-            Graphics::RZRHI::OnResize(width, height);
+            Graphics::RHI::OnResize(width, height);
         }
 
         void RZImGuiRenderer::Destroy()
