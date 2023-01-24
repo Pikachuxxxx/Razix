@@ -21,7 +21,7 @@
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 

@@ -87,6 +87,7 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/SPIRVCross/SPIRVCross.lua"
         include "Engine/vendor/SPIRVReflect/SPIRVReflect.lua"
         include "Engine/vendor/tracy/tracy.lua"
+        include "Engine/vendor/JoltPhysics/jolt.lua"
     group ""
 
     -- Uses .NET 4.0
@@ -94,11 +95,11 @@ workspace ( settings.workspace_name )
     -- Sony WWS Authoring Tools Framework modules
     group "Dependencies/ATF"
         -- SCE ATF Dependencies
-        require("Tools/vendor/ATF/Framework/Atf.Core/premake5")
-        require("Tools/vendor/ATF/Framework/Atf.Gui/premake5")
-        require("Tools/vendor/ATF/Framework/Atf.Gui.WinForms/premake5")
-        require("Tools/vendor/ATF/Framework/Atf.IronPython/premake5")
-        require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
+        --require("Tools/vendor/ATF/Framework/Atf.Core/premake5")
+        --require("Tools/vendor/ATF/Framework/Atf.Gui/premake5")
+        --require("Tools/vendor/ATF/Framework/Atf.Gui.WinForms/premake5")
+        --require("Tools/vendor/ATF/Framework/Atf.IronPython/premake5")
+        --require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
     group ""
 
     -- Build Script for Razix Engine (Internal)
@@ -135,7 +136,7 @@ workspace ( settings.workspace_name )
 
     group "Tools/Build"
             -- premake scripts Utility project for in IDE management
-            include "Tools/Building/premake/premake5"
+            include "Tools/Building/premake/premake_regenerate_proj_files.lua"
             -- Gets the version of the Engine for Build workflows
             include "Tools/Building/RazixVersion/razix_tool_version.lua"
     group ""

@@ -72,6 +72,32 @@ namespace Razix {
             //-------------------------------
             m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
+            // TODO: will be implemented once proper point lights support is completed
+            //-------------------------------
+            // [ ] Tiled Lighting Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] SSAO Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] Deferred Lighting Pass
+            //-------------------------------
+            //m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+
+            //-------------------------------
+            // [ ] Skybox Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] SSR Pass
+            //-------------------------------
+
+            //-------------------------------
+            // [ ] Bloom Pass
+            //-------------------------------
+
             //-------------------------------
             // ImGui Pass
             //-------------------------------
@@ -98,7 +124,7 @@ namespace Razix {
                         std::string RenderPassName = "ImGui Pass";
                     } checkpointData;
 
-                    RZRHI::SetCmdCheckpoint(Graphics::RZRHI::getCurrentCommandBuffer(), &checkpointData);
+                    RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
 
@@ -108,17 +134,17 @@ namespace Razix {
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
-                    RZRHI::BeginRendering(Graphics::RZRHI::getCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
 
-                    m_ImGuiRenderer.Draw(Graphics::RZRHI::getCurrentCommandBuffer());
+                    m_ImGuiRenderer.Draw(Graphics::RHI::getCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
 
                     // Submit the render queue before presenting next
-                    Graphics::RZRHI::Submit(Graphics::RZRHI::getCurrentCommandBuffer());
+                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
 
                     // Signal on a semaphore for the next pass (Final Composition pass) to wait on
-                    Graphics::RZRHI::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
+                    Graphics::RHI::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
                 });
 
             //-------------------------------
@@ -149,7 +175,7 @@ namespace Razix {
             // Destroy Imported Resources
             m_BRDFfLUTTexture->Release(true);
 
-#if 0
+#if 1
             m_Skybox->Release(true);
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
@@ -161,8 +187,8 @@ namespace Razix {
 
             // Destroy Passes
             m_CompositePass.destroy();
-            //m_GIPass.destroy();
-            //m_GBufferPass.destroy();
+            m_GIPass.destroy();
+            m_GBufferPass.destroy();
 
             // Destroy Frame Graph Resources
             m_TransientResources.destroyResources();

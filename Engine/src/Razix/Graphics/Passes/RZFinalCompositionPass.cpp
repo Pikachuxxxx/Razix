@@ -9,7 +9,7 @@
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
@@ -101,10 +101,10 @@ namespace Razix {
 
                     auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();
 
-                    Graphics::RZRHI::AcquireImage(imageReadySemaphore);
+                    Graphics::RHI::AcquireImage(imageReadySemaphore);
 
-                    auto cmdBuf = m_CmdBuffers[Graphics::RZRHI::getSwapchain()->getCurrentImageIndex()];
-                    RZRHI::Begin(cmdBuf);
+                    auto cmdBuf = m_CmdBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
+                    RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
                     struct CheckpointData
@@ -112,7 +112,7 @@ namespace Razix {
                         std::string RenderPassName = "Composite Pass";
                     } checkpointData;
 
-                    RZRHI::SetCmdCheckpoint(Graphics::RZRHI::getCurrentCommandBuffer(), &checkpointData);
+                    RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
 
                     cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
@@ -132,34 +132,34 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {Graphics::RZRHI::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
+                        {Graphics::RHI::getSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
                     };
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
-                    RZRHI::BeginRendering(cmdBuf, info);
+                    RHI::BeginRendering(cmdBuf, info);
 
                     // Bind pipeline and stuff
                     m_Pipeline->Bind(cmdBuf);
 
                     // Bind the descriptor sets
-                    Graphics::RZRHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+                    Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
                     // Bind the pipeline
                     m_ScreenQuadMesh->Draw(cmdBuf);
 
-                    RZRHI::EndRendering(cmdBuf);
+                    RHI::EndRendering(cmdBuf);
 
                     RAZIX_MARK_END();
-                    RZRHI::Submit(cmdBuf);
+                    RHI::Submit(cmdBuf);
 
                     // Wait on the previous pass semaphore for stuff to be done
                     auto waitOnPreviousPassSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(imguiPassData.passDoneSemaphore).getHandle();
                     auto presentSemaphore            = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.presentationDoneSemaphore).getHandle();
 
-                    RZRHI::SubmitWork({waitOnPreviousPassSemaphore, imageReadySemaphore}, {presentSemaphore});
-                    RZRHI::Present(presentSemaphore);
+                    RHI::SubmitWork({waitOnPreviousPassSemaphore, imageReadySemaphore}, {presentSemaphore});
+                    RHI::Present(presentSemaphore);
                 });
         }
 

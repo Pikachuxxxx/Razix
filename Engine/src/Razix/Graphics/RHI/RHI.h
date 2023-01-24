@@ -38,25 +38,24 @@ namespace Razix {
             bool                                                    resize     = false;
         };
 
+        /* Command Queue is a collection of command buffers that will be submitted for execution at once */
         typedef std::vector<RZCommandBuffer*> CommandQueue;
-
-        // TODO: Support multiple wait and signal semaphores
 
         /* The Razix RHI (Render Hardware Interface ) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
          * The Renderers creates from the provided IRZRenderer interface of razix uses this to perform command recording/submission sets binding
          * and other operations that doesn't require the underlying API, since renderers do not actually need that we use this high-level abstraction
          * over the supported APIs to make things look simple and easier to interact with
          */
-        class RAZIX_API RZRHI : public RZRoot
+        class RAZIX_API RHI : public RZRoot
         {
         public:
-            RZRHI()          = default;
-            virtual ~RZRHI() = default;
+            RHI()          = default;
+            virtual ~RHI() = default;
 
             static void Create(uint32_t width, uint32_t height);
             static void Release();
 
-            static RZRHI& Get() { return *s_APIInstance; }
+            static RHI& Get() { return *s_APIInstance; }
 
             /* Initializes the API renderer with the resources it needs */
             RAZIX_FORCE_INLINE static void Init()
@@ -177,7 +176,7 @@ namespace Razix {
             virtual void SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData) {}
 
         protected:
-            static RZRHI* s_APIInstance;
+            static RHI* s_APIInstance;
 
             std::string      m_RendererTitle; /* The name of the renderer API that is being used */
             uint32_t         m_Width      = 0;

@@ -89,7 +89,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx = RZRHI::Get().getSwapchain()->getCurrentImageIndex();
+            auto frameIdx = RHI::Get().getSwapchain()->getCurrentImageIndex();
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
@@ -120,7 +120,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx     = RZRHI::Get().getSwapchain()->getCurrentImageIndex();
+            auto frameIdx     = RHI::Get().getSwapchain()->getCurrentImageIndex();
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
 
             std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
@@ -140,7 +140,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx     = RZRHI::Get().getSwapchain()->getCurrentImageIndex();
+            auto frameIdx     = RHI::Get().getSwapchain()->getCurrentImageIndex();
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
             m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
         }
@@ -206,10 +206,8 @@ namespace Razix {
             for (auto& attachment: renderingInfo.colorAttachments) {
                 // Resize attachments when resized
                 if (renderingInfo.resize) {
-                    if (m_Width != attachment.first->getWidth() || m_Height != attachment.first->getHeight()) {;
-                        if (attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::DEPTH)
-                            attachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(attachment.first->getName()));
-                    }
+                    if (m_Width != attachment.first->getWidth() || m_Height != attachment.first->getHeight()) 
+                        attachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(attachment.first->getName()));
                 }
 
                 // Fill the color attachments first

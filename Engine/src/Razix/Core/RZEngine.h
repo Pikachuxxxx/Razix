@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Audio/RZSoundEngine.h"
+
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/RazixVersion.h"
 
@@ -10,8 +12,8 @@
 
 #include "Razix/Graphics/Renderers/RZWorldRenderer.h"
 
-#include "Razix/Scene/RZSceneManager.h"
 #include "Razix/Scene/RZScene.h"
+#include "Razix/Scene/RZSceneManager.h"
 
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 

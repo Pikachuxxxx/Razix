@@ -14,7 +14,7 @@
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Graphics/RHI/RZRHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
@@ -297,10 +297,10 @@ namespace Razix {
                      * Since the resource is cloned and we maintain different version of it, the same resource is handled to us every time we ask it
                      */
 
-                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RZRHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
 
                     // Begin Command Buffer Recording
-                    RZRHI::Begin(cmdBuf);
+                    RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.45, 0.23, 0.56f, 1.0f));
 
                     // Update Viewport and Scissor Rect
@@ -321,20 +321,20 @@ namespace Razix {
                     info.layerCount = kNumCascades;
                     /////////////////////////////////
                     info.resize = false;
-                    RZRHI::BeginRendering(cmdBuf, info);
+                    RHI::BeginRendering(cmdBuf, info);
 
                     struct CheckpointData
                     {
                         std::string RenderPassName = "CSM Pass";
                     }checkpointData;
 
-                    RZRHI::SetCmdCheckpoint(cmdBuf, &checkpointData);
+                    RHI::SetCmdCheckpoint(cmdBuf, &checkpointData);
 
                     // Bind pipeline
                     cascadeGPUResources[cascadeIdx].CascadePassPipeline->Bind(cmdBuf);
 
                     // Bind Sets
-                    RZRHI::BindDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
+                    RHI::BindDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
 
                     // Draw calls
                     // Get the meshes and the models from the Scene and render them
@@ -356,7 +356,7 @@ namespace Razix {
                             mesh->getVertexBuffer()->Bind(cmdBuf);
                             mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                            Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mesh->getIndexCount());
+                            Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
@@ -376,21 +376,21 @@ namespace Razix {
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                        Graphics::RZRHI::DrawIndexed(Graphics::RZRHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 
                     // End Rendering
-                    RZRHI::EndRendering(cmdBuf);
+                    RHI::EndRendering(cmdBuf);
 
                     RAZIX_MARK_END();
 
                     // End Command Buffer Recording
-                    RZRHI::Submit(cmdBuf);
+                    RHI::Submit(cmdBuf);
 
                     // Submit the work for execution + synchronization
                     // Signal a passDoneSemaphore only on the last cascade pass
-                    RZRHI::SubmitWork({}, {/*PassDoneSemaphore*/});
+                    RHI::SubmitWork({}, {/*PassDoneSemaphore*/});
                 });
 
             return pass.cascadeOuput;

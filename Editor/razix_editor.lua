@@ -77,7 +77,7 @@ project "RazixEditor"
     removefiles { "src/generated/**" }
 
      -- Macos include paths
-    sysincludedirs
+    externalincludedirs
     {
         "../Engine/src/Razix",
         "../Engine",

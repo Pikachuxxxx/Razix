@@ -9,6 +9,7 @@
  #extension GL_ARB_shading_language_420pack : enable
 
  #include <Material/Material.glsl>
+ #include <Lighting/Light.glsl>
 
  //------------------------------------------------------------------------------
  // Vertex Input
@@ -23,40 +24,7 @@ layout(location = 0) in VSOutput
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
 // Uniforms and Push Constants
-// TODO: Move this to Lights.glsl file
-// Lighting information
-struct DirectionalLight
-{
-    vec3 direction;
-    vec3 color;
-    float time;
-};
-struct PointLight
-{
-    vec3  position;
-    vec3  color;
-    float radius;
-    float constant;
-    float linear;
-    float quadratic;
-};
-struct SpotLight
-{
-    vec3  position;
-    vec3  direction;
-    vec3  color;
-    float radius;
-    float constant;
-    float linear;
-    float quadratic;
-};
-struct LightData
-{
-    int                 type;
-    DirectionalLight    dirLightData;
-    PointLight          pointLightData;
-    SpotLight           spotLightData;
-};
+
 // Forward Light Data
 // layout(set = 1, binding = 0) uniform ForwardLightData
 //{

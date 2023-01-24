@@ -7,7 +7,7 @@
 
     #include "Razix/Events/RZEvent.h"
 
-    #include "Razix/Graphics/RHI/RZRHI.h"
+    #include "Razix/Graphics/RHI/RHI.h"
     #include "Razix/Graphics/Cameras/Camera3D.h"
     #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 

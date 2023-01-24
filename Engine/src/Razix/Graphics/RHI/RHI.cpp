@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZRHI.h"
+#include "RHI.h"
 
 #include "Razix/Core/RZApplication.h"
 
@@ -20,9 +20,9 @@
 namespace Razix {
     namespace Graphics {
 
-        RZRHI* RZRHI::s_APIInstance = nullptr;
+        RHI* RHI::s_APIInstance = nullptr;
 
-        void RZRHI::Create(uint32_t width, uint32_t height)
+        void RHI::Create(uint32_t width, uint32_t height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -32,15 +32,12 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: s_APIInstance = new GLRenderContext(width, height); break;
                 case Razix::Graphics::RenderAPI::VULKAN: s_APIInstance = new VKRenderContext(width, height); break;
-                case Razix::Graphics::RenderAPI::D3D11:
-                case Razix::Graphics::RenderAPI::D3D12:
-                case Razix::Graphics::RenderAPI::GXM:
-                case Razix::Graphics::RenderAPI::GCM:
+                case Razix::Graphics::RenderAPI::D3D12: // to be implemented soon
                 default: s_APIInstance = nullptr; break;
             }
         }
 
-        void RZRHI::Release()
+        void RHI::Release()
         {
             Graphics::RZMaterial::ReleaseDefaultTexture();
             // Shutting down the shader library
@@ -52,6 +49,5 @@ namespace Razix {
             // Release the context at last
             Graphics::RZGraphicsContext::GetContext()->Release();
         }
-
     }    // namespace Graphics
 }    // namespace Razix
