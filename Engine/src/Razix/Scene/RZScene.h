@@ -21,6 +21,9 @@ namespace Razix {
         RZScene();
         RZScene(std::string sceneName);
 
+        void updatePhysics();
+        void drawScene();
+
         void Destroy();
 
         /**
@@ -47,7 +50,6 @@ namespace Razix {
          */
         RZSceneCamera getSceneCamera();
 
-        // TODO: Add ability to query for multiple components types followed a comma
         // TODO: Get the reference to the components instead
         template<typename T>
         std::vector<T> GetComponentsOfType()
@@ -61,6 +63,7 @@ namespace Razix {
             return components;
         }
 
+        // TODO: Add ability to query for multiple components types followed by a comma
         //template<typename T>
         //std::vector<RZEntity> GetEntitiesWithComponentsOfType()
         //{

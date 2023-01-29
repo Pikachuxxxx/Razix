@@ -5,6 +5,8 @@ const uint LightType_Directional = 0;
 const uint LightType_Spot = 1;
 const uint LightType_Point = 2;
 
+#define MAX_LIGHTS 1024
+
 struct DirectionalLight
 {
     vec3 direction;
@@ -49,13 +51,13 @@ struct Light {
   // Implicit padding, 4bytes
 };
 
-#define _DECLARE_LIGHT_BUFFER(st, index, name)                                     \
-  layout(set = st, binding = index, std430) restrict readonly buffer LightBuffer {       \
-    uint numLights;                                                            \
-    uint _pad[3];                                                              \
-    Light data[];                                                              \
-  }                                                                            \
-  name
+#define DECLARE_LIGHT_BUFFER(st, index, name)                                           \
+  layout(set = st, binding = index, std140) uniform LightBuffer {                       \
+    uint numLights;                                                                     \
+    uint _pad[3];                                                                       \
+    LightData data;                                                                       \
+  }                                                                                     \
+  name;
 
 struct LightContribution {
   vec3 diffuse;
