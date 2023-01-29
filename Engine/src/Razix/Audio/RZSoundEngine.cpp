@@ -7,7 +7,7 @@
 #include <AK/SoundEngine/Common/AkModule.h>
 #include <AK/SoundEngine/Common/AkSoundEngine.h>    // Sound engine
 #include <AK/SoundEngine/Common/AkStreamMgrModule.h>
-#include <AK/SoundEngine/Common/IAkStreamMgr.h>    // Streaming Manager
+#include <AK/SoundEngine/Common/IAkStreamMgr.h>    // Streaming Manager n
 
 #include <AK/Tools/Common/AkPlatformFuncs.h>    // Thread defines
 
@@ -17,6 +17,7 @@ namespace Razix {
         void RZSoundEngine::StartUp()
         {
             RAZIX_CORE_INFO("[Sound Engine] Starting Up Sound Engine");
+            RAZIX_CORE_INFO("[Sound Engine] Backend: OpenAL");
 
             // Initialize the WWise : Audio Kinetic Sound Engine Memory
             AkMemSettings memSettings;

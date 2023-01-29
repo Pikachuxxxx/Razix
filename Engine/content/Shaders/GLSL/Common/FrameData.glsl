@@ -2,22 +2,22 @@
 #define _FRAME_DATA_GLSL_
 
 struct Camera {
-  mat4 projection;
-  mat4 inversedProjection;
-  mat4 view;
-  mat4 inversedView;
-  float fov;
-  float near, far;
+    mat4 projection;
+    mat4 inversedProjection;
+    mat4 view;
+    mat4 inversedView;
+    float fov;
+    float near, far;
   // Implicit padding, 4bytes
 };
 
 layout(set = 0, binding = 0, std140) uniform FrameBlock {
-  float time;
-  float deltaTime;
-  uvec2 resolution;
-  Camera camera;
-  uint renderFeatures;
-  uint debugFlags;
+    float time;
+    float deltaTime;
+    uvec2 resolution;
+    Camera camera;
+    uint renderFeatures;
+    uint debugFlags;
 } u_Frame;
 
 float getTime() { return u_Frame.time; }
