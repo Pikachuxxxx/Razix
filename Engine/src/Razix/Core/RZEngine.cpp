@@ -39,7 +39,7 @@ namespace Razix {
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // 2. Sound Engine
-        Audio::RZSoundEngine::Get().StartUp();
+        //Audio::RZSoundEngine::Get().StartUp();
 
         // 3. Scene Manager
         RZSceneManager::Get().StartUp();

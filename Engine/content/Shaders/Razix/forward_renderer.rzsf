@@ -1,7 +1,6 @@
 ﻿/*
  * Razix Shader File 
  * forward_renderer.rzsf : [Forward Rendering] Phong lighitng model shader that can be used to render the scene with basic lighting using light maps (albedo, roughness, normal etc.) ==> Forward Rendering
- * Copyright Razix Engine 2021 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex

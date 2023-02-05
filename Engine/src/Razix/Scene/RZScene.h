@@ -48,7 +48,7 @@ namespace Razix {
         /**
          * Gets the scene camera with which the world is rendered (if exists)
          */
-        RZSceneCamera getSceneCamera();
+        RZSceneCamera& getSceneCamera();
 
         // TODO: Get the reference to the components instead
         template<typename T>

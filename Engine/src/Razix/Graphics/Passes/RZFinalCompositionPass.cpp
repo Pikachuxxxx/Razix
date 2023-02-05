@@ -9,8 +9,8 @@
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 #include "Razix/Graphics/RZMesh.h"
@@ -34,6 +34,11 @@ namespace Razix {
             DescriptorSetsCreateInfos setInfos;
             Graphics::PipelineInfo    pipelineInfo{};
 
+            // Get the final Scene Color HDR RT
+            //SceneColorData sceneColor = blackboard.get<SceneColorData>();
+
+            RTDTPassData rtdt = blackboard.get<RTDTPassData>();
+
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Final Composition",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CompositeData& data) {
@@ -56,6 +61,8 @@ namespace Razix {
                         builder.read(imguiPassData.passDoneSemaphore);
                         builder.read(imguiPassData.outputRT);
                     }
+
+                    builder.read(rtdt.outputRT);
 
                     /**
                      * Issues:- Well pipeline creation needs a shader and some info from the Frame Graph(all the output attachments that the current frame graph pas writes to)
@@ -107,13 +114,6 @@ namespace Razix {
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
-                    struct CheckpointData
-                    {
-                        std::string RenderPassName = "Composite Pass";
-                    } checkpointData;
-
-                    RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
-
                     cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     // Update the Descriptor Set with the new texture once
@@ -123,7 +123,7 @@ namespace Razix {
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
-                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(rtdt.outputRT).getHandle();
                             }
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }

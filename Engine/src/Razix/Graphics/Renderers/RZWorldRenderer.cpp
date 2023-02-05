@@ -35,7 +35,7 @@ namespace Razix {
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
             // Load the Skybox and Global Light Probes
-#if 1
+#if 0
             m_Skybox                     = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_Skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_Skybox);
@@ -45,7 +45,7 @@ namespace Razix {
 
             // Cull Lights (Directional + Point) on CPU against camera Frustum First
             // TODO: Get the list of lights in the scene and cull them against the camera frustum and disable ActiveComponent for culled lights, but for now we can just ignore that
-            auto                 group = scene->getRegistry().group<LightComponent>(entt::get<ActiveComponent>);
+            auto                 group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
             std::vector<RZLight> sceneLights;
             for (auto& entity: group)
                 sceneLights.push_back(group.get<LightComponent>(entity).light);
@@ -54,6 +54,7 @@ namespace Razix {
             // TODO: Make this dynamic as scene glows larger
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
+#if 0
 
             //-------------------------------
             // Cascaded Shadow Maps
@@ -82,10 +83,11 @@ namespace Razix {
             //-------------------------------
 
             //-------------------------------
-            // [ ] Deferred Lighting Pass
+            // [...] Deferred Lighting Pass
             //-------------------------------
             m_DeferredPass.setGrid(sceneGrid);
             m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+#endif
 
             //-------------------------------
             // [ ] Skybox Pass
@@ -98,6 +100,47 @@ namespace Razix {
             //-------------------------------
             // [ ] Bloom Pass
             //-------------------------------
+
+            //-------------------------------
+            // [Test] Forward Lighting Pass
+            //-------------------------------
+            m_Blackboard.add<RTDTPassData>() = m_FrameGraph.addCallbackPass<RTDTPassData>(
+                "Forward Lighting Pass",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTDTPassData& data) {
+                    builder.setAsStandAlonePass();
+
+                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
+
+                    data.depthRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
+
+                    data.outputRT = builder.write(data.outputRT);
+                    data.depthRT  = builder.write(data.depthRT);
+
+                    m_ForwardRenderer.Init();
+                },
+                [=](const RTDTPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    m_ForwardRenderer.Begin(scene);
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(data.depthRT).getHandle();
+
+                    RenderingInfo info{};
+                    info.colorAttachments = {
+                        {rt, {true, glm::vec4(0.0f)}}};
+                    info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
+                    info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize          = true;
+
+                    RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
+
+                    m_ForwardRenderer.Draw(Graphics::RHI::getCurrentCommandBuffer());
+
+                    m_ForwardRenderer.End();
+
+                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
+
+                    Graphics::RHI::SubmitWork({}, {});
+                });
 
             //-------------------------------
             // ImGui Pass
@@ -161,7 +204,7 @@ namespace Razix {
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
-            std::ofstream os(outPath + "/frame_graph_test.dot");
+            std::ofstream os(outPath + "/forward_lighting_test.dot");
             os << m_FrameGraph;
         }
 
@@ -176,20 +219,20 @@ namespace Razix {
             // Destroy Imported Resources
             m_BRDFfLUTTexture->Release(true);
 
-#if 1
+#if 0
             m_Skybox->Release(true);
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
-#endif
 
             // Destroy Renderers
             m_CascadedShadowsRenderer.Destroy();
+#endif
             m_ImGuiRenderer.Destroy();
 
             // Destroy Passes
             m_CompositePass.destroy();
-            m_GIPass.destroy();
-            m_GBufferPass.destroy();
+            //m_GIPass.destroy();
+            //m_GBufferPass.destroy();
 
             // Destroy Frame Graph Resources
             m_TransientResources.destroyResources();

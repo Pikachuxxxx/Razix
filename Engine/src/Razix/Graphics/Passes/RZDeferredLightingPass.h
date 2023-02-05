@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/Lighting/RZLight.h"
+
 #include "Razix/Graphics/Passes/IRZPass.h"
 
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
@@ -14,6 +16,13 @@ namespace Razix {
     namespace Graphics {
 
         class RZMesh;
+
+        struct GPULightData
+        {
+            uint32_t  numLights;
+            uint32_t  _padding;
+            LightData data;
+        };
 
         class RZDeferredLightingPass : public IRZPass
         {
@@ -32,6 +41,7 @@ namespace Razix {
             FrameBlock                    m_FrameBlockData;
             RZUniformBuffer*              m_TileDataUBO;
             TileData                      m_TileData;
+            GPULightData                  m_GPULightData;
             RZUniformBuffer*              m_LightDataUBO;
             RZMesh*                       m_ScreenQuadMesh;
             std::vector<RZDescriptorSet*> m_DescriptorSets;

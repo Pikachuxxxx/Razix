@@ -23,46 +23,38 @@ layout(location = 0) in VSOutput
 }fs_in;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-// Uniforms and Push Constants
-
-// Forward Light Data
-// layout(set = 1, binding = 0) uniform ForwardLightData
-//{
-//    vec3        position;
-//    vec3        viewPos;
-//    LightData   lightData;
-//}forward_light_data;
+DECLARE_LIGHT_BUFFER(2, 0, lightBuffer)
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // Functions
 
-vec3 CalcDirLight(DirectionalLight light, vec3 normal)
+vec3 CalcDirLight(LightData light, vec3 normal)
 {
     // Ambient
-    vec3 ambient  = light.color  * vec3(texture(albedoMap, fs_in.fragTexCoord)) * 0.1f;
+    vec3 ambient  = light.color.rgb  * vec3(texture(albedoMap, fs_in.fragTexCoord)) * 0.1f;
 
     // Diffuse
-    vec3 lightDir = normalize(light.direction);
+    vec3 lightDir = normalize(light.direction.xyz);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = light.color * vec3(texture(albedoMap, fs_in.fragTexCoord));
-
+    vec3 diffuse = diff * light.color * vec3(texture(albedoMap, fs_in.fragTexCoord));
+     
     // Specular shading
-    vec3 viewDir = normalize(- fs_in.fragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 viewDir = normalize(-fs_in.fragPos);
+    vec3 reflectDir = reflect(lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = spec * vec3(texture(specularMap, fs_in.fragTexCoord));
+    vec3 specular = spec * vec3(texture(metallicMap, fs_in.fragTexCoord));
 
     // combine results
-    return diffuse;//  ambient + diffuse;
+    return ambient + diffuse + specular;
 }  
 //------------------------------------------------------------------------------
 // Main
 void main()
 {
     vec4 normal = texture(normalMap, fs_in.fragTexCoord);
-    vec3 result;// = CalcDirLight(forward_light_data.lightData.dirLightData, normal.rgb);
+    vec3 result = CalcDirLight(lightBuffer.data[0], fs_in.fragNormal);
     outFragColor = vec4(result, 1.0);
 }
 //------------------------------------------------------------------------------

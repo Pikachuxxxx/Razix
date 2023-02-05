@@ -90,7 +90,7 @@ namespace Razix {
             RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }
             RAZIX_INLINE void  setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
 
-            RAZIX_INLINE std::vector<RZDescriptorSet*> getDescriptorSets() { return m_DescriptorSets; }
+            RAZIX_INLINE RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
 
             template<typename Archive>
             void save(Archive& archive) const
@@ -178,14 +178,14 @@ namespace Razix {
 
             static RZTexture2D* s_DefaultTexture;
 
-            std::string                   m_Name;
-            RZShader*                     m_Shader = nullptr;
-            std::vector<RZDescriptorSet*> m_DescriptorSets;
-            MaterialProperties            m_MaterialProperties;
-            MaterialTextures              m_MaterialTextures;
-            RZUniformBuffer*              m_MaterialPropertiesUBO;
-            bool                          m_TexturesUpdated = false;
-            WorkFlow                      m_Workflow        = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+            std::string        m_Name;
+            RZShader*          m_Shader = nullptr;
+            RZDescriptorSet*   m_DescriptorSet;
+            MaterialProperties m_MaterialProperties;
+            MaterialTextures   m_MaterialTextures;
+            RZUniformBuffer*   m_MaterialPropertiesUBO;
+            bool               m_TexturesUpdated = false;
+            WorkFlow           m_Workflow        = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
         };
 
     }    // namespace Graphics

@@ -55,6 +55,17 @@ public:
                 lsc.loadScript("//Scripts/imgui_test.lua");
             }
         }
+
+        // Camera Entity
+        auto& cameras = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::CameraComponent>();
+        if (!cameras.size()) {
+            Razix::RZEntity& camera = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Camera");
+            camera.AddComponent<Razix::CameraComponent>();
+            if (camera.HasComponent<Razix::CameraComponent>()) {
+                Razix::CameraComponent& cc = camera.GetComponent<Razix::CameraComponent>();
+                cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
+            }
+        }
     }
 
     void OnResize(uint32_t width, uint32_t height) override
