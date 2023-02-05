@@ -1,61 +1,106 @@
 {
     "Razix Scene": {
-        "UUID": "b3974ea9-516d-45af-aa13-974fafce5d1e",
+        "UUID": "3292cfa1-bd06-4f8a-8c0d-b4de1bd75740",
         "SceneName": "default Scene",
-        "Total Entities": 5
+        "Total Entities": 6
     },
-    "value0": 5,
+    "value0": 6,
     "value1": 0,
     "value2": 1,
     "value3": 2,
     "value4": 3,
     "value5": 4,
     "value6": 5,
-    "value7": 0,
-    "value8": {
+    "value7": 6,
+    "value8": 0,
+    "value9": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value9": 1,
-    "value10": {
+    "value10": 1,
+    "value11": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value11": 2,
-    "value12": {
+    "value12": 2,
+    "value13": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value13": 3,
-    "value14": {
+    "value14": 3,
+    "value15": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value15": 4,
-    "value16": {
-        "UUID": "33363331-3333-3339-2d33-3633332d3336"
+    "value16": 4,
+    "value17": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value17": 5,
-    "value18": 0,
+    "value18": 5,
     "value19": {
+        "UUID": "33333333-3333-3336-2d33-3333332d3333"
+    },
+    "value20": 6,
+    "value21": 0,
+    "value22": {
         "Tag": "Camera"
     },
-    "value20": 1,
-    "value21": {
-        "Tag": "Avocado Model"
+    "value23": 1,
+    "value24": {
+        "Tag": "hello_lua"
     },
-    "value22": 2,
-    "value23": {
+    "value25": 2,
+    "value26": {
+        "Tag": "imgui_lua"
+    },
+    "value27": 3,
+    "value28": {
+        "Tag": "Avocado"
+    },
+    "value29": 4,
+    "value30": {
         "Tag": "Directional Light"
     },
-    "value24": 3,
-    "value25": {
-        "Tag": "imgui_script_entity"
+    "value31": 5,
+    "value32": {
+        "Tag": "Entity"
     },
-    "value26": 4,
-    "value27": {
-        "Tag": "CubeMesh"
+    "value33": 0,
+    "value34": 6,
+    "value35": 0,
+    "value36": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
     },
-    "value28": 0,
-    "value29": 5,
-    "value30": 0,
-    "value31": {
+    "value37": 1,
+    "value38": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value39": 2,
+    "value40": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -72,155 +117,141 @@
             "z": 1.0
         }
     },
-    "value32": 1,
-    "value33": {
-        "Translation": {
-            "x": 5.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value34": 2,
-    "value35": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value36": 3,
-    "value37": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value38": 4,
-    "value39": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        }
-    },
-    "value40": 1,
-    "value41": 0,
+    "value41": 3,
     "value42": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value43": 4,
+    "value44": {
+        "Translation": {
+            "x": 1.0,
+            "y": 0.6000000238418579,
+            "z": -2.0
+        },
+        "Rotation": {
+            "x": 29.08969497680664,
+            "y": 71.515380859375,
+            "z": 159.29652404785157
+        },
+        "Scale": {
+            "x": 0.9998680353164673,
+            "y": 0.999858558177948,
+            "z": 0.9998677968978882
+        }
+    },
+    "value45": 5,
+    "value46": {
+        "Translation": {
+            "x": 2.1963486671447756,
+            "y": 0.0,
+            "z": 0.4898027181625366
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 0.999987781047821,
+            "z": 0.999987781047821
+        }
+    },
+    "value47": 1,
+    "value48": 0,
+    "value49": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 0.26888275146484377,
-                "y": 4.952286720275879,
-                "z": -6.446908950805664
+                "x": -1.5253617763519288,
+                "y": 8.673574447631836,
+                "z": -8.612625122070313
             },
             "Front": {
-                "x": -0.15292657911777497,
-                "y": -0.5112931132316589,
-                "z": 0.8456907868385315
+                "x": 0.13692159950733186,
+                "y": -0.7402181625366211,
+                "z": 0.6582778096199036
             },
             "Up": {
-                "x": -0.09098175913095474,
-                "y": 0.8594064712524414,
-                "z": 0.5031331777572632
+                "x": 0.1507389098405838,
+                "y": 0.6723667979240418,
+                "z": 0.724707305431366
             },
             "Right": {
-                "x": -0.9840405583381653,
+                "x": -0.9790456295013428,
                 "y": 0.0,
-                "z": -0.17794442176818849
+                "z": 0.20364122092723847
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -1699.75,
-            "Pitch": -30.75,
+            "Yaw": -1001.75,
+            "Pitch": -47.75,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
             "ProjectionType": 0,
             "PerspectiveFOV": 0.7853981852531433,
-            "PerspectiveNearClip": 1.0,
+            "PerspectiveNearClip": 0.10000000149011612,
             "PerspectiveFarClip": 100.0,
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.6729857921600342
+            "AspectRatio": 2.569254159927368
         }
     },
-    "value43": 0,
-    "value44": 1,
-    "value45": 4,
-    "value46": {
-        "Primitive": 2,
+    "value50": 0,
+    "value51": 1,
+    "value52": 5,
+    "value53": {
+        "Primitive": 4,
         "MeshName": ""
     },
-    "value47": 1,
-    "value48": 1,
-    "value49": {
-        "FilePath": "C:/Dev/Game Engines/Razix/Sandbox//Assets/Meshes/Avocado.gltf"
+    "value54": 1,
+    "value55": 3,
+    "value56": {
+        "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Meshes/Avocado.gltf"
     },
-    "value50": 1,
-    "value51": 3,
-    "value52": {
+    "value57": 2,
+    "value58": 1,
+    "value59": {
+        "FilePath": "//Scripts/hello_razix.lua"
+    },
+    "value60": 2,
+    "value61": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value53": 1,
-    "value54": 2,
-    "value55": {
+    "value62": 1,
+    "value63": 4,
+    "value64": {
         "Light": {
-            "type": 0,
+            "type": 1,
             "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
+                "x": 1.0,
+                "y": 0.6000000238418579,
+                "z": -2.0
             },
             "range": 10.0,
             "direction": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
+                "value0": 0.22655749320983888,
+                "value1": 0.9655882120132446,
+                "value2": -0.12771494686603547,
                 "value3": 1.0
             },
             "color": {
@@ -233,7 +264,7 @@
             "linear": 0.09000000357627869,
             "quadratic": 0.03200000151991844,
             "innerConeAngle": 12.5,
-            "outerConeAngle": 45.0
+            "outerConeAngle": 60.0
         }
     }
 }

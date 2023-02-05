@@ -8,10 +8,10 @@ struct Camera {
     mat4 inversedView;
     float fov;
     float near, far;
-  // Implicit padding, 4bytes
+    // Implicit padding, 4bytes
 };
 
-layout(set = 0, binding = 0, std140) uniform FrameBlock {
+layout(set = 0, binding = 0, std140) uniform FrameData {
     float time;
     float deltaTime;
     uvec2 resolution;

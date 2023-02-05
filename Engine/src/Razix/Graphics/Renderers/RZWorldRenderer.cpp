@@ -4,6 +4,7 @@
 #include "RZWorldRenderer.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
@@ -19,6 +20,7 @@
 #include "Razix/Graphics/Lighting/RZIBL.h"
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
+#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
 #include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -54,6 +56,9 @@ namespace Razix {
             // TODO: Make this dynamic as scene glows larger
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
+
+            uploadFrameData(scene, settings);
+
 #if 0
 
             //-------------------------------
@@ -104,6 +109,9 @@ namespace Razix {
             //-------------------------------
             // [Test] Forward Lighting Pass
             //-------------------------------
+
+            auto& frameDataBlock = m_Blackboard.get<FrameData>();
+
             m_Blackboard.add<RTDTPassData>() = m_FrameGraph.addCallbackPass<RTDTPassData>(
                 "Forward Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTDTPassData& data) {
@@ -115,6 +123,8 @@ namespace Razix {
 
                     data.outputRT = builder.write(data.outputRT);
                     data.depthRT  = builder.write(data.depthRT);
+
+                    builder.read(frameDataBlock.frameData);
 
                     m_ForwardRenderer.Init();
                 },
@@ -131,6 +141,23 @@ namespace Razix {
                     info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize          = true;
 
+                    // Set the Descriptor Set once rendering starts
+                    auto        frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
+                    static bool updatedSets     = false;
+                    if (!updatedSets) {
+                        RZDescriptor descriptor{};
+                        descriptor.offset              = 0;
+                        descriptor.size                = sizeof(GPUFrameData);
+                        descriptor.bindingInfo.binding = 0;
+                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
+                        descriptor.uniformBuffer       = frameDataBuffer;
+
+                        m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameBlockSet")));
+
+                        updatedSets = true;
+                    }
+
                     RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
 
                     m_ForwardRenderer.Draw(Graphics::RHI::getCurrentCommandBuffer());
@@ -145,17 +172,18 @@ namespace Razix {
             //-------------------------------
             // ImGui Pass
             //-------------------------------
+            RTDTPassData forwardSceneData      = m_Blackboard.get<RTDTPassData>();
             m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
                 "ImGui Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTOnlyPassData& data) {
                     builder.setAsStandAlonePass();
 
                     // Upload to the Blackboard
-                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
+                    //data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
 
                     data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
 
-                    data.outputRT          = builder.write(data.outputRT);
+                    data.outputRT          = builder.write(forwardSceneData.outputRT);
                     data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
                     m_ImGuiRenderer.Init();
@@ -174,7 +202,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {rt, {true, glm::vec4(0.0f)}}};
+                        {rt, {false, glm::vec4(0.0f)}}};
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
@@ -245,6 +273,42 @@ namespace Razix {
             globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {FrameGraph::TextureType::Texture_CubeMap, "Diffuse Irradiance", {globalLightProbe.diffuse->getWidth(), globalLightProbe.diffuse->getHeight()}, {globalLightProbe.diffuse->getFormat()}}, {globalLightProbe.diffuse});
 
             globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {FrameGraph::TextureType::Texture_CubeMap, "Specular PreFiltered", {globalLightProbe.specular->getWidth(), globalLightProbe.specular->getHeight()}, {globalLightProbe.specular->getFormat()}}, {globalLightProbe.specular});
+        }
+
+        //--------------------------------------------------------------------------
+
+        void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings settings)
+        {
+            m_Blackboard.add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
+                "",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, FrameData& data) {
+                    builder.setAsStandAlonePass();
+
+                    data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("Frame Data", {"FrameData", sizeof(GPUFrameData)});
+
+                    data.frameData = builder.write(data.frameData);
+                },
+                [=](const FrameData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    GPUFrameData gpuData{};
+                    gpuData.time += gpuData.deltaTime;
+                    gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
+                    gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    gpuData.debugFlags     = settings.debugFlags;
+                    gpuData.renderFeatures = settings.renderFeatures;
+
+                    auto& sceneCam = scene->getSceneCamera();
+
+                    gpuData.camera.projection         = sceneCam.getProjection();
+                    gpuData.camera.inversedProjection = glm::inverse(gpuData.camera.projection);
+                    gpuData.camera.view               = sceneCam.getViewMatrix();
+                    gpuData.camera.inversedView       = glm::inverse(gpuData.camera.view);
+                    gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
+                    gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
+                    gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
+
+                    // update and upload the UBO
+                    resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle()->SetData(sizeof(GPUFrameData), &gpuData);
+                });
         }
     }    // namespace Graphics
 }    // namespace Razix

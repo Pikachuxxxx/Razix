@@ -75,8 +75,6 @@ namespace Razix {
             map(size, 0);
             memcpy(m_Mapped, data, size);
             unMap();
-
-            //flush();
         }
 
         void VKBuffer::resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)

@@ -37,8 +37,6 @@ namespace Razix {
             // Get the final Scene Color HDR RT
             //SceneColorData sceneColor = blackboard.get<SceneColorData>();
 
-            RTDTPassData rtdt = blackboard.get<RTDTPassData>();
-
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Final Composition",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CompositeData& data) {
@@ -61,8 +59,6 @@ namespace Razix {
                         builder.read(imguiPassData.passDoneSemaphore);
                         builder.read(imguiPassData.outputRT);
                     }
-
-                    builder.read(rtdt.outputRT);
 
                     /**
                      * Issues:- Well pipeline creation needs a shader and some info from the Frame Graph(all the output attachments that the current frame graph pas writes to)
@@ -123,7 +119,7 @@ namespace Razix {
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
-                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(rtdt.outputRT).getHandle();
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
                             }
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }

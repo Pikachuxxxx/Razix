@@ -47,9 +47,7 @@ namespace Razix {
             // So what does the renderer do then? it's job is to enforce some rules on the shader (on the UBO data and samplers) and it handles how it updates the data in a way that is appropriate for that renderer to operate
             m_OverrideGlobalRHIShader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
 
-            // Create the uniform buffers
-            // 1. Create the View Projection UBOs
-            m_SystemMVPUBO = Graphics::RZUniformBuffer::Create(sizeof(ModelViewProjectionSystemUBOData), &mvpData RZ_DEBUG_NAME_TAG_STR_E_ARG("System_MVP_UBO"));
+            // FrameBlock Descriptor Set
 
             // 2. Lighting data
             m_ForwardLightsUBO = Graphics::RZUniformBuffer::Create(sizeof(GPULightsData), &gpuLightsData RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Renderer Light Data"));
@@ -61,8 +59,8 @@ namespace Razix {
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                         if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
-                            descriptor.uniformBuffer = m_SystemMVPUBO;
-                            m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_VIEW_PROJECTION"));
+                            //descriptor.uniformBuffer = m_SystemMVPUBO;
+                            //m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_VIEW_PROJECTION"));
                         } else if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_LIGHTING_DATA) {
                             descriptor.uniformBuffer = m_ForwardLightsUBO;
                             m_GPULightsDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_LIGHTING_DATA"));
@@ -108,18 +106,6 @@ namespace Razix {
 
             auto& registry = scene->getRegistry();
 
-            // Get the camera
-            // ! the view itself is the entity
-            auto cameraView = registry.view<CameraComponent>();
-            if (!cameraView.empty()) {
-                // By using front we get the one and only or the first one in the list of camera entities
-                m_Camera = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
-            }
-
-            m_Camera->setAspectRatio((float) m_ScreenBufferWidth / (float) m_ScreenBufferHeight);
-
-            mvpData.viewProjection = m_Camera->getViewProjection();
-
             // Upload the lights data
             auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
             for (auto entity: group) {
@@ -156,8 +142,22 @@ namespace Razix {
                 // Bind push constants, VBO, IBO and draw
                 glm::mat4 transform = trans.GetTransform();
 
-                mvpData.model = transform;
-                m_SystemMVPUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &mvpData);
+                //-----------------------------
+                // Get the shader from the Mesh Material later
+                // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
+
+                struct PCD
+                {
+                    glm::mat4 mat;
+                } pcData;
+                pcData.mat       = transform;
+                modelMatrix.data = &pcData;
+                modelMatrix.size = sizeof(PCD);
+
+                // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
+                //-----------------------------
 
                 // Bind IBO and VBO
                 for (auto& mesh: meshes) {
@@ -167,7 +167,7 @@ namespace Razix {
                     mesh->getMaterial()->Bind();
 
                     // Combine System Desc sets with material sets and Bind them
-                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_MVPDescriptorSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};
+                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};
                     Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                     Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
@@ -182,11 +182,25 @@ namespace Razix {
                 // Bind push constants, VBO, IBO and draw
                 glm::mat4 transform = mesh_trans.GetTransform();
 
-                mvpData.model = transform;
-                m_SystemMVPUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &mvpData);
+                //-----------------------------
+                // Get the shader from the Mesh Material later
+                // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
 
+                struct PCD
+                {
+                    glm::mat4 mat;
+                } pcData;
+                pcData.mat       = transform;
+                modelMatrix.data = &pcData;
+                modelMatrix.size = sizeof(PCD);
+
+                // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
+                //-----------------------------
+                
                 // Combine System Desc sets with material sets and Bind them
-                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_MVPDescriptorSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};
+                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};
                 Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
@@ -225,7 +239,6 @@ namespace Razix {
             m_DepthTexture->Release(true);
 
             m_GPULightsDescriptorSet->Destroy();
-            m_MVPDescriptorSet->Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix

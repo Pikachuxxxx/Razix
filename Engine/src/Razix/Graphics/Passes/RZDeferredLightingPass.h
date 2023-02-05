@@ -38,7 +38,6 @@ namespace Razix {
         private:
             Maths::RZGrid                 m_Grid;
             RZUniformBuffer*              m_FrameBlockUBO;
-            FrameBlock                    m_FrameBlockData;
             RZUniformBuffer*              m_TileDataUBO;
             TileData                      m_TileData;
             GPULightData                  m_GPULightData;

@@ -32,6 +32,7 @@ namespace Razix {
 
         public slots:
             void on_light_color_pressed();
+            void on_light_type_selected(int idx);
 
         private:
             Ui::LightComponent ui;

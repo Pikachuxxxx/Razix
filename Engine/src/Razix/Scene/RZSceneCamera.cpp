@@ -18,10 +18,11 @@ namespace Razix {
 
     RAZIX_FORCE_INLINE const glm::mat4& RZSceneCamera::getProjection()
     {
+        auto proj = m_Projection;
         if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-            m_Projection[1][1] *= -1;
+            proj[1][1] *= -1;
 
-        return m_Projection;
+        return proj;
     }
 
     void RZSceneCamera::setPerspective(float verticalFOV, float nearClip, float farClip)

@@ -10,6 +10,7 @@
 
 // TODO: Implement this
 //#include "binding_table.glsl"
+#include <Common/FrameData.glsl>
 
 //------------------------------------------------------------------------------
 // Vertex Input
@@ -21,11 +22,10 @@ layout(location = 4) in vec3 inTangent;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
 // view projection matrix
-layout(set = 0, binding = 0) uniform ModelViewProjectionSystemUBO
-{
+
+layout (push_constant) uniform ModelPushConstantData{
     mat4 model;
-    mat4 viewProjection;
-} mvp;
+}model_pc_data;
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
 layout(location = 0) out VSOutput
@@ -34,7 +34,8 @@ layout(location = 0) out VSOutput
     vec4 fragColor;
     vec2 fragTexCoord;
     vec3 fragNormal;
-    vec3 fragTangent;
+    vec3 fragTangent; 
+    vec3 viewPos;
 }vs_out;
   
 out gl_PerVertex
@@ -45,13 +46,14 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = mvp.viewProjection * mvp.model * vec4(inPosition, 1.0);
+    gl_Position = u_Frame.camera.projection * u_Frame.camera.view * model_pc_data.model * vec4(inPosition, 1.0);
 
     // Out from vertex shader
-    vs_out.fragPos      = vec3(mvp.model * vec4(inPosition, 1.0));
+    vs_out.fragPos      = vec3(model_pc_data.model * vec4(inPosition, 1.0));
     vs_out.fragColor    = inColor;
 	vs_out.fragTexCoord = inTexCoord;
-    vs_out.fragNormal   = mat3(transpose(inverse(mvp.model))) * inNormal;
+    vs_out.fragNormal   = mat3(transpose(inverse(model_pc_data.model))) * inNormal;
     vs_out.fragTangent  = inTangent;
+    vs_out.viewPos      = getCameraPosition();
 }
 //------------------------------------------------------------------------------

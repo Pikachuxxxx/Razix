@@ -34,13 +34,14 @@ namespace Razix {
 
             void Destroy() override;
 
+            virtual void SetFrameDataHeap(RZDescriptorSet* frameDataSet) { m_FrameDataSet = frameDataSet; }
+
         private:
-            GPULightsData                    gpuLightsData{};
-            RZUniformBuffer*                 m_ForwardLightsUBO = nullptr;
-            ModelViewProjectionSystemUBOData mvpData{};
-            RZUniformBuffer*                 m_SystemMVPUBO           = nullptr;
-            RZDescriptorSet*                 m_GPULightsDescriptorSet = nullptr;
-            RZScene*                         m_CurrentScene           = nullptr;
+            GPULightsData    gpuLightsData{};
+            RZUniformBuffer* m_ForwardLightsUBO       = nullptr;
+            RZDescriptorSet* m_GPULightsDescriptorSet = nullptr;
+            RZScene*         m_CurrentScene           = nullptr;
+            RZDescriptorSet* m_FrameDataSet           = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix
