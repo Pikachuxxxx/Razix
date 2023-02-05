@@ -206,7 +206,7 @@ namespace Razix {
             for (auto& attachment: renderingInfo.colorAttachments) {
                 // Resize attachments when resized
                 if (renderingInfo.resize) {
-                    if (m_Width != attachment.first->getWidth() || m_Height != attachment.first->getHeight()) 
+                    if (m_Width != attachment.first->getWidth() || m_Height != attachment.first->getHeight())
                         attachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(attachment.first->getName()));
                 }
 
@@ -245,8 +245,14 @@ namespace Razix {
             renderingInfoKHR.colorAttachmentCount = static_cast<uint32_t>(colorAttachments.size());
             renderingInfoKHR.pColorAttachments    = colorAttachments.data();
 
-            // Depth
+            // Depth Attachment
             if (renderingInfo.depthAttachment.first) {
+                // Depth attachment resize
+                if (renderingInfo.resize) {
+                    if (m_Width != renderingInfo.depthAttachment.first->getWidth() || m_Height != renderingInfo.depthAttachment.first->getHeight())
+                        renderingInfo.depthAttachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(renderingInfo.depthAttachment.first->getName()));
+                }
+
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
                 attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;

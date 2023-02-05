@@ -95,6 +95,7 @@ project "RazixEditor"
         "%{IncludeDir.lua}",
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
+        "%{IncludeDir.Jolt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
@@ -121,6 +122,7 @@ project "RazixEditor"
         "%{IncludeDir.lua}",
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
+        "%{IncludeDir.Jolt}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related

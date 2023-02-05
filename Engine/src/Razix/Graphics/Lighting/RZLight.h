@@ -5,17 +5,18 @@ namespace Razix {
 
         class RZUniformBuffer;
 
-#define MAX_LIGHTS 1024
+#define MAX_LIGHTS 128
 
         enum LightType : uint32_t
         {
-            DIRECTIONAL,
-            POINT,
-            SPOT,
-            AREA,
-            FLASH
+            DIRECTIONAL = 0,
+            POINT       = 1,
+            SPOT        = 2,
+            AREA,    // Not Supported!
+            FLASH    // Not Supported!
         };
 
+#if 0
         struct DirectionalLightData
         {
             alignas(16) glm::vec3 direction = glm::vec3(0.0f);
@@ -75,13 +76,32 @@ namespace Razix {
                 archive(cereal::make_nvp("quadratic", quadratic));
             }
         };
+#endif
 
-        struct LightData
+        struct RAZIX_MEM_ALIGN LightData
         {
-            LightType            type = LightType::DIRECTIONAL;
-            DirectionalLightData dirLightData{};
-            PointLightData       pointLightData{};
-            SpotLightData        spotLightData{};
+            alignas(16) glm::vec3 position  = glm::vec3(1.0f);
+            alignas(4) float range          = 10.0f;
+            alignas(16) glm::vec3 color     = glm::vec3(1.0f);
+            alignas(4) float intensity      = 1.0f;
+            alignas(16) glm::vec4 direction = glm::vec4(1.0f);
+            alignas(4) float constant       = 1.0f;
+            alignas(4) float linear         = 0.09f;
+            alignas(4) float quadratic      = 0.032f;
+            alignas(4) float innerConeAngle = 12.5f;    // [Spot]
+            alignas(4) float outerConeAngle = 60.0f;    // [Spot]
+            alignas(4) LightType type       = LightType::DIRECTIONAL;
+            alignas(4) uint32_t _padding[2] = {0, 0};    // Implicit padding that will be consumed by GLSL for 16 byte alignment
+        };
+
+        /**
+         * Lights Data which will be uploaded to the GPU
+         */
+        struct GPULightsData
+        {
+            alignas(4) uint32_t numLights   = 0;
+            alignas(4) uint32_t _padding[3] = {0, 0, 0};    // Will be consumed on GLSL so as to get 16 byte alignment, invisible variable on GLSL
+            alignas(16) LightData lightData[MAX_LIGHTS];
         };
 
         // TODO: Add methods to render world icons in editor that can be used by the debug renderer
@@ -92,15 +112,11 @@ namespace Razix {
             RZLight(LightType type = LightType::DIRECTIONAL);
             ~RZLight();
 
-            void updateLight();
+            RAZIX_INLINE LightData& getLightData() { return m_LightData; }
+            void                    setLightType(LightType type);
 
-            LightData& getLightData() { return m_LightData; }
-
-            void setLightProperties(DirectionalLightData& dirLightData);
-            void setLightProperties(PointLightData& pointLightData);
-            void setLightProperties(SpotLightData& sportLightData);
-
-            void setLightType(LightType type);
+            RAZIX_INLINE glm::vec3& getColor() { return m_LightData.color; }
+            void                    setColor(glm::vec3 color) { m_LightData.color = color; }
 
             inline LightType getLightType() { return m_LightData.type; }
 
@@ -108,21 +124,19 @@ namespace Razix {
             void serialize(Archive& archive)
             {
                 archive(cereal::make_nvp("type", m_LightData.type));
-                switch (m_LightData.type) {
-                    case LightType::DIRECTIONAL:
-                        archive(cereal::make_nvp("DirectionalLight", m_LightData.dirLightData));
-                        break;
-                    case LightType::POINT:
-                        archive(cereal::make_nvp("PointLight", m_LightData.pointLightData));
-                        break;
-                    case LightType::SPOT:
-                        archive(cereal::make_nvp("SpotLight", m_LightData.spotLightData));
-                        break;
-                }
+                archive(cereal::make_nvp("position", m_LightData.position));
+                archive(cereal::make_nvp("range", m_LightData.range));
+                archive(cereal::make_nvp("direction", m_LightData.direction));
+                archive(cereal::make_nvp("color", m_LightData.color));
+                archive(cereal::make_nvp("intensity", m_LightData.intensity));
+                archive(cereal::make_nvp("constant", m_LightData.constant));
+                archive(cereal::make_nvp("linear", m_LightData.linear));
+                archive(cereal::make_nvp("quadratic", m_LightData.quadratic));
+                archive(cereal::make_nvp("innerConeAngle", m_LightData.innerConeAngle));
+                archive(cereal::make_nvp("outerConeAngle", m_LightData.outerConeAngle));
             }
 
         private:
-            //RZUniformBuffer*     m_LightUBO;
             LightData m_LightData;
         };
     }    // namespace Graphics

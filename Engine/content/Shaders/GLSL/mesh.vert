@@ -9,7 +9,7 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 // TODO: Implement this
-//#include "binding_table.glsli"
+//#include "binding_table.glsl"
 
 //------------------------------------------------------------------------------
 // Vertex Input

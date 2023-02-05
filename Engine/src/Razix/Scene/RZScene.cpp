@@ -111,7 +111,7 @@ namespace Razix {
         entt::snapshot_loader{m_Registry}.entities(inputArchive).component<RAZIX_COMPONENTS>(inputArchive);
     }
 
-    RZSceneCamera RZScene::getSceneCamera()
+    RZSceneCamera& RZScene::getSceneCamera()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 

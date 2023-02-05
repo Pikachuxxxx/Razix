@@ -14,6 +14,7 @@
 #include "Razix/Graphics/Passes/RZGIPass.h"
 
 // Renderers
+#include "Razix/Graphics/Renderers/RZForwardRenderer.h"
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
 #include "Razix/Graphics/Renderers/RZShadowRenderer.h"
 
@@ -139,6 +140,10 @@ namespace Razix {
             RZDeferredLightingPass m_DeferredPass;
             RZImGuiRenderer        m_ImGuiRenderer;
             RZFinalCompositionPass m_CompositePass;
+
+            // Test only
+            RZForwardRenderer m_ForwardRenderer;
+
             // Other Variables
             Maths::RZAABB m_SceneAABB;
         };

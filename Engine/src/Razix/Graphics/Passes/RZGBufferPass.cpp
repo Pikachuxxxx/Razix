@@ -67,6 +67,7 @@ namespace Razix {
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
+            pipelineInfo.depthTestEnabled    = true;
             // Using 32 bit floating point formats to support HDR colors
             pipelineInfo.colorAttachmentFormats = {
                 Graphics::RZTexture::Format::RGBA32F,
@@ -77,7 +78,7 @@ namespace Razix {
 
             m_Pipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer pipeline"));
 
-             blackboard.add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
+            blackboard.add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
                 "GBuffer",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, GBufferData& data) {
                     builder.setAsStandAlonePass();
@@ -117,15 +118,21 @@ namespace Razix {
 
                     };
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}};
-                    info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize          = true;
+                    info.extent          = {1280, 720};    // {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize          = false;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
                     m_Pipeline->Bind(cmdBuffer);
 
                     // Update the ViewProj matrix using the data from the camera
-                    m_ModelViewProjSystemUBOData.viewProjection = scene->getSceneCamera().getViewProjection();
+                    auto& camera     = scene->getSceneCamera();
+                    auto  view       = camera.getViewMatrix();
+                    auto  projection = camera.getProjection();
+                    if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
+                        projection[1][1] *= -1;
+
+                    m_ModelViewProjSystemUBOData.viewProjection = projection * view;
 
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
                     auto& group = scene->getRegistry().group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
@@ -145,9 +152,7 @@ namespace Razix {
                             mesh->getIndexBuffer()->Bind(cmdBuffer);
 
                             // Combine System Desc sets with material sets and Bind them
-                            std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
-                            std::vector<RZDescriptorSet*> MatSets   = mesh->getMaterial()->getDescriptorSets();
-                            SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
+                            std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mesh->getMaterial()->getDescriptorSet()};
                             Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
 
                             Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
@@ -168,9 +173,8 @@ namespace Razix {
                         m_ModelViewProjectionSystemUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &m_ModelViewProjSystemUBOData);
 
                         // Combine System Desc sets with material sets and Bind them
-                        std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
-                        std::vector<RZDescriptorSet*> MatSets   = mrc.Mesh->getMaterial()->getDescriptorSets();
-                        SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
+                        std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mrc.Mesh->getMaterial()->getDescriptorSet()};
+
                         Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
