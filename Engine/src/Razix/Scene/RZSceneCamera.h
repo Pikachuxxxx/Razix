@@ -23,6 +23,7 @@ namespace Razix {
         RAZIX_FORCE_INLINE glm::mat4 getViewProjection() { return getProjection() * getViewMatrix(); }
 
         RAZIX_FORCE_INLINE const glm::mat4& getProjection();
+        RAZIX_FORCE_INLINE const glm::mat4& getProjectionRaw();
 
         void setPerspective(float verticalFOV, float nearClip, float farClip);
         void setOrthographic(float size, float nearClip, float farClip);

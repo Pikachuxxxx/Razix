@@ -444,7 +444,7 @@ namespace Razix {
 
             glm::mat4 transformMatrix = tc.GetTransform();
 
-            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjection()), m_GuizmoOperation, ImGuizmo::WORLD, glm::value_ptr(transformMatrix), delta);
+            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), delta);
             float matrixTranslation[3], matrixRotation[3], matrixScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
 
