@@ -25,6 +25,11 @@ namespace Razix {
         return proj;
     }
 
+    RAZIX_FORCE_INLINE const glm::mat4& RZSceneCamera::getProjectionRaw()
+    {
+        return m_Projection;
+    }
+
     void RZSceneCamera::setPerspective(float verticalFOV, float nearClip, float farClip)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);

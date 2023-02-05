@@ -55,23 +55,6 @@ namespace Razix {
             auto& lc = m_Entity.GetComponent<LightComponent>();
 
             lc.light.setType((Razix::Graphics::LightType)(idx));
-
-            // FIXME: Well we need to use proper 0..1..2.. ids instead of this random mess
-            //switch (idx) {
-            //    case -2:
-            //        lc.light.setType(Razix::Graphics::LightType::DIRECTIONAL);
-            //        break;
-            //    case -3:
-            //        lc.light.setType(Razix::Graphics::LightType::POINT);
-            //        break;
-            //    case -4:
-            //        lc.light.setType(Razix::Graphics::LightType::SPOT);
-            //        break;
-            //    default:
-            //        lc.light.setType(Razix::Graphics::LightType::DIRECTIONAL);
-            //        break;
-            //}
         }
-
     }    // namespace Editor
 }    // namespace Razix
