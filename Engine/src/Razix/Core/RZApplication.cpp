@@ -437,7 +437,6 @@ namespace Razix {
             if (!cameraView.empty()) {
                 // By using front we get the one and only or the first one in the list of camera entities
                 cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
-                //m_CamTransform = registry.try_get<TransformComponent>(cameraView.front());
             }
             // Guizmo Editing Here
             float               delta[16];
@@ -445,7 +444,7 @@ namespace Razix {
 
             glm::mat4 transformMatrix = tc.GetTransform();
 
-            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjection()), m_GuizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), delta);
+            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjection()), m_GuizmoOperation, ImGuizmo::WORLD, glm::value_ptr(transformMatrix), delta);
             float matrixTranslation[3], matrixRotation[3], matrixScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
 

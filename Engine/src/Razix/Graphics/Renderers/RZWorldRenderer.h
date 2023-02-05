@@ -146,6 +146,9 @@ namespace Razix {
 
             // Other Variables
             Maths::RZAABB m_SceneAABB;
+
+        private:
+            void uploadFrameData(RZScene* scene, RZRendererSettings settings);
         };
     }    // namespace Graphics
 }    // namespace Razix

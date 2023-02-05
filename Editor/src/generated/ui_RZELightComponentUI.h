@@ -11,6 +11,7 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
@@ -30,21 +31,22 @@ public:
     QVBoxLayout *verticalLayout_2;
     QGroupBox *groupBox;
     QHBoxLayout *horizontalLayout;
-    QRadioButton *Spot_rb;
+    QRadioButton *Directional_rb;
     QRadioButton *Point_rb;
-    QRadioButton *Directoinal_rb;
+    QRadioButton *Spot_rb;
     QSpacerItem *horizontalSpacer;
     QFormLayout *formLayout;
     QLabel *label;
     QLabel *label_2;
     QLineEdit *RadiusLineEdit;
     QPushButton *light_color;
+    QButtonGroup *lightTypeGroup;
 
     void setupUi(QWidget *LightComponent)
     {
         if (LightComponent->objectName().isEmpty())
             LightComponent->setObjectName(QString::fromUtf8("LightComponent"));
-        LightComponent->resize(245, 113);
+        LightComponent->resize(245, 122);
         verticalLayout_2 = new QVBoxLayout(LightComponent);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         groupBox = new QGroupBox(LightComponent);
@@ -54,21 +56,27 @@ public:
         horizontalLayout->setSpacing(0);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        Spot_rb = new QRadioButton(groupBox);
-        Spot_rb->setObjectName(QString::fromUtf8("Spot_rb"));
+        Directional_rb = new QRadioButton(groupBox);
+        lightTypeGroup = new QButtonGroup(LightComponent);
+        lightTypeGroup->setObjectName(QString::fromUtf8("lightTypeGroup"));
+        lightTypeGroup->addButton(Directional_rb);
+        Directional_rb->setObjectName(QString::fromUtf8("Directional_rb"));
+        Directional_rb->setChecked(true);
 
-        horizontalLayout->addWidget(Spot_rb);
+        horizontalLayout->addWidget(Directional_rb);
 
         Point_rb = new QRadioButton(groupBox);
+        lightTypeGroup->addButton(Point_rb);
         Point_rb->setObjectName(QString::fromUtf8("Point_rb"));
 
         horizontalLayout->addWidget(Point_rb);
 
-        Directoinal_rb = new QRadioButton(groupBox);
-        Directoinal_rb->setObjectName(QString::fromUtf8("Directoinal_rb"));
-        Directoinal_rb->setChecked(true);
+        Spot_rb = new QRadioButton(groupBox);
+        lightTypeGroup->addButton(Spot_rb);
+        Spot_rb->setObjectName(QString::fromUtf8("Spot_rb"));
+        Spot_rb->setChecked(false);
 
-        horizontalLayout->addWidget(Directoinal_rb);
+        horizontalLayout->addWidget(Spot_rb);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -113,9 +121,9 @@ public:
     {
         LightComponent->setWindowTitle(QCoreApplication::translate("LightComponent", "LightComponent", nullptr));
         groupBox->setTitle(QCoreApplication::translate("LightComponent", "Light Type", nullptr));
-        Spot_rb->setText(QCoreApplication::translate("LightComponent", "Spot", nullptr));
+        Directional_rb->setText(QCoreApplication::translate("LightComponent", "Directional", nullptr));
         Point_rb->setText(QCoreApplication::translate("LightComponent", "Point", nullptr));
-        Directoinal_rb->setText(QCoreApplication::translate("LightComponent", "Directional", nullptr));
+        Spot_rb->setText(QCoreApplication::translate("LightComponent", "Spot", nullptr));
         label->setText(QCoreApplication::translate("LightComponent", "Color", nullptr));
         label_2->setText(QCoreApplication::translate("LightComponent", "Radius", nullptr));
         light_color->setText(QString());

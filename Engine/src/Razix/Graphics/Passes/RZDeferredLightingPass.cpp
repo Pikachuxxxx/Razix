@@ -62,7 +62,7 @@ namespace Razix {
             // Shader, UBOs & Sets, Pipeline, CmdBuffers
             // FrameBlock UBO
             // TODO: Import this into the framegraph Blackboard and make it available globally to all passes
-            m_FrameBlockUBO = RZUniformBuffer::Create(sizeof(FrameBlock), &m_FrameBlockData RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameBlock UBO"));
+            //m_FrameBlockUBO = RZUniformBuffer::Create(sizeof(FrameBlock), &m_FrameBlockData RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameBlock UBO"));
 
             // Tile Data UBO
             m_TileData.MinCorner = m_Grid.aabb.min;
@@ -145,11 +145,11 @@ namespace Razix {
                     m_Pipeline->Bind(cmdBuf);
 
                     // Update the shader uniforms data
-                    m_FrameBlockData.camera     = scene->getSceneCamera();
-                    m_FrameBlockData.deltaTime  = RZEngine::Get().GetStatistics().DeltaTime;
-                    m_FrameBlockData.resolution = resolution;
+                    //m_FrameBlockData.camera     = scene->getSceneCamera();
+                    //m_FrameBlockData.deltaTime  = RZEngine::Get().GetStatistics().DeltaTime;
+                    //m_FrameBlockData.resolution = resolution;
 
-                    m_FrameBlockUBO->SetData(sizeof(FrameBlock), &m_FrameBlockData);
+                    //m_FrameBlockUBO->SetData(sizeof(FrameBlock), &m_FrameBlockData);
 
                     // Update the lighting Data
                     //auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);

@@ -8,8 +8,8 @@
 
 // Type of the Light (enum)
 const uint LightType_Directional = 0;
-const uint LightType_Spot = 1;
-const uint LightType_Point = 2;
+const uint LightType_Point = 1;
+const uint LightType_Spot = 2;
 
 //------------------------------------------------------
 // Light Data

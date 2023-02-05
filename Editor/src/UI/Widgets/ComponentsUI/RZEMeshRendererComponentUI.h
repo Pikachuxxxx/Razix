@@ -15,6 +15,8 @@ namespace Razix {
             ~RZEMeshRendererComponentUI();
 
         public slots:
+            void on_mesh_type_selected(int meshType);
+
             void OnMeshLocationEdited();
             void OnMaterialLocationEdited();
 

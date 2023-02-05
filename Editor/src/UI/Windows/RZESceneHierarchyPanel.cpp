@@ -2,6 +2,14 @@
 
 #include <QTreeWidget>
 
+#include <glm/glm.hpp>
+#include <sol/sol.hpp>
+
+#include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZRoot.h"
+#include "Razix/Scene/RZEntity.h"
+#include "Razix/Scene/RZScene.h"
 #include "Razix/Scene/Components/RZComponents.h"
 
 namespace Razix {
@@ -29,7 +37,7 @@ namespace Razix {
 
         void RZESceneHierarchyPanel::populateHierarchy()
         {
-            Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
+            Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
             auto&           registry = scene->getRegistry();
 
             // Set the scene name as the header name
@@ -66,7 +74,7 @@ namespace Razix {
                 return;
 
             // Find the entity from the registry
-            Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
+            Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
             auto&           registry = scene->getRegistry();
 
             // TODO: Support multiple selection using the selectedItems list
