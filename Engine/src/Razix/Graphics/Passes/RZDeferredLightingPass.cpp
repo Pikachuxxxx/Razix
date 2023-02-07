@@ -4,6 +4,7 @@
 #include "RZDeferredLightingPass.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -33,6 +34,9 @@
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
+#include "Razix/Scene/Components/RZComponents.h"
+#include "Razix/Scene/RZScene.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -56,9 +60,21 @@ namespace Razix {
             const LightPropagationVolumesData* LPV = blackboard.try_get<LightPropagationVolumesData>();
 
             // Shader, UBOs & Sets, Pipeline, CmdBuffers
+            // FrameBlock UBO
+            // TODO: Import this into the framegraph Blackboard and make it available globally to all passes
+            //m_FrameBlockUBO = RZUniformBuffer::Create(sizeof(FrameBlock), &m_FrameBlockData RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameBlock UBO"));
 
-            auto shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
-            auto setInfos = shader->getSetsCreateInfos();
+            // Tile Data UBO
+            m_TileData.MinCorner = m_Grid.aabb.min;
+            m_TileData.GridSize  = m_Grid.size;
+            m_TileData.CellSize  = m_Grid.cellSize;
+            m_TileDataUBO        = RZUniformBuffer::Create(sizeof(TileData), &m_TileData RZ_DEBUG_NAME_TAG_STR_E_ARG("Tile Data UBO"));
+
+            // Lights UBO
+            m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
+
+            auto  shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
+            auto& setInfos = shader->getSetsCreateInfos();
 
             PipelineInfo info{};
             info.shader                 = shader;
@@ -71,9 +87,15 @@ namespace Razix {
                 m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Deferred Lighting CmdBufs"));
             }
 
-            framegraph.addCallbackPass<SceneColorData>(
+            // Screen Quad Mesh
+            m_ScreenQuadMesh = MeshFactory::CreatePrimitive(MeshPrimitive::ScreenQuad);
+
+            blackboard.add<SceneColorData>() = framegraph.addCallbackPass<SceneColorData>(
                 "Deferred PBR Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneColorData& data) {
+                    // TEMP:
+                    builder.setAsStandAlonePass();
+
                     // Reads
                     builder.read(gBuffer.Albedo);
                     builder.read(gBuffer.Depth);
@@ -86,14 +108,14 @@ namespace Razix {
                     builder.read(globalLightProbe.diffuseIrradianceMap);
                     builder.read(globalLightProbe.specularPreFilteredMap);
 
-                    builder.read(cascades.cascadedShadowMaps);
-                    builder.read(cascades.viewProjMatrices);
+                    //builder.read(cascades.cascadedShadowMaps);
+                    //builder.read(cascades.viewProjMatrices);
 
-                    if (LPV) {
-                        builder.read(LPV->r);
-                        builder.read(LPV->g);
-                        builder.read(LPV->b);
-                    }
+                    //if (LPV) {
+                    //    builder.read(LPV->r);
+                    //    builder.read(LPV->g);
+                    //    builder.read(LPV->b);
+                    //}
 
                     // Write to a HDR render target
                     data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {extent.x, extent.y}, RZTexture::Format::RGBA32F});
@@ -101,7 +123,188 @@ namespace Razix {
                     data.HDR = builder.write(data.HDR);
                 },
                 [=](const SceneColorData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                    auto cmdBuf = m_CmdBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
+                    RHI::Begin(cmdBuf);
+                    RAZIX_MARK_BEGIN("Deferred Tiled Pass", glm::vec4(0.2, 0.4, 0.6, 1.0f));
+
+                    glm::vec2 resolution = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+
+                    cmdBuf->UpdateViewport(resolution.x, resolution.y);
+
+                    RenderingInfo info{};
+                    info.colorAttachments = {
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.HDR).getHandle(), {true, glm::vec4(0.0f)}}};
+                    info.extent = resolution;
+                    info.resize = true;
+
+                    RHI::BeginRendering(cmdBuf, info);
+
+                    // Bind pipeline and stuff
+                    m_Pipeline->Bind(cmdBuf);
+
+                    // Update the shader uniforms data
+                    //m_FrameBlockData.camera     = scene->getSceneCamera();
+                    //m_FrameBlockData.deltaTime  = RZEngine::Get().GetStatistics().DeltaTime;
+                    //m_FrameBlockData.resolution = resolution;
+
+                    //m_FrameBlockUBO->SetData(sizeof(FrameBlock), &m_FrameBlockData);
+
+                    // Update the lighting Data
+                    //auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
+                    //for (auto entity: group) {
+                    //    const auto& [light, trans] = group.get<LightComponent, TransformComponent>(entity);
+                    //    m_GPULightData.numLights++;
+                    //    m_GPULightData.data = light.light.getLightData();
+                    //}
+
+                    m_LightDataUBO->SetData(sizeof(GPULightData), &m_GPULightData);
+
+                    // Update the Sets only once on first frame to get runtime framegraph resources
+                    static bool setsUpdated   = false;
+                    static bool didCreateOnce = false;
+                    if (!setsUpdated) {
+                        for (auto set: setInfos) {
+                            // FrameBlock UBO [SET: 0]
+                            if (set.first == 0) {
+                                for (auto& descriptor: set.second)
+                                    descriptor.uniformBuffer = m_FrameBlockUBO;
+                            }
+                            // [SET:1]
+                            else if (set.first == 1) {
+                                for (auto& descriptor: set.second) {
+                                    // This needs to be updated only once when the framegraph resources are available in the execute lambda
+                                    switch (descriptor.bindingInfo.binding) {
+                                        case 0:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal).getHandle();
+                                            break;
+                                        case 1:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal).getHandle();
+                                            break;
+                                        case 2:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Albedo).getHandle();
+                                            break;
+                                        case 3:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Emissive).getHandle();
+                                            break;
+                                        case 4:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.MetRougAOSpec).getHandle();
+                                            break;
+                                        case 5:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(brdf.lut).getHandle();
+                                            break;
+                                        case 6:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbe.diffuseIrradianceMap).getHandle();
+                                            break;
+                                        case 7:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbe.specularPreFilteredMap).getHandle();
+                                            break;
+                                        /*case 8:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(cascades.cascadedShadowMaps).getHandle();
+                                            break;
+                                        case 9:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV->r).getHandle();
+                                            break;
+                                        case 10:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV->g).getHandle();
+                                            break;
+                                        case 11:
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV->b).getHandle();
+                                            break;
+                                        case 12:
+                                            descriptor.uniformBuffer = m_TileDataUBO;
+                                            break;*/
+                                    }
+                                }
+                            }
+                            // [SET:2]
+                            else if (set.first == 2) {
+                                for (auto& descriptor: set.second) {
+                                    switch (descriptor.bindingInfo.binding) {
+                                        case 0:
+                                            descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(cascades.viewProjMatrices).getHandle();
+                                            break;
+                                        case 1:
+                                            descriptor.uniformBuffer = m_LightDataUBO;
+                                            break;
+                                    }
+                                }
+                            }
+                            m_DescriptorSets.push_back(RZDescriptorSet::Create(set.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Deferred Tiled Set")));
+                        }
+                        setsUpdated = true;
+                    }
+
+#if 0
+                    // Update the second set
+                    for (auto set: setInfos) {
+                        if (set.first == 1) {
+                            for (auto& descriptor: set.second) {
+                                // This needs to be updated only once when the framegraph resources are available in the execute lambda
+                                switch (descriptor.bindingInfo.binding) {
+                                    case 0:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal).getHandle();
+                                        break;
+                                    case 1:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal).getHandle();
+                                        break;
+                                    case 2:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Albedo).getHandle();
+                                        break;
+                                    case 3:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Emissive).getHandle();
+                                        break;
+                                    case 4:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.MetRougAOSpec).getHandle();
+                                        break;
+                                    case 5:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(brdf.lut).getHandle();
+                                        break;
+                                    case 6:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbe.diffuseIrradianceMap).getHandle();
+                                        break;
+                                    case 7:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbe.specularPreFilteredMap).getHandle();
+                                        break;
+                                        /*            case 8:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(cascades.cascadedShadowMaps).getHandle();
+                                        break;
+                                    case 9:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV->r).getHandle();
+                                        break;
+                                    case 10:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV->g).getHandle();
+                                        break;
+                                    case 11:
+                                        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV->b).getHandle();
+                                        break;
+                                    case 12:
+                                        descriptor.uniformBuffer = m_TileDataUBO;
+                                        break;*/
+                                }
+                            }
+                            m_DescriptorSets[1]->UpdateSet(set.second);
+                        }
+                    }
+#endif
+
+
+                    // Bind the descriptor sets
+                    Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+
+                    // Draw the Mesh
+                    m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuf);
+                    m_ScreenQuadMesh->getIndexBuffer()->Bind(cmdBuf);
+
+                    RHI::DrawIndexed(cmdBuf, m_ScreenQuadMesh->getIndexCount());
+
+                    RHI::EndRendering(cmdBuf);
+
+                    RAZIX_MARK_END();
+                    RHI::Submit(cmdBuf);
+
+                    RHI::SubmitWork({}, {});
                 });
         }
 

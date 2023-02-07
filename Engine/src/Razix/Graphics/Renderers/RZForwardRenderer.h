@@ -1,4 +1,3 @@
-#if 0
 #pragma once
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
@@ -18,43 +17,31 @@ namespace Razix {
         class RAZIX_API RZForwardRenderer : public IRZRenderer
         {
         public:
-            struct ForwardLightData
-            {
-                alignas(16) glm::vec3 position = glm::vec3(1.0f);
-                alignas(16) glm::vec3 viewPos  = glm::vec3(1.0f);
-                alignas(16) LightData lightData;
-            };
-
-        public:
             RZForwardRenderer() {}
             ~RZForwardRenderer() {}
 
+            //--------------------------------------------------------------------------
+            // IRZRenderer
             void Init() override;
 
-            void InitDisposableResources() override;
+            void Begin(RZScene* scene) override;
 
-            void Begin() override;
-
-            void BeginScene(Razix::RZScene* scene) override;
-
-            void Submit(RZCommandBuffer* cmdBuf) override;
-
-            void EndScene(Razix::RZScene* scene) override;
+            void Draw(RZCommandBuffer* cmdBuffer) override;
 
             void End() override;
-
-            void Present() override;
 
             void Resize(uint32_t width, uint32_t height) override;
 
             void Destroy() override;
 
-            void OnEvent(RZEvent& event) override;
+            virtual void SetFrameDataHeap(RZDescriptorSet* frameDataSet) { m_FrameDataSet = frameDataSet; }
 
         private:
-            ForwardLightData m_ForwardLightData{};
-            RZUniformBuffer* m_ForwardLightUBO = nullptr;
+            GPULightsData    gpuLightsData{};
+            RZUniformBuffer* m_ForwardLightsUBO       = nullptr;
+            RZDescriptorSet* m_GPULightsDescriptorSet = nullptr;
+            RZScene*         m_CurrentScene           = nullptr;
+            RZDescriptorSet* m_FrameDataSet           = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix
-#endif

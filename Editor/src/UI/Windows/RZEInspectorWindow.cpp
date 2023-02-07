@@ -55,6 +55,8 @@ namespace Razix {
         void RZEInspectorWindow::OnEntitySelected(RZEntity entity)
         {
             m_InspectingEntity = entity;
+            // Set the editing entity
+            m_TrasformComponentUI->setEditingEntity(entity);
 
             // Update the name label
             ui.EntityName->setText(entity.GetComponent<TagComponent>().Tag.c_str());
@@ -78,6 +80,8 @@ namespace Razix {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_LIGHT;
                 this->getBoxLayout().insertWidget(idx, m_LightComponentSection);
                 m_LightComponentSection->setVisible(true);
+                // Set the editing entity
+                m_LightComponentUI->setEditingEntity(entity);
                 idx++;
             }
             if (entity.HasComponent<LuaScriptComponent>()) {

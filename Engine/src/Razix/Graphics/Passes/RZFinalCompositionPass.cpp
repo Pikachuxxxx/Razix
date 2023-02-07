@@ -9,8 +9,8 @@
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 #include "Razix/Graphics/RZMesh.h"
@@ -33,6 +33,9 @@ namespace Razix {
 
             DescriptorSetsCreateInfos setInfos;
             Graphics::PipelineInfo    pipelineInfo{};
+
+            // Get the final Scene Color HDR RT
+            //SceneColorData sceneColor = blackboard.get<SceneColorData>();
 
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Final Composition",
@@ -106,13 +109,6 @@ namespace Razix {
                     auto cmdBuf = m_CmdBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
-
-                    struct CheckpointData
-                    {
-                        std::string RenderPassName = "Composite Pass";
-                    } checkpointData;
-
-                    RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
 
                     cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 

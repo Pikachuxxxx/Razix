@@ -1,72 +1,51 @@
 #ifndef _LIGHT_GLSL_
 #define _LIGHT_GLSL_
 
+//------------------------------------------------------
+// Constants and Defines
+// Max no of lights in the scene
+#define MAX_LIGHTS 1024
+
+// Type of the Light (enum)
 const uint LightType_Directional = 0;
-const uint LightType_Spot = 1;
-const uint LightType_Point = 2;
+const uint LightType_Point = 1;
+const uint LightType_Spot = 2;
 
-struct DirectionalLight
-{
-    vec3 direction;
-    vec3 color;
-    float time;
-};
-struct PointLight
-{
-    vec3  position;
-    vec3  color;
-    float radius;
+//------------------------------------------------------
+// Light Data
+// The light info that every light stores in the scene
+struct LightData {
+    vec3 position;  // [point/spot] .xyz = position, .w = range
+    float range;
+    vec3 color;     // .rgb = color, .a = intensity
+    float intensity;
+    vec4 direction; // [spot/directional] from light, normalized
     float constant;
     float linear;
     float quadratic;
+    float innerConeAngle; // [spot] in radians
+    float outerConeAngle; // [spot] in radians
+    uint type;
 };
-struct SpotLight
-{
-    vec3  position;
-    vec3  direction;
-    vec3  color;
-    float radius;
-    float constant;
-    float linear;
-    float quadratic;
-};
-struct LightData
-{
-    int                 type;
-    DirectionalLight    dirLightData;
-    PointLight          pointLightData;
-    SpotLight           spotLightData;
-};
-
-// GPULight in UploadLights.cpp
-struct Light {
-  vec4 position;  // [point/spot] .xyz = position, .w = range
-  vec4 direction; // [spot/directional] from light, normalized
-  vec4 color;     // .rgb = color, .a = intensity
-  uint type;
-  float innerConeAngle; // [spot] in radians
-  float outerConeAngle; // [spot] in radians
-  // Implicit padding, 4bytes
-};
-
-#define _DECLARE_LIGHT_BUFFER(st, index, name)                                     \
-  layout(set = st, binding = index, std430) restrict readonly buffer LightBuffer {       \
-    uint numLights;                                                            \
-    uint _pad[3];                                                              \
-    Light data[];                                                              \
-  }                                                                            \
-  name
-
+//------------------------------------------------------
+// GPU Light
+// The GPU lights data that will be uploaded to the 
+#define DECLARE_LIGHT_BUFFER(st, index, name)                                   \
+layout(set = st, binding = index) uniform LightBuffer {                         \
+    uint numLights;                                                           \
+    LightData data[];                                                           \
+}                                                                                \
+name;
+//------------------------------------------------------
+// Utility DS and Functions
 struct LightContribution {
-  vec3 diffuse;
-  vec3 specular;
+    vec3 diffuse;
+    vec3 specular;
 };
-
-// -- FUNCTIONS:
-
-float _getLightRange(const in Light light) { return light.position.w; }
-
-float _getLightAttenuation(const in Light light, vec3 fragToLight) {
+//------------------------------------------------------
+float _getLightRange(const in LightData light) { return light.range; }
+//------------------------------------------------------
+float _getLightAttenuation(const in LightData light, vec3 fragToLight) {
   if (light.type == LightType_Directional) return 1.0;
 
   const float d = length(fragToLight);
@@ -98,10 +77,10 @@ float _getLightAttenuation(const in Light light, vec3 fragToLight) {
 
   return rangeAttenuation * spotAttenuation;
 }
-
-vec3 _getLightIntensity(const in Light light, vec3 fragToLight) {
-  return light.color.rgb * light.color.a *
+//------------------------------------------------------
+vec3 _getLightIntensity(const in LightData light, vec3 fragToLight) {
+  return light.color.rgb * light.intensity *
          _getLightAttenuation(light, fragToLight);
 }
-
+//------------------------------------------------------
 #endif

@@ -1,5 +1,13 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <sol/sol.hpp>
+
+#include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZRoot.h"
+#include "Razix/Scene/RZEntity.h"
+#include "Razix/Scene/RZScene.h"
+
 #include "generated/ui_RZEMeshRendererComponentUI.h"
 
 #include <QWidget>
@@ -14,14 +22,20 @@ namespace Razix {
             RZEMeshRendererComponentUI(QWidget *parent = nullptr);
             ~RZEMeshRendererComponentUI();
 
+            void setEditingEntity(RZEntity entity);
+
         public slots:
+            void on_mesh_type_selected(int meshType);
+
             void OnMeshLocationEdited();
             void OnMaterialLocationEdited();
 
             void OnBrowseMesh();
             void OnBrowseMaterial();
+
         private:
-            Ui::MeshRendererComponentUI ui; 
+            Ui::MeshRendererComponentUI ui;
+            Razix::RZEntity             m_Entity;
         };
     }    // namespace Editor
 }    // namespace Razix

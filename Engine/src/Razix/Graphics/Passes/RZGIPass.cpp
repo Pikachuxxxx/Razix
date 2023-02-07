@@ -196,9 +196,7 @@ namespace Razix {
                             mesh->getIndexBuffer()->Bind(cmdBuffer);
 
                             // Combine System Desc sets with material sets and Bind them
-                            std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
-                            std::vector<RZDescriptorSet*> MatSets   = mesh->getMaterial()->getDescriptorSets();
-                            SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
+                            std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mesh->getMaterial()->getDescriptorSet()};
                             Graphics::RHI::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
                             Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
@@ -219,9 +217,8 @@ namespace Razix {
                         m_ModelViewProjectionSystemUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &m_ModelViewProjSystemUBOData);
 
                         // Combine System Desc sets with material sets and Bind them
-                        std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet};
-                        std::vector<RZDescriptorSet*> MatSets   = mrc.Mesh->getMaterial()->getDescriptorSets();
-                        SystemMat.insert(SystemMat.end(), MatSets.begin(), MatSets.end());
+                        std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mrc.Mesh->getMaterial()->getDescriptorSet()};
+
                         Graphics::RHI::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);

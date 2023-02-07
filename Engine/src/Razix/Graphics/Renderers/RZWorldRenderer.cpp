@@ -4,6 +4,7 @@
 #include "RZWorldRenderer.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
@@ -19,6 +20,7 @@
 #include "Razix/Graphics/Lighting/RZIBL.h"
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
+#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
 #include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -35,7 +37,7 @@ namespace Razix {
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
             // Load the Skybox and Global Light Probes
-#if 1
+#if 0
             m_Skybox                     = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_Skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_Skybox);
@@ -45,7 +47,7 @@ namespace Razix {
 
             // Cull Lights (Directional + Point) on CPU against camera Frustum First
             // TODO: Get the list of lights in the scene and cull them against the camera frustum and disable ActiveComponent for culled lights, but for now we can just ignore that
-            auto                 group = scene->getRegistry().group<LightComponent>(entt::get<ActiveComponent>);
+            auto                 group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
             std::vector<RZLight> sceneLights;
             for (auto& entity: group)
                 sceneLights.push_back(group.get<LightComponent>(entity).light);
@@ -54,6 +56,10 @@ namespace Razix {
             // TODO: Make this dynamic as scene glows larger
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
+
+            uploadFrameData(scene, settings);
+
+#if 0
 
             //-------------------------------
             // Cascaded Shadow Maps
@@ -82,9 +88,11 @@ namespace Razix {
             //-------------------------------
 
             //-------------------------------
-            // [ ] Deferred Lighting Pass
+            // [...] Deferred Lighting Pass
             //-------------------------------
-            //m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            m_DeferredPass.setGrid(sceneGrid);
+            m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+#endif
 
             //-------------------------------
             // [ ] Skybox Pass
@@ -99,19 +107,83 @@ namespace Razix {
             //-------------------------------
 
             //-------------------------------
+            // [Test] Forward Lighting Pass
+            //-------------------------------
+
+            auto& frameDataBlock = m_Blackboard.get<FrameData>();
+
+            m_Blackboard.add<RTDTPassData>() = m_FrameGraph.addCallbackPass<RTDTPassData>(
+                "Forward Lighting Pass",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTDTPassData& data) {
+                    builder.setAsStandAlonePass();
+
+                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
+
+                    data.depthRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
+
+                    data.outputRT = builder.write(data.outputRT);
+                    data.depthRT  = builder.write(data.depthRT);
+
+                    builder.read(frameDataBlock.frameData);
+
+                    m_ForwardRenderer.Init();
+                },
+                [=](const RTDTPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    m_ForwardRenderer.Begin(scene);
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(data.depthRT).getHandle();
+
+                    RenderingInfo info{};
+                    info.colorAttachments = {
+                        {rt, {true, glm::vec4(0.0f)}}};
+                    info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
+                    info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize          = true;
+
+                    // Set the Descriptor Set once rendering starts
+                    auto        frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
+                    static bool updatedSets     = false;
+                    if (!updatedSets) {
+                        RZDescriptor descriptor{};
+                        descriptor.offset              = 0;
+                        descriptor.size                = sizeof(GPUFrameData);
+                        descriptor.bindingInfo.binding = 0;
+                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
+                        descriptor.uniformBuffer       = frameDataBuffer;
+
+                        m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameBlockSet")));
+
+                        updatedSets = true;
+                    }
+
+                    RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
+
+                    m_ForwardRenderer.Draw(Graphics::RHI::getCurrentCommandBuffer());
+
+                    m_ForwardRenderer.End();
+
+                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
+
+                    Graphics::RHI::SubmitWork({}, {});
+                });
+
+            //-------------------------------
             // ImGui Pass
             //-------------------------------
+            RTDTPassData forwardSceneData      = m_Blackboard.get<RTDTPassData>();
             m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
                 "ImGui Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTOnlyPassData& data) {
                     builder.setAsStandAlonePass();
 
                     // Upload to the Blackboard
-                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
+                    //data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
 
                     data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
 
-                    data.outputRT          = builder.write(data.outputRT);
+                    data.outputRT          = builder.write(forwardSceneData.outputRT);
                     data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
                     m_ImGuiRenderer.Init();
@@ -130,7 +202,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {rt, {true, glm::vec4(0.0f)}}};
+                        {rt, {false, glm::vec4(0.0f)}}};
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
@@ -160,7 +232,7 @@ namespace Razix {
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
-            std::ofstream os(outPath + "/frame_graph_test.dot");
+            std::ofstream os(outPath + "/forward_lighting_test.dot");
             os << m_FrameGraph;
         }
 
@@ -175,20 +247,20 @@ namespace Razix {
             // Destroy Imported Resources
             m_BRDFfLUTTexture->Release(true);
 
-#if 1
+#if 0
             m_Skybox->Release(true);
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
-#endif
 
             // Destroy Renderers
             m_CascadedShadowsRenderer.Destroy();
+#endif
             m_ImGuiRenderer.Destroy();
 
             // Destroy Passes
             m_CompositePass.destroy();
-            m_GIPass.destroy();
-            m_GBufferPass.destroy();
+            //m_GIPass.destroy();
+            //m_GBufferPass.destroy();
 
             // Destroy Frame Graph Resources
             m_TransientResources.destroyResources();
@@ -201,6 +273,44 @@ namespace Razix {
             globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {FrameGraph::TextureType::Texture_CubeMap, "Diffuse Irradiance", {globalLightProbe.diffuse->getWidth(), globalLightProbe.diffuse->getHeight()}, {globalLightProbe.diffuse->getFormat()}}, {globalLightProbe.diffuse});
 
             globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {FrameGraph::TextureType::Texture_CubeMap, "Specular PreFiltered", {globalLightProbe.specular->getWidth(), globalLightProbe.specular->getHeight()}, {globalLightProbe.specular->getFormat()}}, {globalLightProbe.specular});
+        }
+
+        //--------------------------------------------------------------------------
+
+        void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings settings)
+        {
+            m_Blackboard.add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
+                "",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, FrameData& data) {
+                    builder.setAsStandAlonePass();
+
+                    data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("Frame Data", {"FrameData", sizeof(GPUFrameData)});
+
+                    data.frameData = builder.write(data.frameData);
+                },
+                [=](const FrameData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    GPUFrameData gpuData{};
+                    gpuData.time += gpuData.deltaTime;
+                    gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
+                    gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    gpuData.debugFlags     = settings.debugFlags;
+                    gpuData.renderFeatures = settings.renderFeatures;
+
+                    auto& sceneCam = scene->getSceneCamera();
+
+                    sceneCam.setAspectRatio(float(RZApplication::Get().getWindow()->getWidth()) / float(RZApplication::Get().getWindow()->getHeight()));
+
+                    gpuData.camera.projection         = sceneCam.getProjection();
+                    gpuData.camera.inversedProjection = glm::inverse(gpuData.camera.projection);
+                    gpuData.camera.view               = sceneCam.getViewMatrix();
+                    gpuData.camera.inversedView       = glm::inverse(gpuData.camera.view);
+                    gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
+                    gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
+                    gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
+
+                    // update and upload the UBO
+                    resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle()->SetData(sizeof(GPUFrameData), &gpuData);
+                });
         }
     }    // namespace Graphics
 }    // namespace Razix

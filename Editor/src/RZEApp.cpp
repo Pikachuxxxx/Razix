@@ -138,6 +138,13 @@ private:
             }
         }
 
+        // Add a directional light for test
+        auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
+        if (!lightEnitties.size()) {
+            auto& directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
+            directionalLightEntity.AddComponent<Razix::LightComponent>();
+        }
+
         // Add some model entities
         auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
         if (!modelEnitties.size()) {
@@ -146,11 +153,11 @@ private:
             armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
         }
 
-        auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        if (!meshEnitties.size()) {
-            auto& planeMesh = activeScene->createEntity("CubeMesh");
-            planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
-        }
+        //auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        //if (!meshEnitties.size()) {
+        //    auto& planeMesh = activeScene->createEntity("CubeMesh");
+        //    planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
+        //}
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             sceneHierarchyPanel->populateHierarchy();

@@ -3,12 +3,22 @@
 // clang-format on
 #include "RZETransformComponentUI.h"
 
+#include "Razix/Scene/Components/LightComponent.h"
 #include "Razix/Scene/Components/TransformComponent.h"
 
 #include <QDoubleValidator>
 
 namespace Razix {
     namespace Editor {
+
+        glm::vec3 RPYToDirectionVector(float roll, float pitch, float yaw)
+        {
+            float x = -cos(yaw) * sin(pitch) * sin(roll) - sin(yaw) * cos(roll);
+            float y = -sin(yaw) * sin(pitch) * sin(roll) + cos(yaw) * cos(roll);
+            float z = cos(pitch) * sin(roll);
+            return glm::vec3(x, y, z);
+        }
+
         RZETransformComponentUI::RZETransformComponentUI(QWidget* parent)
             : QWidget(parent)
         {
@@ -38,13 +48,14 @@ namespace Razix {
         }
 
         RZETransformComponentUI::~RZETransformComponentUI()
-        {}
+        {
+        }
 
         void RZETransformComponentUI::setEditingEntity(RZEntity entity)
         {
             m_Entity = entity;
             auto& tc = m_Entity.GetComponent<TransformComponent>();
-
+            m_TC     = tc;
             // Set the values of the labels when we select a new entity to edit
             ui.PosVal_X->setText(std::to_string(tc.Translation.x).c_str());
             ui.PosVal_Y->setText(std::to_string(tc.Translation.y).c_str());
@@ -85,6 +96,12 @@ namespace Razix {
             m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
+
+            // Set the light direction if the entity has a light component
+            if (m_Entity.HasComponent<LightComponent>()) {
+                auto& lc = m_Entity.GetComponent<LightComponent>();
+                lc.light.setDirection(RPYToDirectionVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
+            }
         }
 
         void RZETransformComponentUI::OnRotYEdited()
@@ -92,6 +109,12 @@ namespace Razix {
             m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
+
+            // Set the light direction if the entity has a light component
+            if (m_Entity.HasComponent<LightComponent>()) {
+                auto& lc = m_Entity.GetComponent<LightComponent>();
+                lc.light.setDirection(RPYToDirectionVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
+            }
         }
 
         void RZETransformComponentUI::OnRotZEdited()
@@ -99,6 +122,12 @@ namespace Razix {
             m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
+
+            // Set the light direction if the entity has a light component
+            if (m_Entity.HasComponent<LightComponent>()) {
+                auto& lc = m_Entity.GetComponent<LightComponent>();
+                lc.light.setDirection(RPYToDirectionVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
+            }
         }
 
         void RZETransformComponentUI::OnScaleXEdited()

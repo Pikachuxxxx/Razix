@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Razix/Core/RZEngine.h"
-#include "Razix/Scene/RZEntity.h"
-#include "Razix/Scene/RZScene.h"
-
 #include "generated/ui_RZESceneHierarchyPanel.h"
 
 #include "UI/Windows/RZEMainWindow.h"
 
 #include <QFrame>
 #include <QMouseEvent>
+
+namespace Razix {
+    class RZEntity;
+}
 
 Q_DECLARE_METATYPE(Razix::RZEntity);
 
@@ -27,8 +27,8 @@ namespace Razix {
 
             void keyPressEvent(QKeyEvent* event)
             {
-                /*
-                if (event->key() == Qt::Key::Key_Delete) {
+#if 0
+if (event->key() == Qt::Key::Key_Delete) {
                     QList<QTreeWidgetItem*> selectedItems = ui.sceneTree->selectedItems();
                     if (!selectedItems.size())
                         return;
@@ -39,7 +39,7 @@ namespace Razix {
                     for (size_t i = 0; i < selectedItems.size(); i++) {
                         QVariant entityVariant = selectedItems[i]->data(0, Qt::UserRole);
                         auto     entity        = entityVariant.value<RZEntity>();
-                        //RZApplication::Get().setGuzimoForEntity(-1);
+                        RZApplication::Get().setGuzimoForEntity(-1);
                         registry.destroy(entity);
                     }
 
@@ -47,7 +47,7 @@ namespace Razix {
                     populateHierarchy();
                     repaint();
                 }
-                */
+#endif
             }
 
         signals:

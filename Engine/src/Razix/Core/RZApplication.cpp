@@ -17,9 +17,9 @@
 #include "Razix/Events/ApplicationEvent.h"
 
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
-#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Scene/Components/CameraComponent.h"
 #include "Razix/Scene/Components/LightComponent.h"
@@ -437,21 +437,20 @@ namespace Razix {
             if (!cameraView.empty()) {
                 // By using front we get the one and only or the first one in the list of camera entities
                 cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
-                //m_CamTransform = registry.try_get<TransformComponent>(cameraView.front());
             }
             // Guizmo Editing Here
-            float               delta[16];
             TransformComponent& tc = m_GuizmoEntity.GetComponent<TransformComponent>();
 
             glm::mat4 transformMatrix = tc.GetTransform();
 
-            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjection()), m_GuizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), delta);
+            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
             float matrixTranslation[3], matrixRotation[3], matrixScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
 
             tc.Translation = glm::vec3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
             tc.Rotation    = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
             tc.Scale       = glm::vec3(matrixScale[0], matrixScale[1], matrixScale[2]);
+            tc.Transform   = transformMatrix;
         }
 
         ImGui::SetNextWindowBgAlpha(0.1f);    // Transparent background

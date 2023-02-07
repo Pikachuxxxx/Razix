@@ -68,14 +68,13 @@ namespace Razix {
              */
             virtual void Destroy() = 0;
 
+            virtual void SetFrameDataHeap(RZDescriptorSet* frameDataSet) {}
+
         protected:
             RZSceneCamera*                   m_Camera;
             RZCommandBuffer*                 m_MainCommandBuffers[MAX_SWAPCHAIN_BUFFERS];
             RZShader*                        m_OverrideGlobalRHIShader;
             RZScene*                         m_CurrentScene;
-            RZUniformBuffer*                 m_ModelViewProjectionSystemUBO = nullptr;
-            ModelViewProjectionSystemUBOData m_ModelViewProjSystemUBOData;
-            Graphics::RZDescriptorSet*       m_MVPDescriptorSet;
             uint32_t                         m_ScreenBufferWidth  = 0;
             uint32_t                         m_ScreenBufferHeight = 0;
             RZPipeline*                      m_Pipeline;

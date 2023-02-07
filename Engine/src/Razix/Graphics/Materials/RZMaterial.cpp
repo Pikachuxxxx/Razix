@@ -27,8 +27,8 @@ namespace Razix {
 
         void RZMaterial::Destroy()
         {
-            for (auto& set: m_DescriptorSets)
-                set->Destroy();
+            //if (m_DescriptorSet)
+            //    m_DescriptorSet->Destroy();
 
             m_MaterialTextures.Destroy();
             if (m_MaterialPropertiesUBO)
@@ -63,12 +63,7 @@ namespace Razix {
                         // Find the material properties UBO and assign it's UBO to this slot
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER) {
                             descriptor.uniformBuffer = m_MaterialPropertiesUBO;
-                        }
-                    }
-                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_PROPS")));
-                } else if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_MAT_SAMPLERS) {
-                    for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
+                        } else if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
                             // Choose the mat textures based on the workflow & preset
                             switch (descriptor.bindingInfo.binding) {
                                 case TextureBindingTable::TEX_BINDING_IDX_ALBEDO:
@@ -84,7 +79,7 @@ namespace Razix {
                                     descriptor.texture = m_MaterialTextures.roughness ? m_MaterialTextures.roughness : s_DefaultTexture;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_SPECULAR:
-                                    descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.specular : s_DefaultTexture;
+                                    descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.metallic : s_DefaultTexture;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_EMISSIVE:
                                     descriptor.texture = m_MaterialTextures.emissive ? m_MaterialTextures.emissive : s_DefaultTexture;
@@ -98,7 +93,7 @@ namespace Razix {
                             }
                         }
                     }
-                    m_DescriptorSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_SAMPLERS")));
+                    m_DescriptorSet = RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_USER_MAT_SAMPLERS"));
                 }
                 // This holds the descriptor sets for the material Properties and Samplers
                 // Now each mesh will have a material instance so each have their own sets so not a problem
@@ -128,10 +123,8 @@ namespace Razix {
         void RZMaterial::Bind()
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
-            if (!m_DescriptorSets.size() || getTexturesUpdated()) {
-                for (auto& descset: m_DescriptorSets)
-                    descset->Destroy();
-                m_DescriptorSets.clear();
+            if (!m_DescriptorSet || getTexturesUpdated()) {
+                m_DescriptorSet->Destroy();
                 createDescriptorSet();
                 setTexturesUpdated(false);
             }

@@ -18,9 +18,15 @@ namespace Razix {
 
     RAZIX_FORCE_INLINE const glm::mat4& RZSceneCamera::getProjection()
     {
+        auto proj = m_Projection;
         if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-            m_Projection[1][1] *= -1;
+            proj[1][1] *= -1;
 
+        return proj;
+    }
+
+    RAZIX_FORCE_INLINE const glm::mat4& RZSceneCamera::getProjectionRaw()
+    {
         return m_Projection;
     }
 
@@ -50,7 +56,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        RAZIX_CORE_ASSERT((width > 0 && height > 0), "Invalid width and height set for the scene camera!");
+         RAZIX_CORE_ASSERT((width > 0 && height > 0), "Invalid width and height set for the scene camera!");
         m_AspectRatio = (float) width / (float) height;
         recalculateProjection();
     }
