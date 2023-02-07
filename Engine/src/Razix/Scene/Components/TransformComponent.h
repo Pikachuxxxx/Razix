@@ -7,8 +7,9 @@ namespace Razix {
     struct RAZIX_API TransformComponent
     {
         glm::vec3 Translation = {0.0f, 0.0f, 0.0f};
-        glm::vec3 Rotation    = {0.0f, 0.0f, 0.0f};
+        glm::vec3 Rotation    = {0, 0, 0};
         glm::vec3 Scale       = {1.0f, 1.0f, 1.0f};
+        glm::mat4 Transform   = glm::mat4(1.0f);
 
         TransformComponent()                          = default;
         TransformComponent(const TransformComponent&) = default;
@@ -21,7 +22,7 @@ namespace Razix {
         template<typename Archive>
         void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp("Translation", Translation), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale));
+            archive(cereal::make_nvp("Translation", Translation), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale), cereal::make_nvp("Transform", Transform));
         }
     };
 }    // namespace Razix
