@@ -440,18 +440,31 @@ namespace Razix {
             }
             // Guizmo Editing Here
             TransformComponent& tc = m_GuizmoEntity.GetComponent<TransformComponent>();
-
+#if 1
             glm::mat4 transformMatrix = tc.GetTransform();
+            glm::mat4 deltaMatrix     = glm::mat4(1.0f);
 
-            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix));
+            //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));
+
+            // https://github.com/CedricGuillemet/ImGuizmo/issues/237
+            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix));
+
             float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+            float deltaTranslation[3], deltaRotation[3], deltaScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
+            ImGuizmo::DecomposeMatrixToComponents(&(deltaMatrix[0][0]), deltaTranslation, deltaRotation, deltaScale);
 
             tc.Translation = glm::vec3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
-            tc.Rotation    = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
+            tc.Rotation    = glm::vec3(glm::radians(matrixRotation[0]), glm::radians(matrixRotation[1]), glm::radians(matrixRotation[2]));
             tc.Scale       = glm::vec3(matrixScale[0], matrixScale[1], matrixScale[2]);
             tc.Transform   = transformMatrix;
+#endif
         }
+
+        // Draw the Grid using ImGui
+        glm::mat4 identity = glm::mat4(1.0f);
+        auto&     cam      = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
+        ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 100.f);
 
         ImGui::SetNextWindowBgAlpha(0.1f);    // Transparent background
         ImGui::Begin("Icons Test");
