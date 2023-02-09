@@ -37,14 +37,16 @@ namespace Razix {
 
             // mAKE CONNECTIONS TO REFLECT EDITING
             connect(ui.PosVal_X, SIGNAL(returnPressed()), this, SLOT(OnPosXEdited()));
-            connect(ui.PosVal_Y, SIGNAL(returnPressed()), this, SLOT(OnPosZEdited()));
-            connect(ui.PosVal_Z, SIGNAL(returnPressed()), this, SLOT(OnPosXEdited()));
+            connect(ui.PosVal_Y, SIGNAL(returnPressed()), this, SLOT(OnPosYEdited()));
+            connect(ui.PosVal_Z, SIGNAL(returnPressed()), this, SLOT(OnPosZEdited()));
+
             connect(ui.RotVal_X, SIGNAL(returnPressed()), this, SLOT(OnRotXEdited()));
-            connect(ui.RotVal_Y, SIGNAL(returnPressed()), this, SLOT(OnRotZEdited()));
-            connect(ui.RotVal_Z, SIGNAL(returnPressed()), this, SLOT(OnRotXEdited()));
+            connect(ui.RotVal_Y, SIGNAL(returnPressed()), this, SLOT(OnRotYEdited()));
+            connect(ui.RotVal_Z, SIGNAL(returnPressed()), this, SLOT(OnRotZEdited()));
+
             connect(ui.ScaleVal_X, SIGNAL(returnPressed()), this, SLOT(OnScaleXEdited()));
-            connect(ui.ScaleVal_Y, SIGNAL(returnPressed()), this, SLOT(OnScaleZEdited()));
-            connect(ui.ScaleVal_Z, SIGNAL(returnPressed()), this, SLOT(OnScaleXEdited()));
+            connect(ui.ScaleVal_Y, SIGNAL(returnPressed()), this, SLOT(OnScaleYEdited()));
+            connect(ui.ScaleVal_Z, SIGNAL(returnPressed()), this, SLOT(OnScaleZEdited()));
         }
 
         RZETransformComponentUI::~RZETransformComponentUI()
@@ -93,7 +95,7 @@ namespace Razix {
 
         void RZETransformComponentUI::OnRotXEdited()
         {
-            m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
+            m_TC.Rotation = glm::vec3(glm::radians(ui.RotVal_X->text().toDouble()), glm::radians(ui.RotVal_Y->text().toDouble()), glm::radians(ui.RotVal_Z->text().toDouble()));
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
 
@@ -106,7 +108,7 @@ namespace Razix {
 
         void RZETransformComponentUI::OnRotYEdited()
         {
-            m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
+            m_TC.Rotation = glm::vec3(glm::radians(ui.RotVal_X->text().toDouble()), glm::radians(ui.RotVal_Y->text().toDouble()), glm::radians(ui.RotVal_Z->text().toDouble()));
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
 
@@ -119,7 +121,7 @@ namespace Razix {
 
         void RZETransformComponentUI::OnRotZEdited()
         {
-            m_TC.Rotation = glm::vec3(ui.RotVal_X->text().toDouble(), ui.RotVal_Y->text().toDouble(), ui.RotVal_Z->text().toDouble());
+            m_TC.Rotation = glm::vec3(glm::radians(ui.RotVal_X->text().toDouble()), glm::radians(ui.RotVal_Y->text().toDouble()), glm::radians(ui.RotVal_Z->text().toDouble()));
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
 
