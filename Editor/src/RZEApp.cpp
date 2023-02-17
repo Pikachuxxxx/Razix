@@ -211,7 +211,7 @@ int main(int argc, char** argv)
     mainWindow = new Razix::Editor::RZEMainWindow;
     mainWindow->setWindowTitle("Razix Engine Editor");
     mainWindow->resize(1280, 720);
-    //mainWindow->setWindowState(Qt::WindowMaximized);
+    mainWindow->setWindowState(Qt::WindowMaximized);
 
     sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow);
 
@@ -275,11 +275,6 @@ int main(int argc, char** argv)
     mainWindow->show();
 
     int r = qrzeditorApp->exec();
-
-    //Razix::RZApplication::Get().Quit();
-    //Razix::RZApplication::Get().SaveApp();
-
-    //EngineExit();
 
     qengineThread->quit();
     qengineThread->wait();
