@@ -17,7 +17,7 @@ namespace Razix {
         {
             ui.setupUi(this);
 
-            connect(ui.light_color, SIGNAL(pressed()), this, SLOT(on_light_color_pressed()));
+            //connect(ui.light_color, SIGNAL(pressed()), this, SLOT(on_light_color_pressed()));
             connect(ui.lightTypeGroup, SIGNAL(buttonClicked(int)), this, SLOT(on_light_type_selected(int)));
 
             ui.lightTypeGroup->setId(ui.Directional_rb, 0);
