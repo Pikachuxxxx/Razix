@@ -4,8 +4,8 @@
 #include "RZEMainWindow.h"
 
 #include <QComboBox>
-#include <QTimer>
 #include <QPushButton>
+#include <QTimer>
 
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Scene/RZEntity.h"
@@ -13,8 +13,10 @@
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Scene/Components/MeshRendererComponent.h"
 
+// clang-format off
 #include <imgui.h>
 #include <ImGui/plugins/ImGuizmo.h>
+// clang-format on
 
 namespace Razix {
     namespace Editor {
@@ -46,6 +48,10 @@ namespace Razix {
             layout->setMargin(0);
             ui.statusbar->addWidget(widget, 1);
             ui.statusbar->setContentsMargins(0, 0, 0, 0);
+
+            // Init the Windows
+            m_MaterialEditor = new RZEMaterialEditor;
+            ui.toolWindowManager->addToolWindow(m_MaterialEditor, ToolWindowManager::AreaReference(ToolWindowManager::RightWindowSide));
 
             // Menu Init
             SetupMenu();
@@ -219,6 +225,17 @@ namespace Razix {
             connect(ui.actionEntity, &QAction::triggered, this, &RZEMainWindow::Create_Entity);
         }
 
+        void RZEMainWindow::SetupWindowsCommands()
+        {
+            connect(ui.actionMaterial_Editor, &QAction::triggered, this, &RZEMainWindow::Windows_MaterialEditor);
+        }
+
+        void RZEMainWindow::Windows_MaterialEditor()
+        {
+            if (m_MaterialEditor->isHidden())
+                m_MaterialEditor->show();
+        }
+
         void RZEMainWindow::Create_Entity()
         {
             // Create an entity
@@ -227,6 +244,5 @@ namespace Razix {
             // Update the scene hierarchy panel to re-draw
             emit OnEntityAddedToScene();
         }
-
     }    // namespace Editor
 }    // namespace Razix

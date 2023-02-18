@@ -27,9 +27,9 @@ namespace Razix {
             ui.setupUi(this);
 
             // Accept only numerical input
-            ui.PosVal_X->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
-            ui.PosVal_Y->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
-            ui.PosVal_Z->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
+            ui.PosVal_X->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, ui.PosVal_X));
+            ui.PosVal_Y->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, ui.PosVal_Y));
+            ui.PosVal_Z->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, ui.PosVal_Z));
             ui.RotVal_X->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
             ui.RotVal_Y->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
             ui.RotVal_Z->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
