@@ -53,6 +53,7 @@ public:
     QAction *actionNew_Project;
     QAction *actionOpen_Project;
     QAction *actionSave_Project;
+    QAction *actionMaterial_Editor;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     ToolWindowManager *toolWindowManager;
@@ -128,6 +129,8 @@ public:
         actionOpen_Project->setObjectName(QString::fromUtf8("actionOpen_Project"));
         actionSave_Project = new QAction(MainWindow);
         actionSave_Project->setObjectName(QString::fromUtf8("actionSave_Project"));
+        actionMaterial_Editor = new QAction(MainWindow);
+        actionMaterial_Editor->setObjectName(QString::fromUtf8("actionMaterial_Editor"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout = new QVBoxLayout(centralwidget);
@@ -175,6 +178,7 @@ public:
         menuWindows->addAction(actionViewport);
         menuWindows->addAction(actionScene_Hierarchy);
         menuWindows->addAction(actionContent_Browser);
+        menuWindows->addAction(actionMaterial_Editor);
         menuGraphics->addAction(actionLighting_Settings);
         menuGraphics->addAction(actionEnvironment_Settings);
         menuCreate->addAction(actionEntity);
@@ -234,6 +238,7 @@ public:
         actionNew_Project->setText(QCoreApplication::translate("MainWindow", "New Project", nullptr));
         actionOpen_Project->setText(QCoreApplication::translate("MainWindow", "Open Project", nullptr));
         actionSave_Project->setText(QCoreApplication::translate("MainWindow", "Save Project", nullptr));
+        actionMaterial_Editor->setText(QCoreApplication::translate("MainWindow", "Material Editor", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuEdit->setTitle(QCoreApplication::translate("MainWindow", "Edit", nullptr));
         menuWindows->setTitle(QCoreApplication::translate("MainWindow", "Windows", nullptr));

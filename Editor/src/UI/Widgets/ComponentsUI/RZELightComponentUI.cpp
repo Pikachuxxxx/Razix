@@ -24,9 +24,8 @@ namespace Razix {
             ui.lightTypeGroup->setId(ui.Point_rb, 1);
             ui.lightTypeGroup->setId(ui.Spot_rb, 2);
 
-
             // Default to yellow
-            ui.light_color->setStyleSheet("background-color: rgba(255, 255, 0, 255)");
+            ui.light_color->setStyleSheet("background-color: rgba(255, 0, 255, 255)");
         }
 
         RZELightComponentUI::~RZELightComponentUI()
@@ -40,14 +39,16 @@ namespace Razix {
 
         void RZELightComponentUI::on_light_color_pressed()
         {
-            QColor color = QColorDialog::getColor();
-            ui.light_color->setStyleSheet("background-color: " + color.name());
+            QColor color = QColorDialog::getColor(m_Color);
+            m_Color      = color;
 
-            QColor rgb = color.toRgb();
+            ui.light_color->setStyleSheet("background-color: " + color.name());
 
             auto& lc = m_Entity.GetComponent<LightComponent>();
 
-            lc.light.setColor(glm::vec3(rgb.red() / 255, rgb.green() / 255, rgb.blue() / 255));
+            std::cout << glm::to_string(glm::vec3(color.redF(), color.greenF(), color.blueF())) << std::endl;
+
+            lc.light.setColor(glm::vec3(color.redF(), color.greenF(), color.blueF()));
         }
 
         void RZELightComponentUI::on_light_type_selected(int idx)
