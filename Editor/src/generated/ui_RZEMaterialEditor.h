@@ -34,7 +34,7 @@ public:
     QVBoxLayout *verticalLayout_3;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label;
-    QLineEdit *shaderNameLineEdit;
+    QLabel *shaderNameLbl;
     QSpacerItem *horizontalSpacer;
     QLabel *label_2;
     QLabel *label_3;
@@ -42,20 +42,21 @@ public:
     QPushButton *RecompileBtn;
     QPushButton *EditBtn;
     QPushButton *ShowReflectionBtn;
-    QPushButton *ShowVariants;
-    QPushButton *ShowReferences;
+    QSpacerItem *horizontalSpacer_9;
     QFrame *line;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_4;
     QLabel *materialNameLbl;
+    QSpacerItem *horizontalSpacer_2;
     QGroupBox *groupBox;
     QHBoxLayout *horizontalLayout_5;
-    QPushButton *pushButton;
+    QPushButton *diffuseTexture;
     QVBoxLayout *verticalLayout_2;
-    QCheckBox *checkBox;
+    QCheckBox *useDiffuseTexure;
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_5;
-    QLineEdit *lineEdit;
+    QLineEdit *diffuseColor;
+    QSpacerItem *horizontalSpacer_3;
     QGroupBox *groupBox_3;
     QHBoxLayout *horizontalLayout_8;
     QPushButton *pushButton_3;
@@ -69,6 +70,7 @@ public:
     QHBoxLayout *horizontalLayout_11;
     QLabel *label_8;
     QLineEdit *lineEdit_4;
+    QSpacerItem *horizontalSpacer_4;
     QGroupBox *groupBox_5;
     QHBoxLayout *horizontalLayout_12;
     QPushButton *pushButton_5;
@@ -77,6 +79,7 @@ public:
     QHBoxLayout *horizontalLayout_13;
     QLabel *label_9;
     QLineEdit *lineEdit_5;
+    QSpacerItem *horizontalSpacer_5;
     QGroupBox *groupBox_6;
     QHBoxLayout *horizontalLayout_14;
     QPushButton *pushButton_6;
@@ -85,6 +88,7 @@ public:
     QHBoxLayout *horizontalLayout_15;
     QLabel *label_10;
     QLineEdit *lineEdit_6;
+    QSpacerItem *horizontalSpacer_6;
     QGroupBox *groupBox_7;
     QHBoxLayout *horizontalLayout_16;
     QPushButton *pushButton_7;
@@ -93,6 +97,7 @@ public:
     QHBoxLayout *horizontalLayout_17;
     QLabel *label_11;
     QLineEdit *lineEdit_7;
+    QSpacerItem *horizontalSpacer_7;
     QGroupBox *groupBox_8;
     QHBoxLayout *horizontalLayout_18;
     QPushButton *pushButton_8;
@@ -101,12 +106,13 @@ public:
     QHBoxLayout *horizontalLayout_19;
     QLabel *label_12;
     QLineEdit *lineEdit_8;
+    QSpacerItem *horizontalSpacer_8;
 
     void setupUi(QWidget *MaterialEditor)
     {
         if (MaterialEditor->objectName().isEmpty())
             MaterialEditor->setObjectName(QString::fromUtf8("MaterialEditor"));
-        MaterialEditor->resize(472, 787);
+        MaterialEditor->resize(304, 842);
         verticalLayout = new QVBoxLayout(MaterialEditor);
         verticalLayout->setSpacing(0);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -117,8 +123,8 @@ public:
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 475, 768));
-        scrollAreaWidgetContents->setMinimumSize(QSize(475, 0));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 302, 840));
+        scrollAreaWidgetContents->setMinimumSize(QSize(0, 0));
         verticalLayout_3 = new QVBoxLayout(scrollAreaWidgetContents);
         verticalLayout_3->setSpacing(6);
         verticalLayout_3->setContentsMargins(11, 11, 11, 11);
@@ -131,11 +137,14 @@ public:
 
         horizontalLayout_2->addWidget(label);
 
-        shaderNameLineEdit = new QLineEdit(scrollAreaWidgetContents);
-        shaderNameLineEdit->setObjectName(QString::fromUtf8("shaderNameLineEdit"));
-        shaderNameLineEdit->setReadOnly(true);
+        shaderNameLbl = new QLabel(scrollAreaWidgetContents);
+        shaderNameLbl->setObjectName(QString::fromUtf8("shaderNameLbl"));
+        shaderNameLbl->setStyleSheet(QString::fromUtf8("border-color: rgb(147, 147, 147);\n"
+"border:1px;\n"
+"border-radius:5;\n"
+"border-style:solid;"));
 
-        horizontalLayout_2->addWidget(shaderNameLineEdit);
+        horizontalLayout_2->addWidget(shaderNameLbl);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -172,15 +181,9 @@ public:
 
         horizontalLayout->addWidget(ShowReflectionBtn);
 
-        ShowVariants = new QPushButton(scrollAreaWidgetContents);
-        ShowVariants->setObjectName(QString::fromUtf8("ShowVariants"));
+        horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout->addWidget(ShowVariants);
-
-        ShowReferences = new QPushButton(scrollAreaWidgetContents);
-        ShowReferences->setObjectName(QString::fromUtf8("ShowReferences"));
-
-        horizontalLayout->addWidget(ShowReferences);
+        horizontalLayout->addItem(horizontalSpacer_9);
 
 
         verticalLayout_3->addLayout(horizontalLayout);
@@ -202,8 +205,16 @@ public:
 
         materialNameLbl = new QLabel(scrollAreaWidgetContents);
         materialNameLbl->setObjectName(QString::fromUtf8("materialNameLbl"));
+        materialNameLbl->setStyleSheet(QString::fromUtf8("border-color: rgb(147, 147, 147);\n"
+"border:1px;\n"
+"border-radius:5;\n"
+"border-style:solid;"));
 
         horizontalLayout_3->addWidget(materialNameLbl);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_2);
 
 
         verticalLayout_3->addLayout(horizontalLayout_3);
@@ -214,24 +225,24 @@ public:
         horizontalLayout_5->setSpacing(6);
         horizontalLayout_5->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
-        pushButton = new QPushButton(groupBox);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        diffuseTexture = new QPushButton(groupBox);
+        diffuseTexture->setObjectName(QString::fromUtf8("diffuseTexture"));
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
-        pushButton->setSizePolicy(sizePolicy);
-        pushButton->setMinimumSize(QSize(50, 50));
+        sizePolicy.setHeightForWidth(diffuseTexture->sizePolicy().hasHeightForWidth());
+        diffuseTexture->setSizePolicy(sizePolicy);
+        diffuseTexture->setMinimumSize(QSize(50, 50));
 
-        horizontalLayout_5->addWidget(pushButton);
+        horizontalLayout_5->addWidget(diffuseTexture);
 
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        checkBox = new QCheckBox(groupBox);
-        checkBox->setObjectName(QString::fromUtf8("checkBox"));
+        useDiffuseTexure = new QCheckBox(groupBox);
+        useDiffuseTexure->setObjectName(QString::fromUtf8("useDiffuseTexure"));
 
-        verticalLayout_2->addWidget(checkBox);
+        verticalLayout_2->addWidget(useDiffuseTexure);
 
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setSpacing(6);
@@ -241,10 +252,14 @@ public:
 
         horizontalLayout_4->addWidget(label_5);
 
-        lineEdit = new QLineEdit(groupBox);
-        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
+        diffuseColor = new QLineEdit(groupBox);
+        diffuseColor->setObjectName(QString::fromUtf8("diffuseColor"));
 
-        horizontalLayout_4->addWidget(lineEdit);
+        horizontalLayout_4->addWidget(diffuseColor);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_3);
 
 
         verticalLayout_2->addLayout(horizontalLayout_4);
@@ -318,6 +333,10 @@ public:
 
         horizontalLayout_11->addWidget(lineEdit_4);
 
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_11->addItem(horizontalSpacer_4);
+
 
         verticalLayout_5->addLayout(horizontalLayout_11);
 
@@ -361,6 +380,10 @@ public:
         lineEdit_5->setObjectName(QString::fromUtf8("lineEdit_5"));
 
         horizontalLayout_13->addWidget(lineEdit_5);
+
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_13->addItem(horizontalSpacer_5);
 
 
         verticalLayout_6->addLayout(horizontalLayout_13);
@@ -406,6 +429,10 @@ public:
 
         horizontalLayout_15->addWidget(lineEdit_6);
 
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_15->addItem(horizontalSpacer_6);
+
 
         verticalLayout_7->addLayout(horizontalLayout_15);
 
@@ -449,6 +476,10 @@ public:
         lineEdit_7->setObjectName(QString::fromUtf8("lineEdit_7"));
 
         horizontalLayout_17->addWidget(lineEdit_7);
+
+        horizontalSpacer_7 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_17->addItem(horizontalSpacer_7);
 
 
         verticalLayout_8->addLayout(horizontalLayout_17);
@@ -494,6 +525,10 @@ public:
 
         horizontalLayout_19->addWidget(lineEdit_8);
 
+        horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_19->addItem(horizontalSpacer_8);
+
 
         verticalLayout_9->addLayout(horizontalLayout_19);
 
@@ -516,19 +551,18 @@ public:
     void retranslateUi(QWidget *MaterialEditor)
     {
         MaterialEditor->setWindowTitle(QCoreApplication::translate("MaterialEditor", "Material Editor", nullptr));
-        label->setText(QCoreApplication::translate("MaterialEditor", "Shader", nullptr));
+        label->setText(QCoreApplication::translate("MaterialEditor", "Shader :", nullptr));
+        shaderNameLbl->setText(QCoreApplication::translate("MaterialEditor", "pbr_tiled_deferred.rzsf", nullptr));
         label_2->setText(QCoreApplication::translate("MaterialEditor", "Parsed Variants :", nullptr));
         label_3->setText(QCoreApplication::translate("MaterialEditor", "Stages :", nullptr));
         RecompileBtn->setText(QCoreApplication::translate("MaterialEditor", "Recompile", nullptr));
-        EditBtn->setText(QCoreApplication::translate("MaterialEditor", "Edit in Editor", nullptr));
+        EditBtn->setText(QCoreApplication::translate("MaterialEditor", "Edit Code", nullptr));
         ShowReflectionBtn->setText(QCoreApplication::translate("MaterialEditor", "Show Reflection Info", nullptr));
-        ShowVariants->setText(QCoreApplication::translate("MaterialEditor", "Show Variants", nullptr));
-        ShowReferences->setText(QCoreApplication::translate("MaterialEditor", "Show References", nullptr));
-        label_4->setText(QCoreApplication::translate("MaterialEditor", "Name", nullptr));
-        materialNameLbl->setText(QString());
+        label_4->setText(QCoreApplication::translate("MaterialEditor", "Name :", nullptr));
+        materialNameLbl->setText(QCoreApplication::translate("MaterialEditor", "PBRMaterial", nullptr));
         groupBox->setTitle(QCoreApplication::translate("MaterialEditor", "Diffuse", nullptr));
-        pushButton->setText(QString());
-        checkBox->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
+        diffuseTexture->setText(QString());
+        useDiffuseTexure->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_5->setText(QCoreApplication::translate("MaterialEditor", "Color", nullptr));
         groupBox_3->setTitle(QCoreApplication::translate("MaterialEditor", "Normal", nullptr));
         pushButton_3->setText(QString());
