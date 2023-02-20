@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>472</width>
-    <height>787</height>
+    <width>304</width>
+    <height>842</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,13 +39,13 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>475</width>
-        <height>768</height>
+        <width>302</width>
+        <height>840</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>475</width>
+        <width>0</width>
         <height>0</height>
        </size>
       </property>
@@ -55,14 +55,20 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Shader</string>
+            <string>Shader :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="shaderNameLineEdit">
-           <property name="readOnly">
-            <bool>true</bool>
+          <widget class="QLabel" name="shaderNameLbl">
+           <property name="styleSheet">
+            <string notr="true">border-color: rgb(147, 147, 147);
+border:1px;
+border-radius:5;
+border-style:solid;</string>
+           </property>
+           <property name="text">
+            <string>pbr_tiled_deferred.rzsf</string>
            </property>
           </widget>
          </item>
@@ -107,7 +113,7 @@
          <item>
           <widget class="QPushButton" name="EditBtn">
            <property name="text">
-            <string>Edit in Editor</string>
+            <string>Edit Code</string>
            </property>
           </widget>
          </item>
@@ -119,18 +125,17 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="ShowVariants">
-           <property name="text">
-            <string>Show Variants</string>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="ShowReferences">
-           <property name="text">
-            <string>Show References</string>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
            </property>
-          </widget>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -146,16 +151,35 @@
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Name</string>
+            <string>Name :</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLabel" name="materialNameLbl">
+           <property name="styleSheet">
+            <string notr="true">border-color: rgb(147, 147, 147);
+border:1px;
+border-radius:5;
+border-style:solid;</string>
+           </property>
            <property name="text">
-            <string/>
+            <string>PBRMaterial</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -166,7 +190,7 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="diffuseTexture">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -187,7 +211,7 @@
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QCheckBox" name="checkBox">
+             <widget class="QCheckBox" name="useDiffuseTexure">
               <property name="text">
                <string>Use Texture</string>
               </property>
@@ -203,7 +227,20 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit"/>
+               <widget class="QLineEdit" name="diffuseColor"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>
@@ -297,6 +334,19 @@
               <item>
                <widget class="QLineEdit" name="lineEdit_4"/>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
            </layout>
@@ -349,6 +399,19 @@
               </item>
               <item>
                <widget class="QLineEdit" name="lineEdit_5"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_5">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>
@@ -403,6 +466,19 @@
               <item>
                <widget class="QLineEdit" name="lineEdit_6"/>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_6">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
            </layout>
@@ -456,6 +532,19 @@
               <item>
                <widget class="QLineEdit" name="lineEdit_7"/>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_7">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
            </layout>
@@ -508,6 +597,19 @@
               </item>
               <item>
                <widget class="QLineEdit" name="lineEdit_8"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>
