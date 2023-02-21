@@ -23,21 +23,19 @@ namespace Razix {
             void setGrid(const Maths::RZGrid& grid) { m_Grid = grid; }
 
         private:
-            Maths::RZGrid                    m_Grid;
-            RZPipeline*                      m_RIPipeline;
-            RZPipeline*                      m_RSMPipeline;
-            RZPipeline*                      m_RPropagationPipeline;
-            RZUniformBuffer*                 m_ModelViewProjectionSystemUBO = nullptr;
-            ModelViewProjectionSystemUBOData m_ModelViewProjSystemUBOData;
-            Graphics::RZDescriptorSet*       m_MVPDescriptorSet;
-            Graphics::RZDescriptorSet*       m_RIDescriptorSet;
-            std::vector<RZCommandBuffer*>    m_RSMCmdBuffers;
-            std::vector<RZCommandBuffer*>    m_RadianceInjectionCmdBuffers;
-            std::vector<RZCommandBuffer*>    m_RadiancePropagationCmdBuffers;
-            RadianceInjectionUBOData         radianceInjectionData;
-            RZUniformBuffer*                 m_RadianceInjectionUBO = nullptr;
-            RadiancePropagationUBOData       radiancePropagationData;
-            RZUniformBuffer*                 m_RadiancePropagationUBO = nullptr;
+            Maths::RZGrid                 m_Grid;
+            RZPipeline*                   m_RIPipeline;
+            RZPipeline*                   m_RSMPipeline;
+            RZPipeline*                   m_RPropagationPipeline;
+            Graphics::RZDescriptorSet*    m_MVPDescriptorSet;
+            Graphics::RZDescriptorSet*    m_RIDescriptorSet;
+            std::vector<RZCommandBuffer*> m_RSMCmdBuffers;
+            std::vector<RZCommandBuffer*> m_RadianceInjectionCmdBuffers;
+            std::vector<RZCommandBuffer*> m_RadiancePropagationCmdBuffers;
+            RadianceInjectionUBOData      radianceInjectionData;
+            RZUniformBuffer*              m_RadianceInjectionUBO = nullptr;
+            RadiancePropagationUBOData    radiancePropagationData;
+            RZUniformBuffer*              m_RadiancePropagationUBO = nullptr;
 
             struct PropagationGPUResources
             {

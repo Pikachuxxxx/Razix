@@ -90,6 +90,8 @@ namespace Razix {
             // Screen Quad Mesh
             m_ScreenQuadMesh = MeshFactory::CreatePrimitive(MeshPrimitive::ScreenQuad);
 
+            auto& frameDataBlock = blackboard.get<FrameData>();
+
             blackboard.add<SceneColorData>() = framegraph.addCallbackPass<SceneColorData>(
                 "Deferred PBR Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneColorData& data) {
@@ -107,6 +109,8 @@ namespace Razix {
 
                     builder.read(globalLightProbe.diffuseIrradianceMap);
                     builder.read(globalLightProbe.specularPreFilteredMap);
+
+                    builder.read(frameDataBlock.frameData);
 
                     //builder.read(cascades.cascadedShadowMaps);
                     //builder.read(cascades.viewProjMatrices);
@@ -144,11 +148,6 @@ namespace Razix {
                     // Bind pipeline and stuff
                     m_Pipeline->Bind(cmdBuf);
 
-                    // Update the shader uniforms data
-                    //m_FrameBlockData.camera     = scene->getSceneCamera();
-                    //m_FrameBlockData.deltaTime  = RZEngine::Get().GetStatistics().DeltaTime;
-                    //m_FrameBlockData.resolution = resolution;
-
                     //m_FrameBlockUBO->SetData(sizeof(FrameBlock), &m_FrameBlockData);
 
                     // Update the lighting Data
@@ -169,7 +168,7 @@ namespace Razix {
                             // FrameBlock UBO [SET: 0]
                             if (set.first == 0) {
                                 for (auto& descriptor: set.second)
-                                    descriptor.uniformBuffer = m_FrameBlockUBO;
+                                    descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
                             }
                             // [SET:1]
                             else if (set.first == 1) {
@@ -200,7 +199,7 @@ namespace Razix {
                                         case 7:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbe.specularPreFilteredMap).getHandle();
                                             break;
-                                        /*case 8:
+                                            /*case 8:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(cascades.cascadedShadowMaps).getHandle();
                                             break;
                                         case 9:
@@ -288,7 +287,6 @@ namespace Razix {
                         }
                     }
 #endif
-
 
                     // Bind the descriptor sets
                     Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);

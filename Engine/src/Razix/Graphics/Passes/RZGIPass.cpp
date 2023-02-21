@@ -27,6 +27,8 @@
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
+#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
+
 #include "Razix/Scene/Components/RZComponents.h"
 
 #include "Razix/Scene/RZScene.h"
@@ -86,20 +88,6 @@ namespace Razix {
         ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
         {
             auto shader   = RZShaderLibrary::Get().getShader("RSM.rzsf");
-            auto setInfos = shader->getSetsCreateInfos();
-
-            m_ModelViewProjectionSystemUBO = RZUniformBuffer::Create(sizeof(ModelViewProjectionSystemUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GI Pass UBO"));
-
-            for (auto& setInfo: setInfos) {
-                for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
-                        if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
-                            descriptor.uniformBuffer = m_ModelViewProjectionSystemUBO;
-                            m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GI Pass Set"));
-                        }
-                    }
-                }
-            }
 
             // Create the command buffers
             m_RSMCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
@@ -124,7 +112,9 @@ namespace Razix {
 
             m_RSMPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("RSM pipeline"));
 
-            const auto& data = framegraph.addCallbackPass<ReflectiveShadowMapData>(
+            auto& frameblockData = blackboard.get<FrameData>();
+
+            auto& data = framegraph.addCallbackPass<ReflectiveShadowMapData>(
                 "Reflective Shadow Map",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, ReflectiveShadowMapData& data) {
                     builder.setAsStandAlonePass();
@@ -142,6 +132,8 @@ namespace Razix {
                     data.normal   = builder.write(data.normal);
                     data.flux     = builder.write(data.flux);
                     data.depth    = builder.write(data.depth);
+
+                    builder.read(frameblockData.frameData);
                 },
                 [=](const ReflectiveShadowMapData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -177,6 +169,23 @@ namespace Razix {
                     // Bind the pipeline
                     m_RSMPipeline->Bind(cmdBuffer);
 
+                    // Update the View Proj descriptor set only once
+                    static bool setUpdated = false;
+                    if (!setUpdated) {
+                        auto& setInfos = shader->getSetsCreateInfos();
+                        for (auto& setInfo: setInfos) {
+                            if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
+                                for (auto& descriptor: setInfo.second) {
+                                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                        descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameblockData.frameData).getHandle();
+                                        m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GI Pass Set"));
+                                    }
+                                }
+                            }
+                        }
+                        setUpdated = true;
+                    }
+
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
                     auto& group = scene->getRegistry().group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
                     for (auto entity: group) {
@@ -186,9 +195,22 @@ namespace Razix {
 
                         glm::mat4 transform = trans.GetTransform();
 
-                        m_ModelViewProjSystemUBOData.model          = transform;
-                        m_ModelViewProjSystemUBOData.viewProjection = lightViewProj;
-                        m_ModelViewProjectionSystemUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &m_ModelViewProjSystemUBOData);
+                        //-----------------------------
+                        // Get the shader from the Mesh Material later
+                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                        auto& modelMatrix = shader->getPushConstants()[0];
+
+                        struct PCD
+                        {
+                            glm::mat4 mat;
+                        } pcData{};
+                        pcData.mat       = transform;
+                        modelMatrix.data = &pcData;
+                        modelMatrix.size = sizeof(PCD);
+
+                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                        Graphics::RHI::BindPushConstant(m_RSMPipeline, cmdBuffer, modelMatrix);
+                        //-----------------------------
 
                         // Bind IBO and VBO
                         for (auto& mesh: meshes) {
@@ -213,8 +235,22 @@ namespace Razix {
                         // Bind push constants, VBO, IBO and draw
                         glm::mat4 transform = mesh_trans.GetTransform();
 
-                        m_ModelViewProjSystemUBOData.model = transform;
-                        m_ModelViewProjectionSystemUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &m_ModelViewProjSystemUBOData);
+                        //-----------------------------
+                        // Get the shader from the Mesh Material later
+                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                        auto& modelMatrix = shader->getPushConstants()[0];
+
+                        struct PCD
+                        {
+                            glm::mat4 mat;
+                        } pcData{};
+                        pcData.mat       = transform;
+                        modelMatrix.data = &pcData;
+                        modelMatrix.size = sizeof(PCD);
+
+                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                        Graphics::RHI::BindPushConstant(m_RSMPipeline, cmdBuffer, modelMatrix);
+                        //-----------------------------
 
                         // Combine System Desc sets with material sets and Bind them
                         std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mrc.Mesh->getMaterial()->getDescriptorSet()};

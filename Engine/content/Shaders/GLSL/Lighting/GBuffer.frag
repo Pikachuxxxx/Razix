@@ -19,6 +19,7 @@ layout(location = 0) in VSOutput
     vec2 fragTexCoord;
     vec3 fragNormal;
     vec3 fragTangent;
+    vec3 viewPos;
 }fs_in;
 //------------------------------------------------------------------------------ 
 // Output from Fragment Shader or Output to Framebuffer attachments
