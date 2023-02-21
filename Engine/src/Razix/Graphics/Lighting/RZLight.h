@@ -113,17 +113,17 @@ namespace Razix {
 
             // TODO: Add const to the get methods that are returning a reference
 
-            RAZIX_INLINE LightType& getType() { return m_LightData.type; }
-            void                    setType(LightType type) { m_LightData.type = type; }
+            RAZIX_INLINE LightType getType() { return m_LightData.type; }
+            void                   setType(LightType type) { m_LightData.type = type; }
 
             RAZIX_INLINE LightData& getLightData() { return m_LightData; }
             void                    setLightType(LightType type);
 
-            RAZIX_INLINE glm::vec3& getColor() { return m_LightData.color; }
-            void                    setColor(glm::vec3 color) { m_LightData.color = color; }
+            RAZIX_INLINE glm::vec3 getColor() { return m_LightData.color; }
+            void                   setColor(glm::vec3 color) { m_LightData.color = color; }
 
-            RAZIX_INLINE glm::vec3& getDirection() { return glm::vec3(m_LightData.direction); }
-            void                    setDirection(const glm::vec3& direction) { m_LightData.direction = glm::vec4(direction, 1.0f); }
+            RAZIX_INLINE glm::vec3 getDirection() { return glm::vec3(m_LightData.direction); }
+            void                   setDirection(const glm::vec3& direction) { m_LightData.direction = glm::vec4(direction, 1.0f); }
 
             inline LightType getLightType() { return m_LightData.type; }
 

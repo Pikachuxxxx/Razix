@@ -35,6 +35,7 @@ namespace Razix {
             void on_light_type_selected(int idx);
 
         private:
+            QColor             m_Color;
             Ui::LightComponent ui;
             Razix::RZEntity    m_Entity;
         };

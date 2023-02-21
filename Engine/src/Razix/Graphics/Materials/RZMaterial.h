@@ -90,6 +90,9 @@ namespace Razix {
             RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }
             RAZIX_INLINE void  setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
 
+            RAZIX_INLINE const std::string& getName() { return m_Name; }
+            RAZIX_INLINE void               setName(const std::string& name) { m_Name = name; }
+
             RAZIX_INLINE RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
 
             template<typename Archive>

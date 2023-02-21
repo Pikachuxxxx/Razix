@@ -8,15 +8,17 @@
 
 #include <QDoubleValidator>
 
+#include <glm/gtx/rotate_vector.hpp>
+
 namespace Razix {
     namespace Editor {
 
-        glm::vec3 RPYToDirectionVector(float roll, float pitch, float yaw)
+        // We take a initial direction for the Sun and it points exactly straight down
+        static const glm::vec3 initialLightDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+
+        glm::vec3 RotationToDirVector(float roll, float pitch, float yaw)
         {
-            float x = -cos(yaw) * sin(pitch) * sin(roll) - sin(yaw) * cos(roll);
-            float y = -sin(yaw) * sin(pitch) * sin(roll) + cos(yaw) * cos(roll);
-            float z = cos(pitch) * sin(roll);
-            return glm::vec3(x, y, z);
+            return glm::vec3(sin(roll), sin(pitch), sin(yaw));
         }
 
         RZETransformComponentUI::RZETransformComponentUI(QWidget* parent)
@@ -25,15 +27,15 @@ namespace Razix {
             ui.setupUi(this);
 
             // Accept only numerical input
-            ui.PosVal_X->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.PosVal_Y->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.PosVal_Z->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.RotVal_X->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.RotVal_Y->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.RotVal_Z->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.ScaleVal_X->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.ScaleVal_Y->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
-            ui.ScaleVal_Z->setValidator(new QDoubleValidator(-100.0, 100.0, 2, this));
+            ui.PosVal_X->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, ui.PosVal_X));
+            ui.PosVal_Y->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, ui.PosVal_Y));
+            ui.PosVal_Z->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, ui.PosVal_Z));
+            ui.RotVal_X->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
+            ui.RotVal_Y->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
+            ui.RotVal_Z->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
+            ui.ScaleVal_X->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
+            ui.ScaleVal_Y->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
+            ui.ScaleVal_Z->setValidator(new QDoubleValidator(-1000.0, 1000.0, 2, this));
 
             // mAKE CONNECTIONS TO REFLECT EDITING
             connect(ui.PosVal_X, SIGNAL(returnPressed()), this, SLOT(OnPosXEdited()));
@@ -63,9 +65,9 @@ namespace Razix {
             ui.PosVal_Y->setText(std::to_string(tc.Translation.y).c_str());
             ui.PosVal_Z->setText(std::to_string(tc.Translation.z).c_str());
 
-            ui.RotVal_X->setText(std::to_string(tc.Rotation.x).c_str());
-            ui.RotVal_Y->setText(std::to_string(tc.Rotation.y).c_str());
-            ui.RotVal_Z->setText(std::to_string(tc.Rotation.z).c_str());
+            ui.RotVal_X->setText(std::to_string(glm::degrees(tc.Rotation.x)).c_str());
+            ui.RotVal_Y->setText(std::to_string(glm::degrees(tc.Rotation.y)).c_str());
+            ui.RotVal_Z->setText(std::to_string(glm::degrees(tc.Rotation.z)).c_str());
 
             ui.ScaleVal_X->setText(std::to_string(tc.Scale.x).c_str());
             ui.ScaleVal_Y->setText(std::to_string(tc.Scale.y).c_str());
@@ -102,7 +104,7 @@ namespace Razix {
             // Set the light direction if the entity has a light component
             if (m_Entity.HasComponent<LightComponent>()) {
                 auto& lc = m_Entity.GetComponent<LightComponent>();
-                lc.light.setDirection(RPYToDirectionVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
+                lc.light.setDirection(RotationToDirVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
             }
         }
 
@@ -115,7 +117,7 @@ namespace Razix {
             // Set the light direction if the entity has a light component
             if (m_Entity.HasComponent<LightComponent>()) {
                 auto& lc = m_Entity.GetComponent<LightComponent>();
-                lc.light.setDirection(RPYToDirectionVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
+                lc.light.setDirection(RotationToDirVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
             }
         }
 
@@ -128,7 +130,7 @@ namespace Razix {
             // Set the light direction if the entity has a light component
             if (m_Entity.HasComponent<LightComponent>()) {
                 auto& lc = m_Entity.GetComponent<LightComponent>();
-                lc.light.setDirection(RPYToDirectionVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
+                lc.light.setDirection(RotationToDirVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
             }
         }
 
@@ -152,6 +154,5 @@ namespace Razix {
             auto& tc   = m_Entity.GetComponent<TransformComponent>();
             tc         = m_TC;
         }
-
     }    // namespace Editor
 }    // namespace Razix

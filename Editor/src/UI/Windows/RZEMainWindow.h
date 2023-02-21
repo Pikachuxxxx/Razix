@@ -3,6 +3,8 @@
 #include "generated/ui_RZEMainWindow.h"
 #include "generated/ui_RZEViewport.h"
 
+#include "UI/Windows/RZEMaterialEditor.h"
+
 #include "Razix/Core/RZApplication.h"
 
 #include <QCloseEvent>
@@ -50,6 +52,10 @@ namespace Razix {
             QWidget*       m_Viewport;
             QLabel*        m_FPSLblSB;
 
+            //------------------------
+            // Windows and Panels
+            RZEMaterialEditor* m_MaterialEditor;
+
         private:
             void SetupToolBars();
             // Toolbar settings
@@ -62,7 +68,9 @@ namespace Razix {
 
             void SetupMenu();
             void SetupCreateMenuCommands();
+            void SetupWindowsCommands();
             // Menu command functions
+            void Windows_MaterialEditor();
             void Create_Entity();
         };
     }    // namespace Editor
