@@ -20,6 +20,7 @@ layout(location = 0) in VSOutput
     vec2 fragTexCoord;
     vec3 fragNormal;
     vec3 fragTangent;
+    vec3 viewPos;
 }vs_in;
 //------------------------------------------------------------------------------
 // RTs
