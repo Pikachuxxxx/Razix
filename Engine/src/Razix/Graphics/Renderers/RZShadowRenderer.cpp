@@ -114,7 +114,7 @@ namespace Razix {
             const float clipRange = camera.getPerspectiveFarClip() - camera.getPerspectiveNearClip();
             // Get the cascade splits
             const auto cascadeSplits = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
-            const auto invViewProj   = glm::inverse(camera.getProjection() * camera.getViewMatrix());
+            const auto invViewProj   = glm::inverse(camera.getProjectionRaw() * camera.getViewMatrix());
 
             auto lastSplitDist = 0.0f;
 
@@ -314,7 +314,7 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {true, glm::vec4(kFarPlane)}};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {!cascadeIdx? true : false, glm::vec4(kFarPlane)}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!
