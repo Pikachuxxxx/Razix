@@ -169,7 +169,7 @@ namespace Razix {
                     // Bind the pipeline
                     m_RSMPipeline->Bind(cmdBuffer);
 
-                    // Update the View Proj descriptor set only once
+                    // Update the View Projection descriptor set only once
                     static bool setUpdated = false;
                     if (!setUpdated) {
                         auto& setInfos = shader->getSetsCreateInfos();
