@@ -23,9 +23,7 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZUniformBuffer*                 m_ModelViewProjectionSystemUBO = nullptr;
-            ModelViewProjectionSystemUBOData m_ModelViewProjSystemUBOData;
-            Graphics::RZDescriptorSet*       m_MVPDescriptorSet = nullptr;
+            RZDescriptorSet* m_FrameDataSet = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix
