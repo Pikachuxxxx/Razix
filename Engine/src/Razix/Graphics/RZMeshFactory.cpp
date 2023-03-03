@@ -19,6 +19,55 @@
 namespace Razix {
     namespace Graphics {
         namespace MeshFactory {
+
+            static RZMesh* ScreenMesh = nullptr;
+            static RZMesh* planeMesh  = nullptr;
+            static RZMesh* cubeMesh   = nullptr;
+            static RZMesh* sphereMesh = nullptr;
+
+#if 0
+            RZMesh* CreatePrimitive(MeshPrimitive primitive)
+            {
+                switch (primitive) {
+                    case MeshPrimitive::Plane: {
+                        if (planeMesh == nullptr)
+                            planeMesh = CreatePlane();
+                        return planeMesh;
+                    }
+                    case MeshPrimitive::ScreenQuad: {
+                        if (ScreenMesh == nullptr)
+                            ScreenMesh = CreateScreenQuad();
+                        return ScreenMesh;
+                    }
+                    case MeshPrimitive::Cube: {
+                        if (cubeMesh == nullptr)
+                            cubeMesh = CreateCube();
+                        return cubeMesh;
+                    }
+                    case MeshPrimitive::Pyramid:
+                        RAZIX_UNIMPLEMENTED_METHOD
+                        break;
+                    case MeshPrimitive::Sphere: {
+                        if (sphereMesh == nullptr)
+                            sphereMesh = CreateSphere();
+                        return sphereMesh;
+                    }
+                    case MeshPrimitive::Capsule:
+                        RAZIX_UNIMPLEMENTED_METHOD
+                        break;
+                    case MeshPrimitive::Cylinder:
+                        RAZIX_UNIMPLEMENTED_METHOD
+                        break;
+                    default: {
+                        if (cubeMesh == nullptr)
+                            cubeMesh = CreateCube();
+                        return cubeMesh;
+                    }
+                }
+                return nullptr;
+            }
+#endif
+
             RZMesh* CreatePrimitive(MeshPrimitive primitive)
             {
                 switch (primitive) {
@@ -226,7 +275,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
 
-                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+                auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -301,7 +350,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(vb, ib, static_cast<uint32_t>(data.size()), static_cast<uint32_t>(indices.size()));
 
-                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+                auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
