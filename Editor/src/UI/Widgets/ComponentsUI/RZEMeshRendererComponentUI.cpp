@@ -30,7 +30,7 @@ namespace Razix {
         void RZEMeshRendererComponentUI::on_mesh_type_selected(int meshType)
         {
             auto& mrc = m_Entity.GetComponent<MeshRendererComponent>();
-            mrc.Mesh->Destroy();
+            //mrc.Mesh->Destroy();
             mrc.Mesh = Razix::Graphics::MeshFactory::CreatePrimitive((Razix::Graphics::MeshPrimitive) meshType);
         }
 

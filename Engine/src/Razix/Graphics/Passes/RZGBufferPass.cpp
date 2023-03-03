@@ -108,7 +108,7 @@ namespace Razix {
 
                     };
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}};
-                    info.extent          = {1280, 720};    // {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize          = false;
 
                     RHI::BeginRendering(cmdBuffer, info);

@@ -59,7 +59,7 @@ namespace Razix {
 
             uploadFrameData(scene, settings);
 
-#if 1
+#if 0
 
             //-------------------------------
             // Cascaded Shadow Maps x
