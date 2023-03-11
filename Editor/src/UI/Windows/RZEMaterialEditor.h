@@ -27,9 +27,12 @@ namespace Razix {
             void setEditingMaterial(Razix::Graphics::RZMaterial* material);
 
         public slots:
+            // TODO: In Future use the reflection data to create the fields automatically, since we use a single Material this is perfectly acceptable
+            // Diffuse
             void on_diffuse_texture_select();
             void on_diffuse_texture_use_checkbox();
             void on_diffuse_color();
+            // Specular
 
         private:
             Ui::MaterialEditor           ui;
