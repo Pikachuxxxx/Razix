@@ -8,52 +8,48 @@ P2 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 2} }> style="ro
 P3 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
 
 R0_1 [label=<{ {<B>BRDF lut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
-R1_1 [label=<{ {<B>Diffuse Irradiance</B><BR/>(512, 512) - BGRA8_UNORM [CubeMap]} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
-R2_1 [label=<{ {<B>Specular PreFiltered</B><BR/>(512, 512) - BGRA8_UNORM [CubeMap]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
-R3_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 3<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R4_1 [label=<{ {<B>Scene HDR color</B><BR/>(1496, 390) - RGBA32 [RT]} | {Index: 4<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R5_1 [label=<{ {<B>Scene Depth</B><BR/>(1496, 390) - DEPTH [Depth]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R6_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 6<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R4_2 [label=<{ {<B>Scene HDR color</B>   <FONT>v2</FONT><BR/>(1496, 390) - RGBA32 [RT]} | {Index: 4<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R7_1 [label=<{ {<B>Present Image</B><BR/>(1496, 390) - Presentation [Swapchain Image]} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R8_1 [label=<{ {<B>Depth Texture</B><BR/>(1496, 390) - DEPTH [Depth]} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R9_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 9<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R10_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 10<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R1_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R2_1 [label=<{ {<B>Scene HDR color</B><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R3_1 [label=<{ {<B>Scene Depth</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R4_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 4<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R2_2 [label=<{ {<B>Scene HDR color</B>   <FONT>v2</FONT><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R5_1 [label=<{ {<B>Present Image</B><BR/>(1280, 720) - Presentation [Swapchain Image]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R6_1 [label=<{ {<B>Depth Texture</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R7_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R8_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
-P0 -> { R3_1 } [color=orangered]
-P1 -> { R4_1 R5_1 } [color=orangered]
-P2 -> { R4_2 R6_1 } [color=orangered]
-P3 -> { R7_1 R8_1 R9_1 R10_1 } [color=orangered]
+P0 -> { R1_1 } [color=orangered]
+P1 -> { R2_1 R3_1 } [color=orangered]
+P2 -> { R2_2 R4_1 } [color=orangered]
+P3 -> { R5_1 R6_1 R7_1 R8_1 } [color=orangered]
 
 R0_1 -> { } [color=olivedrab3]
-R1_1 -> { } [color=olivedrab3]
-R2_1 -> { } [color=olivedrab3]
-R3_1 -> { P1 } [color=olivedrab3]
-R4_1 -> { P2 } [color=olivedrab3]
+R1_1 -> { P1 } [color=olivedrab3]
+R2_1 -> { P2 } [color=olivedrab3]
+R3_1 -> { } [color=olivedrab3]
+R4_1 -> { P3 } [color=olivedrab3]
+R2_2 -> { P3 } [color=olivedrab3]
 R5_1 -> { } [color=olivedrab3]
-R6_1 -> { P3 } [color=olivedrab3]
-R4_2 -> { P3 } [color=olivedrab3]
+R6_1 -> { } [color=olivedrab3]
 R7_1 -> { } [color=olivedrab3]
 R8_1 -> { } [color=olivedrab3]
-R9_1 -> { } [color=olivedrab3]
-R10_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
-P0 R3_1 
+P0 R1_1 
 }
 subgraph cluster_1 {
-P1 R4_1 R5_1 
+P1 R2_1 R3_1 
 }
 subgraph cluster_2 {
-P2 R6_1 
+P2 R4_1 
 }
 subgraph cluster_3 {
-P3 R7_1 R8_1 R9_1 R10_1 
+P3 R5_1 R6_1 R7_1 R8_1 
 }
 
 subgraph cluster_imported_resources {
 graph [style=dotted, fontname="helvetica", label=< <B>Imported</B> >]
-R0_1 R1_1 R2_1 
+R0_1 
 }
 
 }
