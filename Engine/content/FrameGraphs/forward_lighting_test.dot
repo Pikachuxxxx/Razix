@@ -9,12 +9,12 @@ P3 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 3} }> st
 
 R0_1 [label=<{ {<B>BRDF lut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
 R1_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R2_1 [label=<{ {<B>Scene HDR color</B><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R3_1 [label=<{ {<B>Scene Depth</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R2_1 [label=<{ {<B>Scene HDR color</B><BR/>(1496, 390) - RGBA32 [RT]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R3_1 [label=<{ {<B>Scene Depth</B><BR/>(1496, 390) - DEPTH [Depth]} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R4_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 4<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R2_2 [label=<{ {<B>Scene HDR color</B>   <FONT>v2</FONT><BR/>(1280, 720) - RGBA32 [RT]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R5_1 [label=<{ {<B>Present Image</B><BR/>(1280, 720) - Presentation [Swapchain Image]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R6_1 [label=<{ {<B>Depth Texture</B><BR/>(1280, 720) - DEPTH [Depth]} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R2_2 [label=<{ {<B>Scene HDR color</B>   <FONT>v2</FONT><BR/>(1496, 390) - RGBA32 [RT]} | {Index: 2<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R5_1 [label=<{ {<B>Present Image</B><BR/>(1496, 390) - Presentation [Swapchain Image]} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R6_1 [label=<{ {<B>Depth Texture</B><BR/>(1496, 390) - DEPTH [Depth]} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R7_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R8_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 

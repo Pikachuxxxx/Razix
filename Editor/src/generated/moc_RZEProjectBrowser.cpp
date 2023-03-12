@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEProjectBrowser_t {
     QByteArrayData data[10];
-    char stringdata0[175];
+    char stringdata0[167];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,22 +33,22 @@ struct qt_meta_stringdata_Razix__Editor__RZEProjectBrowser_t {
 static const qt_meta_stringdata_Razix__Editor__RZEProjectBrowser_t qt_meta_stringdata_Razix__Editor__RZEProjectBrowser = {
     {
 QT_MOC_LITERAL(0, 0, 32), // "Razix::Editor::RZEProjectBrowser"
-QT_MOC_LITERAL(1, 33, 17), // "on_select_project"
-QT_MOC_LITERAL(2, 51, 0), // ""
-QT_MOC_LITERAL(3, 52, 16), // "QListWidgetItem*"
-QT_MOC_LITERAL(4, 69, 4), // "item"
-QT_MOC_LITERAL(5, 74, 22), // "on_new_project_pressed"
-QT_MOC_LITERAL(6, 97, 23), // "on_open_project_pressed"
-QT_MOC_LITERAL(7, 121, 17), // "on_browse_pressed"
-QT_MOC_LITERAL(8, 139, 17), // "on_create_pressed"
-QT_MOC_LITERAL(9, 157, 17) // "on_cancel_pressed"
+QT_MOC_LITERAL(1, 33, 16), // "on_SelectProject"
+QT_MOC_LITERAL(2, 50, 0), // ""
+QT_MOC_LITERAL(3, 51, 16), // "QListWidgetItem*"
+QT_MOC_LITERAL(4, 68, 4), // "item"
+QT_MOC_LITERAL(5, 73, 20), // "on_NewProjectPressed"
+QT_MOC_LITERAL(6, 94, 21), // "on_OpenProjectPressed"
+QT_MOC_LITERAL(7, 116, 16), // "on_BrowsePressed"
+QT_MOC_LITERAL(8, 133, 16), // "on_CreatePressed"
+QT_MOC_LITERAL(9, 150, 16) // "on_CancelPressed"
 
     },
     "Razix::Editor::RZEProjectBrowser\0"
-    "on_select_project\0\0QListWidgetItem*\0"
-    "item\0on_new_project_pressed\0"
-    "on_open_project_pressed\0on_browse_pressed\0"
-    "on_create_pressed\0on_cancel_pressed"
+    "on_SelectProject\0\0QListWidgetItem*\0"
+    "item\0on_NewProjectPressed\0"
+    "on_OpenProjectPressed\0on_BrowsePressed\0"
+    "on_CreatePressed\0on_CancelPressed"
 };
 #undef QT_MOC_LITERAL
 
@@ -90,12 +90,12 @@ void Razix::Editor::RZEProjectBrowser::qt_static_metacall(QObject *_o, QMetaObje
         auto *_t = static_cast<RZEProjectBrowser *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->on_select_project((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 1: _t->on_new_project_pressed(); break;
-        case 2: _t->on_open_project_pressed(); break;
-        case 3: _t->on_browse_pressed(); break;
-        case 4: _t->on_create_pressed(); break;
-        case 5: _t->on_cancel_pressed(); break;
+        case 0: _t->on_SelectProject((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 1: _t->on_NewProjectPressed(); break;
+        case 2: _t->on_OpenProjectPressed(); break;
+        case 3: _t->on_BrowsePressed(); break;
+        case 4: _t->on_CreatePressed(); break;
+        case 5: _t->on_CancelPressed(); break;
         default: ;
         }
     }

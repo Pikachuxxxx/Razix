@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEMainWindow_t {
-    QByteArrayData data[10];
-    char stringdata0[166];
+    QByteArrayData data[15];
+    char stringdata0[240];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -35,20 +35,27 @@ static const qt_meta_stringdata_Razix__Editor__RZEMainWindow_t qt_meta_stringdat
 QT_MOC_LITERAL(0, 0, 28), // "Razix::Editor::RZEMainWindow"
 QT_MOC_LITERAL(1, 29, 20), // "OnEntityAddedToScene"
 QT_MOC_LITERAL(2, 50, 0), // ""
-QT_MOC_LITERAL(3, 51, 23), // "on_save_project_pressed"
-QT_MOC_LITERAL(4, 75, 21), // "on_render_api_changed"
-QT_MOC_LITERAL(5, 97, 5), // "index"
-QT_MOC_LITERAL(6, 103, 20), // "set_translate_guizmo"
-QT_MOC_LITERAL(7, 124, 17), // "set_rotate_guizmo"
-QT_MOC_LITERAL(8, 142, 16), // "set_scale_guizmo"
-QT_MOC_LITERAL(9, 159, 6) // "update"
+QT_MOC_LITERAL(3, 51, 21), // "on_SaveProjectPressed"
+QT_MOC_LITERAL(4, 73, 21), // "on_OpenProjectPressed"
+QT_MOC_LITERAL(5, 95, 20), // "on_NewProjectPressed"
+QT_MOC_LITERAL(6, 116, 12), // "on_SaveScene"
+QT_MOC_LITERAL(7, 129, 12), // "on_LoadScene"
+QT_MOC_LITERAL(8, 142, 11), // "on_NewScene"
+QT_MOC_LITERAL(9, 154, 19), // "on_RenderAPIChanged"
+QT_MOC_LITERAL(10, 174, 5), // "index"
+QT_MOC_LITERAL(11, 180, 19), // "set_TranslateGuizmo"
+QT_MOC_LITERAL(12, 200, 16), // "set_RotateGuizmo"
+QT_MOC_LITERAL(13, 217, 15), // "set_ScaleGuizmo"
+QT_MOC_LITERAL(14, 233, 6) // "update"
 
     },
     "Razix::Editor::RZEMainWindow\0"
-    "OnEntityAddedToScene\0\0on_save_project_pressed\0"
-    "on_render_api_changed\0index\0"
-    "set_translate_guizmo\0set_rotate_guizmo\0"
-    "set_scale_guizmo\0update"
+    "OnEntityAddedToScene\0\0on_SaveProjectPressed\0"
+    "on_OpenProjectPressed\0on_NewProjectPressed\0"
+    "on_SaveScene\0on_LoadScene\0on_NewScene\0"
+    "on_RenderAPIChanged\0index\0set_TranslateGuizmo\0"
+    "set_RotateGuizmo\0set_ScaleGuizmo\0"
+    "update"
 };
 #undef QT_MOC_LITERAL
 
@@ -58,7 +65,7 @@ static const uint qt_meta_data_Razix__Editor__RZEMainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       7,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -66,22 +73,32 @@ static const uint qt_meta_data_Razix__Editor__RZEMainWindow[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   49,    2, 0x06 /* Public */,
+       1,    0,   74,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       3,    0,   50,    2, 0x0a /* Public */,
-       4,    1,   51,    2, 0x0a /* Public */,
-       6,    0,   54,    2, 0x0a /* Public */,
-       7,    0,   55,    2, 0x0a /* Public */,
-       8,    0,   56,    2, 0x0a /* Public */,
-       9,    0,   57,    2, 0x0a /* Public */,
+       3,    0,   75,    2, 0x0a /* Public */,
+       4,    0,   76,    2, 0x0a /* Public */,
+       5,    0,   77,    2, 0x0a /* Public */,
+       6,    0,   78,    2, 0x0a /* Public */,
+       7,    0,   79,    2, 0x0a /* Public */,
+       8,    0,   80,    2, 0x0a /* Public */,
+       9,    1,   81,    2, 0x0a /* Public */,
+      11,    0,   84,    2, 0x0a /* Public */,
+      12,    0,   85,    2, 0x0a /* Public */,
+      13,    0,   86,    2, 0x0a /* Public */,
+      14,    0,   87,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    5,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,   10,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -97,12 +114,17 @@ void Razix::Editor::RZEMainWindow::qt_static_metacall(QObject *_o, QMetaObject::
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->OnEntityAddedToScene(); break;
-        case 1: _t->on_save_project_pressed(); break;
-        case 2: _t->on_render_api_changed((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 3: _t->set_translate_guizmo(); break;
-        case 4: _t->set_rotate_guizmo(); break;
-        case 5: _t->set_scale_guizmo(); break;
-        case 6: _t->update(); break;
+        case 1: _t->on_SaveProjectPressed(); break;
+        case 2: _t->on_OpenProjectPressed(); break;
+        case 3: _t->on_NewProjectPressed(); break;
+        case 4: _t->on_SaveScene(); break;
+        case 5: _t->on_LoadScene(); break;
+        case 6: _t->on_NewScene(); break;
+        case 7: _t->on_RenderAPIChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 8: _t->set_TranslateGuizmo(); break;
+        case 9: _t->set_RotateGuizmo(); break;
+        case 10: _t->set_ScaleGuizmo(); break;
+        case 11: _t->update(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -146,13 +168,13 @@ int Razix::Editor::RZEMainWindow::qt_metacall(QMetaObject::Call _c, int _id, voi
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 7)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 7;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 7)
+        if (_id < 12)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 7;
+        _id -= 12;
     }
     return _id;
 }

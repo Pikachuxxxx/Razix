@@ -40,6 +40,11 @@ namespace Razix {
          */
         void destroyEntity(RZEntity entity);
 
+        /* Utility method to save the scene */
+        void saveScene();
+        /* Reloads the scene by re-reading the scene file and initializing everything from scratch */
+        void reloadScene();
+
         /* Serialize the scene to the given file path */
         void serialiseScene(const std::string& filePath);
         /* De-Serialize the scene from the given file path */
@@ -55,26 +60,13 @@ namespace Razix {
         std::vector<T> GetComponentsOfType()
         {
             std::vector<T> components;
-            
+
             auto view = m_Registry.view<T>();
             for (auto& entity: view)
                 components.push_back(view.get<T>(entity));
 
             return components;
         }
-
-        // TODO: Add ability to query for multiple components types followed by a comma
-        //template<typename T>
-        //std::vector<RZEntity> GetEntitiesWithComponentsOfType()
-        //{
-        //    std::vector<RZEntity> entities;
-        //    auto view = m_Registry.view<T>();
-        //    for (auto entity : view) {
-        //        entities.push_back(RZEntity(entity, this));
-        //    }
-        //
-        //    return entities;
-        //}
 
         /* Gets the name of the scene */
         RAZIX_INLINE const std::string& getSceneName() const { return m_SceneName; }
@@ -102,8 +94,8 @@ namespace Razix {
     private:
         entt::registry m_Registry;                  /* Scene registry for storing all the entities  */
         RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
-        std::string    m_SceneName = "razix scene"; /* The name of the scene                        */
-
+        std::string    m_SceneName = "Razix Scene"; /* The name of the scene                        */
+        std::string    m_ScenePath;                 /* The Path of the scene file                   */
         friend class RZEntity;
 
     private:
