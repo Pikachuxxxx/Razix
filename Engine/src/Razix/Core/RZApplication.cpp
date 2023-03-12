@@ -510,7 +510,7 @@ namespace Razix {
         // Engine Stats
         {
             ImFont* font = ImGui::GetFont();
-            font->Scale  = 0.90f;
+            font->Scale  = 1.0f;
             ImGui::PushFont(font);
 
             // Engine stats

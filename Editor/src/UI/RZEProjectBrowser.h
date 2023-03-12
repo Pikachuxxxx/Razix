@@ -20,13 +20,13 @@ namespace Razix {
             const std::string& getProjectName() const { return m_ProjectName; }
             const std::string& getProjectPath() const { return m_ProjectPath; }
         public slots:
-            void on_select_project(QListWidgetItem* item);
-            void on_new_project_pressed();
-            void on_open_project_pressed();
+            void on_SelectProject(QListWidgetItem* item);
+            void on_NewProjectPressed();
+            void on_OpenProjectPressed();
             // new project slots
-            void on_browse_pressed();
-            void on_create_pressed();
-            void on_cancel_pressed();
+            void on_BrowsePressed();
+            void on_CreatePressed();
+            void on_CancelPressed();
 
         private:
             Ui::RZEProjectBrowser ui;

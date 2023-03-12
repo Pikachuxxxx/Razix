@@ -30,7 +30,7 @@ DECLARE_LIGHT_BUFFER(2, 0, lightBuffer)
 layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // Functions
-// Dir light
+// Directional light Calculation
 vec3 CalcDirLight(LightData light, vec3 normal)
 {
     // Ambient
@@ -42,15 +42,15 @@ vec3 CalcDirLight(LightData light, vec3 normal)
     vec3 diffuse = diff * light.color * vec3(texture(albedoMap, fs_in.fragTexCoord));
      
     // Specular shading
-    vec3 viewDir = normalize(-fs_in.fragPos);
-    vec3 reflectDir = reflect(lightDir, normal);
+    vec3 viewDir = normalize(fs_in.viewPos - fs_in.fragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = spec * vec3(texture(metallicMap, fs_in.fragTexCoord));
 
     // combine results
     return ambient + diffuse + specular;
 }  
-// Point Light
+// Point Light Calculation
 /**
  * Calculates the point light contribution 
  *

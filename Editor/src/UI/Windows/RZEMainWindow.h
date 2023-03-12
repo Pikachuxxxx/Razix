@@ -40,11 +40,19 @@ namespace Razix {
             void OnEntityAddedToScene();
 
         public slots:
-            void on_save_project_pressed();
-            void on_render_api_changed(int index);
-            void set_translate_guizmo();
-            void set_rotate_guizmo();
-            void set_scale_guizmo();
+            // Project toolbar
+            void on_SaveProjectPressed();
+            void on_OpenProjectPressed();
+            void on_NewProjectPressed();
+            // Scene toolbar
+            void on_SaveScene();
+            void on_LoadScene();
+            void on_NewScene();
+
+            void on_RenderAPIChanged(int index);
+            void set_TranslateGuizmo();
+            void set_RotateGuizmo();
+            void set_ScaleGuizmo();
             void update();
 
         private:
