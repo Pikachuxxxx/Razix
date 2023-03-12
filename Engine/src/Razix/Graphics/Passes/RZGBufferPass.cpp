@@ -23,6 +23,8 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
+#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
+
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
@@ -44,22 +46,6 @@ namespace Razix {
                 m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("GBuffer Command Buffers"));
             }
 
-            // Create the descriptor sets to hold the MVP and Material Info
-
-            m_ModelViewProjectionSystemUBO = RZUniformBuffer::Create(sizeof(ModelViewProjectionSystemUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GBuffer Pass UBO"));
-
-            auto setInfos = shader->getSetsCreateInfos();
-            for (auto& setInfo: setInfos) {
-                for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
-                        if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
-                            descriptor.uniformBuffer = m_ModelViewProjectionSystemUBO;
-                            m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GBuffer Pass Set"));
-                        }
-                    }
-                }
-            }
-
             // Create the Pipeline
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
@@ -77,6 +63,8 @@ namespace Razix {
             pipelineInfo.depthFormat = Graphics::RZTexture::Format::DEPTH16_UNORM;
 
             m_Pipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer pipeline"));
+
+            auto& frameDataBlock = blackboard.get<FrameData>();
 
             blackboard.add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
                 "GBuffer",
@@ -98,6 +86,8 @@ namespace Razix {
                     data.Emissive      = builder.write(data.Emissive);
                     data.MetRougAOSpec = builder.write(data.MetRougAOSpec);
                     data.Depth         = builder.write(data.Depth);
+
+                    builder.read(frameDataBlock.frameData);
                 },
                 [=](const GBufferData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -118,21 +108,28 @@ namespace Razix {
 
                     };
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}};
-                    info.extent          = {1280, 720};    // {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize          = false;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
                     m_Pipeline->Bind(cmdBuffer);
 
-                    // Update the ViewProj matrix using the data from the camera
-                    auto& camera     = scene->getSceneCamera();
-                    auto  view       = camera.getViewMatrix();
-                    auto  projection = camera.getProjection();
-                    if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
-                        projection[1][1] *= -1;
+                    // Set the Descriptor Set once rendering starts
+                    auto        frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
+                    static bool updatedSets     = false;
+                    if (!updatedSets) {
+                        RZDescriptor descriptor{};
+                        descriptor.offset              = 0;
+                        descriptor.size                = sizeof(GPUFrameData);
+                        descriptor.bindingInfo.binding = 0;
+                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
+                        descriptor.uniformBuffer       = frameDataBuffer;
+                        m_FrameDataSet                 = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameDataSet GBuffer"));
 
-                    m_ModelViewProjSystemUBOData.viewProjection = projection * view;
+                        updatedSets = true;
+                    }
 
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
                     auto& group = scene->getRegistry().group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
@@ -141,19 +138,36 @@ namespace Razix {
 
                         auto& meshes = model.getMeshes();
 
+                        // Bind push constants, VBO, IBO and draw
                         glm::mat4 transform = trans.GetTransform();
 
-                        m_ModelViewProjSystemUBOData.model = transform;
-                        m_ModelViewProjectionSystemUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &m_ModelViewProjSystemUBOData);
+                        //-----------------------------
+                        // Get the shader from the Mesh Material later
+                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                        auto& modelMatrix = shader->getPushConstants()[0];
+
+                        struct PCD
+                        {
+                            glm::mat4 mat;
+                        } pcData;
+                        pcData.mat       = transform;
+                        modelMatrix.data = &pcData;
+                        modelMatrix.size = sizeof(PCD);
+
+                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                        Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
+                        //-----------------------------
 
                         // Bind IBO and VBO
                         for (auto& mesh: meshes) {
                             mesh->getVertexBuffer()->Bind(cmdBuffer);
                             mesh->getIndexBuffer()->Bind(cmdBuffer);
 
+                            mesh->getMaterial()->Bind();
+
                             // Combine System Desc sets with material sets and Bind them
-                            std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mesh->getMaterial()->getDescriptorSet()};
-                            Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
+                            std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet()};
+                            Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                             Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
                         }
@@ -169,19 +183,33 @@ namespace Razix {
                         // Bind push constants, VBO, IBO and draw
                         glm::mat4 transform = mesh_trans.GetTransform();
 
-                        m_ModelViewProjSystemUBOData.model = transform;
-                        m_ModelViewProjectionSystemUBO->SetData(sizeof(ModelViewProjectionSystemUBOData), &m_ModelViewProjSystemUBOData);
+                        //-----------------------------
+                        // Get the shader from the Mesh Material later
+                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                        auto& modelMatrix = shader->getPushConstants()[0];
+
+                        struct PCD
+                        {
+                            glm::mat4 mat;
+                        } pcData;
+                        pcData.mat       = transform;
+                        modelMatrix.data = &pcData;
+                        modelMatrix.size = sizeof(PCD);
+
+                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                        Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
+                        //-----------------------------
 
                         // Combine System Desc sets with material sets and Bind them
-                        std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mrc.Mesh->getMaterial()->getDescriptorSet()};
-
-                        Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, SystemMat);
+                        std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet()};
+                        Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
                         Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
+
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 
                     RAZIX_MARK_END();

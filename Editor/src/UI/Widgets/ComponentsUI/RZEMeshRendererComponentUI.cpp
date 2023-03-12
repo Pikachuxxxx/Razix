@@ -4,9 +4,9 @@
 
 #include "RZEMeshRendererComponentUI.h"
 
-#include "Razix/Scene/Components/MeshRendererComponent.h"
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Scene/Components/MeshRendererComponent.h"
 
 namespace Razix {
     namespace Editor {
@@ -30,8 +30,9 @@ namespace Razix {
         void RZEMeshRendererComponentUI::on_mesh_type_selected(int meshType)
         {
             auto& mrc = m_Entity.GetComponent<MeshRendererComponent>();
-            mrc.Mesh->Destroy();
+            //Graphics::RZMesh* oldMesh = mrc.Mesh;
             mrc.Mesh = Razix::Graphics::MeshFactory::CreatePrimitive((Razix::Graphics::MeshPrimitive) meshType);
+            //oldMesh->Destroy();
         }
 
         void RZEMeshRendererComponentUI::OnMeshLocationEdited()
@@ -49,6 +50,5 @@ namespace Razix {
         void RZEMeshRendererComponentUI::OnBrowseMaterial()
         {
         }
-
     }    // namespace Editor
 }    // namespace Razix

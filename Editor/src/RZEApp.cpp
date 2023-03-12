@@ -148,9 +148,17 @@ private:
         // Add some model entities
         auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
         if (!modelEnitties.size()) {
+#if 1
             // Avocado
             auto& armadilloModelEntity = activeScene->createEntity("Avocado");
             armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
+#endif
+
+#if 0
+            // since Avocado is already there we load Sponza
+            auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
+            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Sponza/Sponza.gltf");
+#endif
         }
 
         //auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();

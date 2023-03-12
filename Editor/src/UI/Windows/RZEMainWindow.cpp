@@ -28,8 +28,6 @@ namespace Razix {
             // Link the UI file with this class
             ui.setupUi(this);
 
-            // connect save button to RZApplication::save function
-
             // Add a label to status bar to show FPS
             QTimer* timer = new QTimer(this);
             connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -61,26 +59,47 @@ namespace Razix {
         }
 
         //------------------------------------------------------------------------------------------------
-        void RZEMainWindow::on_save_project_pressed()
+        void RZEMainWindow::on_SaveProjectPressed()
         {
             RZApplication::Get().SaveApp();
         }
 
-        void RZEMainWindow::on_render_api_changed(int index)
+        void RZEMainWindow::on_OpenProjectPressed()
         {
         }
 
-        void RZEMainWindow::set_translate_guizmo()
+        void RZEMainWindow::on_NewProjectPressed()
+        {
+        }
+
+        void RZEMainWindow::on_SaveScene()
+        {
+            RZEngine::Get().getSceneManager().getCurrentScene()->saveScene();
+        }
+
+        void RZEMainWindow::on_LoadScene()
+        {
+        }
+
+        void RZEMainWindow::on_NewScene()
+        {
+        }
+
+        void RZEMainWindow::on_RenderAPIChanged(int index)
+        {
+        }
+
+        void RZEMainWindow::set_TranslateGuizmo()
         {
             RZApplication::Get().setGuizmoOperation(ImGuizmo::TRANSLATE);
         }
 
-        void RZEMainWindow::set_rotate_guizmo()
+        void RZEMainWindow::set_RotateGuizmo()
         {
             RZApplication::Get().setGuizmoOperation(ImGuizmo::ROTATE);
         }
 
-        void RZEMainWindow::set_scale_guizmo()
+        void RZEMainWindow::set_ScaleGuizmo()
         {
             RZApplication::Get().setGuizmoOperation(ImGuizmo::SCALE);
         }
@@ -123,7 +142,7 @@ namespace Razix {
             this->addToolBar(m_ProjectSettingsTB);
 
             // Connection for toolbar
-            connect(saveProjectButton, SIGNAL(clicked()), this, SLOT(on_save_project_pressed()));
+            connect(saveProjectButton, SIGNAL(clicked()), this, SLOT(on_SaveProjectPressed()));
         }
 
         void RZEMainWindow::create_scene_tb()
@@ -147,6 +166,9 @@ namespace Razix {
             m_SceneSettingsTB->addWidget(newButton);
 
             this->addToolBar(m_SceneSettingsTB);
+
+            // Connections for Save/Load/Open scene
+            connect(saveButton, SIGNAL(clicked()), this, SLOT(on_SaveScene()));
         }
 
         void RZEMainWindow::create_transform_tb()
@@ -177,9 +199,9 @@ namespace Razix {
 
             this->addToolBar(transformTB);
 
-            connect(pos, SIGNAL(clicked()), this, SLOT(set_translate_guizmo()));
-            connect(rot, SIGNAL(clicked()), this, SLOT(set_rotate_guizmo()));
-            connect(scale, SIGNAL(clicked()), this, SLOT(set_scale_guizmo()));
+            connect(pos, SIGNAL(clicked()), this, SLOT(set_TranslateGuizmo()));
+            connect(rot, SIGNAL(clicked()), this, SLOT(set_RotateGuizmo()));
+            connect(scale, SIGNAL(clicked()), this, SLOT(set_ScaleGuizmo()));
         }
 
         void RZEMainWindow::create_shading_modes_tb()
@@ -211,13 +233,15 @@ namespace Razix {
             this->addToolBar(m_RenderSettingsTB);
 
             // Connection for the selection
-            connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_render_api_changed(int)));
+            connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_RenderAPIChanged(int)));
         }
 
         void RZEMainWindow::SetupMenu()
         {
             // Create Menu commands
             SetupCreateMenuCommands();
+            // Setup the Window Commands
+            SetupWindowsCommands();
         }
 
         void RZEMainWindow::SetupCreateMenuCommands()

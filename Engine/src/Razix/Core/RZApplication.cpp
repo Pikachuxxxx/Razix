@@ -462,10 +462,14 @@ namespace Razix {
 #endif
         }
 
-        // Draw the Grid using ImGui
-        glm::mat4 identity = glm::mat4(1.0f);
-        auto&     cam      = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
-        ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 100.f);
+#if 0
+        {
+	        // Draw the Grid using ImGui
+	        glm::mat4 identity = glm::mat4(1.0f);
+	        auto&     cam      = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
+	        ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 100.f);
+        }
+#endif
 
         ImGui::SetNextWindowBgAlpha(0.1f);    // Transparent background
         ImGui::Begin("Icons Test");
@@ -506,7 +510,7 @@ namespace Razix {
         // Engine Stats
         {
             ImFont* font = ImGui::GetFont();
-            font->Scale  = 0.90f;
+            font->Scale  = 1.0f;
             ImGui::PushFont(font);
 
             // Engine stats

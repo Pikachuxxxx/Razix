@@ -73,6 +73,15 @@ namespace Razix {
         m_Registry.destroy(entity);
     }
 
+    void RZScene::saveScene()
+    {
+        serialiseScene(m_ScenePath);
+    }
+
+    void RZScene::reloadScene()
+    {
+    }
+
     void RZScene::serialiseScene(const std::string& filePath)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
@@ -98,6 +107,9 @@ namespace Razix {
     void RZScene::deSerialiseScene(const std::string& filePath)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
+        // Cache the scene file path
+        m_ScenePath = filePath;    // Remember this is a VFS path
 
         std::string fullFilePath;
         RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, fullFilePath);

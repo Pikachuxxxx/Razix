@@ -94,6 +94,7 @@ namespace Razix {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_MESH_RENDERER;
                 this->getBoxLayout().insertWidget(idx, m_MeshRendererComponentSection);
                 m_MeshRendererComponentSection->setVisible(true);
+                m_MeshRendererComponentUI->setEditingEntity(entity);
                 idx++;
             }
             if (entity.HasComponent<SpriteRendererComponent>()) {

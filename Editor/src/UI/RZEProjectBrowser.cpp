@@ -16,15 +16,15 @@ namespace Razix {
             // setup the ui file
             newproject_ui.setupUi(m_NewProjectDialog);
             // Browse Btn hook it up to a QFileDialog to browse a path
-            connect(newproject_ui.BrowseBtn, SIGNAL(pressed()), this, SLOT(on_browse_pressed()));
+            connect(newproject_ui.BrowseBtn, SIGNAL(pressed()), this, SLOT(on_BrowsePressed()));
             // Create won't do anything for now just closes
-            connect(newproject_ui.CreateBtn, SIGNAL(pressed()), this, SLOT(on_create_pressed()));
-            connect(newproject_ui.CancelBtn, SIGNAL(pressed()), this, SLOT(on_cancel_pressed()));
+            connect(newproject_ui.CreateBtn, SIGNAL(pressed()), this, SLOT(on_CreatePressed()));
+            connect(newproject_ui.CancelBtn, SIGNAL(pressed()), this, SLOT(on_CancelPressed()));
 
-            connect(ui.NewProjectBtn, SIGNAL(clicked()), this, SLOT(on_new_project_pressed()));
-            connect(ui.OpenProjectBtn, SIGNAL(clicked()), this, SLOT(on_open_project_pressed()));
+            connect(ui.NewProjectBtn, SIGNAL(clicked()), this, SLOT(on_NewProjectPressed()));
+            connect(ui.OpenProjectBtn, SIGNAL(clicked()), this, SLOT(on_OpenProjectPressed()));
 
-            connect(ui.projects_history_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(on_select_project(QListWidgetItem*)));
+            connect(ui.projects_history_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(on_SelectProject(QListWidgetItem*)));
 
             // Add a default project for debugging
             ui.projects_history_list->addItem(QString("C:/Dev/Game Engines/Razix/Sandbox/RendererTest_ForwardRenderer.razixproject"));
@@ -36,18 +36,18 @@ namespace Razix {
         {
         }
 
-        void RZEProjectBrowser::on_select_project(QListWidgetItem* item)
+        void RZEProjectBrowser::on_SelectProject(QListWidgetItem* item)
         {
             this->accept();
             this->done(true);
         }
 
-        void RZEProjectBrowser::on_new_project_pressed()
+        void RZEProjectBrowser::on_NewProjectPressed()
         {
             m_NewProjectDialog->exec();
         }
 
-        void RZEProjectBrowser::on_open_project_pressed()
+        void RZEProjectBrowser::on_OpenProjectPressed()
         {
             auto fileName = QFileDialog::getOpenFileName(this, "Select Razix Project File", "", tr("Razix Project Files (*.razixproject)"));
             ui.projects_history_list->addItem(fileName);
@@ -59,13 +59,13 @@ namespace Razix {
             m_ProjectName      = fileNameExt.substr(0, lastindex);
         }
 
-        void RZEProjectBrowser::on_browse_pressed()
+        void RZEProjectBrowser::on_BrowsePressed()
         {
             auto fileName = QFileDialog::getExistingDirectory(this, "Select Razix Project Directory");
             newproject_ui.ProjectPath->setText(fileName);
         }
 
-        void RZEProjectBrowser::on_create_pressed()
+        void RZEProjectBrowser::on_CreatePressed()
         {
             m_ProjectName = newproject_ui.ProjectNameLineEdit->text().toStdString();
             m_ProjectPath = newproject_ui.ProjectPath->text().toStdString();
@@ -73,10 +73,9 @@ namespace Razix {
             m_NewProjectDialog->accept();
         }
 
-        void RZEProjectBrowser::on_cancel_pressed()
+        void RZEProjectBrowser::on_CancelPressed()
         {
             m_NewProjectDialog->reject();
         }
-
     }    // namespace Editor
 }    // namespace Razix

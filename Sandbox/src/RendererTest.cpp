@@ -3,10 +3,10 @@
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-class RendererTest_GridRenderer : public Razix::RZApplication
+class RendererTest : public Razix::RZApplication
 {
 public:
-    RendererTest_GridRenderer()
+    RendererTest()
         : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "FrameGraphTest")
     {
         //-------------------------------------------------------------------------------------
@@ -27,17 +27,19 @@ public:
         //-------------------------------------------------------------------------------------
     }
 
-    ~RendererTest_GridRenderer() {}
+    ~RendererTest() {}
 
     void OnStart() override
     {
         // Add some model entities
+#if 0
         auto& modelEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
-        if (!modelEnitties.size()) {
-            // Avocado
-            auto& armadilloModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Avocado Model");
-            armadilloModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Avocado.gltf");
+        if (modelEnitties.size() == 1) {
+            // since Avocado is already there we load Sponza
+            auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
+            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Sponza/Sponza.gltf");
         }
+#endif
 
         // Add a directional light for test
         auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
@@ -77,7 +79,7 @@ public:
 Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Sandbox Application");
-    return new RendererTest_GridRenderer();
+    return new RendererTest();
 }
 
 void main(int argc, char** argv)
