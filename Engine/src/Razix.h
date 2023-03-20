@@ -1,9 +1,11 @@
 #pragma once
 
 // Core
+// clang-format off
+#include "Razix/Core/RZCore.h"
+// clang-format on
 #include "Razix/Core/IRZSystem.h"
 #include "Razix/Core/RZApplication.h"
-#include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZSmartPointers.h"
@@ -53,9 +55,9 @@
 #include "Razix/Graphics/RZSprite.h"
 
 // Scene
+#include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
-#include "Razix/Scene/Components/RZComponents.h"
 
 // Utilities
 #include "Razix/Utilities/LoadImage.h"

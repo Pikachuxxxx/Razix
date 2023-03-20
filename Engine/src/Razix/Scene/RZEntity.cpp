@@ -83,6 +83,11 @@ namespace Razix {
         return children;
     }
 
+    RZEntity::operator bool() const
+    {
+        return m_Entity != entt::null;
+    }
+
     bool RZEntity::IsParent(RZEntity potentialParent)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
