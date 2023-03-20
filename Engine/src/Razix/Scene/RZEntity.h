@@ -75,7 +75,7 @@ namespace Razix {
 
         entt::entity entity() { return m_Entity; }
 
-        operator bool() const { return m_Entity != entt::null; }
+        operator bool() const;
         operator entt::entity() const { return m_Entity; }
         operator uint32_t() const { return (uint32_t) m_Entity; }
 
@@ -83,7 +83,7 @@ namespace Razix {
         bool operator!=(const RZEntity& other) const { return !(*this == other); }
 
     private:
-        entt::entity m_Entity{entt::null};
+        entt::entity m_Entity;
         RZScene*     m_Scene = nullptr;
     };
 }    // namespace Razix
