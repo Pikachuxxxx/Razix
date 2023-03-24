@@ -190,7 +190,7 @@ namespace Razix {
                 struct PCD
                 {
                     glm::mat4 mat;
-                } pcData;
+                } pcData{};
                 pcData.mat       = transform;
                 modelMatrix.data = &pcData;
                 modelMatrix.size = sizeof(PCD);
@@ -198,7 +198,7 @@ namespace Razix {
                 // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
                 Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
                 //-----------------------------
-                
+
                 // Combine System Desc sets with material sets and Bind them
                 std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};
                 Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);

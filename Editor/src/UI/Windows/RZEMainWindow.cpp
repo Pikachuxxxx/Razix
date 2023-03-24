@@ -47,10 +47,6 @@ namespace Razix {
             ui.statusbar->addWidget(widget, 1);
             ui.statusbar->setContentsMargins(0, 0, 0, 0);
 
-            // Init the Windows
-            m_MaterialEditor = new RZEMaterialEditor;
-            ui.toolWindowManager->addToolWindow(m_MaterialEditor, ToolWindowManager::AreaReference(ToolWindowManager::RightWindowSide));
-
             // Menu Init
             SetupMenu();
 
@@ -256,15 +252,14 @@ namespace Razix {
 
         void RZEMainWindow::Windows_MaterialEditor()
         {
-            if (m_MaterialEditor->isHidden())
-                m_MaterialEditor->show();
+            
         }
 
         void RZEMainWindow::Create_Entity()
         {
             // Create an entity
             auto& entity = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Entity");
-            entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Sphere);
+            entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
             // Update the scene hierarchy panel to re-draw
             emit OnEntityAddedToScene();
         }

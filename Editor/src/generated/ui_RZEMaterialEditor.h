@@ -55,7 +55,7 @@ public:
     QCheckBox *useDiffuseTexure;
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_5;
-    QLineEdit *diffuseColor;
+    QPushButton *diffuseColor;
     QSpacerItem *horizontalSpacer_3;
     QGroupBox *groupBox_3;
     QHBoxLayout *horizontalLayout_8;
@@ -252,8 +252,9 @@ public:
 
         horizontalLayout_4->addWidget(label_5);
 
-        diffuseColor = new QLineEdit(groupBox);
+        diffuseColor = new QPushButton(groupBox);
         diffuseColor->setObjectName(QString::fromUtf8("diffuseColor"));
+        diffuseColor->setMinimumSize(QSize(100, 0));
 
         horizontalLayout_4->addWidget(diffuseColor);
 
@@ -564,6 +565,7 @@ public:
         diffuseTexture->setText(QString());
         useDiffuseTexure->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_5->setText(QCoreApplication::translate("MaterialEditor", "Color", nullptr));
+        diffuseColor->setText(QString());
         groupBox_3->setTitle(QCoreApplication::translate("MaterialEditor", "Normal", nullptr));
         pushButton_3->setText(QString());
         checkBox_3->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
