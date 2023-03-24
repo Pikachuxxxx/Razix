@@ -3,6 +3,7 @@
 // clang-format on
 #include "VKShader.h"
 
+#include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"

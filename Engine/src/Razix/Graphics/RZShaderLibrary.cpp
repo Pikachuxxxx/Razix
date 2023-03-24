@@ -72,6 +72,7 @@ namespace Razix {
                     return shader;
 
             // TODO: If fails load it by searching all the VFS or return a default shader
+            return nullptr;
         }
     }    // namespace Graphics
 }    // namespace Razix

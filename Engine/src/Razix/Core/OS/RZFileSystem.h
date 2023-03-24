@@ -1,7 +1,5 @@
 #pragma once
 
-#include "rzxpch.h"
-
 namespace Razix {
     /**
      * Provides a OS independent interface to Interact with the files stored on the host

@@ -228,7 +228,7 @@ namespace Razix {
         uint32_t                 m_RenderAPI;                        /* The Render API being used to render the application      */
         uint32_t                 m_Frames  = 0;                      /* The number of frames per second                          */
         uint32_t                 m_Updates = 0;                      /* The number of updated per second                         */
-        UniqueRef<RZTimer>       m_Timer;                            /* The timer used to calculate the delta time and timesteps */
+        rzstl::UniqueRef<RZTimer>       m_Timer;                            /* The timer used to calculate the delta time and timesteps */
         float                    m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
         RZTimestep               m_Timestep;                         /* The timesteps taken to update the application            */
         RZWindow*                m_Window = nullptr;                 /* The window that will be used to view graphics            */

@@ -4,56 +4,60 @@
 #include "RZSmartPointers.h"
 
 namespace Razix {
-    RefCounter::RefCounter()
-    {
-        m_RefCounter.InitRefCount();
-        m_RefCounterInit.InitRefCount(0);
-        m_WeakRefCounter.InitRefCount(0);
-    }
+    namespace rzstl {
 
-    RefCounter::~RefCounter() {}
+        RefCounter::RefCounter()
+        {
+            m_RefCounter.InitRefCount();
+            m_RefCounterInit.InitRefCount(0);
+            m_WeakRefCounter.InitRefCount(0);
+        }
 
-    bool RefCounter::InitRef()
-    {
-        if (Reference()) {
-            if (m_RefCounterInit.GetRefCount() > 0) {
-                m_RefCounterInit.Unref();
-                Unreference();
-            }
-            return true;
-        } else
-            return false;
-    }
+        RefCounter::~RefCounter()
+        {
+        }
 
-    bool RefCounter::Reference()
-    {
-        return m_RefCounter.Ref();
-    }
+        bool RefCounter::InitRef()
+        {
+            if (Reference()) {
+                if (m_RefCounterInit.GetRefCount() > 0) {
+                    m_RefCounterInit.Unref();
+                    Unreference();
+                }
+                return true;
+            } else
+                return false;
+        }
 
-    bool RefCounter::Unreference()
-    {
-        return m_RefCounter.Unref();
-    }
+        bool RefCounter::Reference()
+        {
+            return m_RefCounter.Ref();
+        }
 
-    bool RefCounter::WeakReference()
-    {
-        return m_WeakRefCounter.Ref();
-    }
+        bool RefCounter::Unreference()
+        {
+            return m_RefCounter.Unref();
+        }
 
-    bool RefCounter::WeakUnreference()
-    {
-        bool die = m_WeakRefCounter.Unref() && m_RefCounter.count == 0;
-        return die;
-    }
+        bool RefCounter::WeakReference()
+        {
+            return m_WeakRefCounter.Ref();
+        }
 
-    int RefCounter::GetReferenceCount() const
-    {
-        return m_RefCounter.GetRefCount();
-    }
+        bool RefCounter::WeakUnreference()
+        {
+            bool die = m_WeakRefCounter.Unref() && m_RefCounter.count == 0;
+            return die;
+        }
 
-    int RefCounter::GetWeakReferenceCount() const
-    {
-        return m_WeakRefCounter.GetRefCount();
-    }
+        int RefCounter::GetReferenceCount() const
+        {
+            return m_RefCounter.GetRefCount();
+        }
 
+        int RefCounter::GetWeakReferenceCount() const
+        {
+            return m_WeakRefCounter.GetRefCount();
+        }
+    }    // namespace rzstl
 }    // namespace Razix

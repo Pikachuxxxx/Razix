@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDebugConfig.h"
-
-#include <map>
 
 namespace Razix {
     namespace Graphics {

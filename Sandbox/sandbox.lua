@@ -83,8 +83,6 @@ project "Sandbox"
    filter { "files:**.lua"}
         flags { "ExcludeFromBuild"}
 
-    filter { "system:Prospero" }
-        targetextension ".elf"
 
    -- Disable warning for vendor
    filter { "files:vendor/**"}

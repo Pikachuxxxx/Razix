@@ -5,6 +5,13 @@
 
 #include "Razix/Core/RZSplashScreen.h"
 
+RAZIX_WARNING_PUSH()
+#pragma warning(disable : 26812)
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+RAZIX_WARNING_POP()
+
 namespace Razix {
     namespace Debug {
 

@@ -90,10 +90,10 @@ namespace Razix {
 
             VkDevice                     getDevice() const { return m_Device; };
             VkPhysicalDevice             getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
-            const Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
+            const rzstl::Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
             VkQueue                      getGraphicsQueue() const { return m_GraphicsQueue; };
             VkQueue                      getPresentQueue() const { return m_PresentQueue; };
-            const Ref<VKCommandPool>&    getCommandPool() const { return m_CommandPool; }
+            const rzstl::Ref<VKCommandPool>&    getCommandPool() const { return m_CommandPool; }
 
         private:
             VkDevice                 m_Device;
@@ -102,8 +102,8 @@ namespace Razix {
             VkPipelineCache          m_PipelineCache;
             VkDescriptorPool         m_DescriptorPool;
             VkPhysicalDeviceFeatures m_EnabledFeatures;
-            Ref<VKPhysicalDevice>    m_PhysicalDevice;
-            Ref<VKCommandPool>       m_CommandPool;
+            rzstl::Ref<VKPhysicalDevice>    m_PhysicalDevice;
+            rzstl::Ref<VKCommandPool>       m_CommandPool;
         };
     }    // namespace Graphics
 }    // namespace Razix

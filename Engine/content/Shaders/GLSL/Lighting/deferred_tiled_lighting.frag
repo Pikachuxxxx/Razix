@@ -151,8 +151,8 @@ void main()
         const LightData light = g_LightBuffer.data;//data[lightIndex];
 
         const vec3 fragToLight = light.type != LightType_Directional
-                               ? light.pointLightData.position.xyz - fragPosWorldSpace
-                               : -light.dirLightData.direction.xyz;
+                               ? light.position.xyz - fragPosWorldSpace
+                               : -light.direction.xyz;
 
         const vec3 L = normalize(fragToLight);
         const vec3 H = normalize(V + L);

@@ -3,6 +3,7 @@
 #include "Razix/Utilities/TRZSingleton.h"
 
 // Lua and c++ wrapper dependencies
+#include <sol/sol.hpp>
 
 namespace Razix {
 

@@ -22,7 +22,7 @@ namespace Razix {
         {
             VkSemaphore  presentSemaphore = VK_NULL_HANDLE;
             VkSemaphore  renderSemaphore  = VK_NULL_HANDLE;
-            Ref<VKFence> renderFence;
+            rzstl::Ref<VKFence> renderFence;
         };
 
         class VKSwapchain : public RZSwapchain

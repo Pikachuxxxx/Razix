@@ -1,14 +1,9 @@
 #pragma once
 
-#include "Razix/Core/RZRoot.h"
 #include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZRoot.h"
 
-RAZIX_WARNING_PUSH()
-#pragma warning(disable : 26812)
-#include <spdlog/fmt/ostr.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
-RAZIX_WARNING_POP()
+#include <spdlog/logger.h>
 
 namespace Razix {
     namespace Debug {

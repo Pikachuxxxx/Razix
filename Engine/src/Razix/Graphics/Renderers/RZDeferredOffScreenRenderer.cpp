@@ -132,7 +132,7 @@ namespace Razix
             info.layoutIndex = 0;
             info.shader = m_Shader.get();
             m_DescriptorSet.resize(1);
-            m_DescriptorSet[0] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+            m_DescriptorSet[0] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
 
             CreatePipeline();
             CreateBuffer();
@@ -405,7 +405,7 @@ namespace Razix
             attachments[4] = Application::Get().GetRenderGraph()->GetGBuffer()->GetDepthTexture();
             bufferInfo.attachments = attachments;
 
-            m_Framebuffers.push_back(Ref<Framebuffer>(Framebuffer::Get(bufferInfo)));
+            m_Framebuffers.push_back(rzstl::Ref<Framebuffer>(Framebuffer::Get(bufferInfo)));
         }
 
         void RZDeferredOffScreenRenderer::OnResize(uint32_t width, uint32_t height)

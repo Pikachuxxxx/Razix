@@ -144,4 +144,5 @@ workspace ( settings.workspace_name )
     -- Razix Engine Samples and Tests
     --------------------------------------------------------------------------------
     -- TODO: Tests (recrusively projects are added)
+    --include "Tests/tests.lua"
     -- TODO: Samples

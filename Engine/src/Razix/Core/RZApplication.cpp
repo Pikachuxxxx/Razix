@@ -114,7 +114,7 @@ namespace Razix {
         std::string SignatureTitle = m_ProjectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
-        m_Timer = CreateUniqueRef<RZTimer>();
+        m_Timer = rzstl::CreateUniqueRef<RZTimer>();
 
         // Set the window properties and create the timer
         m_WindowProperties.Title = SignatureTitle;
@@ -462,12 +462,12 @@ namespace Razix {
 #endif
         }
 
-#if 0
+#if 1
         {
 	        // Draw the Grid using ImGui
 	        glm::mat4 identity = glm::mat4(1.0f);
 	        auto&     cam      = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
-	        ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 100.f);
+	        ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 10.f);
         }
 #endif
 

@@ -314,7 +314,7 @@ namespace Razix {
                     if (m_Frames[i].renderSemaphore == VK_NULL_HANDLE)
                         VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].renderSemaphore));
 
-                    m_Frames[i].renderFence = CreateRef<VKFence>(true);
+                    m_Frames[i].renderFence = rzstl::CreateRef<VKFence>(true);
                 }
             }
         }

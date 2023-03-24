@@ -171,7 +171,7 @@ namespace Razix {
         bool VKDevice::init()
         {
             // Create the Physical device
-            m_PhysicalDevice = CreateRef<VKPhysicalDevice>();
+            m_PhysicalDevice = rzstl::CreateRef<VKPhysicalDevice>();
 
             // Create the Logical device
             // Get the device features of the selected GPU and Enable whatever features we need
@@ -219,7 +219,7 @@ namespace Razix {
             vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_PresentQueue);
 
             // Create a command pool for single time command buffers
-            m_CommandPool = CreateRef<VKCommandPool>(m_PhysicalDevice->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+            m_CommandPool = rzstl::CreateRef<VKCommandPool>(m_PhysicalDevice->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
             return true;
         }
