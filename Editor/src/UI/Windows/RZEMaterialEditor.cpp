@@ -8,6 +8,8 @@
 #include <QColorDialog>
 #include <QFileDialog>
 
+#include <glm/gtx/string_cast.hpp>
+
 namespace Razix {
     namespace Editor {
         RZEMaterialEditor::RZEMaterialEditor(QWidget* parent)
@@ -16,14 +18,15 @@ namespace Razix {
             ui.setupUi(this);
 
             // Connections
-            connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_diffuse_texture_select()));
+            connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_DiffuseTextureSelect()));
+            connect(ui.diffuseColor, SIGNAL(pressed()), this, SLOT(on_DiffuseColor()));
         }
 
         RZEMaterialEditor::~RZEMaterialEditor()
         {
         }
 
-        void RZEMaterialEditor::setEditingMaterial(Razix::Graphics::RZMaterial* material)
+        void RZEMaterialEditor::OnSetEditingMaterial(Razix::Graphics::RZMaterial* material)
         {
             m_Material = material;
 
@@ -33,7 +36,7 @@ namespace Razix {
             // Diffuse stuff
         }
 
-        void RZEMaterialEditor::on_diffuse_texture_select()
+        void RZEMaterialEditor::on_DiffuseTextureSelect()
         {
             auto    fileName = QFileDialog::getOpenFileName(this, "Select Diffuse Texture", "");
             QPixmap pixmap(fileName);
@@ -42,15 +45,22 @@ namespace Razix {
             ui.diffuseTexture->setIconSize(QSize(50, 50));
         }
 
-        void RZEMaterialEditor::on_diffuse_texture_use_checkbox()
+        void RZEMaterialEditor::onDiffuseTextureUseCheckbox()
         {
-
         }
 
-        void RZEMaterialEditor::on_diffuse_color()
+        void RZEMaterialEditor::on_DiffuseColor()
         {
-            QColor color = QColorDialog::getColor();
-        }
+            QColor color   = QColorDialog::getColor(m_DiffuseColor);
+            m_DiffuseColor = color;
 
+            ui.diffuseColor->setStyleSheet("background-color: " + color.name());
+
+            std::cout << glm::to_string(glm::vec3(color.redF(), color.greenF(), color.blueF())) << std::endl;
+
+            auto matProps        = m_Material->getProperties();
+            matProps.albedoColor = glm::vec3(color.redF(), color.greenF(), color.blueF());
+            m_Material->setProperties(matProps);
+        }
     }    // namespace Editor
 }    // namespace Razix

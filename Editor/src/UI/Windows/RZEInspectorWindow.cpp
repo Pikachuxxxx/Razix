@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZEInspectorWindow.h"
 
+#include "Razix/Graphics/RZMesh.h"
+
 #include "Razix/Scene/Components/RZComponents.h"
 
 #include "UI/Widgets/RZECollapsingHeader.h"
@@ -97,7 +99,9 @@ namespace Razix {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_MESH_RENDERER;
                 this->getBoxLayout().insertWidget(idx, m_MeshRendererComponentSection);
                 m_MeshRendererComponentSection->setVisible(true);
+                // Connect the entity and the MRC UI
                 m_MeshRendererComponentUI->setEditingEntity(entity);
+                emit OnMeshMaterialSelected(entity.GetComponent<MeshRendererComponent>().Mesh->getMaterial());
                 idx++;
             }
             if (entity.HasComponent<SpriteRendererComponent>()) {

@@ -60,10 +60,6 @@ namespace Razix {
             QWidget*       m_Viewport;
             QLabel*        m_FPSLblSB;
 
-            //------------------------
-            // Windows and Panels
-            RZEMaterialEditor* m_MaterialEditor;
-
         private:
             void SetupToolBars();
             // Toolbar settings

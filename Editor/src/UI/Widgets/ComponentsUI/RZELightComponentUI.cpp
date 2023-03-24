@@ -25,7 +25,7 @@ namespace Razix {
             ui.lightTypeGroup->setId(ui.Spot_rb, 2);
 
             // Default to yellow
-            ui.light_color->setStyleSheet("background-color: rgba(255, 0, 255, 255)");
+            ui.light_color->setStyleSheet("background-color: rgba(255, 255, 255, 255)");
         }
 
         RZELightComponentUI::~RZELightComponentUI()

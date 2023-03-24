@@ -26,6 +26,7 @@ namespace Razix {
             void setEditingEntity(RZEntity entity);
 
         public slots:
+            // connect not needed cause on_name_signal was on point on this 
             void on_light_color_pressed();
             void on_light_type_selected(int idx);
 

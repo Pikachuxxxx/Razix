@@ -38,6 +38,7 @@ Razix::Editor::RZEViewport*             viewportWidget;
 Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
 Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
 Razix::Editor::RZEProjectBrowser*       projectBrowserDialog;
+Razix::Editor::RZEMaterialEditor*       materialEditor;
 
 bool didEngineClose = false;
 
@@ -152,7 +153,7 @@ private:
         // Add some model entities
         auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
         if (!modelEnitties.size()) {
-#if 1
+#if 0
             // Avocado
             auto& armadilloModelEntity = activeScene->createEntity("Avocado");
             armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
@@ -225,6 +226,10 @@ int main(int argc, char** argv)
     mainWindow->resize(1280, 720);
     mainWindow->setWindowState(Qt::WindowMaximized);
 
+    // Init the Windows
+    materialEditor = new Razix::Editor::RZEMaterialEditor;
+    mainWindow->getToolWindowManager()->addToolWindow(materialEditor, ToolWindowManager::AreaReference(ToolWindowManager::RightWindowSide));
+
     sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow);
 
     inspectorWidget = new Razix::Editor::RZEInspectorWindow(sceneHierarchyPanel);
@@ -239,6 +244,10 @@ int main(int argc, char** argv)
     viewportWidget->show();
 
     mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
+
+    // Connect the Signal from Inspector window to a slot in Material editor to set the material if a mesh is selected
+    QObject::connect(inspectorWidget, &Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected, materialEditor, &Razix::Editor::RZEMaterialEditor::OnSetEditingMaterial);
+
     //mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea /*ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget))*/));
 
     //vulkanWindow = new Razix::Editor::RZEVulkanWindow();

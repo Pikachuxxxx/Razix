@@ -41,6 +41,11 @@ typedef uint32_t ComponentMask;
 // This way code and design get's easier, but the Component widgets will have seperate UI and class files for ease of management;
 // Will deriving from a common RZComponent and RZEComponentUI will benefit with plugin development and reduce code duplication? If so Implement it
 namespace Razix {
+
+    namespace {
+        class RZMaterial;
+    }
+
     namespace Editor {
         class RZEInspectorWindow : public QFrame
         {
@@ -54,6 +59,7 @@ namespace Razix {
 
         signals:
             void InspectorPropertyChanged();
+            void OnMeshMaterialSelected(Graphics::RZMaterial* material);
 
         public slots:
             void OnNameEdit();
