@@ -22,6 +22,10 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
+// clang-format off
+#include "rzepch.h"
+// clang-format on
+
 #include "RDTweakedNativeStyle.h"
 #include <QDebug>
 #include <QFontMetrics>

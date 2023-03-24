@@ -1,3 +1,7 @@
+// clang-format off
+#include "rzepch.h"
+// clang-format on
+
 #if 0
 #include "RZEInput.h"
 

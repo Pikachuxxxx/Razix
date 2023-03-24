@@ -77,7 +77,7 @@ namespace Razix {
             for (u32 i = 0; i < elements.size(); ++i) {
                 BufferLayoutElement& element = elements[i];
                 glEnableVertexAttribArray(i);
-                //glVertexAttribPointer(0, 3, GL_f32, GL_FALSE, 3 * sizeof(GL_f32), nullptr);
+                //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_f32), nullptr);
 
                 glVertexAttribPointer(i, element.getCount(), OpenGLUtilities::BufferFormatToGLType(element.format), element.normalized, layout.getStride(), (const void*) (sz) element.offset);
                 offset += element.offset;

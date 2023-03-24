@@ -22,6 +22,10 @@
  * SOFTWARE.
  *
  */
+// clang-format off
+#include "rzepch.h"
+// clang-format on
+
 #include "ToolWindowManagerWrapper.h"
 #include <QApplication>
 #include <QDebug>

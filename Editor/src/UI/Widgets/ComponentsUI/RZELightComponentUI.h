@@ -2,11 +2,6 @@
 
 #include <QWidget>
 
-#include <glm/glm.hpp>
-#include <sol/sol.hpp>
-
-#include "Razix/Core/RZCore.h"
-#include "Razix/Core/RZRoot.h"
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
 

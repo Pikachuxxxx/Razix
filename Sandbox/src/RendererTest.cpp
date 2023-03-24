@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #pragma once
 #include <Razix.h>
 
