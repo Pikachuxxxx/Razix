@@ -30,17 +30,17 @@ namespace Razix {
             R32G32_INT,
             R32G32B32_INT,
             R32G32B32A32_INT,
-            R32_f32,
-            R32G32_f32,
-            R32G32B32_f32,
-            R32G32B32A32_f32
+            R32_float,
+            R32G32_float,
+            R32G32B32_float,
+            R32G32B32A32_float
         };
 
         /* The shader data type */
         enum class ShaderDataType : u32
         {
             NONE,
-            f3232,
+            FLOAT32,
             VEC2,
             VEC3,
             VEC4,

@@ -1,7 +1,8 @@
+// clang-format off
+#include "rzepch.h"
+// clang-format on
 #include "RZEMaterialEditor.h"
 
-// FIXME: Adding a pch file for editor as well will resolve this, a QT + engine files together mashed up to reduce build times
-#include "Razix/Core/RZRoot.h"
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include <QColorDialog>

@@ -1,4 +1,6 @@
-#include "rzxpch.h"
+// clang-format off
+#include "rzepch.h"
+// clang-format on
 #include "RZENativeWindow.h"
 
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::Editor::RZENativeWindow::x, this, std::placeholders::_1)

@@ -7,6 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
+#include "rzepch.h"
 #include "../Extensions/toolwindowmanager/ToolWindowManagerTabBar.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>

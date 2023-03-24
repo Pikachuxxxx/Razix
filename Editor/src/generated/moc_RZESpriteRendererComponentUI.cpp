@@ -7,6 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
+#include "rzepch.h"
 #include "../UI/Widgets/ComponentsUI/RZESpriteRendererComponentUI.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>

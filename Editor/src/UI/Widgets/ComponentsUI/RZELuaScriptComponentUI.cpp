@@ -1,3 +1,6 @@
+// clang-format off
+#include "rzepch.h"
+// clang-format on
 #include "RZELuaScriptComponentUI.h"
 
 #include <QFileDialog>
