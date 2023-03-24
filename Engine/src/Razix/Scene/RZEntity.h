@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Razix/Core/RZUUID.h"
-
 #include <entt.hpp>
 
 namespace Razix {
@@ -22,7 +20,6 @@ namespace Razix {
         {
             RAZIX_CORE_ASSERT((!HasComponent<T>()), "RZEntity already has component!");
             return m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
-            // TODO: callback to the scene when a component is added with the type of the component that was added
             //m_Scene->OnComponentAdded<T>(*this, component);
         }
 
@@ -62,6 +59,7 @@ namespace Razix {
         {
             RAZIX_CORE_ASSERT(HasComponent<T>(), "RZEntity does not have component!");
             m_Scene->m_Registry.remove<T>(m_Entity);
+            // TODO: Add callback function to a remove component function on RZScene
         }
 
         bool IsActive();
@@ -83,7 +81,7 @@ namespace Razix {
         bool operator!=(const RZEntity& other) const { return !(*this == other); }
 
     private:
-        entt::entity m_Entity;
+        entt::entity m_Entity = entt::null;
         RZScene*     m_Scene = nullptr;
     };
 }    // namespace Razix

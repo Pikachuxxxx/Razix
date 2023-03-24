@@ -7,14 +7,17 @@
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
-#include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/API/RZSwapchain.h"
-#include "Razix/Graphics/RHI/RHI.h"
-
-#include "Razix/Graphics/Materials/RZMaterial.h"
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
+
+#include "Razix/Graphics/Materials/RZMaterial.h"
+
+#include "Razix/Graphics/RHI/RHI.h"
+
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZSwapchain.h"
 
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"

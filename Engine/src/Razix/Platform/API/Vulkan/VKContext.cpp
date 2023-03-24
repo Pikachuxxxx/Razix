@@ -83,7 +83,7 @@ namespace Razix {
             VKDevice::Get().init();
 
             // Create the swapchain (will be auto initialized)
-            m_Swapchain = CreateRef<VKSwapchain>(m_Window->getWidth(), m_Window->getHeight());
+            m_Swapchain = rzstl::CreateRef<VKSwapchain>(m_Window->getWidth(), m_Window->getHeight());
 
     #ifndef RAZIX_DISTRIBUTION
         #if RZ_PROFILER_OPTICK

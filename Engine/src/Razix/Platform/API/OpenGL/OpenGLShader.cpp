@@ -4,6 +4,7 @@
 #include "OpenGLShader.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/OS/RZFileSystem.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
 

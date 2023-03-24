@@ -129,8 +129,7 @@ namespace Razix {
         Graphics::RZWorldRenderer&     getWorldRenderer() { return m_WorldRenderer; }
         RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
         Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        //Graphics::RZRenderStack&       getRenderStack() { return m_RenderStack; }
-        Graphics::RZShaderLibrary& getShaderLibrary() { return m_ShaderLibrary; }
+        Graphics::RZShaderLibrary&     getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
         Stats       m_Stats;                                /* Current frame basic statistics	                                */

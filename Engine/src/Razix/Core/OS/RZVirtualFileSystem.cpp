@@ -4,9 +4,9 @@
 #include "RZVirtualFileSystem.h"
 
 #include "Razix/Core/OS/RZFileSystem.h"
-#include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZSplashScreen.h"
+
 #include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix {
@@ -15,7 +15,7 @@ namespace Razix {
     {
         // Instance is automatically created once the system is Started Up
         RAZIX_CORE_INFO("[Virtual File System] Starting Up Virtual File Sytem");
-        //Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION : Starting VFS...");
+
         Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
 
         // Static Initialization load basic paths + root paths in consoles

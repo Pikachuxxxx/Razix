@@ -116,7 +116,7 @@ namespace Razix
             info.layoutIndex = 0;
             info.shader = m_Shader.get();
             m_DescriptorSet.resize(1);
-            m_DescriptorSet[0] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+            m_DescriptorSet[0] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
             m_CurrentDescriptorSets.resize(1);
 
             CreateGraphicsPipeline();

@@ -53,6 +53,7 @@ namespace Razix {
         RAZIX_CORE_INFO("***********************************");
         RAZIX_CORE_INFO("*          Engine Ignited!        *");
         RAZIX_CORE_INFO("***********************************");
+
         Razix::RZSplashScreen::Get().setLogString("Engine Ignited!");
 
         // TODO: Temp code remove this!!!

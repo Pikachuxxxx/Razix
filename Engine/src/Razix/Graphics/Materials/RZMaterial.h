@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Razix/Core/RZSmartPointers.h"
-
 #include <glm/glm.hpp>
 
 namespace Razix {

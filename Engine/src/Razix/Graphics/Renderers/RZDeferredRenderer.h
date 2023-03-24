@@ -67,7 +67,7 @@ namespace Razix
 
             Mesh* m_ScreenQuad = nullptr;
 
-            UniqueRef<Texture2D> m_PreintegratedFG;
+            rzstl::UniqueRef<Texture2D> m_PreintegratedFG;
 
             int m_CommandBufferIndex = 0;
             int m_RenderMode = 0;

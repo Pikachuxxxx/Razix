@@ -1,16 +1,30 @@
+#if 0
 #pragma once
 #include <Razix.h>
 
 // This is a test without a RZApplication
 
-    // Create a Window
-Razix::WindowProperties props;
-Razix::RZWindow*        window;
-Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
+void main(int argc, char** argv)
 {
+    // Custom Engine start up of necessary modules
+    Razix::Debug::RZLog::StartUp();
+
+    // OS specific start up
+    auto windowsOS = new Razix::WindowsOS();
+    Razix::RZOS::SetInstance(windowsOS);
+    windowsOS->Init();
+
+    // Set the API
+    Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+
+    // Create a Window
+    Razix::WindowProperties props;
+    Razix::RZWindow*        window;
     props.Title = "Razix Engine Test - Hello Triangle | version : " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Razix::Graphics::RZGraphicsContext::GetRenderAPIString() + ">";
+
     window = Razix::RZWindow::Create(props);
 
+    Razix::RZInput::SelectGLFWInputManager();
 
     // Init Graphics Context
     //-------------------------------------------------------------------------------------
@@ -20,17 +34,6 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     RAZIX_CORE_INFO("Initializing Graphics Context...");
     Razix::Graphics::RZGraphicsContext::GetContext()->Init();
     //-------------------------------------------------------------------------------------
-
-    return nullptr;
-}
-
-void main(int argc, char** argv)
-{
-    EngineMain(argc, argv);
-
-    // Set the API
-    Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
-
 #if 0
 
     std::vector<Razix::Graphics::RZCommandBuffer*> CommandBuffers(3);
@@ -65,11 +68,14 @@ void main(int argc, char** argv)
 
     bool closeWindow = false;
     while (!closeWindow) {
-        if (Razix::RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
-            closeWindow = true;
+        //if (Razix::RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
+        //    closeWindow = true;
 
         window->ProcessInput();
     }
+}
+#endif
 
-    EngineExit();
+void main()
+{
 }

@@ -56,6 +56,5 @@ namespace Razix {
             void loadGLTF(const std::string& path);
             void loadFBX(const std::string& path);
         };
-
     }    // namespace Graphics
 }    // namespace Razix

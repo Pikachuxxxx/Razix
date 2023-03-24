@@ -24,6 +24,8 @@ namespace Razix {
     // Forward Declarations
     class RZScene;
 
+    class RZShadowRenderer;
+
     namespace Maths {
         class RZFrustum;
     }
