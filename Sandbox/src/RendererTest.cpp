@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include <Razix.h>
 
@@ -93,3 +94,4 @@ void main(int argc, char** argv)
 
     EngineExit();
 }
+#endif

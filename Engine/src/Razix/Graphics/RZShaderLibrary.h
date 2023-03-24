@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZShader.h"
-
 #include "Razix/Utilities/TRZSingleton.h"
 
 namespace Razix {
     namespace Graphics {
+
+        class RZShader;
 
         /**
          * Manages the shaders instances and loads them nicely and gives their references all over the engine

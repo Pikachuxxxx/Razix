@@ -11,6 +11,7 @@
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
 
 #include "Razix/Graphics/RHI/RHI.h"
 

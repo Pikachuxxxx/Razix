@@ -1,11 +1,5 @@
 #pragma once
 
-#include "Razix/Core/RZCore.h"
-
-#include <string>
-#include <unordered_map>
-#include <vector>
-
 namespace Razix {
     /**
      * Parses the command line arguments for the Razix Application

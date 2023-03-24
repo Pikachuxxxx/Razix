@@ -1,5 +1,5 @@
-#if 0
-#include <Razix.h>
+#if 1
+    #include <Razix.h>
 
 using namespace Razix;
 
@@ -19,172 +19,59 @@ class MemoryTest : public Razix::RZApplication
 {
 public:
     MemoryTest()
-        : RZApplication("/Sandbox/", "MemoryTest") 
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "MemoryTest")
     {
+        //-------------------------------------------------------------------------------------
+        // Override the Graphics API here! for testing
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        //-------------------------------------------------------------------------------------
+
+        Razix::RZInput::SelectGLFWInputManager();
+        Razix::RZApplication::Get().Init();
+
+        // Init Graphics Context
+        //-------------------------------------------------------------------------------------
+        // Creating the Graphics Context and Initialize it
+        RAZIX_CORE_INFO("Creating Graphics Context...");
+        Razix::Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        RAZIX_CORE_INFO("Initializing Graphics Context...");
+        Razix::Graphics::RZGraphicsContext::GetContext()->Init();
+        //-------------------------------------------------------------------------------------
     }
 
     void OnStart() override
     {
-        RAZIX_TRACE("sizeof uint32_t : {0}", sizeof(uint32_t));
-        RAZIX_TRACE("sizeof std::string : {0}", sizeof(std::string));
-        RAZIX_TRACE("sizeof char : {0}", sizeof(char));
-        RAZIX_TRACE("sizeof MemTestClass : {0}", sizeof(MemTestClass));
-        memtestClass = new MemTestClass;
+        Razix::Memory::RZHeapAllocator heapAlloc;
+        RAZIX_INFO("Allocating 16 Mb of Heap memory");
+        heapAlloc.init(static_cast<size_t>(16 * 1024 * 1024));
 
-        //-----------------------------------------------
+        void* alloc_1 = heapAlloc.allocate(245 * 1024, 16);
+        void* alloc_2 = heapAlloc.allocate(128 * 1024, 16);
+        void* alloc_3 = heapAlloc.allocate(512 * 1024, 16);
 
-        width  = getWindow()->getWidth();
-        height = getWindow()->getHeight();
+        heapAlloc.deallocate(alloc_1);
+        heapAlloc.deallocate(alloc_2);
+        heapAlloc.deallocate(alloc_3);
 
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
-        } else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
-
-            defaultShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/default.rzsf");
-
-            buildCommandPipeline();
-
-            Graphics::RZAPIRenderer::Init();
-
-            getImGuiRenderer()->init();
-            getImGuiRenderer()->createPipeline(*renderpass);
-        }
-    }
-
-    void OnUpdate(const RZTimestep& dt) override
-    {
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
-            swapchain->Flip();
-        } else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
-
-            Graphics::RZAPIRenderer::Begin();
-            {
-                Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
-
-                renderpass->BeginRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer(), glm::vec4(0.19f, 0.19f, 0.19f, 1.0f), framebuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()], Graphics::SubPassContents::INLINE, getWindow()->getWidth(), getWindow()->getHeight());
-
-                pipeline->Bind(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-
-                if (getImGuiRenderer()->update(dt))
-                    getImGuiRenderer()->draw(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-
-                renderpass->EndRenderPass(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-
-                // Present the frame by executing the recorded commands
-                Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-            }
-        } else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11) {
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
-        }
-    }
-
-    void OnQuit() override
-    {
-        // Save the current scene
-        Razix::RZEngine::Get().getSceneManager().saveAllScenes();
-
-        getImGuiRenderer()->destroy();
-
-        defaultShader->Destroy();
-
-        destroyCommandPipeline();
-
-        Graphics::RZAPIRenderer::Release();
-    }
-
-    void OnResize(uint32_t width, uint32_t height) override
-    {
-        RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", width, height);
-
-        this->width  = width;
-        this->height = height;
-
-        destroyCommandPipeline();
-
-        Graphics::RZAPIRenderer::OnResize(width, height);
-
-        buildCommandPipeline();
-    }
-
-private:
-    MemTestClass* memtestClass;
-
-    //-----------------------------------------------------------------
-
-
-    Graphics::RZDepthTexture*             depthImage;
-    std::vector<Graphics::RZFramebuffer*> framebuffers;
-    Graphics::RZSwapchain*                swapchain;
-    Graphics::RZRenderPass*               renderpass;
-    Graphics::RZPipeline*                 pipeline;
-    uint32_t                              width, height;
-    Graphics::RZShader*                   defaultShader;
-
-private:
-
-    void buildCommandPipeline()
-    {
-        // Depth Map
-        depthImage = Graphics::RZDepthTexture::Create(width, height);
-
-        // Create the render pass
-        Graphics::AttachmentInfo textureTypes[2] = {{Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::SCREEN},
-            {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH}};
-
-        Graphics::RenderPassInfo renderPassInfo{};
-        renderPassInfo.attachmentCount = 2;
-        renderPassInfo.textureType     = textureTypes;
-        renderPassInfo.name            = "screen clear pass";
-        renderPassInfo.clear           = true;
-
-        renderpass = Graphics::RZRenderPass::Create(renderPassInfo);
-
-        // Create the graphics pipeline
-        Graphics::PipelineInfo pipelineInfo{};
-        pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-        pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-        pipelineInfo.renderpass          = renderpass;
-        pipelineInfo.shader              = defaultShader;
-        pipelineInfo.transparencyEnabled = true;
-        pipelineInfo.depthBiasEnabled    = false;
-
-        pipeline = Graphics::RZPipeline::Create(pipelineInfo);
-
-        // Create the framebuffer
-        framebuffers.clear();
-        for (size_t i = 0; i < Graphics::RZAPIRenderer::getSwapchain()->GetSwapchainImageCount(); i++) {
-            Graphics::RZTexture* attachments[2];
-            attachments[0] = Graphics::RZAPIRenderer::getSwapchain()->GetImage(i);
-            attachments[1] = depthImage;
-
-            Graphics::FramebufferInfo frameBufInfo{};
-            frameBufInfo.width           = width;
-            frameBufInfo.height          = height;
-            frameBufInfo.attachmentCount = 2;
-            frameBufInfo.renderPass      = renderpass;
-            frameBufInfo.attachments     = attachments;
-
-            framebuffers.push_back(Graphics::RZFramebuffer::Create(frameBufInfo));
-        }
-    }
-
-    void destroyCommandPipeline()
-    {
-        depthImage->Release(true);
-
-        for (auto frameBuf: framebuffers) frameBuf->Destroy();
-
-        renderpass->Destroy();
-
-        pipeline->Destroy();
+        heapAlloc.shutdown();
     }
 };
 
-Razix::RZApplication* Razix::CreateApplication()
+Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Sandbox Application [MemoryTest]");
     return new MemoryTest();
+}
+
+void main(int argc, char** argv)
+{
+    EngineMain(argc, argv);
+
+    while (Razix::RZApplication::Get().RenderFrame()) {}
+
+    Razix::RZApplication::Get().Quit();
+    Razix::RZApplication::Get().SaveApp();
+
+    EngineExit();
 }
 #endif

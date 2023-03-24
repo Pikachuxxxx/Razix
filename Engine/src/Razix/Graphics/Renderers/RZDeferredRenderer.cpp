@@ -116,7 +116,7 @@ namespace Razix
             param.format = TextureFormat::RGBA8;
             param.srgb = false;
             param.wrap = TextureWrap::CLAMP_TO_EDGE;
-            m_PreintegratedFG = UniqueRef<Texture2D>(Texture2D::CreateFromSource(BRDFTextureWidth, BRDFTextureHeight, (void*)BRDFTexture, param));
+            m_PreintegratedFG = rzstl::UniqueRef<Texture2D>(Texture2D::CreateFromSource(BRDFTextureWidth, BRDFTextureHeight, (void*)BRDFTexture, param));
 
             m_LightUniformBuffer = nullptr;
             m_UniformBuffer = nullptr;
@@ -164,9 +164,9 @@ namespace Razix
             info.layoutIndex = 0;
             info.shader = m_Shader.get();
             m_DescriptorSet.resize(2);
-            m_DescriptorSet[0] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+            m_DescriptorSet[0] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
             info.layoutIndex = 1;
-            m_DescriptorSet[1] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+            m_DescriptorSet[1] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
 
             CreateDeferredPipeline();
             CreateFramebuffers();
@@ -252,9 +252,9 @@ namespace Razix
                     info.shader = m_Shader.get();
                     m_DescriptorSet.clear();
                     m_DescriptorSet.resize(2);
-                    m_DescriptorSet[0] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+                    m_DescriptorSet[0] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
                     info.layoutIndex = 1;
-                    m_DescriptorSet[1] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+                    m_DescriptorSet[1] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
 
                     UpdateScreenDescriptorSet();
                 }
@@ -271,9 +271,9 @@ namespace Razix
                     info.shader = m_Shader.get();
                     m_DescriptorSet.clear();
                     m_DescriptorSet.resize(2);
-                    m_DescriptorSet[0] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+                    m_DescriptorSet[0] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
                     info.layoutIndex = 1;
-                    m_DescriptorSet[1] = Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
+                    m_DescriptorSet[1] = rzstl::Ref<Graphics::DescriptorSet>(Graphics::DescriptorSet::Create(info));
 
                     m_EnvironmentMap = env.GetEnvironmentMap();
                     m_IrradianceMap = env.GetIrradianceMap();

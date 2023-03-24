@@ -58,7 +58,6 @@ namespace Razix {
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
             uploadFrameData(scene, settings);
-
 #if 0
 
             //-------------------------------

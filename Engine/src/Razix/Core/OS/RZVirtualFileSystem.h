@@ -1,11 +1,6 @@
 #pragma once
 
-#include "Razix/Core/OS/RZFileSystem.h"
-#include "Razix/Core/RZCore.h"
-
 #include "Razix/Utilities/TRZSingleton.h"
-
-#include <unordered_map>
 
 namespace Razix {
     /* Cross - Platform Virtual File System for the Engine */

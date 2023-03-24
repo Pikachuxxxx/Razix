@@ -23,19 +23,21 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-
+#include <optional>
 
 //-----Engine-----//
-#include "Razix/Core/RZRoot.h"
+#include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZDebugConfig.h"
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZProfiling.h"
+#include "Razix/Core/RZRoot.h"
 
 //-----3rd Party-----//
 // Profilers
 #include <Tracy.hpp>
 // SOL
 #include <sol/sol.hpp>
- // GLM
+// GLM
 #include <glm/glm.hpp>
 
 // Physics Engine
@@ -44,13 +46,13 @@
 #include <Jolt/Jolt.h>
 
 // Jolt includes
-#include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
-#include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
-#include <Jolt/Physics/PhysicsSettings.h>
-#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/RegisterTypes.h>

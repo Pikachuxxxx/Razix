@@ -50,8 +50,8 @@ namespace Razix {
 
             UniformBuffer* m_UniformBuffer;
 
-            Ref<Shader>                    m_AnimatedShader = nullptr;
-            Ref<Razix::Graphics::Pipeline> m_AnimatedPipeline;
+            rzstl::Ref<Shader>                    m_AnimatedShader = nullptr;
+            rzstl::Ref<Razix::Graphics::Pipeline> m_AnimatedPipeline;
             UniformBuffer*                 m_AnimUniformBuffer;
             uint8_t*                       m_VSSystemUniformBufferAnim     = nullptr;
             uint32_t                       m_VSSystemUniformBufferAnimSize = 0;
