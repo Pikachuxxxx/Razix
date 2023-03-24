@@ -41,7 +41,7 @@ namespace Razix {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getShader("gbuffer_pass.rzsf");
 
-            for (size_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
+            for (sz i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_CmdBuffers[i] = RZCommandBuffer::Create();
                 m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("GBuffer Command Buffers"));
             }
@@ -54,7 +54,7 @@ namespace Razix {
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthTestEnabled    = true;
-            // Using 32 bit floating point formats to support HDR colors
+            // Using 32 bit f32ing point formats to support HDR colors
             pipelineInfo.colorAttachmentFormats = {
                 Graphics::RZTexture::Format::RGBA32F,
                 Graphics::RZTexture::Format::RGBA32F,

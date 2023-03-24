@@ -21,7 +21,7 @@
 namespace Razix {
     namespace Graphics {
 
-        const uint32_t MAX_PATH_LENGTH = 260;
+        const u32 MAX_PATH_LENGTH = 260;
 
         std::string m_FBXModelDirectory;
 
@@ -35,7 +35,7 @@ namespace Razix {
         };
 
         Orientation orientation = Orientation::Y_UP;
-        float       fbx_scale   = 1.0f;
+        f32       fbx_scale   = 1.0f;
 
         static ofbx::Vec3 operator-(const ofbx::Vec3& a, const ofbx::Vec3& b)
         {
@@ -96,12 +96,12 @@ namespace Razix {
                 const ofbx::Vec2 duv10 = uv1 - uv0;
                 const ofbx::Vec2 duv20 = uv2 - uv0;
 
-                const float dir = duv20.x * duv10.y - duv20.y * duv10.x < 0 ? -1.f : 1.f;
+                const f32 dir = duv20.x * duv10.y - duv20.y * duv10.x < 0 ? -1.f : 1.f;
                 ofbx::Vec3  tangent;
                 tangent.x     = (dv20.x * duv10.y - dv10.x * duv20.y) * dir;
                 tangent.y     = (dv20.y * duv10.y - dv10.y * duv20.y) * dir;
                 tangent.z     = (dv20.z * duv10.y - dv10.z * duv20.y) * dir;
-                const float l = 1 / sqrtf(float(tangent.x * tangent.x + tangent.y * tangent.y + tangent.z * tangent.z));
+                const f32 l = 1 / sqrtf(f32(tangent.x * tangent.x + tangent.y * tangent.y + tangent.z * tangent.z));
                 tangent.x *= l;
                 tangent.y *= l;
                 tangent.z *= l;
@@ -113,27 +113,27 @@ namespace Razix {
 
         glm::vec2 ToGLMVector(const ofbx::Vec2& vec)
         {
-            return glm::vec2(float(vec.x), float(vec.y));
+            return glm::vec2(f32(vec.x), f32(vec.y));
         }
 
         glm::vec3 ToGLMVector(const ofbx::Vec3& vec)
         {
-            return glm::vec3(float(vec.x), float(vec.y), float(vec.z));
+            return glm::vec3(f32(vec.x), f32(vec.y), f32(vec.z));
         }
 
         glm::vec4 ToGLMVector(const ofbx::Vec4& vec)
         {
-            return glm::vec4(float(vec.x), float(vec.y), float(vec.z), float(vec.w));
+            return glm::vec4(f32(vec.x), f32(vec.y), f32(vec.z), f32(vec.w));
         }
 
         glm::vec4 ToGLMVector(const ofbx::Color& vec)
         {
-            return glm::vec4(float(vec.r), float(vec.g), float(vec.b), 1.0f);
+            return glm::vec4(f32(vec.r), f32(vec.g), f32(vec.b), 1.0f);
         }
 
         glm::quat ToGLMQuat(const ofbx::Quat& quat)
         {
-            return glm::quat(float(quat.x), float(quat.y), float(quat.z), float(quat.w));
+            return glm::quat(f32(quat.x), f32(quat.y), f32(quat.z), f32(quat.w));
         }
 
         void RZModel::loadFBX(const std::string& path)
@@ -162,7 +162,7 @@ namespace Razix {
             const uint64_t flags          = ignoreGeometry ? (uint64_t) ofbx::LoadFlags::IGNORE_GEOMETRY : (uint64_t) ofbx::LoadFlags::TRIANGULATE;
 
             // Load the scene that has models, materials and animation data
-            ofbx::IScene* scene = ofbx::load(data, uint32_t(size), flags);
+            ofbx::IScene* scene = ofbx::load(data, u32(size), flags);
 
             err = ofbx::getError();
 
@@ -200,7 +200,7 @@ namespace Razix {
 
                 // Filling in the Razix vertex data to create Razix Mesh
                 Graphics::RZVertex* tempvertices = new Graphics::RZVertex[vertex_count];
-                uint16_t*           indicesArray = new uint16_t[numIndices];
+                u16*           indicesArray = new u16[numIndices];
 
                 // IDK wtf is this
                 auto indices = geom->getFaceIndices();
@@ -218,17 +218,17 @@ namespace Razix {
                     ofbx::Vec3 cp = vertices[i];
 
                     auto& vertex    = tempvertices[i];
-                    vertex.Position = glm::vec3(float(cp.x), float(cp.y), float(cp.z));
+                    vertex.Position = glm::vec3(f32(cp.x), f32(cp.y), f32(cp.z));
                     FixOrientation(vertex.Position);
 
                     if (normals)
-                        vertex.Normal = glm::vec3(float(normals[i].x), float(normals[i].y), float(normals[i].z));
+                        vertex.Normal = glm::vec3(f32(normals[i].x), f32(normals[i].y), f32(normals[i].z));
                     if (uvs)
-                        vertex.TexCoords = glm::vec2(float(uvs[i].x), 1.0f - float(uvs[i].y));
+                        vertex.TexCoords = glm::vec2(f32(uvs[i].x), 1.0f - f32(uvs[i].y));
                     if (colours)
-                        vertex.Color = glm::vec4(float(colours[i].x), float(colours[i].y), float(colours[i].z), float(colours[i].w));
+                        vertex.Color = glm::vec4(f32(colours[i].x), f32(colours[i].y), f32(colours[i].z), f32(colours[i].w));
                     //if (tangents)
-                    //  vertex.Tangent = glm::vec3(float(tangents[i].x), float(tangents[i].y), float(tangents[i].z));
+                    //  vertex.Tangent = glm::vec3(f32(tangents[i].x), f32(tangents[i].y), f32(tangents[i].z));
 
                     FixOrientation(vertex.Normal);
                     //FixOrientation(vertex.Tangent);

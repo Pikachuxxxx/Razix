@@ -19,7 +19,7 @@ namespace Razix {
             : m_PhysicalDevice(VK_NULL_HANDLE)
         {
             // Query the number of GPUs available
-            uint32_t   numGPUs  = 0;
+            u32   numGPUs  = 0;
             VkInstance instance = VKContext::Get()->getInstance();
             vkEnumeratePhysicalDevices(instance, &numGPUs, nullptr);
             RAZIX_CORE_ASSERT(!(numGPUs == 0), "[Vulkan] No Suitable GPUs found!");
@@ -48,7 +48,7 @@ namespace Razix {
             RAZIX_CORE_INFO("[Vulkan] Driver Version     : {0}.{1}.{2}", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
 
             // Verify the supported device extension supported by the GPU
-            uint32_t extCount = 0;
+            u32 extCount = 0;
             vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &extCount, nullptr);
             if (extCount > 0) {
                 std::vector<VkExtensionProperties> extensions(extCount);
@@ -62,7 +62,7 @@ namespace Razix {
             }
 
             // Query Queue information + store it for the Physical Device
-            uint32_t queueFamilyCount;
+            u32 queueFamilyCount;
             vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &queueFamilyCount, nullptr);
             m_QueueFamilyProperties.resize(queueFamilyCount);
             vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &queueFamilyCount, m_QueueFamilyProperties.data());
@@ -77,8 +77,8 @@ namespace Razix {
 
             //! BUG: I guess in Distribution mode the set has 2 elements or something is happening such that the queue priority for other element is nan and not 0 as we have provided
             std::set<int32_t> uniqueQueueFamilies = {m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present};
-            float             queuePriority       = 1.0f;
-            for (uint32_t queueFamily: uniqueQueueFamilies) {
+            f32             queuePriority       = 1.0f;
+            for (u32 queueFamily: uniqueQueueFamilies) {
                 VkDeviceQueueCreateInfo queueCreateInfo{};
                 queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
                 queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -108,9 +108,9 @@ namespace Razix {
             return m_SupportedExtensions.find(extensionName) != m_SupportedExtensions.end();
         }
 
-        uint32_t VKPhysicalDevice::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const
+        u32 VKPhysicalDevice::getMemoryTypeIndex(u32 typeBits, VkMemoryPropertyFlags properties) const
         {
-            for (uint32_t i = 0; i < m_MemoryProperties.memoryTypeCount; i++) {
+            for (u32 i = 0; i < m_MemoryProperties.memoryTypeCount; i++) {
                 if ((typeBits & 1) == 1) {
                     if ((m_MemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
                         return i;
@@ -137,7 +137,7 @@ namespace Razix {
         void VKPhysicalDevice::findQueueFamilyIndices(VkSurfaceKHR surface)
         {
             // For other queue types or if no separate compute queue is present, return the first one to support the requested flags
-            uint32_t i = 0;
+            u32 i = 0;
             for (const auto& queue: m_QueueFamilyProperties) {
                 if (queue.queueFlags & VK_QUEUE_GRAPHICS_BIT)
                     m_QueueFamilyIndices.Graphics = i;
@@ -201,9 +201,9 @@ namespace Razix {
             VkDeviceCreateInfo deviceCI{};
             deviceCI.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
             deviceCI.pNext                   = &dynamicRenderingFeatures;
-            deviceCI.queueCreateInfoCount    = static_cast<uint32_t>(m_PhysicalDevice->m_QueueCreateInfos.size());
+            deviceCI.queueCreateInfoCount    = static_cast<u32>(m_PhysicalDevice->m_QueueCreateInfos.size());
             deviceCI.pQueueCreateInfos       = m_PhysicalDevice->m_QueueCreateInfos.data();
-            deviceCI.enabledExtensionCount   = static_cast<uint32_t>(deviceExtensions.size());
+            deviceCI.enabledExtensionCount   = static_cast<u32>(deviceExtensions.size());
             deviceCI.ppEnabledExtensionNames = deviceExtensions.data();
             deviceCI.pEnabledFeatures        = &physicalDeviceFeatures;
             deviceCI.enabledLayerCount       = 0;

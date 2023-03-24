@@ -13,7 +13,7 @@ namespace Razix {
         // Texture2D
         //-----------------------------------------------------------------------------------
 
-        OpenGLTexture2D::OpenGLTexture2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
+        OpenGLTexture2D::OpenGLTexture2D(const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
         {
             //? Find out why these variables cannot be allocated in the initializers list
             m_Name        = name;
@@ -37,13 +37,13 @@ namespace Razix {
             m_Handle = load(nullptr);
         }
 
-        void OpenGLTexture2D::Bind(uint32_t slot)
+        void OpenGLTexture2D::Bind(u32 slot)
         {
             GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Handle));
         }
 
-        void OpenGLTexture2D::Unbind(uint32_t slot)
+        void OpenGLTexture2D::Unbind(u32 slot)
         {
             GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
@@ -56,15 +56,15 @@ namespace Razix {
             GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
         }
 
-        uint32_t OpenGLTexture2D::load(void* data)
+        u32 OpenGLTexture2D::load(void* data)
         {
-            uint8_t* pixels = nullptr;
+            u8* pixels = nullptr;
 
             if (data != nullptr)
-                pixels = reinterpret_cast<uint8_t*>(data);
+                pixels = reinterpret_cast<u8*>(data);
             else {
                 if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
-                    uint32_t bpp;
+                    u32 bpp;
                     // Width and Height are extracted here
                     pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Width, &m_Height, &bpp);
                     // Here the format for the texture is extracted based on bits per pixel
@@ -76,7 +76,7 @@ namespace Razix {
 
             RAZIX_CORE_ASSERT((pixels != nullptr), "[OpenGL] Failed to load Texture data! Name : {0}", m_Name);
 
-            uint32_t handle;
+            u32 handle;
             GL_CALL(glGenTextures(1, &handle));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, handle));
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_FilterMode.minFilter == Filtering::FilterMode::LINEAR ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
@@ -84,7 +84,7 @@ namespace Razix {
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
 
-            uint32_t format = Graphics::OpenGLUtilities::TextureFormatToGL(m_Format, true);
+            u32 format = Graphics::OpenGLUtilities::TextureFormatToGL(m_Format, true);
             GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, Graphics::OpenGLUtilities::TextureFormatToInternalFormat(format), GL_UNSIGNED_BYTE, pixels));
             GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 

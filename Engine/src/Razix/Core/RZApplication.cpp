@@ -182,7 +182,7 @@ namespace Razix {
         if (ctx) {
             // Resize ImGui
             ImGuiIO& io                = ImGui::GetIO();
-            io.DisplaySize             = ImVec2(static_cast<float>(e.GetWidth()), static_cast<float>(e.GetHeight()));
+            io.DisplaySize             = ImVec2(static_cast<f32>(e.GetWidth()), static_cast<f32>(e.GetHeight()));
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
@@ -294,7 +294,7 @@ namespace Razix {
         // TODO: Add Time stamp Queries for calculating GPU time here
 
         // Calculate the delta time
-        float now = m_Timer->GetElapsedS();
+        f32 now = m_Timer->GetElapsedS();
         RZEngine::Get().ResetStats();
         auto& stats = RZEngine::Get().GetStatistics();
         m_Timestep.Update(now);
@@ -373,7 +373,7 @@ namespace Razix {
             // Update ImGui
             ImGuiIO& io = ImGui::GetIO();
             (void) io;
-            io.DisplaySize = ImVec2(static_cast<float>(getWindow()->getWidth()), static_cast<float>(getWindow()->getHeight()));
+            io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
         }
         // Run the OnUpdate for all the scripts
         if (RZEngine::Get().getSceneManager().getCurrentScene())
@@ -450,8 +450,8 @@ namespace Razix {
             ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, ImGuizmo::WORLD, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix));
 
             // TODO: Add snap options and control them from editor
-            float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-            float deltaTranslation[3], deltaRotation[3], deltaScale[3];
+            f32 matrixTranslation[3], matrixRotation[3], matrixScale[3];
+            f32 deltaTranslation[3], deltaRotation[3], deltaScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
             ImGuizmo::DecomposeMatrixToComponents(&(deltaMatrix[0][0]), deltaTranslation, deltaRotation, deltaScale);
 
@@ -515,7 +515,7 @@ namespace Razix {
 
             // Engine stats
             ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-            const float          DISTANCE         = 10.0f;
+            const f32          DISTANCE         = 10.0f;
             const ImGuiViewport* viewport         = ImGui::GetMainViewport();
             ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
             ImVec2               work_area_size   = viewport->WorkSize;

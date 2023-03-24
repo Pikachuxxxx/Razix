@@ -17,7 +17,7 @@
 namespace Razix {
 
     // Fixed size very simple thread safe ring buffer
-    template<typename T, size_t capacity>
+    template<typename T, sz capacity>
     class ThreadSafeRingBuffer
     {
     public:
@@ -29,7 +29,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTION();
             bool result = false;
             lock.lock();
-            size_t next = (head + 1) % capacity;
+            sz next = (head + 1) % capacity;
             if (next != tail) {
                 data[head] = item;
                 head       = next;
@@ -58,8 +58,8 @@ namespace Razix {
 
     private:
         T          data[capacity];
-        size_t     head = 0;
-        size_t     tail = 0;
+        sz     head = 0;
+        sz     tail = 0;
         std::mutex lock;
     };
 
@@ -67,13 +67,13 @@ namespace Razix {
     {
         Context*                             ctx;
         std::function<void(JobDispatchArgs)> task;
-        uint32_t                             groupID;
-        uint32_t                             groupJobOffset;
-        uint32_t                             groupJobEnd;
-        uint32_t                             sharedmemory_size;
+        u32                             groupID;
+        u32                             groupJobOffset;
+        u32                             groupJobEnd;
+        u32                             sharedmemory_size;
     };
 
-    uint32_t                       numThreads = 0;
+    u32                       numThreads = 0;
     ThreadSafeRingBuffer<Job, 256> jobQueue;
     std::condition_variable        wakeCondition;
     std::mutex                     wakeMutex;
@@ -91,7 +91,7 @@ namespace Razix {
                 args.sharedmemory = nullptr;
             }
 
-            for (uint32_t i = job.groupJobOffset; i < job.groupJobEnd; ++i) {
+            for (u32 i = job.groupJobOffset; i < job.groupJobEnd; ++i) {
                 RAZIX_PROFILE_SCOPE("Group Loop");
                 args.jobIndex          = i;
                 args.groupIndex        = i - job.groupJobOffset;
@@ -114,7 +114,7 @@ namespace Razix {
         // Calculate the actual number of worker threads we want:
         numThreads = glm::max(1U, numCores - 1);
 
-        for (uint32_t threadID = 0; threadID < numThreads; ++threadID) {
+        for (u32 threadID = 0; threadID < numThreads; ++threadID) {
             std::thread worker([threadID] {
                 std::stringstream ss;
                 ss << "JobSystem_" << threadID;
@@ -154,7 +154,7 @@ namespace Razix {
         RAZIX_CORE_INFO("Initialised JobSystem with [{0} cores] [{1} threads]", numCores, numThreads);
     }
 
-    uint32_t GetThreadCount()
+    u32 GetThreadCount()
     {
         return numThreads;
     }
@@ -182,14 +182,14 @@ namespace Razix {
         wakeCondition.notify_one();
     }
 
-    void Dispatch(Context& ctx, uint32_t jobCount, uint32_t groupSize, const std::function<void(JobDispatchArgs)>& task, size_t sharedmemory_size)
+    void Dispatch(Context& ctx, u32 jobCount, u32 groupSize, const std::function<void(JobDispatchArgs)>& task, sz sharedmemory_size)
     {
         RAZIX_PROFILE_FUNCTION();
         if (jobCount == 0 || groupSize == 0) {
             return;
         }
 
-        const uint32_t groupCount = DispatchGroupCount(jobCount, groupSize);
+        const u32 groupCount = DispatchGroupCount(jobCount, groupSize);
 
         // Context state is updated:
         ctx.counter.fetch_add(groupCount);
@@ -197,9 +197,9 @@ namespace Razix {
         Job job;
         job.ctx               = &ctx;
         job.task              = task;
-        job.sharedmemory_size = (uint32_t) sharedmemory_size;
+        job.sharedmemory_size = (u32) sharedmemory_size;
 
-        for (uint32_t groupID = 0; groupID < groupCount; ++groupID) {
+        for (u32 groupID = 0; groupID < groupCount; ++groupID) {
             // For each group, generate one real job:
             job.groupID        = groupID;
             job.groupJobOffset = groupID * groupSize;
@@ -213,7 +213,7 @@ namespace Razix {
         }
     }
 
-    uint32_t DispatchGroupCount(uint32_t jobCount, uint32_t groupSize)
+    u32 DispatchGroupCount(u32 jobCount, u32 groupSize)
     {
         // Calculate the amount of job groups to dispatch (overestimate, or "ceil"):
         return (jobCount + groupSize - 1) / groupSize;

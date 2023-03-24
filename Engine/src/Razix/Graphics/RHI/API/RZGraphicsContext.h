@@ -43,7 +43,7 @@ namespace Razix {
             //! Only here the Destroy method is in PascalCase rest of the API must maintain a camelCase destroy
             virtual void Destroy() = 0;
             /* Clears the screen with the given color */
-            virtual void ClearWithColor(float r, float g, float b) = 0;
+            virtual void ClearWithColor(f32 r, f32 g, f32 b) = 0;
 
             virtual void Wait() {}
 

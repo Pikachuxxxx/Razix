@@ -79,7 +79,7 @@ namespace Razix {
         {
             archive(cereal::make_nvp("UUID", m_SceneUUID.prettyString()));
             archive(cereal::make_nvp("SceneName", m_SceneName));
-            archive(cereal::make_nvp("Total Entities", (uint32_t) m_Registry.alive()));
+            archive(cereal::make_nvp("Total Entities", (u32) m_Registry.alive()));
         }
 
         template<class Archive>

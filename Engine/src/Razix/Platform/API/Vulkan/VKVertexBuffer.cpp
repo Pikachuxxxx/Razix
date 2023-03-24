@@ -9,7 +9,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKVertexBuffer::VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
+        VKVertexBuffer::VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
             : VKBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data RZ_DEBUG_E_ARG_NAME)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -38,14 +38,14 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void VKVertexBuffer::SetData(uint32_t size, const void* data)
+        void VKVertexBuffer::SetData(u32 size, const void* data)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             VKBuffer::setData(size, data);
         }
 
-        void VKVertexBuffer::Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKVertexBuffer::Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -68,7 +68,7 @@ namespace Razix {
             VKBuffer::destroy();
         }
 
-        void VKVertexBuffer::Map(uint32_t size, uint32_t offset)
+        void VKVertexBuffer::Map(u32 size, u32 offset)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

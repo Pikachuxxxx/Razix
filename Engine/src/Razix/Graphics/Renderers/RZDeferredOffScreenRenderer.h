@@ -19,7 +19,7 @@ namespace Razix {
         class RAZIX_EXPORT RZDeferredOffScreenRenderer : public IRZRenderer
         {
         public:
-            RZDeferredOffScreenRenderer(uint32_t width, uint32_t height);
+            RZDeferredOffScreenRenderer(u32 width, u32 height);
             ~RZDeferredOffScreenRenderer() override;
 
             void RenderScene() override;
@@ -32,7 +32,7 @@ namespace Razix {
             void EndScene() override;
             void End() override;
             void Present() override;
-            void OnResize(uint32_t width, uint32_t height) override;
+            void OnResize(u32 width, u32 height) override;
             void PresentToScreen() override {}
 
             void CreatePipeline();
@@ -53,8 +53,8 @@ namespace Razix {
             rzstl::Ref<Shader>                    m_AnimatedShader = nullptr;
             rzstl::Ref<Razix::Graphics::Pipeline> m_AnimatedPipeline;
             UniformBuffer*                 m_AnimUniformBuffer;
-            uint8_t*                       m_VSSystemUniformBufferAnim     = nullptr;
-            uint32_t                       m_VSSystemUniformBufferAnimSize = 0;
+            u8*                       m_VSSystemUniformBufferAnim     = nullptr;
+            u32                       m_VSSystemUniformBufferAnimSize = 0;
 
             struct UniformBufferModel
             {

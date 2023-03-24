@@ -24,7 +24,7 @@ namespace Razix {
 
         Graphics::RZTexture2D* LoadMaterialTextures(const std::string& typeName, std::vector<RZTexture2D*>& textures_loaded, const std::string& name, const std::string& directory)
         {
-            for (uint32_t j = 0; j < textures_loaded.size(); j++) {
+            for (u32 j = 0; j < textures_loaded.size(); j++) {
                 if (std::strcmp(textures_loaded[j]->getPath().c_str(), (directory + "/" + name).c_str()) == 0) {
                     return textures_loaded[j];
                 }
@@ -62,17 +62,17 @@ namespace Razix {
 
             // for submesh in meshes
             for (const auto& shape: shapes) {
-                uint32_t       vertexCount = 0;
-                const uint32_t numIndices  = static_cast<uint32_t>(shape.mesh.indices.size());
-                const uint32_t numVertices = numIndices;
+                u32       vertexCount = 0;
+                const u32 numIndices  = static_cast<u32>(shape.mesh.indices.size());
+                const u32 numVertices = numIndices;
 
                 Graphics::RZVertex* vertices = new Graphics::RZVertex[numVertices];
 
-                uint16_t*                                        indices = new uint16_t[numIndices];
-                std::unordered_map<Graphics::RZVertex, uint32_t> uniqueVertices;
+                u16*                                        indices = new u16[numIndices];
+                std::unordered_map<Graphics::RZVertex, u32> uniqueVertices;
 
                 // for vertex in vertices in the submesh
-                for (uint32_t i = 0; i < shape.mesh.indices.size(); i++) {
+                for (u32 i = 0; i < shape.mesh.indices.size(); i++) {
                     auto&              index = shape.mesh.indices[i];
                     Graphics::RZVertex vertex;
 
@@ -98,7 +98,7 @@ namespace Razix {
                     vertex.Color = vert_color;
 
                     if (uniqueVertices.count(vertex) == 0) {
-                        uniqueVertices[vertex] = static_cast<uint32_t>(vertexCount);
+                        uniqueVertices[vertex] = static_cast<u32>(vertexCount);
                         vertices[vertexCount]  = vertex;
                     }
 

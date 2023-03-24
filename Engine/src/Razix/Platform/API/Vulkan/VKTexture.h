@@ -29,12 +29,12 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture2D(const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
 
             /**
              * Creates an Empty 2D array texture
              */
-            VKTexture2D(const std::string& name, uint32_t width, uint32_t height, uint32_t numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
 
             /**
              * Creates a 2D Vulkan texture
@@ -69,9 +69,9 @@ namespace Razix {
              * @param image The reference to the image to be created
              * @param imageMemory The reference to the image memory to created and will be bound to
              */
-            static void CreateImage(uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
+            static void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
 
-            static void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+            static void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels);
 
             /**
              * Creates an ImageView for the Vulkan image
@@ -84,7 +84,7 @@ namespace Razix {
              * @param layerCount The layers of image views usually 1 unless stereoscopic 3D is used
              * @param baseArrayLayer used if sterescopic3D is used to identify the layer of image to create the image view for
              */
-            static VkImageView CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageView! NAME IT !!! LAZY ASS MF#$"));
+            static VkImageView CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageView! NAME IT !!! LAZY ASS MF#$"));
 
             /**
              * Creates a sampler to sampler the image in shader pipeline stage
@@ -99,12 +99,12 @@ namespace Razix {
              * @param modeV Texel V coordinate wrap mode
              * @param modeW Texel W coordinate wrap mode
              */
-            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, float minLod = 0.0f, float maxLod = 1.0f, bool anisotropyEnable = false, float maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageSampler! NAME IT !!! LAZY ASS MF#$"));
+            static VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, f32 minLod = 0.0f, f32 maxLod = 1.0f, bool anisotropyEnable = false, f32 maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageSampler! NAME IT !!! LAZY ASS MF#$"));
 
             /* Binds the texture object to the given slot */
-            void Bind(uint32_t slot) override {}
+            void Bind(u32 slot) override {}
             /* Unbinds the texture object to the given slot */
-            void Unbind(uint32_t slot) override {}
+            void Unbind(u32 slot) override {}
 
             /* Releases the vulkan texture resources */
             void Release(bool deleteImage) override;
@@ -143,7 +143,7 @@ namespace Razix {
             VkSampler             m_ImageSampler;                            /* Sampler information used by shaders to sample the texture                */
             VkDescriptorImageInfo m_Descriptor;                              /* Descriptor info encapsulation the image, view and the sampler            */
             VkImageLayout         m_ImageLayout = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                */
-            uint8_t*              m_data        = nullptr;                   /* Texture data with which the image is create with                         */
+            u8*              m_data        = nullptr;                   /* Texture data with which the image is create with                         */
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
@@ -158,12 +158,12 @@ namespace Razix {
         {
         public:
             /* This is used to generate cube map from equirectangular maps or multiple texture files */
-            VKTexture3D(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKTexture3D() {}
 
             void  Release(bool deleteImage = true) override;
-            void  Bind(uint32_t slot) override;
-            void  Unbind(uint32_t slot) override;
+            void  Bind(u32 slot) override;
+            void  Unbind(u32 slot) override;
             void* GetHandle() const override;
 
             /* Gets the vulkan image object */
@@ -196,8 +196,8 @@ namespace Razix {
             ~VKCubeMap() {}
 
             void  Release(bool deleteImage = true) override;
-            void  Bind(uint32_t slot) override;
-            void  Unbind(uint32_t slot) override;
+            void  Bind(u32 slot) override;
+            void  Unbind(u32 slot) override;
             void* GetHandle() const override;
 
             /* Gets the vulkan image object */
@@ -224,13 +224,13 @@ namespace Razix {
         class VKDepthTexture : public RZDepthTexture
         {
         public:
-            VKDepthTexture(uint32_t width, uint32_t height);
+            VKDepthTexture(u32 width, u32 height);
             ~VKDepthTexture();
 
-            void  Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) override;
+            void  Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG) override;
             void  Release(bool deleteImage = true) override;
-            void  Bind(uint32_t slot) override;
-            void  Unbind(uint32_t slot) override;
+            void  Bind(u32 slot) override;
+            void  Unbind(u32 slot) override;
             void* GetHandle() const override;
 
             /* Gets the vulkan image object */
@@ -257,17 +257,17 @@ namespace Razix {
         {
         public:
             VKRenderTexture(
-                uint32_t width, uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
+                u32 width, u32 height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
             VKRenderTexture(VkImage image, VkImageView imageView);
             ~VKRenderTexture() {}
 
-            void  Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) override;
+            void  Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG) override;
             void  Release(bool deleteImage = true) override;
-            void  Bind(uint32_t slot) override;
-            void  Unbind(uint32_t slot) override;
+            void  Bind(u32 slot) override;
+            void  Unbind(u32 slot) override;
             void* GetHandle() const override;
 
-            int32_t ReadPixels(uint32_t x, uint32_t y) override;
+            int32_t ReadPixels(u32 x, u32 y) override;
 
             /* Gets the vulkan image object */
             VkImage getImage() const { return m_Image; };

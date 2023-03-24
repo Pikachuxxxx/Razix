@@ -52,7 +52,7 @@ namespace Razix {
 		 * @param path The virtual path from which the file is read  
 		 * @returns Buffer pointer to contents of the string  
 		 */
-        uint8_t* readFile(const std::string& path);
+        u8* readFile(const std::string& path);
         /**
 		 * Reads a text file from the specified virtual path
 		 * 
@@ -66,7 +66,7 @@ namespace Razix {
 		 * @param path The virtual path to which the file is being written to  
 		 * @returns True, if the file was written successfully  
 		 */
-        bool writeFile(const std::string& path, uint8_t* buffer);
+        bool writeFile(const std::string& path, u8* buffer);
         /**
 		 * Writes the text file given the virtual path
 		 * 

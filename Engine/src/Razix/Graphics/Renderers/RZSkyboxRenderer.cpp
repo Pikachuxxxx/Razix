@@ -29,7 +29,7 @@ namespace Razix
 {
     namespace Graphics
     {
-        RZSkyboxRenderer::RZSkyboxRenderer(uint32_t width, uint32_t height)
+        RZSkyboxRenderer::RZSkyboxRenderer(u32 width, u32 height)
             : m_UniformBuffer(nullptr)
             , m_CubeMap(nullptr)
         {
@@ -93,7 +93,7 @@ namespace Razix
 
             // Vertex shader System uniforms
             m_VSSystemUniformBufferSize = sizeof(Maths::Matrix4);
-            m_VSSystemUniformBuffer = new uint8_t[m_VSSystemUniformBufferSize];
+            m_VSSystemUniformBuffer = new u8[m_VSSystemUniformBufferSize];
             memset(m_VSSystemUniformBuffer, 0, m_VSSystemUniformBufferSize);
             m_VSSystemUniformBufferOffsets.resize(VSSystemUniformIndex_Size);
 
@@ -188,7 +188,7 @@ namespace Razix
             m_UniformBuffer->SetData(sizeof(UniformBufferObject), *&m_VSSystemUniformBuffer);
         }
 
-        void RZSkyboxRenderer::OnResize(uint32_t width, uint32_t height)
+        void RZSkyboxRenderer::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTION();
             m_Framebuffers.clear();
@@ -219,7 +219,7 @@ namespace Razix
             if(m_UniformBuffer == nullptr)
             {
                 m_UniformBuffer = Graphics::UniformBuffer::Create();
-                uint32_t bufferSize = static_cast<uint32_t>(sizeof(UniformBufferObject));
+                u32 bufferSize = static_cast<u32>(sizeof(UniformBufferObject));
                 m_UniformBuffer->Init(bufferSize, nullptr);
             }
 
@@ -297,7 +297,7 @@ namespace Razix
             }
             else
             {
-                for(uint32_t i = 0; i < Renderer::GetSwapchain()->GetSwapchainBufferCount(); i++)
+                for(u32 i = 0; i < Renderer::GetSwapchain()->GetSwapchainBufferCount(); i++)
                 {
                     bufferInfo.screenFBO = true;
                     attachments[0] = Renderer::GetSwapchain()->GetImage(i);

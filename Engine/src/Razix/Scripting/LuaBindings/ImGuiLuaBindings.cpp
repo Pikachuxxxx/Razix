@@ -17,7 +17,7 @@ namespace Razix {
             // Functions
 
             imgui.new_usertype<ImVec2>("ImVec2",
-                sol::constructors<ImVec2(float, float)>(),
+                sol::constructors<ImVec2(f32, f32)>(),
                 "x",
                 &ImVec2::x,
                 "y",
@@ -71,20 +71,20 @@ namespace Razix {
                 return bShow;
             };
 
-            imgui["beginWindow"] = sol::overload([](const char* _str) { return ImGui::Begin(_str); },
-                [](const char* _str, ImGuiWindowFlags _flags) { return ImGui::Begin(_str, NULL, _flags); });
+            imgui["beginWindow"] = sol::overload([](cstr _str) { return ImGui::Begin(_str); },
+                [](cstr _str, ImGuiWindowFlags _flags) { return ImGui::Begin(_str, NULL, _flags); });
             imgui["endWindow"]   = ImGui::End;
 
             imgui["beginCombo"] = sol::overload(
-                [](const char* _label, const char* _preview_value) { return ImGui::BeginCombo(_label, _preview_value); });
+                [](cstr _label, cstr _preview_value) { return ImGui::BeginCombo(_label, _preview_value); });
             imgui["endCombo"]   = ImGui::EndCombo;
 
             imgui["selectable"] = sol::overload(
-                [](const char* _label, bool _bSelected, sol::function _cb) {
+                [](cstr _label, bool _bSelected, sol::function _cb) {
                     if (ImGui::Selectable(_label, &_bSelected))
                         _cb(_bSelected);
                 },
-                [](const char* _label, bool _bSelected, ImGuiSelectableFlags _flags, sol::function _cb) {
+                [](cstr _label, bool _bSelected, ImGuiSelectableFlags _flags, sol::function _cb) {
                     if (ImGui::Selectable(_label, &_bSelected, _flags))
                         _cb(_bSelected);
                 });
@@ -94,59 +94,59 @@ namespace Razix {
             imgui["separator"] = ImGui::Separator;
 
             imgui["sameLine"] = sol::overload(
-                ImGui::SameLine, []() { ImGui::SameLine(); }, [](float _localPos) { ImGui::SameLine(_localPos); });
+                ImGui::SameLine, []() { ImGui::SameLine(); }, [](f32 _localPos) { ImGui::SameLine(_localPos); });
 
             imgui["newLine"] = ImGui::NewLine;
             imgui["spacing"] = ImGui::Spacing;
             imgui["dummy"]   = ImGui::Dummy;
 
-            imgui["text"] = [](const char* _text) {
+            imgui["text"] = [](cstr _text) {
                 ImGui::TextUnformatted(_text);
             };
 
-            imgui["button"] = sol::overload(ImGui::Button, [](const char* _label) { return ImGui::Button(_label); });
+            imgui["button"] = sol::overload(ImGui::Button, [](cstr _label) { return ImGui::Button(_label); });
 
-            imgui["checkbox"] = [](const char* _name, bool _bSelected, sol::function _cb) {
+            imgui["checkbox"] = [](cstr _name, bool _bSelected, sol::function _cb) {
                 if (ImGui::Checkbox(_name, &_bSelected)) {
                     _cb(_bSelected);
                 }
             };
-            imgui["radioButton"] = (bool (*)(const char*, bool)) ImGui::RadioButton;
+            imgui["radioButton"] = (bool (*)(cstr, bool)) ImGui::RadioButton;
 
             imgui["dragFloat"] = sol::overload(
-                [](const char* _label, float _currentValue, sol::function _cb) {
+                [](cstr _label, f32 _currentValue, sol::function _cb) {
                     if (ImGui::DragFloat(_label, &_currentValue))
                         _cb(_currentValue);
                 },
-                [](const char* _label, float _currentValue, float _v_speed, sol::function _cb) {
+                [](cstr _label, f32 _currentValue, f32 _v_speed, sol::function _cb) {
                     if (ImGui::DragFloat(_label, &_currentValue, _v_speed))
                         _cb(_currentValue);
                 },
-                [](const char* _label, float _currentValue, float _v_speed, float _v_min, sol::function _cb) {
+                [](cstr _label, f32 _currentValue, f32 _v_speed, f32 _v_min, sol::function _cb) {
                     if (ImGui::DragFloat(_label, &_currentValue, _v_speed, _v_min))
                         _cb(_currentValue);
                 },
-                [](const char* _label, float _currentValue, float _v_speed, float _v_min, float _v_max, sol::function _cb) {
+                [](cstr _label, f32 _currentValue, f32 _v_speed, f32 _v_min, f32 _v_max, sol::function _cb) {
                     if (ImGui::DragFloat(_label, &_currentValue, _v_speed, _v_min, _v_max))
                         _cb(_currentValue);
                 },
-                [](const char*    _label,
-                    float         _currentValue,
-                    float         _v_speed,
-                    float         _v_min,
-                    float         _v_max,
-                    const char*   _fmt,
+                [](cstr    _label,
+                    f32         _currentValue,
+                    f32         _v_speed,
+                    f32         _v_min,
+                    f32         _v_max,
+                    cstr   _fmt,
                     sol::function _cb) {
                     if (ImGui::DragFloat(_label, &_currentValue, _v_speed, _v_min, _v_max, _fmt))
                         _cb(_currentValue);
                 },
-                [](const char*    _label,
-                    float         _currentValue,
-                    float         _v_speed,
-                    float         _v_min,
-                    float         _v_max,
-                    const char*   _fmt,
-                    float         _power,
+                [](cstr    _label,
+                    f32         _currentValue,
+                    f32         _v_speed,
+                    f32         _v_min,
+                    f32         _v_max,
+                    cstr   _fmt,
+                    f32         _power,
                     sol::function _cb) {
                     if (ImGui::DragFloat(_label, &_currentValue, _v_speed, _v_min, _v_max, _fmt, _power))
                         _cb(_currentValue);

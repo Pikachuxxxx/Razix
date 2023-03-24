@@ -18,11 +18,11 @@ namespace Razix {
                 RZGraphNode &operator=(RZGraphNode &&) noexcept = delete;
 
             protected:
-                RZGraphNode(const std::string_view name, uint32_t id);
+                RZGraphNode(const std::string_view name, u32 id);
 
             protected:
                 const std::string m_Name;        /* Name of the Node                                */
-                const uint32_t    m_ID;          /* Unique id, matches an array index in FrameGraph */
+                const u32    m_ID;          /* Unique id, matches an array index in FrameGraph */
                 int32_t           m_RefCount{0}; /* References to this node in the graph            */
             };
         }    // namespace FrameGraph

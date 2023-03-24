@@ -91,7 +91,7 @@ namespace Razix {
         return false;
     }
 
-    uint8_t* RZVirtualFileSystem::readFile(const std::string& path)
+    u8* RZVirtualFileSystem::readFile(const std::string& path)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
         std::string physicalPath;
@@ -105,7 +105,7 @@ namespace Razix {
         return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::ReadTextFile(physicalPath) : nullptr;
     }
 
-    bool RZVirtualFileSystem::writeFile(const std::string& path, uint8_t* buffer)
+    bool RZVirtualFileSystem::writeFile(const std::string& path, u8* buffer)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
         std::string physicalPath;

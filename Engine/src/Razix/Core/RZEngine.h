@@ -31,26 +31,26 @@ namespace Razix {
         /* Statistic about the current frame */
         struct Stats
         {
-            float    DeltaTime        = 0;    //[x]
-            uint32_t UpdatesPerSecond = 0;    //[x]
-            uint32_t FramesPerSecond  = 0;    //[x]
+            f32    DeltaTime        = 0;    //[x]
+            u32 UpdatesPerSecond = 0;    //[x]
+            u32 FramesPerSecond  = 0;    //[x]
             // API calls
-            uint32_t NumDrawCalls      = 0;    //[x]
-            uint32_t Draws             = 0;    //[x]
-            uint32_t IndexedDraws      = 0;    //[x]
-            uint32_t ComputeDispatches = 0;    //[x]
+            u32 NumDrawCalls      = 0;    //[x]
+            u32 Draws             = 0;    //[x]
+            u32 IndexedDraws      = 0;    //[x]
+            u32 ComputeDispatches = 0;    //[x]
             // Memory stats
-            uint32_t GPUMemoryUsed  = 0;    //[ ] // Needs VMA kind of allocator
-            uint32_t TotalGPUMemory = 0;    //[ ] // Needs VMA kind of allocator
-            uint32_t UsedRAM        = 0;    //[ ] // Needs platform specific implementation
+            u32 GPUMemoryUsed  = 0;    //[ ] // Needs VMA kind of allocator
+            u32 TotalGPUMemory = 0;    //[ ] // Needs VMA kind of allocator
+            u32 UsedRAM        = 0;    //[ ] // Needs platform specific implementation
             // Resource stats
-            uint32_t MeshesRendered        = 0;    //[x]
-            uint32_t TexturesInMemory      = 0;
-            uint32_t DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
+            u32 MeshesRendered        = 0;    //[x]
+            u32 TexturesInMemory      = 0;
+            u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
             // Renderer pass stats
-            float GridPass            = 0.0f;
-            float ForwardLightingPass = 0.0f;
-            float ImGuiPass           = 0.0f;
+            f32 GridPass            = 0.0f;
+            f32 ForwardLightingPass = 0.0f;
+            f32 ImGuiPass           = 0.0f;
 
             void reset()
             {
@@ -117,13 +117,13 @@ namespace Razix {
         /// <summary>
         /// Gets the maximum number of frames that can be rendered
         /// </summary>
-        const float& getTargetFrameRate() const { return m_MaxFramesPerSecond; }
+        const f32& getTargetFrameRate() const { return m_MaxFramesPerSecond; }
 
         /// <summary>
         /// Sets the maximum number of frames per second
         /// </summary>
         /// <param name="targetFPS"> The targeted FPS for the engine </param>
-        void setTargetFrameRate(const float& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
+        void setTargetFrameRate(const f32& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
 
         // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
         Graphics::RZWorldRenderer&     getWorldRenderer() { return m_WorldRenderer; }
@@ -133,7 +133,7 @@ namespace Razix {
 
     private:
         Stats       m_Stats;                                /* Current frame basic statistics	                                */
-        float       m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
+        f32       m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
         std::string m_EngineInstallationDir;
     };
 }    // namespace Razix

@@ -12,24 +12,24 @@ namespace Razix {
         class OpenGLSwapchain : public RZSwapchain
         {
         public:
-            OpenGLSwapchain(uint32_t width, uint32_t height);
+            OpenGLSwapchain(u32 width, u32 height);
 
-            void  Init(uint32_t width, uint32_t height) override {}
+            void  Init(u32 width, u32 height) override {}
             void  Destroy() override {}
             void  Flip() override;
-            void  OnResize(uint32_t width, uint32_t height) override {}
+            void  OnResize(u32 width, u32 height) override {}
             void* GetAPIHandle() override { return nullptr; }
 
             RZTexture*       GetCurrentImage() override { return nullptr; }
-            RZTexture*       GetImage(uint32_t index) override { return nullptr; }
-            size_t           GetSwapchainImageCount() override { return 1; }
+            RZTexture*       GetImage(u32 index) override { return nullptr; }
+            sz           GetSwapchainImageCount() override { return 1; }
 
-            uint32_t getCurrentImageIndex() override { return 0; }
+            u32 getCurrentImageIndex() override { return 0; }
 
         private:
-            uint32_t m_Width;
-            uint32_t m_Height;
-            uint32_t m_CurrentImageIndex = 0;
+            u32 m_Width;
+            u32 m_Height;
+            u32 m_CurrentImageIndex = 0;
             OpenGLCommandBuffer* m_DummyCmdBuffer;
         };
     }    // namespace Graphics

@@ -28,7 +28,7 @@ namespace Razix {
              * @parma data The data being stored in the uniform buffer
              * @returns The pointer handle to underlying Uniform buffer API implementation
              */
-            static RZUniformBuffer* Create(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
+            static RZUniformBuffer* Create(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
 
             /* Initializes the uniform buffer */
             virtual void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
@@ -40,7 +40,7 @@ namespace Razix {
              * @param size The size of the uniform buffer
              * @param data The data being stored in the uniform buffer
              */
-            virtual void SetData(uint32_t size, const void* data) = 0;
+            virtual void SetData(u32 size, const void* data) = 0;
             /* Destroys the uniform buffer and frees the buffer and other resources it's holds such as memory etc. */
             virtual void Destroy() = 0;
         };

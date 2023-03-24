@@ -66,11 +66,11 @@ namespace Razix {
         return result;
     }
 
-    uint8_t* RZFileSystem::ReadFile(const std::string& path)
+    u8* RZFileSystem::ReadFile(const std::string& path)
     {
         const HANDLE  file   = OpenFileForReading(path);
         const int64_t size   = GetFileSizeInternal(file);
-        uint8_t*      buffer = new uint8_t[static_cast<uint32_t>(size)];
+        u8*      buffer = new u8[static_cast<u32>(size)];
         const bool    result = ReadFileInternal(file, buffer, size);
         CloseHandle(file);
         if (!result)
@@ -82,7 +82,7 @@ namespace Razix {
     {
         const HANDLE  file = OpenFileForReading(path);
         const int64_t size = GetFileSizeInternal(file);
-        std::string   result(static_cast<uint32_t>(size), 0);
+        std::string   result(static_cast<u32>(size), 0);
         const bool    success = ReadFileInternal(file, &result[0], size);
         CloseHandle(file);
         if (success) {
@@ -92,7 +92,7 @@ namespace Razix {
         return success ? result : std::string();
     }
 
-    bool RZFileSystem::WriteFile(const std::string& path, uint8_t* buffer)
+    bool RZFileSystem::WriteFile(const std::string& path, u8* buffer)
     {
         const HANDLE file = CreateFile(path.c_str(), GENERIC_WRITE, NULL, nullptr, CREATE_NEW | OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (file == INVALID_HANDLE_VALUE)
@@ -107,7 +107,7 @@ namespace Razix {
 
     bool RZFileSystem::WriteTextFile(const std::string& path, const std::string& text)
     {
-        return WriteFile(path, (uint8_t*) &text[0]);
+        return WriteFile(path, (u8*) &text[0]);
     }
 }    // namespace Razix
 

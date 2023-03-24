@@ -63,7 +63,7 @@ namespace Razix {
 
         void OpenGLShader::init()
         {
-            uint32_t vertex_shader, pixel_shader;
+            u32 vertex_shader, pixel_shader;
             // TODO: Add support for geometry, tessellation and compute shaders
             //, geom_shader, compute_shader;
             GLint    success;
@@ -76,9 +76,9 @@ namespace Razix {
                 RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, outPath);
                 int64_t fileSize = RZFileSystem::GetFileSize(outPath);
 
-                uint32_t* spvSource = reinterpret_cast<uint32_t*>(RZVirtualFileSystem::Get().readFile(virtualPath));
+                u32* spvSource = reinterpret_cast<u32*>(RZVirtualFileSystem::Get().readFile(virtualPath));
 
-                std::vector<uint32_t> spv(spvSource, spvSource + fileSize / sizeof(uint32_t));
+                std::vector<u32> spv(spvSource, spvSource + fileSize / sizeof(u32));
 
                 RAZIX_CORE_TRACE("Loading compiled shader : {0}", virtualPath);
 
@@ -89,7 +89,7 @@ namespace Razix {
 
                 // Get the input variables info to create the buffer layout for glsl only in the vertex shader
                 if (source.first == ShaderStage::VERTEX) {
-                    uint32_t stride = 0;
+                    u32 stride = 0;
                     for (const spirv_cross::Resource& resource: resources.stage_inputs) {
                         const spirv_cross::SPIRType& InputType = glsl.get_type(resource.type_id);
 
@@ -104,8 +104,8 @@ namespace Razix {
                 // reflecting the sampled images in the shader
                 for (auto& resource: resources.sampled_images) {
                     // Get the shader and binding info for sampler and get the type of the sampler
-                    uint32_t set     = glsl.get_decoration(resource.id, spv::DecorationDescriptorSet);
-                    uint32_t binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
+                    u32 set     = glsl.get_decoration(resource.id, spv::DecorationDescriptorSet);
+                    u32 binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
 
                     RAZIX_CORE_TRACE("Image Sampler binding : {0}, set : {1}", binding, set);
 
@@ -146,11 +146,11 @@ namespace Razix {
                     auto set{glsl.get_decoration(uniform_buffer.id, spv::Decoration::DecorationDescriptorSet)};
                     glsl.set_decoration(uniform_buffer.id, spv::Decoration::DecorationDescriptorSet, DESCRIPTOR_TABLE_INITIAL_SPACE + 2 * set);
 
-                    uint32_t binding    = glsl.get_decoration(uniform_buffer.id, spv::DecorationBinding);
+                    u32 binding    = glsl.get_decoration(uniform_buffer.id, spv::DecorationBinding);
                     auto&    bufferType = glsl.get_type(uniform_buffer.type_id);
 
                     auto bufferSize  = glsl.get_declared_struct_size(bufferType);
-                    uint32_t  memberCount = (uint32_t) bufferType.member_types.size();
+                    u32  memberCount = (u32) bufferType.member_types.size();
 
                     RZDescriptorLayoutBinding bindingLayout = {};
                     bindingLayout.binding                   = binding;
@@ -167,12 +167,12 @@ namespace Razix {
                     rzDescriptor.typeName    = glsl.get_name(uniform_buffer.base_type_id);
                     rzDescriptor.name        = glsl.get_name(uniform_buffer.id);
                     rzDescriptor.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
-                    rzDescriptor.size        = static_cast<uint32_t>(bufferSize);
+                    rzDescriptor.size        = static_cast<u32>(bufferSize);
 
                     RAZIX_CORE_TRACE("Uniform buffer info | binding : {0}, set : {1}, bufferSize : {2}, memberCount : {3}, name : {4}", binding, set, bufferSize, memberCount, glsl.get_name(uniform_buffer.id));
 
                     // Get the member info
-                    for (uint32_t i = 0; i < memberCount; i++) {
+                    for (u32 i = 0; i < memberCount; i++) {
                         auto& type       = glsl.get_type(bufferType.member_types[i]);
                         auto& memberName = glsl.get_member_name(bufferType.self, i);
                         auto  size       = glsl.get_declared_struct_member_size(bufferType, i);
@@ -182,7 +182,7 @@ namespace Razix {
 
                         RZShaderBufferMemberInfo memberInfo;
 
-                        memberInfo.size   = (uint32_t) size;
+                        memberInfo.size   = (u32) size;
                         memberInfo.offset = offset;
                         //memberInfo.type     = spirvtype(type); // TODO: Add utility function for conversion
                         memberInfo.fullName = uniformName;
@@ -201,17 +201,17 @@ namespace Razix {
                 //---------------------------------------------------------------------------------------------------------------------------------------
                 // Push constants
                 for (auto& push_constant: resources.push_constant_buffers) {
-                    uint32_t set     = glsl.get_decoration(push_constant.id, spv::DecorationDescriptorSet);
-                    uint32_t binding = glsl.get_decoration(push_constant.id, spv::DecorationBinding);
+                    u32 set     = glsl.get_decoration(push_constant.id, spv::DecorationDescriptorSet);
+                    u32 binding = glsl.get_decoration(push_constant.id, spv::DecorationBinding);
 
                     auto& type = glsl.get_type(push_constant.type_id);
                     auto& name = glsl.get_name(push_constant.id);
 
                     auto ranges = glsl.get_active_buffer_ranges(push_constant.id);
 
-                    uint32_t size = 0;
+                    u32 size = 0;
                     for (auto& range: ranges) {
-                        size += uint32_t(range.range);
+                        size += u32(range.range);
                     }
 
                     auto& bufferType  = glsl.get_type(push_constant.base_type_id);
@@ -223,7 +223,7 @@ namespace Razix {
                     glsl.set_decoration(push_constant.id, spv::Decoration::DecorationBinding, binding + set);
                     //glsl.set_decoration(u.id, spv::Decort)
                     //m_PushConstants.push_back({size, file.first});
-                    //m_PushConstants.back().data = new uint8_t[size];
+                    //m_PushConstants.back().data = new u8[size];
 
                     RZDescriptorLayoutBinding bindingLayout = {};
                     bindingLayout.binding                   = binding;
@@ -245,7 +245,7 @@ namespace Razix {
                     pc.name        = glsl.get_name(push_constant.id);
                     pc.shaderStage = bindingLayout.stage;
                     pc.data        = nullptr;
-                    pc.size        =  static_cast<uint32_t>(bufferSize);
+                    pc.size        =  static_cast<u32>(bufferSize);
                     pc.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
                     pc.bindingInfo = bindingLayout;
 
@@ -259,7 +259,7 @@ namespace Razix {
 
                         RZShaderBufferMemberInfo memberInfo;
 
-                        memberInfo.size   = (uint32_t) size;
+                        memberInfo.size   = (u32) size;
                         memberInfo.offset = offset;
                         // TODO: Add utility function for conversion
                         //memberInfo.type     = spirvtype(type); 
@@ -350,7 +350,7 @@ namespace Razix {
             if (type.basetype == spirv_cross::SPIRType::Float) {
                 switch (type.vecsize) {
                     case 1:
-                        layout.push<float>(name);
+                        layout.push<f32>(name);
                         break;
                     case 2:
                         layout.push<glm::vec2>(name);

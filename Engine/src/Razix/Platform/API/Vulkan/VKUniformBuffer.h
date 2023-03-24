@@ -20,12 +20,12 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer is filled with
              */
-            VKUniformBuffer(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
+            VKUniformBuffer(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKUniformBuffer() {}
 
             void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
             void Bind() override {}
-            void SetData(uint32_t size, const void* data) override;
+            void SetData(u32 size, const void* data) override;
             void Destroy() override;
         };
     }    // namespace Graphics

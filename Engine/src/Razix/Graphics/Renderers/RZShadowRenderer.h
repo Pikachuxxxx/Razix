@@ -33,7 +33,7 @@ namespace Razix {
 
             void End() override;
 
-            void Resize(uint32_t width, uint32_t height) override;
+            void Resize(u32 width, u32 height) override;
 
             void Destroy() override;
 
@@ -57,13 +57,13 @@ namespace Razix {
              * 
              * @returns The split distance and the cascade view proj matrix
              */
-            static std::vector<Cascade> buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, uint32_t numCascades, float lambda, uint32_t shadowMapSize);
-            static std::vector<float>   buildCascadeSplits(uint32_t numCascades, float lambda, float nearPlane, float clipRange);
+            static std::vector<Cascade> buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize);
+            static std::vector<f32>   buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange);
 
-            static FrustumCorners buildFrustumCorners(const glm::mat4& inversedViewProj, float splitDist, float lastSplitDist);
+            static FrustumCorners buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist);
             static auto           measureFrustum(const FrustumCorners& frustumCorners);
-            static void           eliminateShimmering(glm::mat4& projection, const glm::mat4& view, uint32_t shadowMapSize);
-            static glm::mat4      buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, uint32_t shadowMapSize, float splitDist, float lastSplitDist);
+            static void           eliminateShimmering(glm::mat4& projection, const glm::mat4& view, u32 shadowMapSize);
+            static glm::mat4      buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist);
 
         private:
             RZUniformBuffer* m_CascadedMatricesUBO;
@@ -75,7 +75,7 @@ namespace Razix {
                 RZPipeline*                   CascadePassPipeline;
             } cascadeGPUResources[kNumCascades];
 
-            FrameGraph::RZFrameGraphResource addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, const glm::mat4& lightViewProj, Razix::RZScene* scene, uint32_t cascadeIdx);
+            FrameGraph::RZFrameGraphResource addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, const glm::mat4& lightViewProj, Razix::RZScene* scene, u32 cascadeIdx);
         };
     }    // namespace Graphics
 }    // namespace Razix

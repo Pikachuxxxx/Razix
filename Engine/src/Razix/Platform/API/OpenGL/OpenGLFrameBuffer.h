@@ -16,8 +16,8 @@ namespace Razix {
             void Destroy() override;
 
         private:
-            uint32_t m_FBO;
-            uint32_t m_RBO;
+            u32 m_FBO;
+            u32 m_RBO;
             bool     isScreen = true;
         };
     }    // namespace Graphics

@@ -7,7 +7,7 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            RZGraphNode::RZGraphNode(const std::string_view name, uint32_t id)
+            RZGraphNode::RZGraphNode(const std::string_view name, u32 id)
                 : m_Name(name), m_ID(id)
             {
             }

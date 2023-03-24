@@ -7,11 +7,11 @@ namespace Razix {
     class RAZIX_API RZMouseMovedEvent : public RZEvent
     {
     public:
-        RZMouseMovedEvent(float x, float y)
+        RZMouseMovedEvent(f32 x, f32 y)
             : m_MouseX(x), m_MouseY(y) {}
 
-        inline float GetX() const { return m_MouseX; }
-        inline float GetY() const { return m_MouseY; }
+        inline f32 GetX() const { return m_MouseX; }
+        inline f32 GetY() const { return m_MouseY; }
 
         std::string ToString() const override
         {
@@ -23,17 +23,17 @@ namespace Razix {
         EVENT_CLASS_TYPE(MouseMoved)
         EVENT_CLASS_CATEGORY((int) EventCategory::EventCategoryMouse | (int) EventCategory::EventCategoryInput)
     private:
-        float m_MouseX, m_MouseY;
+        f32 m_MouseX, m_MouseY;
     };
 
     class RAZIX_API RZMouseScrolledEvent : public RZEvent
     {
     public:
-        RZMouseScrolledEvent(float xOffset, float yOffset)
+        RZMouseScrolledEvent(f32 xOffset, f32 yOffset)
             : m_XOffset(xOffset), m_YOffset(yOffset) {}
 
-        inline float GetXOffset() const { return m_XOffset; }
-        inline float GetYOffset() const { return m_YOffset; }
+        inline f32 GetXOffset() const { return m_XOffset; }
+        inline f32 GetYOffset() const { return m_YOffset; }
 
         std::string ToString() const override
         {
@@ -45,7 +45,7 @@ namespace Razix {
         EVENT_CLASS_TYPE(MouseScrolled)
         EVENT_CLASS_CATEGORY((int) EventCategory::EventCategoryMouse | (int) EventCategory::EventCategoryInput)
     private:
-        float m_XOffset, m_YOffset;
+        f32 m_XOffset, m_YOffset;
     };
 
     class RAZIX_API RZMouseButtonEvent : public RZEvent

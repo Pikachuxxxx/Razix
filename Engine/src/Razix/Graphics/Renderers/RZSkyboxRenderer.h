@@ -14,12 +14,12 @@ namespace Razix
         class RAZIX_API RZSkyboxRenderer : public IRZRenderer
         {
         public:
-            RZSkyboxRenderer(uint32_t width, uint32_t height);
+            RZSkyboxRenderer(u32 width, u32 height);
             ~RZSkyboxRenderer();
 
             void Init() override;
             void BeginScene(Scene* scene, Camera* overrideCamera) override;
-            void OnResize(uint32_t width, uint32_t height) override;
+            void OnResize(u32 width, u32 height) override;
             void CreateGraphicsPipeline();
             void SetCubeMap(Texture* cubeMap);
             void UpdateUniformBuffer();
@@ -49,7 +49,7 @@ namespace Razix
 
             Razix::Graphics::UniformBuffer* m_UniformBuffer;
 
-            uint32_t m_CurrentBufferID = 0;
+            u32 m_CurrentBufferID = 0;
 
             Mesh* m_Skybox;
             Texture* m_CubeMap;

@@ -2,6 +2,7 @@
 
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZProfiling.h"
+#include "Razix/Core/RZDataTypes.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
@@ -28,7 +29,7 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 static int EngineMain(int argc, char** argv)
 {
     // Read the command line arguments
-    static std::vector<const char*> args;
+    static std::vector<cstr> args;
     for (int32_t i = 1; i < argc; i++) {
         args.push_back(argv[i]);
     };

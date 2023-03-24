@@ -9,7 +9,7 @@ namespace Razix {
 
             glm::vec3 getExtent() const;
             glm::vec3 getCenter() const;
-            float     getRadius() const;
+            f32     getRadius() const;
 
             RZAABB transform(const glm::mat4& m) const;
 

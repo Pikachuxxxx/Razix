@@ -36,7 +36,7 @@ namespace Razix {
             glfwTerminate();
         }
 
-        void OpenGLContext::ClearWithColor(float r, float g, float b)
+        void OpenGLContext::ClearWithColor(f32 r, f32 g, f32 b)
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glClearColor(r, g, b, 1.0f);

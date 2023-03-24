@@ -43,15 +43,15 @@ namespace Razix {
             tinygltf::Sampler* Sampler;
         };
 
-        static std::map<int32_t, size_t> ComponentSize{
+        static std::map<int32_t, sz> ComponentSize{
             {TINYGLTF_COMPONENT_TYPE_BYTE, sizeof(int8_t)},
-            {TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE, sizeof(uint8_t)},
+            {TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE, sizeof(u8)},
             {TINYGLTF_COMPONENT_TYPE_SHORT, sizeof(int16_t)},
-            {TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT, sizeof(uint16_t)},
+            {TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT, sizeof(u16)},
             {TINYGLTF_COMPONENT_TYPE_INT, sizeof(int32_t)},
-            {TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT, sizeof(uint32_t)},
-            {TINYGLTF_COMPONENT_TYPE_FLOAT, sizeof(float)},
-            {TINYGLTF_COMPONENT_TYPE_DOUBLE, sizeof(double)}};
+            {TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT, sizeof(u32)},
+            {TINYGLTF_COMPONENT_TYPE_FLOAT, sizeof(f32)},
+            {TINYGLTF_COMPONENT_TYPE_DOUBLE, sizeof(d32)}};
 
         static std::map<int, int> GLTF_COMPONENT_LENGTH_LOOKUP = {
             {TINYGLTF_TYPE_SCALAR, 1},
@@ -72,7 +72,7 @@ namespace Razix {
 
         struct Vector4Simple
         {
-            float x, y, z, w;
+            f32 x, y, z, w;
         };
 
         inline glm::vec4 ToVector(const Vector4Simple& vec)
@@ -139,17 +139,17 @@ namespace Razix {
                 auto emissiveFactor  = mat.values.find("emissiveFactor");
 
                 if (roughnessFactor != mat.values.end()) {
-                    properties.roughnessColor = glm::vec4(static_cast<float>(roughnessFactor->second.Factor())).a;
+                    properties.roughnessColor = glm::vec4(static_cast<f32>(roughnessFactor->second.Factor())).a;
                 }
 
                 if (metallicFactor != mat.values.end()) {
-                    properties.metallicColor = glm::vec4(static_cast<float>(metallicFactor->second.Factor())).r;
+                    properties.metallicColor = glm::vec4(static_cast<f32>(metallicFactor->second.Factor())).r;
                 }
 
                 if (baseColorFactor != mat.values.end()) {
-                    properties.albedoColor = glm::vec3((float) baseColorFactor->second.ColorFactor()[0], (float) baseColorFactor->second.ColorFactor()[1], (float) baseColorFactor->second.ColorFactor()[2]);
+                    properties.albedoColor = glm::vec3((f32) baseColorFactor->second.ColorFactor()[0], (f32) baseColorFactor->second.ColorFactor()[1], (f32) baseColorFactor->second.ColorFactor()[2]);
 
-                    properties.opacity = (float) baseColorFactor->second.ColorFactor()[3];
+                    properties.opacity = (f32) baseColorFactor->second.ColorFactor()[3];
                 }
 
                 // Extensions
@@ -169,21 +169,21 @@ namespace Razix {
 
                     if (metallicGlossinessWorkflow->second.Has("diffuseFactor")) {
                         auto& factor             = metallicGlossinessWorkflow->second.Get("diffuseFactor");
-                        properties.albedoColor.x = factor.ArrayLen() > 0 ? float(factor.Get(0).IsNumber() ? factor.Get(0).Get<double>() : factor.Get(0).Get<int>()) : 1.0f;
-                        properties.albedoColor.y = factor.ArrayLen() > 1 ? float(factor.Get(1).IsNumber() ? factor.Get(1).Get<double>() : factor.Get(1).Get<int>()) : 1.0f;
-                        properties.albedoColor.z = factor.ArrayLen() > 2 ? float(factor.Get(2).IsNumber() ? factor.Get(2).Get<double>() : factor.Get(2).Get<int>()) : 1.0f;
-                        properties.opacity       = factor.ArrayLen() > 3 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
+                        properties.albedoColor.x = factor.ArrayLen() > 0 ? f32(factor.Get(0).IsNumber() ? factor.Get(0).Get<d32>() : factor.Get(0).Get<int>()) : 1.0f;
+                        properties.albedoColor.y = factor.ArrayLen() > 1 ? f32(factor.Get(1).IsNumber() ? factor.Get(1).Get<d32>() : factor.Get(1).Get<int>()) : 1.0f;
+                        properties.albedoColor.z = factor.ArrayLen() > 2 ? f32(factor.Get(2).IsNumber() ? factor.Get(2).Get<d32>() : factor.Get(2).Get<int>()) : 1.0f;
+                        properties.opacity       = factor.ArrayLen() > 3 ? f32(factor.Get(3).IsNumber() ? factor.Get(3).Get<d32>() : factor.Get(3).Get<int>()) : 1.0f;
                     }
                     if (metallicGlossinessWorkflow->second.Has("metallicFactor")) {
                         auto& factor               = metallicGlossinessWorkflow->second.Get("metallicFactor");
-                        properties.metallicColor = factor.ArrayLen() > 0 ? float(factor.Get(0).IsNumber() ? factor.Get(0).Get<double>() : factor.Get(0).Get<int>()) : 1.0f;
-                        //properties.metallicColor.y = factor.ArrayLen() > 0 ? float(factor.Get(1).IsNumber() ? factor.Get(1).Get<double>() : factor.Get(1).Get<int>()) : 1.0f;
-                        //properties.metallicColor.z = factor.ArrayLen() > 0 ? float(factor.Get(2).IsNumber() ? factor.Get(2).Get<double>() : factor.Get(2).Get<int>()) : 1.0f;
-                        //properties.metallicColor.w = factor.ArrayLen() > 0 ? float(factor.Get(3).IsNumber() ? factor.Get(3).Get<double>() : factor.Get(3).Get<int>()) : 1.0f;
+                        properties.metallicColor = factor.ArrayLen() > 0 ? f32(factor.Get(0).IsNumber() ? factor.Get(0).Get<d32>() : factor.Get(0).Get<int>()) : 1.0f;
+                        //properties.metallicColor.y = factor.ArrayLen() > 0 ? f32(factor.Get(1).IsNumber() ? factor.Get(1).Get<d32>() : factor.Get(1).Get<int>()) : 1.0f;
+                        //properties.metallicColor.z = factor.ArrayLen() > 0 ? f32(factor.Get(2).IsNumber() ? factor.Get(2).Get<d32>() : factor.Get(2).Get<int>()) : 1.0f;
+                        //properties.metallicColor.w = factor.ArrayLen() > 0 ? f32(factor.Get(3).IsNumber() ? factor.Get(3).Get<d32>() : factor.Get(3).Get<int>()) : 1.0f;
                     }
                     if (metallicGlossinessWorkflow->second.Has("glossinessFactor")) {
                         auto& factor              = metallicGlossinessWorkflow->second.Get("glossinessFactor");
-                        properties.roughnessColor = 1.0f - float(factor.IsNumber() ? factor.Get<double>() : factor.Get<int>());
+                        properties.roughnessColor = 1.0f - f32(factor.IsNumber() ? factor.Get<d32>() : factor.Get<int>());
                     }
                 }
 
@@ -204,7 +204,7 @@ namespace Razix {
             for (auto& primitive: mesh.primitives) {
                 const tinygltf::Accessor& indicesAccessor = model.accessors[primitive.indices];
 
-                std::vector<uint16_t>           indices;
+                std::vector<u16>           indices;
                 std::vector<Graphics::RZVertex> vertices;
 
                 indices.resize(indicesAccessor.count);
@@ -219,16 +219,16 @@ namespace Razix {
                     int   componentTypeByteSize = GLTF_COMPONENT_BYTE_SIZE_LOOKUP.at(accessor.componentType);
 
                     // Extra vertex data from buffer
-                    size_t               bufferOffset = bufferView.byteOffset + accessor.byteOffset;
+                    sz               bufferOffset = bufferView.byteOffset + accessor.byteOffset;
                     int                  bufferLength = static_cast<int>(accessor.count) * componentLength * componentTypeByteSize;
                     auto                 first        = buffer.data.begin() + bufferOffset;
                     auto                 last         = buffer.data.begin() + bufferOffset + bufferLength;
-                    std::vector<uint8_t> data         = std::vector<uint8_t>(first, last);
+                    std::vector<u8> data         = std::vector<u8>(first, last);
 
                     // -------- Position attribute -----------
 
                     if (attribute.first == "POSITION") {
-                        size_t     positionCount = accessor.count;
+                        sz     positionCount = accessor.count;
                         glm::vec3* positions     = reinterpret_cast<glm::vec3*>(data.data());
                         for (auto p = 0; p < positionCount; ++p) {
                             vertices[p].Position = positions[p];
@@ -238,7 +238,7 @@ namespace Razix {
                     // -------- Normal attribute -----------
 
                     else if (attribute.first == "NORMAL") {
-                        size_t     normalCount = accessor.count;
+                        sz     normalCount = accessor.count;
                         glm::vec3* normals     = reinterpret_cast<glm::vec3*>(data.data());
                         for (auto p = 0; p < normalCount; ++p) {
                             vertices[p].Normal = normals[p];
@@ -248,7 +248,7 @@ namespace Razix {
                     // -------- Texcoord attribute -----------
 
                     else if (attribute.first == "TEXCOORD_0") {
-                        size_t     uvCount = accessor.count;
+                        sz     uvCount = accessor.count;
                         glm::vec2* uvs     = reinterpret_cast<glm::vec2*>(data.data());
                         for (auto p = 0; p < uvCount; ++p) {
                             vertices[p].TexCoords = uvs[p];
@@ -258,7 +258,7 @@ namespace Razix {
                     // -------- Color attribute -----------
 
                     else if (attribute.first == "COLOR_0") {
-                        size_t         uvCount = accessor.count;
+                        sz         uvCount = accessor.count;
                         Vector4Simple* Colors  = reinterpret_cast<Vector4Simple*>(data.data());
                         for (auto p = 0; p < uvCount; ++p) {
                             vertices[p].Color = ToVector(Colors[p]);
@@ -268,7 +268,7 @@ namespace Razix {
                     // -------- Tangent attribute -----------
 
                     //else if (attribute.first == "TANGENT") {
-                    //    size_t uvCount = accessor.count;
+                    //    sz uvCount = accessor.count;
                     //    Maths::Vector3Simple* uvs = reinterpret_cast<Maths::Vector3Simple*>(data.data());
                     //    for (auto p = 0; p < uvCount; ++p) {
                     //        vertices[p].Tangent = parentTransform.GetWorldMatrix() * ToVector(uvs[p]);
@@ -287,20 +287,20 @@ namespace Razix {
                     int componentTypeByteSize = GLTF_COMPONENT_BYTE_SIZE_LOOKUP.at(indexAccessor.componentType);
 
                     // Extra index data
-                    size_t               bufferOffset = indexBufferView.byteOffset + indexAccessor.byteOffset;
+                    sz               bufferOffset = indexBufferView.byteOffset + indexAccessor.byteOffset;
                     int                  bufferLength = static_cast<int>(indexAccessor.count) * componentLength * componentTypeByteSize;
                     auto                 first        = indexBuffer.data.begin() + bufferOffset;
                     auto                 last         = indexBuffer.data.begin() + bufferOffset + bufferLength;
-                    std::vector<uint8_t> data         = std::vector<uint8_t>(first, last);
+                    std::vector<u8> data         = std::vector<u8>(first, last);
 
-                    size_t indicesCount = indexAccessor.count;
+                    sz indicesCount = indexAccessor.count;
                     if (componentTypeByteSize == 2) {
-                        uint16_t* in = reinterpret_cast<uint16_t*>(data.data());
+                        u16* in = reinterpret_cast<u16*>(data.data());
                         for (auto iCount = 0; iCount < indicesCount; iCount++) {
-                            indices[iCount] = (uint32_t) in[iCount];
+                            indices[iCount] = (u32) in[iCount];
                         }
                     } else if (componentTypeByteSize == 4) {
-                        auto in = reinterpret_cast<uint32_t*>(data.data());
+                        auto in = reinterpret_cast<u32*>(data.data());
                         for (auto iCount = 0; iCount < indicesCount; iCount++) {
                             indices[iCount] = in[iCount];
                         }
@@ -392,7 +392,7 @@ namespace Razix {
             std::string            name      = path.substr(path.find_last_of('/') + 1);
             auto                   meshes    = std::vector<std::vector<Graphics::RZMesh*>>();
             const tinygltf::Scene& gltfScene = model.scenes[std::max(0, model.defaultScene)];
-            for (size_t i = 0; i < gltfScene.nodes.size(); i++)
+            for (sz i = 0; i < gltfScene.nodes.size(); i++)
                 LoadNode(this, gltfScene.nodes[i], model, LoadedMaterials, meshes);
         }
     }    // namespace Graphics

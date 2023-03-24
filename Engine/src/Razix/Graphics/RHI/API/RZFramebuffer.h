@@ -14,11 +14,11 @@ namespace Razix {
         // TODO: Replace the pointers with  rzstl::SharedRef(s)
         struct FramebufferInfo
         {
-            uint32_t                width;            /* The initial width with which the framebuffer will be constructed with                */
-            uint32_t                height;           /* The initial height with which the framebuffer will be constructed with               */
-            uint32_t                layer = 0;        /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
-            uint32_t                attachmentCount;  /* Total number of attachments to the framebuffer                                       */
-            uint32_t                msaaLevel;        /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
+            u32                width;            /* The initial width with which the framebuffer will be constructed with                */
+            u32                height;           /* The initial height with which the framebuffer will be constructed with               */
+            u32                layer = 0;        /* Multiple layers of images can exist in the framebuffer and it denotes that number    */
+            u32                attachmentCount;  /* Total number of attachments to the framebuffer                                       */
+            u32                msaaLevel;        /* Multi-Sample Anti-Aliasing samples per-pixel count                                   */
             bool                    screenFBO = true; /* Is this a final screen FBO or a render target pass                                   */
             RZTexture**             attachments;      /* Pointer to all the attachments of the framebuffer                                    */
             // TODO: convert this to RenderTexture so that screenFBO boolean can be used to validate if swapchain image is passed instead; it should automatically get the swapchain image if we use screenFBO and depthTexture is created by itself
@@ -49,17 +49,17 @@ namespace Razix {
             virtual void Destroy() = 0;
 
             /* Gets the width of the framebuffer */
-            inline const uint32_t& getWidht() const { return m_Width; }
+            inline const u32& getWidht() const { return m_Width; }
             /* Gets the Height of the framebuffer */
-            inline const uint32_t& getHeight() const { return m_Height; }
+            inline const u32& getHeight() const { return m_Height; }
 
             /* Sets the color with which the framebuffer will be cleared with */
             void setClearColor(const glm::vec4& color) { m_ClearColor = color; }
 
         protected:
-            uint32_t  m_Width;           /* The Width of the framebuffer                                     */
-            uint32_t  m_Height;          /* The Height of the framebuffer                                    */
-            uint32_t  m_AttachmentCount; /* Number of framebuffer texture attachments                        */
+            u32  m_Width;           /* The Width of the framebuffer                                     */
+            u32  m_Height;          /* The Height of the framebuffer                                    */
+            u32  m_AttachmentCount; /* Number of framebuffer texture attachments                        */
             glm::vec4 m_ClearColor;      /* The clear color with which the framebuffer will be cleared with  */
         };
     }    // namespace Graphics

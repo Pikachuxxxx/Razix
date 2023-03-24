@@ -82,7 +82,7 @@ namespace Razix {
 
             m_Pipeline = RZPipeline::Create(info RZ_DEBUG_NAME_TAG_STR_E_ARG("Deferred Lighting Pipeline"));
 
-            for (size_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
+            for (sz i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_CmdBuffers[i] = RZCommandBuffer::Create();
                 m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Deferred Lighting CmdBufs"));
             }

@@ -74,7 +74,7 @@ namespace Razix {
             RZIndexBuffer*  getIndexBuffer() { return m_IBO; }
 
             RZShader*        getShader();
-            RZDescriptorSet* getDescriptorSet(uint32_t index);
+            RZDescriptorSet* getDescriptorSet(u32 index);
 
         private:
             glm::vec4                     m_Color;

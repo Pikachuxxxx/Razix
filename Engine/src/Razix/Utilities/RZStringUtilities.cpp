@@ -65,8 +65,8 @@ namespace Razix {
 
         std::vector<std::string> SplitString(const std::string& string, const std::string& delimiters)
         {
-            size_t start = 0;
-            size_t end   = string.find_first_of(delimiters);
+            sz start = 0;
+            sz end   = string.find_first_of(delimiters);
 
             std::vector<std::string> result;
 
@@ -100,9 +100,9 @@ namespace Razix {
             return SplitString(string, "\n");
         }
 
-        const char* FindToken(const char* str, const std::string& token)
+        cstr FindToken(cstr str, const std::string& token)
         {
-            const char* t = str;
+            cstr t = str;
             while ((t = strstr(t, token.c_str()))) {
                 bool left  = str == t || isspace(t[-1]);
                 bool right = !t[token.size()] || isspace(t[token.size()]);
@@ -114,26 +114,26 @@ namespace Razix {
             return nullptr;
         }
 
-        const char* FindToken(const std::string& string, const std::string& token)
+        cstr FindToken(const std::string& string, const std::string& token)
         {
             return FindToken(string.c_str(), token);
         }
 
-        int32_t FindStringPosition(const std::string& string, const std::string& search, uint32_t offset)
+        int32_t FindStringPosition(const std::string& string, const std::string& search, u32 offset)
         {
-            const char* str   = string.c_str() + offset;
-            const char* found = strstr(str, search.c_str());
+            cstr str   = string.c_str() + offset;
+            cstr found = strstr(str, search.c_str());
             if (found == nullptr)
                 return -1;
             return (int32_t) (found - str) + offset;
         }
 
-        std::string StringRange(const std::string& string, uint32_t start, uint32_t length)
+        std::string StringRange(const std::string& string, u32 start, u32 length)
         {
             return string.substr(start, length);
         }
 
-        std::string RemoveStringRange(const std::string& string, uint32_t start, uint32_t length)
+        std::string RemoveStringRange(const std::string& string, u32 start, u32 length)
         {
             std::string result = string;
             return result.erase(start, length);
@@ -145,33 +145,33 @@ namespace Razix {
             return result.erase(0, string.find_first_not_of(" \t\n\r\f\v"));
         }
 
-        std::string GetBlock(const char* str, const char** outPosition)
+        std::string GetBlock(cstr str, cstr* outPosition)
         {
-            const char* end = strstr(str, "}");
+            cstr end = strstr(str, "}");
             if (!end)
                 return std::string(str);
 
             if (outPosition)
                 *outPosition = end;
-            const uint32_t length = static_cast<uint32_t>(end - str + 1);
+            const u32 length = static_cast<u32>(end - str + 1);
             return std::string(str, length);
         }
 
-        std::string GetBlock(const std::string& string, uint32_t offset)
+        std::string GetBlock(const std::string& string, u32 offset)
         {
-            const char* str = string.c_str() + offset;
+            cstr str = string.c_str() + offset;
             return Utilities::GetBlock(str);
         }
 
-        std::string GetStatement(const char* str, const char** outPosition)
+        std::string GetStatement(cstr str, cstr* outPosition)
         {
-            const char* end = strstr(str, ";");
+            cstr end = strstr(str, ";");
             if (!end)
                 return std::string(str);
 
             if (outPosition)
                 *outPosition = end;
-            const uint32_t length = static_cast<uint32_t>(end - str + 1);
+            const u32 length = static_cast<u32>(end - str + 1);
             return std::string(str, length);
         }
 
@@ -187,7 +187,7 @@ namespace Razix {
 
         int32_t NextInt(const std::string& string)
         {
-            for (uint32_t i = 0; i < string.size(); i++) {
+            for (u32 i = 0; i < string.size(); i++) {
                 if (isdigit(string[i]))
                     return atoi(&string[i]);
             }
@@ -222,8 +222,8 @@ namespace Razix {
 
         std::string& BackSlashesToSlashes(std::string& string)
         {
-            size_t len = string.length();
-            for (size_t i = 0; i < len; i++) {
+            sz len = string.length();
+            for (sz i = 0; i < len; i++) {
                 if (string[i] == '\\') {
                     string[i] = '/';
                 }
@@ -233,8 +233,8 @@ namespace Razix {
 
         std::string& SlashesToBackSlashes(std::string& string)
         {
-            size_t len = string.length();
-            for (size_t i = 0; i < len; i++) {
+            sz len = string.length();
+            for (sz i = 0; i < len; i++) {
                 if (string[i] == '/') {
                     string[i] = '\\';
                 }

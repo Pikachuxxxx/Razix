@@ -63,7 +63,7 @@ namespace Razix
             PSSystemUniformIndex_Size
         };
 
-        RZDeferredRenderer::RZDeferredRenderer(uint32_t width, uint32_t height)
+        RZDeferredRenderer::RZDeferredRenderer(u32 width, u32 height)
         {
             RZDeferredRenderer::SetScreenBufferSize(width, height);
             RZDeferredRenderer::Init();
@@ -124,8 +124,8 @@ namespace Razix
             m_ScreenQuad = Graphics::CreateScreenQuad();
 
             // Pixel/fragment shader System uniforms
-            m_PSSystemUniformBufferSize = sizeof(Light) * MAX_LIGHTS + sizeof(Maths::Matrix4) * MAX_SHADOWMAPS + sizeof(Maths::Matrix4) * 3 + sizeof(Maths::Vector4) + sizeof(Maths::Vector4) * MAX_SHADOWMAPS + sizeof(float) * 4 + sizeof(int) * 4 + sizeof(float);
-            m_PSSystemUniformBuffer = new uint8_t[m_PSSystemUniformBufferSize];
+            m_PSSystemUniformBufferSize = sizeof(Light) * MAX_LIGHTS + sizeof(Maths::Matrix4) * MAX_SHADOWMAPS + sizeof(Maths::Matrix4) * 3 + sizeof(Maths::Vector4) + sizeof(Maths::Vector4) * MAX_SHADOWMAPS + sizeof(f32) * 4 + sizeof(int) * 4 + sizeof(f32);
+            m_PSSystemUniformBuffer = new u8[m_PSSystemUniformBufferSize];
             memset(m_PSSystemUniformBuffer, 0, m_PSSystemUniformBufferSize);
             m_PSSystemUniformBufferOffsets.resize(PSSystemUniformIndex_Size);
 
@@ -139,10 +139,10 @@ namespace Razix
             m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_ShadowSplitDepths] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_CameraPosition] + sizeof(Maths::Vector4);
 
             m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_lightSize] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_ShadowSplitDepths] + sizeof(Maths::Vector4) * MAX_SHADOWMAPS;
-            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_maxShadowDistance] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_lightSize] + sizeof(float);
-            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_shadowFade] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_maxShadowDistance] + sizeof(float);
-            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cascadeTransitionFade] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_shadowFade] + sizeof(float);
-            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_LightCount] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cascadeTransitionFade] + sizeof(float);
+            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_maxShadowDistance] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_lightSize] + sizeof(f32);
+            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_shadowFade] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_maxShadowDistance] + sizeof(f32);
+            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cascadeTransitionFade] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_shadowFade] + sizeof(f32);
+            m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_LightCount] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cascadeTransitionFade] + sizeof(f32);
             m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_ShadowCount] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_LightCount] + sizeof(int);
             m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_RenderMode] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_ShadowCount] + sizeof(int);
             m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cubemapMipLevels] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_RenderMode] + sizeof(int);
@@ -311,7 +311,7 @@ namespace Razix
 
             auto group = registry.group<Graphics::Light>(entt::get<Maths::Transform>);
 
-            uint32_t numLights = 0;
+            u32 numLights = 0;
 
             auto viewMatrix = m_CameraTransform->GetWorldMatrix().Inverse();
 
@@ -322,7 +322,7 @@ namespace Razix
                 const auto& [light, trans] = group.get<Graphics::Light, Maths::Transform>(entity);
                 light.Position = trans.GetWorldPosition();
 
-                if(light.Type != float(LightType::DirectionalLight))
+                if(light.Type != f32(LightType::DirectionalLight))
                 {
                     auto inside = frustum.IsInsideFast(Maths::Sphere(light.Position.ToVector3(), light.Radius));
 
@@ -356,19 +356,19 @@ namespace Razix
                 memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_ShadowSplitDepths], uSplitDepth, sizeof(Maths::Vector4) * MAX_SHADOWMAPS);
                 memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_BiasMatrix], &m_BiasMatrix, sizeof(Maths::Matrix4));
 
-                float bias = shadowRenderer->GetInitialBias();
+                f32 bias = shadowRenderer->GetInitialBias();
 
-                float maxShadowDistance = shadowRenderer->GetMaxShadowDistance();
-                float LightSize = shadowRenderer->GetLightSize();
-                float transitionFade = shadowRenderer->GetCascadeTransitionFade();
-                float shadowFade = shadowRenderer->GetShadowFade();
+                f32 maxShadowDistance = shadowRenderer->GetMaxShadowDistance();
+                f32 LightSize = shadowRenderer->GetLightSize();
+                f32 transitionFade = shadowRenderer->GetCascadeTransitionFade();
+                f32 shadowFade = shadowRenderer->GetShadowFade();
 
-                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_lightSize], &LightSize, sizeof(float));
-                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_shadowFade], &shadowFade, sizeof(float));
-                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cascadeTransitionFade], &transitionFade, sizeof(float));
-                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_maxShadowDistance], &maxShadowDistance, sizeof(float));
+                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_lightSize], &LightSize, sizeof(f32));
+                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_shadowFade], &shadowFade, sizeof(f32));
+                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cascadeTransitionFade], &transitionFade, sizeof(f32));
+                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_maxShadowDistance], &maxShadowDistance, sizeof(f32));
 
-                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cubemapMipLevels] + sizeof(int), &bias, sizeof(float));
+                memcpy(m_PSSystemUniformBuffer + m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cubemapMipLevels] + sizeof(int), &bias, sizeof(f32));
             }
 
             int numShadows = shadowRenderer ? int(shadowRenderer->GetShadowMapNum()) : 0;
@@ -534,7 +534,7 @@ namespace Razix
             }
             else
             {
-                for(uint32_t i = 0; i < Renderer::GetSwapchain()->GetSwapchainBufferCount(); i++)
+                for(u32 i = 0; i < Renderer::GetSwapchain()->GetSwapchainBufferCount(); i++)
                 {
                     bufferInfo.screenFBO = true;
                     //TODO: bufferInfo.screenFBO = true; should be enough. No need for GetImage(i);
@@ -553,7 +553,7 @@ namespace Razix
             {
                 m_LightUniformBuffer = Graphics::UniformBuffer::Create();
 
-                uint32_t bufferSize = m_PSSystemUniformBufferSize;
+                u32 bufferSize = m_PSSystemUniformBufferSize;
                 m_LightUniformBuffer->Init(bufferSize, nullptr);
             }
 
@@ -573,7 +573,7 @@ namespace Razix
             m_DescriptorSet[0]->Update(bufferInfos);
         }
 
-        void RZDeferredRenderer::OnResize(uint32_t width, uint32_t height)
+        void RZDeferredRenderer::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTION();
             m_Framebuffers.clear();

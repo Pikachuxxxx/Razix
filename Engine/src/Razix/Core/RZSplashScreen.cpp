@@ -199,7 +199,7 @@ namespace Razix {
         UnregisterClass(wndClassName, getInstance());
     }
 
-    const char* RZSplashScreen::WindowClass::getName() noexcept
+    cstr RZSplashScreen::WindowClass::getName() noexcept
     {
         return wndClassName;
     }

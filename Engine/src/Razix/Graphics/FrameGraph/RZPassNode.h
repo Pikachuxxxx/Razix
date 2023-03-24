@@ -30,7 +30,7 @@ namespace Razix {
                 bool m_IsStandAlone{false};
 
             private:
-                RZPassNode(const std::string_view name, uint32_t id, std::unique_ptr<RZFrameGraphPassConcept> &&);
+                RZPassNode(const std::string_view name, u32 id, std::unique_ptr<RZFrameGraphPassConcept> &&);
 
                 RZFrameGraphResource read(RZFrameGraphResource id);
                 RZFrameGraphResource write(RZFrameGraphResource id);

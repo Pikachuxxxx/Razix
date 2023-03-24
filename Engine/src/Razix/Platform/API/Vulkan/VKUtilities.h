@@ -21,7 +21,7 @@ namespace Razix {
         enum class BlendFactor;
         enum class CompareOp;
         enum class ShaderStage;
-        enum class DescriptorType : uint32_t;
+        enum class DescriptorType : u32;
 
         namespace VKUtilities {
 
@@ -101,7 +101,7 @@ namespace Razix {
              * Error reporting for Vulkan results
              * @returns True, if any error has occurred
              */
-            static bool VulkanCheckErrorStatus(VkResult x, const char* function, const char* file, int line)
+            static bool VulkanCheckErrorStatus(VkResult x, cstr function, cstr file, int line)
             {
                 if (x != VK_SUCCESS) {
                     //std::cout << "\033[1;31;49m **Vulkan Function Call Error** Description : \033[0m" << ErrorDescriptions[x] << " \033[2;90;49m [at Line : " << line << " in File : " << file << "\033[0m]" << std::endl;
@@ -146,7 +146,7 @@ namespace Razix {
             /**
              * Transitions the image layout from one layout to another for better storage on GPU
              */
-            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1);
+            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels = 1);
 
             //-----------------------------------------------------------------------------------
             // Single Time Command Buffer utility functions

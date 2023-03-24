@@ -8,18 +8,18 @@ namespace Razix {
         class OpenGLUniformBuffer : public RZUniformBuffer
         {
         public:
-            OpenGLUniformBuffer(uint32_t size, const void* data);
+            OpenGLUniformBuffer(u32 size, const void* data);
             ~OpenGLUniformBuffer();
 
             void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
             void Bind() override;
-            void SetData(uint32_t size, const void* data) override;
+            void SetData(u32 size, const void* data) override;
             void Destroy() override;
 
-            inline uint32_t getHandle() { return m_UBO; }
+            inline u32 getHandle() { return m_UBO; }
 
         private:
-            uint32_t m_UBO;
+            u32 m_UBO;
         };
 
     }    // namespace Graphics

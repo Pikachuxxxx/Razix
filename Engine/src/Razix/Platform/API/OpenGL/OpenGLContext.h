@@ -14,7 +14,7 @@ namespace Razix {
 
             virtual void Init() override;
             virtual void Destroy() override;
-            virtual void ClearWithColor(float r, float g, float b) override;
+            virtual void ClearWithColor(f32 r, f32 g, f32 b) override;
 
             static OpenGLContext* Get() { return static_cast<OpenGLContext*>(s_Context); }
 

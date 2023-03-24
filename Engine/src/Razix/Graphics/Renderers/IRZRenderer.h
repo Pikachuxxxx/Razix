@@ -62,7 +62,7 @@ namespace Razix {
             /**
              * Handles resizing the renderer
              */
-            virtual void Resize(uint32_t width, uint32_t height) = 0;
+            virtual void Resize(u32 width, u32 height) = 0;
             /**
              * Destroy all the renderer resources
              */
@@ -75,12 +75,12 @@ namespace Razix {
             RZCommandBuffer*                 m_MainCommandBuffers[MAX_SWAPCHAIN_BUFFERS];
             RZShader*                        m_OverrideGlobalRHIShader;
             RZScene*                         m_CurrentScene;
-            uint32_t                         m_ScreenBufferWidth  = 0;
-            uint32_t                         m_ScreenBufferHeight = 0;
+            u32                         m_ScreenBufferWidth  = 0;
+            u32                         m_ScreenBufferHeight = 0;
             RZPipeline*                      m_Pipeline;
             RZRenderTexture*                 m_RenderTexture = nullptr;
             RZTexture*                       m_DepthTexture  = nullptr;
-            uint8_t                          _padding[3];
+            u8                          _padding[3];
             std::string                      m_RendererName;
             RZTimestep                       m_PassTimer;
             RZTimer                          m_RendererTimer;

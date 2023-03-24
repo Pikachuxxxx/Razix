@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Graphics {
 
-        OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t size, const void* data)
+        OpenGLUniformBuffer::OpenGLUniformBuffer(u32 size, const void* data)
         {
             GL_CALL(glGenBuffers(1, &m_UBO));
             GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, m_UBO));
@@ -32,7 +32,7 @@ namespace Razix {
             GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, m_UBO));
         }
 
-        void OpenGLUniformBuffer::SetData(uint32_t size, const void* data)
+        void OpenGLUniformBuffer::SetData(u32 size, const void* data)
         {
             GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, m_UBO));
             GL_CALL(glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW));

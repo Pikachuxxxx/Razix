@@ -90,7 +90,7 @@ namespace Razix {
             auto     device         = VKDevice::Get().getDevice();
             auto     physicalDevice = VKDevice::Get().getGPU();
             auto     queuefam       = VKDevice::Get().getGraphicsQueue();
-            uint32_t numQueues      = VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex();
+            u32 numQueues      = VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex();
             OPTICK_GPU_INIT_VULKAN(&device, &physicalDevice, &queuefam, &numQueues, 1, nullptr);
         #endif    // RZ_PROFILER_OPTICK
 
@@ -128,9 +128,9 @@ namespace Razix {
             m_RequiredInstanceExtensionNames = getRequiredExtensions();
 
             // Get the Instance Layers and Extensions
-            instanceCI.enabledLayerCount       = static_cast<uint32_t>(m_RequiredInstanceLayerNames.size());
+            instanceCI.enabledLayerCount       = static_cast<u32>(m_RequiredInstanceLayerNames.size());
             instanceCI.ppEnabledLayerNames     = m_RequiredInstanceLayerNames.data();
-            instanceCI.enabledExtensionCount   = static_cast<uint32_t>(m_RequiredInstanceExtensionNames.size());
+            instanceCI.enabledExtensionCount   = static_cast<u32>(m_RequiredInstanceExtensionNames.size());
             instanceCI.ppEnabledExtensionNames = m_RequiredInstanceExtensionNames.data();
 
             if (VK_CHECK_RESULT(vkCreateInstance(&instanceCI, nullptr, &m_Instance)))
@@ -146,27 +146,27 @@ namespace Razix {
             }
         }
 
-        std::vector<const char*> VKContext::getRequiredLayers()
+        std::vector<cstr> VKContext::getRequiredLayers()
         {
-            std::vector<const char*> layers;
+            std::vector<cstr> layers;
             if (m_EnabledValidationLayer) {
                 layers.emplace_back(VK_LAYER_KHRONOS_VALIDATION_NAME);
             }
             return layers;
         }
 
-        std::vector<const char*> VKContext::getRequiredExtensions()
+        std::vector<cstr> VKContext::getRequiredExtensions()
         {
             // First we are sending in the list of desired extensions by GLFW to interface with the WPI
-            uint32_t     glfwExtensionsCount = 0;
-            const char** glfwExtensions;
+            u32     glfwExtensionsCount = 0;
+            cstr* glfwExtensions;
             glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
             RAZIX_CORE_TRACE("[Vulkan] GLFW loaded extensions count : {0}", glfwExtensionsCount);
 
             // This is just for information and Querying purpose
     #ifdef RAZIX_DEBUG
             // Get the total list of supported Extension by Vulkan
-            uint32_t supportedExtensionCount = 0;
+            u32 supportedExtensionCount = 0;
             vkEnumerateInstanceExtensionProperties(nullptr, &supportedExtensionCount, nullptr);
             std::vector<VkExtensionProperties> supportedExtensions(supportedExtensionCount);
             vkEnumerateInstanceExtensionProperties(nullptr, &supportedExtensionCount, supportedExtensions.data());
@@ -177,7 +177,7 @@ namespace Razix {
             }
 
             RAZIX_CORE_TRACE("GLFW Requested Extensions are : \n");
-            for (uint32_t i = 0; i < glfwExtensionsCount; i++) {
+            for (u32 i = 0; i < glfwExtensionsCount; i++) {
                 RAZIX_CORE_TRACE("\t");
                 int j = 0;
                 while (*(glfwExtensions[i] + j) != NULL) {
@@ -189,7 +189,7 @@ namespace Razix {
     #endif
 
             // Bundle all the required extensions into a vector and return it
-            std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
+            std::vector<cstr> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
             extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
             extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
             // Add any custom extension from the list of supported extensions that you need and are not included by GLFW
@@ -246,7 +246,7 @@ namespace Razix {
             if (!message_severity)
                 return VK_FALSE;
 
-            for (size_t i = 0; i < callback_data->objectCount; i++) {
+            for (sz i = 0; i < callback_data->objectCount; i++) {
                 if (callback_data->pObjects[i].pObjectName)
                     RAZIX_CORE_ERROR("[VULKAN] OBJECT HANDLE NAME : {0}", callback_data->pObjects[i].pObjectName);
             }

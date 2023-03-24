@@ -297,7 +297,7 @@ namespace Razix {
 
                     auto& sceneCam = scene->getSceneCamera();
 
-                    sceneCam.setAspectRatio(float(RZApplication::Get().getWindow()->getWidth()) / float(RZApplication::Get().getWindow()->getHeight()));
+                    sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
 
                     gpuData.camera.projection         = sceneCam.getProjection();
                     gpuData.camera.inversedProjection = glm::inverse(gpuData.camera.projection);

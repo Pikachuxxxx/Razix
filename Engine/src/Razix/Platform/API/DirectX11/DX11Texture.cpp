@@ -18,12 +18,12 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void DX11Texture::Bind(uint32_t slot)
+        void DX11Texture::Bind(u32 slot)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void DX11Texture::Unbind(uint32_t slot)
+        void DX11Texture::Unbind(u32 slot)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

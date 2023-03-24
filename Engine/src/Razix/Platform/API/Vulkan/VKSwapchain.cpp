@@ -16,14 +16,14 @@
 namespace Razix {
     namespace Graphics {
 
-        static void GetQueueCheckpointDataNV(VkQueue queue, uint32_t* pCheckpointDataCount, VkCheckpointDataNV* pCheckPointData)
+        static void GetQueueCheckpointDataNV(VkQueue queue, u32* pCheckpointDataCount, VkCheckpointDataNV* pCheckPointData)
         {
             auto func = (PFN_vkGetQueueCheckpointDataNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkGetQueueCheckpointDataNV");
             if (func != nullptr)
                 func(queue, pCheckpointDataCount, pCheckPointData);
         }
 
-        VKSwapchain::VKSwapchain(uint32_t width, uint32_t height)
+        VKSwapchain::VKSwapchain(u32 width, u32 height)
         {
             m_Width  = width;
             m_Height = height;
@@ -36,7 +36,7 @@ namespace Razix {
         {
         }
 
-        void VKSwapchain::Init(uint32_t width, uint32_t height)
+        void VKSwapchain::Init(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -63,7 +63,7 @@ namespace Razix {
 
             // Encapsulate the swapchain images and image views in a RZTexture2D
             m_SwapchainImageTextures.clear();
-            for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
                 VKTexture2D* swapImageTexture = new VKTexture2D(images[i], imageView[i]);
                 m_SwapchainImageTextures.push_back(swapImageTexture);
@@ -85,7 +85,7 @@ namespace Razix {
                 vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
             }
 
-            for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                 tex->Release(false);
             }
@@ -97,7 +97,7 @@ namespace Razix {
         {
         }
 
-        void VKSwapchain::OnResize(uint32_t width, uint32_t height)
+        void VKSwapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -115,7 +115,7 @@ namespace Razix {
 
             m_OldSwapChain = m_Swapchain;
 
-            for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                 tex->Release(false);
             }
@@ -135,13 +135,13 @@ namespace Razix {
             vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VKDevice::Get().getGPU(), VKContext::Get()->getSurface(), &m_SwapSurfaceProperties.capabilities);
 
             // Get the surface formats supported
-            uint32_t formatsCount = 0;
+            u32 formatsCount = 0;
             vkGetPhysicalDeviceSurfaceFormatsKHR(VKDevice::Get().getGPU(), VKContext::Get()->getSurface(), &formatsCount, nullptr);
             m_SwapSurfaceProperties.formats.resize(formatsCount);
             vkGetPhysicalDeviceSurfaceFormatsKHR(VKDevice::Get().getGPU(), VKContext::Get()->getSurface(), &formatsCount, m_SwapSurfaceProperties.formats.data());
 
             // Get the available present modes
-            uint32_t presentModesCount = 0;
+            u32 presentModesCount = 0;
             vkGetPhysicalDeviceSurfacePresentModesKHR(VKDevice::Get().getGPU(), VKContext::Get()->getSurface(), &presentModesCount, nullptr);
             m_SwapSurfaceProperties.presentModes.resize(presentModesCount);
             vkGetPhysicalDeviceSurfacePresentModesKHR(VKDevice::Get().getGPU(), VKContext::Get()->getSurface(), &presentModesCount, m_SwapSurfaceProperties.presentModes.data());
@@ -188,8 +188,8 @@ namespace Razix {
 
                 VkExtent2D actualExtent =
                     {
-                        static_cast<uint32_t>(width),
-                        static_cast<uint32_t>(height)};
+                        static_cast<u32>(width),
+                        static_cast<u32>(height)};
 
                 actualExtent.width  = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
                 actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
@@ -220,7 +220,7 @@ namespace Razix {
             swcCI.imageArrayLayers                                    = 1;
             swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
             VKPhysicalDevice::QueueFamilyIndices indices              = VKDevice::Get().getPhysicalDevice().get()->getQueueFamilyIndices();
-            uint32_t                             queueFamilyIndices[] = {static_cast<uint32_t>(indices.Graphics), static_cast<uint32_t>(indices.Present)};
+            u32                             queueFamilyIndices[] = {static_cast<u32>(indices.Graphics), static_cast<u32>(indices.Present)};
 
             if (indices.Graphics != indices.Present) {
                 swcCI.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
@@ -255,7 +255,7 @@ namespace Razix {
 
             std::vector<VkImage> swapImages;
 
-            uint32_t swapImageCount = 0;
+            u32 swapImageCount = 0;
             vkGetSwapchainImagesKHR(VKDevice::Get().getDevice(), m_Swapchain, &swapImageCount, nullptr);
             RAZIX_CORE_ASSERT((swapImageCount == m_SwapchainImageCount), "[Vulkan] Swapimage count doesn't match!");
 
@@ -275,7 +275,7 @@ namespace Razix {
             std::vector<VkImageView> swapchainImageViews;
 
             swapchainImageViews.resize(m_SwapchainImageCount);
-            for (size_t i = 0; i < m_SwapchainImageCount; i++) {
+            for (sz i = 0; i < m_SwapchainImageCount; i++) {
                 // Create the image view with the required properties
                 VkImageViewCreateInfo imvCI{};
                 imvCI.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -303,7 +303,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 if (!m_Frames[i].renderFence) {
                     VkSemaphoreCreateInfo semaphoreInfo = {};
                     semaphoreInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -325,7 +325,7 @@ namespace Razix {
 
             if (m_IsResizing)
                 return;
-            uint32_t nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
+            u32 nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
             {
                 auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, signalSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
@@ -362,25 +362,25 @@ namespace Razix {
             VkSubmitInfo submitInfo       = {};
             submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.pNext              = VK_NULL_HANDLE;
-            submitInfo.commandBufferCount = static_cast<uint32_t>(commandQueue.size());
+            submitInfo.commandBufferCount = static_cast<u32>(commandQueue.size());
 
             std::vector<VkCommandBuffer> cmdBuffs;
-            for (size_t i = 0; i < submitInfo.commandBufferCount; i++)
+            for (sz i = 0; i < submitInfo.commandBufferCount; i++)
                 cmdBuffs.push_back(*((VkCommandBuffer*) commandQueue[i]->getAPIBuffer()));
 
             submitInfo.pCommandBuffers = cmdBuffs.data();
             std::vector<VkPipelineStageFlags> waitStages;
-            for (size_t i = 0; i < waitSemaphores.size(); i++)
+            for (sz i = 0; i < waitSemaphores.size(); i++)
                 waitStages.push_back(VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT);
 
             if (!waitSemaphores.size())
                 waitStages.push_back(VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT);
 
-            submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+            submitInfo.waitSemaphoreCount = static_cast<u32>(waitSemaphores.size());
             submitInfo.pWaitSemaphores    = waitSemaphores.data();
             submitInfo.pWaitDstStageMask  = waitStages.data();
 
-            submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+            submitInfo.signalSemaphoreCount = static_cast<u32>(signalSemaphores.size());
             submitInfo.pSignalSemaphores    = signalSemaphores.data();
 
             frameData.renderFence->reset();
@@ -390,11 +390,11 @@ namespace Razix {
                 VK_CHECK_RESULT(result);
 #if 0
                 if (result == VK_ERROR_DEVICE_LOST) {
-                    uint32_t checkpointDataCount = 0;
+                    u32 checkpointDataCount = 0;
                     GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, nullptr);
 
                     std::vector<VkCheckpointDataNV> checkpointData(checkpointDataCount);
-                    for (uint32_t i = 0; i < checkpointDataCount; i++)
+                    for (u32 i = 0; i < checkpointDataCount; i++)
                         checkpointData[i].sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
 
                     GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, checkpointData.data());
@@ -436,7 +436,7 @@ namespace Razix {
             //    m_IsResized = !m_IsResized;
             //    //VKContext::Get()->waitIdle();
             //    vkDeviceWaitIdle(VKDevice::Get().getDevice());
-            //    for (uint32_t i = 0; i < m_SwapchainImageCount; i++) {
+            //    for (u32 i = 0; i < m_SwapchainImageCount; i++) {
             //        auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
             //        tex->Release(false);
             //        delete m_SwapchainImageTextures[i];

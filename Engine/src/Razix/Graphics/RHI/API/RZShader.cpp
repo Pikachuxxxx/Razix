@@ -48,7 +48,7 @@ namespace Razix {
             ShaderStage                        stage = ShaderStage::NONE;
             std::map<ShaderStage, std::string> shaders;
 
-            for (uint32_t i = 0; i < lines.size(); i++) {
+            for (u32 i = 0; i < lines.size(); i++) {
                 std::string str = std::string(lines[i]);
                 str             = Utilities::RemoveTabs(str);
 

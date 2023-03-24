@@ -22,7 +22,7 @@ namespace Razix {
 
         RHI* RHI::s_APIInstance = nullptr;
 
-        void RHI::Create(uint32_t width, uint32_t height)
+        void RHI::Create(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

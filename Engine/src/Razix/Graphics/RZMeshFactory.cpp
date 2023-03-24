@@ -98,7 +98,7 @@ namespace Razix {
                 return nullptr;
             }
 
-            RZMesh* CreatePlane(float width, float height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
+            RZMesh* CreatePlane(f32 width, f32 height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
             {
                 RZVertex* data = new RZVertex[4];
 
@@ -134,7 +134,7 @@ namespace Razix {
                 vb->AddBufferLayout(layout);
                 delete[] data;
 
-                uint16_t indices[6]{
+                u16 indices[6]{
                     0, 1, 2, 2, 3, 0};
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Plane") indices, 6);
@@ -269,7 +269,7 @@ namespace Razix {
                 RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Cube"));
                 delete[] data;
 
-                uint16_t indices[36]{
+                u16 indices[36]{
                     0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
                 RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Cube") indices, 36);
 
@@ -283,33 +283,33 @@ namespace Razix {
                 return mesh;
             }
 
-            RZMesh* CreateSphere(uint32_t xSegments /*= 64*/, uint32_t ySegments /*= 64*/)
+            RZMesh* CreateSphere(u32 xSegments /*= 64*/, u32 ySegments /*= 64*/)
             {
                 auto data = std::vector<RZVertex>();
 
-                float sectorCount = static_cast<float>(xSegments);
-                float stackCount  = static_cast<float>(ySegments);
-                float sectorStep  = static_cast<float>(2 * M_PI / sectorCount);
-                float stackStep   = static_cast<float>(M_PI / stackCount);
-                float radius      = 1.0f;
+                f32 sectorCount = static_cast<f32>(xSegments);
+                f32 stackCount  = static_cast<f32>(ySegments);
+                f32 sectorStep  = static_cast<f32>(2 * M_PI / sectorCount);
+                f32 stackStep   = static_cast<f32>(M_PI / stackCount);
+                f32 radius      = 1.0f;
 
                 for (int i = 0; i <= stackCount; ++i) {
-                    float stackAngle = static_cast<float>(M_PI / 2 - i * stackStep);    // starting from pi/2 to -pi/2
-                    float xy         = radius * cos(stackAngle);                        // r * cos(u)
-                    float z          = radius * sin(stackAngle);                        // r * sin(u)
+                    f32 stackAngle = static_cast<f32>(M_PI / 2 - i * stackStep);    // starting from pi/2 to -pi/2
+                    f32 xy         = radius * cos(stackAngle);                        // r * cos(u)
+                    f32 z          = radius * sin(stackAngle);                        // r * sin(u)
 
                     // add (sectorCount+1) vertices per stack
                     // the first and last vertices have same position and normal, but different tex coords
                     for (int j = 0; j <= sectorCount; ++j) {
-                        float sectorAngle = j * sectorStep;    // starting from 0 to 2pi
+                        f32 sectorAngle = j * sectorStep;    // starting from 0 to 2pi
 
                         // vertex position (x, y, z)
-                        float x = xy * cosf(sectorAngle);    // r * cos(u) * cos(v)
-                        float y = xy * sinf(sectorAngle);    // r * cos(u) * sin(v)
+                        f32 x = xy * cosf(sectorAngle);    // r * cos(u) * cos(v)
+                        f32 y = xy * sinf(sectorAngle);    // r * cos(u) * sin(v)
 
                         // vertex tex coord (s, t) range between [0, 1]
-                        float s = static_cast<float>(j / sectorCount);
-                        float t = static_cast<float>(i / stackCount);
+                        f32 s = static_cast<f32>(j / sectorCount);
+                        f32 t = static_cast<f32>(i / stackCount);
 
                         Graphics::RZVertex vertex;
                         vertex.Position  = glm::vec3(x, y, z);
@@ -322,13 +322,13 @@ namespace Razix {
 
                 RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Sphere"));
 
-                std::vector<uint16_t> indices;
-                uint16_t              k1, k2;
-                for (uint16_t i = 0; i < stackCount; ++i) {
-                    k1 = i * (static_cast<uint16_t>(sectorCount) + 1U);    // beginning of current stack
-                    k2 = k1 + static_cast<uint16_t>(sectorCount) + 1U;     // beginning of next stack
+                std::vector<u16> indices;
+                u16              k1, k2;
+                for (u16 i = 0; i < stackCount; ++i) {
+                    k1 = i * (static_cast<u16>(sectorCount) + 1U);    // beginning of current stack
+                    k2 = k1 + static_cast<u16>(sectorCount) + 1U;     // beginning of next stack
 
-                    for (uint16_t j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+                    for (u16 j = 0; j < sectorCount; ++j, ++k1, ++k2) {
                         // 2 triangles per sector excluding first and last stacks
                         // k1 => k2 => k1+1
                         if (i != 0) {
@@ -346,9 +346,9 @@ namespace Razix {
                     }
                 }
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sphere") indices.data(), static_cast<uint32_t>(indices.size()));
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sphere") indices.data(), static_cast<u32>(indices.size()));
 
-                RZMesh* mesh = new RZMesh(vb, ib, static_cast<uint32_t>(data.size()), static_cast<uint32_t>(indices.size()));
+                RZMesh* mesh = new RZMesh(vb, ib, static_cast<u32>(data.size()), static_cast<u32>(indices.size()));
 
                 auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
@@ -380,7 +380,7 @@ namespace Razix {
                 vb->AddBufferLayout(layout);
                 delete[] data;
 
-                uint16_t indices[6] = {0, 1, 2, 2, 3, 0};
+                u16 indices[6] = {0, 1, 2, 2, 3, 0};
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Screen Quad IB") indices, 6);
 
