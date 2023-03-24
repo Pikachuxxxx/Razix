@@ -11,7 +11,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Converts the Buffer usage enum to OpenGL */
-        static uint32_t BufferUsageToOpenGL(const BufferUsage usage)
+        static u32 BufferUsageToOpenGL(const BufferUsage usage)
         {
             switch (usage) {
                 case BufferUsage::STATIC:
@@ -24,7 +24,7 @@ namespace Razix {
             return 0;
         }
 
-        OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size, const void* data, BufferUsage usage)
+        OpenGLVertexBuffer::OpenGLVertexBuffer(u32 size, const void* data, BufferUsage usage)
         {
             m_Usage = usage;
             m_Size  = 0;
@@ -54,7 +54,7 @@ namespace Razix {
             GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
         }
 
-        void OpenGLVertexBuffer::SetData(uint32_t size, const void* dataoffset)
+        void OpenGLVertexBuffer::SetData(u32 size, const void* dataoffset)
         {
             m_Size = size;
             GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
@@ -62,7 +62,7 @@ namespace Razix {
             //RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void OpenGLVertexBuffer::Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        void OpenGLVertexBuffer::Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
@@ -73,18 +73,18 @@ namespace Razix {
 
             auto& elements = layout.getElements();
 
-            uint32_t offset = 0;
-            for (uint32_t i = 0; i < elements.size(); ++i) {
+            u32 offset = 0;
+            for (u32 i = 0; i < elements.size(); ++i) {
                 BufferLayoutElement& element = elements[i];
                 glEnableVertexAttribArray(i);
-                //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
+                //glVertexAttribPointer(0, 3, GL_f32, GL_FALSE, 3 * sizeof(GL_f32), nullptr);
 
-                glVertexAttribPointer(i, element.getCount(), OpenGLUtilities::BufferFormatToGLType(element.format), element.normalized, layout.getStride(), (const void*) (size_t) element.offset);
+                glVertexAttribPointer(i, element.getCount(), OpenGLUtilities::BufferFormatToGLType(element.format), element.normalized, layout.getStride(), (const void*) (sz) element.offset);
                 offset += element.offset;
             }
         }
 
-        void OpenGLVertexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
+        void OpenGLVertexBuffer::Map(u32 size /*= 0*/, u32 offset /*= 0*/)
         {
             Bind(nullptr);
 

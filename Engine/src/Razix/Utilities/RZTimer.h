@@ -15,28 +15,28 @@ namespace Razix {
         RZTimer();
         ~RZTimer() = default;
 
-        float            GetTimeMS();
+        f32            GetTimeMS();
         static TimeStamp Now();
 
-        static double Duration(TimeStamp start, TimeStamp end, double timeResolution = 1.0);
-        static float  Duration(TimeStamp start, TimeStamp end, float timeResolution);
+        static d32 Duration(TimeStamp start, TimeStamp end, d32 timeResolution = 1.0);
+        static f32  Duration(TimeStamp start, TimeStamp end, f32 timeResolution);
 
-        float GetElapsedMS()
+        f32 GetElapsedMS()
         {
             return GetElapsed(1000.0f);
         }
 
-        float GetElapsedS()
+        f32 GetElapsedS()
         {
             return GetElapsed(1.0f);
         }
 
-        float GetElapsed(const float timeResolution) const
+        f32 GetElapsed(const f32 timeResolution) const
         {
             return Duration(m_Start, Now(), timeResolution);
         }
 
-        double GetElapsed(const double timeResolution = 1.0) const
+        d32 GetElapsed(const d32 timeResolution = 1.0) const
         {
             return Duration(m_Start, Now(), timeResolution);
         }

@@ -70,7 +70,7 @@ namespace Razix {
             }
 
             // TODO: This is also to be moved to the renderer static initialization
-            for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
                 m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Forward Renderer Main Command Buffers"));
             }
@@ -219,7 +219,7 @@ namespace Razix {
             RAZIX_MARK_END();
         }
 
-        void RZForwardRenderer::Resize(uint32_t width, uint32_t height)
+        void RZForwardRenderer::Resize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

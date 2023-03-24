@@ -46,11 +46,11 @@ namespace Razix {
         /* Defining the format type of RZUUID (we will use a union with bytes for easier calculation) */
         typedef struct
         {
-            uint32_t time_low;
-            uint16_t time_mid;
-            uint16_t time_hi_and_version;
-            uint8_t  clock_seq_hi_and_reserved;
-            uint8_t  clock_seq_low;
+            u32 time_low;
+            u16 time_mid;
+            u16 time_hi_and_version;
+            u8  clock_seq_hi_and_reserved;
+            u8  clock_seq_low;
             char     node[6];
         } uuidv4;
 
@@ -77,7 +77,7 @@ namespace Razix {
          * 
          * @param bytes bytes representation of the UUID
          */
-        RZUUID(const uint8_t* bytes);
+        RZUUID(const u8* bytes);
         /**
          * Builds an RZUUID from a byte string (16 bytes long)
          * 
@@ -101,7 +101,7 @@ namespace Razix {
          * 
          * @param ray bytes representation of the UUID
          */
-        static RZUUID FromStrFactory(const char* raw);
+        static RZUUID FromStrFactory(cstr raw);
 
         /* Serializes the uuid to a byte string (16 bytes) */
         std::string bytes() const;
@@ -116,7 +116,7 @@ namespace Razix {
         /* fills a char buffer with UUID string representation (32 bytes pretty string)*/
         void prettyString(char* res) const;
         /* Hash function for the UUID */
-        size_t hash() const;
+        sz hash() const;
 
         RZUUID& operator=(const RZUUID& other);
 
@@ -154,7 +154,7 @@ namespace Razix {
         }
 
     private:
-        uint8_t m_Data[16]; /* The 128-bit byte representation of the RZUUID */
+        u8 m_Data[16]; /* The 128-bit byte representation of the RZUUID */
 
     private:
         /**
@@ -167,7 +167,7 @@ namespace Razix {
          * Converts an UUIDv4 string representation to a 128-bits unsigned int.
          * Uses SIMD via Intel's AVX2 instruction set.
          */
-        static __m128i inline stringTom128i(const char* mem);
+        static __m128i inline stringTom128i(cstr mem);
     };
 }    // namespace Razix
 
@@ -175,7 +175,7 @@ namespace std {
     template<>
     struct hash<Razix::RZUUID>
     {
-        size_t operator()(const Razix::RZUUID& uuid) const
+        sz operator()(const Razix::RZUUID& uuid) const
         {
             return uuid.hash();
         }

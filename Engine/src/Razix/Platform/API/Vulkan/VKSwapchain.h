@@ -36,16 +36,16 @@ namespace Razix {
                 std::vector<VkPresentModeKHR>   presentModes;
             };
 
-            uint32_t getCurrentImageIndex() override { return m_CurrentBuffer; }
+            u32 getCurrentImageIndex() override { return m_CurrentBuffer; }
 
         public:
-            VKSwapchain(uint32_t width, uint32_t height);
+            VKSwapchain(u32 width, u32 height);
             ~VKSwapchain();
 
-            void  Init(uint32_t width, uint32_t height) override;
+            void  Init(u32 width, u32 height) override;
             void  Destroy() override;
             void  Flip() override;
-            void  OnResize(uint32_t width, uint32_t height) override;
+            void  OnResize(u32 width, u32 height) override;
             void* GetAPIHandle() override { return &m_Swapchain; }
 
             // Flip related functions
@@ -53,13 +53,13 @@ namespace Razix {
             void createSynchronizationPrimitives() {}
             void createFrameData();
             void acquireNextImage(VkSemaphore signalSemaphore);
-            //void OnResize(uint32_t width, uint32_t height, bool forceResize = false);
+            //void OnResize(u32 width, u32 height, bool forceResize = false);
             void queueSubmit(CommandQueue& commandQueue, std::vector<VkSemaphore> waitSemaphores, std::vector<VkSemaphore> signalSemaphores);
             void present(VkSemaphore waitSemaphore);
 
-            RZTexture*     GetImage(uint32_t index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }
+            RZTexture*     GetImage(u32 index) override { return static_cast<RZTexture*>(m_SwapchainImageTextures[index]); }
             RZTexture*     GetCurrentImage() override { return static_cast<RZTexture*>(m_SwapchainImageTextures[m_AcquireImageIndex]); }
-            size_t         GetSwapchainImageCount() override { return m_SwapchainImageCount; }
+            sz         GetSwapchainImageCount() override { return m_SwapchainImageCount; }
             FrameSyncData& getCurrentFrameSyncData()
             {
                 RAZIX_ASSERT(m_CurrentBuffer < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
@@ -75,14 +75,14 @@ namespace Razix {
             VkSurfaceFormatKHR        m_SurfaceFormat;          /* Selected Swapchain image format and color space of the swapchain image                           */
             VkPresentModeKHR          m_PresentMode;            /* The presentation mode for the swapchain images                                                   */
             VkExtent2D                m_SwapchainExtent;        /* The extent of the swapchain images                                                               */
-            uint32_t                  m_SwapchainImageCount;    /* Total number of swapchain images being used                                                      */
+            u32                  m_SwapchainImageCount;    /* Total number of swapchain images being used                                                      */
             std::vector<RZTexture2D*> m_SwapchainImageTextures; /* Swapchain images stored as engine 2D texture                                                     */
-            uint32_t                  m_AcquireImageIndex;      /* Currently acquired image index of the swapchain that is being rendered to                        */
+            u32                  m_AcquireImageIndex;      /* Currently acquired image index of the swapchain that is being rendered to                        */
             VkFormat                  m_ColorFormat;            /* Color format of the screen                             
             // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = VKContext::Get();                                                      */
             FrameSyncData             m_Frames[MAX_SWAPCHAIN_BUFFERS];
-            uint32_t                  m_CurrentBuffer = 0; /* Index of the current buffer being submitted for execution */
+            u32                  m_CurrentBuffer = 0; /* Index of the current buffer being submitted for execution */
             bool                      m_IsResized     = false;
             bool                      m_IsResizing    = false;
 

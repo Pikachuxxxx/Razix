@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Razix/Core/RZDataTypes.h"
+
 namespace Razix {
     namespace KeyCode {
-        enum class Key : uint32_t
+        enum class Key : u32
         {
             // From glfw3.h
             Space      = 32,
@@ -137,7 +139,7 @@ namespace Razix {
             Menu         = 348
         };
 
-        enum class MouseKey : uint32_t
+        enum class MouseKey : u32
         {
             ButtonLeft   = 0,
             ButtonRight  = 1,

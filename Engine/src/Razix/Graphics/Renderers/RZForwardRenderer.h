@@ -30,7 +30,7 @@ namespace Razix {
 
             void End() override;
 
-            void Resize(uint32_t width, uint32_t height) override;
+            void Resize(u32 width, u32 height) override;
 
             void Destroy() override;
 

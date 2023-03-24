@@ -26,43 +26,43 @@ namespace Razix {
             RZEngine::Get().GetStatistics().MeshesRendered++;
         }
 
-        RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, uint32_t vtxcount, uint32_t idxcount)
+        RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, u32 vtxcount, u32 idxcount)
             : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
         }
 
-        RZMesh::RZMesh(const std::vector<uint16_t>& indices, const std::vector<RZVertex>& vertices, float optimiseThreshold /*= 1.0f*/)
+        RZMesh::RZMesh(const std::vector<u16>& indices, const std::vector<RZVertex>& vertices, f32 optimiseThreshold /*= 1.0f*/)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
 
             m_Indices  = indices;
             m_Vertices = vertices;
 
-            size_t indexCount         = indices.size();
-            size_t target_index_count = size_t(indices.size() * optimiseThreshold);
+            sz indexCount         = indices.size();
+            sz target_index_count = sz(indices.size() * optimiseThreshold);
 
-            m_IndexCount  = static_cast<uint32_t>(indices.size());
-            m_VertexCount = static_cast<uint32_t>(vertices.size());
+            m_IndexCount  = static_cast<u32>(indices.size());
+            m_VertexCount = static_cast<u32>(vertices.size());
 
-            float  target_error = 1e-3f;
-            float* resultError  = nullptr;
+            f32  target_error = 1e-3f;
+            f32* resultError  = nullptr;
 
-            auto newIndexCount = meshopt_simplify(m_Indices.data(), m_Indices.data(), m_Indices.size(), (const float*) (&m_Vertices[0]), m_Vertices.size(), sizeof(Graphics::RZVertex), target_index_count, target_error, resultError);
+            auto newIndexCount = meshopt_simplify(m_Indices.data(), m_Indices.data(), m_Indices.size(), (const f32*) (&m_Vertices[0]), m_Vertices.size(), sizeof(Graphics::RZVertex), target_index_count, target_error, resultError);
 
             auto newVertexCount = meshopt_optimizeVertexFetch(    // return vertices (not vertex attribute values)
                 (m_Vertices.data()),
                 (unsigned short*) (m_Indices.data()),
                 newIndexCount,    // total new indices (not faces)
                 (m_Vertices.data()),
-                (size_t) m_Vertices.size(),    // total vertices (not vertex attribute values)
+                (sz) m_Vertices.size(),    // total vertices (not vertex attribute values)
                 sizeof(Graphics::RZVertex)     // vertex stride
             );
 
             RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", indexCount, m_Vertices.size(), newIndexCount, newVertexCount);
 
-            m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) m_Indices.data(), (uint16_t) newIndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<uint32_t>(newVertexCount), m_Vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) m_Indices.data(), (u16) newIndexCount);
+            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(newVertexCount), m_Vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
             // TODO: Add buffer layout by reflecting from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");
@@ -73,15 +73,15 @@ namespace Razix {
             m_VertexBuffer->AddBufferLayout(layout);
         }
 
-        void RZMesh::GenerateNormals(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount)
+        void RZMesh::GenerateNormals(RZVertex* vertices, u32 vertexCount, u16* indices, u32 indexCount)
         {
             glm::vec3* normals = new glm::vec3[vertexCount];
 
-            for (uint32_t i = 0; i < vertexCount; ++i)
+            for (u32 i = 0; i < vertexCount; ++i)
                 normals[i] = glm::vec3();
 
             if (indices) {
-                for (uint32_t i = 0; i < indexCount; i += 3) {
+                for (u32 i = 0; i < indexCount; i += 3) {
                     const int a = indices[i];
                     const int b = indices[i + 1];
                     const int c = indices[i + 2];
@@ -94,7 +94,7 @@ namespace Razix {
                 }
             } else {
                 // It's just a list of triangles, so generate face normals
-                for (uint32_t i = 0; i < vertexCount; i += 3) {
+                for (u32 i = 0; i < vertexCount; i += 3) {
                     glm::vec3& a = vertices[i].Position;
                     glm::vec3& b = vertices[i + 1].Position;
                     glm::vec3& c = vertices[i + 2].Position;
@@ -107,7 +107,7 @@ namespace Razix {
                 }
             }
 
-            for (uint32_t i = 0; i < vertexCount; ++i)
+            for (u32 i = 0; i < vertexCount; ++i)
                 vertices[i].Normal = glm::normalize(normals[i]);
 
             delete[] normals;
@@ -123,20 +123,20 @@ namespace Razix {
 
             const glm::vec3 axis = glm::vec3(vertex1 * coord2.y - vertex2 * coord1.y);
 
-            const float factor = 1.0f / (coord1.x * coord2.y - coord2.x * coord1.y);
+            const f32 factor = 1.0f / (coord1.x * coord2.y - coord2.x * coord1.y);
 
             return axis * factor;
         }
 
-        void RZMesh::GenerateTangents(RZVertex* vertices, uint32_t vertexCount, uint16_t* indices, uint32_t indexCount)
+        void RZMesh::GenerateTangents(RZVertex* vertices, u32 vertexCount, u16* indices, u32 indexCount)
         {
             glm::vec3* tangents = new glm::vec3[vertexCount];
 
-            for (uint32_t i = 0; i < vertexCount; ++i)
+            for (u32 i = 0; i < vertexCount; ++i)
                 tangents[i] = glm::vec3();
 
             if (indices) {
-                for (uint32_t i = 0; i < indexCount; i += 3) {
+                for (u32 i = 0; i < indexCount; i += 3) {
                     int a = indices[i];
                     int b = indices[i + 1];
                     int c = indices[i + 2];
@@ -148,7 +148,7 @@ namespace Razix {
                     tangents[c] += tangent;
                 }
             } else {
-                for (uint32_t i = 0; i < vertexCount; i += 3) {
+                for (u32 i = 0; i < vertexCount; i += 3) {
                     const glm::vec3 tangent = GenerateTangent(vertices[i].Position, vertices[i + 1].Position, vertices[i + 2].Position, vertices[i].TexCoords, vertices[i + 1].TexCoords, vertices[i + 2].TexCoords);
 
                     tangents[i] += tangent;
@@ -156,7 +156,7 @@ namespace Razix {
                     tangents[i + 2] += tangent;
                 }
             }
-            for (uint32_t i = 0; i < vertexCount; ++i)
+            for (u32 i = 0; i < vertexCount; ++i)
                 vertices[i].Tangent = glm::normalize(tangents[i]);
 
             delete[] tangents;

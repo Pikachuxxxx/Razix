@@ -49,9 +49,9 @@ namespace Razix {
             // https://www.reddit.com/r/vulkan/comments/xec0vg/multilayered_rendering_to_create_a_cubemap/
 
             // First create the 2D Equirectangular texture
-            uint32_t              width, height, bpp;
+            u32              width, height, bpp;
             unsigned char*        pixels = Razix::Utilities::LoadImageData(hdrFilePath, &width, &height, &bpp);
-            std::vector<uint32_t> pixelData(width * height * 4);
+            std::vector<u32> pixelData(width * height * 4);
             memcpy(pixelData.data(), pixels, (width * height * bpp));
 
             RZTexture2D* equirectangularMap = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("HDR Cube Map Texture") "HDR Cube Map Texture", width, height, pixelData.data(), RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
@@ -108,7 +108,7 @@ namespace Razix {
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
-            uint32_t layerCount = 6;
+            u32 layerCount = 6;
 
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
@@ -132,7 +132,7 @@ namespace Razix {
                 cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                for (uint32_t i = 0; i < layerCount; i++) {
+                for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
                     RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
@@ -144,7 +144,7 @@ namespace Razix {
             }
             equirectangularMap->Release(true);
 
-            for (size_t i = 0; i < envMapSets.size(); i++) {
+            for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();
                 UBOs[i]->Destroy();
             }
@@ -212,7 +212,7 @@ namespace Razix {
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
-            uint32_t layerCount = 6;
+            u32 layerCount = 6;
 
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
@@ -236,7 +236,7 @@ namespace Razix {
                 cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                for (uint32_t i = 0; i < layerCount; i++) {
+                for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
                     RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
@@ -247,7 +247,7 @@ namespace Razix {
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
 
-            for (size_t i = 0; i < envMapSets.size(); i++) {
+            for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();
                 UBOs[i]->Destroy();
             }
@@ -315,7 +315,7 @@ namespace Razix {
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
-            uint32_t layerCount = 6;
+            u32 layerCount = 6;
 
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
@@ -339,7 +339,7 @@ namespace Razix {
                 cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                for (uint32_t i = 0; i < layerCount; i++) {
+                for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
                     RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
@@ -350,7 +350,7 @@ namespace Razix {
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
 
-            for (size_t i = 0; i < envMapSets.size(); i++) {
+            for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();
                 UBOs[i]->Destroy();
             }

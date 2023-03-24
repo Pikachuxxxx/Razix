@@ -17,7 +17,7 @@ namespace Razix {
             void Execute() override;
             void Reset() override;
 
-            void UpdateViewport(uint32_t width, uint32_t height) override;
+            void UpdateViewport(u32 width, u32 height) override;
         };
     }    // namespace Graphics
 }    // namespace Razix

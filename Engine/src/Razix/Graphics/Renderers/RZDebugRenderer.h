@@ -30,7 +30,7 @@ namespace Razix {
         friend class RZApplication;
 
     public:
-        static void Init(uint32_t width, uint32_t height);
+        static void Init(u32 width, u32 height);
         static void Release();
 
         static void Clear()
@@ -58,16 +58,16 @@ namespace Razix {
         //Note: Functions appended with 'NDT' (no depth testing) will always be rendered in the foreground. This can be useful for debugging things inside objects.
 
         //Draw Point (circle)
-        static void DrawPoint(const glm::vector3& pos, float point_radius, const glm::vector3& colour);
-        static void DrawPoint(const glm::vector3& pos, float point_radius, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
-        static void DrawPointNDT(const glm::vector3& pos, float point_radius, const glm::vector3& colour);
-        static void DrawPointNDT(const glm::vector3& pos, float point_radius, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
+        static void DrawPoint(const glm::vector3& pos, f32 point_radius, const glm::vector3& colour);
+        static void DrawPoint(const glm::vector3& pos, f32 point_radius, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
+        static void DrawPointNDT(const glm::vector3& pos, f32 point_radius, const glm::vector3& colour);
+        static void DrawPointNDT(const glm::vector3& pos, f32 point_radius, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
         //Draw Line with a given thickness
-        static void DrawThickLine(const glm::vector3& start, const glm::vector3& end, float line_width, const glm::vector3& colour);
-        static void DrawThickLine(const glm::vector3& start, const glm::vector3& end, float line_width, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
-        static void DrawThickLineNDT(const glm::vector3& start, const glm::vector3& end, float line_width, const glm::vector3& colour);
-        static void DrawThickLineNDT(const glm::vector3& start, const glm::vector3& end, float line_width, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
+        static void DrawThickLine(const glm::vector3& start, const glm::vector3& end, f32 line_width, const glm::vector3& colour);
+        static void DrawThickLine(const glm::vector3& start, const glm::vector3& end, f32 line_width, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
+        static void DrawThickLineNDT(const glm::vector3& start, const glm::vector3& end, f32 line_width, const glm::vector3& colour);
+        static void DrawThickLineNDT(const glm::vector3& start, const glm::vector3& end, f32 line_width, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
         //Draw line with thickness of 1 screen pixel regardless of distance from camera
         static void DrawHairLine(const glm::vector3& start, const glm::vector3& end, const glm::vector3& colour);
@@ -89,14 +89,14 @@ namespace Razix {
         static void DrawPolygon(int n_verts, const glm::vector3* verts, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
         static void DrawPolygonNDT(int n_verts, const glm::vector3* verts, const glm::vector4& colour = glm::vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
-        static void DebugDraw(const Maths::BoundingBox& box, const glm::vector4& edgeColour, bool cornersOnly = false, float width = 0.02f);
+        static void DebugDraw(const Maths::BoundingBox& box, const glm::vector4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
         static void DebugDraw(const Maths::Sphere& sphere, const glm::vector4& colour);
         static void DebugDraw(const Maths::Frustum& frustum, const glm::vector4& colour);
         static void DebugDraw(Graphics::Light* light, const Maths::Quaternion& rotation, const glm::vector4& colour);
-        static void DebugDrawSphere(float radius, const glm::vector3& position, const glm::vector4& colour);
-        static void DebugDrawCircle(int numVerts, float radius, const glm::vector3& position, const Maths::Quaternion& rotation, const glm::vector4& colour);
-        static void DebugDrawCone(int numCircleVerts, int numLinesToCircle, float angle, float length, const glm::vector3& position, const Maths::Quaternion& rotation, const glm::vector4& colour);
-        static void OnResize(uint32_t width, uint32_t height)
+        static void DebugDrawSphere(f32 radius, const glm::vector3& position, const glm::vector4& colour);
+        static void DebugDrawCircle(int numVerts, f32 radius, const glm::vector3& position, const Maths::Quaternion& rotation, const glm::vector4& colour);
+        static void DebugDrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vector3& position, const Maths::Quaternion& rotation, const glm::vector4& colour);
+        static void OnResize(u32 width, u32 height)
         {
             if (s_Instance)
                 s_Instance->OnResizeInternal(width, height);
@@ -122,8 +122,8 @@ namespace Razix {
 
     protected:
         //Actual functions managing data parsing to save code bloat - called by public functions
-        static void GenDrawPoint(bool ndt, const glm::vector3& pos, float point_radius, const glm::vector4& colour);
-        static void GenDrawThickLine(bool ndt, const glm::vector3& start, const glm::vector3& end, float line_width, const glm::vector4& colour);
+        static void GenDrawPoint(bool ndt, const glm::vector3& pos, f32 point_radius, const glm::vector4& colour);
+        static void GenDrawThickLine(bool ndt, const glm::vector3& start, const glm::vector3& end, f32 line_width, const glm::vector4& colour);
         static void GenDrawHairLine(bool ndt, const glm::vector3& start, const glm::vector3& end, const glm::vector4& colour);
         static void GenDrawTriangle(bool ndt, const glm::vector3& v0, const glm::vector3& v1, const glm::vector3& v2, const glm::vector4& colour);
 
@@ -133,7 +133,7 @@ namespace Razix {
         void RenderInternal();
         void ClearInternal();
 
-        void OnResizeInternal(uint32_t width, uint32_t height);
+        void OnResizeInternal(u32 width, u32 height);
 
         static DebugRenderer* s_Instance;
 

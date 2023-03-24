@@ -12,19 +12,19 @@ namespace Razix {
         class VKVertexBuffer : public RZVertexBuffer, public VKBuffer
         {
         public:
-            VKVertexBuffer(uint32_t size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
+            VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKVertexBuffer();
 
             void Bind(RZCommandBuffer* cmdBuffer) override;
             void Unbind() override;
 
-            void SetData(uint32_t size, const void* data) override;
-            void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
+            void SetData(u32 size, const void* data) override;
+            void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
             void AddBufferLayout(RZVertexBufferLayout& layout) override;
 
             void Destroy() override;
 
-            virtual void  Map(uint32_t size = 0, uint32_t offset = 0) override;
+            virtual void  Map(u32 size = 0, u32 offset = 0) override;
             virtual void  UnMap() override;
             virtual void* GetMappedBuffer() override;
             virtual void  Flush() override;

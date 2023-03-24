@@ -30,11 +30,11 @@ namespace Razix {
         inline static bool IsMouseButtonHeld(Razix::KeyCode::MouseKey button) { return sInstance->IsMouseButtonHeldImpl(int(button)); }
 
         /* Gets the current position of the mouse */
-        inline static std::pair<float, float> GetMousePosition() { return sInstance->GetMousePositionImpl(); }
+        inline static std::pair<f32, f32> GetMousePosition() { return sInstance->GetMousePositionImpl(); }
         /* Gets the X-Axis position of the mouse in screen space */
-        inline static float GetMouseX() { return sInstance->GetMouseXImpl(); }
+        inline static f32 GetMouseX() { return sInstance->GetMouseXImpl(); }
         /* Gets the Y-Axis position of the mouse in screen space */
-        inline static float GetMouseY() { return sInstance->GetMouseYImpl(); }
+        inline static f32 GetMouseY() { return sInstance->GetMouseYImpl(); }
 
     protected:
         /**
@@ -75,17 +75,17 @@ namespace Razix {
          * OS/API specific Implementation for the mouse position
          * This should be Implementation per OS
          */
-        virtual std::pair<float, float> GetMousePositionImpl() = 0;
+        virtual std::pair<f32, f32> GetMousePositionImpl() = 0;
         /**
          * OS/API specific Implementation for Mouse X position
          * This should be Implementation per OS
          */
-        virtual float GetMouseXImpl() = 0;
+        virtual f32 GetMouseXImpl() = 0;
         /**
          * OS/API specific Implementation for Mouse Y position
          * This should be Implementation per OS
          */
-        virtual float GetMouseYImpl() = 0;
+        virtual f32 GetMouseYImpl() = 0;
 
     protected:
         /* The Global Input variable for the Engine, from which the Input information is retrieved */

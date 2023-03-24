@@ -8,8 +8,8 @@ struct ShadowMapData
     Razix::Graphics::FrameGraph::RZFrameGraphResource viewProjMatrices;
 };
 
-constexpr uint32_t kShadowMapSize = 2048;
-constexpr uint32_t kNumCascades   = 4;
+constexpr u32 kShadowMapSize = 2048;
+constexpr u32 kNumCascades   = 4;
 
 static_assert(kNumCascades <= 4);
 
@@ -31,6 +31,6 @@ struct CasdacesUBOData
 
 struct Cascade
 {
-    float     splitDepth;
+    f32     splitDepth;
     glm::mat4 viewProjMatrix;
 };

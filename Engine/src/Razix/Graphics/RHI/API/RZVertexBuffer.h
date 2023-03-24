@@ -34,7 +34,7 @@ namespace Razix {
              * @param usage The usage Description of the buffer
              * @returns Returns a RZVertexBuffer pointer to the underlying Graphics API implementation
              */
-            static RZVertexBuffer* Create(uint32_t size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
+            static RZVertexBuffer* Create(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
 
             /**
              * Binds the given Vertex buffer to the graphics pipeline before a draw command is issued
@@ -45,15 +45,15 @@ namespace Razix {
             /* Unbinds the vertex buffer */
             virtual void Unbind() = 0;
             /* Sets the data with some offset */
-            virtual void SetData(uint32_t size, const void* data) = 0;
+            virtual void SetData(u32 size, const void* data) = 0;
             /* Resizes and sets the buffer with new data */
-            virtual void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
+            virtual void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
             /* Sets the vertex buffer layout */
             virtual void AddBufferLayout(RZVertexBufferLayout& layout) = 0;
             /* Destroys the buffer and it's resources allocated by the underlying API */
             virtual void Destroy() = 0;
 
-            virtual void Map(uint32_t size = 0, uint32_t offset = 0) = 0;
+            virtual void Map(u32 size = 0, u32 offset = 0) = 0;
             virtual void UnMap()                                     = 0;
             /**
              * Gets the region on the HOST to which the device memory was mapped to
@@ -67,7 +67,7 @@ namespace Razix {
 
         protected:
             BufferUsage m_Usage  = BufferUsage::STATIC;
-            uint32_t    m_Size   = 0;
+            u32    m_Size   = 0;
             bool        m_Mapped = false;
         };
 

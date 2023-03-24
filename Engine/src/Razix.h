@@ -2,6 +2,7 @@
 
 // Core
 // clang-format off
+#include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZCore.h"
 // clang-format on
 #include "Razix/Core/IRZSystem.h"

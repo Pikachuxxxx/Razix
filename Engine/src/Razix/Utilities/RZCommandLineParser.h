@@ -26,7 +26,7 @@ namespace Razix {
          *
          * @param arguments The list of all the arguments to parse
          */
-        void parse(std::vector<const char*>& arguments);
+        void parse(std::vector<cstr>& arguments);
 
         /**
          * prints the description of all command available and their description

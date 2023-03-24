@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void DX11Swapchain::Init(uint32_t width, uint32_t height)
+        void DX11Swapchain::Init(u32 width, u32 height)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
@@ -24,7 +24,7 @@ namespace Razix {
             m_Swapchain->Present(1u, 0u);
         }
 
-        Razix::Graphics::RZTexture* DX11Swapchain::GetImage(uint32_t index)
+        Razix::Graphics::RZTexture* DX11Swapchain::GetImage(u32 index)
         {
             RAZIX_UNIMPLEMENTED_METHOD
             return nullptr;
@@ -36,13 +36,13 @@ namespace Razix {
             return nullptr;
         }
 
-        size_t DX11Swapchain::GetSwapchainImageCount()
+        sz DX11Swapchain::GetSwapchainImageCount()
         {
             RAZIX_UNIMPLEMENTED_METHOD
             return NULL;
         }
 
-        uint32_t DX11Swapchain::getCurrentImageIndex()
+        u32 DX11Swapchain::getCurrentImageIndex()
         {
             RAZIX_UNIMPLEMENTED_METHOD
             return 0;

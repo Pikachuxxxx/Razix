@@ -24,7 +24,7 @@ namespace Razix {
              * 
              * @returns The pointer to the underlying API implementation
              */
-            static RZIndexBuffer* Create(RZ_DEBUG_NAME_TAG_F_ARG uint16_t* data, uint32_t count, BufferUsage bufferUsage = BufferUsage::STATIC);
+            static RZIndexBuffer* Create(RZ_DEBUG_NAME_TAG_F_ARG u16* data, u32 count, BufferUsage bufferUsage = BufferUsage::STATIC);
 
             /* Binds the Index buffer to the pipeline and the command buffer that is recorded and binded with */
             virtual void Bind(RZCommandBuffer* commandBuffer = nullptr) = 0;
@@ -33,22 +33,22 @@ namespace Razix {
             /* Destroys the buffer and it's resources allocated by the underlying API */
             virtual void Destroy() = 0;
             /* Resizes the buffer with new data */
-            virtual void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
+            virtual void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
 
-            virtual void  Map(uint32_t size = 0, uint32_t offset = 0) = 0;
+            virtual void  Map(u32 size = 0, u32 offset = 0) = 0;
             virtual void  UnMap()                                     = 0;
             virtual void* GetMappedBuffer()                           = 0;
             virtual void  Flush()                                     = 0;
 
             /* Gets the index count of the index buffer */
-            inline uint32_t getCount() const { return m_IndexCount; }
+            inline u32 getCount() const { return m_IndexCount; }
             /* Sets the index count of the index buffer */
-            inline void setCount(uint32_t count) { m_IndexCount = count; }
+            inline void setCount(u32 count) { m_IndexCount = count; }
 
         protected:
-            uint32_t    m_IndexCount; /* The index count of the index buffer  */
+            u32    m_IndexCount; /* The index count of the index buffer  */
             BufferUsage m_Usage;      /* The usage information of the buffer  */
-            uint32_t    m_Size;       /* The size of the Index buffer         */
+            u32    m_Size;       /* The size of the Index buffer         */
         };
     }    // namespace Graphics
 }    // namespace Razix

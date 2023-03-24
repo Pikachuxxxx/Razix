@@ -26,7 +26,7 @@ namespace Razix {
                     std::string                 name;
                     glm::vec2                   extent;
                     Graphics::RZTexture::Format format;
-                    uint32_t                    numLayers = 1; // Used for 2D texture array layers or a depth for 3D textures
+                    u32                    numLayers = 1; // Used for 2D texture array layers or a depth for 3D textures
                 };
 
                 void create(const Desc& desc, void* allocator);

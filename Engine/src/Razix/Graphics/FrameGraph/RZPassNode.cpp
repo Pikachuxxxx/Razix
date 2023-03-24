@@ -41,7 +41,7 @@ namespace Razix {
                 return m_RefCount > 0 || isStandAlone();
             }
 
-            RZPassNode::RZPassNode(const std::string_view name, uint32_t id, std::unique_ptr<RZFrameGraphPassConcept> &&exec)
+            RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<RZFrameGraphPassConcept> &&exec)
                 : RZGraphNode{name, id}, m_Exec{std::move(exec)}
             {
             }

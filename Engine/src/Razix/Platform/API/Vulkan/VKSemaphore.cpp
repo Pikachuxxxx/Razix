@@ -15,7 +15,7 @@ namespace Razix {
             semaphoreInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
             semaphoreInfo.pNext                 = nullptr;
 
-            for (uint32_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; ++i) {
+            for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; ++i) {
                 VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Handles[i]));
 
                 // Tag em
@@ -25,11 +25,11 @@ namespace Razix {
 
         void VKSemaphore::Destroy()
         {
-            for (uint32_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; ++i)
+            for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; ++i)
                 vkDestroySemaphore(VKDevice::Get().getDevice(), m_Handles[i], nullptr);
         }
 
-        void* VKSemaphore::getHandle(uint32_t idx)
+        void* VKSemaphore::getHandle(u32 idx)
         {
             return &m_Handles[idx];
         }

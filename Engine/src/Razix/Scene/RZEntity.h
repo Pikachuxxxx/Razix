@@ -75,7 +75,7 @@ namespace Razix {
 
         operator bool() const;
         operator entt::entity() const { return m_Entity; }
-        operator uint32_t() const { return (uint32_t) m_Entity; }
+        operator u32() const { return (u32) m_Entity; }
 
         bool operator==(const RZEntity& other) const { return m_Entity == other.m_Entity && m_Scene == other.m_Scene; }
         bool operator!=(const RZEntity& other) const { return !(*this == other); }

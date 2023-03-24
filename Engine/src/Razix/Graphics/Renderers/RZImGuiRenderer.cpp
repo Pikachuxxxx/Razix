@@ -107,7 +107,7 @@ namespace Razix {
             unsigned char* fontData;
             int            texWidth, texHeight;
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
-            //size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
+            //sz uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
             m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas") "Awesome Font Icon Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
 
@@ -133,7 +133,7 @@ namespace Razix {
                 ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
             else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
                 ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
-                const char* glsl_version = "#version 410";
+                cstr glsl_version = "#version 410";
                 ImGui_ImplOpenGL3_Init(glsl_version);
                 return;
             }
@@ -165,8 +165,8 @@ namespace Razix {
 
             if (!imDrawData) { return; };
 
-            uint32_t vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
-            uint32_t indexBufferSize  = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+            u32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+            u32 indexBufferSize  = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
 
             // Update buffers only if vertex or index count has been changed compared to current buffer size
             if ((vertexBufferSize == 0) || (indexBufferSize == 0))
@@ -245,7 +245,7 @@ namespace Razix {
             m_ImGuiVBO->Bind(cmdBuffer);
             m_ImGuiIBO->Bind(cmdBuffer);
 
-            for (uint32_t i = 0; i < (uint32_t) imDrawData->CmdListsCount; ++i) {
+            for (u32 i = 0; i < (u32) imDrawData->CmdListsCount; ++i) {
                 ImDrawList* cmd_list = imDrawData->CmdLists[i];
                 ImGuizmo::SetDrawlist(cmd_list);
                 for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
@@ -263,7 +263,7 @@ namespace Razix {
                     // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
                     // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
                     // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                    RHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (uint32_t) (pcmd->ClipRect.z - pcmd->ClipRect.x), (uint32_t) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    RHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (u32) (pcmd->ClipRect.z - pcmd->ClipRect.x), (u32) (pcmd->ClipRect.w - pcmd->ClipRect.y));
 #ifdef RAZIX_RENDER_API_VULKAN
                     if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                         vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
@@ -283,12 +283,12 @@ namespace Razix {
 
             RAZIX_MARK_END();
 
-            float now = m_RendererTimer.GetElapsedS();
+            f32 now = m_RendererTimer.GetElapsedS();
             m_PassTimer.Update(now);
             RZEngine::Get().GetStatistics().ImGuiPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
         }
 
-        void RZImGuiRenderer::Resize(uint32_t width, uint32_t height)
+        void RZImGuiRenderer::Resize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -332,7 +332,7 @@ namespace Razix {
                 m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Pipeline"));
 
             // TODO: This is also to be moved to the renderer static initialization
-            for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
                 m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("ImGui Renderer Main Command Buffers"));
             }
@@ -350,7 +350,7 @@ namespace Razix {
             unsigned char* fontData;
             int            texWidth, texHeight;
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
-            //size_t uploadSize = texWidth * texHeight * 4 * sizeof(char);
+            //sz uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
             m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas (path one)") "ImGui Font Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
         }

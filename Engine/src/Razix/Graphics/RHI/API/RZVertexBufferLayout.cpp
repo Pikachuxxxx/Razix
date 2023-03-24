@@ -9,7 +9,7 @@ namespace Razix {
         RZVertexBufferLayout::RZVertexBufferLayout()
             : m_Stride(0) {}
 
-        void RZVertexBufferLayout::pushImpl(const std::string& name, BufferFormat format, uint32_t size, bool Normalised)
+        void RZVertexBufferLayout::pushImpl(const std::string& name, BufferFormat format, u32 size, bool Normalised)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -24,9 +24,9 @@ namespace Razix {
         }
 
         template<>
-        void RZVertexBufferLayout::push<uint8_t>(const std::string& name, bool normalized)
+        void RZVertexBufferLayout::push<u8>(const std::string& name, bool normalized)
         {
-            pushImpl(name, BufferFormat::R8_UINT, sizeof(uint8_t), normalized);
+            pushImpl(name, BufferFormat::R8_UINT, sizeof(u8), normalized);
         }
 
         template<>
@@ -36,33 +36,33 @@ namespace Razix {
         }
 
         template<>
-        void RZVertexBufferLayout::push<uint32_t>(const std::string& name, bool normalized)
+        void RZVertexBufferLayout::push<u32>(const std::string& name, bool normalized)
         {
-            pushImpl(name, BufferFormat::R32_UINT, sizeof(uint32_t), normalized);
+            pushImpl(name, BufferFormat::R32_UINT, sizeof(u32), normalized);
         }
 
         template<>
-        void RZVertexBufferLayout::push<float>(const std::string& name, bool normalized)
+        void RZVertexBufferLayout::push<f32>(const std::string& name, bool normalized)
         {
-            pushImpl(name, BufferFormat::R32_FLOAT, sizeof(float), normalized);
+            pushImpl(name, BufferFormat::R32_FLOAT, sizeof(f32), normalized);
         }
 
         template<>
         void RZVertexBufferLayout::push<glm::vec2>(const std::string& name, bool normalized)
         {
-            pushImpl(name, BufferFormat::R32G32_FLOAT, sizeof(float) * 2, normalized);
+            pushImpl(name, BufferFormat::R32G32_FLOAT, sizeof(f32) * 2, normalized);
         }
 
         template<>
         void RZVertexBufferLayout::push<glm::vec3>(const std::string& name, bool normalized)
         {
-            pushImpl(name, BufferFormat::R32G32B32_FLOAT, sizeof(float) * 3, normalized);
+            pushImpl(name, BufferFormat::R32G32B32_FLOAT, sizeof(f32) * 3, normalized);
         }
 
         template<>
         void RZVertexBufferLayout::push<glm::vec4>(const std::string& name, bool normalized)
         {
-            pushImpl(name, BufferFormat::R32G32B32A32_FLOAT, sizeof(float) * 4, normalized);
+            pushImpl(name, BufferFormat::R32G32B32A32_FLOAT, sizeof(f32) * 4, normalized);
         }
 
         template<>

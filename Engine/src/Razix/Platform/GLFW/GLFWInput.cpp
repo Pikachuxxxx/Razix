@@ -78,18 +78,18 @@ namespace Razix {
         return buttonState == GLFW_PRESS;
     }
 
-    std::pair<float, float> GLFWInput::GetMousePositionImpl()
+    std::pair<f32, f32> GLFWInput::GetMousePositionImpl()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
         auto   window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        double xpos, ypos;
+        d32 xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 
-        return {(float) xpos, (float) ypos};
+        return {(f32) xpos, (f32) ypos};
     }
 
-    float GLFWInput::GetMouseXImpl()
+    f32 GLFWInput::GetMouseXImpl()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -97,7 +97,7 @@ namespace Razix {
         return x;
     }
 
-    float GLFWInput::GetMouseYImpl()
+    f32 GLFWInput::GetMouseYImpl()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 

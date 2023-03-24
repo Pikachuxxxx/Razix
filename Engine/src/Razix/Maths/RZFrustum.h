@@ -12,7 +12,7 @@ namespace Razix {
             RZFrustum()  = default;
             ~RZFrustum() = default;
 
-            //void build(float fov, float aspectRatio, float zoom, float farz, glm::mat3x4);
+            //void build(f32 fov, f32 aspectRatio, f32 zoom, f32 farz, glm::mat3x4);
 
             bool IsInside(const glm::vec3& point) const
             {

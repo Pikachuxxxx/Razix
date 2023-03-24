@@ -57,7 +57,7 @@ namespace Razix {
 
         // Renderer Settings + Debug flags
 
-        enum RZRendererFeatures : uint32_t
+        enum RZRendererFeatures : u32
         {
             RendererFeature_None = 0,
 
@@ -78,7 +78,7 @@ namespace Razix {
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };
 
-        enum RZRendererDebugFlag : uint32_t
+        enum RZRendererDebugFlag : u32
         {
             RendererDebugFlag_None          = 0,
             RendererDebugFlag_Wireframe     = 1 << 0,
@@ -90,17 +90,17 @@ namespace Razix {
         struct RZRendererSettings
         {
             // TODO: Specify the output RT type here
-            uint32_t renderFeatures{RendererFeature_Default};
+            u32 renderFeatures{RendererFeature_Default};
             struct
             {
-                float radius{0.005f};
-                float strength{0.04f};
+                f32 radius{0.005f};
+                f32 strength{0.04f};
             } bloomConfig;
             struct
             {
                 int32_t numPropagations{6};
             } globalIlluminationConfig;
-            uint32_t debugFlags{0u};
+            u32 debugFlags{0u};
             // TODO: Add tone mapping settings here
         };
 

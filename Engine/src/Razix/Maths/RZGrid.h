@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Maths {
 
-        inline constexpr float max3(const glm::vec3& v)
+        inline constexpr f32 max3(const glm::vec3& v)
         {
             return glm::max(glm::max(v.x, v.y), v.z);
         }
@@ -23,7 +23,7 @@ namespace Razix {
 
             RZAABB     aabb;     /* aabb of the Grid                     */
             glm::uvec3 size;     /* Total dimensions of the grid         */
-            float      cellSize; /* The size of each cell in the grid    */
+            f32      cellSize; /* The size of each cell in the grid    */
         };
     }    // namespace Maths
 }    // namespace Razix

@@ -19,8 +19,8 @@ namespace Razix {
 
         struct GPULightData
         {
-            uint32_t  numLights;
-            uint32_t  _padding;
+            u32  numLights;
+            u32  _padding;
             LightData data;
         };
 

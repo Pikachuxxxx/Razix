@@ -5,7 +5,7 @@
 namespace Razix {
     namespace Graphics {
 
-        enum class CommandBufferState : uint8_t
+        enum class CommandBufferState : u8
         {
             Idle,
             Recording,
@@ -43,7 +43,7 @@ namespace Razix {
             virtual void Reset() = 0;
 
             /* Updates the viewport dynamically with the given width and height */
-            virtual void UpdateViewport(uint32_t width, uint32_t height) = 0;
+            virtual void UpdateViewport(u32 width, u32 height) = 0;
 
             virtual void*      getAPIBuffer() { return nullptr; }
             CommandBufferState getState() { return m_State; }

@@ -9,7 +9,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Converts the Buffer usage enum to OpenGL */
-        static uint32_t BufferUsageToOpenGL(const BufferUsage usage)
+        static u32 BufferUsageToOpenGL(const BufferUsage usage)
         {
             switch (usage) {
                 case BufferUsage::STATIC:
@@ -22,15 +22,15 @@ namespace Razix {
             return 0;
         }
 
-        OpenGLIndexBuffer::OpenGLIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage)
+        OpenGLIndexBuffer::OpenGLIndexBuffer(u16* data, u32 count, BufferUsage bufferUsage)
             : m_IBO(0)
         {
-            m_Size       = count * sizeof(uint16_t);
+            m_Size       = count * sizeof(u16);
             m_Usage      = bufferUsage;
             m_IndexCount = count;
             GL_CALL(glGenBuffers(1, &m_IBO));
             GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
-            GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint16_t), data, BufferUsageToOpenGL(m_Usage)));
+            GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(u16), data, BufferUsageToOpenGL(m_Usage)));
         }
 
         OpenGLIndexBuffer::~OpenGLIndexBuffer()
@@ -48,12 +48,12 @@ namespace Razix {
             GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         }
 
-        void OpenGLIndexBuffer::Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        void OpenGLIndexBuffer::Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void OpenGLIndexBuffer::Map(uint32_t size /*= 0*/, uint32_t offset /*= 0*/)
+        void OpenGLIndexBuffer::Map(u32 size /*= 0*/, u32 offset /*= 0*/)
         {
             Bind(nullptr);
 

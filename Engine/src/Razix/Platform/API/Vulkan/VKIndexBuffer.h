@@ -9,15 +9,15 @@ namespace Razix {
         class VKIndexBuffer : public RZIndexBuffer, public VKBuffer
         {
         public:
-            VKIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG);
+            VKIndexBuffer(u16* data, u32 count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKIndexBuffer();
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;
             void Unbind() override;
             void Destroy() override;
-            void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
+            void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
 
-            void Map(uint32_t size = 0, uint32_t offset = 0) override;
+            void Map(u32 size = 0, u32 offset = 0) override;
 
             void UnMap() override;
 

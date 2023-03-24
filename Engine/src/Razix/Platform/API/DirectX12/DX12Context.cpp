@@ -20,7 +20,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void DX12Context::ClearWithColor(float r, float g, float b)
+        void DX12Context::ClearWithColor(f32 r, f32 g, f32 b)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

@@ -19,7 +19,7 @@ namespace Razix {
         // Texture Utility Functions
         //-----------------------------------------------------------------------------------
 
-        void VKTexture2D::CreateImage(uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, uint32_t arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKTexture2D::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
         {
             // We pass the image as reference because we need the memory for it as well
             VkImageCreateInfo imageInfo = {};
@@ -57,7 +57,7 @@ namespace Razix {
             VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) imageMemory);
         }
 
-        void VKTexture2D::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
+        void VKTexture2D::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels)
         {
             VkFormatProperties formatProperties;
             vkGetPhysicalDeviceFormatProperties(VKDevice::Get().getGPU(), imageFormat, &formatProperties);
@@ -81,7 +81,7 @@ namespace Razix {
             int32_t mipWidth  = texWidth;
             int32_t mipHeight = texHeight;
 
-            for (uint32_t i = 1; i < mipLevels; i++) {
+            for (u32 i = 1; i < mipLevels; i++) {
                 barrier.subresourceRange.baseMipLevel = i - 1;
                 barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                 barrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -164,7 +164,7 @@ namespace Razix {
             VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
         }
 
-        VkImageView VKTexture2D::CreateImageView(VkImage image, VkFormat format, uint32_t mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t baseArrayLayer RZ_DEBUG_NAME_TAG_E_ARG)
+        VkImageView VKTexture2D::CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer RZ_DEBUG_NAME_TAG_E_ARG)
         {
             VkImageViewCreateInfo viewInfo           = {};
             viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -186,7 +186,7 @@ namespace Razix {
             return imageView;
         }
 
-        VkSampler VKTexture2D::CreateImageSampler(VkFilter magFilter /*= VK_FILTER_LINEAR*/, VkFilter minFilter /*= VK_FILTER_LINEAR*/, float minLod /*= 0.0f*/, float maxLod /*= 1.0f*/, bool anisotropyEnable /*= false*/, float maxAnisotropy /*= 1.0f*/, VkSamplerAddressMode modeU /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeV /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeW /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/ RZ_DEBUG_NAME_TAG_E_ARG)
+        VkSampler VKTexture2D::CreateImageSampler(VkFilter magFilter /*= VK_FILTER_LINEAR*/, VkFilter minFilter /*= VK_FILTER_LINEAR*/, f32 minLod /*= 0.0f*/, f32 maxLod /*= 1.0f*/, bool anisotropyEnable /*= false*/, f32 maxAnisotropy /*= 1.0f*/, VkSamplerAddressMode modeU /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeV /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeW /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/ RZ_DEBUG_NAME_TAG_E_ARG)
         {
             VkSampler           sampler;
             VkSamplerCreateInfo samplerInfo     = {};
@@ -218,7 +218,7 @@ namespace Razix {
         // Texture2D
         //-----------------------------------------------------------------------------------
 
-        VKTexture2D::VKTexture2D(const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKTexture2D::VKTexture2D(const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_Name        = name;
             m_Width       = width;
@@ -227,7 +227,7 @@ namespace Razix {
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
-            m_data        = static_cast<uint8_t*>(data);
+            m_data        = static_cast<u8*>(data);
 
             m_TextureType = RZTexture::Type::COLOR_2D;
 
@@ -260,7 +260,7 @@ namespace Razix {
             updateDescriptor();
         }
 
-        VKTexture2D::VKTexture2D(const std::string& name, uint32_t width, uint32_t height, uint32_t numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKTexture2D::VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_TextureType = RZTexture::Type::COLOR_2D;    // It is also an Render Target
             m_Name        = name;
@@ -271,7 +271,7 @@ namespace Razix {
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
 
-            uint32_t mipLevels = 1;    // static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
+            u32 mipLevels = 1;    // static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
 
             VkImageUsageFlagBits usageBit{};
             if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
@@ -294,7 +294,7 @@ namespace Razix {
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
-            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<float>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
+            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<f32>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
 
             updateDescriptor();
         }
@@ -323,9 +323,9 @@ namespace Razix {
             m_Descriptor.imageLayout = m_ImageLayout;
         }
 
-        void convert(unsigned char* dst, const unsigned char* src, size_t num)
+        void convert(unsigned char* dst, const unsigned char* src, sz num)
         {
-            size_t i;
+            sz i;
             for (i = 0; i < num / 3; i++) {
                 dst[4 * i]     = src[3 * i];
                 dst[4 * i + 1] = src[3 * i + 1];
@@ -341,11 +341,11 @@ namespace Razix {
             unsigned char* pixels = nullptr;
 
             if (m_data != nullptr) {
-                pixels = reinterpret_cast<uint8_t*>(m_data);
+                pixels = reinterpret_cast<u8*>(m_data);
                 m_Size = VkDeviceSize(m_Width * m_Height * 4);    // TODO: Get the Bits per pixel from the format
             } else {
                 if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
-                    uint32_t bpp;
+                    u32 bpp;
                     // Width and Height are extracted here
                     pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Width, &m_Height, &bpp);
                     // Here the format for the texture is extracted based on bits per pixel
@@ -367,10 +367,10 @@ namespace Razix {
             memcpy(pixelData.data(), pixels, m_Size);
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
-            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<uint32_t>(imageSize), pixelData.data() RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
+            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(imageSize), pixelData.data() RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
             //stagingBuffer->setData(imageSize, pixels);
 
-            uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //1;//
+            u32 mipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //1;//
 
             // Create the Vulkan Image and it's memory and Bind them together
             // We use a simple optimal tiling options
@@ -418,7 +418,7 @@ namespace Razix {
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
-            m_ImageSampler           = CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<float>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
+            m_ImageSampler           = CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<f32>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
 
             // Update the Image descriptor with the created view and sampler
             updateDescriptor();
@@ -434,7 +434,7 @@ namespace Razix {
         // Texture3D
         //-----------------------------------------------------------------------------------
 
-        VKTexture3D::VKTexture3D(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKTexture3D::VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_TextureType = RZTexture::Type::COLOR_3D;
             m_Name        = name;
@@ -445,7 +445,7 @@ namespace Razix {
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
 
-            uint32_t mipLevels = 1;    //static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //
+            u32 mipLevels = 1;    //static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //
 
             VkImageUsageFlagBits usageBit{};
             if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
@@ -472,7 +472,7 @@ namespace Razix {
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
-            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<float>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
+            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<f32>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
 
             updateDescriptor();
         }
@@ -492,11 +492,11 @@ namespace Razix {
                 vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
         }
 
-        void VKTexture3D::Bind(uint32_t slot)
+        void VKTexture3D::Bind(u32 slot)
         {
         }
 
-        void VKTexture3D::Unbind(uint32_t slot)
+        void VKTexture3D::Unbind(u32 slot)
         {
         }
 
@@ -518,7 +518,7 @@ namespace Razix {
         // Depth Texture
         //-----------------------------------------------------------------------------------
 
-        VKDepthTexture::VKDepthTexture(uint32_t width, uint32_t height)
+        VKDepthTexture::VKDepthTexture(u32 width, u32 height)
             : m_ImageView(VK_NULL_HANDLE), m_ImageSampler(VK_NULL_HANDLE)
         {
             m_Name   = "Depth Texture";
@@ -534,7 +534,7 @@ namespace Razix {
         {
         }
 
-        void VKDepthTexture::Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKDepthTexture::Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_Width  = width;
             m_Height = height;
@@ -559,11 +559,11 @@ namespace Razix {
                 vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
         }
 
-        void VKDepthTexture::Bind(uint32_t slot)
+        void VKDepthTexture::Bind(u32 slot)
         {
         }
 
-        void VKDepthTexture::Unbind(uint32_t slot)
+        void VKDepthTexture::Unbind(u32 slot)
         {
         }
 
@@ -601,7 +601,7 @@ namespace Razix {
         // Render Texture
         //-----------------------------------------------------------------------------------
 
-        VKRenderTexture::VKRenderTexture(uint32_t width, uint32_t height, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKRenderTexture::VKRenderTexture(u32 width, u32 height, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
             : m_TransferBuffer(VK_BUFFER_USAGE_TRANSFER_DST_BIT, width * height * 4, NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"))
         {
             m_Name        = "Render Target";
@@ -630,7 +630,7 @@ namespace Razix {
             updateDescriptor();
         }
 
-        void VKRenderTexture::Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKRenderTexture::Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_Width  = width;
             m_Height = height;
@@ -662,11 +662,11 @@ namespace Razix {
             m_TransferBuffer.destroy();
         }
 
-        void VKRenderTexture::Bind(uint32_t slot)
+        void VKRenderTexture::Bind(u32 slot)
         {
         }
 
-        void VKRenderTexture::Unbind(uint32_t slot)
+        void VKRenderTexture::Unbind(u32 slot)
         {
         }
 
@@ -675,7 +675,7 @@ namespace Razix {
             return (void*) &m_Descriptor;
         }
 
-        int32_t VKRenderTexture::ReadPixels(uint32_t x, uint32_t y)
+        int32_t VKRenderTexture::ReadPixels(u32 x, u32 y)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -717,7 +717,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             m_TextureType = RZTexture::Type::COLOR_RT;
 
-            uint32_t mipLevels = 1;    // static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
+            u32 mipLevels = 1;    // static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
 
             // Create the Vulkan Image and it's memory and Bind them together
             // We use a simple optimal tiling options
@@ -728,7 +728,7 @@ namespace Razix {
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
-            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<float>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
+            m_ImageSampler           = VKTexture2D::CreateImageSampler(VKUtilities::TextureFilterToVK(m_FilterMode.magFilter), VKUtilities::TextureFilterToVK(m_FilterMode.minFilter), 0.0f, static_cast<f32>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode), VKUtilities::TextureWrapToVK(m_WrapMode) RZ_DEBUG_E_ARG_NAME);
 
             updateDescriptor();
         }
@@ -779,7 +779,7 @@ namespace Razix {
 
             m_ImageSampler = VKTexture2D::CreateImageSampler(VK_FILTER_LINEAR, VK_FILTER_LINEAR, 0.0f, 1.0f, true, VKDevice::Get().getPhysicalDevice()->getProperties().limits.maxSamplerAnisotropy, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 
-            //VKUtilities::TransitionImageLayout(m_Image, VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+            //VKUtilities::TransitionImageLayout(m_Image, VK_FORMAT_R32G32B32A32_Sf32, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
 
             updateDescriptor();
         }
@@ -799,11 +799,11 @@ namespace Razix {
                 vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
         }
 
-        void VKCubeMap::Bind(uint32_t slot)
+        void VKCubeMap::Bind(u32 slot)
         {
         }
 
-        void VKCubeMap::Unbind(uint32_t slot)
+        void VKCubeMap::Unbind(u32 slot)
         {
         }
 

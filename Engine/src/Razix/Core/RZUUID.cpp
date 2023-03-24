@@ -65,12 +65,12 @@ namespace Razix {
 
 #if defined(FALLBACK_SWAP)
     #include <stdint.h>
-    inline uint16_t swap_u16(uint16_t value)
+    inline u16 swap_u16(u16 value)
     {
         return ((value & 0xFF00u) >> 8u) |
                ((value & 0x00FFu) << 8u);
     }
-    inline uint32_t swap_u32(uint32_t value)
+    inline u32 swap_u32(u32 value)
     {
         return ((value & 0xFF000000u) >> 24u) |
                ((value & 0x00FF0000u) >> 8u) |
@@ -145,7 +145,7 @@ namespace Razix {
         _mm_storeu_si128((__m128i*) m_Data, z);
     }
 
-    RZUUID::RZUUID(const uint8_t* bytes)
+    RZUUID::RZUUID(const u8* bytes)
     {
         __m128i x = _mm_loadu_si128((__m128i*) bytes);
         _mm_storeu_si128((__m128i*) m_Data, x);
@@ -162,7 +162,7 @@ namespace Razix {
         return FromStrFactory(s.c_str());
     }
 
-    RZUUID RZUUID::FromStrFactory(const char* raw)
+    RZUUID RZUUID::FromStrFactory(cstr raw)
     {
         return RZUUID(stringTom128i(raw));
     }
@@ -205,7 +205,7 @@ namespace Razix {
         m128iToString(x, res);
     }
 
-    size_t RZUUID::hash() const
+    sz RZUUID::hash() const
     {
         // Simple hash function for this class
         //return *((uint64_t*) data) ^ *((uint64_t*) data + 8);
@@ -255,19 +255,19 @@ namespace Razix {
         resd         = _mm256_or_si256(resd, dash);
 
         _mm256_storeu_si256((__m256i*) mem, betole256(resd));
-        *(uint16_t*) (mem + 16) = betole16(_mm256_extract_epi16(res, 7));
-        *(uint32_t*) (mem + 32) = betole32(_mm256_extract_epi32(res, 7));
+        *(u16*) (mem + 16) = betole16(_mm256_extract_epi16(res, 7));
+        *(u32*) (mem + 32) = betole32(_mm256_extract_epi32(res, 7));
     }
 
-    __m128i RZUUID::stringTom128i(const char* mem)
+    __m128i RZUUID::stringTom128i(cstr mem)
     {
         // Remove dashes and pack hex ascii bytes in a 256-bits int
         const __m256i dash_shuffle = _mm256_set_epi32(0x80808080, 0x0f0e0d0c, 0x0b0a0908, 0x06050403, 0x80800f0e, 0x0c0b0a09, 0x07060504, 0x03020100);
 
         __m256i x = betole256(_mm256_loadu_si256((__m256i*) mem));
         x         = _mm256_shuffle_epi8(x, dash_shuffle);
-        x         = _mm256_insert_epi16(x, betole16(*(uint16_t*) (mem + 16)), 7);
-        x         = _mm256_insert_epi32(x, betole32(*(uint32_t*) (mem + 32)), 7);
+        x         = _mm256_insert_epi16(x, betole16(*(u16*) (mem + 16)), 7);
+        x         = _mm256_insert_epi32(x, betole32(*(u32*) (mem + 32)), 7);
 
         // Build a mask to apply a different offset to alphas and digits
         const __m256i sub           = _mm256_set1_epi8(0x2F);

@@ -7,15 +7,15 @@ namespace Razix {
         class OpenGLIndexBuffer : public RZIndexBuffer
         {
         public:
-            OpenGLIndexBuffer(uint16_t* data, uint32_t count, BufferUsage bufferUsage);
+            OpenGLIndexBuffer(u16* data, u32 count, BufferUsage bufferUsage);
             ~OpenGLIndexBuffer();
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;
             void Unbind() override;
             void Destroy() override {}
-            void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
+            void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
 
-            void Map(uint32_t size = 0, uint32_t offset = 0) override;
+            void Map(u32 size = 0, u32 offset = 0) override;
 
             void UnMap() override;
 
@@ -24,7 +24,7 @@ namespace Razix {
             void Flush() override;
 
         private:
-            uint32_t m_IBO;
+            u32 m_IBO;
             void*    m_Mapped;
         };
     }    // namespace Graphics

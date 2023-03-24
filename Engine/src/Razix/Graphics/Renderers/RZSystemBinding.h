@@ -18,7 +18,7 @@
  * other sets will be allocated for GI, Decals etc up to 32/16
  */
 
-enum BindingTable_System : uint32_t
+enum BindingTable_System : u32
 {
     BINDING_SET_SYSTEM_VIEW_PROJECTION   = 0,    // How to feed this to the Renderer? in terms of Include files order which is fucked up, should I make a header file to hold binding Material + Render System binding table infos
     BINDING_SET_SYSTEM_MAT_PROPS         = 1,
@@ -28,7 +28,7 @@ enum BindingTable_System : uint32_t
 };
 
 /* lighting model texture binding slots */
-enum TextureBindingTable : uint32_t
+enum TextureBindingTable : u32
 {
     TEX_BINDING_IDX_ALBEDO    = 1,
     TEX_BINDING_IDX_NORMAL    = 2,

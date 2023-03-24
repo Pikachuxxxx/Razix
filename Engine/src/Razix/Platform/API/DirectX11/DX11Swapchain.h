@@ -15,20 +15,20 @@ namespace Razix {
             DX11Swapchain() {}
             ~DX11Swapchain() {}
 
-            void  Init(uint32_t width, uint32_t height) override;
+            void  Init(u32 width, u32 height) override;
             void  Destroy() override;
             void  Flip() override;
-            void  OnResize(uint32_t width, uint32_t height) override {}
+            void  OnResize(u32 width, u32 height) override {}
             void* GetAPIHandle() { return m_Swapchain.Get(); }
 
-            RZTexture*       GetImage(uint32_t index) override;
+            RZTexture*       GetImage(u32 index) override;
             RZTexture*       GetCurrentImage() override;
-            size_t           GetSwapchainImageCount() override;
+            sz           GetSwapchainImageCount() override;
 
             inline Microsoft::WRL::ComPtr<IDXGISwapChain>&         getSwapchain() { return m_Swapchain; }
             inline Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& getRenderTarget() { return m_Target; }
 
-            uint32_t getCurrentImageIndex() override;
+            u32 getCurrentImageIndex() override;
 
         private:
             /* DirectX handle to swapchain */

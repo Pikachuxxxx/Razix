@@ -13,7 +13,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKBuffer::VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        VKBuffer::VKBuffer(VkBufferUsageFlags usage, u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
             : m_UsageFlags(usage), m_BufferSize(size)
         {
             init(data RZ_DEBUG_E_ARG_NAME);
@@ -68,7 +68,7 @@ namespace Razix {
             }
         }
 
-        void VKBuffer::setData(uint32_t size, const void* data)
+        void VKBuffer::setData(u32 size, const void* data)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -77,7 +77,7 @@ namespace Razix {
             unMap();
         }
 
-        void VKBuffer::resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKBuffer::resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -119,7 +119,7 @@ namespace Razix {
 
             //! Set the Data
             if (data != nullptr)
-                setData((uint32_t) m_BufferSize, data);
+                setData((u32) m_BufferSize, data);
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_BUFFER, (uint64_t) m_Buffer);
             VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) m_BufferMemory);

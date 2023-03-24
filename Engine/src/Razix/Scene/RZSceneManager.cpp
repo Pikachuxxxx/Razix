@@ -63,7 +63,7 @@ namespace Razix {
         loadScene((m_CurrentSceneIdx + 1) % m_LoadedScenes.size());
     }
 
-    void RZSceneManager::loadScene(uint32_t index)
+    void RZSceneManager::loadScene(u32 index)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
@@ -93,8 +93,8 @@ namespace Razix {
 
         bool found          = false;
         m_IsSwitchingScenes = true;
-        uint32_t idx        = 0;
-        for (uint32_t i = 0; !found && i < m_LoadedScenes.size(); ++i) {
+        u32 idx        = 0;
+        for (u32 i = 0; !found && i < m_LoadedScenes.size(); ++i) {
             if (m_LoadedScenes[i]->getSceneName() == sceneName) {
                 found = true;
                 idx   = i;
@@ -161,7 +161,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        for (size_t i = 0; i < m_LoadedSceneFilePaths.size(); i++) {
+        for (sz i = 0; i < m_LoadedSceneFilePaths.size(); i++) {
             auto path  = m_LoadedSceneFilePaths[i];
             auto scene = m_LoadedScenes[i];
             scene->serialiseScene(path);

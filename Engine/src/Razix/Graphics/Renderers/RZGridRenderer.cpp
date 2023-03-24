@@ -71,21 +71,21 @@ namespace Razix {
 
             InitDisposableResources();
 
-            float vertices[8 * 4] = {-2000.5f, 0.0f, -2000.5f, 0.0f, 0.0f, 2000.5f, 0.0f, -2000.5f, 1.0f, 0.0f, 2000.5f, 0.0f, 2000.5f, 1.0f, 1.0f, -2000.5f, 0.0f, 2000.5f, 0.0f, 1.0f};
+            f32 vertices[8 * 4] = {-2000.5f, 0.0f, -2000.5f, 0.0f, 0.0f, 2000.5f, 0.0f, -2000.5f, 1.0f, 0.0f, 2000.5f, 0.0f, 2000.5f, 1.0f, 1.0f, -2000.5f, 0.0f, 2000.5f, 0.0f, 1.0f};
 
-            uint16_t indices[6] = {0, 1, 2, 2, 3, 0};
+            u16 indices[6] = {0, 1, 2, 2, 3, 0};
 
             // This buffer layout will be somehow combined with the vertex buffers and passed to the pipeline for the Input Assembly stage
             RZVertexBufferLayout bufferLayout;
             bufferLayout.push<glm::vec3>("Position");
             bufferLayout.push<glm::vec2>("TexCoord");
 
-            gridVBO = Graphics::RZVertexBuffer::Create(sizeof(float) * 8 * 4, vertices, Graphics::BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid VBO"));
+            gridVBO = Graphics::RZVertexBuffer::Create(sizeof(f32) * 8 * 4, vertices, Graphics::BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Grid VBO"));
             gridVBO->AddBufferLayout(bufferLayout);
             gridIBO = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Grid IBO") indices, 6);
 
             // TODO: This is also to be moved to the renderer static initialization
-            for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
                 m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Grid Renderer Main Command Buffers"));
             }
@@ -126,7 +126,7 @@ namespace Razix {
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             m_Framebuffers.clear();
-            for (uint32_t i = 0; i < Graphics::RZRHI::getSwapchain()->GetSwapchainImageCount(); i++) {
+            for (u32 i = 0; i < Graphics::RZRHI::getSwapchain()->GetSwapchainImageCount(); i++) {
                 Graphics::RZTexture* attachments[2];
                 attachments[0] = Graphics::RZRHI::getSwapchain()->GetImage(i);
                 attachments[1] = m_DepthTexture;
@@ -234,7 +234,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            float now = m_RendererTimer.GetElapsedS();
+            f32 now = m_RendererTimer.GetElapsedS();
             m_PassTimer.Update(now);
             RZEngine::Get().GetStatistics().GridPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
 
@@ -242,7 +242,7 @@ namespace Razix {
             //Graphics::RZAPIRenderer::Present();
         }
 
-        void RZGridRenderer::Resize(uint32_t width, uint32_t height)
+        void RZGridRenderer::Resize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

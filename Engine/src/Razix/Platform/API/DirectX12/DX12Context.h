@@ -17,7 +17,7 @@ namespace Razix {
 
             void Init() override;
             void Destroy() override;
-            void ClearWithColor(float r, float g, float b) override;
+            void ClearWithColor(f32 r, f32 g, f32 b) override;
 
         private:
             Microsoft::WRL::ComPtr<ID3D12Device> m_Device; /* DirectX 12 handle to the GPU device */

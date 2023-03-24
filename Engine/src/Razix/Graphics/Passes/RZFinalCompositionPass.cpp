@@ -166,7 +166,7 @@ namespace Razix {
         {
             // Create the pipeline resource for the pass
             // Command Buffers
-            for (size_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
+            for (sz i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_CmdBuffers[i] = RZCommandBuffer::Create();
                 m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Final Composition Pass Command Buffers"));
             }

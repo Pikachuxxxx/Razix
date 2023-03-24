@@ -17,18 +17,18 @@ struct GPUCameraFrameData
     alignas(16) glm::mat4 inversedProjection;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 inversedView;
-    alignas(4) float fov;
-    alignas(4) float nearPlane;
-    alignas(4) float farPlane;
-    alignas(4) float _padding;
+    alignas(4) f32 fov;
+    alignas(4) f32 nearPlane;
+    alignas(4) f32 farPlane;
+    alignas(4) f32 _padding;
 };
 
 struct GPUFrameData
 {
-    float                time;
-    float                deltaTime;
+    f32                time;
+    f32                deltaTime;
     glm::uvec2           resolution;
     GPUCameraFrameData   camera;
-    uint32_t             renderFeatures;
-    uint32_t             debugFlags;
+    u32             renderFeatures;
+    u32             debugFlags;
 };

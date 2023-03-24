@@ -4,13 +4,13 @@
 #include "Razix/Utilities/RZTimer.h"
 
 namespace Razix {
-    static double GetQueryPerformancePeriod()
+    static d32 GetQueryPerformancePeriod()
     {
         LARGE_INTEGER result;
         QueryPerformanceFrequency(&result);
-        return 1.0 / static_cast<double>(result.QuadPart);
+        return 1.0 / static_cast<d32>(result.QuadPart);
     }
-    const double freq = GetQueryPerformancePeriod();
+    const d32 freq = GetQueryPerformancePeriod();
 
     TimeStamp RZTimer::Now()
     {
@@ -19,13 +19,13 @@ namespace Razix {
         return temp;
     }
 
-    double RZTimer::Duration(TimeStamp start, TimeStamp end, double timeResolution)
+    d32 RZTimer::Duration(TimeStamp start, TimeStamp end, d32 timeResolution)
     {
         return (end.QuadPart - start.QuadPart) * timeResolution * freq;
     }
 
-    float RZTimer::Duration(TimeStamp start, TimeStamp end, float timeResolution)
+    f32 RZTimer::Duration(TimeStamp start, TimeStamp end, f32 timeResolution)
     {
-        return static_cast<float>((end.QuadPart - start.QuadPart) * timeResolution * freq);
+        return static_cast<f32>((end.QuadPart - start.QuadPart) * timeResolution * freq);
     }
 }    // namespace Razix

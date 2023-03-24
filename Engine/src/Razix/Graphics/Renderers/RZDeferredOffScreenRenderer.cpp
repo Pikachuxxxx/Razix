@@ -51,7 +51,7 @@ namespace Razix
             PSSystemUniformIndex_Size
         };
 
-        RZDeferredOffScreenRenderer::RZDeferredOffScreenRenderer(uint32_t width, uint32_t height)
+        RZDeferredOffScreenRenderer::RZDeferredOffScreenRenderer(u32 width, u32 height)
         {
             m_ScreenRenderer = false;
 
@@ -91,7 +91,7 @@ namespace Razix
             auto shader = Application::Get().GetShaderLibrary()->GetResource("//CoreShaders/DeferredColour.shader");
             m_DefaultMaterial->SetShader(shader);
 
-            const size_t minUboAlignment = size_t(Graphics::Renderer::GetCapabilities().UniformBufferOffsetAlignment);
+            const sz minUboAlignment = sz(Graphics::Renderer::GetCapabilities().UniformBufferOffsetAlignment);
 
             m_UniformBuffer = nullptr;
             m_AnimUniformBuffer = nullptr;
@@ -102,13 +102,13 @@ namespace Razix
             // Vertex shader System uniforms
             //
             m_VSSystemUniformBufferSize = sizeof(Maths::Matrix4);
-            m_VSSystemUniformBuffer = new uint8_t[m_VSSystemUniformBufferSize];
+            m_VSSystemUniformBuffer = new u8[m_VSSystemUniformBufferSize];
             memset(m_VSSystemUniformBuffer, 0, m_VSSystemUniformBufferSize);
             m_VSSystemUniformBufferOffsets.resize(VSSystemUniformIndex_Size);
 
             //Animated Vertex shader uniform
             m_VSSystemUniformBufferAnimSize = sizeof(Maths::Matrix4) * MAX_BONES;
-            m_VSSystemUniformBufferAnim = new uint8_t[m_VSSystemUniformBufferAnimSize];
+            m_VSSystemUniformBufferAnim = new u8[m_VSSystemUniformBufferAnimSize];
             memset(m_VSSystemUniformBufferAnim, 0, m_VSSystemUniformBufferAnimSize);
 
             // Per Scene System Uniforms
@@ -263,7 +263,7 @@ namespace Razix
         {
             RAZIX_PROFILE_FUNCTION();
 
-            for(uint32_t i = 0; i < static_cast<uint32_t>(m_CommandQueue.size()); i++)
+            for(u32 i = 0; i < static_cast<u32>(m_CommandQueue.size()); i++)
             {
                 Engine::Get().Statistics().NumRenderedObjects++;
 
@@ -340,7 +340,7 @@ namespace Razix
             {
                 m_UniformBuffer = Graphics::UniformBuffer::Create();
 
-                uint32_t bufferSize = m_VSSystemUniformBufferSize;
+                u32 bufferSize = m_VSSystemUniformBufferSize;
                 m_UniformBuffer->Init(bufferSize, nullptr);
             }
 
@@ -348,7 +348,7 @@ namespace Razix
             {
                 m_AnimUniformBuffer = Graphics::UniformBuffer::Create();
 
-                uint32_t bufferSize = m_VSSystemUniformBufferAnimSize;
+                u32 bufferSize = m_VSSystemUniformBufferAnimSize;
                 m_AnimUniformBuffer->Init(bufferSize, nullptr);
             }
 
@@ -382,7 +382,7 @@ namespace Razix
         void RZDeferredOffScreenRenderer::CreateFramebuffer()
         {
             RAZIX_PROFILE_FUNCTION();
-            const uint32_t attachmentCount = 5;
+            const u32 attachmentCount = 5;
             TextureType attachmentTypes[attachmentCount];
             attachmentTypes[0] = TextureType::COLOUR;
             attachmentTypes[1] = TextureType::COLOUR;
@@ -408,7 +408,7 @@ namespace Razix
             m_Framebuffers.push_back(rzstl::Ref<Framebuffer>(Framebuffer::Get(bufferInfo)));
         }
 
-        void RZDeferredOffScreenRenderer::OnResize(uint32_t width, uint32_t height)
+        void RZDeferredOffScreenRenderer::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTION();
             m_Framebuffers.clear();

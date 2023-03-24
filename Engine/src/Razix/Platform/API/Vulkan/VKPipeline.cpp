@@ -54,7 +54,7 @@ namespace Razix {
             vertexInputSCI.pNext                           = nullptr;
             vertexInputSCI.vertexBindingDescriptionCount   = vertexBindingDescription.stride == 0 ? 0 : 1;
             vertexInputSCI.pVertexBindingDescriptions      = vertexBindingDescription.stride == 0 ? nullptr : &vertexBindingDescription;
-            vertexInputSCI.vertexAttributeDescriptionCount = uint32_t(vertexInputAttributeDescription.size());
+            vertexInputSCI.vertexAttributeDescriptionCount = u32(vertexInputAttributeDescription.size());
             vertexInputSCI.pVertexAttributeDescriptions    = vertexInputAttributeDescription.data();
 
             //----------------------------
@@ -88,7 +88,7 @@ namespace Razix {
             VkPipelineDynamicStateCreateInfo dynamicStateCI{};
             dynamicStateCI.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
             dynamicStateCI.pNext             = NULL;
-            dynamicStateCI.dynamicStateCount = uint32_t(dynamicStateDescriptors.size());
+            dynamicStateCI.dynamicStateCount = u32(dynamicStateDescriptors.size());
             dynamicStateCI.pDynamicStates    = dynamicStateDescriptors.data();
 
             //----------------------------
@@ -141,7 +141,7 @@ namespace Razix {
                 }
             }
 
-            colorBlendSCI.attachmentCount   = static_cast<uint32_t>(blendAttachState.size());
+            colorBlendSCI.attachmentCount   = static_cast<u32>(blendAttachState.size());
             colorBlendSCI.pAttachments      = blendAttachState.data();
             colorBlendSCI.logicOpEnable     = VK_FALSE;
             colorBlendSCI.logicOp           = VK_LOGIC_OP_NO_OP;
@@ -198,7 +198,7 @@ namespace Razix {
             std::vector<VkFormat> formats;
             for (auto& attachment: pipelineInfo.colorAttachmentFormats)
                 formats.push_back(VKUtilities::TextureFormatToVK(attachment));
-            renderingCI.colorAttachmentCount    = static_cast<uint32_t>(pipelineInfo.colorAttachmentFormats.size());
+            renderingCI.colorAttachmentCount    = static_cast<u32>(pipelineInfo.colorAttachmentFormats.size());
             renderingCI.pColorAttachmentFormats = formats.data();
             renderingCI.depthAttachmentFormat   = VKUtilities::TextureFormatToVK(pipelineInfo.depthFormat);  // defaults to VK_FORMAT_UNDEFINED
 
@@ -222,7 +222,7 @@ namespace Razix {
             graphicsPipelineCI.pDepthStencilState                     = &depthStencilSCI;
             std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(m_Shader)->getShaderStages();
             graphicsPipelineCI.pStages                                = shaderStages.data();
-            graphicsPipelineCI.stageCount                             = static_cast<uint32_t>(shaderStages.size());
+            graphicsPipelineCI.stageCount                             = static_cast<u32>(shaderStages.size());
             graphicsPipelineCI.renderPass                             = VK_NULL_HANDLE;    //static_cast<VKRenderPass*>(pipelineInfo.renderpass)->getVKRenderPass();
 
             // TODO: use pipeline cache

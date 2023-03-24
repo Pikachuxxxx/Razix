@@ -37,7 +37,7 @@ namespace Razix {
          * @param path The path of the file to read
          * @returns Pointer to the contents of the file (8-bit char pointer)
          */
-        static uint8_t* ReadFile(const std::string& path);
+        static u8* ReadFile(const std::string& path);
 
         /** 
          * Reads the file onto a void buffer with the specified size
@@ -64,7 +64,7 @@ namespace Razix {
          * @param buffer The content that will be written to the fire
          * @returns True, if the write operation was successful
          */
-        static bool WriteFile(const std::string& path, uint8_t* buffer);
+        static bool WriteFile(const std::string& path, u8* buffer);
 
         /**
          * Writes the string to a text file
@@ -76,7 +76,7 @@ namespace Razix {
         static bool WriteTextFile(const std::string& path, const std::string& text);
 
         /* Check if the provided path was a relative path or an absolute path */
-        static bool IsRelativePath(const char* path)
+        static bool IsRelativePath(cstr path)
         {
             if (!path || path[0] == '/' || path[0] == '\\') {
                 return false;
@@ -90,7 +90,7 @@ namespace Razix {
         }
 
         /* Tells if the path was an absolute path or not */
-        static bool IsAbsolutePath(const char* path)
+        static bool IsAbsolutePath(cstr path)
         {
             if (!path) {
                 return false;

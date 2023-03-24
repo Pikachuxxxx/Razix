@@ -69,12 +69,12 @@ namespace Razix {
 
             // Create command buffers
             m_RadiancePropagationCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
-            for (uint32_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
+            for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_RadiancePropagationCmdBuffers[i] = RZCommandBuffer::Create();
                 m_RadiancePropagationCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Radiance Propagation Command Buffers"));
             }
 
-            for (uint32_t i = 0; i < kDefaultNumPropagations; i++)
+            for (u32 i = 0; i < kDefaultNumPropagations; i++)
                 LPV = addRadiancePropagationPass(framegraph, i == 0 ? radiance : LPV, m_Grid, i);
 
             blackboard.add<LightPropagationVolumesData>(LPV);
@@ -91,7 +91,7 @@ namespace Razix {
 
             // Create the command buffers
             m_RSMCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
-            for (uint32_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
+            for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_RSMCmdBuffers[i] = RZCommandBuffer::Create();
                 m_RSMCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("RSM pass Command Buffers"));
             }
@@ -287,7 +287,7 @@ namespace Razix {
 
             // Create command buffers
             m_RadianceInjectionCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
-            for (uint32_t i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
+            for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_RadianceInjectionCmdBuffers[i] = RZCommandBuffer::Create();
                 m_RadianceInjectionCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Radiance Injection Command Buffers"));
             }
@@ -414,7 +414,7 @@ namespace Razix {
             return data;
         }
 
-        LightPropagationVolumesData RZGIPass::addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, uint32_t propagationIdx)
+        LightPropagationVolumesData RZGIPass::addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, u32 propagationIdx)
         {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getShader("lpv_radiance_propagation.rzsf");

@@ -18,7 +18,7 @@ namespace Razix {
                 struct Desc
                 {
                     std::string name;
-                    uint32_t    size;
+                    u32    size;
                 };
 
                 void create(const Desc& desc, void* allocator);

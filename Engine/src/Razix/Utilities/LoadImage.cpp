@@ -10,7 +10,7 @@
 
 namespace Razix {
 
-    uint8_t* Utilities::LoadImageData(const std::string& filePath, uint32_t* width, uint32_t* height, uint32_t* bpp)
+    u8* Utilities::LoadImageData(const std::string& filePath, u32* width, u32* height, u32* bpp)
     {
         std::string physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
@@ -34,7 +34,7 @@ namespace Razix {
             *bpp = texChannels;
 
         const int32_t size   = texWidth * texHeight * texChannels;
-        uint8_t*      result = new uint8_t[size];
+        u8*      result = new u8[size];
         memcpy(result, pixels, size);
 
         stbi_image_free(pixels);

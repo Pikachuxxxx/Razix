@@ -16,7 +16,7 @@ namespace Razix {
             return (max + min) * 0.5f;
         }
 
-        float RZAABB::getRadius() const
+        f32 RZAABB::getRadius() const
         {
             return glm::length(getExtent() * 0.5f);
         }

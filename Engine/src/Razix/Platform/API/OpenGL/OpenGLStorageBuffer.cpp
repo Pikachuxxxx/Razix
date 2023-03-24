@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Graphics {
 
-        OpenGLStorageBuffer::OpenGLStorageBuffer(uint32_t size, const std::string& name)
+        OpenGLStorageBuffer::OpenGLStorageBuffer(u32 size, const std::string& name)
             : m_Size(size)
         {
             glGenBuffers(1, &m_SSBO);
@@ -39,7 +39,7 @@ namespace Razix {
             return m_Mapped;
         }
 
-        void OpenGLStorageBuffer::SetData(uint32_t size, const void* data)
+        void OpenGLStorageBuffer::SetData(u32 size, const void* data)
         {
             GL_CALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBO));
             GL_CALL(glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, GL_DYNAMIC_DRAW));

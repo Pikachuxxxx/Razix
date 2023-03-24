@@ -22,7 +22,7 @@ namespace Razix {
         std::cout << "Available command line options:\n";
         for (auto& option: m_CommandOptions) {
             std::cout << " ";
-            for (size_t i = 0; i < option.second.commandFlags.size(); i++) {
+            for (sz i = 0; i < option.second.commandFlags.size(); i++) {
                 std::cout << option.second.commandFlags[i];
                 if (i < option.second.commandFlags.size() - 1) {
                     std::cout << ", ";
@@ -63,13 +63,13 @@ namespace Razix {
         m_CommandOptions[name].value        = "";
     }
 
-    void RZCommandLineParser::parse(std::vector<const char*>& arguments)
+    void RZCommandLineParser::parse(std::vector<cstr>& arguments)
     {
         bool printH = false;
         // Known arguments
         for (auto& option: m_CommandOptions) {
             for (auto& command: option.second.commandFlags) {
-                for (size_t i = 0; i < arguments.size(); i++) {
+                for (sz i = 0; i < arguments.size(); i++) {
                     if (strcmp(arguments[i], command.c_str()) == 0) {
                         option.second.set = true;
                         // Get value

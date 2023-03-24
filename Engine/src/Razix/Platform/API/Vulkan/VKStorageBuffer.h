@@ -9,11 +9,11 @@ namespace Razix {
         class VKStorageBuffer : public RZStorageBuffer, public VKBuffer
         {
         public:
-            VKStorageBuffer(uint32_t size, const std::string& name);
+            VKStorageBuffer(u32 size, const std::string& name);
             ~VKStorageBuffer() {}
 
             void* GetData() override;
-            void  SetData(uint32_t size, const void* data) override;
+            void  SetData(u32 size, const void* data) override;
             void  Destroy() override;
         };
     }    // namespace Graphics
