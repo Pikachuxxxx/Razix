@@ -1,3 +1,6 @@
+// clang-format off
+#include "rzepch.h"
+// clang-format on
 #include "RZEContentBrowserWindow.h"
 
 #include "Razix/Core/RZApplication.h"

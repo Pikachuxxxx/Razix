@@ -464,10 +464,10 @@ namespace Razix {
 
 #if 1
         {
-	        // Draw the Grid using ImGui
-	        glm::mat4 identity = glm::mat4(1.0f);
-	        auto&     cam      = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
-	        ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 10.f);
+            // Draw the Grid using ImGui
+            glm::mat4 identity = glm::mat4(1.0f);
+            auto&     cam      = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
+            ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 10.f);
         }
 #endif
 
@@ -515,7 +515,7 @@ namespace Razix {
 
             // Engine stats
             ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-            const f32          DISTANCE         = 10.0f;
+            const f32            DISTANCE         = 10.0f;
             const ImGuiViewport* viewport         = ImGui::GetMainViewport();
             ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
             ImVec2               work_area_size   = viewport->WorkSize;

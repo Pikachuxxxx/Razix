@@ -10,13 +10,8 @@
 
 #include "Razix/Core/OS/RZInput.h"
 #include "Razix/Core/RZApplication.h"
-#include "Razix/Core/RZCore.h"
-#include "Razix/Core/RZRoot.h"
 #include "Razix/Events/ApplicationEvent.h"
 
-#include <glm/glm.hpp>
-
-#include <iostream>
 
 namespace Razix {
     namespace Editor {

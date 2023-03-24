@@ -58,6 +58,9 @@ project "RazixEditor"
 
     qtgenerateddir "%{prj.location}/../Editor/src/generated"
 
+    pchheader "rzepch.h"
+    pchsource "src/rzepch.cpp"
+
     files
     {
         -- C++ source files

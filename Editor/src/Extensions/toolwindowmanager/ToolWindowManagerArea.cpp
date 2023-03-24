@@ -22,6 +22,10 @@
  * SOFTWARE.
  *
  */
+// clang-format off
+#include "rzepch.h"
+// clang-format on
+
 #include "ToolWindowManagerArea.h"
 #include <QApplication>
 #include <QMouseEvent>

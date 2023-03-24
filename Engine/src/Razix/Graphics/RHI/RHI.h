@@ -17,7 +17,7 @@ namespace Razix {
 
         enum class DataType
         {
-            f32,
+            FLOAT,
             UNSIGNED_INT,
             UNSIGNED_BYTE
         };

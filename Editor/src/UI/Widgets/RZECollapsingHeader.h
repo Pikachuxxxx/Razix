@@ -4,8 +4,6 @@
 #include <QFrame>
 #include <QPainter>
 
-#include <iostream>
-
 namespace Razix {
     namespace Editor {
 

@@ -1,5 +1,9 @@
 #pragma once
 
+// clang-format off
+#include "rzepch.h"
+// clang-format on
+
 #include <Razix.h>
 
 #include <QApplication>

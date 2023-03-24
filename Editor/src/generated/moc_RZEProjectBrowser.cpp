@@ -7,6 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
+#include "rzepch.h"
 #include "../UI/RZEProjectBrowser.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
