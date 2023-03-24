@@ -25,37 +25,37 @@ namespace Razix {
              * @param width The Width of the swapchain extent
              * @param height The Height of the swapchain extent
              */
-            static RZSwapchain* Create(uint32_t width, uint32_t height);
+            static RZSwapchain* Create(u32 width, u32 height);
 
             /* Initializes the swapchain and it's resources */
-            virtual void Init(uint32_t width, uint32_t height) = 0;
+            virtual void Init(u32 width, u32 height) = 0;
             /* Destroys the swapchain and it's resources */
             virtual void Destroy() = 0;
-            /* Flips the swapchain images for presentation, typically used while doing double/triple buffered rendering */
+            /* Flips the swapchain images for presentation, typically used while doing d32/triple buffered rendering */
             virtual void Flip() = 0;
             /* Recreates the swapchain on window resize or for offline rendering */
-            virtual void OnResize(uint32_t width, uint32_t height) = 0;
+            virtual void OnResize(u32 width, u32 height) = 0;
 
             /* Gets the swapchain image at the given index */
-            virtual RZTexture* GetImage(uint32_t index) = 0;
+            virtual RZTexture* GetImage(u32 index) = 0;
             /* Gets the current image that is ready for rendering */
             virtual RZTexture* GetCurrentImage() = 0;
             /* Gets the count of total number of images in the swapchain */
-            virtual size_t GetSwapchainImageCount() = 0;
+            virtual sz GetSwapchainImageCount() = 0;
             /* Gets the index of the current image that is ready for rendering */
-            virtual inline uint32_t getCurrentImageIndex() = 0;
+            virtual inline u32 getCurrentImageIndex() = 0;
 
             /* Gets the width of the swapchain */
-            inline uint32_t getWidth() { return m_Width; }
+            inline u32 getWidth() { return m_Width; }
             /* Gets the height of the swapchain */
-            inline uint32_t getHeight() { return m_Height; }
+            inline u32 getHeight() { return m_Height; }
 
             virtual void* GetAPIHandle() = 0;
 
         protected:
-            uint32_t         m_Width;                 /* The width of the swapchain extent */
-            uint32_t         m_Height;                /* The height of the swapchain extent */
-            uint32_t         m_CurrentImageIndex = 0; /* The current image that is ready for rendering  */
+            u32         m_Width;                 /* The width of the swapchain extent */
+            u32         m_Height;                /* The height of the swapchain extent */
+            u32         m_CurrentImageIndex = 0; /* The current image that is ready for rendering  */
         };
 
     }    // namespace Graphics

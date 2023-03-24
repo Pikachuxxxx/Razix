@@ -281,13 +281,13 @@ namespace Razix {
 
             RZPassNode &RZFrameGraph::createPassNode(const std::string_view name, std::unique_ptr<RZFrameGraphPassConcept> &&base)
             {
-                const auto id = static_cast<uint32_t>(m_PassNodes.size());
+                const auto id = static_cast<u32>(m_PassNodes.size());
                 return m_PassNodes.emplace_back(RZPassNode(name, id, std::move(base)));
             }
 
-            RZResourceNode &RZFrameGraph::createResourceNode(const std::string_view name, uint32_t resourceID)
+            RZResourceNode &RZFrameGraph::createResourceNode(const std::string_view name, u32 resourceID)
             {
-                const auto id = static_cast<uint32_t>(m_ResourceNodes.size());
+                const auto id = static_cast<u32>(m_ResourceNodes.size());
                 return m_ResourceNodes.emplace_back(RZResourceNode{name, id, resourceID, kResourceInitialVersion});
             }
 
@@ -298,7 +298,7 @@ namespace Razix {
                 auto &entry = m_ResourceRegistry[node.m_ResourceID];
                 entry.m_Version++;
 
-                const auto cloneId = static_cast<uint32_t>(m_ResourceNodes.size());
+                const auto cloneId = static_cast<u32>(m_ResourceNodes.size());
                 m_ResourceNodes.emplace_back(RZResourceNode{node.m_Name, cloneId, node.m_ResourceID, entry.getVersion()});
                 return cloneId;
             }

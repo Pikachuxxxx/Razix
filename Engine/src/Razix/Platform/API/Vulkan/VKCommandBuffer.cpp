@@ -112,15 +112,15 @@ namespace Razix {
             vkFreeCommandBuffers(VKDevice::Get().getDevice(), m_CommandPool, 1, &m_CommandBuffer);
         }
 
-        void VKCommandBuffer::UpdateViewport(uint32_t width, uint32_t height)
+        void VKCommandBuffer::UpdateViewport(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             VkViewport viewport = {};
             viewport.x          = 0.0f;
             viewport.y          = 0.0f;
-            viewport.width      = static_cast<float>(width);
-            viewport.height     = static_cast<float>(height);
+            viewport.width      = static_cast<f32>(width);
+            viewport.height     = static_cast<f32>(height);
             viewport.minDepth   = 0.0f;
             viewport.maxDepth   = 1.0f;
 
@@ -133,12 +133,12 @@ namespace Razix {
         }
 
         /*
-        void VKCommandBuffer::Draw(uint32_t verticexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+        void VKCommandBuffer::Draw(u32 verticexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance)
         {
             vkCmdDraw(m_CommandBuffer, verticexCount, instanceCount, firstInstance, firstInstance);
         } 
 
-        void VKCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
+        void VKCommandBuffer::DrawIndexed(u32 indexCount, u32 instanceCount, u32 firstIndex, int32_t vertexOffset, u32 firstInstance)
         {
             vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstInstance, vertexOffset, firstInstance);
         }

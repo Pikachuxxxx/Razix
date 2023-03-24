@@ -61,7 +61,7 @@ namespace Razix {
 
                 std::string toString() const;
 
-                uint32_t getVersion() const { return m_Version; }
+                u32 getVersion() const { return m_Version; }
                 bool     isImported() const { return m_Imported; }
                 bool     isTransient() const { return !m_Imported; }
 
@@ -72,16 +72,16 @@ namespace Razix {
                 typename const T::Desc &getDescriptor() const;
 
             private:
-                const uint32_t             m_ID;
+                const u32             m_ID;
                 std::unique_ptr<RZConcept> m_Concept;
                 const bool                 m_Imported = false;
-                uint32_t                   m_Version;
+                u32                   m_Version;
                 RZPassNode                *m_Producer = nullptr;
                 RZPassNode                *m_Last     = nullptr;
 
             private:
                 template<typename T>
-                RZResourceEntry(uint32_t id, typename T::Desc &&, T &&, uint32_t version, bool imported = false);
+                RZResourceEntry(u32 id, typename T::Desc &&, T &&, u32 version, bool imported = false);
 
                 template<typename T>
                 auto *getTypeResource() const;

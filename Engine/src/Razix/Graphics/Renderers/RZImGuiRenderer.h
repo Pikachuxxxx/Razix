@@ -55,7 +55,7 @@ namespace Razix {
 
             void End() override;
 
-            void Resize(uint32_t width, uint32_t height) override;
+            void Resize(u32 width, u32 height) override;
 
             void Destroy() override;
 
@@ -74,7 +74,7 @@ namespace Razix {
             //int32_t indexCount  = 0;
 
             std::vector<ImGuiVertex> m_VertexData;
-            std::vector<uint16_t>    m_IndexData;
+            std::vector<u16>    m_IndexData;
 
         private:
             void initDisposableResources();

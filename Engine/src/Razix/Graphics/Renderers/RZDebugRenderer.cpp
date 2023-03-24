@@ -11,14 +11,14 @@ namespace Razix
 
     RZDebugRenderer* RZDebugRenderer::s_Instance = nullptr;
 
-    static const uint32_t MaxLines = 10000;
-    static const uint32_t MaxLineVertices = MaxLines * 2;
-    static const uint32_t MaxLineIndices = MaxLines * 6;
+    static const u32 MaxLines = 10000;
+    static const u32 MaxLineVertices = MaxLines * 2;
+    static const u32 MaxLineIndices = MaxLines * 6;
 #define MAX_BATCH_DRAW_CALLS 100
 #define RENDERER_LINE_SIZE RENDERER2DLINE_VERTEX_SIZE * 4
 #define RENDERER_BUFFER_SIZE RENDERER_LINE_SIZE* MaxLineVertices
 
-    void RZDebugRenderer::Init(uint32_t width, uint32_t height)
+    void RZDebugRenderer::Init(u32 width, u32 height)
     {
         if(s_Instance)
             return;
@@ -63,48 +63,48 @@ namespace Razix
     }
 
     //Draw Point (circle)
-    void RZDebugRenderer::GenDrawPoint(bool ndt, const Maths::Vector3& pos, float point_radius, const Maths::Vector4& colour)
+    void RZDebugRenderer::GenDrawPoint(bool ndt, const Maths::Vector3& pos, f32 point_radius, const Maths::Vector4& colour)
     {
         if(s_Instance && s_Instance->m_PointRenderer)
             s_Instance->m_PointRenderer->Submit(pos, point_radius, colour);
     }
 
-    void RZDebugRenderer::DrawPoint(const Maths::Vector3& pos, float point_radius, const Maths::Vector3& colour)
+    void RZDebugRenderer::DrawPoint(const Maths::Vector3& pos, f32 point_radius, const Maths::Vector3& colour)
     {
         GenDrawPoint(false, pos, point_radius, Maths::Vector4(colour, 1.0f));
     }
-    void RZDebugRenderer::DrawPoint(const Maths::Vector3& pos, float point_radius, const Maths::Vector4& colour)
+    void RZDebugRenderer::DrawPoint(const Maths::Vector3& pos, f32 point_radius, const Maths::Vector4& colour)
     {
         GenDrawPoint(false, pos, point_radius, colour);
     }
-    void RZDebugRenderer::DrawPointNDT(const Maths::Vector3& pos, float point_radius, const Maths::Vector3& colour)
+    void RZDebugRenderer::DrawPointNDT(const Maths::Vector3& pos, f32 point_radius, const Maths::Vector3& colour)
     {
         GenDrawPoint(true, pos, point_radius, Maths::Vector4(colour, 1.0f));
     }
-    void RZDebugRenderer::DrawPointNDT(const Maths::Vector3& pos, float point_radius, const Maths::Vector4& colour)
+    void RZDebugRenderer::DrawPointNDT(const Maths::Vector3& pos, f32 point_radius, const Maths::Vector4& colour)
     {
         GenDrawPoint(true, pos, point_radius, colour);
     }
 
     //Draw Line with a given thickness
-    void RZDebugRenderer::GenDrawThickLine(bool ndt, const Maths::Vector3& start, const Maths::Vector3& end, float line_width, const Maths::Vector4& colour)
+    void RZDebugRenderer::GenDrawThickLine(bool ndt, const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector4& colour)
     {
         if(s_Instance && s_Instance->m_LineRenderer)
             s_Instance->m_LineRenderer->Submit(start, end, colour);
     }
-    void RZDebugRenderer::DrawThickLine(const Maths::Vector3& start, const Maths::Vector3& end, float line_width, const Maths::Vector3& colour)
+    void RZDebugRenderer::DrawThickLine(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector3& colour)
     {
         GenDrawThickLine(false, start, end, line_width, Maths::Vector4(colour, 1.0f));
     }
-    void RZDebugRenderer::DrawThickLine(const Maths::Vector3& start, const Maths::Vector3& end, float line_width, const Maths::Vector4& colour)
+    void RZDebugRenderer::DrawThickLine(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector4& colour)
     {
         GenDrawThickLine(false, start, end, line_width, colour);
     }
-    void RZDebugRenderer::DrawThickLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, float line_width, const Maths::Vector3& colour)
+    void RZDebugRenderer::DrawThickLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector3& colour)
     {
         GenDrawThickLine(true, start, end, line_width, Maths::Vector4(colour, 1.0f));
     }
-    void RZDebugRenderer::DrawThickLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, float line_width, const Maths::Vector4& colour)
+    void RZDebugRenderer::DrawThickLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector4& colour)
     {
         GenDrawThickLine(true, start, end, line_width, colour);
     }
@@ -194,7 +194,7 @@ namespace Razix
         }
     }
 
-    void RZDebugRenderer::DebugDraw(const Maths::BoundingBox& box, const Maths::Vector4& edgeColour, bool cornersOnly, float width)
+    void RZDebugRenderer::DebugDraw(const Maths::BoundingBox& box, const Maths::Vector4& edgeColour, bool cornersOnly, f32 width)
     {
         Maths::Vector3 uuu = box.max_;
         Maths::Vector3 lll = box.min_;
@@ -340,7 +340,7 @@ namespace Razix
             m_LineRenderer->RenderInternal();
     }
 
-    void RZDebugRenderer::OnResizeInternal(uint32_t width, uint32_t height)
+    void RZDebugRenderer::OnResizeInternal(u32 width, u32 height)
     {
         if(m_Renderer2D)
             m_Renderer2D->OnResize(width, height);
@@ -380,42 +380,42 @@ namespace Razix
         DrawPoint(sound->GetPosition(), sound->GetRadius(), colour);
     }
 
-    void RZDebugRenderer::DebugDrawCircle(int numVerts, float radius, const Maths::Vector3& position, const Maths::Quaternion& rotation, const Maths::Vector4& colour)
+    void RZDebugRenderer::DebugDrawCircle(int numVerts, f32 radius, const Maths::Vector3& position, const Maths::Quaternion& rotation, const Maths::Vector4& colour)
     {
-        float step = 360.0f / float(numVerts);
+        f32 step = 360.0f / f32(numVerts);
 
         for(int i = 0; i < numVerts; i++)
         {
-            float cx = Maths::Cos(step * i) * radius;
-            float cy = Maths::Sin(step * i) * radius;
+            f32 cx = Maths::Cos(step * i) * radius;
+            f32 cy = Maths::Sin(step * i) * radius;
             Maths::Vector3 current = Maths::Vector3(cx, cy);
 
-            float nx = Maths::Cos(step * (i + 1)) * radius;
-            float ny = Maths::Sin(step * (i + 1)) * radius;
+            f32 nx = Maths::Cos(step * (i + 1)) * radius;
+            f32 ny = Maths::Sin(step * (i + 1)) * radius;
             Maths::Vector3 next = Maths::Vector3(nx, ny);
 
             DrawHairLine(position + (rotation * current), position + (rotation * next), colour);
         }
     }
-    void RZDebugRenderer::DebugDrawSphere(float radius, const Maths::Vector3& position, const Maths::Vector4& colour)
+    void RZDebugRenderer::DebugDrawSphere(f32 radius, const Maths::Vector3& position, const Maths::Vector4& colour)
     {
-        float offset = 0.0f;
+        f32 offset = 0.0f;
         DebugDrawCircle(20, radius, position, Maths::Quaternion::EulerAnglesToQuaternion(0.0f, 0.0f, 0.0f), colour);
         DebugDrawCircle(20, radius, position, Maths::Quaternion::EulerAnglesToQuaternion(90.0f, 0.0f, 0.0f), colour);
         DebugDrawCircle(20, radius, position, Maths::Quaternion::EulerAnglesToQuaternion(0.0f, 90.0f, 90.0f), colour);
     }
 
-    void RZDebugRenderer::DebugDrawCone(int numCircleVerts, int numLinesToCircle, float angle, float length, const Maths::Vector3& position, const Maths::Quaternion& rotation, const Maths::Vector4& colour)
+    void RZDebugRenderer::DebugDrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const Maths::Vector3& position, const Maths::Quaternion& rotation, const Maths::Vector4& colour)
     {
-        float endAngle = Maths::Tan(angle * 0.5f) * length;
+        f32 endAngle = Maths::Tan(angle * 0.5f) * length;
         Maths::Vector3 forward = -(rotation * Maths::Vector3::FORWARD);
         Maths::Vector3 endPosition = position + forward * length;
-        float offset = 0.0f;
+        f32 offset = 0.0f;
         DebugDrawCircle(numCircleVerts, endAngle, endPosition, rotation, colour);
 
         for(int i = 0; i < numLinesToCircle; i++)
         {
-            float a = i * 90.0f;
+            f32 a = i * 90.0f;
             Maths::Vector3 point = rotation * Maths::Vector3(Maths::Cos(a), Maths::Sin(a)) * endAngle;
             DrawHairLine(position, position + point + forward * length, colour);
         }

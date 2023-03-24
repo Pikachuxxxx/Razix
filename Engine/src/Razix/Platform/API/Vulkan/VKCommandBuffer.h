@@ -22,13 +22,13 @@ namespace Razix {
             void EndRecording() override;
             void Execute() override;
             void Reset() override;
-            void UpdateViewport(uint32_t width, uint32_t height) override;
+            void UpdateViewport(u32 width, u32 height) override;
 
             void* getAPIBuffer() override { return (void*) &m_CommandBuffer; }
 
             /*
-            void Draw(uint32_t verticexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
-            void DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) override;
+            void Draw(u32 verticexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) override;
+            void DrawIndexed(u32 indexCount, u32 instanceCount, u32 firstIndex, int32_t vertexOffset, u32 firstInstance) override;
             */
             VkCommandBuffer getBuffer() const { return m_CommandBuffer; }
 

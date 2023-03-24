@@ -28,16 +28,16 @@ namespace Razix {
         {
         }
 
-        void VKRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height)
+        void VKRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             commandBuffer->UpdateViewport(width, height);
 
-            // TODO: choose the union type based on format type for vulkan SINT/UINT/SFLOAT and update only that properly
+            // TODO: choose the union type based on format type for vulkan SINT/UINT/Sf32 and update only that properly
 
             if (!m_DepthOnly) {
-                for (size_t i = 0; i < m_AttachmentsCount; i++) {
+                for (sz i = 0; i < m_AttachmentsCount; i++) {
                     //if (m_AttachmentTypes[i].format == RZTexture::Format::BGRA8_UNORM) {
                     m_ClearValue[i].color = {clearColor.r, clearColor.g, clearColor.b, clearColor.a};
                     //m_ClearValue[i].color.int32[1] = m_AttachmentTypes[i].clearColor.y;
@@ -63,7 +63,7 @@ namespace Razix {
             rpBegin.renderArea.offset.y      = 0;
             rpBegin.renderArea.extent.width  = width;
             rpBegin.renderArea.extent.height = height;
-            rpBegin.clearValueCount          = uint32_t(m_AttachmentsCount);
+            rpBegin.clearValueCount          = u32(m_AttachmentsCount);
             rpBegin.pClearValues             = m_ClearValue;
 
             vkCmdBeginRenderPass(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), &rpBegin, (subpass == INLINE ? VK_SUBPASS_CONTENTS_INLINE : VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS));
@@ -106,18 +106,18 @@ namespace Razix {
             m_DepthOnly  = true;
             m_ClearDepth = false;
 
-            for (uint32_t i = 0; i < renderpassInfo.attachmentCount; i++) {
+            for (u32 i = 0; i < renderpassInfo.attachmentCount; i++) {
                 attachments.push_back(getAttachmentDescription(renderpassInfo.attachmentInfos[i], renderpassInfo.attachmentInfos[i].clear));
 
                 if (renderpassInfo.attachmentInfos[i].type == RZTexture::Type::COLOR_2D) {
                     VkAttachmentReference colourAttachmentRef = {};
-                    colourAttachmentRef.attachment            = uint32_t(i);
+                    colourAttachmentRef.attachment            = u32(i);
                     colourAttachmentRef.layout                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     colourAttachmentReferences.push_back(colourAttachmentRef);
                     m_DepthOnly = false;
                 } else if (renderpassInfo.attachmentInfos[i].type == RZTexture::Type::DEPTH) {
                     VkAttachmentReference depthAttachmentRef = {};
-                    depthAttachmentRef.attachment            = uint32_t(i);
+                    depthAttachmentRef.attachment            = u32(i);
                     depthAttachmentRef.layout                = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                     depthAttachmentReferences.push_back(depthAttachmentRef);
                     m_ClearDepth = renderpassInfo.attachmentInfos->clear;
@@ -126,7 +126,7 @@ namespace Razix {
 
             VkSubpassDescription subpass{};
             subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
-            subpass.colorAttachmentCount    = static_cast<uint32_t>(colourAttachmentReferences.size());
+            subpass.colorAttachmentCount    = static_cast<u32>(colourAttachmentReferences.size());
             subpass.pColorAttachments       = colourAttachmentReferences.data();
             subpass.pDepthStencilAttachment = depthAttachmentReferences.data();
 
@@ -169,11 +169,11 @@ namespace Razix {
 
             VkRenderPassCreateInfo vkRenderpassCI{};
             vkRenderpassCI.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-            vkRenderpassCI.attachmentCount = uint32_t(renderpassInfo.attachmentCount);
+            vkRenderpassCI.attachmentCount = u32(renderpassInfo.attachmentCount);
             vkRenderpassCI.pAttachments    = attachments.data();
             vkRenderpassCI.subpassCount    = 1;
             vkRenderpassCI.pSubpasses      = &subpass;
-            vkRenderpassCI.dependencyCount = static_cast<uint32_t>(dependencies.size());
+            vkRenderpassCI.dependencyCount = static_cast<u32>(dependencies.size());
             vkRenderpassCI.pDependencies   = dependencies.data();
 
             if (VK_CHECK_RESULT(vkCreateRenderPass(VKDevice::Get().getDevice(), &vkRenderpassCI, nullptr, &m_RenderPass)))

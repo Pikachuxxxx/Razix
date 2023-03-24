@@ -66,7 +66,7 @@
 
     void GLFWWindow::SetWindowIcon()
     {
-        uint8_t* pixels = nullptr;
+        u8* pixels = nullptr;
 
         // 64-bit logo
         std::vector<GLFWimage> images;
@@ -114,7 +114,7 @@
 
         RAZIX_CORE_INFO("Creating Window... \n \t\t\t\t Title : {0} (Width : {1}, Height : {2})", properties.Title, properties.Width, properties.Height);
 
-        glfwSetErrorCallback([](int errorCode, const char* description) {
+        glfwSetErrorCallback([](int errorCode, cstr description) {
             RAZIX_CORE_ERROR("GLFW Error! code : {0} description : {1}", errorCode, description);
         });
 
@@ -208,17 +208,17 @@
             }
         });
 
-        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
+        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, d32 xOffset, d32 yOffset) {
             WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            RZMouseScrolledEvent event((float) xOffset, (float) yOffset);
+            RZMouseScrolledEvent event((f32) xOffset, (f32) yOffset);
             data.EventCallback(event);
         });
 
-        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
+        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, d32 xPos, d32 yPos) {
             WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            RZMouseMovedEvent event((float) xPos, (float) yPos);
+            RZMouseMovedEvent event((f32) xPos, (f32) yPos);
             data.EventCallback(event);
         });
     }

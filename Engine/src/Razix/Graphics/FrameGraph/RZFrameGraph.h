@@ -107,7 +107,7 @@ namespace Razix {
 
                 ENFORCE_CONCEPT RZFrameGraphResource createResource(const std::string_view name, typename T::Desc &&);
 
-                RZResourceNode &createResourceNode(const std::string_view name, uint32_t resourceID);
+                RZResourceNode &createResourceNode(const std::string_view name, u32 resourceID);
 
                 RZFrameGraphResource cloneResource(RZFrameGraphResource id);
             };

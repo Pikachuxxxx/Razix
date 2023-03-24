@@ -18,15 +18,16 @@
 
 //-----Data Structures-----//
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <optional>
 
 //-----Engine-----//
 #include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZDebugConfig.h"
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZProfiling.h"

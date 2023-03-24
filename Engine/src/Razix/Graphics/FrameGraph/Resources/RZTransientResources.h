@@ -40,7 +40,7 @@ namespace Razix {
                 struct ResourceEntry
                 {
                     T     resource;
-                    float life;
+                    f32 life;
                 };
                 template<typename T>
                 using ResourcePool = std::vector<ResourceEntry<T>>;

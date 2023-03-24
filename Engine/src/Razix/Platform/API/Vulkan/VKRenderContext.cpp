@@ -20,7 +20,7 @@
 namespace Razix {
     namespace Graphics {
 
-        static constexpr uint32_t MAX_DESCRIPTOR_SET_COUNT = 1500;
+        static constexpr u32 MAX_DESCRIPTOR_SET_COUNT = 1500;
 
         static void CmdBeginRenderingKHR(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo)
         {
@@ -40,7 +40,7 @@ namespace Razix {
                 RAZIX_CORE_ERROR("Function not found");
         }
 
-        VKRenderContext::VKRenderContext(uint32_t width, uint32_t height)
+        VKRenderContext::VKRenderContext(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -61,7 +61,7 @@ namespace Razix {
             VkDescriptorPoolCreateInfo poolCreateInfo = {};
             poolCreateInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             poolCreateInfo.flags                      = 0;
-            poolCreateInfo.poolSizeCount              = static_cast<uint32_t>(pool_sizes.size());
+            poolCreateInfo.poolSizeCount              = static_cast<u32>(pool_sizes.size());
             poolCreateInfo.pPoolSizes                 = pool_sizes.data();
             poolCreateInfo.maxSets                    = MAX_DESCRIPTOR_SET_COUNT;
 
@@ -124,11 +124,11 @@ namespace Razix {
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
 
             std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
-            for (size_t i = 0; i < waitSemaphores.size(); i++)
+            for (sz i = 0; i < waitSemaphores.size(); i++)
                 vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(prevFrameIdx);
 
             std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
-            for (size_t i = 0; i < signalSemaphores.size(); i++)
+            for (sz i = 0; i < signalSemaphores.size(); i++)
                 vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(frameIdx);
 
             m_Context->getSwapchain()->queueSubmit(m_CommandQueue, vkWaitSemaphores, vkSignalSemaphores);
@@ -149,8 +149,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            uint32_t numDynamicDescriptorSets = 0;
-            uint32_t numDesciptorSets         = 0;
+            u32 numDynamicDescriptorSets = 0;
+            u32 numDesciptorSets         = 0;
 
             for (auto descriptorSet: descriptorSets) {
                 if (descriptorSet) {
@@ -162,14 +162,14 @@ namespace Razix {
             vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
         }
 
-        void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, uint32_t totalSets)
+        void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, u32 totalSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            uint32_t numDynamicDescriptorSets = 0;
-            uint32_t numDesciptorSets         = 0;
+            u32 numDynamicDescriptorSets = 0;
+            u32 numDesciptorSets         = 0;
 
-            for (uint32_t i = 0; i < totalSets; i++) {
+            for (u32 i = 0; i < totalSets; i++) {
                 auto set = descriptorSets[i];
                 if (set) {
                     auto vkDescSet                        = static_cast<VKDescriptorSet*>(set);
@@ -180,7 +180,7 @@ namespace Razix {
             vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
         }
 
-        void VKRenderContext::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, uint32_t width, uint32_t height)
+        void VKRenderContext::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -242,7 +242,7 @@ namespace Razix {
                 }
             }
 
-            renderingInfoKHR.colorAttachmentCount = static_cast<uint32_t>(colorAttachments.size());
+            renderingInfoKHR.colorAttachmentCount = static_cast<u32>(colorAttachments.size());
             renderingInfoKHR.pColorAttachments    = colorAttachments.data();
 
             // Depth Attachment
@@ -291,7 +291,7 @@ namespace Razix {
 #endif
         }
 
-        void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t count, DataType datayType /*= DataType::UNSIGNED_INT*/)
+        void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -300,7 +300,7 @@ namespace Razix {
             vkCmdDraw(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), count, 1, 0, 0);
         }
 
-        void VKRenderContext::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
+        void VKRenderContext::DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount, u32 firstIndex, int32_t vertexOffset, u32 firstInstance)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -317,7 +317,7 @@ namespace Razix {
             vkDestroyDescriptorPool(VKDevice::Get().getDevice(), m_DescriptorPool, nullptr);
         }
 
-        void VKRenderContext::OnResizeAPIImpl(uint32_t width, uint32_t height)
+        void VKRenderContext::OnResizeAPIImpl(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -346,9 +346,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            float depthBiasConstant = 1.25f;
+            f32 depthBiasConstant = 1.25f;
             // Slope depth bias factor, applied depending on polygon's slope
-            float depthBiasSlope = 1.75f;
+            f32 depthBiasSlope = 1.75f;
             vkCmdSetDepthBias(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), depthBiasConstant, 0.0f, depthBiasSlope);
         }
     }    // namespace Graphics

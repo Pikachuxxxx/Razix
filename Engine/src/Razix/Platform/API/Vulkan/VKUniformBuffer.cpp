@@ -6,7 +6,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKUniformBuffer::VKUniformBuffer(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        VKUniformBuffer::VKUniformBuffer(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -23,12 +23,12 @@ namespace Razix {
             VKBuffer::init(data RZ_DEBUG_E_ARG_NAME);
         }
 
-        void VKUniformBuffer::SetData(uint32_t size, const void* data)
+        void VKUniformBuffer::SetData(u32 size, const void* data)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             /* VKBuffer::map();
-            memcpy(m_Mapped, data, static_cast<size_t>(m_BufferSize));
+            memcpy(m_Mapped, data, static_cast<sz>(m_BufferSize));
             VKBuffer::unMap();*/
             VKBuffer::setData(size, data);
         }

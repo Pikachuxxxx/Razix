@@ -25,7 +25,7 @@ namespace Razix {
 
             void Init() override;
             void Destroy() override;
-            void ClearWithColor(float r, float g, float b) override {}
+            void ClearWithColor(f32 r, f32 g, f32 b) override {}
 
             void Wait() override;
 
@@ -53,8 +53,8 @@ namespace Razix {
             bool                               m_EnabledValidationLayer;         /* Whether or not to enable validation layers on not    */
             std::vector<VkLayerProperties>     m_InstanceLayers;                 /* Collection of list of Instance layers supported      */
             std::vector<VkExtensionProperties> m_InstanceExtensions;             /* Collection of list of supported Extension            */
-            std::vector<const char*>           m_RequiredInstanceLayerNames;     /* The list of Required Layers by the engine            */
-            std::vector<const char*>           m_RequiredInstanceExtensionNames; /* The list of Required Extension by the engine         */
+            std::vector<cstr>           m_RequiredInstanceLayerNames;     /* The list of Required Layers by the engine            */
+            std::vector<cstr>           m_RequiredInstanceExtensionNames; /* The list of Required Extension by the engine         */
             VkDebugUtilsMessengerEXT           m_DebugCallbackHandle;            /* Debug callback handle to manage the Vulkan debug     */
             VkDebugUtilsMessengerCreateInfoEXT m_DebugCI;                        /* Debug callback handle creation struct                */
             VkSurfaceKHR                       m_Surface;                        /* The WSI Surface to which Vulkan presents to          */
@@ -64,9 +64,9 @@ namespace Razix {
             /* Creates a VkInstance to interface with the Vulkan library */
             void createInstance();
             /* gets the Required layers for the Vulkan application + GLFW requests */
-            std::vector<const char*> getRequiredLayers();
+            std::vector<cstr> getRequiredLayers();
             /* Gets the required extension that must be enabled at the instance level */
-            std::vector<const char*> getRequiredExtensions();
+            std::vector<cstr> getRequiredExtensions();
             /* Sets the debug messenger this is used to record instance creation and deletion */
             void setupDebugMessenger();
 

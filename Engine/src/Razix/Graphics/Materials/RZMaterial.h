@@ -28,11 +28,11 @@ namespace Razix {
             bool      _padding_[4];
             glm::vec3 emissiveColor = glm::vec3(0.0f, 0.0f, 0.0f);
             bool      _padding__[4];
-            float     metallicColor       = 1.0f;
-            float     roughnessColor      = 0.0f;
-            float     specularColor       = 1.0f;
-            float     opacity             = 1.0f;
-            float     ambientOcclusion    = 1.0f;
+            f32     metallicColor       = 1.0f;
+            f32     roughnessColor      = 0.0f;
+            f32     specularColor       = 1.0f;
+            f32     opacity             = 1.0f;
+            f32     ambientOcclusion    = 1.0f;
             bool      visible             = true;
             bool      isUsingAlbedoMap    = true;
             bool      isUsingNormalMap    = true;

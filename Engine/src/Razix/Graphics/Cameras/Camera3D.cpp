@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Graphics {
 
-        Camera3D::Camera3D(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3 up /*= glm::vec3(0.0f, 1.0f, 0.0f)*/, float yaw /*= YAW*/, float pitch /*= PITCH*/)
+        Camera3D::Camera3D(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3 up /*= glm::vec3(0.0f, 1.0f, 0.0f)*/, f32 yaw /*= YAW*/, f32 pitch /*= PITCH*/)
         {
             this->Position = position;
             this->WorldUp  = up;
@@ -17,7 +17,7 @@ namespace Razix {
             this->updateCameraVectors();
         }
 
-        Camera3D::Camera3D(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
+        Camera3D::Camera3D(f32 posX, f32 posY, f32 posZ, f32 upX, f32 upY, f32 upZ, f32 yaw, f32 pitch)
         {
             this->Position = glm::vec3(posX, posY, posZ);
             this->WorldUp  = glm::vec3(upX, upY, upZ);
@@ -26,7 +26,7 @@ namespace Razix {
             this->updateCameraVectors();
         }
 
-        void Camera3D::update(double deltaTime)
+        void Camera3D::update(d32 deltaTime)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -43,8 +43,8 @@ namespace Razix {
             auto mX = RZInput::GetMouseX();
             auto mY = RZInput::GetMouseY();
 
-            float deltaX = mX - m_OldX;
-            float deltaY = mY - m_OldY;
+            f32 deltaX = mX - m_OldX;
+            f32 deltaY = mY - m_OldY;
 
             if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
                 processMouseMovement(deltaX, -deltaY);
@@ -53,11 +53,11 @@ namespace Razix {
             m_OldY = mY;
         }
 
-        void Camera3D::processKeyboard(Camera_Movement_Direction direction, double deltaTime)
+        void Camera3D::processKeyboard(Camera_Movement_Direction direction, d32 deltaTime)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            float velocity = this->MovementSpeed * (float) deltaTime;
+            f32 velocity = this->MovementSpeed * (f32) deltaTime;
 
             if (direction == FORWARD)
                 this->Position += this->Front * velocity;
@@ -73,7 +73,7 @@ namespace Razix {
                 this->Position -= this->Up * velocity;
         }
 
-        void Camera3D::processMouseMovement(float xoffset, float yoffset, bool constrainPitch /*= true*/)
+        void Camera3D::processMouseMovement(f32 xoffset, f32 yoffset, bool constrainPitch /*= true*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -95,7 +95,7 @@ namespace Razix {
             this->updateCameraVectors();
         }
 
-        void Camera3D::processMouseScroll(float yoffset)
+        void Camera3D::processMouseScroll(f32 yoffset)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

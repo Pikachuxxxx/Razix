@@ -66,7 +66,7 @@ namespace Razix {
                 m_SpriteShader->Destroy();
 
             if (m_TexturedSpriteDescriptorSets.size() > 0 && m_IsTextured) {
-                for (size_t i = 0; i < 3; i++) {
+                for (sz i = 0; i < 3; i++) {
                     //m_SimpleSpriteDescriptorSets[i]->Destroy();
                     //m_SpriteSheetDescriptorSets[i]->Destroy();
                     m_TexturedSpriteDescriptorSets[i]->Destroy();
@@ -106,17 +106,17 @@ namespace Razix {
             //glm::vec2 max = { ((index.x + spriteSize.x) * cellSize.x) / m_Texture->getWidth(), ((index.y + spriteSize.y) * cellSize.y) / m_Texture->getHeight() };
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            float x           = static_cast<float>( (int) (cellIndex.x - 1) % (int) sheetDimension.x);
-            float y           = -(cellIndex.y - 1) / (int) sheetDimension.x;
-            float frameWidth  = m_Texture->getWidth() / sheetDimension.x;
-            float frameHeight = m_Texture->getHeight() / sheetDimension.y;
+            f32 x           = static_cast<f32>( (int) (cellIndex.x - 1) % (int) sheetDimension.x);
+            f32 y           = -(cellIndex.y - 1) / (int) sheetDimension.x;
+            f32 frameWidth  = m_Texture->getWidth() / sheetDimension.x;
+            f32 frameHeight = m_Texture->getHeight() / sheetDimension.y;
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             //m_UVs = GetUVs(min, max);
 
-            double x_range = (double) RZApplication::Get().getWindow()->getWidth();
-            double y_range = (double) RZApplication::Get().getWindow()->getHeight();
+            d32 x_range = (d32) RZApplication::Get().getWindow()->getWidth();
+            d32 y_range = (d32) RZApplication::Get().getWindow()->getHeight();
 
             glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
 
@@ -149,7 +149,7 @@ namespace Razix {
                 return m_SpriteShader;
         }
 
-        RZDescriptorSet* RZSprite::getDescriptorSet(uint32_t index)
+        RZDescriptorSet* RZSprite::getDescriptorSet(u32 index)
         {
             if (m_IsTextured)
                 return m_TexturedSpriteDescriptorSets[index];
@@ -164,8 +164,8 @@ namespace Razix {
 
             static std::array<RZVeretx2D, 4> vertices;
             {
-                double x_range = (double) RZApplication::Get().getWindow()->getWidth();
-                double y_range = (double) RZApplication::Get().getWindow()->getHeight();
+                d32 x_range = (d32) RZApplication::Get().getWindow()->getWidth();
+                d32 y_range = (d32) RZApplication::Get().getWindow()->getHeight();
 
                 glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
 
@@ -185,7 +185,7 @@ namespace Razix {
                 vertices[3].UV = m_UVs[3];
             }
 
-            uint16_t indices[6] = {
+            u16 indices[6] = {
                 0, 1, 2, 2, 3, 0};
 
             // Create the vertex buffer
@@ -202,8 +202,8 @@ namespace Razix {
 
         void RZSprite::updateVertexData()
         {
-            double x_range = (double) RZApplication::Get().getWindow()->getWidth();
-            double y_range = (double) RZApplication::Get().getWindow()->getHeight();
+            d32 x_range = (d32) RZApplication::Get().getWindow()->getWidth();
+            d32 y_range = (d32) RZApplication::Get().getWindow()->getHeight();
 
             glm::mat4 view = glm::ortho(-x_range, +x_range, -y_range, y_range);
 
@@ -232,12 +232,12 @@ namespace Razix {
         {
             // TODO: Delete them only if they have been allocated not in a batched way as below
             if (m_TexturedSpriteDescriptorSets.size() > 0) {
-                for (size_t i = 0; i < 3; i++) {
+                for (sz i = 0; i < 3; i++) {
                     m_TexturedSpriteDescriptorSets[i]->Destroy();
                 }
             }
             //if (m_SpriteSheetDescriptorSets.size() > 0) {
-            //    for (size_t i = 0; i < 3; i++) {
+            //    for (sz i = 0; i < 3; i++) {
             //        m_SpriteSheetDescriptorSets[i]->Destroy();
             //    }
             //}
@@ -248,7 +248,7 @@ namespace Razix {
             if (m_IsTextured) {
                 auto setInfos = m_TexturedSpriteShader->getSetsCreateInfos();
 
-                for (size_t i = 0; i < 3; i++) {
+                for (sz i = 0; i < 3; i++) {
                     for (auto& setInfo: setInfos) {
                         // Fill the descriptors with buffers and textures
                         for (auto& descriptor: setInfo.second) {
@@ -263,7 +263,7 @@ namespace Razix {
             //else if (m_IsAnimated) {
             //    auto setInfos = m_SpriteSheetShader->getSetInfos();
             //
-            //    for (size_t i = 0; i < 3; i++) {
+            //    for (sz i = 0; i < 3; i++) {
             //        for (auto& setInfo : setInfos) {
             //            // Fill the descriptors with buffers and textures
             //            for (auto& descriptor : setInfo.descriptors) {

@@ -55,7 +55,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void RZShadowRenderer::Resize(uint32_t width, uint32_t height)
+        void RZShadowRenderer::Resize(u32 width, u32 height)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
@@ -63,7 +63,7 @@ namespace Razix {
         void RZShadowRenderer::Destroy()
         {
             m_CascadedMatricesUBO->Destroy();
-            for (uint32_t i = 0; i < kNumCascades; i++) {
+            for (u32 i = 0; i < kNumCascades; i++) {
                 cascadeGPUResources[i].ViewProjLayerUBO->Destroy();
                 for (auto& set: cascadeGPUResources[i].CascadeVPSet)
                     set->Destroy();
@@ -83,7 +83,7 @@ namespace Razix {
             auto cascades = buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), kNumCascades, 0.94f, kShadowMapSize);
 
             FrameGraph::RZFrameGraphResource cascaseShadowMaps{-1};
-            for (uint32_t i = 0; i < cascades.size(); i++) {
+            for (u32 i = 0; i < cascades.size(); i++) {
                 const glm::mat4& lightViewProj = cascades[i].viewProjMatrix;
                 cascaseShadowMaps              = addCascadePass(framegraph, cascaseShadowMaps, lightViewProj, scene, i);
             }
@@ -97,7 +97,7 @@ namespace Razix {
                 },
                 [=](const auto&, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     CasdacesUBOData data{};
-                    for (uint32_t i{0}; i < cascades.size(); ++i) {
+                    for (u32 i{0}; i < cascades.size(); ++i) {
                         data.splitDepth[i]       = cascades[i].splitDepth;
                         data.viewProjMatrices[i] = cascades[i].viewProjMatrix;
                     }
@@ -107,11 +107,11 @@ namespace Razix {
 
         //--------------------------------------------------------------------------
 
-        std::vector<Cascade> RZShadowRenderer::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, uint32_t numCascades, float lambda, uint32_t shadowMapSize)
+        std::vector<Cascade> RZShadowRenderer::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
         {
             // [Reference] https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
 
-            const float clipRange = camera.getPerspectiveFarClip() - camera.getPerspectiveNearClip();
+            const f32 clipRange = camera.getPerspectiveFarClip() - camera.getPerspectiveNearClip();
             // Get the cascade splits
             const auto cascadeSplits = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
             const auto invViewProj   = glm::inverse(camera.getProjectionRaw() * camera.getViewMatrix());
@@ -119,7 +119,7 @@ namespace Razix {
             auto lastSplitDist = 0.0f;
 
             std::vector<Cascade> cascades(numCascades);
-            for (uint32_t i{0}; i < cascades.size(); ++i) {
+            for (u32 i{0}; i < cascades.size(); ++i) {
                 const auto splitDist = cascadeSplits[i];
 
                 cascades[i] = {
@@ -131,7 +131,7 @@ namespace Razix {
             return cascades;
         }
 
-        std::vector<float> RZShadowRenderer::buildCascadeSplits(uint32_t numCascades, float lambda, float nearPlane, float clipRange)
+        std::vector<f32> RZShadowRenderer::buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange)
         {
             constexpr auto kMinDistance = 0.0f, kMaxDistance = 1.0f;
 
@@ -141,12 +141,12 @@ namespace Razix {
             const auto range = maxZ - minZ;
             const auto ratio = maxZ / minZ;
 
-            std::vector<float> cascadeSplits(numCascades);
+            std::vector<f32> cascadeSplits(numCascades);
             // Calculate split depths based on view camera frustum
             // Based on method presented in:
             // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-            for (uint32_t i{0}; i < cascadeSplits.size(); ++i) {
-                const auto p       = static_cast<float>(i + 1) / cascadeSplits.size();
+            for (u32 i{0}; i < cascadeSplits.size(); ++i) {
+                const auto p       = static_cast<f32>(i + 1) / cascadeSplits.size();
                 const auto log     = minZ * std::pow(ratio, p);
                 const auto uniform = minZ + range * p;
                 const auto d       = lambda * (log - uniform) + uniform;
@@ -157,7 +157,7 @@ namespace Razix {
 
         //--------------------------------------------------------------------------
 
-        FrustumCorners RZShadowRenderer::buildFrustumCorners(const glm::mat4& inversedViewProj, float splitDist, float lastSplitDist)
+        FrustumCorners RZShadowRenderer::buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist)
         {
             // clang-format off
             FrustumCorners frustumCorners{
@@ -179,7 +179,7 @@ namespace Razix {
                 const auto temp = inversedViewProj * glm::vec4{p, 1.0f};
                 p               = glm::vec3{temp} / temp.w;
             }
-            for (uint32_t i{0}; i < 4; ++i) {
+            for (u32 i{0}; i < 4; ++i) {
                 const auto cornerRay     = frustumCorners[i + 4] - frustumCorners[i];
                 const auto nearCornerRay = cornerRay * lastSplitDist;
                 const auto farCornerRay  = cornerRay * splitDist;
@@ -205,20 +205,20 @@ namespace Razix {
             return std::make_tuple(center, radius);
         }
 
-        void RZShadowRenderer::eliminateShimmering(glm::mat4& projection, const glm::mat4& view, uint32_t shadowMapSize)
+        void RZShadowRenderer::eliminateShimmering(glm::mat4& projection, const glm::mat4& view, u32 shadowMapSize)
         {
             auto shadowOrigin = projection * view * glm::vec4{glm::vec3{0.0f}, 1.0f};
-            shadowOrigin *= (static_cast<float>(shadowMapSize) / 2.0f);
+            shadowOrigin *= (static_cast<f32>(shadowMapSize) / 2.0f);
 
             const auto roundedOrigin = glm::round(shadowOrigin);
             auto       roundOffset   = roundedOrigin - shadowOrigin;
-            roundOffset              = roundOffset * 2.0f / static_cast<float>(shadowMapSize);
+            roundOffset              = roundOffset * 2.0f / static_cast<f32>(shadowMapSize);
             roundOffset.z            = 0.0f;
             roundOffset.w            = 0.0f;
             projection[3] += roundOffset;
         }
 
-        glm::mat4 RZShadowRenderer::buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, uint32_t shadowMapSize, float splitDist, float lastSplitDist)
+        glm::mat4 RZShadowRenderer::buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist)
         {
             const auto frustumCorners   = buildFrustumCorners(inversedViewProj, splitDist, lastSplitDist);
             const auto [center, radius] = measureFrustum(frustumCorners);
@@ -235,7 +235,7 @@ namespace Razix {
             return projection * view;
         }
 
-        FrameGraph::RZFrameGraphResource RZShadowRenderer::addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, const glm::mat4& lightViewProj, Razix::RZScene* scene, uint32_t cascadeIdx)
+        FrameGraph::RZFrameGraphResource RZShadowRenderer::addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, const glm::mat4& lightViewProj, Razix::RZScene* scene, u32 cascadeIdx)
         {
             const auto name = "CSM #" + std::to_string(cascadeIdx);
 
@@ -251,7 +251,7 @@ namespace Razix {
                 alignas(4) int layer           = 0;
             };
 
-            for (uint32_t j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
+            for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
                 auto cmdBuffer = RZCommandBuffer::Create();
                 cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("CSM cmd buffer [cascade :" + std::to_string(cascadeIdx) + "]"));
                 cascadeGPUResources[cascadeIdx].CmdBuffers.push_back(cmdBuffer);
@@ -307,7 +307,7 @@ namespace Razix {
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
                     // Update the desc sets data
-                    constexpr float           kFarPlane{1.0f};
+                    constexpr f32           kFarPlane{1.0f};
                     ModelViewProjLayerUBOData uboData;
                     uboData.layer    = cascadeIdx;
                     uboData.viewProj = lightViewProj;

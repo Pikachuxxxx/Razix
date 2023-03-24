@@ -25,7 +25,7 @@ namespace Razix {
 
         void OpenGLCommandBuffer::Reset() {}
 
-        void OpenGLCommandBuffer::UpdateViewport(uint32_t width, uint32_t height)
+        void OpenGLCommandBuffer::UpdateViewport(u32 width, u32 height)
         {
             glViewport(0, 0, width, height);
         }

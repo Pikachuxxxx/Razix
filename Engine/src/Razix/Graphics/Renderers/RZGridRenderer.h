@@ -21,11 +21,11 @@ namespace Razix {
             struct GridUBOData
             {
                 glm::vec3 cameraPos   = glm::vec3(0.0f);
-                float     _padding    = 0.0f;
-                float     scale       = 1000.0f;
-                float     resolution  = 2.25f;
-                float     maxDistance = 200.0f;
-                float     _padding2   = 0.0f;
+                f32     _padding    = 0.0f;
+                f32     scale       = 1000.0f;
+                f32     resolution  = 2.25f;
+                f32     maxDistance = 200.0f;
+                f32     _padding2   = 0.0f;
             };
 
         public:
@@ -48,7 +48,7 @@ namespace Razix {
 
             void Present() override;
 
-            void Resize(uint32_t width, uint32_t height) override;
+            void Resize(u32 width, u32 height) override;
 
              void Destroy() override;
 
@@ -56,7 +56,7 @@ namespace Razix {
 
         private:
             RZUniformBuffer*            m_GridUBO                 = nullptr;
-            uint8_t                     _padding[8];
+            u8                     _padding[8];
             GridUBOData                 m_GridUBOData;
             Graphics::RZVertexBuffer*   gridVBO;
             Graphics::RZIndexBuffer*    gridIBO;

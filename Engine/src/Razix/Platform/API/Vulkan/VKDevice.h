@@ -12,7 +12,7 @@
 
 // Enable any device specific extensions
 // Ex. VK_KHR_RAY_TRACING etc.
-static std::vector<const char*> deviceExtensions = {
+static std::vector<cstr> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     VK_KHR_dynamic_rendering_NAME,
     "VK_KHR_depth_stencil_resolve",
@@ -52,7 +52,7 @@ namespace Razix {
              */
             bool isExtensionSupported(const std::string& extensionName) const;
 
-            uint32_t    getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) const;
+            u32    getMemoryTypeIndex(u32 typeBits, VkMemoryPropertyFlags properties) const;
             std::string getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
 
             inline VkPhysicalDevice           getVulkanPhysicalDevice() const { return m_PhysicalDevice; }

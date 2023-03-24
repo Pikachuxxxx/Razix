@@ -92,8 +92,8 @@ namespace Razix {
              * @param width     The width of the Texture
              * @param height    The height of the texture
              */
-            static uint32_t calculateMipMapCount(uint32_t width, uint32_t height);
-            static Format   bitsToTextureFormat(uint32_t bits);
+            static u32 calculateMipMapCount(u32 width, u32 height);
+            static Format   bitsToTextureFormat(u32 bits);
 
             // TODO: Move this to the RXBaseAsset class in later designs
             /* Releases the texture data and it's underlying resources */
@@ -102,9 +102,9 @@ namespace Razix {
             /* Returns the name of the texture resource */
             std::string getName() const { return m_Name; }
             /* returns the width of the texture */
-            uint32_t getWidth() const { return m_Width; }
+            u32 getWidth() const { return m_Width; }
             /* returns the height of the texture */
-            uint32_t getHeight() const { return m_Height; }
+            u32 getHeight() const { return m_Height; }
             /* Gets the size of the texture resource */
             uint64_t getSize() const { return m_Size; }
             /* Returns the type of the texture */
@@ -118,12 +118,12 @@ namespace Razix {
             Wrapping    getWrapMode() { return m_WrapMode; }
 
             /* Binds the Texture resource to the Pipeline */
-            virtual void Bind(uint32_t slot) = 0;
+            virtual void Bind(u32 slot) = 0;
             /* Unbinds the Texture resource from the pipeline */
-            virtual void Unbind(uint32_t slot) = 0;
+            virtual void Unbind(u32 slot) = 0;
 
             /* Resize the texture */
-            virtual void Resize(uint32_t width, uint32_t height RZ_DEBUG_NAME_TAG_E_ARG) {}
+            virtual void Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG) {}
 
             /* Gets the handle to the underlying API texture instance */
             virtual void* GetHandle() const = 0;
@@ -135,8 +135,8 @@ namespace Razix {
         protected:
             std::string      m_Name;          /* The name of the texture resource         */
             std::string      m_VirtualPath;   /* The virtual path of the texture          */
-            uint32_t         m_Width;         /* The width of the texture                 */
-            uint32_t         m_Height;        /* The height of the texture                */
+            u32         m_Width;         /* The width of the texture                 */
+            u32         m_Height;        /* The height of the texture                */
             uint64_t         m_Size;          /* The size of the texture resource         */
             Type             m_TextureType;   /* The type of this texture                 */
             Format           m_Format;        /* The internal format of the texture data  */
@@ -167,12 +167,12 @@ namespace Razix {
              * @param filterMode    The filtering mode of the texture
              * @returns Pointer to Texture object of the underlying API
              */
-            static RZTexture2D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, void* data, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+            static RZTexture2D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
 
             /**
              * Creates an Empty 2D array texture that can be used as an Render Target
              */
-            static RZTexture2D* CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, uint32_t numLayers, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+            static RZTexture2D* CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 numLayers, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
 
             /**
              * Create a 2D texture resource from the given file
@@ -214,7 +214,7 @@ namespace Razix {
              * @param filterMode    The filtering mode of the texture
              * @returns Pointer to Texture object of the underlying API
              */
-            static RZTexture3D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, uint32_t width, uint32_t height, uint32_t depth, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+            static RZTexture3D* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 depth, Format format, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
         };
 
         //-----------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ namespace Razix {
         class RAZIX_API RZDepthTexture : public RZTexture
         {
         public:
-            static RZDepthTexture* Create(uint32_t width, uint32_t height);
+            static RZDepthTexture* Create(u32 width, u32 height);
         };
 
         //-----------------------------------------------------------------------------------
@@ -245,10 +245,10 @@ namespace Razix {
         {
         public:
             static RZRenderTexture* Create(RZ_DEBUG_NAME_TAG_F_ARG
-                                               uint32_t width,
-                uint32_t height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
+                                               u32 width,
+                u32 height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering{});
 
-            virtual int32_t ReadPixels(uint32_t x, uint32_t y) = 0;
+            virtual int32_t ReadPixels(u32 x, u32 y) = 0;
         };
     }    // namespace Graphics
 }    // namespace Razix

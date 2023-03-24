@@ -37,7 +37,7 @@ namespace Razix {
 
             VkDescriptorSetLayoutCreateInfo layoutInfo{};
             layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindingInfos.size());
+            layoutInfo.bindingCount = static_cast<u32>(setLayoutBindingInfos.size());
             layoutInfo.pBindings    = setLayoutBindingInfos.data();
 
             // Descriptor set layouts can be compatible if they are the same even if they are created in two different places.
@@ -106,7 +106,7 @@ namespace Razix {
                         descriptorWritesCount++;
                     } else {
                         // TODO: Don't use buffer members use a single one for the entire uniform buffer
-                        //for (size_t i = 0; i < descriptor.uboMembers.size(); i++) {
+                        //for (sz i = 0; i < descriptor.uboMembers.size(); i++) {
                         auto buffer                    = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer)->getBuffer();
                         m_BufferInfoPool[index].buffer = buffer;
                         m_BufferInfoPool[index].offset = descriptor.offset;

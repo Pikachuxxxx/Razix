@@ -23,7 +23,7 @@ namespace Razix
         class RAZIX_EXPORT RZDeferredRenderer : public IRZRenderer
         {
         public:
-            RZDeferredRenderer(uint32_t width, uint32_t height);
+            RZDeferredRenderer(u32 width, u32 height);
             ~RZDeferredRenderer() override;
 
             void RenderScene() override;
@@ -38,7 +38,7 @@ namespace Razix
             void EndScene() override;
             void End() override;
             void Present() override;
-            void OnResize(uint32_t width, uint32_t height) override;
+            void OnResize(u32 width, u32 height) override;
             void PresentToScreen() override;
 
             void CreateDeferredPipeline();
@@ -55,8 +55,8 @@ namespace Razix
 
             void SetSystemUniforms(Shader* shader) const;
 
-            uint8_t* m_PSSystemUniformBuffer;
-            uint32_t m_PSSystemUniformBufferSize;
+            u8* m_PSSystemUniformBuffer;
+            u32 m_PSSystemUniformBufferSize;
 
             Maths::Matrix4 m_BiasMatrix;
 

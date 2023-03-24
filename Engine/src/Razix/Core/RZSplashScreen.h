@@ -19,7 +19,7 @@ namespace Razix {
         {
         public:
             /* Gets the windows message */
-            static const char* getName() noexcept;
+            static cstr getName() noexcept;
             /* Gets the Win32 windows instance */
             static HINSTANCE getInstance() noexcept;
 
@@ -30,7 +30,7 @@ namespace Razix {
 
             // Singleton instance
             static WindowClass           wndClass;
-            static constexpr const char* wndClassName = "Razix Engine Splash Screen";
+            static constexpr cstr wndClassName = "Razix Engine Splash Screen";
             HINSTANCE                    hInst;
         };
 

@@ -2,7 +2,7 @@
 // Resource Entry Class
 //-----------------------------------------------------------------------------------
 template<typename T>
-inline RZResourceEntry::RZResourceEntry(uint32_t id, typename T::Desc &&desc, T &&obj, uint32_t version, bool imported /*= false*/)
+inline RZResourceEntry::RZResourceEntry(u32 id, typename T::Desc &&desc, T &&obj, u32 version, bool imported /*= false*/)
     : m_ID{id}, m_Concept{std::make_unique<RZTypeResource<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj))}, m_Version(version), m_Imported(imported)
 {
 }

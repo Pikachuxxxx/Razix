@@ -7,17 +7,17 @@ namespace Razix {
         class OpenGLVertexBuffer : public RZVertexBuffer
         {
         public:
-            OpenGLVertexBuffer(uint32_t size, const void* data, BufferUsage usage);
+            OpenGLVertexBuffer(u32 size, const void* data, BufferUsage usage);
             ~OpenGLVertexBuffer();
 
             void Bind(RZCommandBuffer* cmdBuffer) override;
             void Unbind() override;
             void Destroy() override {}
-            void SetData(uint32_t size, const void* data) override;
-            void Resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
+            void SetData(u32 size, const void* data) override;
+            void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
             void AddBufferLayout(RZVertexBufferLayout& layout) override;
 
-            void Map(uint32_t size = 0, uint32_t offset = 0) override;
+            void Map(u32 size = 0, u32 offset = 0) override;
 
             void UnMap() override;
 
@@ -26,8 +26,8 @@ namespace Razix {
             void Flush() override;
 
         private:
-            uint32_t m_VAO;
-            uint32_t m_VBO;
+            u32 m_VAO;
+            u32 m_VBO;
             void*    m_Mapped;
         };
     }    // namespace Graphics

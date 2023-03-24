@@ -19,7 +19,7 @@ namespace Razix {
         {
         }
 
-        void OpenGLRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, uint32_t width, uint32_t height)
+        void OpenGLRenderPass::BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height)
         {
             // Clear the necessary buffer COLOR, DEpth and stencil as needed
             glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);

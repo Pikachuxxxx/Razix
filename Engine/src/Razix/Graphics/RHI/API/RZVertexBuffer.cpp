@@ -16,7 +16,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZVertexBuffer* RZVertexBuffer::Create(uint32_t size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
+        RZVertexBuffer* RZVertexBuffer::Create(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

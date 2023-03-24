@@ -21,17 +21,17 @@ namespace Razix {
         std::vector<std::string> Tokenize(const std::string& string);
         std::vector<std::string> GetLines(const std::string& string);
 
-        const char* FindToken(const char* str, const std::string& token);
-        const char* FindToken(const std::string& string, const std::string& token);
-        int32_t     FindStringPosition(const std::string& string, const std::string& search, uint32_t offset = 0);
-        std::string StringRange(const std::string& string, uint32_t start, uint32_t length);
-        std::string RemoveStringRange(const std::string& string, uint32_t start, uint32_t length);
+        cstr FindToken(cstr str, const std::string& token);
+        cstr FindToken(const std::string& string, const std::string& token);
+        int32_t     FindStringPosition(const std::string& string, const std::string& search, u32 offset = 0);
+        std::string StringRange(const std::string& string, u32 start, u32 length);
+        std::string RemoveStringRange(const std::string& string, u32 start, u32 length);
         std::string RemoveTabs(const std::string& string);
 
-        std::string GetBlock(const char* str, const char** outPosition = nullptr);
-        std::string GetBlock(const std::string& string, uint32_t offset = 0);
+        std::string GetBlock(cstr str, cstr* outPosition = nullptr);
+        std::string GetBlock(const std::string& string, u32 offset = 0);
 
-        std::string GetStatement(const char* str, const char** outPosition = nullptr);
+        std::string GetStatement(cstr str, cstr* outPosition = nullptr);
 
         bool    StringContains(const std::string& string, const std::string& chars);
         bool    StartsWith(const std::string& string, const std::string& start);

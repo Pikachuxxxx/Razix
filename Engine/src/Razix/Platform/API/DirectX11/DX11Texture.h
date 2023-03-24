@@ -17,8 +17,8 @@ namespace Razix {
             void Release(bool deleteImage = true) override;
 
         protected:
-            void  Bind(uint32_t slot) override;
-            void  Unbind(uint32_t slot) override;
+            void  Bind(u32 slot) override;
+            void  Unbind(u32 slot) override;
             void* GetHandle() const override;
         };
     }    // namespace Graphics

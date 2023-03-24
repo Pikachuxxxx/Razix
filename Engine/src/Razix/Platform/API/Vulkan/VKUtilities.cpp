@@ -188,7 +188,7 @@ namespace Razix {
                 }
             }
 
-            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels /*= 1*/)
+            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels /*= 1*/)
             {
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
@@ -588,7 +588,7 @@ namespace Razix {
                 VkDebugUtilsLabelEXT label{};
                 label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
                 label.pLabelName = name.c_str();
-                memcpy(label.color, &color[0], 4 * sizeof(float));
+                memcpy(label.color, &color[0], 4 * sizeof(f32));
 
                 auto func = (PFN_vkCmdBeginDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdBeginDebugUtilsLabelEXT");
                 if (func != nullptr)
@@ -602,7 +602,7 @@ namespace Razix {
                 VkDebugUtilsLabelEXT label{};
                 label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
                 label.pLabelName = name.c_str();
-                memcpy(label.color, &color[0], 4 * sizeof(float));
+                memcpy(label.color, &color[0], 4 * sizeof(f32));
 
                 auto func = (PFN_vkCmdInsertDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdInsertDebugUtilsLabelEXT");
                 if (func != nullptr)

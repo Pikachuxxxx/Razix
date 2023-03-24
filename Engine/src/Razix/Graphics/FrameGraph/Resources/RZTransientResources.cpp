@@ -69,8 +69,8 @@ namespace Razix {
                 if (pool.empty()) {
                     Graphics::RZTexture *texture = nullptr;
 
-                    uint32_t w = static_cast<uint32_t>(desc.extent.x);
-                    uint32_t h = static_cast<uint32_t>(desc.extent.y);
+                    u32 w = static_cast<u32>(desc.extent.x);
+                    u32 h = static_cast<u32>(desc.extent.y);
 
                     switch (desc.type) {
                         case TextureType::Texture_2D: {

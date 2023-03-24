@@ -39,7 +39,7 @@ namespace Razix {
         /**
          * Loads the scene with the index as they were stored in the scene queue (starting from 0)
          */
-        void loadScene(uint32_t index);
+        void loadScene(u32 index);
 
         /**
          * Loads the scene with the given name
@@ -62,16 +62,16 @@ namespace Razix {
 
         const std::vector<std::string>& getSceneFilePaths() const { return m_LoadedSceneFilePaths; }
 
-        RAZIX_INLINE uint32_t getCurrentSceneIndex() const { return m_CurrentSceneIdx; }
+        RAZIX_INLINE u32 getCurrentSceneIndex() const { return m_CurrentSceneIdx; }
         RAZIX_INLINE RZScene* getCurrentScene() { return m_CurrentScene; }
         void                  saveCurrentScene();
 
     private:
-        uint32_t                 m_CurrentSceneIdx = 0;            /* The current index of the scene that is being presented by the engine */
+        u32                 m_CurrentSceneIdx = 0;            /* The current index of the scene that is being presented by the engine */
         RZScene*                 m_CurrentScene    = nullptr;      /* The reference to the currently presented scene                       */
         std::vector<RZScene*>    m_LoadedScenes;                   /* The queue of all the loaded scene in memory ready to be switched     */
         std::vector<std::string> m_LoadedSceneFilePaths;           /* List of files paths of the scenes that were loaded into memory       */
         bool                     m_IsSwitchingScenes      = false; /* Is the scene switching is in progress or not                         */
-        uint32_t                 m_QueuedSceneIndexToLoad = -1;    /* The next scene index to which it will switch to                      */
+        u32                 m_QueuedSceneIndexToLoad = -1;    /* The next scene index to which it will switch to                      */
     };
 }    // namespace Razix

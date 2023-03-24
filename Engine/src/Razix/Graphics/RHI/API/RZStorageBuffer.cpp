@@ -16,7 +16,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZStorageBuffer* RZStorageBuffer::Create(uint32_t size, const std::string& name)
+        RZStorageBuffer* RZStorageBuffer::Create(u32 size, const std::string& name)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

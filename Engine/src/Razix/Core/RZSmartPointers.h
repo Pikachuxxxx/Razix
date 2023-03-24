@@ -20,7 +20,7 @@ namespace Razix {
             ~RefCounter();
 
             /// <summary>
-            /// Tells whether or not the object is being referenced at all or is a free floating object
+            /// Tells whether or not the object is being referenced at all or is a free f32ing object
             /// </summary>
             inline bool IsReferenced() const { return m_RefCounterInit.GetRefCount() < 1; }
 
@@ -554,7 +554,7 @@ namespace std {
     template<typename T>
     struct hash<Razix::Reference<T>>
     {
-        size_t operator()(const Razix::Reference<T>& x) const
+        sz operator()(const Razix::Reference<T>& x) const
         {
             return hash<T*>()(x.get());
         }

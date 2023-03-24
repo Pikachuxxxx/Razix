@@ -21,13 +21,13 @@ namespace Razix {
 		 * @param borderless Should the window be borderless or not </param>
 		 * @param filepath	The path of the application </param>
 		 */
-        WindowProperties(const std::string& title = "Razix Engine", uint32_t width = 1280, uint32_t height = 720, bool fullscreen = false, bool vSync = true, bool borderless = false)
+        WindowProperties(const std::string& title = "Razix Engine", u32 width = 1280, u32 height = 720, bool fullscreen = false, bool vSync = true, bool borderless = false)
             : Width(width), Height(height), Title(title), Fullscreen(fullscreen), VSync(vSync), Borderless(borderless)
         {
         }
 
         /* Width and Height of the window */
-        uint32_t Width, Height;
+        u32 Width, Height;
         /* The title of the window */
         std::string Title;
         /* Fullscreen status of the window */

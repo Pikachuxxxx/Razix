@@ -11,7 +11,7 @@ namespace Razix {
         enum class ShaderStage;
 
         /* What type of data does the descriptor set member represent */
-        enum class DescriptorType : uint32_t
+        enum class DescriptorType : u32
         {
             UNIFORM_BUFFER,
             IMAGE_SAMPLER    // (combined image sampler)
@@ -19,7 +19,7 @@ namespace Razix {
         };
 
         /* The format of the input variables in the shader */
-        enum class VertexInputFormat : uint32_t
+        enum class VertexInputFormat : u32
         {
             R8_UINT,
             R32_UINT,
@@ -30,17 +30,17 @@ namespace Razix {
             R32G32_INT,
             R32G32B32_INT,
             R32G32B32A32_INT,
-            R32_FLOAT,
-            R32G32_FLOAT,
-            R32G32B32_FLOAT,
-            R32G32B32A32_FLOAT
+            R32_f32,
+            R32G32_f32,
+            R32G32B32_f32,
+            R32G32B32A32_f32
         };
 
         /* The shader data type */
-        enum class ShaderDataType : uint32_t
+        enum class ShaderDataType : u32
         {
             NONE,
-            FLOAT32,
+            f3232,
             VEC2,
             VEC3,
             VEC4,
@@ -60,10 +60,10 @@ namespace Razix {
         /* Vertex Input binding information describes the input layout format of the Vertex data sent to the Input Assembly and input variable binding and location for input shader variable */
         struct RAZIX_MEM_ALIGN RZVertexInputBindingInfo : public RZRoot
         {
-            uint32_t          binding  = 0; /* Binding slot to which the input shader variable is bound to                                              */
-            uint32_t          location = 0; /* Location ID of the input shader variable                                                                 */
+            u32          binding  = 0; /* Binding slot to which the input shader variable is bound to                                              */
+            u32          location = 0; /* Location ID of the input shader variable                                                                 */
             VertexInputFormat format;       /* The format of the vertex input data                                                                      */
-            uint32_t          offset = 0;   /* The offset/stride in the vertex data cluster for each vertex                                             */
+            u32          offset = 0;   /* The offset/stride in the vertex data cluster for each vertex                                             */
         };
 
         /* Descriptor Binding layout describes the binding and set information of the shader uniform variable, to which shader stages the variable is accessible from */
@@ -71,8 +71,8 @@ namespace Razix {
         {
             DescriptorType type;        /* The type of the Descriptor, either a buffer or an texture image that is being consumed in the shader     */
             ShaderStage    stage;       /* The shader stage to which the descriptor is bound to                                                     */
-            uint32_t       binding = 0; /* The binding index of the shader                                                                          */
-            uint32_t       count   = 1; /* The number of descriptors that are sent to the same binding slot, ex. used for Joint Transforms[N_BONES] */
+            u32       binding = 0; /* The binding index of the shader                                                                          */
+            u32       count   = 1; /* The number of descriptors that are sent to the same binding slot, ex. used for Joint Transforms[N_BONES] */
         };
 
         /* Information about the uniform buffer members */
@@ -80,10 +80,10 @@ namespace Razix {
         {
             std::string    name;         /* The name of the member variable                                                                             */
             std::string    fullName;     /* The complete name of the member including uniform buffer as prefix                                          */
-            uint32_t       size   = 0;   /* The size of the member                                                                                      */
-            uint32_t       offset = 0;   /* The offset of the member in the uniform buffer from the first member                                        */
+            u32       size   = 0;   /* The size of the member                                                                                      */
+            u32       offset = 0;   /* The offset of the member in the uniform buffer from the first member                                        */
             ShaderDataType type;         /* The type of the member, this can be used to resolve the format                                              */
-            uint32_t       _padding = 0; /* Padding variable to pad the structure to 16-byte alignment                                                  */
+            u32       _padding = 0; /* Padding variable to pad the structure to 16-byte alignment                                                  */
         };
 
         // TODO: Add support for texture arrays
@@ -95,8 +95,8 @@ namespace Razix {
             RZUniformBuffer*                      uniformBuffer = nullptr;
             RZTexture*                            texture       = nullptr;
             std::vector<RZShaderBufferMemberInfo> uboMembers;
-            uint32_t                              size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
-            uint32_t                              offset = 0;    //? I don't think this is needed
+            u32                              size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
+            u32                              offset = 0;    //? I don't think this is needed
             RZDescriptorLayoutBinding             bindingInfo;
         };
 
@@ -107,13 +107,13 @@ namespace Razix {
             std::vector<RZShaderBufferMemberInfo> structMembers;
             void*                                 data = nullptr;
             RZDescriptorLayoutBinding             bindingInfo;
-            uint32_t                              size        = 0;
-            uint32_t                              offset      = 0;
+            u32                              size        = 0;
+            u32                              offset      = 0;
             ShaderStage                           shaderStage;
-            uint32_t                              _padding    = 0;
+            u32                              _padding    = 0;
 
             RZPushConstant() {}
-            RZPushConstant(const std::string& name, ShaderStage stage, uint8_t* data, uint32_t size, uint32_t offset)
+            RZPushConstant(const std::string& name, ShaderStage stage, u8* data, u32 size, u32 offset)
                 : name(name), shaderStage(stage), data(data), size(size), offset(offset) {}
 
             void setValue(const std::string& name, void* value)
@@ -135,7 +135,7 @@ namespace Razix {
         };
 
         /* Encapsulating the descriptors of a set along with the setID */
-        using DescriptorSetsCreateInfos = std::map<uint32_t, std::vector<RZDescriptor>>;
+        using DescriptorSetsCreateInfos = std::map<u32, std::vector<RZDescriptor>>;
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
         class RAZIX_API RZDescriptorSet : public RZRoot

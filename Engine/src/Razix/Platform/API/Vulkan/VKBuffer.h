@@ -20,7 +20,7 @@ namespace Razix {
              * @param size The size of the buffer
              * @param data The data with which the buffer will be filled with
              */
-            VKBuffer(VkBufferUsageFlags usage, uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
+            VKBuffer(VkBufferUsageFlags usage, u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
             /* Creates an empty buffer to be mapped with data later */
             VKBuffer();
             ~VKBuffer() {}
@@ -44,9 +44,9 @@ namespace Razix {
             void flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 
             /* Sets the buffer with new given data */
-            void setData(uint32_t size, const void* data);
+            void setData(u32 size, const void* data);
             /* Resizes the buffer */
-            void resize(uint32_t size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
+            void resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
 
             /* Gets the HOST mapped buffer */
             inline void* getMappedRegion() { return m_Mapped; }
@@ -59,7 +59,7 @@ namespace Razix {
             /* Gets the size of the buffer */
             inline VkDeviceSize getSize() const { return m_BufferSize; }
             /* Sets the size of the buffer */
-            inline void setSize(uint32_t size) { m_BufferSize = (VkDeviceSize) size; }
+            inline void setSize(u32 size) { m_BufferSize = (VkDeviceSize) size; }
 
         protected:
             VkBuffer               m_Buffer;              /* handle to the Vulkan buffer          */

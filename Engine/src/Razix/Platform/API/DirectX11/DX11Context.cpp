@@ -60,8 +60,8 @@ namespace Razix {
 
             // Configure the viewport
             D3D11_VIEWPORT viewport = {};
-            viewport.Width          = (FLOAT) m_Window->getWidth();
-            viewport.Height         = (FLOAT) m_Window->getHeight();
+            viewport.Width          = (f32) m_Window->getWidth();
+            viewport.Height         = (f32) m_Window->getHeight();
             viewport.MaxDepth       = 1;
             viewport.MinDepth       = 0;
             viewport.TopLeftX       = 0;
@@ -79,9 +79,9 @@ namespace Razix {
             m_Context.Reset();
         }
 
-        void DX11Context::ClearWithColor(float r, float g, float b)
+        void DX11Context::ClearWithColor(f32 r, f32 g, f32 b)
         {
-            const float color[] = {r, g, b, 1.0f};
+            const f32 color[] = {r, g, b, 1.0f};
             m_Context->ClearRenderTargetView(m_Swapchain.getRenderTarget().Get(), color);
         }
 

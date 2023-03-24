@@ -119,7 +119,7 @@ namespace Razix {
         virtual void RAZIX_CALL OnImGui() {}
 
         // Event callbacks for client
-        virtual void RAZIX_CALL OnResize(uint32_t width, uint32_t height) {}
+        virtual void RAZIX_CALL OnResize(u32 width, u32 height) {}
 
         /* Gets the static reference to the application instance */
         inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
@@ -175,7 +175,7 @@ namespace Razix {
             archive(cereal::make_nvp("Render API", m_RenderAPI));
             // Set the render API from the De-serialized data
             Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) m_RenderAPI);
-            uint32_t Width, Height;
+            u32 Width, Height;
             archive(cereal::make_nvp("Width", Width));
             archive(cereal::make_nvp("Height", Height));
             m_WindowProperties.Width  = Width;
@@ -201,7 +201,7 @@ namespace Razix {
             archive(cereal::make_nvp("Project Name", m_ProjectName));
             archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
             archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
-            archive(cereal::make_nvp("Render API", (uint32_t) Graphics::RZGraphicsContext::GetRenderAPI()));
+            archive(cereal::make_nvp("Render API", (u32) Graphics::RZGraphicsContext::GetRenderAPI()));
             archive(cereal::make_nvp("Width", m_Window->getWidth()));
             archive(cereal::make_nvp("Height", m_Window->getHeight()));
             archive(cereal::make_nvp("Project Path", m_ProjectFilePath));    // Why am I even serializing this?
@@ -225,11 +225,11 @@ namespace Razix {
         std::string              m_ProjectName;                      /* The name of the application                              */
         std::string              m_ProjectFilePath;                  /* The path of the Razix Project file (*.razixproject)      */
         std::string              m_ProjectPath;                      /* The path of the Razix Project Assets folder              */
-        uint32_t                 m_RenderAPI;                        /* The Render API being used to render the application      */
-        uint32_t                 m_Frames  = 0;                      /* The number of frames per second                          */
-        uint32_t                 m_Updates = 0;                      /* The number of updated per second                         */
+        u32                 m_RenderAPI;                        /* The Render API being used to render the application      */
+        u32                 m_Frames  = 0;                      /* The number of frames per second                          */
+        u32                 m_Updates = 0;                      /* The number of updated per second                         */
         rzstl::UniqueRef<RZTimer>       m_Timer;                            /* The timer used to calculate the delta time and timesteps */
-        float                    m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
+        f32                    m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
         RZTimestep               m_Timestep;                         /* The timesteps taken to update the application            */
         RZWindow*                m_Window = nullptr;                 /* The window that will be used to view graphics            */
         WindowProperties         m_WindowProperties;                 /* The properties of the window to create with              */

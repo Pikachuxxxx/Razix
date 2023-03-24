@@ -10,9 +10,9 @@ namespace Razix {
         m_LastTime = m_Start;
     }
 
-    float RZTimer::GetTimeMS()
+    f32 RZTimer::GetTimeMS()
     {
-        float time = Duration(m_LastTime, Now(), 1000.0f);
+        f32 time = Duration(m_LastTime, Now(), 1000.0f);
         m_LastTime = Now();
         return time;
     }

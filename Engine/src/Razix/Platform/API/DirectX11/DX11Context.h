@@ -21,7 +21,7 @@ namespace Razix {
 
             void Init() override;
             void Destroy() override;
-            void ClearWithColor(float r, float g, float b) override;
+            void ClearWithColor(f32 r, f32 g, f32 b) override;
 
             static DX11Context* Get() { return static_cast<DX11Context*>(s_Context); }
 
