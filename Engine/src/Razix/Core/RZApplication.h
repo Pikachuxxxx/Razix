@@ -32,7 +32,8 @@
 
 namespace ImGuizmo {
     enum OPERATION;
-}
+    enum MODE;
+}    // namespace ImGuizmo
 
 namespace Razix::Graphics {
     class RZTexture2D;
@@ -143,13 +144,17 @@ namespace Razix {
 
         void setProjectRoot(const std::string& projPath) { m_ProjectFilePath = projPath; }
 
-        void setGuzimoForEntity(RZEntity& entity) { m_GuizmoEntity = entity; }
-        void setGuizmoOperation(ImGuizmo::OPERATION operation) { m_GuizmoOperation = operation; }
-
         inline AppType getAppType() { return m_appType; }
         void           setAppType(AppType appType) { m_appType = appType; }
 
-        void setAppState(AppState state) { m_CurrentState = state; }
+        // Guizmo Operations
+        void setGuizmoForEntity(RZEntity& entity) { m_GuizmoEntity = entity; }
+        void setGuizmoOperation(ImGuizmo::OPERATION operation) { m_GuizmoOperation = operation; }
+        void setGuizmoMode(ImGuizmo::MODE mode) { m_GuizmoMode = mode; }
+        void setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
+
+        RAZIX_INLINE const AppState& getAppState() const { return m_CurrentState; }
+        void     setAppState(AppState state) { m_CurrentState = state; }
         /* Application Serialization */
 
         // Load mechanism for the RZApplication class
@@ -237,6 +242,8 @@ namespace Razix {
         std::vector<std::string>  sceneFilePaths;
         RZEntity                  m_GuizmoEntity;
         ImGuizmo::OPERATION       m_GuizmoOperation;
+        ImGuizmo::MODE            m_GuizmoMode;
+        f32                       m_GuizmoSnapAmount = 0.0f;
 
     private:
         /* Starts the application */

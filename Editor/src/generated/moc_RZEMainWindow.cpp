@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEMainWindow_t {
-    QByteArrayData data[15];
-    char stringdata0[240];
+    QByteArrayData data[17];
+    char stringdata0[274];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -47,7 +47,9 @@ QT_MOC_LITERAL(10, 174, 5), // "index"
 QT_MOC_LITERAL(11, 180, 19), // "set_TranslateGuizmo"
 QT_MOC_LITERAL(12, 200, 16), // "set_RotateGuizmo"
 QT_MOC_LITERAL(13, 217, 15), // "set_ScaleGuizmo"
-QT_MOC_LITERAL(14, 233, 6) // "update"
+QT_MOC_LITERAL(14, 233, 17), // "toggle_WorldLocal"
+QT_MOC_LITERAL(15, 251, 15), // "toggle_GridSnap"
+QT_MOC_LITERAL(16, 267, 6) // "update"
 
     },
     "Razix::Editor::RZEMainWindow\0"
@@ -56,6 +58,7 @@ QT_MOC_LITERAL(14, 233, 6) // "update"
     "on_SaveScene\0on_LoadScene\0on_NewScene\0"
     "on_RenderAPIChanged\0index\0set_TranslateGuizmo\0"
     "set_RotateGuizmo\0set_ScaleGuizmo\0"
+    "toggle_WorldLocal\0toggle_GridSnap\0"
     "update"
 };
 #undef QT_MOC_LITERAL
@@ -66,7 +69,7 @@ static const uint qt_meta_data_Razix__Editor__RZEMainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      12,   14, // methods
+      14,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -74,20 +77,22 @@ static const uint qt_meta_data_Razix__Editor__RZEMainWindow[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   74,    2, 0x06 /* Public */,
+       1,    0,   84,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       3,    0,   75,    2, 0x0a /* Public */,
-       4,    0,   76,    2, 0x0a /* Public */,
-       5,    0,   77,    2, 0x0a /* Public */,
-       6,    0,   78,    2, 0x0a /* Public */,
-       7,    0,   79,    2, 0x0a /* Public */,
-       8,    0,   80,    2, 0x0a /* Public */,
-       9,    1,   81,    2, 0x0a /* Public */,
-      11,    0,   84,    2, 0x0a /* Public */,
-      12,    0,   85,    2, 0x0a /* Public */,
-      13,    0,   86,    2, 0x0a /* Public */,
-      14,    0,   87,    2, 0x0a /* Public */,
+       3,    0,   85,    2, 0x0a /* Public */,
+       4,    0,   86,    2, 0x0a /* Public */,
+       5,    0,   87,    2, 0x0a /* Public */,
+       6,    0,   88,    2, 0x0a /* Public */,
+       7,    0,   89,    2, 0x0a /* Public */,
+       8,    0,   90,    2, 0x0a /* Public */,
+       9,    1,   91,    2, 0x0a /* Public */,
+      11,    0,   94,    2, 0x0a /* Public */,
+      12,    0,   95,    2, 0x0a /* Public */,
+      13,    0,   96,    2, 0x0a /* Public */,
+      14,    0,   97,    2, 0x0a /* Public */,
+      15,    0,   98,    2, 0x0a /* Public */,
+      16,    0,   99,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void,
@@ -100,6 +105,8 @@ static const uint qt_meta_data_Razix__Editor__RZEMainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,   10,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -125,7 +132,9 @@ void Razix::Editor::RZEMainWindow::qt_static_metacall(QObject *_o, QMetaObject::
         case 8: _t->set_TranslateGuizmo(); break;
         case 9: _t->set_RotateGuizmo(); break;
         case 10: _t->set_ScaleGuizmo(); break;
-        case 11: _t->update(); break;
+        case 11: _t->toggle_WorldLocal(); break;
+        case 12: _t->toggle_GridSnap(); break;
+        case 13: _t->update(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -169,13 +178,13 @@ int Razix::Editor::RZEMainWindow::qt_metacall(QMetaObject::Call _c, int _id, voi
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 12)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 14;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 12)
+        if (_id < 14)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 12;
+        _id -= 14;
     }
     return _id;
 }

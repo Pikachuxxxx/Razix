@@ -12,6 +12,8 @@ namespace Razix {
         {
             ui.setupUi(this);
 
+            setObjectName(this->windowTitle());
+
             dirModel = new QFileSystemModel(this);
             // Set filter
             dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);

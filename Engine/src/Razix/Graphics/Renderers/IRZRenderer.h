@@ -7,8 +7,8 @@
 
     #include "Razix/Events/RZEvent.h"
 
-    #include "Razix/Graphics/RHI/RHI.h"
     #include "Razix/Graphics/Cameras/Camera3D.h"
+    #include "Razix/Graphics/RHI/RHI.h"
     #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
     #include "Razix/Scene/RZScene.h"
@@ -71,19 +71,19 @@ namespace Razix {
             virtual void SetFrameDataHeap(RZDescriptorSet* frameDataSet) {}
 
         protected:
-            RZSceneCamera*                   m_Camera;
-            RZCommandBuffer*                 m_MainCommandBuffers[MAX_SWAPCHAIN_BUFFERS];
-            RZShader*                        m_OverrideGlobalRHIShader;
-            RZScene*                         m_CurrentScene;
-            u32                         m_ScreenBufferWidth  = 0;
-            u32                         m_ScreenBufferHeight = 0;
-            RZPipeline*                      m_Pipeline;
-            RZRenderTexture*                 m_RenderTexture = nullptr;
-            RZTexture*                       m_DepthTexture  = nullptr;
-            u8                          _padding[3];
-            std::string                      m_RendererName;
-            RZTimestep                       m_PassTimer;
-            RZTimer                          m_RendererTimer;
+            RZSceneCamera*   m_Camera;
+            RZCommandBuffer* m_MainCommandBuffers[MAX_SWAPCHAIN_BUFFERS];
+            RZShader*        m_OverrideGlobalRHIShader;
+            RZScene*         m_CurrentScene;
+            u32              m_ScreenBufferWidth  = 0;
+            u32              m_ScreenBufferHeight = 0;
+            RZPipeline*      m_Pipeline;
+            RZRenderTexture* m_RenderTexture = nullptr;
+            RZTexture*       m_DepthTexture  = nullptr;
+            u8               _padding[3];
+            std::string      m_RendererName;
+            RZTimestep       m_PassTimer;
+            RZTimer          m_RendererTimer;
         };
     }    // namespace Graphics
 }    // namespace Razix

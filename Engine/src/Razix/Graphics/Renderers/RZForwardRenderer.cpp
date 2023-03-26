@@ -112,7 +112,8 @@ namespace Razix {
                 const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
 
                 // Set the Position of the light using this transform component
-                lightComponent.light.getLightData().position     = transformComponent.Translation;
+                lightComponent.light.getLightData().position = transformComponent.Translation;
+                lightComponent.light.setDirection(glm::vec3(glm::degrees(transformComponent.Rotation.x), glm::degrees(transformComponent.Rotation.y), glm::degrees(transformComponent.Rotation.z)));
                 gpuLightsData.lightData[gpuLightsData.numLights] = lightComponent.light.getLightData();
 
                 gpuLightsData.numLights++;
@@ -198,6 +199,8 @@ namespace Razix {
                 // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
                 Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
                 //-----------------------------
+
+                mrc.Mesh->getMaterial()->Bind();
 
                 // Combine System Desc sets with material sets and Bind them
                 std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};

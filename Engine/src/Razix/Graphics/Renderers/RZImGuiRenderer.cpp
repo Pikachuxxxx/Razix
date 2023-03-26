@@ -15,10 +15,10 @@
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
-#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
@@ -321,12 +321,15 @@ namespace Razix {
         {
             // Create the graphics pipeline
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader              = m_OverrideGlobalRHIShader;
-            pipelineInfo.transparencyEnabled = true;
-            pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.colorAttachmentFormats   = {Graphics::RZTexture::Format::RGBA32};
+            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
+            pipelineInfo.transparencyEnabled    = true;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32};
+            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH16_UNORM;
+            pipelineInfo.depthTestEnabled       = true;
+            pipelineInfo.depthWriteEnabled      = true;
 
             if (m_OverrideGlobalRHIShader)
                 m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Pipeline"));

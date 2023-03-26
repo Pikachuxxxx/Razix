@@ -39,4 +39,12 @@ vec3 getAlbedoColor(vec2 uv)
         return material.baseColor;
 }
 
+vec3 getSpecularColor(vec2 uv)
+{
+    if(material.isUsingSpecular)
+        return vec3(texture(specularMap, uv));
+    else 
+        return vec3(1.0f);
+}
+
 #endif

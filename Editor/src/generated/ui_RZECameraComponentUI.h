@@ -16,6 +16,7 @@
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QWidget>
 
@@ -26,7 +27,7 @@ class Ui_CameraComponent
 public:
     QFormLayout *formLayout_2;
     QLabel *label;
-    QWidget *colorPickerPlaceholder;
+    QPushButton *bg_color;
     QLabel *label_2;
     QComboBox *comboBox;
     QLabel *label_3;
@@ -42,7 +43,7 @@ public:
     {
         if (CameraComponent->objectName().isEmpty())
             CameraComponent->setObjectName(QString::fromUtf8("CameraComponent"));
-        CameraComponent->resize(341, 156);
+        CameraComponent->resize(276, 166);
         formLayout_2 = new QFormLayout(CameraComponent);
         formLayout_2->setSpacing(6);
         formLayout_2->setContentsMargins(11, 11, 11, 11);
@@ -52,10 +53,10 @@ public:
 
         formLayout_2->setWidget(0, QFormLayout::LabelRole, label);
 
-        colorPickerPlaceholder = new QWidget(CameraComponent);
-        colorPickerPlaceholder->setObjectName(QString::fromUtf8("colorPickerPlaceholder"));
+        bg_color = new QPushButton(CameraComponent);
+        bg_color->setObjectName(QString::fromUtf8("bg_color"));
 
-        formLayout_2->setWidget(0, QFormLayout::FieldRole, colorPickerPlaceholder);
+        formLayout_2->setWidget(0, QFormLayout::FieldRole, bg_color);
 
         label_2 = new QLabel(CameraComponent);
         label_2->setObjectName(QString::fromUtf8("label_2"));
@@ -121,6 +122,7 @@ public:
     {
         CameraComponent->setWindowTitle(QCoreApplication::translate("CameraComponent", "Camera Component", nullptr));
         label->setText(QCoreApplication::translate("CameraComponent", "Background", nullptr));
+        bg_color->setText(QString());
         label_2->setText(QCoreApplication::translate("CameraComponent", "Projection", nullptr));
         label_3->setText(QCoreApplication::translate("CameraComponent", "FOV", nullptr));
         label_4->setText(QCoreApplication::translate("CameraComponent", "Primary Camera", nullptr));

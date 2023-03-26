@@ -18,7 +18,9 @@ namespace Razix {
 
         glm::vec3 RotationToDirVector(float roll, float pitch, float yaw)
         {
-            return glm::vec3(sin(roll), sin(pitch), sin(yaw));
+            //std::cout << glm::to_string(glm::vec3(sin(roll), sin(pitch), sin(yaw))) << std::endl;
+            //return glm::vec3(sin(roll), sin(pitch), sin(yaw));
+            return glm::vec3(yaw, pitch, roll);
         }
 
         RZETransformComponentUI::RZETransformComponentUI(QWidget* parent)
@@ -101,11 +103,13 @@ namespace Razix {
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
 
+#if 0
             // Set the light direction if the entity has a light component
             if (m_Entity.HasComponent<LightComponent>()) {
                 auto& lc = m_Entity.GetComponent<LightComponent>();
                 lc.light.setDirection(RotationToDirVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
             }
+#endif
         }
 
         void RZETransformComponentUI::OnRotYEdited()
@@ -114,11 +118,13 @@ namespace Razix {
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
 
+#if 0
             // Set the light direction if the entity has a light component
             if (m_Entity.HasComponent<LightComponent>()) {
                 auto& lc = m_Entity.GetComponent<LightComponent>();
                 lc.light.setDirection(RotationToDirVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
             }
+#endif
         }
 
         void RZETransformComponentUI::OnRotZEdited()
@@ -127,11 +133,13 @@ namespace Razix {
             auto& tc      = m_Entity.GetComponent<TransformComponent>();
             tc            = m_TC;
 
+#if 0
             // Set the light direction if the entity has a light component
             if (m_Entity.HasComponent<LightComponent>()) {
                 auto& lc = m_Entity.GetComponent<LightComponent>();
                 lc.light.setDirection(RotationToDirVector(m_TC.Rotation.x, m_TC.Rotation.y, m_TC.Rotation.z));
             }
+#endif
         }
 
         void RZETransformComponentUI::OnScaleXEdited()

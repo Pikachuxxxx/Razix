@@ -54,6 +54,9 @@ public:
     QAction *actionOpen_Project;
     QAction *actionSave_Project;
     QAction *actionMaterial_Editor;
+    QAction *actionSave_layout;
+    QAction *actionRestore_layout;
+    QAction *actionClear_layout;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     ToolWindowManager *toolWindowManager;
@@ -66,6 +69,7 @@ public:
     QMenu *menuComponent;
     QMenu *menuPrimitive;
     QMenu *menuImport;
+    QMenu *menulayout;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -131,6 +135,12 @@ public:
         actionSave_Project->setObjectName(QString::fromUtf8("actionSave_Project"));
         actionMaterial_Editor = new QAction(MainWindow);
         actionMaterial_Editor->setObjectName(QString::fromUtf8("actionMaterial_Editor"));
+        actionSave_layout = new QAction(MainWindow);
+        actionSave_layout->setObjectName(QString::fromUtf8("actionSave_layout"));
+        actionRestore_layout = new QAction(MainWindow);
+        actionRestore_layout->setObjectName(QString::fromUtf8("actionRestore_layout"));
+        actionClear_layout = new QAction(MainWindow);
+        actionClear_layout->setObjectName(QString::fromUtf8("actionClear_layout"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout = new QVBoxLayout(centralwidget);
@@ -160,6 +170,8 @@ public:
         menuPrimitive->setObjectName(QString::fromUtf8("menuPrimitive"));
         menuImport = new QMenu(menuCreate);
         menuImport->setObjectName(QString::fromUtf8("menuImport"));
+        menulayout = new QMenu(menubar);
+        menulayout->setObjectName(QString::fromUtf8("menulayout"));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -170,6 +182,7 @@ public:
         menubar->addAction(menuWindows->menuAction());
         menubar->addAction(menuGraphics->menuAction());
         menubar->addAction(menuCreate->menuAction());
+        menubar->addAction(menulayout->menuAction());
         menuFile->addAction(actionNew_Project);
         menuFile->addAction(actionOpen_Project);
         menuFile->addAction(actionSave_Project);
@@ -201,6 +214,9 @@ public:
         menuImport->addAction(actionModel);
         menuImport->addAction(actionTexture);
         menuImport->addAction(actionShader);
+        menulayout->addAction(actionSave_layout);
+        menulayout->addAction(actionRestore_layout);
+        menulayout->addAction(actionClear_layout);
 
         retranslateUi(MainWindow);
 
@@ -239,6 +255,9 @@ public:
         actionOpen_Project->setText(QCoreApplication::translate("MainWindow", "Open Project", nullptr));
         actionSave_Project->setText(QCoreApplication::translate("MainWindow", "Save Project", nullptr));
         actionMaterial_Editor->setText(QCoreApplication::translate("MainWindow", "Material Editor", nullptr));
+        actionSave_layout->setText(QCoreApplication::translate("MainWindow", "Save layout", nullptr));
+        actionRestore_layout->setText(QCoreApplication::translate("MainWindow", "Restore layout", nullptr));
+        actionClear_layout->setText(QCoreApplication::translate("MainWindow", "Clear layout", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuEdit->setTitle(QCoreApplication::translate("MainWindow", "Edit", nullptr));
         menuWindows->setTitle(QCoreApplication::translate("MainWindow", "Windows", nullptr));
@@ -247,6 +266,7 @@ public:
         menuComponent->setTitle(QCoreApplication::translate("MainWindow", "Add Component", nullptr));
         menuPrimitive->setTitle(QCoreApplication::translate("MainWindow", "Primitive", nullptr));
         menuImport->setTitle(QCoreApplication::translate("MainWindow", "Import", nullptr));
+        menulayout->setTitle(QCoreApplication::translate("MainWindow", "Layout", nullptr));
     } // retranslateUi
 
 };
