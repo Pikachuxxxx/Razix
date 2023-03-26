@@ -37,8 +37,8 @@ namespace Razix {
 
         void RZMaterial::InitDefaultTexture()
         {
-            u32 pinkTextureData = 0xffff00ff; // A8B8G8R8
-            s_DefaultTexture         = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
+            u32 pinkTextureData = 0xffff00ff;    // A8B8G8R8
+            s_DefaultTexture    = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
         }
 
         void RZMaterial::ReleaseDefaultTexture()
@@ -68,24 +68,38 @@ namespace Razix {
                             switch (descriptor.bindingInfo.binding) {
                                 case TextureBindingTable::TEX_BINDING_IDX_ALBEDO:
                                     descriptor.texture = m_MaterialTextures.albedo ? m_MaterialTextures.albedo : s_DefaultTexture;
+                                    if (descriptor.texture != s_DefaultTexture)
+                                        m_MaterialProperties.isUsingAlbedoMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_NORMAL:
                                     descriptor.texture = m_MaterialTextures.normal ? m_MaterialTextures.normal : s_DefaultTexture;
+                                    if (descriptor.texture != s_DefaultTexture)
+                                        m_MaterialProperties.isUsingNormalMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_METALLLIC:
                                     descriptor.texture = m_MaterialTextures.metallic ? m_MaterialTextures.metallic : s_DefaultTexture;
+                                    if (descriptor.texture != s_DefaultTexture)
+                                        m_MaterialProperties.isUsingMetallicMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_ROUGHNESS:
                                     descriptor.texture = m_MaterialTextures.roughness ? m_MaterialTextures.roughness : s_DefaultTexture;
+                                    if (descriptor.texture != s_DefaultTexture)
+                                        m_MaterialProperties.isUsingRoughnessMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_SPECULAR:
-                                    descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.metallic : s_DefaultTexture;
+                                    descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.specular : s_DefaultTexture;
+                                    if (descriptor.texture != s_DefaultTexture)
+                                        m_MaterialProperties.isUsingSpecular = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_EMISSIVE:
                                     descriptor.texture = m_MaterialTextures.emissive ? m_MaterialTextures.emissive : s_DefaultTexture;
+                                    if (descriptor.texture != s_DefaultTexture)
+                                        m_MaterialProperties.isUsingEmissiveMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_AO:
                                     descriptor.texture = m_MaterialTextures.ao ? m_MaterialTextures.ao : s_DefaultTexture;
+                                    if (descriptor.texture != s_DefaultTexture)
+                                        m_MaterialProperties.isUsingAOMap = true;
                                     break;
                                 default:
                                     descriptor.texture = s_DefaultTexture;
@@ -125,8 +139,19 @@ namespace Razix {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
             if (!m_DescriptorSet || getTexturesUpdated()) {
                 m_DescriptorSet->Destroy();
+
+                //m_MaterialProperties.isUsingAlbedoMap    = false;
+                //m_MaterialProperties.isUsingAOMap        = false;
+                //m_MaterialProperties.isUsingEmissiveMap  = false;
+                //m_MaterialProperties.isUsingMetallicMap  = false;
+                //m_MaterialProperties.isUsingNormalMap    = false;
+                //m_MaterialProperties.isUsingRoughnessMap = false;
+                //m_MaterialProperties.isUsingSpecular     = false;
+
                 createDescriptorSet();
                 setTexturesUpdated(false);
+                // Since the mat props have been updated regarding isTextureAvailable or not we need to update the UBO data again
+                setProperties(m_MaterialProperties);
             }
             // Since we need to bind all the sets at once IDK about using bind, how does the mat get the Render System Descriptors to bind???
             // This possible if do something like Unity does, have a Renderer Component for every renderable entity in the scene ==> this makes

@@ -26,5 +26,8 @@
         <file>RazixScriptFile.png</file>
         <file>LightIcon.png</file>
         <file>sprite_can.png</file>
+        <file>world_icon.png</file>
+        <file>grid_snap_icon.png</file>
+        <file>local_icon.png</file>
     </qresource>
 </RCC>

@@ -11,9 +11,9 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZRoot.h"
+#include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
-#include "Razix/Scene/Components/RZComponents.h"
 
 namespace Razix {
     namespace Editor {
@@ -21,6 +21,8 @@ namespace Razix {
             : QFrame(parent), m_MainWindow(mainWindow)
         {
             ui.setupUi(this);
+
+            setObjectName(this->windowTitle());
 
             header = ui.sceneTree->header();
             header->setWindowTitle("Empty Scene");
@@ -36,7 +38,9 @@ namespace Razix {
             connect(mainWindow, SIGNAL(OnEntityAddedToScene()), this, SLOT(UpdatePanel()));
         }
 
-        RZESceneHierarchyPanel::~RZESceneHierarchyPanel() { }
+        RZESceneHierarchyPanel::~RZESceneHierarchyPanel()
+        {
+        }
 
         void RZESceneHierarchyPanel::populateHierarchy()
         {
@@ -83,7 +87,7 @@ namespace Razix {
             // TODO: Support multiple selection using the selectedItems list
             QVariant entityVariant = selectedItems[0]->data(0, Qt::UserRole);
             auto     entity        = entityVariant.value<RZEntity>();
-            RZApplication::Get().setGuzimoForEntity(entity);
+            RZApplication::Get().setGuizmoForEntity(entity);
             //  Now send this entity to the Inspector via signal
             emit OnEntitySelected(entity);
         }
@@ -96,7 +100,7 @@ namespace Razix {
             QList<QTreeWidgetItem*> clist    = ui.sceneTree->findItems(QString(itemName.c_str()), Qt::MatchContains | Qt::MatchRecursive, 0);
             // TODO: Add support multi entity editing sometime in future
             ui.sceneTree->setItemSelected(clist[0], true);
-            RZApplication::Get().setGuzimoForEntity(entity);
+            RZApplication::Get().setGuizmoForEntity(entity);
 
             emit OnEntitySelected(entity);
         }

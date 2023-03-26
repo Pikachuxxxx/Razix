@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZENativeWindow.h"
 
-#define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::Editor::RZENativeWindow::x, this, std::placeholders::_1)
+#define RAZIX_EDITOR_BIND_CB_EVENT_FN(x) std::bind(&Razix::Editor::RZENativeWindow::x, this, std::placeholders::_1)
 
 namespace Razix {
     namespace Editor {
@@ -15,7 +15,7 @@ namespace Razix {
 
             m_NativeHandle = windowHandle;
 
-            SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZENativeWindow::OnEventDefaultBind));
+            SetEventCallback(RAZIX_EDITOR_BIND_CB_EVENT_FN(RZENativeWindow::OnEventDefaultBind));
         }
 
         void RZENativeWindow::OnWindowUpdate()
@@ -59,7 +59,7 @@ namespace Razix {
 
         void* RZENativeWindow::GetNativeWindow() const
         {
-            return (HWND*)m_NativeHandle;
+            return (HWND*) m_NativeHandle;
         }
 
         RZWindow* RZENativeWindow::NativeConstructionFunc(void* windowHandle, const WindowProperties& properties)

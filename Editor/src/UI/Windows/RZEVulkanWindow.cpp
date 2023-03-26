@@ -14,6 +14,7 @@ namespace Razix {
         {
             setSurfaceType(VulkanSurface);
 
+            setObjectName("VULKAN_VIEWPORT_0");
         }
 
         RZEVulkanWindow::~RZEVulkanWindow()
@@ -46,7 +47,6 @@ namespace Razix {
             m_RZWindow = new RZENativeWindow(&hwnd, props);
         }
 
-        
         bool RZEVulkanWindow::IsKeyPressedImpl(int keycode)
         {
             if (keycode == m_KeyPressed) {
@@ -76,8 +76,7 @@ namespace Razix {
             if (button == m_MousePressedButton - 1 && m_MousePressDirty) {
                 m_MousePressDirty = false;
                 return true;
-            }
-            else
+            } else
                 return false;
         }
 
@@ -112,7 +111,6 @@ namespace Razix {
         {
             return m_MousePos.y;
         }
-        
 
     }    // namespace Editor
 }    // namespace Razix

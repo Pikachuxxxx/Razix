@@ -7,6 +7,7 @@
 #include <Razix.h>
 
 #include <QApplication>
+#include <QSettings>
 #include <QThread>
 #include <QVulkanInstance>
 
@@ -208,6 +209,11 @@ int main(int argc, char** argv)
 {
     // Initialize the QT Editor Application
     qrzeditorApp = new QApplication(argc, argv);
+    qrzeditorApp->setOrganizationName("Razix Engine");
+    qrzeditorApp->setApplicationName("Razix Editor");
+
+    // Store the app settings as a .ini file
+    QSettings::setDefaultFormat(QSettings::IniFormat);
 
     QStyle* style = StyleData::availStyles[1].creator();
     QApplication::setStyle(style);
@@ -272,7 +278,6 @@ int main(int argc, char** argv)
 
     //std::thread engineThread(LoadEngineDLL, argc, argv);
     //engineThread.detach();
-    //EngineMain(argc, argv);
     Razix::Editor::RZEEngineLoop* engineLoop = new Razix::Editor::RZEEngineLoop(argc, argv);
     engineLoop->moveToThread(qengineThread);
     viewportWidget->moveToThread(qengineThread);

@@ -10,6 +10,7 @@
 #include <QCloseEvent>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QProgressBar>
 #include <QToolBar>
 
 namespace Razix {
@@ -33,6 +34,8 @@ namespace Razix {
                 } else {
                     RZApplication::Get().setAppState(AppState::Closing);
                     event->accept();
+                    // Save the layout on close
+                    Layout_Save();
                 }
             }
 
@@ -53,12 +56,19 @@ namespace Razix {
             void set_TranslateGuizmo();
             void set_RotateGuizmo();
             void set_ScaleGuizmo();
+            void toggle_WorldLocal();
+            void toggle_GridSnap();
+
             void update();
 
         private:
             Ui::MainWindow ui;
             QWidget*       m_Viewport;
             QLabel*        m_FPSLblSB;
+            QProgressBar*  m_StatusProgressBar;    // TODO: Rename this properly
+
+            QPushButton* World_vs_LocalButton;
+            QPushButton* enableSnapBtn;
 
         private:
             void SetupToolBars();
@@ -71,11 +81,25 @@ namespace Razix {
             void create_misc_tb();
 
             void SetupMenu();
+            //------------------------------
+            // Menu - Create
             void SetupCreateMenuCommands();
-            void SetupWindowsCommands();
-            // Menu command functions
-            void Windows_MaterialEditor();
+            // Create - Action = create Entity
             void Create_Entity();
+            //------------------------------
+            // Menu - Windows
+            void SetupWindowsCommands();
+            // Windows - Action = open/close Material Editor
+            void Windows_MaterialEditor();
+            //------------------------------
+            // Menu - Layout
+            void SetupLayoutCommands();
+            // Layout - Action = Save layout
+            void Layout_Save();
+            // Layout - Action = Restore layout
+            void Layout_Restore();
+            // Layout - Action = Clear layout
+            void Layout_Clear();
         };
     }    // namespace Editor
 }    // namespace Razix

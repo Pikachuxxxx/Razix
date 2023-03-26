@@ -100,11 +100,20 @@
     <addaction name="separator"/>
     <addaction name="menuImport"/>
    </widget>
+   <widget class="QMenu" name="menulayout">
+    <property name="title">
+     <string>Layout</string>
+    </property>
+    <addaction name="actionSave_layout"/>
+    <addaction name="actionRestore_layout"/>
+    <addaction name="actionClear_layout"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuWindows"/>
    <addaction name="menuGraphics"/>
    <addaction name="menuCreate"/>
+   <addaction name="menulayout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLighting_Settings">
@@ -250,6 +259,21 @@
   <action name="actionMaterial_Editor">
    <property name="text">
     <string>Material Editor</string>
+   </property>
+  </action>
+  <action name="actionSave_layout">
+   <property name="text">
+    <string>Save layout</string>
+   </property>
+  </action>
+  <action name="actionRestore_layout">
+   <property name="text">
+    <string>Restore layout</string>
+   </property>
+  </action>
+  <action name="actionClear_layout">
+   <property name="text">
+    <string>Clear layout</string>
    </property>
   </action>
  </widget>

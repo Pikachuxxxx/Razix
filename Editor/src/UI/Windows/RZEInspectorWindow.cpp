@@ -16,6 +16,8 @@ namespace Razix {
         {
             ui.setupUi(this);
 
+            setObjectName(this->windowTitle());
+
             ui.scrollLayout->setSpacing(5);
             ui.scrollLayout->setMargin(0);
 
@@ -79,6 +81,8 @@ namespace Razix {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_CAMERA;
                 this->getBoxLayout().insertWidget(idx, m_CameraComponentSection);
                 m_CameraComponentSection->setVisible(true);
+                // Set the Editing Entity
+                m_CameraComponentUI->setEditingEntity(entity);
                 idx++;
             }
             if (entity.HasComponent<LightComponent>()) {

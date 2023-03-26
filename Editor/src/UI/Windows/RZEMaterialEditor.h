@@ -32,6 +32,8 @@ namespace Razix {
             void onDiffuseTextureUseCheckbox();
             void on_DiffuseColor();
             // Specular
+            void on_SpecularTextureSelected();
+            void on_SpecularIntensity();
 
         private:
             Ui::MaterialEditor           ui;
