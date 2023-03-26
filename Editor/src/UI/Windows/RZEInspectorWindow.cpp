@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZEInspectorWindow.h"
 
+#include "Razix/Graphics/RZMesh.h"
+
 #include "Razix/Scene/Components/RZComponents.h"
 
 #include "UI/Widgets/RZECollapsingHeader.h"
@@ -13,6 +15,8 @@ namespace Razix {
             : QFrame(parent)
         {
             ui.setupUi(this);
+
+            setObjectName(this->windowTitle());
 
             ui.scrollLayout->setSpacing(5);
             ui.scrollLayout->setMargin(0);
@@ -77,6 +81,8 @@ namespace Razix {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_CAMERA;
                 this->getBoxLayout().insertWidget(idx, m_CameraComponentSection);
                 m_CameraComponentSection->setVisible(true);
+                // Set the Editing Entity
+                m_CameraComponentUI->setEditingEntity(entity);
                 idx++;
             }
             if (entity.HasComponent<LightComponent>()) {
@@ -97,7 +103,9 @@ namespace Razix {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_MESH_RENDERER;
                 this->getBoxLayout().insertWidget(idx, m_MeshRendererComponentSection);
                 m_MeshRendererComponentSection->setVisible(true);
+                // Connect the entity and the MRC UI
                 m_MeshRendererComponentUI->setEditingEntity(entity);
+                emit OnMeshMaterialSelected(entity.GetComponent<MeshRendererComponent>().Mesh->getMaterial());
                 idx++;
             }
             if (entity.HasComponent<SpriteRendererComponent>()) {

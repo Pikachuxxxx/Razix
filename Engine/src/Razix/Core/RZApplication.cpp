@@ -49,7 +49,7 @@ namespace Razix {
     std::condition_variable RZApplication::halt_execution;
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
-        : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE)
+        : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE), m_GuizmoMode(ImGuizmo::MODE::WORLD)
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
@@ -64,6 +64,8 @@ namespace Razix {
 
         Razix::RZSplashScreen::Get().setLogString("Loading Shader Cache...");
         Razix::RZSplashScreen::Get().setLogString("Loading Project Assets..");
+
+        Razix::RZEngine::Get().isRZApplicationCreated = true;
     }
 
     void RZApplication::Init()
@@ -141,7 +143,7 @@ namespace Razix {
         }
 
         // Convert the app to loaded state
-        m_CurrentState = AppState::Running;
+        m_CurrentState = AppState::Loading;
 
         // Enable V-Sync
         //m_Window->SetVSync(true);
@@ -266,6 +268,8 @@ namespace Razix {
 
         Graphics::RZRendererSettings settings;
         Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(settings, Razix::RZEngine::Get().getSceneManager().getCurrentScene());
+
+        m_CurrentState = AppState::Running;
 
         Start();
 
@@ -447,13 +451,11 @@ namespace Razix {
             //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));
 
             // https://github.com/CedricGuillemet/ImGuizmo/issues/237
-            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, ImGuizmo::WORLD, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix));
+            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
 
             // TODO: Add snap options and control them from editor
             f32 matrixTranslation[3], matrixRotation[3], matrixScale[3];
-            f32 deltaTranslation[3], deltaRotation[3], deltaScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
-            ImGuizmo::DecomposeMatrixToComponents(&(deltaMatrix[0][0]), deltaTranslation, deltaRotation, deltaScale);
 
             tc.Translation = glm::vec3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
             tc.Rotation    = glm::vec3(glm::radians(matrixRotation[0]), glm::radians(matrixRotation[1]), glm::radians(matrixRotation[2]));

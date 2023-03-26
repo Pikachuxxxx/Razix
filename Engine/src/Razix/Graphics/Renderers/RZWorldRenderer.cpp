@@ -135,7 +135,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {rt, {true, glm::vec4(0.0f)}}};
+                        {rt, {true, scene->getSceneCamera().getBgColor()}}};
                     info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
                     info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize          = true;
@@ -185,6 +185,8 @@ namespace Razix {
                     data.outputRT          = builder.write(forwardSceneData.outputRT);
                     data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
+                    builder.read(forwardSceneData.depthRT);
+
                     m_ImGuiRenderer.Init();
                 },
                 [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
@@ -198,12 +200,13 @@ namespace Razix {
                     RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.depthRT).getHandle();
 
                     RenderingInfo info{};
-                    info.colorAttachments = {
-                        {rt, {false, glm::vec4(0.0f)}}};
-                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize = true;
+                    info.colorAttachments = {{rt, {false, glm::vec4(0.0f)}}};
+                    info.depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
+                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize           = true;
 
                     RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
 

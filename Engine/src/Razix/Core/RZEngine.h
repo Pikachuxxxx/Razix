@@ -28,10 +28,11 @@ namespace Razix {
     {
         // All internal type definition go here
     public:
+        bool isRZApplicationCreated = false;
         /* Statistic about the current frame */
         struct Stats
         {
-            f32    DeltaTime        = 0;    //[x]
+            f32 DeltaTime        = 0;    //[x]
             u32 UpdatesPerSecond = 0;    //[x]
             u32 FramesPerSecond  = 0;    //[x]
             // API calls
@@ -133,7 +134,7 @@ namespace Razix {
 
     private:
         Stats       m_Stats;                                /* Current frame basic statistics	                                */
-        f32       m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
+        f32         m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
         std::string m_EngineInstallationDir;
     };
 }    // namespace Razix

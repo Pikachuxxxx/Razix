@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEInspectorWindow_t {
-    QByteArrayData data[7];
-    char stringdata0[104];
+    QByteArrayData data[10];
+    char stringdata0[158];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,15 +36,20 @@ static const qt_meta_stringdata_Razix__Editor__RZEInspectorWindow_t qt_meta_stri
 QT_MOC_LITERAL(0, 0, 33), // "Razix::Editor::RZEInspectorWi..."
 QT_MOC_LITERAL(1, 34, 24), // "InspectorPropertyChanged"
 QT_MOC_LITERAL(2, 59, 0), // ""
-QT_MOC_LITERAL(3, 60, 10), // "OnNameEdit"
-QT_MOC_LITERAL(4, 71, 16), // "OnEntitySelected"
-QT_MOC_LITERAL(5, 88, 8), // "RZEntity"
-QT_MOC_LITERAL(6, 97, 6) // "entity"
+QT_MOC_LITERAL(3, 60, 22), // "OnMeshMaterialSelected"
+QT_MOC_LITERAL(4, 83, 21), // "Graphics::RZMaterial*"
+QT_MOC_LITERAL(5, 105, 8), // "material"
+QT_MOC_LITERAL(6, 114, 10), // "OnNameEdit"
+QT_MOC_LITERAL(7, 125, 16), // "OnEntitySelected"
+QT_MOC_LITERAL(8, 142, 8), // "RZEntity"
+QT_MOC_LITERAL(9, 151, 6) // "entity"
 
     },
     "Razix::Editor::RZEInspectorWindow\0"
-    "InspectorPropertyChanged\0\0OnNameEdit\0"
-    "OnEntitySelected\0RZEntity\0entity"
+    "InspectorPropertyChanged\0\0"
+    "OnMeshMaterialSelected\0Graphics::RZMaterial*\0"
+    "material\0OnNameEdit\0OnEntitySelected\0"
+    "RZEntity\0entity"
 };
 #undef QT_MOC_LITERAL
 
@@ -54,26 +59,28 @@ static const uint qt_meta_data_Razix__Editor__RZEInspectorWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
+       2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x06 /* Public */,
+       1,    0,   34,    2, 0x06 /* Public */,
+       3,    1,   35,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       3,    0,   30,    2, 0x0a /* Public */,
-       4,    1,   31,    2, 0x0a /* Public */,
+       6,    0,   38,    2, 0x0a /* Public */,
+       7,    1,   39,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 4,    5,
 
  // slots: parameters
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 5,    6,
+    QMetaType::Void, 0x80000000 | 8,    9,
 
        0        // eod
 };
@@ -85,8 +92,9 @@ void Razix::Editor::RZEInspectorWindow::qt_static_metacall(QObject *_o, QMetaObj
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->InspectorPropertyChanged(); break;
-        case 1: _t->OnNameEdit(); break;
-        case 2: _t->OnEntitySelected((*reinterpret_cast< RZEntity(*)>(_a[1]))); break;
+        case 1: _t->OnMeshMaterialSelected((*reinterpret_cast< Graphics::RZMaterial*(*)>(_a[1]))); break;
+        case 2: _t->OnNameEdit(); break;
+        case 3: _t->OnEntitySelected((*reinterpret_cast< RZEntity(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -95,6 +103,13 @@ void Razix::Editor::RZEInspectorWindow::qt_static_metacall(QObject *_o, QMetaObj
             using _t = void (RZEInspectorWindow::*)();
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&RZEInspectorWindow::InspectorPropertyChanged)) {
                 *result = 0;
+                return;
+            }
+        }
+        {
+            using _t = void (RZEInspectorWindow::*)(Graphics::RZMaterial * );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&RZEInspectorWindow::OnMeshMaterialSelected)) {
+                *result = 1;
                 return;
             }
         }
@@ -130,13 +145,13 @@ int Razix::Editor::RZEInspectorWindow::qt_metacall(QMetaObject::Call _c, int _id
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 4;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 3)
+        if (_id < 4)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 3;
+        _id -= 4;
     }
     return _id;
 }
@@ -145,6 +160,13 @@ int Razix::Editor::RZEInspectorWindow::qt_metacall(QMetaObject::Call _c, int _id
 void Razix::Editor::RZEInspectorWindow::InspectorPropertyChanged()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
+}
+
+// SIGNAL 1
+void Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected(Graphics::RZMaterial * _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    QMetaObject::activate(this, &staticMetaObject, 1, _a);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

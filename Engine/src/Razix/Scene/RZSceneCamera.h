@@ -36,54 +36,57 @@ namespace Razix {
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32 getPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
-        RAZIX_INLINE void  setPerspectiveVerticalFOV(f32 verticalFov)
+        RAZIX_INLINE f32  getPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
+        RAZIX_INLINE void setPerspectiveVerticalFOV(f32 verticalFov)
         {
             m_PerspectiveFOV = verticalFov;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32 getPerspectiveNearClip() const { return m_PerspectiveNear; }
-        RAZIX_INLINE void  setPerspectiveNearClip(f32 nearClip)
+        RAZIX_INLINE f32  getPerspectiveNearClip() const { return m_PerspectiveNear; }
+        RAZIX_INLINE void setPerspectiveNearClip(f32 nearClip)
         {
             m_PerspectiveNear = nearClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32 getPerspectiveFarClip() const { return m_PerspectiveFar; }
-        RAZIX_INLINE void  setPerspectiveFarClip(f32 farClip)
+        RAZIX_INLINE f32  getPerspectiveFarClip() const { return m_PerspectiveFar; }
+        RAZIX_INLINE void setPerspectiveFarClip(f32 farClip)
         {
             m_PerspectiveFar = farClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32 getOrthographicSize() const { return m_OrthographicSize; }
-        RAZIX_INLINE void  setOrthographicSize(f32 size)
+        RAZIX_INLINE f32  getOrthographicSize() const { return m_OrthographicSize; }
+        RAZIX_INLINE void setOrthographicSize(f32 size)
         {
             m_OrthographicSize = size;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32 getOrthographicNearClip() const { return m_OrthographicNear; }
-        RAZIX_INLINE void  setOrthographicNearClip(f32 nearClip)
+        RAZIX_INLINE f32  getOrthographicNearClip() const { return m_OrthographicNear; }
+        RAZIX_INLINE void setOrthographicNearClip(f32 nearClip)
         {
             m_OrthographicNear = nearClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32 getOrthographicFarClip() const { return m_OrthographicFar; }
-        RAZIX_INLINE void  setOrthographicFarClip(f32 farClip)
+        RAZIX_INLINE f32  getOrthographicFarClip() const { return m_OrthographicFar; }
+        RAZIX_INLINE void setOrthographicFarClip(f32 farClip)
         {
             m_OrthographicFar = farClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32 getAspectRatio() const { return m_AspectRatio; }
-        RAZIX_INLINE void  setAspectRatio(f32 ratio)
+        RAZIX_INLINE f32  getAspectRatio() const { return m_AspectRatio; }
+        RAZIX_INLINE void setAspectRatio(f32 ratio)
         {
             m_AspectRatio = ratio;
             recalculateProjection();
         }
+
+        RAZIX_INLINE const glm::vec4& getBgColor() const { return m_BgColor; }
+        RAZIX_INLINE void             setBgColor(const glm::vec4& color) { m_BgColor = color; }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -114,6 +117,8 @@ namespace Razix {
             archive(cereal::make_nvp("OrthographicFarClip", getOrthographicFarClip()));
 
             archive(cereal::make_nvp("AspectRatio", getAspectRatio()));
+
+            archive(cereal::make_nvp("BgColor", getBgColor()));
         }
 
         template<class Archive>
@@ -179,6 +184,10 @@ namespace Razix {
 
             archive(cereal::make_nvp("AspectRatio", fvalue));
             setAspectRatio(fvalue);
+
+            glm::vec4 bg_color;
+            archive(cereal::make_nvp("BgColor", bg_color));
+            setBgColor(bg_color);
         }
 
     private:
@@ -188,12 +197,14 @@ namespace Razix {
         ProjectionType m_ProjectionType = ProjectionType::Perspective;
 
         glm::mat4 m_Projection      = glm::mat4(1.0f);
-        f32     m_PerspectiveFOV  = glm::radians(45.0f);
-        f32     m_PerspectiveNear = 0.1f, m_PerspectiveFar = 100.0f;
+        f32       m_PerspectiveFOV  = glm::radians(45.0f);
+        f32       m_PerspectiveNear = 0.1f, m_PerspectiveFar = 100.0f;
 
         f32 m_OrthographicSize = 10.0f;
         f32 m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
 
         f32 m_AspectRatio = 0.0f;
+
+        glm::vec4 m_BgColor = glm::vec4(0.0f);
     };
 }    // namespace Razix

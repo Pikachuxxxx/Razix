@@ -71,7 +71,7 @@ namespace Razix {
         void RZEProjectBrowser::on_CreatePressed()
         {
             m_ProjectName = newproject_ui.ProjectNameLineEdit->text().toStdString();
-            m_ProjectPath = newproject_ui.ProjectPath->text().toStdString();
+            m_ProjectPath = newproject_ui.ProjectPath->text().toStdString() + "/";
             ui.projects_history_list->addItem(m_ProjectPath.c_str());
             m_NewProjectDialog->accept();
         }

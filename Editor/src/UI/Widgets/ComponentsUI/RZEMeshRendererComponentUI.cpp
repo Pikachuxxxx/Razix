@@ -33,6 +33,7 @@ namespace Razix {
             //Graphics::RZMesh* oldMesh = mrc.Mesh;
             mrc.Mesh = Razix::Graphics::MeshFactory::CreatePrimitive((Razix::Graphics::MeshPrimitive) meshType);
             //oldMesh->Destroy();
+            // TODO: Update the material in the Material Editor (emit a signal)
         }
 
         void RZEMeshRendererComponentUI::OnMeshLocationEdited()

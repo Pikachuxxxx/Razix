@@ -19,29 +19,28 @@ namespace Razix {
             PBR_WORKFLOW_SPECULAR_ROUGHNESS
         };
 
+        // TODO: Make this work with bool
         /* Material properties (16-byte aligned as per optimal GPU requirements) */
         struct MaterialProperties
         {
-            glm::vec3 albedoColor = glm::vec3(1.0f, 0.0f, 0.0f);
-            bool      _padding[4];
-            glm::vec3 normal = glm::vec3(1.0f, 0.0f, 0.0f);
-            bool      _padding_[4];
-            glm::vec3 emissiveColor = glm::vec3(0.0f, 0.0f, 0.0f);
-            bool      _padding__[4];
-            f32       metallicColor       = 1.0f;
-            f32       roughnessColor      = 0.0f;
-            f32       specularColor       = 1.0f;
-            f32       opacity             = 1.0f;
-            f32       ambientOcclusion    = 1.0f;
-            bool      visible             = true;
-            bool      isUsingAlbedoMap    = true;
-            bool      isUsingNormalMap    = true;
-            bool      isUsingMetallicMap  = true;
-            bool      isUsingRoughnessMap = false;
-            bool      isUsingSpecular     = false;
-            bool      isUsingEmissiveMap  = false;
-            bool      isUsingAOMap        = false;
-            bool      _padding___[4];
+            glm::vec3 albedoColor         = glm::vec3(1.0f, 0.0f, 0.0f);
+            bool      _padding[4]         = {};
+            glm::vec3 normal              = glm::vec3(0.0f, 1.0f, 0.0f);
+            bool      _padding_[4]        = {};
+            glm::vec3 emissiveColor       = glm::vec3(0.0f, 0.0f, 1.0f);
+            f32       metallicColor       = 17.0f;
+            f32       roughnessColor      = 18.0f;
+            f32       specularColor       = 32.0f;
+            f32       opacity             = 19.0f;
+            f32       ambientOcclusion    = 111.0f;
+            u32       visible             = true;
+            u32       isUsingAlbedoMap    = false;
+            u32       isUsingNormalMap    = false;
+            u32       isUsingMetallicMap  = false;
+            u32       isUsingRoughnessMap = false;
+            u32       isUsingSpecular     = false;
+            u32       isUsingEmissiveMap  = false;
+            u32       isUsingAOMap        = false;
         };
 
         /* lighting model textures */
@@ -80,8 +79,12 @@ namespace Razix {
             /* Overrides the default material properties and textures by loading the material file and de-serializing it */
             void loadMaterialFromFile(const std::string& name, const std::string& path);
             void createDescriptorSet();
+
+            RAZIX_INLINE MaterialTextures& getTextures() { return m_MaterialTextures; }
             void setTextures(MaterialTextures& textures);
-            void setProperties(MaterialProperties& props);
+
+            RAZIX_INLINE const MaterialProperties& getProperties() const { return m_MaterialProperties; }
+            void                                   setProperties(MaterialProperties& props);
 
             void Bind();
 

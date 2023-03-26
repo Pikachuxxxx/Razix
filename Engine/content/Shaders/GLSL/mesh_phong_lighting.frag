@@ -30,26 +30,31 @@ DECLARE_LIGHT_BUFFER(2, 0, lightBuffer)
 layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // Functions
+//------------------------------------------------------------------------------
 // Directional light Calculation
-vec3 CalcDirLight(LightData light, vec3 normal)
+vec3 CalculateDirectionalLightContribution(LightData light, vec3 normal, vec3 viewPos)
 {
     // Ambient
-    vec3 ambient  = light.color.rgb  * vec3(texture(albedoMap, fs_in.fragTexCoord)) * 0.1f;
+    float ambientStrength  = 0.1f;
+    vec3 ambient  = ambientStrength * light.color.rgb * getAlbedoColor(fs_in.fragTexCoord);
 
     // Diffuse
-    vec3 lightDir = normalize(light.direction.xyz);
+    // Since IDK how to use the light direction I will use the position and normalize it
+    vec3 lightDir = normalize(-light.direction.xyz);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color * vec3(texture(albedoMap, fs_in.fragTexCoord));
+    vec3 diffuse = diff * light.color * getAlbedoColor(fs_in.fragTexCoord);
      
     // Specular shading
-    vec3 viewDir = normalize(fs_in.viewPos - fs_in.fragPos);
+    float specularStrength = 1.0;
+    vec3 viewDir = normalize(viewPos - fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = spec * vec3(texture(metallicMap, fs_in.fragTexCoord));
+    vec3 specular = specularStrength * spec * light.color * getSpecularColor(fs_in.fragTexCoord);
 
     // combine results
     return ambient + diffuse + specular;
 }  
+//------------------------------------------------------------------------------
 // Point Light Calculation
 /**
  * Calculates the point light contribution 
@@ -61,40 +66,50 @@ vec3 CalcDirLight(LightData light, vec3 normal)
 vec3 CalculatePointLightContribution(LightData light, vec3 normal, vec3 viewPos)
 {
     // Ambient
-    vec3 ambient  = light.color.rgb * vec3(texture(albedoMap, fs_in.fragTexCoord)) * 0.1f;
+    float ambientStrength  = 0.1f;
+    vec3 ambient  = ambientStrength * light.color.rgb * getAlbedoColor(fs_in.fragTexCoord);
 
     // Diffuse
     vec3 lightDir = normalize(light.position - fs_in.fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color * vec3(texture(albedoMap, fs_in.fragTexCoord));
+    vec3 diffuse = diff * light.color * getAlbedoColor(fs_in.fragTexCoord);
      
     // Specular shading
+    float specularStrength = 1.0;
     vec3 viewDir = normalize(viewPos - fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = spec * vec3(texture(metallicMap, fs_in.fragTexCoord));
+    vec3 specular = specularStrength * spec * light.color * getSpecularColor(fs_in.fragTexCoord);
 
-      // attenuation
+    // attenuation
     float distance    = length(light.position - fs_in.fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
 
-    ambient  *= attenuation;  
-    diffuse   *= attenuation;
+    ambient *= attenuation;  
+    diffuse *= attenuation;
     specular *= attenuation;   
 
     // combine results
     return ambient + diffuse + specular;
 }
 //------------------------------------------------------------------------------
+// Spot Light Calculation
+vec3 CalculateSpotLightContribution(LightData light, vec3 normal, vec3 viewPos)
+{
+    return vec3(0.0f);
+}
+//------------------------------------------------------------------------------
 // Main
 void main()
 {
-    vec4 normal = texture(normalMap, fs_in.fragTexCoord);
+    //vec4 normal = texture(normalMap, fs_in.fragTexCoord);
     vec3 result = vec3(0.0f);
     if(lightBuffer.data[0].type == LightType_Directional)
-        result += CalcDirLight(lightBuffer.data[0], fs_in.fragNormal);
+        result += CalculateDirectionalLightContribution(lightBuffer.data[0], normalize(fs_in.fragNormal), fs_in.viewPos);
     else if(lightBuffer.data[0].type == LightType_Point)
-        result += CalculatePointLightContribution(lightBuffer.data[0], fs_in.fragNormal, fs_in.viewPos);
+        result += CalculatePointLightContribution(lightBuffer.data[0], normalize(fs_in.fragNormal), fs_in.viewPos);
+
+    //-----------------------------------------------
     outFragColor = vec4(result, 1.0);
 }
 //------------------------------------------------------------------------------

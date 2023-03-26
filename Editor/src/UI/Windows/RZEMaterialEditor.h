@@ -24,19 +24,21 @@ namespace Razix {
             RZEMaterialEditor(QWidget* parent = nullptr);
             ~RZEMaterialEditor();
 
-            void setEditingMaterial(Razix::Graphics::RZMaterial* material);
-
         public slots:
+            void OnSetEditingMaterial(Razix::Graphics::RZMaterial* material);
             // TODO: In Future use the reflection data to create the fields automatically, since we use a single Material this is perfectly acceptable
             // Diffuse
-            void on_diffuse_texture_select();
-            void on_diffuse_texture_use_checkbox();
-            void on_diffuse_color();
+            void on_DiffuseTextureSelect();
+            void onDiffuseTextureUseCheckbox();
+            void on_DiffuseColor();
             // Specular
+            void on_SpecularTextureSelected();
+            void on_SpecularIntensity();
 
         private:
             Ui::MaterialEditor           ui;
             Razix::Graphics::RZMaterial* m_Material;
+            QColor                       m_DiffuseColor;
         };
     }    // namespace Editor
 }    // namespace Razix

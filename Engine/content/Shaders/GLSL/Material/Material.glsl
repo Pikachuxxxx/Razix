@@ -31,4 +31,20 @@ layout(set = 1, binding = 5) uniform sampler2D specularMap;
 layout(set = 1, binding = 6) uniform sampler2D emissiveMap;
 layout(set = 1, binding = 7) uniform sampler2D aoMap;
 
+vec3 getAlbedoColor(vec2 uv)
+{
+    if(material.isUsingAlbedoMap)
+        return vec3(texture(albedoMap, uv));
+    else 
+        return material.baseColor;
+}
+
+vec3 getSpecularColor(vec2 uv)
+{
+    if(material.isUsingSpecular)
+        return vec3(texture(specularMap, uv));
+    else 
+        return vec3(1.0f);
+}
+
 #endif
