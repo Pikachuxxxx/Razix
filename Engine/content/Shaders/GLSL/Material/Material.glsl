@@ -47,4 +47,12 @@ vec3 getSpecularColor(vec2 uv)
         return vec3(1.0f);
 }
 
+float getOpacity(vec2 uv)
+{
+    if(material.isUsingAlbedoMap)
+        return texture(albedoMap, uv).a;
+    else 
+        return material.opacity;
+}
+
 #endif

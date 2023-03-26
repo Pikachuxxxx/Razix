@@ -36,12 +36,15 @@ namespace Razix {
 
             virtual void SetFrameDataHeap(RZDescriptorSet* frameDataSet) { m_FrameDataSet = frameDataSet; }
 
+            void setCSMArrayHeap(RZDescriptorSet* csmSet) { m_CSMSet = csmSet; }
+
         private:
             GPULightsData    gpuLightsData{};
             RZUniformBuffer* m_ForwardLightsUBO       = nullptr;
             RZDescriptorSet* m_GPULightsDescriptorSet = nullptr;
             RZScene*         m_CurrentScene           = nullptr;
             RZDescriptorSet* m_FrameDataSet           = nullptr;
+            RZDescriptorSet* m_CSMSet                 = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

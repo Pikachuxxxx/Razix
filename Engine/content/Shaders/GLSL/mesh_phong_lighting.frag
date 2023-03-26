@@ -11,6 +11,7 @@
  #include <Material/Material.glsl>
  #include <Lighting/Light.glsl>
 
+ #define SHADOW_MAP_CASCADE_COUNT 4
  //------------------------------------------------------------------------------
  // Vertex Input
 layout(location = 0) in VSOutput
@@ -25,11 +26,37 @@ layout(location = 0) in VSOutput
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
 DECLARE_LIGHT_BUFFER(2, 0, lightBuffer)
+layout(set = 3, binding = 0) uniform sampler2DArray CascadedShadowMaps;
+layout(set = 3, binding = 1) uniform ShadowMapData {
+    vec4 cascadeSplits;
+	mat4 cascadeViewProjMat[SHADOW_MAP_CASCADE_COUNT];
+}shadowMapData;
+const mat4 biasMat = mat4( 
+	0.5, 0.0, 0.0, 0.0,
+	0.0, 0.5, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.5, 0.5, 0.0, 1.0 
+);
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // Functions
+// Shadow Map calculation
+float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
+{
+	float shadow = 1.0;
+	float bias = 0.005;
+
+	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
+		float dist = texture(CascadedShadowMaps, vec3(shadowCoord.st + offset, cascadeIndex)).r;
+		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
+			shadow = 0.3;
+		}
+	}
+	return shadow;
+
+}
 //------------------------------------------------------------------------------
 // Directional light Calculation
 vec3 CalculateDirectionalLightContribution(LightData light, vec3 normal, vec3 viewPos)
@@ -40,7 +67,7 @@ vec3 CalculateDirectionalLightContribution(LightData light, vec3 normal, vec3 vi
 
     // Diffuse
     // Since IDK how to use the light direction I will use the position and normalize it
-    vec3 lightDir = normalize(-light.direction.xyz);
+    vec3 lightDir = normalize(light.position.xyz);
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diff * light.color * getAlbedoColor(fs_in.fragTexCoord);
      
@@ -109,7 +136,34 @@ void main()
     else if(lightBuffer.data[0].type == LightType_Point)
         result += CalculatePointLightContribution(lightBuffer.data[0], normalize(fs_in.fragNormal), fs_in.viewPos);
 
+    // Discard alpha samples
+    if(getOpacity(fs_in.fragTexCoord) < 0.1)
+        discard;
     //-----------------------------------------------
-    outFragColor = vec4(result, 1.0);
+    // Opacity check
+    outFragColor = vec4(result, getOpacity(fs_in.fragTexCoord));
+    // Gamma correction
+    float gamma = 2.2;
+    outFragColor.rgb = pow(outFragColor.rgb, vec3(1.0/gamma));
+    //-----------------------------------------------
+    // Test the CSM at layer 0
+    //float depthValue = texture(CascadedShadowMaps, vec3(fs_in.fragTexCoord, 0)).r;
+    //outFragColor = vec4(vec3(depthValue), 1.0);
+    //-----------------------------------------------
+    // Shadow calculation
+    // Get cascade index for the current fragment's view position
+	uint cascadeIndex = 0;
+	for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
+		if(fs_in.viewPos.z < shadowMapData.cascadeSplits[i]) {	
+			cascadeIndex = i + 1;
+		}
+	}
+
+	// Depth compare for shadowing
+	vec4 shadowCoord = (biasMat * shadowMapData.cascadeViewProjMat[cascadeIndex]) * vec4(fs_in.fragPos, 1.0);	
+	float shadow = 0;
+	shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
+
+    outFragColor.rgb *= shadow;
 }
 //------------------------------------------------------------------------------

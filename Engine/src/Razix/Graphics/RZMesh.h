@@ -42,6 +42,15 @@ namespace Razix {
         };
 
         /**
+         * The submesh that will be drawn as a part of actual mesh, this gives info to draw part of the VB & IB
+         */
+        struct RAZIX_API RZSubMesh
+        {
+            u32 vertexOffset;
+            u32 indexOffset;
+        };
+
+        /**
          * Mesh represents the cluster of vertex and index data which is essentially the building block of a 3D Model which will be rendered onto a scene in one draw call
          */
         class RAZIX_API RZMesh : public RZRoot
@@ -85,8 +94,8 @@ namespace Razix {
 
             RAZIX_INLINE RZVertexBuffer* getVertexBuffer() { return m_VertexBuffer; }
             RAZIX_INLINE RZIndexBuffer*  getIndexBuffer() { return m_IndexBuffer; }
-            RAZIX_FORCE_INLINE u32  getVerticesCount() const { return m_VertexCount; }
-            RAZIX_FORCE_INLINE u32  getIndexCount() const { return m_IndexCount; }
+            RAZIX_FORCE_INLINE u32       getVerticesCount() const { return m_VertexCount; }
+            RAZIX_FORCE_INLINE u32       getIndexCount() const { return m_IndexCount; }
 
             void setIndexCount(u32 count) { m_IndexCount = count; }
             void setVertexCount(u32 count) { m_VertexCount = count; }
@@ -95,11 +104,11 @@ namespace Razix {
             std::string           m_Name;         /* The name of the mesh                                   */
             RZMaterial*           m_Material;     /* The material with which the mesh will be rendered with */
             std::vector<RZVertex> m_Vertices;     /* The vertex data with which the mesh is made of         */
-            std::vector<u16> m_Indices;      /* The indices with which the mesh will be attached       */
+            std::vector<u16>      m_Indices;      /* The indices with which the mesh will be attached       */
             RZVertexBuffer*       m_VertexBuffer; /* The Vertex Buffer that will be uploaded to the GPU     */
             RZIndexBuffer*        m_IndexBuffer;  /* The Index Buffer that will be uploaded to the GPU      */
-            u32              m_IndexCount;
-            u32              m_VertexCount;
+            u32                   m_IndexCount;   /* Total indices count of the mesh                        */
+            u32                   m_VertexCount;  /* Total vertices count of the mesh                       */
         };
 
     }    // namespace Graphics

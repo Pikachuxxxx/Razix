@@ -80,12 +80,12 @@ namespace Razix {
             shadowMapData.viewProjMatrices = framegraph.import <FrameGraph::RZFrameGraphBuffer>("Cascade Matrices", {"Cascades UBO", sizeof(CasdacesUBOData)}, {m_CascadedMatricesUBO});
 
             // Build Cascades
-            auto cascades = buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), kNumCascades, 0.94f, kShadowMapSize);
+            m_Cascades = buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), kNumCascades, 0.94f, kShadowMapSize);
 
             FrameGraph::RZFrameGraphResource cascaseShadowMaps{-1};
-            for (u32 i = 0; i < cascades.size(); i++) {
-                const glm::mat4& lightViewProj = cascades[i].viewProjMatrix;
-                cascaseShadowMaps              = addCascadePass(framegraph, cascaseShadowMaps, lightViewProj, scene, i);
+            for (u32 i = 0; i < m_Cascades.size(); i++) {
+                //const glm::mat4& lightViewProj = cascades[i].viewProjMatrix;
+                cascaseShadowMaps = addCascadePass(framegraph, cascaseShadowMaps, scene, i);
             }
             shadowMapData.cascadedShadowMaps = cascaseShadowMaps;
 
@@ -97,12 +97,18 @@ namespace Razix {
                 },
                 [=](const auto&, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     CasdacesUBOData data{};
-                    for (u32 i{0}; i < cascades.size(); ++i) {
-                        data.splitDepth[i]       = cascades[i].splitDepth;
-                        data.viewProjMatrices[i] = cascades[i].viewProjMatrix;
+                    for (u32 i{0}; i < m_Cascades.size(); ++i) {
+                        data.splitDepth[i]       = m_Cascades[i].splitDepth;
+                        data.viewProjMatrices[i] = m_Cascades[i].viewProjMatrix;
                     }
                     m_CascadedMatricesUBO->SetData(sizeof(CasdacesUBOData), &data);
                 });
+        }
+
+        void RZShadowRenderer::updateCascades(RZScene* scene)
+        {
+            auto dirLight = scene->GetComponentsOfType<LightComponent>();
+            m_Cascades    = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, 0.95f, kShadowMapSize);
         }
 
         //--------------------------------------------------------------------------
@@ -181,9 +187,9 @@ namespace Razix {
             }
             for (u32 i{0}; i < 4; ++i) {
                 const auto cornerRay     = frustumCorners[i + 4] - frustumCorners[i];
-                const auto nearCornerRay = cornerRay * lastSplitDist;
                 const auto farCornerRay  = cornerRay * splitDist;
                 frustumCorners[i + 4]    = frustumCorners[i] + farCornerRay;
+                const auto nearCornerRay = cornerRay * lastSplitDist;
                 frustumCorners[i]        = frustumCorners[i] + nearCornerRay;
             }
             return frustumCorners;
@@ -226,16 +232,18 @@ namespace Razix {
             const auto maxExtents = glm::vec3{radius};
             const auto minExtents = -maxExtents;
 
-            const auto eye        = center - glm::normalize(lightDirection) * -minExtents.z;
+            const auto eye        = center - glm::normalize(-lightDirection) * -minExtents.z;
             const auto view       = glm::lookAt(eye, center, {0.0f, 1.0f, 0.0f});
-            auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, (maxExtents - minExtents).z);
+            //auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, (maxExtents - minExtents).z);
+            auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, minExtents.z, maxExtents.z);
+
             eliminateShimmering(projection, view, shadowMapSize);
-            if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-                projection[1][1] *= -1;
+            //if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+            //    projection[1][1] *= -1;
             return projection * view;
         }
 
-        FrameGraph::RZFrameGraphResource RZShadowRenderer::addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, const glm::mat4& lightViewProj, Razix::RZScene* scene, u32 cascadeIdx)
+        FrameGraph::RZFrameGraphResource RZShadowRenderer::addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, Razix::RZScene* scene, u32 cascadeIdx)
         {
             const auto name = "CSM #" + std::to_string(cascadeIdx);
 
@@ -246,7 +254,6 @@ namespace Razix {
 
             struct ModelViewProjLayerUBOData
             {
-                alignas(16) glm::mat4 model    = glm::mat4(1.0f);
                 alignas(16) glm::mat4 viewProj = glm::mat4(1.0f);
                 alignas(4) int layer           = 0;
             };
@@ -307,14 +314,14 @@ namespace Razix {
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
                     // Update the desc sets data
-                    constexpr f32           kFarPlane{1.0f};
+                    constexpr f32             kFarPlane{1.0f};
                     ModelViewProjLayerUBOData uboData;
                     uboData.layer    = cascadeIdx;
-                    uboData.viewProj = lightViewProj;
+                    uboData.viewProj = m_Cascades[cascadeIdx].viewProjMatrix;
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {!cascadeIdx? true : false, glm::vec4(kFarPlane)}};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {!cascadeIdx ? true : false, glm::vec4(kFarPlane)}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!
@@ -326,7 +333,7 @@ namespace Razix {
                     struct CheckpointData
                     {
                         std::string RenderPassName = "CSM Pass";
-                    }checkpointData;
+                    } checkpointData;
 
                     RHI::SetCmdCheckpoint(cmdBuf, &checkpointData);
 
@@ -348,7 +355,23 @@ namespace Razix {
 
                         glm::mat4 transform = trans.GetTransform();
 
-                        uboData.model = transform;
+                        //-----------------------------
+                        // Get the shader from the Mesh Material later
+                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                        auto& modelMatrix = shader->getPushConstants()[0];
+
+                        struct PCD
+                        {
+                            glm::mat4 mat;
+                        } pcData;
+                        pcData.mat       = transform;
+                        modelMatrix.data = &pcData;
+                        modelMatrix.size = sizeof(PCD);
+
+                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                        Graphics::RHI::BindPushConstant(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, modelMatrix);
+                        //-----------------------------
+
                         cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
 
                         // Bind IBO and VBO
@@ -370,7 +393,23 @@ namespace Razix {
                         // Bind push constants, VBO, IBO and draw
                         glm::mat4 transform = mesh_trans.GetTransform();
 
-                        uboData.model = transform;
+                        //-----------------------------
+                        // Get the shader from the Mesh Material later
+                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
+                        auto& modelMatrix = shader->getPushConstants()[0];
+
+                        struct PCD
+                        {
+                            glm::mat4 mat;
+                        } pcData;
+                        pcData.mat       = transform;
+                        modelMatrix.data = &pcData;
+                        modelMatrix.size = sizeof(PCD);
+
+                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                        Graphics::RHI::BindPushConstant(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, modelMatrix);
+                        //-----------------------------
+
                         cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
