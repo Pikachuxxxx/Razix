@@ -46,6 +46,9 @@ namespace Razix {
 
             //--------------------------------------------------------------------------
 
+            void             updateCascades(RZScene* scene);
+            RZUniformBuffer* getCascadedMatriceUBO() { return m_CascadedMatricesUBO; }
+
             /**
              * Builds the cascaded shadow maps
              * 
@@ -58,7 +61,7 @@ namespace Razix {
              * @returns The split distance and the cascade view proj matrix
              */
             static std::vector<Cascade> buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize);
-            static std::vector<f32>   buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange);
+            static std::vector<f32>     buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange);
 
             static FrustumCorners buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist);
             static auto           measureFrustum(const FrustumCorners& frustumCorners);
@@ -75,7 +78,10 @@ namespace Razix {
                 RZPipeline*                   CascadePassPipeline;
             } cascadeGPUResources[kNumCascades];
 
-            FrameGraph::RZFrameGraphResource addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, const glm::mat4& lightViewProj, Razix::RZScene* scene, u32 cascadeIdx);
+            std::vector<Cascade> m_Cascades;
+
+        private:
+            FrameGraph::RZFrameGraphResource addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, Razix::RZScene* scene, u32 cascadeIdx);
         };
     }    // namespace Graphics
 }    // namespace Razix

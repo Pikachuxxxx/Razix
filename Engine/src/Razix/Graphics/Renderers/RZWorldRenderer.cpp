@@ -58,14 +58,13 @@ namespace Razix {
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
             uploadFrameData(scene, settings);
-#if 0
 
             //-------------------------------
             // Cascaded Shadow Maps x
             //-------------------------------
             m_CascadedShadowsRenderer.Init();
             m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-
+#if 0
             //-------------------------------
             // GI - Radiance Pass
             //-------------------------------
@@ -109,7 +108,8 @@ namespace Razix {
             // [Test] Forward Lighting Pass
             //-------------------------------
 
-            auto& frameDataBlock = m_Blackboard.get<FrameData>();
+            auto&                frameDataBlock = m_Blackboard.get<FrameData>();
+            const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
 
             m_Blackboard.add<RTDTPassData>() = m_FrameGraph.addCallbackPass<RTDTPassData>(
                 "Forward Lighting Pass",
@@ -124,6 +124,8 @@ namespace Razix {
                     data.depthRT  = builder.write(data.depthRT);
 
                     builder.read(frameDataBlock.frameData);
+
+                    builder.read(cascades.cascadedShadowMaps);
 
                     m_ForwardRenderer.Init();
                 },
@@ -141,18 +143,36 @@ namespace Razix {
                     info.resize          = true;
 
                     // Set the Descriptor Set once rendering starts
-                    auto        frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
-                    static bool updatedSets     = false;
+                    static bool updatedSets = false;
                     if (!updatedSets) {
-                        RZDescriptor descriptor{};
-                        descriptor.offset              = 0;
-                        descriptor.size                = sizeof(GPUFrameData);
-                        descriptor.bindingInfo.binding = 0;
-                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                        descriptor.uniformBuffer       = frameDataBuffer;
+                        auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
 
-                        m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameBlockSet")));
+                        RZDescriptor frame_descriptor{};
+                        frame_descriptor.offset              = 0;
+                        frame_descriptor.size                = sizeof(GPUFrameData);
+                        frame_descriptor.bindingInfo.binding = 0;
+                        frame_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
+                        frame_descriptor.uniformBuffer       = frameDataBuffer;
+
+                        m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer")));
+
+                        auto csmTextures = resources.get<FrameGraph::RZFrameGraphTexture>(cascades.cascadedShadowMaps).getHandle();
+
+                        RZDescriptor csm_descriptor{};
+                        csm_descriptor.bindingInfo.binding = 0;
+                        csm_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        csm_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        csm_descriptor.texture             = csmTextures;
+
+                        RZDescriptor shadow_data_descriptor{};
+                        shadow_data_descriptor.size                = sizeof(ShadowMapData);
+                        shadow_data_descriptor.bindingInfo.binding = 1;
+                        shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        shadow_data_descriptor.uniformBuffer       = m_CascadedShadowsRenderer.getCascadedMatriceUBO();
+
+                        m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM + Matrices")));
 
                         updatedSets = true;
                     }
@@ -240,7 +260,8 @@ namespace Razix {
 
         void RZWorldRenderer::drawFrame(RZRendererSettings settings, Razix::RZScene* scene)
         {
-            // TODO: Since the Render Context is a singleton we don't need it, so remove it from the API
+            m_CascadedShadowsRenderer.updateCascades(scene);
+
             m_FrameGraph.execute(nullptr, &m_TransientResources);
         }
 
@@ -254,9 +275,9 @@ namespace Razix {
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
 
+#endif
             // Destroy Renderers
             m_CascadedShadowsRenderer.Destroy();
-#endif
             m_ImGuiRenderer.Destroy();
 
             // Destroy Passes

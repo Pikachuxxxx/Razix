@@ -21,12 +21,14 @@ layout(location = 4) in vec3 inTangent;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants 
 // view projection matrix
-layout(set = 0, binding = 0) uniform ModelViewProjectionSystemUBO
+layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 {
-    mat4 model;
     mat4 viewProj;
     int layer;
-} mvp_layer;
+} vp_layer;
+layout (push_constant) uniform ModelPushConstantData{
+    mat4 model;
+}model_pc_data;
  //------------------------------------------------------------------------------ 
 out gl_PerVertex
 {
@@ -35,6 +37,6 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    gl_Layer = mvp_layer.layer;
-    gl_Position = mvp_layer.viewProj * mvp_layer.model * mvp_layer.model * vec4(inPosition, 1.0f);
+    gl_Layer = vp_layer.layer;
+    gl_Position = vp_layer.viewProj * model_pc_data.model * vec4(inPosition, 1.0f);
 }
