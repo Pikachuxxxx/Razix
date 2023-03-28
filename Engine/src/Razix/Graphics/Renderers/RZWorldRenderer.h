@@ -14,6 +14,7 @@
 #include "Razix/Graphics/Passes/RZGIPass.h"
 
 // Renderers
+#include "Razix/Graphics/Renderers/RZCascadedShadowsRenderer.h"
 #include "Razix/Graphics/Renderers/RZForwardRenderer.h"
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
 #include "Razix/Graphics/Renderers/RZShadowRenderer.h"
@@ -24,7 +25,7 @@ namespace Razix {
     // Forward Declarations
     class RZScene;
 
-    class RZShadowRenderer;
+    class RZCascadedShadowsRenderer;
 
     namespace Maths {
         class RZFrustum;
@@ -136,12 +137,13 @@ namespace Razix {
             RZCubeMap*       m_Skybox          = nullptr;
             GlobalLightProbe m_GlobalLightProbes{};
             // List of all passes, renderers and data in the frame graph
-            RZShadowRenderer       m_CascadedShadowsRenderer;
-            RZGIPass               m_GIPass;
-            RZGBufferPass          m_GBufferPass;
-            RZDeferredLightingPass m_DeferredPass;
-            RZImGuiRenderer        m_ImGuiRenderer;
-            RZFinalCompositionPass m_CompositePass;
+            RZCascadedShadowsRenderer m_CascadedShadowsRenderer;
+            RZShadowRenderer          m_ShadowRenderer;
+            RZGIPass                  m_GIPass;
+            RZGBufferPass             m_GBufferPass;
+            RZDeferredLightingPass    m_DeferredPass;
+            RZImGuiRenderer           m_ImGuiRenderer;
+            RZFinalCompositionPass    m_CompositePass;
 
             // Test only
             RZForwardRenderer m_ForwardRenderer;

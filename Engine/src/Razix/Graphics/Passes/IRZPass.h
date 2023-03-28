@@ -29,10 +29,6 @@ namespace Razix {
             virtual void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings) = 0;
 
             virtual void destroy() = 0;
-
-        protected:
-            RZCommandBuffer* m_CmdBuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
-            RZPipeline*      m_Pipeline = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

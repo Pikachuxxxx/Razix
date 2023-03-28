@@ -10,6 +10,7 @@
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
@@ -23,6 +24,8 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
+#include "Razix/Graphics/Lighting/RZLight.h"
+
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
@@ -33,315 +36,120 @@
 namespace Razix {
     namespace Graphics {
 
+        //-------------------------------------------------------------
+        // IRZRenderer
+
         void RZShadowRenderer::Init()
         {
-            // Init the resources (API & Frame Graph) needed for Cascaded Shadow Mapping
-            // Import the ShadowMapData as a Buffer into the FrameGraph (used to upload to GPU later)
-            m_CascadedMatricesUBO = Graphics::RZUniformBuffer::Create(sizeof(CasdacesUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascades UBO"));
+            m_LightViewProjUBO = RZUniformBuffer::Create(sizeof(LightVPUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("LightViewProj"));
+
+            // Build the command buffers
+            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
+                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Shadpw mapping Command Buffers"));
+            }
         }
 
         void RZShadowRenderer::Begin(RZScene* scene)
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            ;
         }
 
         void RZShadowRenderer::Draw(RZCommandBuffer* cmdBuffer)
         {
-            throw std::logic_error("The method or operation is not implemented.");
         }
 
         void RZShadowRenderer::End()
         {
-            throw std::logic_error("The method or operation is not implemented.");
         }
 
         void RZShadowRenderer::Resize(u32 width, u32 height)
         {
-            throw std::logic_error("The method or operation is not implemented.");
         }
 
         void RZShadowRenderer::Destroy()
         {
-            m_CascadedMatricesUBO->Destroy();
-            for (u32 i = 0; i < kNumCascades; i++) {
-                cascadeGPUResources[i].ViewProjLayerUBO->Destroy();
-                for (auto& set: cascadeGPUResources[i].CascadeVPSet)
-                    set->Destroy();
-                cascadeGPUResources[i].CascadePassPipeline->Destroy();
-            }
         }
 
-        //--------------------------------------------------------------------------
+        void RZShadowRenderer::SetFrameDataHeap(RZDescriptorSet* frameDataSet)
+        {
+            m_FrameDataSet = frameDataSet;
+        }
+
+        //-------------------------------------------------------------
+        // IRZPass
 
         void RZShadowRenderer::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
-            auto& shadowMapData = blackboard.add<ShadowMapData>();
-            // Import the cascades buffer into the FG
-            shadowMapData.viewProjMatrices = framegraph.import <FrameGraph::RZFrameGraphBuffer>("Cascade Matrices", {"Cascades UBO", sizeof(CasdacesUBOData)}, {m_CascadedMatricesUBO});
-
-            // Build Cascades
-            m_Cascades = buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), kNumCascades, 0.94f, kShadowMapSize);
-
-            FrameGraph::RZFrameGraphResource cascaseShadowMaps{-1};
-            for (u32 i = 0; i < m_Cascades.size(); i++) {
-                //const glm::mat4& lightViewProj = cascades[i].viewProjMatrix;
-                cascaseShadowMaps = addCascadePass(framegraph, cascaseShadowMaps, scene, i);
-            }
-            shadowMapData.cascadedShadowMaps = cascaseShadowMaps;
-
-            // Since the above texture passes are cascaded we do an extra pass to constantly update the data into a buffer after all the cascade calculations are done whilst filling the TextureArray2D
-            framegraph.addCallbackPass(
-                "Upload Cascade Matrices (post CSM calculation)",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto&) {
-                    shadowMapData.viewProjMatrices = builder.write(shadowMapData.viewProjMatrices);
-                },
-                [=](const auto&, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
-                    CasdacesUBOData data{};
-                    for (u32 i{0}; i < m_Cascades.size(); ++i) {
-                        data.splitDepth[i]       = m_Cascades[i].splitDepth;
-                        data.viewProjMatrices[i] = m_Cascades[i].viewProjMatrix;
-                    }
-                    m_CascadedMatricesUBO->SetData(sizeof(CasdacesUBOData), &data);
-                });
-        }
-
-        void RZShadowRenderer::updateCascades(RZScene* scene)
-        {
-            auto dirLight = scene->GetComponentsOfType<LightComponent>();
-            m_Cascades    = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, 0.95f, kShadowMapSize);
-        }
-
-        //--------------------------------------------------------------------------
-
-        std::vector<Cascade> RZShadowRenderer::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
-        {
-            // [Reference] https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
-
-            const f32 clipRange = camera.getPerspectiveFarClip() - camera.getPerspectiveNearClip();
-            // Get the cascade splits
-            const auto cascadeSplits = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
-            const auto invViewProj   = glm::inverse(camera.getProjectionRaw() * camera.getViewMatrix());
-
-            auto lastSplitDist = 0.0f;
-
-            std::vector<Cascade> cascades(numCascades);
-            for (u32 i{0}; i < cascades.size(); ++i) {
-                const auto splitDist = cascadeSplits[i];
-
-                cascades[i] = {
-                    (camera.getPerspectiveNearClip() + splitDist * clipRange) * -1.0f,
-                    buildDirLightMatrix(invViewProj, dirLightDirection, shadowMapSize, splitDist, lastSplitDist),
-                };
-                lastSplitDist = splitDist;
-            }
-            return cascades;
-        }
-
-        std::vector<f32> RZShadowRenderer::buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange)
-        {
-            constexpr auto kMinDistance = 0.0f, kMaxDistance = 1.0f;
-
-            const auto minZ = nearPlane + kMinDistance * clipRange;
-            const auto maxZ = nearPlane + kMaxDistance * clipRange;
-
-            const auto range = maxZ - minZ;
-            const auto ratio = maxZ / minZ;
-
-            std::vector<f32> cascadeSplits(numCascades);
-            // Calculate split depths based on view camera frustum
-            // Based on method presented in:
-            // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-            for (u32 i{0}; i < cascadeSplits.size(); ++i) {
-                const auto p       = static_cast<f32>(i + 1) / cascadeSplits.size();
-                const auto log     = minZ * std::pow(ratio, p);
-                const auto uniform = minZ + range * p;
-                const auto d       = lambda * (log - uniform) + uniform;
-                cascadeSplits[i]   = (d - nearPlane) / clipRange;
-            }
-            return cascadeSplits;
-        }
-
-        //--------------------------------------------------------------------------
-
-        FrustumCorners RZShadowRenderer::buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist)
-        {
-            // clang-format off
-            FrustumCorners frustumCorners{
-                // Near
-                glm::vec3{-1.0f,  1.0f, -1.0f}, // TL
-                glm::vec3{ 1.0f,  1.0f, -1.0f}, // TR
-                glm::vec3{ 1.0f, -1.0f, -1.0f}, // BR
-                glm::vec3{-1.0f, -1.0f, -1.0f}, // BL
-                // Far
-                glm::vec3{-1.0f,  1.0f,  1.0f}, // TL
-                glm::vec3{ 1.0f,  1.0f,  1.0f}, // TR
-                glm::vec3{ 1.0f, -1.0f,  1.0f}, // BR
-                glm::vec3{-1.0f, -1.0f,  1.0f}  // BL
-            };
-            // clang-format on
-
-            // Project frustum corners into world space
-            for (auto& p: frustumCorners) {
-                const auto temp = inversedViewProj * glm::vec4{p, 1.0f};
-                p               = glm::vec3{temp} / temp.w;
-            }
-            for (u32 i{0}; i < 4; ++i) {
-                const auto cornerRay     = frustumCorners[i + 4] - frustumCorners[i];
-                const auto farCornerRay  = cornerRay * splitDist;
-                frustumCorners[i + 4]    = frustumCorners[i] + farCornerRay;
-                const auto nearCornerRay = cornerRay * lastSplitDist;
-                frustumCorners[i]        = frustumCorners[i] + nearCornerRay;
-            }
-            return frustumCorners;
-        }
-
-        auto RZShadowRenderer::measureFrustum(const FrustumCorners& frustumCorners)
-        {
-            glm::vec3 center{0.0f};
-            for (const auto& p: frustumCorners)
-                center += p;
-            center /= frustumCorners.size();
-
-            auto radius = 0.0f;
-            for (const auto& p: frustumCorners) {
-                const auto distance = glm::length(p - center);
-                radius              = glm::max(radius, distance);
-            }
-            radius = glm::ceil(radius * 16.0f) / 16.0f;
-            return std::make_tuple(center, radius);
-        }
-
-        void RZShadowRenderer::eliminateShimmering(glm::mat4& projection, const glm::mat4& view, u32 shadowMapSize)
-        {
-            auto shadowOrigin = projection * view * glm::vec4{glm::vec3{0.0f}, 1.0f};
-            shadowOrigin *= (static_cast<f32>(shadowMapSize) / 2.0f);
-
-            const auto roundedOrigin = glm::round(shadowOrigin);
-            auto       roundOffset   = roundedOrigin - shadowOrigin;
-            roundOffset              = roundOffset * 2.0f / static_cast<f32>(shadowMapSize);
-            roundOffset.z            = 0.0f;
-            roundOffset.w            = 0.0f;
-            projection[3] += roundOffset;
-        }
-
-        glm::mat4 RZShadowRenderer::buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist)
-        {
-            const auto frustumCorners   = buildFrustumCorners(inversedViewProj, splitDist, lastSplitDist);
-            const auto [center, radius] = measureFrustum(frustumCorners);
-
-            const auto maxExtents = glm::vec3{radius};
-            const auto minExtents = -maxExtents;
-
-            const auto eye        = center - glm::normalize(-lightDirection) * -minExtents.z;
-            const auto view       = glm::lookAt(eye, center, {0.0f, 1.0f, 0.0f});
-            //auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, (maxExtents - minExtents).z);
-            auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, minExtents.z, maxExtents.z);
-
-            eliminateShimmering(projection, view, shadowMapSize);
-            //if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-            //    projection[1][1] *= -1;
-            return projection * view;
-        }
-
-        FrameGraph::RZFrameGraphResource RZShadowRenderer::addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, Razix::RZScene* scene, u32 cascadeIdx)
-        {
-            const auto name = "CSM #" + std::to_string(cascadeIdx);
-
-            struct CascadeSubPassData
-            {
-                FrameGraph::RZFrameGraphResource cascadeOuput;
-            };
-
-            struct ModelViewProjLayerUBOData
-            {
-                alignas(16) glm::mat4 viewProj = glm::mat4(1.0f);
-                alignas(4) int layer           = 0;
-            };
-
-            for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
-                auto cmdBuffer = RZCommandBuffer::Create();
-                cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("CSM cmd buffer [cascade :" + std::to_string(cascadeIdx) + "]"));
-                cascadeGPUResources[cascadeIdx].CmdBuffers.push_back(cmdBuffer);
-            }
-
             // Load the shader
-            auto  shader   = RZShaderLibrary::Get().getShader("cascaded_shadow_maps.rzsf");
+            auto  shader   = RZShaderLibrary::Get().getShader("shadow_mapping.rzsf");
             auto& setInfos = shader->getSetsCreateInfos();
-
-            cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ModelViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
-                        descriptor.uniformBuffer = cascadeGPUResources[cascadeIdx].ViewProjLayerUBO;
+                        descriptor.uniformBuffer = m_LightViewProjUBO;
                 }
-                cascadeGPUResources[cascadeIdx].CascadeVPSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass set")));
+                m_LVPSet = (Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Depth pass set")));
             }
 
             // Create the Pipeline
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode                               = Graphics::CullMode::NONE;
-            pipelineInfo.drawType                               = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader                                 = shader;
-            pipelineInfo.transparencyEnabled                    = false;
-            pipelineInfo.depthBiasEnabled                       = false;
-            pipelineInfo.depthFormat                            = {Graphics::RZTexture::Format::DEPTH32F};
-            cascadeGPUResources[cascadeIdx].CascadePassPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascade Pass Pipeline"));
+            pipelineInfo.cullMode            = Graphics::CullMode::BACK;
+            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.shader              = shader;
+            pipelineInfo.transparencyEnabled = false;
+            pipelineInfo.depthBiasEnabled    = false;
+            pipelineInfo.depthFormat         = {Graphics::RZTexture::Format::DEPTH32F};
+            m_Pipeline                       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Pass Pipeline"));
 
-            auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
-                name,
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CascadeSubPassData& data) { 
-                        builder.setAsStandAlonePass();
-                    if (cascadeIdx == 0) {
-                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapsArray", {FrameGraph::TextureType::Texture_Depth, "CascadedShadowMapsArray", {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32F, kNumCascades});
-                    }
-                    data.cascadeOuput = builder.write(cascadeShadowMap); },
-                [=](const CascadeSubPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+            blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
+                "Simple Shadow map pass",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SimpleShadowPassData& data) {
+                    builder.setAsStandAlonePass();
+
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {FrameGraph::TextureType::Texture_Depth, "Shadow map", {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32F});
+
+                    data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
+
+                    data.shadowMap = builder.write(data.shadowMap);
+                    data.lightVP   = builder.write(data.lightVP);
+                },
+                [=](const SimpleShadowPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    /**
-                     * Since the resource is cloned and we maintain different version of it, the same resource is handled to us every time we ask it
-                     */
+                    auto cmdBuf = m_MainCommandBuffers[RHI::getSwapchain()->getCurrentImageIndex()];
 
-                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
-
-                    // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.45, 0.23, 0.56f, 1.0f));
+                    RAZIX_MARK_BEGIN("Shadow Pass", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
 
                     // Update Viewport and Scissor Rect
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
-                    // Update the desc sets data
-                    constexpr f32             kFarPlane{1.0f};
-                    ModelViewProjLayerUBOData uboData;
-                    uboData.layer    = cascadeIdx;
-                    uboData.viewProj = m_Cascades[cascadeIdx].viewProjMatrix;
+                    LightVPUBOData light_data{};
+                    // Get the Light direction
+                    auto      lights     = scene->GetComponentsOfType<LightComponent>();
+                    auto&     dir_light  = lights[0].light;
+                    glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                    float     near_plane = -100.0f, far_plane = 50.0f;
+                    glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+                    lightProjection[1][1] *= -1;
+                    light_data.lightViewProj = lightProjection * lightView;
+
+                    resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle()->SetData(sizeof(LightVPUBOData), &light_data);
 
                     // Begin Rendering
-                    RenderingInfo info{};
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {!cascadeIdx ? true : false, glm::vec4(kFarPlane)}};
+                    RenderingInfo info{};    // No color attachment
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
-                    /////////////////////////////////
-                    // !!! VERY IMPORTANT !!!
-                    info.layerCount = kNumCascades;
-                    /////////////////////////////////
-                    info.resize = false;
+                    info.layerCount      = 1;
+                    info.resize          = false;
                     RHI::BeginRendering(cmdBuf, info);
 
-                    struct CheckpointData
-                    {
-                        std::string RenderPassName = "CSM Pass";
-                    } checkpointData;
+                    m_Pipeline->Bind(cmdBuf);
 
-                    RHI::SetCmdCheckpoint(cmdBuf, &checkpointData);
-
-                    // Bind pipeline
-                    cascadeGPUResources[cascadeIdx].CascadePassPipeline->Bind(cmdBuf);
-
-                    // Bind Sets
-                    RHI::BindDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
+                    RHI::BindDescriptorSets(m_Pipeline, cmdBuf, &m_LVPSet, 1);
 
                     // Draw calls
                     // Get the meshes and the models from the Scene and render them
@@ -369,10 +177,10 @@ namespace Razix {
                         modelMatrix.size = sizeof(PCD);
 
                         // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-                        Graphics::RHI::BindPushConstant(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, modelMatrix);
+                        Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuf, modelMatrix);
                         //-----------------------------
 
-                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
+                        m_LightViewProjUBO->SetData(sizeof(LightVPUBOData), &light_data);
 
                         // Bind IBO and VBO
                         for (auto& mesh: meshes) {
@@ -407,10 +215,10 @@ namespace Razix {
                         modelMatrix.size = sizeof(PCD);
 
                         // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-                        Graphics::RHI::BindPushConstant(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, modelMatrix);
+                        Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuf, modelMatrix);
                         //-----------------------------
 
-                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
+                        m_LightViewProjUBO->SetData(sizeof(LightVPUBOData), &light_data);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);
@@ -431,8 +239,12 @@ namespace Razix {
                     // Signal a passDoneSemaphore only on the last cascade pass
                     RHI::SubmitWork({}, {/*PassDoneSemaphore*/});
                 });
-
-            return pass.cascadeOuput;
         }
+
+        void RZShadowRenderer::destroy()
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
     }    // namespace Graphics
 }    // namespace Razix

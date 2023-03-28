@@ -29,6 +29,16 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
     }
 
+    void RZScene::updatePhysics()
+    {
+        RAZIX_UNIMPLEMENTED_METHOD
+    }
+
+    void RZScene::drawScene()
+    {
+        RAZIX_UNIMPLEMENTED_METHOD
+    }
+
     void RZScene::Destroy()
     {
         // Destroy models
@@ -80,6 +90,7 @@ namespace Razix {
 
     void RZScene::reloadScene()
     {
+        RAZIX_UNIMPLEMENTED_METHOD
     }
 
     void RZScene::serialiseScene(const std::string& filePath)

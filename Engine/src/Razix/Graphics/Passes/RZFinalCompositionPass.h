@@ -34,6 +34,8 @@ namespace Razix {
         private:
             RZMesh*                                 m_ScreenQuadMesh = nullptr;
             std::vector<Graphics::RZDescriptorSet*> m_DescriptorSets;
+            RZPipeline*                             m_Pipeline;
+            RZCommandBuffer*                        m_CmdBuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
 
         private:
             void init();

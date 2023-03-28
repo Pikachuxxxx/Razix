@@ -165,6 +165,12 @@ private:
             auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
             spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Sponza/Sponza.gltf");
 #endif
+
+#if 0
+            // Add a Chinese dragon to the scene
+            auto& dragonEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Dragon");
+            dragonEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/chinesedragon.gltf");
+#endif
         }
 
         //auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();

@@ -4,17 +4,21 @@
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
 
-#include "Razix/Graphics/Passes/Data/ShadowMapData.h"
-
 namespace Razix {
-
-    class RZTimestep;
-
     namespace Graphics {
 
-        class RZCommandBuffer;
+        struct LightVPUBOData
+        {
+            glm::mat4 lightViewProj;
+        };
 
-        using FrustumCorners = std::array<glm::vec3, 8>;
+        struct SimpleShadowPassData
+        {
+            FrameGraph::RZFrameGraphResource shadowMap;    // Depth texture to store the shadow map data
+            FrameGraph::RZFrameGraphResource lightVP;
+        };
+
+        constexpr u32 kShadowMapSize = 4096;
 
         class RZShadowRenderer : public IRZRenderer, IRZPass
         {
@@ -22,9 +26,9 @@ namespace Razix {
             RZShadowRenderer()  = default;
             ~RZShadowRenderer() = default;
 
-        public:
-            //--------------------------------------------------------------------------
+            //-------------------------------------------------------------
             // IRZRenderer
+
             void Init() override;
 
             void Begin(RZScene* scene) override;
@@ -37,51 +41,19 @@ namespace Razix {
 
             void Destroy() override;
 
-            //--------------------------------------------------------------------------
+            void SetFrameDataHeap(RZDescriptorSet* frameDataSet) override;
+
+            //-------------------------------------------------------------
             // IRZPass
 
             void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings) override;
 
-            void destroy() override {}
-
-            //--------------------------------------------------------------------------
-
-            void             updateCascades(RZScene* scene);
-            RZUniformBuffer* getCascadedMatriceUBO() { return m_CascadedMatricesUBO; }
-
-            /**
-             * Builds the cascaded shadow maps
-             * 
-             * @param camera The scene camera from which the scene is rendered 
-             * @param dirLightDirection The Directional Light current direction
-             * @param numCascades The total number of cascades to build
-             * @param lambda IDK WTF is this
-             * @param shadowMapSize The size of the shadow maps
-             * 
-             * @returns The split distance and the cascade view proj matrix
-             */
-            static std::vector<Cascade> buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize);
-            static std::vector<f32>     buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange);
-
-            static FrustumCorners buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist);
-            static auto           measureFrustum(const FrustumCorners& frustumCorners);
-            static void           eliminateShimmering(glm::mat4& projection, const glm::mat4& view, u32 shadowMapSize);
-            static glm::mat4      buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist);
+            void destroy() override;
 
         private:
-            RZUniformBuffer* m_CascadedMatricesUBO;
-            struct CascadeGPUResources
-            {
-                std::vector<RZCommandBuffer*> CmdBuffers;
-                RZUniformBuffer*              ViewProjLayerUBO;
-                std::vector<RZDescriptorSet*> CascadeVPSet;
-                RZPipeline*                   CascadePassPipeline;
-            } cascadeGPUResources[kNumCascades];
-
-            std::vector<Cascade> m_Cascades;
-
-        private:
-            FrameGraph::RZFrameGraphResource addCascadePass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZFrameGraphResource cascadeShadowMap, Razix::RZScene* scene, u32 cascadeIdx);
+            RZUniformBuffer* m_LightViewProjUBO;
+            RZDescriptorSet* m_FrameDataSet;
+            RZDescriptorSet* m_LVPSet;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -327,7 +327,7 @@ namespace Razix {
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32};
-            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH16_UNORM;
+            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
 
