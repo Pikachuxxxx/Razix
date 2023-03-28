@@ -76,13 +76,13 @@ namespace Razix {
             }
 
             Graphics::PipelineInfo pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+            pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH16_UNORM;
+            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
 
@@ -168,7 +168,7 @@ namespace Razix {
                     mesh->getMaterial()->Bind();
 
                     // Combine System Desc sets with material sets and Bind them
-                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};
+                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet, m_CSMSet};
                     Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                     Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
@@ -203,7 +203,7 @@ namespace Razix {
                 mrc.Mesh->getMaterial()->Bind();
 
                 // Combine System Desc sets with material sets and Bind them
-                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet};
+                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet, m_CSMSet};
                 Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);

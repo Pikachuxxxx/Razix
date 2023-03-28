@@ -36,6 +36,7 @@ namespace Razix {
             //-------------------------------------------------------------------
             // Lighting
             loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/shadow_mapping.rzsf");
             loadShader("//RazixContent/Shaders/Razix/RSM.rzsf");
             loadShader("//RazixContent/Shaders/Razix/lpv_radiance_injection.rzsf");
             loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");

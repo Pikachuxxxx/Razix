@@ -1,7 +1,7 @@
 #version 450
 /*
  * Razix Engine GLSL Vertex Shader File
- * Vertex shader to render a cascaded depth texture onto a Texture2DArray
+ * Vertex shader to render a depth texture onto a Texture2D
  */
  // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
 #extension GL_ARB_separate_shader_objects : enable
@@ -23,9 +23,8 @@ layout(location = 4) in vec3 inTangent;
 // view projection matrix
 layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 {
-    mat4 viewProj;
-    int layer;
-} vp_layer;
+    mat4 lightViewProj;
+} vp;
 layout (push_constant) uniform ModelPushConstantData{
     mat4 model;
 }model_pc_data;
@@ -37,6 +36,5 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    gl_Layer = vp_layer.layer;
-    gl_Position = vp_layer.viewProj * model_pc_data.model * vec4(inPosition, 1.0f);
+    gl_Position = vp.lightViewProj * model_pc_data.model * vec4(inPosition, 1.0f);
 }

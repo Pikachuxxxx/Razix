@@ -16,16 +16,16 @@ namespace Razix {
         recalculateProjection();
     }
 
-    RAZIX_FORCE_INLINE const glm::mat4& RZSceneCamera::getProjection()
+    RAZIX_FORCE_INLINE glm::mat4 RZSceneCamera::getProjection()
     {
-        auto proj = m_Projection;
+        glm::mat4 proj = m_Projection;
         if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
             proj[1][1] *= -1;
 
         return proj;
     }
 
-    RAZIX_FORCE_INLINE const glm::mat4& RZSceneCamera::getProjectionRaw()
+    RAZIX_FORCE_INLINE glm::mat4 RZSceneCamera::getProjectionRaw()
     {
         return m_Projection;
     }

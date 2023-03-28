@@ -31,7 +31,7 @@ namespace Razix {
             f32       metallicColor       = 17.0f;
             f32       roughnessColor      = 18.0f;
             f32       specularColor       = 32.0f;
-            f32       opacity             = 19.0f;
+            f32       opacity             = 1.0f;
             f32       ambientOcclusion    = 111.0f;
             u32       visible             = true;
             u32       isUsingAlbedoMap    = false;
