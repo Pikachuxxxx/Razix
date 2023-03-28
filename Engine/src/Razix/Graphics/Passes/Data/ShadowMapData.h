@@ -29,7 +29,7 @@ struct CasdacesUBOData
     glm::mat4 viewProjMatrices[kNumCascades];
 };
 
-struct Cascade
+struct alignas(16) Cascade
 {
     f32     splitDepth;
     glm::mat4 viewProjMatrix;

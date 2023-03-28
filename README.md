@@ -13,20 +13,19 @@ Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan Di
 View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
-- Support for Windows, Linux, macOS, PSVita and PS3 systems. (If you're a licensed PS developer check DevNet in future for potential releases that support next gen consoles)
-- Support for OpenGL, Vulkan DirectX 11, GXM, GCM & GNM.
+- Support for Windows, Linux, macOS, PSVita and PS3 systems.
+- Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
+- Framegraph based on EA's frostbit engine (currently code-driven)
 - 3D audio using OpenAL.
 - Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
 - Level Editor & tools built using QT
 - Multi Physics engine support.
-- 3D physics using Bullet and Jolt.
-- 2D physic using Box2D.
+- 3D physics using Jolt.
 - Basic lua scripting support for entities.
 - Extremely detailed profiling using Tracy, RenderDoc and Razor integrated deep into the engine systems.
 - Custom Animation and state machine engine
 - Supports GLSL, HLSL shading languages to create custom materials + Custom Raziz Shaders files for easy compilation
 - Asset streaming pipeline and custom asset format
-- Future support for Falcor and Render Graph Editor
 - Data drive pipeline architecture
 - Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
 
@@ -51,7 +50,7 @@ More information will be update on creating PRs and other ways to contribute to 
 Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Screenshots/Demos
-![Editor](./Branding/DemoImages/ReleaseNotes/Razix_editoDemo_Forward.png)
+![Editor](./Branding/DemoImages/ReleaseNotes/Shadows.png)
 
 # Architecture
 

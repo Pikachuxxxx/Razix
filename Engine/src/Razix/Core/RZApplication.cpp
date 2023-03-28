@@ -464,7 +464,7 @@ namespace Razix {
 #endif
         }
 
-#if 1
+#if 0
         {
             // Draw the Grid using ImGui
             glm::mat4 identity = glm::mat4(1.0f);

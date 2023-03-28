@@ -26,10 +26,12 @@ layout(location = 0) in VSOutput
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
 DECLARE_LIGHT_BUFFER(2, 0, lightBuffer)
-layout(set = 3, binding = 0) uniform sampler2DArray CascadedShadowMaps;
+//layout(set = 3, binding = 0) uniform sampler2DArray CascadedShadowMaps;
+layout(set = 3, binding = 0) uniform sampler2D shadowMap;
 layout(set = 3, binding = 1) uniform ShadowMapData {
-    vec4 cascadeSplits;
-	mat4 cascadeViewProjMat[SHADOW_MAP_CASCADE_COUNT];
+    //vec4 cascadeSplits;
+	//mat4 cascadeViewProjMat[SHADOW_MAP_CASCADE_COUNT];
+    mat4 lightSpaceMatrix;
 }shadowMapData;
 const mat4 biasMat = mat4( 
 	0.5, 0.0, 0.0, 0.0,
@@ -42,21 +44,51 @@ const mat4 biasMat = mat4(
 layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // Functions
-// Shadow Map calculation
-float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
+// Cascaded Shadow Map calculation
+//float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
+//{
+//	float shadow = 1.0;
+//	float bias = 0.005;
+//
+//	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
+//		float dist = texture(CascadedShadowMaps, vec3(shadowCoord.st + offset, cascadeIndex)).r;
+//		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
+//			shadow = 0.3;
+//		}
+//	}
+//	return shadow;
+//
+//}
+// Simple Shadow Map calculation
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir )
 {
-	float shadow = 1.0;
-	float bias = 0.005;
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    vec3 transformed_projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, transformed_projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
+    float shadow = currentDepth - bias > closestDepth  ? 0.1 : 1.0;  
 
-	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
-		float dist = texture(CascadedShadowMaps, vec3(shadowCoord.st + offset, cascadeIndex)).r;
-		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
-			shadow = 0.3;
-		}
-	}
-	return shadow;
+    // PCF
+    //vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    //for(int x = -1; x <= 1; ++x)
+    //{
+    //    for(int y = -1; y <= 1; ++y)
+    //    {
+    //        float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+    //        shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.25;        
+    //    }    
+    //}
+    //shadow /= 9.0;
 
+    return shadow;
 }
+
 //------------------------------------------------------------------------------
 // Directional light Calculation
 vec3 CalculateDirectionalLightContribution(LightData light, vec3 normal, vec3 viewPos)
@@ -142,6 +174,15 @@ void main()
     //-----------------------------------------------
     // Opacity check
     outFragColor = vec4(result, getOpacity(fs_in.fragTexCoord));
+
+    //-----------------------------------------------
+    // Shadow map calculation
+    vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
+    float shadow = ShadowCalculation(FragPosLightSpace, normalize(fs_in.fragNormal), lightBuffer.data[0].position);
+     
+    outFragColor.rgb *= shadow;
+
+    //-----------------------------------------------
     // Gamma correction
     float gamma = 2.2;
     outFragColor.rgb = pow(outFragColor.rgb, vec3(1.0/gamma));
@@ -150,20 +191,18 @@ void main()
     //float depthValue = texture(CascadedShadowMaps, vec3(fs_in.fragTexCoord, 0)).r;
     //outFragColor = vec4(vec3(depthValue), 1.0);
     //-----------------------------------------------
-    // Shadow calculation
+    // Cascaded Shadow calculation
     // Get cascade index for the current fragment's view position
-	uint cascadeIndex = 0;
-	for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
-		if(fs_in.viewPos.z < shadowMapData.cascadeSplits[i]) {	
-			cascadeIndex = i + 1;
-		}
-	}
+	//uint cascadeIndex = 0;
+	//for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
+	//	if(fs_in.viewPos.z < shadowMapData.cascadeSplits[i]) {	
+	//		cascadeIndex = i + 1;
+	//	}
+	//}
 
 	// Depth compare for shadowing
-	vec4 shadowCoord = (biasMat * shadowMapData.cascadeViewProjMat[cascadeIndex]) * vec4(fs_in.fragPos, 1.0);	
-	float shadow = 0;
-	shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
-
-    outFragColor.rgb *= shadow;
+	//vec4 shadowCoord = (biasMat * shadowMapData.cascadeViewProjMat[cascadeIndex]) * vec4(fs_in.fragPos, 1.0);	
+	//float shadow = 0;
+	//shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
 }
 //------------------------------------------------------------------------------
