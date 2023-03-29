@@ -48,6 +48,9 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/EnvToCubeMap.rzsf");
             loadShader("//RazixContent/Shaders/Razix/GenerateIrradianceMap.rzsf");
             loadShader("//RazixContent/Shaders/Razix/GeneratePreFilteredMap.rzsf");
+            //-------------------------------------------------------------------
+            // Debug Shaders
+            loadShader("//RazixContent/Shaders/Razix/DebugPoint.rzsf");
         }
 
         void RZShaderLibrary::ShutDown()

@@ -15,7 +15,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Features
 - Support for Windows, Linux, macOS, PSVita and PS3 systems.
 - Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
-- Framegraph based on EA's frostbit engine (currently code-driven)
+- Framegraph based on EA's frostbite engine (currently code-driven)
 - 3D audio using OpenAL.
 - Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
 - Level Editor & tools built using QT

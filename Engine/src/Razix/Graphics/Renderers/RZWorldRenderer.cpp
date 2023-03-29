@@ -23,6 +23,8 @@
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
 #include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 
+#include "Razix/Graphics/Renderers/RZDebugRenderer.h"
+
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZScene.h"
 
@@ -200,10 +202,75 @@ namespace Razix {
                     Graphics::RHI::SubmitWork({}, {});
                 });
 
+            RTDTPassData forwardSceneData = m_Blackboard.get<RTDTPassData>();
+
+            //-------------------------------
+            // Debug Scene Pass
+            //-------------------------------
+            m_FrameGraph.addCallbackPass(
+                "Debug Pass",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto& data) {
+                    builder.setAsStandAlonePass();
+
+                    RZDebugRenderer::Get()->Init();
+
+                    builder.read(forwardSceneData.outputRT);
+                    builder.read(frameDataBlock.frameData);
+                },
+                [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 1.0f);
+                    RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 1.0f);
+                    RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 1.0f);
+                    RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 1.0f);
+
+                    RZDebugRenderer::Get()->Begin(scene);
+
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
+                    RAZIX_MARK_BEGIN("Debug Pass", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputRT).getHandle();
+
+                    RenderingInfo info{};
+                    info.colorAttachments = {
+                        {rt, {true, scene->getSceneCamera().getBgColor()}}};
+                    //info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
+                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize = true;
+
+                    RHI::BeginRendering(RHI::getCurrentCommandBuffer(), info);
+
+                    static bool updatedSets = false;
+                    if (!updatedSets) {
+                        auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
+
+                        RZDescriptor frame_descriptor{};
+                        frame_descriptor.offset              = 0;
+                        frame_descriptor.size                = sizeof(GPUFrameData);
+                        frame_descriptor.bindingInfo.binding = 0;
+                        frame_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
+                        frame_descriptor.uniformBuffer       = frameDataBuffer;
+
+                        RZDebugRenderer::Get()->SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer")));
+                        updatedSets = true;
+                    }
+
+                    RZDebugRenderer::Get()->Draw(RHI::getCurrentCommandBuffer());
+
+                    RHI::EndRendering(Graphics::RHI::getCurrentCommandBuffer());
+
+                    RZDebugRenderer::Get()->End();
+
+                    RAZIX_MARK_END();
+
+                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
+                    Graphics::RHI::SubmitWork({}, {});
+                });
+
             //-------------------------------
             // ImGui Pass
             //-------------------------------
-            RTDTPassData forwardSceneData      = m_Blackboard.get<RTDTPassData>();
             m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
                 "ImGui Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTOnlyPassData& data) {
