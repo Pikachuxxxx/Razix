@@ -36,9 +36,9 @@ namespace Razix {
             virtual void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
 
             virtual void  Map(u32 size = 0, u32 offset = 0) = 0;
-            virtual void  UnMap()                                     = 0;
-            virtual void* GetMappedBuffer()                           = 0;
-            virtual void  Flush()                                     = 0;
+            virtual void  UnMap()                           = 0;
+            virtual void* GetMappedBuffer()                 = 0;
+            virtual void  Flush()                           = 0;
 
             /* Gets the index count of the index buffer */
             inline u32 getCount() const { return m_IndexCount; }
@@ -46,9 +46,9 @@ namespace Razix {
             inline void setCount(u32 count) { m_IndexCount = count; }
 
         protected:
-            u32    m_IndexCount; /* The index count of the index buffer  */
+            u32         m_IndexCount; /* The index count of the index buffer  */
             BufferUsage m_Usage;      /* The usage information of the buffer  */
-            u32    m_Size;       /* The size of the Index buffer         */
+            u32         m_Size;       /* The size of the Index buffer         */
         };
     }    // namespace Graphics
 }    // namespace Razix

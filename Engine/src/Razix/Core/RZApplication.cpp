@@ -254,10 +254,7 @@ namespace Razix {
         // TODO: Enable window V-Sync here
         Graphics::RHI::Init();
 
-        // Job system and Engine Systems(run-time) Initialization
-        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZGridRenderer);
-        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZForwardRenderer);
-        //Razix::RZEngine::Get().getRenderStack().PushRenderer(new Graphics::RZImGuiRenderer);
+        // TODO: Job system and Engine Systems(run-time) Initialization
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
