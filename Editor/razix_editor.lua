@@ -5,16 +5,7 @@ include 'Scripts/premake/common/internal_includes.lua'
 -- QT support for premake and VS
 include 'Scripts/premake/extensions/qt/qt.lua'
 
--- Vulkan SDK
-VulkanSDK = os.getenv("VULKAN_SDK")
-
-if (VulkanSDK == nil or VulkanSDK == '') then
-    print("VULKAN_SDK Enviroment variable is not found! Please check your development environment settings")
-    os.exit()
-else
-    print("Vulkan SDK found at : " .. VulkanSDK)
-end
-
+-- https://stackoverflow.com/questions/69678689/address-sanitizer-in-msvc-why-does-it-report-an-error-on-startup
 
 local qt = premake.extensions.qt
 
@@ -201,7 +192,10 @@ project "RazixEditor"
            "RAZIX_EDITOR",
            "RAZIX_CONFIG=" .. outputdir
        }
-       
+       -- https://www.qt.io/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt
+       -- buildoptions {"/fsanitize=address", "/fno-omit-frame-pointer"}
+       -- linkoptions {"/fsanitize=address"}
+
        disablewarnings { 4307 }
 
     filter "configurations:Debug"

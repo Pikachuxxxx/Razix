@@ -51,6 +51,7 @@ namespace Razix {
             //-------------------------------------------------------------------
             // Debug Shaders
             loadShader("//RazixContent/Shaders/Razix/DebugPoint.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/DebugLine.rzsf");
         }
 
         void RZShaderLibrary::ShutDown()

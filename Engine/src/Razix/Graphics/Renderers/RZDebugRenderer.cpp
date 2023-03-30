@@ -35,9 +35,12 @@ namespace Razix {
         static const u32 RENDERER_POINT_SIZE        = sizeof(Razix::Graphics::PointVertexData) * 4;
         static const u32 RENDERER_POINT_BUFFER_SIZE = RENDERER_POINT_SIZE * MaxPointVertices;
 
-        static const u32 MaxLines        = 10000;
-        static const u32 MaxLineVertices = MaxLines * 2;
-        static const u32 MaxLineIndices  = MaxLines * 6;
+        static const uint32_t MaxLines                  = 10000;
+        static const uint32_t MaxLineVertices           = MaxLines * 2;
+        static const uint32_t MaxLineIndices            = MaxLines * 6;
+        static const uint32_t MAX_LINE_BATCH_DRAW_CALLS = 100;
+        static const uint32_t RENDERER_LINE_SIZE        = sizeof(Razix::Graphics::LineVertexData) * 4;
+        static const uint32_t RENDERER_LINE_BUFFER_SIZE = RENDERER_LINE_SIZE * MaxLineVertices;
 
         Razix::Graphics::RZDebugRenderer* RZDebugRenderer::Get()
         {
@@ -54,24 +57,33 @@ namespace Razix {
                 m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Forward Renderer Main Command Buffers"));
             }
 
-            m_PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
+            auto PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
 
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader                 = m_PointShader;
+            pipelineInfo.shader                 = PointShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
             pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
 
-            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Renderer Pipeline (Depth Test enabled)"));
+            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Renderer:: Points pipeline (NDT)"));
+
+            // Change the polygon mode for drawing lines
+            auto LineShader          = Graphics::RZShaderLibrary::Get().getShader("DebugLine.rzsf");
+            pipelineInfo.shader      = LineShader;
+            pipelineInfo.cullMode    = CullMode::NONE;
+            pipelineInfo.polygonMode = PolygonMode::FILL;
+            pipelineInfo.drawType    = DrawType::LINES;
+            m_LinePipeline           = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Renderer:: Lines pipeline (NDT)"));
 
             // Create the VBOs and IBOs
             // Points - Create a large enough to hold a large amount of points
             m_PointVBO = RZVertexBuffer::Create(RENDERER_POINT_BUFFER_SIZE, nullptr, Graphics::BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Points VBO"));
+            m_LineVBO  = RZVertexBuffer::Create(RENDERER_LINE_BUFFER_SIZE, nullptr, Graphics::BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Lines VBO"));
 
             u16* indices = new u16[MaxPointIndices];
             u16  offset  = 0;
@@ -88,6 +100,18 @@ namespace Razix {
             }
 
             m_PointIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Debug Point IBO") indices, MaxPointIndices);
+
+            delete[] indices;
+
+            u16* line_indices = new u16[MaxLineIndices];
+
+            for (int32_t i = 0; i < MaxLineIndices; i++) {
+                line_indices[i] = i;
+            }
+
+            m_LineIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Debug Lines IBO") line_indices, MaxLineIndices);
+
+            delete[] line_indices;
         }
 
         void RZDebugRenderer::Begin(RZScene* scene)
@@ -107,47 +131,72 @@ namespace Razix {
             // Update the viewport
             cmdBuf->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
-            // Prepare the points VBO and IBO and update them
-            m_PointVBO->Bind(cmdBuf);
+            // POINTS
+            {
+                // Prepare the points VBO and IBO and update them
+                m_PointVBO->Bind(cmdBuf);
 
-            // Map the VBO
-            m_PointVBO->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
-            PointVertexData* pointsVertexData = (PointVertexData*) m_PointVBO->GetMappedBuffer();
+                // Map the VBO
+                m_PointVBO->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
+                PointVertexData* pointsVertexData = (PointVertexData*) m_PointVBO->GetMappedBuffer();
 
-            for (auto& point: m_DrawList.m_DebugPoints) {
-                glm::vec3 right = point.size * sceneCamera.getRight();
-                glm::vec3 up    = point.size * sceneCamera.getUp();
+                for (auto& point: m_DrawList.m_DebugPoints) {
+                    glm::vec3 right = point.size * sceneCamera.getRight();
+                    glm::vec3 up    = point.size * sceneCamera.getUp();
 
-                pointsVertexData->vertex = glm::vec4(point.p1 - right - up, 1.0f);    // + glm::vec3(-point.size, -point.size, 0.0f));
-                pointsVertexData->colour = point.col;
-                pointsVertexData->size   = {point.size, 0.0f};
-                pointsVertexData->uv     = {-1.0f, -1.0f};
-                pointsVertexData++;
+                    pointsVertexData->vertex = glm::vec4(point.p1 - right - up, 1.0f);    // + glm::vec3(-point.size, -point.size, 0.0f));
+                    pointsVertexData->colour = point.col;
+                    pointsVertexData->size   = {point.size, 0.0f};
+                    pointsVertexData->uv     = {-1.0f, -1.0f};
+                    pointsVertexData++;
 
-                pointsVertexData->vertex = glm::vec4(point.p1 + right - up, 1.0f);    //(point.p1 + glm::vec3(point.size, -point.size, 0.0f));
-                pointsVertexData->colour = point.col;
-                pointsVertexData->size   = {point.size, 0.0f};
-                pointsVertexData->uv     = {1.0f, -1.0f};
-                pointsVertexData++;
+                    pointsVertexData->vertex = glm::vec4(point.p1 + right - up, 1.0f);    //(point.p1 + glm::vec3(point.size, -point.size, 0.0f));
+                    pointsVertexData->colour = point.col;
+                    pointsVertexData->size   = {point.size, 0.0f};
+                    pointsVertexData->uv     = {1.0f, -1.0f};
+                    pointsVertexData++;
 
-                pointsVertexData->vertex = glm::vec4(point.p1 + right + up, 1.0f);    //(point.p1 + glm::vec3(point.size, point.size, 0.0f));
-                pointsVertexData->colour = point.col;
-                pointsVertexData->size   = {point.size, 0.0f};
-                pointsVertexData->uv     = {1.0f, 1.0f};
-                pointsVertexData++;
+                    pointsVertexData->vertex = glm::vec4(point.p1 + right + up, 1.0f);    //(point.p1 + glm::vec3(point.size, point.size, 0.0f));
+                    pointsVertexData->colour = point.col;
+                    pointsVertexData->size   = {point.size, 0.0f};
+                    pointsVertexData->uv     = {1.0f, 1.0f};
+                    pointsVertexData++;
 
-                pointsVertexData->vertex = glm::vec4(point.p1 - right + up, 1.0f);    // (point.p1 + glm::vec3(-point.size, point.size, 0.0f));
-                pointsVertexData->colour = point.col;
-                pointsVertexData->size   = {point.size, 0.0f};
-                pointsVertexData->uv     = {-1.0f, 1.0f};
-                pointsVertexData++;
+                    pointsVertexData->vertex = glm::vec4(point.p1 - right + up, 1.0f);    // (point.p1 + glm::vec3(-point.size, point.size, 0.0f));
+                    pointsVertexData->colour = point.col;
+                    pointsVertexData->size   = {point.size, 0.0f};
+                    pointsVertexData->uv     = {-1.0f, 1.0f};
+                    pointsVertexData++;
 
-                m_PointIndexCount += 6;
+                    m_PointIndexCount += 6;
+                }
+
+                m_PointVBO->UnMap();
+                m_PointIBO->setCount(m_PointIndexCount);
             }
 
-            m_PointVBO->UnMap();
+            // LINES
+            {
+                m_LineVBO->Bind(cmdBuf);
 
-            m_PointIBO->setCount(m_PointIndexCount);
+                m_LineVBO->Map(RENDERER_LINE_SIZE * static_cast<u32>(m_DrawList.m_DebugLines.size()));
+                LineVertexData* lineVtxData = (LineVertexData*) m_LineVBO->GetMappedBuffer();
+
+                for (auto& line: m_DrawList.m_DebugLines) {
+                    lineVtxData->vertex = glm::vec4(line.p1, 1.0f);
+                    lineVtxData->colour = line.col;
+                    lineVtxData++;
+
+                    lineVtxData->vertex = glm::vec4(line.p2, 1.0f);
+                    lineVtxData->colour = line.col;
+                    lineVtxData++;
+
+                    m_LineIndexCount += 2;
+                }
+
+                m_LineVBO->UnMap();
+                m_LineIBO->setCount(m_LineIndexCount);
+            }
         }
 
         void RZDebugRenderer::Draw(RZCommandBuffer* cmdBuffer)
@@ -163,12 +212,31 @@ namespace Razix {
 
                 RHI::DrawIndexed(cmdBuffer, m_PointIndexCount);
             }
+
+            // Lines
+            {
+                m_LinePipeline->Bind(cmdBuffer);
+
+                Graphics::RHI::BindDescriptorSets(m_LinePipeline, cmdBuffer, &m_FrameDataSet, 1);
+
+                m_LineVBO->Bind(cmdBuffer);
+                m_LineIBO->Bind(cmdBuffer);
+
+                RHI::DrawIndexed(cmdBuffer, m_LineIndexCount);
+            }
         }
 
         void RZDebugRenderer::End()
         {
             m_DrawList.m_DebugPoints.clear();
+            m_DrawListDT.m_DebugPoints.clear();
             m_PointIndexCount = 0;
+
+            m_DrawList.m_DebugLines.clear();
+            m_DrawListDT.m_DebugLines.clear();
+            m_LineIndexCount = 0;
+
+            RAZIX_MARK_END();
         }
 
         void RZDebugRenderer::Resize(u32 width, u32 height)
@@ -178,14 +246,20 @@ namespace Razix {
         void RZDebugRenderer::Destroy()
         {
         }
+
+        void RZDebugRenderer::SetFrameDataHeap(RZDescriptorSet* frameDataSet)
+        {
+            m_FrameDataSet = frameDataSet;
+        }
+
         //---------------------------------------------------------------------------------------------------------------
         //Draw Point (circle)
-        void RZDebugRenderer::GenDrawPoint(bool ndt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRenderer::GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (ndt)
-                s_Instance->m_DrawListFG.m_DebugPoints.emplace_back(pos, point_radius, colour);
+            if (dt)
+                s_Instance->m_DrawListDT.m_DebugPoints.emplace_back(pos, point_radius, colour);
             else
                 s_Instance->m_DrawList.m_DebugPoints.emplace_back(pos, point_radius, colour);
         }
@@ -202,73 +276,92 @@ namespace Razix {
 
             GenDrawPoint(false, pos, point_radius, colour);
         }
-        void RZDebugRenderer::DrawPointNDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
+        void RZDebugRenderer::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawPoint(true, pos, point_radius, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawPointNDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRenderer::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawPoint(true, pos, point_radius, colour);
         }
 
-        void RZDebugRenderer::SetFrameDataHeap(RZDescriptorSet* frameDataSet)
-        {
-            m_FrameDataSet = frameDataSet;
-        }
-
         //---------------------------------------------------------------------------------------------------------------
 
-#if 0
-  //Draw Line with a given thickness
-        void RZDebugRenderer::GenDrawThickLine(bool ndt, const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector4& colour)
+        //Draw Line with a given thickness
+        void RZDebugRenderer::GenDrawThickLine(bool ndt, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
-            if (s_Instance && s_Instance->m_LineRenderer)
-                s_Instance->m_LineRenderer->Submit(start, end, colour);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (ndt)
+                s_Instance->m_DrawListDT.m_DebugThickLines.emplace_back(start, end, colour);
+            else
+                s_Instance->m_DrawList.m_DebugThickLines.emplace_back(start, end, colour);
         }
-        void RZDebugRenderer::DrawThickLine(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector3& colour)
+        void RZDebugRenderer::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
         {
-            GenDrawThickLine(false, start, end, line_width, Maths::Vector4(colour, 1.0f));
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            GenDrawThickLine(false, start, end, line_width, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawThickLine(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector4& colour)
+        void RZDebugRenderer::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             GenDrawThickLine(false, start, end, line_width, colour);
         }
-        void RZDebugRenderer::DrawThickLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector3& colour)
+        void RZDebugRenderer::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
         {
-            GenDrawThickLine(true, start, end, line_width, Maths::Vector4(colour, 1.0f));
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            GenDrawThickLine(true, start, end, line_width, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawThickLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, f32 line_width, const Maths::Vector4& colour)
+        void RZDebugRenderer::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             GenDrawThickLine(true, start, end, line_width, colour);
         }
 
         //Draw line with thickness of 1 screen pixel regardless of distance from camera
-        void RZDebugRenderer::GenDrawHairLine(bool ndt, const Maths::Vector3& start, const Maths::Vector3& end, const Maths::Vector4& colour)
+        void RZDebugRenderer::GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
-            if (s_Instance && s_Instance->m_LineRenderer)
-                s_Instance->m_LineRenderer->Submit(start, end, colour);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (dt)
+                s_Instance->m_DrawListDT.m_DebugLines.emplace_back(start, end, colour);
+            else
+                s_Instance->m_DrawList.m_DebugLines.emplace_back(start, end, colour);
         }
-        void RZDebugRenderer::DrawHairLine(const Maths::Vector3& start, const Maths::Vector3& end, const Maths::Vector3& colour)
+        void RZDebugRenderer::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
         {
-            GenDrawHairLine(false, start, end, Maths::Vector4(colour, 1.0f));
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            GenDrawLine(false, start, end, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawHairLine(const Maths::Vector3& start, const Maths::Vector3& end, const Maths::Vector4& colour)
+        void RZDebugRenderer::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
-            GenDrawHairLine(false, start, end, colour);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            GenDrawLine(false, start, end, colour);
         }
-        void RZDebugRenderer::DrawHairLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, const Maths::Vector3& colour)
+        void RZDebugRenderer::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
         {
-            GenDrawHairLine(true, start, end, Maths::Vector4(colour, 1.0f));
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            GenDrawLine(true, start, end, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawHairLineNDT(const Maths::Vector3& start, const Maths::Vector3& end, const Maths::Vector4& colour)
+        void RZDebugRenderer::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
-            GenDrawHairLine(true, start, end, colour);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            GenDrawLine(true, start, end, colour);
         }
 
+#if 0
         //Draw Matrix (x,y,z axis at pos)
         void RZDebugRenderer::DrawMatrix(const Maths::Matrix4& mtx)
         {
