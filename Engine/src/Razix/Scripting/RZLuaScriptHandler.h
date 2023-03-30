@@ -43,6 +43,9 @@ namespace Razix {
             void bindLoggingAPI();
             /* Binds the ImGUi API  which the client can use to create ImGui components using lua scripts */
             void bindImGuiAPI();
+            /* Binds various renderer public API to lua */
+            void bindRendererAPI();
+
             void bindSceneManagerAPI();
             void bindInputAPI();
             void bindECSAPI();

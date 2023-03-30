@@ -17,3 +17,13 @@ IncludeDir["Jolt"]              = "%{wks.location}/../Engine/" .. "vendor/JoltPh
 
 IncludeDir["Razix"]             = "%{wks.location}/../Engine/" .. "src"
 IncludeDir["vendor"]            = "%{wks.location}/../Engine/" .. "vendor/"
+
+-- Vulkan SDK
+VulkanSDK = os.getenv("VULKAN_SDK")
+
+if (VulkanSDK == nil or VulkanSDK == '') then
+    print("VULKAN_SDK Enviroment variable is not found! Please check your development environment settings")
+    os.exit()
+else
+    print("Vulkan SDK found at : " .. VulkanSDK)
+end

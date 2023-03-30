@@ -56,6 +56,17 @@ namespace Razix {
             }
         };
 
+        struct LineVertexData
+        {
+            glm::vec4 vertex;
+            glm::vec4 colour;
+
+            bool operator==(const LineVertexData& other) const
+            {
+                return vertex == other.vertex && colour == other.colour;
+            }
+        };
+
         struct PointVertexData
         {
             glm::vec4 vertex;
@@ -106,22 +117,22 @@ namespace Razix {
             //Draw Point (very small circle)
             static void DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour);
             static void DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawPointNDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour);
-            static void DrawPointNDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour);
+            static void DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-#if 0
             //Draw Line with a given thickness
             static void DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour);
             static void DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawThickLineNDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour);
-            static void DrawThickLineNDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour);
+            static void DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
             //Draw line with thickness of 1 screen pixel regardless of distance from camera
-            static void DrawHairLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour);
-            static void DrawHairLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawHairLineNDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour);
-            static void DrawHairLineNDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour);
+            static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour);
+            static void DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
+#if 0
             //Draw Matrix (x,y,z axis at pos)
             static void DrawMatrix(const Maths::Matrix4& transform_mtx);
             static void DrawMatrix(const Maths::Matrix3& rotation_mtx, const glm::vec3& position);
@@ -147,10 +158,10 @@ namespace Razix {
 
         protected:
             //Actual functions managing data parsing to save code bloat - called by public functions
-            static void GenDrawPoint(bool ndt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
-            static void GenDrawThickLine(bool ndt, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour);
-            static void GenDrawHairLine(bool ndt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
-            static void GenDrawTriangle(bool ndt, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec4& colour);
+            static void GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
+            static void GenDrawThickLine(bool dt, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour);
+            static void GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
+            static void GenDrawTriangle(bool dt, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec4& colour);
 
         private:
             static RZDebugRenderer* s_Instance;
@@ -164,15 +175,19 @@ namespace Razix {
             };
 
             DebugDrawList m_DrawList;
-            DebugDrawList m_DrawListFG;
+            DebugDrawList m_DrawListDT;
 
-            RZShader*        m_PointShader;
             RZDescriptorSet* m_FrameDataSet;
+            RZPipeline*      m_LinePipeline;
 
             // VBs and IBs
             RZIndexBuffer*  m_PointIBO;
             RZVertexBuffer* m_PointVBO;
             u32             m_PointIndexCount = 0;
+
+            RZIndexBuffer*  m_LineIBO;
+            RZVertexBuffer* m_LineVBO;
+            u32             m_LineIndexCount = 0;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -1,17 +1,10 @@
+-- Razix Engine vendor Common Inlcudes 
+include 'Scripts/premake/common/vendor_includes.lua'
+
 project "optick"
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
-
-    -- Vulkan SDK
-    VulkanSDK = os.getenv("VULKAN_SDK")
-
-    if (VulkanSDK == nil or VulkanSDK == '') then
-        print("VULKAN_SDK Enviroment variable is not found! Please check your development environment settings")
-        os.exit()
-    else
-        print("Vulkan SDK found at : " .. VulkanSDK)
-    end
 
     files
     {
