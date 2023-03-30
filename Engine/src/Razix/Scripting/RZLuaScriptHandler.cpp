@@ -34,6 +34,12 @@ namespace Razix {
             // Bind the ImGui bindings
             bindImGuiAPI();
 
+            // Bind the Renderer API
+            bindRendererAPI();
+
+            // Binding GLM
+            bindglm();
+
             // TODO: Bind other APIs (engine, gfx, ecs, physics etc.)
         }
 

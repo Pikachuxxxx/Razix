@@ -204,6 +204,7 @@ namespace Razix {
 
             RTDTPassData forwardSceneData = m_Blackboard.get<RTDTPassData>();
 
+            // FIXME: URGENTLY!!! Use a proper RT & DT from the forward pass
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
@@ -218,22 +219,35 @@ namespace Razix {
                     builder.read(frameDataBlock.frameData);
                 },
                 [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
-                    RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 1.0f);
-                    RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 1.0f);
-                    RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 1.0f);
-                    RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 1.0f);
+                    RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
+                    RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 0.1f);
+                    RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 0.1f);
+                    RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 0.1f);
+
+                    RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(10.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 10.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 10.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+                    RZDebugRenderer::DebugDrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawCircle(50, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 90.0f, 0.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawCircle(50, 3.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(2.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(3.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(4.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+                    RZDebugRenderer::DebugDrawCone(10, 5, 45.0f, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
                     RZDebugRenderer::Get()->Begin(scene);
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-                    RAZIX_MARK_BEGIN("Debug Pass", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputRT).getHandle();
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {rt, {true, scene->getSceneCamera().getBgColor()}}};
+                        {rt, {false, scene->getSceneCamera().getBgColor()}}};
                     //info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
@@ -261,8 +275,6 @@ namespace Razix {
                     RHI::EndRendering(Graphics::RHI::getCurrentCommandBuffer());
 
                     RZDebugRenderer::Get()->End();
-
-                    RAZIX_MARK_END();
 
                     Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
                     Graphics::RHI::SubmitWork({}, {});
