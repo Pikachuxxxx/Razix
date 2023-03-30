@@ -228,6 +228,17 @@ namespace Razix {
                     RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 10.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 10.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
+                    RZDebugRenderer::DebugDrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawCircle(50, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 90.0f, 0.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawCircle(50, 3.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(2.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(3.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(4.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+                    RZDebugRenderer::DebugDrawCone(10, 5, 45.0f, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
                     RZDebugRenderer::Get()->Begin(scene);
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
@@ -335,7 +346,7 @@ namespace Razix {
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
             std::ofstream os(outPath + "/forward_lighting_test.dot");
-             os << m_FrameGraph;
+            os << m_FrameGraph;
         }
 
         void RZWorldRenderer::drawFrame(RZRendererSettings settings, Razix::RZScene* scene)

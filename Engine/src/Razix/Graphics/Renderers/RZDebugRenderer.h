@@ -151,11 +151,12 @@ namespace Razix {
             static void DebugDraw(const Maths::Sphere& sphere, const glm::vec4& colour);
             static void DebugDraw(const Maths::Frustum& frustum, const glm::vec4& colour);
             static void DebugDraw(Graphics::Light* light, const glm::quat& rotation, const glm::vec4& colour);
-            static void DebugDrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour);
-            static void DebugDrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::quat& rotation, const glm::vec4& colour);
-            static void DebugDrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::quat& rotation, const glm::vec4& colour);
 #endif
-
+            static void DebugDrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour);
+            static void DebugDrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour);
+            static void DebugDrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour);
+#if 0
+#endif
         protected:
             //Actual functions managing data parsing to save code bloat - called by public functions
             static void GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
@@ -175,7 +176,7 @@ namespace Razix {
             };
 
             DebugDrawList m_DrawList;
-            DebugDrawList m_DrawListDT;
+            DebugDrawList m_DrawListNDT;
 
             RZDescriptorSet* m_FrameDataSet;
             RZPipeline*      m_LinePipeline;
