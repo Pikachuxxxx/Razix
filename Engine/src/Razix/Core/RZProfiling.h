@@ -3,7 +3,7 @@
 // TODO: https://nikitablack.github.io/post/how_to_use_vulkan_timestamp_queries/ use this to manually profile GPU timings
 
 // Profilers cannot be switched at runtime and need to be decided before compile time itself
-#define RZ_PROFILER_TRACY   1
+#define RZ_PROFILER_TRACY   0
 #define RZ_PROFILER_OPTICK  0
 #define RZ_PROFILER_NVSIGHT 0
 
@@ -75,6 +75,23 @@
         #define RAZIX_PROFILE_LOCK(type, var, name)
         #define RAZIX_PROFILE_LOCKMARKER(var)
         #define RAZIX_PROFILE_SETTHREADNAME(name) OPTICK_THREAD(name)
+    #else
+        #define RAZIX_PROFILE_SCOPE(name)
+        #define RAZIX_PROFILE_SCOPEC(name, color)
+        #define RAZIX_PROFILE_FUNCTION()
+        #define RAZIX_PROFILE_FUNCTIONC(color)
+        #define RAZIX_PROFILE_FRAMEMARKER(name)
+
+        #define RAZIX_PROFILE_GPU_CONTEXT(context)
+        #define RAZIX_PROFILE_GPU_SCOPE(name)
+        #define RAZIX_PROFILE_GPU_SCOPEC(name, color)
+        //#define RAZIX_PROFILE_GPU_FUNCTION()
+        //#define RAZIX_PROFILE_GPU_FUNCTION(color)
+        #define RAZIX_PROFILE_GPU_FLIP(swapchain)
+
+        #define RAZIX_PROFILE_LOCK(type, var, name)
+        #define RAZIX_PROFILE_LOCKMARKER(var)
+        #define RAZIX_PROFILE_SETTHREADNAME(name)
     #endif
 #endif
 

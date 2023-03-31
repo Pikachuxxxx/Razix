@@ -530,11 +530,11 @@ namespace Razix {
                 ImGui::Text("Engine Stats");
                 ImGui::Indent();
                 // TODO: Add Average timings (CPU + GPU) and avg FPS
-                ImGui::Text("FPS                    : %.4d", stats.FramesPerSecond);
-                ImGui::Text("render time            : %0.2f ms", stats.DeltaTime);
-                ImGui::Text("grid pass              : %0.2f ms", stats.GridPass);
-                ImGui::Text("forward lighting pass  : %0.2f ms", stats.ForwardLightingPass);
-                ImGui::Text("imgui pass             : %0.2f ms", stats.ImGuiPass);
+                ImGui::Text("FPS                    : %.5d", stats.FramesPerSecond);
+                //ImGui::Text("render time            : %3.3f ms", stats.DeltaTime);
+                ImGui::Text("grid pass              : %3.3f ms", stats.GridPass);
+                ImGui::Text("forward lighting pass  : %3.3f ms", stats.ForwardLightingPass);
+                ImGui::Text("imgui pass             : %3.3f ms", stats.ImGuiPass);
 
                 ImGui::Separator();
                 ImGui::Text("API calls");

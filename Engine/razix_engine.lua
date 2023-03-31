@@ -170,7 +170,7 @@ project "Razix"
          -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
         -- Only works with GCC and Clang
         --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
-        --buildoptions {"/fsanitize=address"}
+        --buildoptions {"/-fsanitize=address"}
 
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
@@ -179,7 +179,7 @@ project "Razix"
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
         {
-            "/MP", "/bigobj"
+            "/MP", "/bigobj", "/Zi"
         }
 
         linkoptions
