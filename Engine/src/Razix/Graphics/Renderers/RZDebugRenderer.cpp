@@ -576,20 +576,24 @@ namespace Razix {
 
         void RZDebugRenderer::DebugDrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour)
         {
-            f32       endAngle    = tan(glm::radians(angle * 0.5f)) * length;
-            glm::vec3 forward     = -(rotation * glm::vec3(0.0f, 0.0f, -1.0f));
+            f32       radius    = tan(glm::radians(angle * 0.5f)) * length;
+            glm::quat quatRotation = glm::quat(glm::vec3(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z)));
+
+            glm::vec3 forward     = -(quatRotation * glm::vec3(0.0f, 0.0f, -1.0f));
             glm::vec3 endPosition = position + forward * length;
             f32       offset      = 0.0f;
-            DebugDrawCircle(numCircleVerts, endAngle, endPosition, rotation, colour);
+            DebugDrawCircle(numCircleVerts, radius, endPosition, rotation, colour);
 
             // FIXME: Use the draw circle logic and get the points on the circle and draw lines to it from the origin
-            for (int i = 0; i < numLinesToCircle; i++) {
-                f32       a     = i * 90.0f;
-                glm::vec3 point = rotation * glm::vec3(cos(glm::radians(a)), sin(glm::radians(a)), 0.0f) * endAngle;
-                DrawLine(position, position + point + forward * length, colour);
-                glm::vec3 endPoint = position + point + forward * length;
-                DrawPoint(position, 0.1, colour);
-                DrawPoint(endPoint, 0.1, colour);
+            f32 sectorAngle = 360.0f / f32(numLinesToCircle);
+            for (f32 sec_angle = 0; sec_angle <= 360.0f; sec_angle += sectorAngle) {
+                f32 cx = cos(glm::radians(sec_angle)) * radius;
+                f32 cy = sin(glm::radians(sec_angle)) * radius;
+
+                glm::vec3 point = glm::vec3(cx, cy, 0.0f);
+                glm::vec3 endPoint = endPosition + point;
+                DrawLine(position, endPoint, colour);
+                //DrawPoint(endPoint,0.1f, colour);
             }
         }
 #endif
