@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZProfiling.h"
-#include "Razix/Core/RZDataTypes.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
@@ -71,7 +71,6 @@ static int EngineMain(int argc, char** argv)
     windowsOS->Run();
     //delete windowsOS;
 
-   
     return EXIT_SUCCESS;
 }
 
