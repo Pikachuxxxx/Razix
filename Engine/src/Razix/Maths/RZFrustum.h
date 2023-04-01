@@ -24,6 +24,8 @@ namespace Razix {
                 return true;
             }
 
+            glm::vec3* getVertices() { return vertices_; }
+
         private:
             //Plane     m_Planes[NUM_FRUSTUM_PLANES];
             glm::vec3 vertices_[NUM_FRUSTUM_VERTICES];

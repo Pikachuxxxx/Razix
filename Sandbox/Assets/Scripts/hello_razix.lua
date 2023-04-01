@@ -7,16 +7,12 @@ function OnStart()
     RZLog.Trace("OnStart called!")
 end
 
-position = {
-    x = 2.0,
-    y = 3.0,
-    z = 4.0,
-}
 
 function OnUpdate(dt)
     --RZLog.Warn("OnUpdate called! :" .. dt)
-
+    
     -- Test drawing a debug point
-    DebugDraw.DrawPoint(position, 0.5, position)
-
+    local p = vec3.new(5, 5, 5)
+    local c = vec3.new(0.25, 0.85, 0.2)
+    DebugDraw.DrawPoint(p, 0.1, c)
 end
