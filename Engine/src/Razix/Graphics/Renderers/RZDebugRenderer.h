@@ -7,9 +7,13 @@
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
+#include "Razix/Maths/RZAABB.h"
+#include "Razix/Maths/RZFrustum.h"
+
 namespace Razix {
     namespace Graphics {
 
+        class RZLight;
         class RZDescriptorSet;
 
         struct Line
@@ -134,29 +138,24 @@ namespace Razix {
 
 #if 0
             //Draw Matrix (x,y,z axis at pos)
-            static void DrawMatrix(const Maths::Matrix4& transform_mtx);
-            static void DrawMatrix(const Maths::Matrix3& rotation_mtx, const glm::vec3& position);
-            static void DrawMatrixNDT(const Maths::Matrix4& transform_mtx);
-            static void DrawMatrixNDT(const Maths::Matrix3& rotation_mtx, const glm::vec3& position);
+            static void DrawMatrix(const glm::mat4& transform_mtx);
+            static void DrawMatrix(const glm::mat3& rotation_mtx, const glm::vec3& position);
+            static void DrawMatrixNDT(const glm::mat4& transform_mtx);
+            static void DrawMatrixNDT(const glm::mat3& rotation_mtx, const glm::vec3& position);
 
-            //Draw Triangle
-            static void DrawTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawTriangleNDT(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-            //Draw Polygon (Renders as a triangle fan, so verts must be arranged in order)
-            static void DrawPolygon(int n_verts, const glm::vec3* verts, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawPolygonNDT(int n_verts, const glm::vec3* verts, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-            static void DebugDraw(const Maths::BoundingBox& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
-            static void DebugDraw(const Maths::Sphere& sphere, const glm::vec4& colour);
-            static void DebugDraw(const Maths::Frustum& frustum, const glm::vec4& colour);
-            static void DebugDraw(Graphics::Light* light, const glm::quat& rotation, const glm::vec4& colour);
+            static void DebugDraw(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
 #endif
-            static void DebugDrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour);
-            static void DebugDrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour);
-            static void DebugDrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour);
-#if 0
-#endif
+            static void DrawLight(Graphics::RZLight* light, const glm::vec4& colour);
+            static void DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour);
+            static void DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
+            static void DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
+
+            static void DrawArc(int numVerts, float radius, const glm::vec3& start, const glm::vec3& end, const glm::vec3& eulerRotation, const glm::vec4& colour);
+
+            static void DrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour);
+            static void DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour);
+            static void DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour);
+
         protected:
             //Actual functions managing data parsing to save code bloat - called by public functions
             static void GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
@@ -178,17 +177,16 @@ namespace Razix {
             DebugDrawList m_DrawList;
             DebugDrawList m_DrawListNDT;
 
-            RZDescriptorSet* m_FrameDataSet;
-            RZPipeline*      m_LinePipeline;
+            RZDescriptorSet* m_FrameDataSet = nullptr;
+            RZPipeline*      m_LinePipeline = nullptr;
 
             // VBs and IBs
-            RZIndexBuffer*  m_PointIBO;
-            RZVertexBuffer* m_PointVBO;
+            RZIndexBuffer*  m_PointIBO        = nullptr;
+            RZVertexBuffer* m_PointVBO        = nullptr;
             u32             m_PointIndexCount = 0;
-
-            RZIndexBuffer*  m_LineIBO;
-            RZVertexBuffer* m_LineVBO;
-            u32             m_LineIndexCount = 0;
+            RZIndexBuffer*  m_LineIBO         = nullptr;
+            RZVertexBuffer* m_LineVBO         = nullptr;
+            u32             m_LineIndexCount  = 0;
         };
     }    // namespace Graphics
 }    // namespace Razix

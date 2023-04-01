@@ -50,7 +50,8 @@ More information will be update on creating PRs and other ways to contribute to 
 Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Screenshots/Demos
-![Editor](./Branding/DemoImages/ReleaseNotes/Shadows.png)
+![Editor](./Branding/DemoImages/ReleaseNotes/Razix_Editor_CornellBox_Demo.png)
+![Sandbox](./Branding/DemoImages/ReleaseNotes/Shadows_debug.png)
 
 # Architecture
 

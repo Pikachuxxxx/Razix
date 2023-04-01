@@ -92,6 +92,7 @@ namespace Razix {
 
         void RZEMainWindow::on_LoadScene()
         {
+            RZEngine::Get().getSceneManager().loadScene();
         }
 
         void RZEMainWindow::on_NewScene()
@@ -210,14 +211,20 @@ namespace Razix {
             newButton->setIcon(QIcon(":/rzeditor/new_scene.png"));
             newButton->setIconSize(QSize(20, 20));
 
+            // Load next scene (loads first if it's the last scene in a cyclic order)
+            QPushButton* nextSceneBtn = new QPushButton;
+            nextSceneBtn->setIcon(QIcon("rzeditor/next.png"));
+
             m_SceneSettingsTB->addWidget(saveButton);
             m_SceneSettingsTB->addWidget(openButton);
             m_SceneSettingsTB->addWidget(newButton);
+            m_SceneSettingsTB->addWidget(nextSceneBtn);
 
             this->addToolBar(m_SceneSettingsTB);
 
             // Connections for Save/Load/Open scene
             connect(saveButton, SIGNAL(clicked()), this, SLOT(on_SaveScene()));
+            connect(nextSceneBtn, SIGNAL(clicked()), this, SLOT(on_LoadScene()));
         }
 
         void RZEMainWindow::create_transform_tb()

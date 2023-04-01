@@ -8,7 +8,7 @@
         "Height": 1009,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
         "Scenes": [
-            "//Scenes/default Scene.rzscn"
+            "//Scenes/cornell_box.rzscn"
         ]
     }
 }

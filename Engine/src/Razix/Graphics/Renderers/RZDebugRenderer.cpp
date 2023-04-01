@@ -22,6 +22,8 @@
 #include "Razix/Graphics/RZModel.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
+#include "Razix/Graphics/Lighting/RZLight.h"
+
 #include "Razix/Graphics/RHI/RHI.h"
 
 namespace Razix {
@@ -519,11 +521,11 @@ namespace Razix {
             if (light->Type < 0.1f) {
                 auto           flipRotation = rotation * Maths::Quaternion::EulerAnglesToQuaternion(180.0f, 0.0f, 0.0f);
                 Maths::Vector3 offset(0.0f, 0.1f, 0.0f);
-                DrawHairLine((light->Position).ToVector3() + offset, (light->Position + (light->Direction) * 2.0f).ToVector3() + offset, colour);
-                DrawHairLine((light->Position).ToVector3() - offset, (light->Position + (light->Direction) * 2.0f).ToVector3() - offset, colour);
+                DrawHairLine((light->Position).ToVector3() + offset, (light->Position + (light->getDirection()) * 2.0f).ToVector3() + offset, colour);
+                DrawHairLine((light->Position).ToVector3() - offset, (light->Position + (light->getDirection()) * 2.0f).ToVector3() - offset, colour);
 
-                DrawHairLine((light->Position).ToVector3(), (light->Position + (light->Direction) * 2.0f).ToVector3(), colour);
-                DebugDrawCone(20, 4, 30.0f, 1.5f, (light->Position - (light->Direction) * 1.5f).ToVector3(), flipRotation, colour);
+                DrawHairLine((light->Position).ToVector3(), (light->Position + (light->getDirection()) * 2.0f).ToVector3(), colour);
+                DebugDrawCone(20, 4, 30.0f, 1.5f, (light->Position - (light->getDirection()) * 1.5f).ToVector3(), flipRotation, colour);
             }
             //Spot
             else if (light->Type < 1.1f) {
@@ -540,7 +542,31 @@ namespace Razix {
             DrawPoint(sound->GetPosition(), sound->GetRadius(), colour);
         }
 #endif
-        void RZDebugRenderer::DebugDrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)
+        void RZDebugRenderer::DrawLight(Graphics::RZLight* light, const glm::vec4& colour)
+        {
+            // Directional
+            if (light->getType() == LightType::DIRECTIONAL) {
+                glm::vec3 offset(0.0f, 0.1f, 0.0f);
+                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f) + offset, colour);
+                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f) - offset, colour);
+
+                DrawLine(glm::vec3(light->getPosition()), glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f), colour);
+                //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
+            }
+            //// Spot
+            //else if (light->Type < 1.1f) {
+            //    DrawCone(20, 4, light->getAngle(), light->getIntensity(), light->getPosition(), rotation, colour);
+            //}
+            //// Point
+            //else {
+            //    DrawSphere(light->Radius * 0.5f, light->getPosition(), colour);
+            //}
+            else if (light->getType() == LightType::POINT) {
+                DrawSphere(light->getRadius() * 0.5f, light->getPosition(), colour);
+            }
+        }
+
+        void RZDebugRenderer::DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)
         {
             f32 sectorAngle = 360.0f / f32(numVerts);
 
@@ -560,29 +586,116 @@ namespace Razix {
             }
         }
 #if 1
-        void RZDebugRenderer::DebugDrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour)
+
+        void RZDebugRenderer::DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
         {
-            f32 offset = 0.0f;
-            DebugDrawCircle(50, radius, position, glm::vec3(90.0f, 0.0f, 0.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(45.0f, 0.0f, 0.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(-45.0f, 0.0f, 0.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(0.0f, 90.0f, 0.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(0.0f, 45.0f, 0.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(00.0f, -45.0f, 0.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, 90.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, 45.0f), colour);
-            DebugDrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, -45.0f), colour);
+            glm::quat rotation = glm::quat(glm::vec3(glm::radians(eulerRotation.x), glm::radians(eulerRotation.y), glm::radians(eulerRotation.z)));
+
+            glm::vec3 up = (rotation * glm::vec3(0.0f, 1.0f, 0.0f));
+
+            glm::vec3 topSphereCentre    = position + up * (height * 0.5f);
+            glm::vec3 bottomSphereCentre = position - up * (height * 0.5f);
+
+            DrawCircle(20, radius, topSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(20, radius, bottomSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
+
+            // Draw 10 arcs
+            // Sides
+            float step = 360.0f / float(20);
+            for (int i = 0; i < 20; i++) {
+                float z = cos(step * i) * radius;
+                float x = sin(step * i) * radius;
+
+                glm::vec3 offset = rotation * glm::vec4(x, 0.0f, z, 0.0f);
+                DrawLine(bottomSphereCentre + offset, topSphereCentre + offset, colour);
+            }
         }
 
-        void RZDebugRenderer::DebugDrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour)
+        void RZDebugRenderer::DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
         {
-            f32       radius    = tan(glm::radians(angle * 0.5f)) * length;
+            glm::quat rotation = glm::quat(glm::vec3(glm::radians(eulerRotation.x), glm::radians(eulerRotation.y), glm::radians(eulerRotation.z)));
+
+            glm::vec3 up = (rotation * glm::vec3(0.0f, 1.0f, 0.0f));
+
+            glm::vec3 topSphereCentre    = position + up * (height * 0.5f);
+            glm::vec3 bottomSphereCentre = position - up * (height * 0.5f);
+
+            DrawCircle(20, radius, topSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(20, radius, bottomSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
+
+            // Draw 10 arcs
+            // Sides
+            f32 sectorAngle = 360.0f / f32(10.0f);
+            for (f32 angle = 0; angle <= 360.0f; angle += sectorAngle) {
+                f32 x = cos(glm::radians(angle)) * radius;
+                f32 z = sin(glm::radians(angle)) * radius;
+
+                glm::vec3 offset = rotation * glm::vec4(x, 0.0f, z, 0.0f);
+                DrawLine(bottomSphereCentre + offset, topSphereCentre + offset, colour);
+
+    #if 1
+                if (angle <= 180.0f) {
+                    float z2 = cos(glm::radians(angle + 180.0f)) * radius;
+                    float x2 = sin(glm::radians(angle + 180.0f)) * radius;
+
+                    glm::vec3 offset2 = rotation * glm::vec4(x2, 0.0f, z2, 0.0f);
+                    // Top HemiShpere
+                    DrawArc(20, radius, topSphereCentre + offset, topSphereCentre + offset2, eulerRotation, colour);
+                    DrawPoint(topSphereCentre + offset2, 0.1f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    // Bottom Hemisphere
+                    //DebugDrawArc(20, radius, bottomSphereCentre + offset, bottomSphereCentre + offset, eulerRotation + glm::vec3(180.0f, 0.0f, 0.0f), colour);
+                    DrawPoint(bottomSphereCentre + offset2, 0.1f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                }
+    #endif
+            }
+        }
+
+        void RZDebugRenderer::DrawArc(int numVerts, float radius, const glm::vec3& start, const glm::vec3& end, const glm::vec3& eulerRotation, const glm::vec4& colour)
+        {
+            f32 sectorAngle = 180.0f / f32(numVerts);
+
+            glm::quat rotation = glm::quat(glm::vec3(glm::radians(eulerRotation.x), glm::radians(eulerRotation.y), glm::radians(eulerRotation.z)));
+
+            glm::vec3 arcCentre = (start + end) * 0.5f;
+            arcCentre           = arcCentre - (radius * 0.5f);
+            for (f32 angle = 0; angle <= 180.0f; angle += sectorAngle) {
+                f32       cx      = cos(glm::radians(angle)) * radius;
+                f32       cy      = sin(glm::radians(angle)) * radius;
+                glm::vec3 current = glm::vec3(cx, cy, 0.0f);
+
+                f32       nx   = cos(glm::radians(angle + sectorAngle)) * radius;
+                f32       ny   = sin(glm::radians(angle + sectorAngle)) * radius;
+                glm::vec3 next = glm::vec3(nx, ny, 0.0f);
+
+                //DrawPoint(position + (current), 0.05, colour);
+                DrawLine(arcCentre + (rotation * current), arcCentre + (rotation * next), colour);
+                DrawPoint(arcCentre + (rotation * current), 0.1f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            }
+        }
+
+        void RZDebugRenderer::DrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour)
+        {
+            f32 offset = 0.0f;
+            DrawCircle(50, radius, position, glm::vec3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(45.0f, 0.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(-45.0f, 0.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(0.0f, 90.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(0.0f, 45.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(00.0f, -45.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, 90.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, 45.0f), colour);
+            DrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, -45.0f), colour);
+        }
+
+        void RZDebugRenderer::DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour)
+        {
+            f32       radius       = tan(glm::radians(angle * 0.5f)) * length;
             glm::quat quatRotation = glm::quat(glm::vec3(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z)));
 
             glm::vec3 forward     = -(quatRotation * glm::vec3(0.0f, 0.0f, -1.0f));
             glm::vec3 endPosition = position + forward * length;
             f32       offset      = 0.0f;
-            DebugDrawCircle(numCircleVerts, radius, endPosition, rotation, colour);
+            DrawCircle(numCircleVerts, radius, endPosition, rotation, colour);
 
             // FIXME: Use the draw circle logic and get the points on the circle and draw lines to it from the origin
             f32 sectorAngle = 360.0f / f32(numLinesToCircle);
@@ -590,7 +703,7 @@ namespace Razix {
                 f32 cx = cos(glm::radians(sec_angle)) * radius;
                 f32 cy = sin(glm::radians(sec_angle)) * radius;
 
-                glm::vec3 point = glm::vec3(cx, cy, 0.0f);
+                glm::vec3 point    = glm::vec3(cx, cy, 0.0f);
                 glm::vec3 endPoint = endPosition + point;
                 DrawLine(position, endPoint, colour);
                 //DrawPoint(endPoint,0.1f, colour);

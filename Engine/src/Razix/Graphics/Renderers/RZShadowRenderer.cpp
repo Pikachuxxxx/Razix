@@ -52,7 +52,7 @@ namespace Razix {
 
         void RZShadowRenderer::Begin(RZScene* scene)
         {
-            ;
+            
         }
 
         void RZShadowRenderer::Draw(RZCommandBuffer* cmdBuffer)
@@ -126,11 +126,19 @@ namespace Razix {
 
                     // Update Viewport and Scissor Rect
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
-
+                     
                     LightVPUBOData light_data{};
                     // Get the Light direction
-                    auto      lights     = scene->GetComponentsOfType<LightComponent>();
-                    auto&     dir_light  = lights[0].light;
+                    auto lights = scene->GetComponentsOfType<LightComponent>();
+                    // Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
+                    RZLight dir_light;
+                    for (auto& light: lights) {
+                        if (light.light.getType() == LightType::DIRECTIONAL) {
+                            dir_light = light.light;
+                            break;
+                        }
+                    }
+
                     glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                     float     near_plane = -100.0f, far_plane = 50.0f;
                     glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);

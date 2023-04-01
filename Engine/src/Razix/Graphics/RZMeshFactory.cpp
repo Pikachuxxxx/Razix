@@ -142,7 +142,6 @@ namespace Razix {
                 RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
 
                 auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
-
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);

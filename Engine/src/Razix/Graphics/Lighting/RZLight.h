@@ -125,9 +125,10 @@ namespace Razix {
             RAZIX_INLINE glm::vec3 getDirection() { return glm::vec3(m_LightData.direction); }
             void                   setDirection(const glm::vec3& direction) { m_LightData.direction = glm::vec4(direction, 1.0f); }
 
-            RAZIX_INLINE const glm::vec3& getPosition() const { return m_LightData.position; }
+            RAZIX_INLINE f32 getRadius() { return m_LightData.range; }
+            void             setRadius(f32 radius) { m_LightData.range = radius; }
 
-            inline LightType getLightType() { return m_LightData.type; }
+            RAZIX_INLINE const glm::vec3& getPosition() const { return m_LightData.position; }
 
             template<class Archive>
             void serialize(Archive& archive)

@@ -114,6 +114,18 @@ namespace Razix {
             m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
+            // [Test] OmniDir Shadow Pass
+            //-------------------------------
+
+            m_Blackboard.add<OmniDirectionalShadowPassData>() = m_FrameGraph.addCallbackPass<OmniDirectionalShadowPassData>(
+                "",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, OmniDirectionalShadowPassData& data) {
+
+                },
+                [=](const OmniDirectionalShadowPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                });
+
+            //-------------------------------
             // [Test] Forward Lighting Pass
             //-------------------------------
 
@@ -220,6 +232,7 @@ namespace Razix {
                 },
                 [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
+#if 0
                     RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 0.1f);
@@ -228,16 +241,23 @@ namespace Razix {
                     RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 10.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 10.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-                    RZDebugRenderer::DebugDrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DebugDrawCircle(50, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 90.0f, 0.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
-                    RZDebugRenderer::DebugDrawCircle(50, 3.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawCircle(50, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 90.0f, 0.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+                    RZDebugRenderer::DrawCircle(50, 3.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
-                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(2.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(3.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DebugDrawSphere(1.0f, glm::vec3(4.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(2.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(3.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(4.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+#endif
+                    auto lights = scene->GetComponentsOfType<LightComponent>();
 
-                    RZDebugRenderer::DebugDrawCone(50, 6, 45.0f, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+                    if (lights[0].light.getType() == LightType::POINT)
+                        RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
+
+                    //RZDebugRenderer::DrawCone(50, 6, 45.0f, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+                    //RZDebugRenderer::DrawCylinder(glm::vec3(0.0f), glm::vec3(0.0f), 6.0f, 2.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
                     RZDebugRenderer::Get()->Begin(scene);
 
