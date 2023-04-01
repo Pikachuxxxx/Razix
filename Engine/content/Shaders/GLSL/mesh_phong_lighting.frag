@@ -59,8 +59,9 @@ layout(location = 0) out vec4 outFragColor;
 //	return shadow;
 //
 //}
+//------------------------------------------------------------------------------
 // Simple Shadow Map calculation
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir )
+float DirectionalShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -88,7 +89,11 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir )
 
     return shadow;
 }
-
+// Point Light Omnidirectional Shadow Map calculation
+float OmnidirectionalShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
+{
+    return 0.0f;
+}
 //------------------------------------------------------------------------------
 // Directional light Calculation
 vec3 CalculateDirectionalLightContribution(LightData light, vec3 normal, vec3 viewPos)
@@ -178,7 +183,7 @@ void main()
     //-----------------------------------------------
     // Shadow map calculation
     vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
-    float shadow = ShadowCalculation(FragPosLightSpace, normalize(fs_in.fragNormal), lightBuffer.data[0].position);
+    float shadow = DirectionalShadowCalculation(FragPosLightSpace, normalize(fs_in.fragNormal), lightBuffer.data[0].position);
      
     outFragColor.rgb *= shadow;
 

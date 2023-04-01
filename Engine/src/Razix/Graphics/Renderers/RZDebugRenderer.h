@@ -13,6 +13,7 @@
 namespace Razix {
     namespace Graphics {
 
+        class RZLight;
         class RZDescriptorSet;
 
         struct Line
@@ -142,9 +143,9 @@ namespace Razix {
             static void DrawMatrixNDT(const glm::mat4& transform_mtx);
             static void DrawMatrixNDT(const glm::mat3& rotation_mtx, const glm::vec3& position);
 
-            static void DebugDraw(const Maths::BoundingBox& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
+            static void DebugDraw(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
 #endif
-            //static void DebugDraw(Graphics::RZLight* light, const glm::quat& rotation, const glm::vec4& colour);
+            static void DrawLight(Graphics::RZLight* light, const glm::vec4& colour);
             static void DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour);
             static void DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
             static void DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
@@ -154,8 +155,7 @@ namespace Razix {
             static void DrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour);
             static void DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour);
             static void DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour);
-#if 0
-#endif
+
         protected:
             //Actual functions managing data parsing to save code bloat - called by public functions
             static void GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);

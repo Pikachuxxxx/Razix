@@ -18,6 +18,12 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource lightVP;
         };
 
+        struct OmniDirectionalShadowPassData
+        {
+            FrameGraph::RZFrameGraphResource shadowMap;       /* Cube Depth texture to store the shadow map data                    */
+            FrameGraph::RZFrameGraphResource lightVPMatrices; /* The light view proj matrices to look at all sides of the cubemap   */
+        };
+
         constexpr u32 kShadowMapSize = 4096;
 
         class RZShadowRenderer : public IRZRenderer, IRZPass

@@ -22,6 +22,8 @@
 #include "Razix/Graphics/RZModel.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
+#include "Razix/Graphics/Lighting/RZLight.h"
+
 #include "Razix/Graphics/RHI/RHI.h"
 
 namespace Razix {
@@ -519,11 +521,11 @@ namespace Razix {
             if (light->Type < 0.1f) {
                 auto           flipRotation = rotation * Maths::Quaternion::EulerAnglesToQuaternion(180.0f, 0.0f, 0.0f);
                 Maths::Vector3 offset(0.0f, 0.1f, 0.0f);
-                DrawHairLine((light->Position).ToVector3() + offset, (light->Position + (light->Direction) * 2.0f).ToVector3() + offset, colour);
-                DrawHairLine((light->Position).ToVector3() - offset, (light->Position + (light->Direction) * 2.0f).ToVector3() - offset, colour);
+                DrawHairLine((light->Position).ToVector3() + offset, (light->Position + (light->getDirection()) * 2.0f).ToVector3() + offset, colour);
+                DrawHairLine((light->Position).ToVector3() - offset, (light->Position + (light->getDirection()) * 2.0f).ToVector3() - offset, colour);
 
-                DrawHairLine((light->Position).ToVector3(), (light->Position + (light->Direction) * 2.0f).ToVector3(), colour);
-                DebugDrawCone(20, 4, 30.0f, 1.5f, (light->Position - (light->Direction) * 1.5f).ToVector3(), flipRotation, colour);
+                DrawHairLine((light->Position).ToVector3(), (light->Position + (light->getDirection()) * 2.0f).ToVector3(), colour);
+                DebugDrawCone(20, 4, 30.0f, 1.5f, (light->Position - (light->getDirection()) * 1.5f).ToVector3(), flipRotation, colour);
             }
             //Spot
             else if (light->Type < 1.1f) {
@@ -540,6 +542,30 @@ namespace Razix {
             DrawPoint(sound->GetPosition(), sound->GetRadius(), colour);
         }
 #endif
+        void RZDebugRenderer::DrawLight(Graphics::RZLight* light, const glm::vec4& colour)
+        {
+            // Directional
+            if (light->getType() == LightType::DIRECTIONAL) {
+                glm::vec3 offset(0.0f, 0.1f, 0.0f);
+                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f) + offset, colour);
+                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f) - offset, colour);
+
+                DrawLine(glm::vec3(light->getPosition()), glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f), colour);
+                //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
+            }
+            //// Spot
+            //else if (light->Type < 1.1f) {
+            //    DrawCone(20, 4, light->getAngle(), light->getIntensity(), light->getPosition(), rotation, colour);
+            //}
+            //// Point
+            //else {
+            //    DrawSphere(light->Radius * 0.5f, light->getPosition(), colour);
+            //}
+            else if (light->getType() == LightType::POINT) {
+                DrawSphere(light->getRadius() * 0.5f, light->getPosition(), colour);
+            }
+        }
+
         void RZDebugRenderer::DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)
         {
             f32 sectorAngle = 360.0f / f32(numVerts);

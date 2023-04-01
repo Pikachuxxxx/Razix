@@ -130,8 +130,6 @@ namespace Razix {
 
             RAZIX_INLINE const glm::vec3& getPosition() const { return m_LightData.position; }
 
-            inline LightType getLightType() { return m_LightData.type; }
-
             template<class Archive>
             void serialize(Archive& archive)
             {
