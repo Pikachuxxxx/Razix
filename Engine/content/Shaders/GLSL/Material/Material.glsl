@@ -6,7 +6,7 @@ layout(set = 1, binding = 0) uniform Material
 {
     vec3  baseColor;
     vec3  normal;
-    vec3  emissiveColor;
+    float emissiveIntensity;
     float metallic;     
     float roughness;    
     float specular;     
@@ -34,9 +34,9 @@ layout(set = 1, binding = 7) uniform sampler2D aoMap;
 vec3 getAlbedoColor(vec2 uv)
 {
     if(material.isUsingAlbedoMap)
-        return vec3(texture(albedoMap, uv));
+        return vec3(texture(albedoMap, uv)) * material.baseColor * material.emissiveIntensity;
     else 
-        return material.baseColor;
+        return material.baseColor * material.emissiveIntensity;
 }
 
 vec3 getSpecularColor(vec2 uv)
@@ -53,6 +53,14 @@ float getOpacity(vec2 uv)
         return texture(albedoMap, uv).a;
     else 
         return material.opacity;
+}
+
+vec3 getNormals(vec2 uv, vec3 normals)
+{
+    //if(material.isUsingNormalMap)
+    //    return vec3(texture(normalMap, uv));
+    //else 
+    return normals;
 }
 
 #endif

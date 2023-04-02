@@ -23,11 +23,11 @@ namespace Razix {
         /* Material properties (16-byte aligned as per optimal GPU requirements) */
         struct MaterialProperties
         {
-            glm::vec3 albedoColor         = glm::vec3(1.0f, 0.0f, 0.0f);
+            glm::vec3 albedoColor         = glm::vec3(1.0f, 1.0f, 1.0f);
             bool      _padding[4]         = {};
             glm::vec3 normal              = glm::vec3(0.0f, 1.0f, 0.0f);
-            bool      _padding_[4]        = {};
-            glm::vec3 emissiveColor       = glm::vec3(0.0f, 0.0f, 1.0f);
+            //bool      _padding_[4]        = {1, 0, 1, 0};
+            f32       emissiveIntensity   = 4.0f;
             f32       metallicColor       = 17.0f;
             f32       roughnessColor      = 18.0f;
             f32       specularColor       = 32.0f;
@@ -81,7 +81,7 @@ namespace Razix {
             void createDescriptorSet();
 
             RAZIX_INLINE MaterialTextures& getTextures() { return m_MaterialTextures; }
-            void setTextures(MaterialTextures& textures);
+            void                           setTextures(MaterialTextures& textures);
 
             RAZIX_INLINE const MaterialProperties& getProperties() const { return m_MaterialProperties; }
             void                                   setProperties(MaterialProperties& props);
@@ -182,14 +182,14 @@ namespace Razix {
 
             static RZTexture2D* s_DefaultTexture;
 
-            std::string        m_Name;
-            RZShader*          m_Shader = nullptr;
-            RZDescriptorSet*   m_DescriptorSet;
             MaterialProperties m_MaterialProperties;
             MaterialTextures   m_MaterialTextures;
-            RZUniformBuffer*   m_MaterialPropertiesUBO;
-            bool               m_TexturesUpdated = false;
-            WorkFlow           m_Workflow        = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+            std::string        m_Name                  = "PBR material";
+            RZShader*          m_Shader                = nullptr;
+            RZDescriptorSet*   m_DescriptorSet         = nullptr;
+            RZUniformBuffer*   m_MaterialPropertiesUBO = nullptr;
+            bool               m_TexturesUpdated       = false;
+            WorkFlow           m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
         };
 
     }    // namespace Graphics

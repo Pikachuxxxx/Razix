@@ -166,12 +166,15 @@ vec3 CalculateSpotLightContribution(LightData light, vec3 normal, vec3 viewPos)
 // Main
 void main()
 {
-    //vec4 normal = texture(normalMap, fs_in.fragTexCoord);
+    vec3 normal = getNormals(fs_in.fragTexCoord, fs_in.fragNormal);
+    // transform normal vector to range [-1,1]
+    //normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+
     vec3 result = vec3(0.0f);
     if(lightBuffer.data[0].type == LightType_Directional)
-        result += CalculateDirectionalLightContribution(lightBuffer.data[0], normalize(fs_in.fragNormal), fs_in.viewPos);
+        result += CalculateDirectionalLightContribution(lightBuffer.data[0], normalize(normal), fs_in.viewPos);
     else if(lightBuffer.data[0].type == LightType_Point)
-        result += CalculatePointLightContribution(lightBuffer.data[0], normalize(fs_in.fragNormal), fs_in.viewPos);
+        result += CalculatePointLightContribution(lightBuffer.data[0], normalize(normal), fs_in.viewPos);
 
     // Discard alpha samples
     if(getOpacity(fs_in.fragTexCoord) < 0.1)
@@ -183,7 +186,7 @@ void main()
     //-----------------------------------------------
     // Shadow map calculation
     vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
-    float shadow = DirectionalShadowCalculation(FragPosLightSpace, normalize(fs_in.fragNormal), lightBuffer.data[0].position);
+    float shadow = DirectionalShadowCalculation(FragPosLightSpace, normalize(normal), lightBuffer.data[0].position);
      
     outFragColor.rgb *= shadow;
 
@@ -191,6 +194,7 @@ void main()
     // Gamma correction
     float gamma = 2.2;
     outFragColor.rgb = pow(outFragColor.rgb, vec3(1.0/gamma));
+
     //-----------------------------------------------
     // Test the CSM at layer 0
     //float depthValue = texture(CascadedShadowMaps, vec3(fs_in.fragTexCoord, 0)).r;
@@ -204,7 +208,6 @@ void main()
 	//		cascadeIndex = i + 1;
 	//	}
 	//}
-
 	// Depth compare for shadowing
 	//vec4 shadowCoord = (biasMat * shadowMapData.cascadeViewProjMat[cascadeIndex]) * vec4(fs_in.fragPos, 1.0);	
 	//float shadow = 0;

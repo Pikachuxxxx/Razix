@@ -8,10 +8,13 @@
 #include "Razix/Graphics/FrameGraph/Resources/RZTransientResources.h"
 
 // Passes
+#include "Razix/Graphics/Passes/RZBloomPass.h"
 #include "Razix/Graphics/Passes/RZDeferredLightingPass.h"
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
+
+#include "Razix/Graphics/Passes/Data/GlobalData.h"
 
 // Renderers
 #include "Razix/Graphics/Renderers/RZCascadedShadowsRenderer.h"
@@ -32,29 +35,6 @@ namespace Razix {
     }
 
     namespace Graphics {
-
-        /**
-         * Global light probes for PBR lighting
-         */
-        struct GlobalLightProbe
-        {
-            RZCubeMap* diffuse;
-            RZCubeMap* specular;
-        };
-
-        // Default pass data types
-        struct RTOnlyPassData
-        {
-            FrameGraph::RZFrameGraphResource outputRT;          /* Render Texture to which this pass is drawn to                                                */
-            FrameGraph::RZFrameGraphResource passDoneSemaphore; /* Semaphore to notify the command buffers that this pass has completed execution on the GPU    */
-        };
-
-        struct RTDTPassData
-        {
-            FrameGraph::RZFrameGraphResource outputRT;
-            FrameGraph::RZFrameGraphResource depthRT;
-            FrameGraph::RZFrameGraphResource passDoneSemaphore;
-        };
 
         // Renderer Settings + Debug flags
 
@@ -144,6 +124,7 @@ namespace Razix {
             RZDeferredLightingPass    m_DeferredPass;
             RZImGuiRenderer           m_ImGuiRenderer;
             RZFinalCompositionPass    m_CompositePass;
+            RZBloomPass               m_BloomPass;
 
             // Test only
             RZForwardRenderer m_ForwardRenderer;

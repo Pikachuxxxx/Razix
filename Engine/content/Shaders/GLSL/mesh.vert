@@ -55,5 +55,8 @@ void main()
     vs_out.fragNormal   = mat3(transpose(inverse(model_pc_data.model))) * inNormal;
     vs_out.fragTangent  = inTangent;
     vs_out.viewPos      = getCameraPosition();
+
+
+
 }
 //------------------------------------------------------------------------------
