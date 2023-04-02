@@ -338,11 +338,22 @@ namespace Razix {
         void RZEMainWindow::SetupWindowsCommands()
         {
             connect(ui.actionMaterial_Editor, &QAction::triggered, this, &RZEMainWindow::Windows_MaterialEditor);
+
+            // Create the m_WorldSettingsWindow and connect it
+            m_WorldSettingsWindow = new RZEWorldRendererSettingsWindow;
+            connect(ui.actionWorld_Renderer_Settings, &QAction::triggered, this, &RZEMainWindow::Windows_WorldRendererSettings);
         }
         // Windows - Action = open/close Material Editor
         void RZEMainWindow::Windows_MaterialEditor()
         {
         }
+
+        void RZEMainWindow::Windows_WorldRendererSettings()
+        {
+            if (!m_WorldSettingsWindow->isVisible())
+                m_WorldSettingsWindow->show();
+        }
+
         //------------------------------
         // Menu - Layout
         void RZEMainWindow::SetupLayoutCommands()

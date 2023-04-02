@@ -47,6 +47,7 @@
     <property name="title">
      <string>Windows</string>
     </property>
+    <addaction name="actionWorld_Renderer_Settings"/>
     <addaction name="actionInspector"/>
     <addaction name="actionViewport"/>
     <addaction name="actionScene_Hierarchy"/>
@@ -274,6 +275,11 @@
   <action name="actionClear_layout">
    <property name="text">
     <string>Clear layout</string>
+   </property>
+  </action>
+  <action name="actionWorld_Renderer_Settings">
+   <property name="text">
+    <string>World Renderer Settings</string>
    </property>
   </action>
  </widget>

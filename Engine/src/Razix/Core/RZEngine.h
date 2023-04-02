@@ -132,9 +132,13 @@ namespace Razix {
         Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
         Graphics::RZShaderLibrary&     getShaderLibrary() { return m_ShaderLibrary; }
 
+        Graphics::RZRendererSettings& getWorldSettings() { return m_WorldSettings; }
+        void                          setWorldSettings(const Graphics::RZRendererSettings& settings) { m_WorldSettings = settings; }
+
     private:
-        Stats       m_Stats;                                /* Current frame basic statistics	                                */
-        f32         m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
-        std::string m_EngineInstallationDir;
+        Stats                        m_Stats;                                /* Current frame basic statistics	                                */
+        f32                          m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
+        std::string                  m_EngineInstallationDir;
+        Graphics::RZRendererSettings m_WorldSettings;
     };
 }    // namespace Razix

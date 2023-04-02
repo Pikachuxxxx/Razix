@@ -25,7 +25,7 @@ namespace Razix {
             connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_DiffuseTextureSelect()));
             connect(ui.diffuseColor, SIGNAL(pressed()), this, SLOT(on_DiffuseColor()));
             connect(ui.specTexture, SIGNAL(pressed()), this, SLOT(on_SpecularTextureSelected()));
-            connect(ui.emissiveIntensity, SIGNAL(pressed()), this, SLOT(on_EmissionIntensity()));
+            connect(ui.emissiveIntensity, SIGNAL(returnPressed()), this, SLOT(on_EmissionIntensity()));
         }
 
         RZEMaterialEditor::~RZEMaterialEditor()

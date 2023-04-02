@@ -21,10 +21,11 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource passDoneSemaphore; /* Semaphore to notify the command buffers that this pass has completed execution on the GPU    */
         };
 
-        struct RTDTPassData
+        struct SceneData
         {
-            FrameGraph::RZFrameGraphResource outputRT;
-            FrameGraph::RZFrameGraphResource depthRT;
+            FrameGraph::RZFrameGraphResource outputHDR;
+            FrameGraph::RZFrameGraphResource outputLDR;
+            FrameGraph::RZFrameGraphResource depth;
             FrameGraph::RZFrameGraphResource passDoneSemaphore;
         };
     }    // namespace Graphics

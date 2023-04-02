@@ -68,6 +68,19 @@ namespace Razix {
             RendererDebugFlag_RadianceOnly  = 1 << 3,
         };
 
+        enum TonemapMode : u32
+        {
+            ACES,
+            Filmic,
+            Lottes,
+            Reinhard,
+            Reinhard_V2,
+            Uchimura,
+            Uncharted2,
+            Unreal,
+            None
+        };
+
         struct RZRendererSettings
         {
             // TODO: Specify the output RT type here
@@ -81,8 +94,8 @@ namespace Razix {
             {
                 int32_t numPropagations{6};
             } globalIlluminationConfig;
-            u32 debugFlags{0u};
-            // TODO: Add tone mapping settings here
+            u32         debugFlags{0u};
+            TonemapMode tonemapMode = ACES;
         };
 
         /**
@@ -99,9 +112,9 @@ namespace Razix {
              * 
              * Note: exports the svg & dot file into the Game/Exports/FrameGraph folder
              */
-            void buildFrameGraph(RZRendererSettings settings, Razix::RZScene* scene);
+            void buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene);
             /* draws the frame by executing the frame graph */
-            void drawFrame(RZRendererSettings settings, Razix::RZScene* scene);
+            void drawFrame(RZRendererSettings& settings, Razix::RZScene* scene);
             /* Destroy frame graph passes and it's resources */
             void destroy();
 

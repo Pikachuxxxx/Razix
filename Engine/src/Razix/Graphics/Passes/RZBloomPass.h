@@ -33,6 +33,7 @@ namespace Razix {
         private:
             RZPipeline* m_UpsamplePipeline;
             RZPipeline* m_DownsamplePipeline;
+            RZPipeline* m_HDRBloomMixPipeline;
             struct BloomPassGPUResources
             {
                 std::vector<RZCommandBuffer*> cmdBuffers;
@@ -40,12 +41,17 @@ namespace Razix {
             };
             BloomPassGPUResources downsamplebBloomGpuResources[NUM_BLOOM_MIPS];
             BloomPassGPUResources upsamplebBloomGpuResources[NUM_BLOOM_MIPS];
-            RZMesh*               m_ScreenQuadMesh;
+            BloomPassGPUResources bloomSceneMixGpuResources;
+
+            RZMesh* m_ScreenQuadMesh;
 
         private:
-            BloomMip upsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex);
+            BloomMip upsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings& settings);
             BloomMip downsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex);
-            void     mixScene(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene);
+            /**
+             * Mixes the final bloom blurred texture with the scene HDR color render target
+             */
+            void mixScene(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings);
         };
     }    // namespace Graphics
 }    // namespace Razix
