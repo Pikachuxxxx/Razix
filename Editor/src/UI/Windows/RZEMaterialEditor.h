@@ -34,6 +34,9 @@ namespace Razix {
             // Specular
             void on_SpecularTextureSelected();
             void on_SpecularIntensity();
+            // Emission
+            /* Used for HDR Bloom intensity */
+            void on_EmissionIntensity(); 
 
         private:
             Ui::MaterialEditor           ui;

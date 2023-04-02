@@ -25,6 +25,7 @@ namespace Razix {
             connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_DiffuseTextureSelect()));
             connect(ui.diffuseColor, SIGNAL(pressed()), this, SLOT(on_DiffuseColor()));
             connect(ui.specTexture, SIGNAL(pressed()), this, SLOT(on_SpecularTextureSelected()));
+            connect(ui.emissiveIntensity, SIGNAL(pressed()), this, SLOT(on_EmissionIntensity()));
         }
 
         RZEMaterialEditor::~RZEMaterialEditor()
@@ -64,7 +65,9 @@ namespace Razix {
 
         void RZEMaterialEditor::on_DiffuseColor()
         {
-            QColor color   = QColorDialog::getColor(m_DiffuseColor);
+            QColorDialog::ColorDialogOptions options;
+            options.setFlag(QColorDialog::ShowAlphaChannel);
+            QColor color   = QColorDialog::getColor(m_DiffuseColor, nullptr, "Albedo Color", options);
             m_DiffuseColor = color;
 
             ui.diffuseColor->setStyleSheet("background-color: " + color.name());
@@ -76,6 +79,7 @@ namespace Razix {
 
             auto matProps        = m_Material->getProperties();
             matProps.albedoColor = glm::vec3(color.redF(), color.greenF(), color.blueF());
+            matProps.opacity     = color.alphaF();
             m_Material->setProperties(matProps);
         }
 
@@ -101,5 +105,14 @@ namespace Razix {
             // Get the number from the LineEdit and set the specular float in the MaterialData struct
         }
 
+        void RZEMaterialEditor::on_EmissionIntensity()
+        {
+            if (!m_Material)
+                return;
+
+            auto matProps              = m_Material->getProperties();
+            matProps.emissiveIntensity = ui.emissiveIntensity->text().toFloat();
+            m_Material->setProperties(matProps);
+        }
     }    // namespace Editor
 }    // namespace Razix

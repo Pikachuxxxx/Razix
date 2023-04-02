@@ -103,10 +103,6 @@ namespace Razix {
             //-------------------------------
 
             //-------------------------------
-            // [ ] Bloom Pass
-            //-------------------------------
-
-            //-------------------------------
             // [Test] Simple Shadow map Pass
             //-------------------------------
 
@@ -114,16 +110,17 @@ namespace Razix {
             m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
-            // [Test] OmniDir Shadow Pass
+            // [Test] Omni-Dir Shadow Pass
             //-------------------------------
 
+#if 0
             m_Blackboard.add<OmniDirectionalShadowPassData>() = m_FrameGraph.addCallbackPass<OmniDirectionalShadowPassData>(
-                "",
+                "Omni-Directional shadow pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, OmniDirectionalShadowPassData& data) {
-
                 },
                 [=](const OmniDirectionalShadowPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                 });
+#endif
 
             //-------------------------------
             // [Test] Forward Lighting Pass
@@ -139,7 +136,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTDTPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
+                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
 
                     data.depthRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
 
@@ -215,6 +212,11 @@ namespace Razix {
                 });
 
             RTDTPassData forwardSceneData = m_Blackboard.get<RTDTPassData>();
+
+            //-------------------------------
+            // [ ] Bloom Pass
+            //-------------------------------
+            m_BloomPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             // FIXME: URGENTLY!!! Use a proper RT & DT from the forward pass
             //-------------------------------
