@@ -138,15 +138,8 @@ namespace Razix {
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
             if (!m_DescriptorSet || getTexturesUpdated()) {
-                m_DescriptorSet->Destroy();
-
-                //m_MaterialProperties.isUsingAlbedoMap    = false;
-                //m_MaterialProperties.isUsingAOMap        = false;
-                //m_MaterialProperties.isUsingEmissiveMap  = false;
-                //m_MaterialProperties.isUsingMetallicMap  = false;
-                //m_MaterialProperties.isUsingNormalMap    = false;
-                //m_MaterialProperties.isUsingRoughnessMap = false;
-                //m_MaterialProperties.isUsingSpecular     = false;
+                if (m_DescriptorSet)
+                    m_DescriptorSet->Destroy();
 
                 createDescriptorSet();
                 setTexturesUpdated(false);

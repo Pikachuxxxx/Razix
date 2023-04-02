@@ -78,7 +78,7 @@ public:
     QCheckBox *checkBox_4;
     QHBoxLayout *horizontalLayout_11;
     QLabel *label_8;
-    QLineEdit *lineEdit_4;
+    QLineEdit *metallicValue;
     QSpacerItem *horizontalSpacer_4;
     QGroupBox *groupBox_5;
     QHBoxLayout *horizontalLayout_12;
@@ -87,7 +87,7 @@ public:
     QCheckBox *checkBox_5;
     QHBoxLayout *horizontalLayout_13;
     QLabel *label_9;
-    QLineEdit *lineEdit_5;
+    QLineEdit *roughnessValue;
     QSpacerItem *horizontalSpacer_5;
     QGroupBox *groupBox_7;
     QHBoxLayout *horizontalLayout_16;
@@ -96,7 +96,7 @@ public:
     QCheckBox *checkBox_7;
     QHBoxLayout *horizontalLayout_17;
     QLabel *label_11;
-    QLineEdit *lineEdit_7;
+    QLineEdit *emissiveIntensity;
     QSpacerItem *horizontalSpacer_7;
     QGroupBox *groupBox_8;
     QHBoxLayout *horizontalLayout_18;
@@ -112,7 +112,7 @@ public:
     {
         if (MaterialEditor->objectName().isEmpty())
             MaterialEditor->setObjectName(QString::fromUtf8("MaterialEditor"));
-        MaterialEditor->resize(304, 842);
+        MaterialEditor->resize(300, 842);
         verticalLayout = new QVBoxLayout(MaterialEditor);
         verticalLayout->setSpacing(0);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -120,10 +120,11 @@ public:
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         scrollArea = new QScrollArea(MaterialEditor);
         scrollArea->setObjectName(QString::fromUtf8("scrollArea"));
+        scrollArea->setMinimumSize(QSize(300, 0));
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 302, 840));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 298, 840));
         scrollAreaWidgetContents->setMinimumSize(QSize(0, 0));
         verticalLayout_3 = new QVBoxLayout(scrollAreaWidgetContents);
         verticalLayout_3->setSpacing(6);
@@ -233,6 +234,8 @@ public:
         sizePolicy.setHeightForWidth(diffuseTexture->sizePolicy().hasHeightForWidth());
         diffuseTexture->setSizePolicy(sizePolicy);
         diffuseTexture->setMinimumSize(QSize(50, 50));
+        diffuseTexture->setIconSize(QSize(50, 50));
+        diffuseTexture->setFlat(false);
 
         horizontalLayout_5->addWidget(diffuseTexture);
 
@@ -377,10 +380,10 @@ public:
 
         horizontalLayout_11->addWidget(label_8);
 
-        lineEdit_4 = new QLineEdit(groupBox_4);
-        lineEdit_4->setObjectName(QString::fromUtf8("lineEdit_4"));
+        metallicValue = new QLineEdit(groupBox_4);
+        metallicValue->setObjectName(QString::fromUtf8("metallicValue"));
 
-        horizontalLayout_11->addWidget(lineEdit_4);
+        horizontalLayout_11->addWidget(metallicValue);
 
         horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -425,10 +428,10 @@ public:
 
         horizontalLayout_13->addWidget(label_9);
 
-        lineEdit_5 = new QLineEdit(groupBox_5);
-        lineEdit_5->setObjectName(QString::fromUtf8("lineEdit_5"));
+        roughnessValue = new QLineEdit(groupBox_5);
+        roughnessValue->setObjectName(QString::fromUtf8("roughnessValue"));
 
-        horizontalLayout_13->addWidget(lineEdit_5);
+        horizontalLayout_13->addWidget(roughnessValue);
 
         horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -473,10 +476,10 @@ public:
 
         horizontalLayout_17->addWidget(label_11);
 
-        lineEdit_7 = new QLineEdit(groupBox_7);
-        lineEdit_7->setObjectName(QString::fromUtf8("lineEdit_7"));
+        emissiveIntensity = new QLineEdit(groupBox_7);
+        emissiveIntensity->setObjectName(QString::fromUtf8("emissiveIntensity"));
 
-        horizontalLayout_17->addWidget(lineEdit_7);
+        horizontalLayout_17->addWidget(emissiveIntensity);
 
         horizontalSpacer_7 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -576,15 +579,15 @@ public:
         groupBox_4->setTitle(QCoreApplication::translate("MaterialEditor", "Metallic", nullptr));
         pushButton_4->setText(QString());
         checkBox_4->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
-        label_8->setText(QCoreApplication::translate("MaterialEditor", "Color", nullptr));
+        label_8->setText(QCoreApplication::translate("MaterialEditor", "value", nullptr));
         groupBox_5->setTitle(QCoreApplication::translate("MaterialEditor", "Roughness", nullptr));
         pushButton_5->setText(QString());
         checkBox_5->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
-        label_9->setText(QCoreApplication::translate("MaterialEditor", "Color", nullptr));
+        label_9->setText(QCoreApplication::translate("MaterialEditor", "value", nullptr));
         groupBox_7->setTitle(QCoreApplication::translate("MaterialEditor", "Emissive", nullptr));
         pushButton_7->setText(QString());
         checkBox_7->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
-        label_11->setText(QCoreApplication::translate("MaterialEditor", "Color", nullptr));
+        label_11->setText(QCoreApplication::translate("MaterialEditor", "HDR intensity", nullptr));
         groupBox_8->setTitle(QCoreApplication::translate("MaterialEditor", "AO", nullptr));
         pushButton_8->setText(QString());
         checkBox_8->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));

@@ -43,6 +43,10 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
             loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
             //-------------------------------------------------------------------
+            // Post Processing FX
+            loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/bloom_downsample.rzsf");
+            //-------------------------------------------------------------------
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap
             loadShader("//RazixContent/Shaders/Razix/EnvToCubeMap.rzsf");
