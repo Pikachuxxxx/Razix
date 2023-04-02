@@ -46,6 +46,7 @@ namespace Razix {
             // Post Processing FX
             loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");
             loadShader("//RazixContent/Shaders/Razix/bloom_downsample.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/bloom_mix.rzsf");
             //-------------------------------------------------------------------
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap

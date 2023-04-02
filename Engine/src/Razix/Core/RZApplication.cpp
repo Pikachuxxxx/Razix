@@ -263,8 +263,7 @@ namespace Razix {
         // Load a scene into memory
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
 
-        Graphics::RZRendererSettings settings;
-        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(settings, Razix::RZEngine::Get().getSceneManager().getCurrentScene());
+        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), Razix::RZEngine::Get().getSceneManager().getCurrentScene());
 
         m_CurrentState = AppState::Running;
 
@@ -400,8 +399,7 @@ namespace Razix {
 
         //Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
 
-        Graphics::RZRendererSettings settings;
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(settings, Razix::RZEngine::Get().getSceneManager().getCurrentScene());
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), Razix::RZEngine::Get().getSceneManager().getCurrentScene());
 
         OnRender();
     }

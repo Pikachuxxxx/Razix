@@ -8,8 +8,9 @@
  // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
  #extension GL_ARB_shading_language_420pack : enable
 
- #include <Material/Material.glsl>
- #include <Lighting/Light.glsl>
+#include <Material/Material.glsl>
+#include <Lighting/Light.glsl>
+#include <FX/tonemapping.glsl>
 
  #define SHADOW_MAP_CASCADE_COUNT 4
  //------------------------------------------------------------------------------
@@ -41,7 +42,8 @@ const mat4 biasMat = mat4(
 );
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
-layout(location = 0) out vec4 outFragColor;
+layout(location = 0) out vec4 sceneColorHDR;
+layout(location = 1) out vec4 sceneColorLDR;
 //------------------------------------------------------------------------------
 // Functions
 // Cascaded Shadow Map calculation
@@ -166,6 +168,8 @@ vec3 CalculateSpotLightContribution(LightData light, vec3 normal, vec3 viewPos)
 // Main
 void main()
 {
+    vec4 outFragColor;
+   
     vec3 normal = getNormals(fs_in.fragTexCoord, fs_in.fragNormal);
     // transform normal vector to range [-1,1]
     //normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
@@ -212,5 +216,14 @@ void main()
 	//vec4 shadowCoord = (biasMat * shadowMapData.cascadeViewProjMat[cascadeIndex]) * vec4(fs_in.fragPos, 1.0);	
 	//float shadow = 0;
 	//shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
+
+     // check whether result is higher than some threshold, if so, output as bloom threshold color
+    float brightness = dot(getAlbedoColor(fs_in.fragTexCoord) * material.emissiveIntensity, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 1.0)
+        sceneColorHDR = vec4(getAlbedoColor(fs_in.fragTexCoord) * material.emissiveIntensity, 1.0);
+    else
+        sceneColorHDR = vec4(0.0, 0.0, 0.0, 1.0);
+
+    sceneColorLDR = outFragColor;
 }
 //------------------------------------------------------------------------------

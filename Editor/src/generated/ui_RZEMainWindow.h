@@ -57,6 +57,7 @@ public:
     QAction *actionSave_layout;
     QAction *actionRestore_layout;
     QAction *actionClear_layout;
+    QAction *actionWorld_Renderer_Settings;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     ToolWindowManager *toolWindowManager;
@@ -141,6 +142,8 @@ public:
         actionRestore_layout->setObjectName(QString::fromUtf8("actionRestore_layout"));
         actionClear_layout = new QAction(MainWindow);
         actionClear_layout->setObjectName(QString::fromUtf8("actionClear_layout"));
+        actionWorld_Renderer_Settings = new QAction(MainWindow);
+        actionWorld_Renderer_Settings->setObjectName(QString::fromUtf8("actionWorld_Renderer_Settings"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout = new QVBoxLayout(centralwidget);
@@ -187,6 +190,7 @@ public:
         menuFile->addAction(actionOpen_Project);
         menuFile->addAction(actionSave_Project);
         menuFile->addSeparator();
+        menuWindows->addAction(actionWorld_Renderer_Settings);
         menuWindows->addAction(actionInspector);
         menuWindows->addAction(actionViewport);
         menuWindows->addAction(actionScene_Hierarchy);
@@ -258,6 +262,7 @@ public:
         actionSave_layout->setText(QCoreApplication::translate("MainWindow", "Save layout", nullptr));
         actionRestore_layout->setText(QCoreApplication::translate("MainWindow", "Restore layout", nullptr));
         actionClear_layout->setText(QCoreApplication::translate("MainWindow", "Clear layout", nullptr));
+        actionWorld_Renderer_Settings->setText(QCoreApplication::translate("MainWindow", "World Renderer Settings", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuEdit->setTitle(QCoreApplication::translate("MainWindow", "Edit", nullptr));
         menuWindows->setTitle(QCoreApplication::translate("MainWindow", "Windows", nullptr));

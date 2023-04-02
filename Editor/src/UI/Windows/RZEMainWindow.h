@@ -13,6 +13,8 @@
 #include <QProgressBar>
 #include <QToolBar>
 
+#include "UI/Windows/RZEWorldRendererSettingsWindow.h"
+
 namespace Razix {
     namespace Editor {
 
@@ -70,6 +72,9 @@ namespace Razix {
             QPushButton* World_vs_LocalButton;
             QPushButton* enableSnapBtn;
 
+            // Windows
+            RZEWorldRendererSettingsWindow* m_WorldSettingsWindow;
+
         private:
             void SetupToolBars();
             // Toolbar settings
@@ -91,6 +96,8 @@ namespace Razix {
             void SetupWindowsCommands();
             // Windows - Action = open/close Material Editor
             void Windows_MaterialEditor();
+            // Windows - Action = open/close World Renderer Settings
+            void Windows_WorldRendererSettings();
             //------------------------------
             // Menu - Layout
             void SetupLayoutCommands();

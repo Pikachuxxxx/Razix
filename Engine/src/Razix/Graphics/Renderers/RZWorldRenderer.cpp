@@ -31,7 +31,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZWorldRenderer::buildFrameGraph(RZRendererSettings settings, Razix::RZScene* scene)
+        void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
@@ -131,17 +131,19 @@ namespace Razix {
 
             const SimpleShadowPassData shadowData = m_Blackboard.get<SimpleShadowPassData>();
 
-            m_Blackboard.add<RTDTPassData>() = m_FrameGraph.addCallbackPass<RTDTPassData>(
+            m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTDTPassData& data) {
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
+                    data.outputLDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene LDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene LDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA8});
 
-                    data.depthRT = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
 
-                    data.outputRT = builder.write(data.outputRT);
-                    data.depthRT  = builder.write(data.depthRT);
+                    data.outputHDR = builder.write(data.outputHDR);
+                    data.outputLDR = builder.write(data.outputLDR);
+                    data.depth     = builder.write(data.depth);
 
                     builder.read(frameDataBlock.frameData);
 
@@ -152,15 +154,18 @@ namespace Razix {
 
                     m_ForwardRenderer.Init();
                 },
-                [=](const RTDTPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const SceneData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     m_ForwardRenderer.Begin(scene);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(data.depthRT).getHandle();
+                    auto rtHDR = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle();
+                    auto rtLDR = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputLDR).getHandle();
+                    auto dt    = resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle();
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {rt, {true, scene->getSceneCamera().getBgColor()}}};
+                        {rtHDR, {true, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)}},
+                        {rtLDR, {true, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)}},
+                    };
                     info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
                     info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize          = true;
@@ -211,12 +216,14 @@ namespace Razix {
                     Graphics::RHI::SubmitWork({}, {});
                 });
 
-            RTDTPassData forwardSceneData = m_Blackboard.get<RTDTPassData>();
+            SceneData forwardSceneData = m_Blackboard.get<SceneData>();
 
             //-------------------------------
-            // [ ] Bloom Pass
+            // [x] Bloom Pass
             //-------------------------------
             m_BloomPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+
+            BloomPassData bloomData = m_Blackboard.get<BloomPassData>();
 
             // FIXME: URGENTLY!!! Use a proper RT & DT from the forward pass
             //-------------------------------
@@ -229,7 +236,7 @@ namespace Razix {
 
                     RZDebugRenderer::Get()->Init();
 
-                    builder.read(forwardSceneData.outputRT);
+                    builder.read(forwardSceneData.outputLDR);
                     builder.read(frameDataBlock.frameData);
                 },
                 [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
@@ -265,7 +272,7 @@ namespace Razix {
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputRT).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputLDR).getHandle();
 
                     RenderingInfo info{};
                     info.colorAttachments = {
@@ -315,10 +322,10 @@ namespace Razix {
 
                     data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
 
-                    data.outputRT          = builder.write(forwardSceneData.outputRT);
+                    data.outputRT          = builder.write(forwardSceneData.outputLDR);
                     data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
-                    builder.read(forwardSceneData.depthRT);
+                    builder.read(forwardSceneData.depth);
 
                     m_ImGuiRenderer.Init();
                 },
@@ -333,7 +340,7 @@ namespace Razix {
                     RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.depthRT).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.depth).getHandle();
 
                     RenderingInfo info{};
                     info.colorAttachments = {{rt, {false, glm::vec4(0.0f)}}};
@@ -371,7 +378,7 @@ namespace Razix {
             os << m_FrameGraph;
         }
 
-        void RZWorldRenderer::drawFrame(RZRendererSettings settings, Razix::RZScene* scene)
+        void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
         {
             m_CascadedShadowsRenderer.updateCascades(scene);
 

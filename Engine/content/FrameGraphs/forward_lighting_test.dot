@@ -9,7 +9,7 @@ P3 [label=<{ {<B>CSM #2</B>} | {&#x2605; Refs: 1<BR/> Index: 3} }> style="rounde
 P4 [label=<{ {<B>CSM #3</B>} | {&#x2605; Refs: 1<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
 P5 [label=<{ {<B>Upload Cascade Matrices (post CSM calculation)</B>} | {&#x2605; Refs: 1<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
 P6 [label=<{ {<B>Simple Shadow map pass</B>} | {&#x2605; Refs: 2<BR/> Index: 6} }> style="rounded,filled", fillcolor=orange]
-P7 [label=<{ {<B>Forward Lighting Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 7} }> style="rounded,filled", fillcolor=orange]
+P7 [label=<{ {<B>Forward Lighting Pass</B>} | {&#x2605; Refs: 3<BR/> Index: 7} }> style="rounded,filled", fillcolor=orange]
 P8 [label=<{ {<B>Bloom Downsample pass #0</B>} | {&#x2605; Refs: 1<BR/> Index: 8} }> style="rounded,filled", fillcolor=orange]
 P9 [label=<{ {<B>Bloom Downsample pass #1</B>} | {&#x2605; Refs: 1<BR/> Index: 9} }> style="rounded,filled", fillcolor=orange]
 P10 [label=<{ {<B>Bloom Downsample pass #2</B>} | {&#x2605; Refs: 1<BR/> Index: 10} }> style="rounded,filled", fillcolor=orange]
@@ -20,9 +20,10 @@ P14 [label=<{ {<B>Bloom Upsample pass #1</B>} | {&#x2605; Refs: 1<BR/> Index: 14
 P15 [label=<{ {<B>Bloom Upsample pass #2</B>} | {&#x2605; Refs: 1<BR/> Index: 15} }> style="rounded,filled", fillcolor=orange]
 P16 [label=<{ {<B>Bloom Upsample pass #3</B>} | {&#x2605; Refs: 1<BR/> Index: 16} }> style="rounded,filled", fillcolor=orange]
 P17 [label=<{ {<B>Bloom Upsample pass #4</B>} | {&#x2605; Refs: 1<BR/> Index: 17} }> style="rounded,filled", fillcolor=orange]
-P18 [label=<{ {<B>Debug Pass</B>} | {&#x2605; Refs: 0<BR/> Index: 18} }> style="rounded,filled", fillcolor=orange]
-P19 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 19} }> style="rounded,filled", fillcolor=orange]
-P20 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 20} }> style="rounded,filled", fillcolor=orange]
+P18 [label=<{ {<B>Bloom Mix Tonemapping pass</B>} | {&#x2605; Refs: 0<BR/> Index: 18} }> style="rounded,filled", fillcolor=orange]
+P19 [label=<{ {<B>Debug Pass</B>} | {&#x2605; Refs: 0<BR/> Index: 19} }> style="rounded,filled", fillcolor=orange]
+P20 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 20} }> style="rounded,filled", fillcolor=orange]
+P21 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 21} }> style="rounded,filled", fillcolor=orange]
 
 R0_1 [label=<{ {<B>BRDF lut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
 R1_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 1<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
@@ -34,24 +35,25 @@ R3_4 [label=<{ {<B>CascadedShadowMap sArray</B>   <FONT>v4</FONT><BR/>(4096, 409
 R2_2 [label=<{ {<B>Cascade Matrices</B>   <FONT>v2</FONT><BR/>size : 272 bytes} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
 R4_1 [label=<{ {<B>Shadow map</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 4<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R5_1 [label=<{ {<B>LightSpaceMatrix</B><BR/>size : 64 bytes} | {Index: 5<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R6_1 [label=<{ {<B>Scene HDR color</B><BR/>(1920, 1009) - RGBA32F [RT]} | {Index: 6<BR/>Refs : 3} }> style=filled, fillcolor=skyblue]
-R7_1 [label=<{ {<B>Scene Depth</B><BR/>(1920, 1009) - DEPTH [Depth]} | {Index: 7<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R8_1 [label=<{ {<B>Bloom Mip</B><BR/>(1920, 1009) - RGBA32F [RT]} | {Index: 8<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R9_1 [label=<{ {<B>Bloom Mip</B><BR/>(960, 504) - RGBA32F [RT]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R10_1 [label=<{ {<B>Bloom Mip</B><BR/>(480, 252) - RGBA32F [RT]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R11_1 [label=<{ {<B>Bloom Mip</B><BR/>(240, 126) - RGBA32F [RT]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Bloom Mip</B><BR/>(120, 63) - RGBA32F [RT]} | {Index: 12<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R13_1 [label=<{ {<B>Bloom Mip</B><BR/>(60, 31) - RGBA32F [RT]} | {Index: 13<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R14_1 [label=<{ {<B>Bloom Mip</B><BR/>(120, 63) - RGBA32F [RT]} | {Index: 14<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R15_1 [label=<{ {<B>Bloom Mip</B><BR/>(240, 126) - RGBA32F [RT]} | {Index: 15<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R16_1 [label=<{ {<B>Bloom Mip</B><BR/>(480, 252) - RGBA32F [RT]} | {Index: 16<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R17_1 [label=<{ {<B>Bloom Mip</B><BR/>(960, 504) - RGBA32F [RT]} | {Index: 17<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R18_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 18<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R6_2 [label=<{ {<B>Scene HDR color</B>   <FONT>v2</FONT><BR/>(1920, 1009) - RGBA32F [RT]} | {Index: 6<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R19_1 [label=<{ {<B>Present Image</B><BR/>(1920, 1009) - Presentation [Swapchain Image]} | {Index: 19<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R20_1 [label=<{ {<B>Depth Texture</B><BR/>(1920, 1009) - DEPTH [Depth]} | {Index: 20<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R21_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 21<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R22_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 22<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R6_1 [label=<{ {<B>Scene HDR color</B><BR/>(1496, 667) - RGBA32F [RT]} | {Index: 6<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
+R7_1 [label=<{ {<B>Scene LDR color</B><BR/>(1496, 667) - RGBA8 [RT]} | {Index: 7<BR/>Refs : 3} }> style=filled, fillcolor=skyblue]
+R8_1 [label=<{ {<B>Scene Depth</B><BR/>(1496, 667) - DEPTH [Depth]} | {Index: 8<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R9_1 [label=<{ {<B>Bloom Mip</B><BR/>(1496, 667) - RGBA32F [RT]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R10_1 [label=<{ {<B>Bloom Mip</B><BR/>(748, 333) - RGBA32F [RT]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R11_1 [label=<{ {<B>Bloom Mip</B><BR/>(374, 166) - RGBA32F [RT]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Bloom Mip</B><BR/>(187, 83) - RGBA32F [RT]} | {Index: 12<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R13_1 [label=<{ {<B>Bloom Mip</B><BR/>(93, 41) - RGBA32F [RT]} | {Index: 13<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R14_1 [label=<{ {<B>Bloom Mip</B><BR/>(46, 20) - RGBA32F [RT]} | {Index: 14<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R15_1 [label=<{ {<B>Bloom Mip</B><BR/>(93, 41) - RGBA32F [RT]} | {Index: 15<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R16_1 [label=<{ {<B>Bloom Mip</B><BR/>(187, 83) - RGBA32F [RT]} | {Index: 16<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R17_1 [label=<{ {<B>Bloom Mip</B><BR/>(374, 166) - RGBA32F [RT]} | {Index: 17<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R18_1 [label=<{ {<B>Bloom Mip</B><BR/>(748, 333) - RGBA32F [RT]} | {Index: 18<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R19_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 19<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R7_2 [label=<{ {<B>Scene LDR color</B>   <FONT>v2</FONT><BR/>(1496, 667) - RGBA8 [RT]} | {Index: 7<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R20_1 [label=<{ {<B>Present Image</B><BR/>(1496, 667) - Presentation [Swapchain Image]} | {Index: 20<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R21_1 [label=<{ {<B>Depth Texture</B><BR/>(1496, 667) - DEPTH [Depth]} | {Index: 21<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R22_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 22<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R23_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 23<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R1_1 } [color=orangered]
 P1 -> { R3_1 } [color=orangered]
@@ -60,23 +62,24 @@ P3 -> { R3_3 } [color=orangered]
 P4 -> { R3_4 } [color=orangered]
 P5 -> { R2_2 } [color=orangered]
 P6 -> { R4_1 R5_1 } [color=orangered]
-P7 -> { R6_1 R7_1 } [color=orangered]
-P8 -> { R8_1 } [color=orangered]
-P9 -> { R9_1 } [color=orangered]
-P10 -> { R10_1 } [color=orangered]
-P11 -> { R11_1 } [color=orangered]
-P12 -> { R12_1 } [color=orangered]
-P13 -> { R13_1 } [color=orangered]
-P14 -> { R14_1 } [color=orangered]
-P15 -> { R15_1 } [color=orangered]
-P16 -> { R16_1 } [color=orangered]
-P17 -> { R17_1 } [color=orangered]
+P7 -> { R6_1 R7_1 R8_1 } [color=orangered]
+P8 -> { R9_1 } [color=orangered]
+P9 -> { R10_1 } [color=orangered]
+P10 -> { R11_1 } [color=orangered]
+P11 -> { R12_1 } [color=orangered]
+P12 -> { R13_1 } [color=orangered]
+P13 -> { R14_1 } [color=orangered]
+P14 -> { R15_1 } [color=orangered]
+P15 -> { R16_1 } [color=orangered]
+P16 -> { R17_1 } [color=orangered]
+P17 -> { R18_1 } [color=orangered]
 P18 -> { } [color=orangered]
-P19 -> { R6_2 R18_1 } [color=orangered]
-P20 -> { R19_1 R20_1 R21_1 R22_1 } [color=orangered]
+P19 -> { } [color=orangered]
+P20 -> { R7_2 R19_1 } [color=orangered]
+P21 -> { R20_1 R21_1 R22_1 R23_1 } [color=orangered]
 
 R0_1 -> { } [color=olivedrab3]
-R1_1 -> { P7 P18 } [color=olivedrab3]
+R1_1 -> { P7 P19 } [color=olivedrab3]
 R2_1 -> { P5 } [color=olivedrab3]
 R3_1 -> { P2 } [color=olivedrab3]
 R3_2 -> { P3 } [color=olivedrab3]
@@ -85,24 +88,25 @@ R3_4 -> { P7 } [color=olivedrab3]
 R2_2 -> { } [color=olivedrab3]
 R4_1 -> { P7 } [color=olivedrab3]
 R5_1 -> { P7 } [color=olivedrab3]
-R6_1 -> { P8 P18 P19 } [color=olivedrab3]
-R7_1 -> { P19 } [color=olivedrab3]
-R8_1 -> { P9 } [color=olivedrab3]
-R9_1 -> { P10 } [color=olivedrab3]
-R10_1 -> { P11 } [color=olivedrab3]
-R11_1 -> { P12 } [color=olivedrab3]
-R12_1 -> { P13 } [color=olivedrab3]
-R13_1 -> { P14 } [color=olivedrab3]
-R14_1 -> { P15 } [color=olivedrab3]
-R15_1 -> { P16 } [color=olivedrab3]
-R16_1 -> { P17 } [color=olivedrab3]
-R17_1 -> { } [color=olivedrab3]
-R18_1 -> { P20 } [color=olivedrab3]
-R6_2 -> { P20 } [color=olivedrab3]
-R19_1 -> { } [color=olivedrab3]
+R6_1 -> { P8 P18 } [color=olivedrab3]
+R7_1 -> { P18 P19 P20 } [color=olivedrab3]
+R8_1 -> { P20 } [color=olivedrab3]
+R9_1 -> { P9 } [color=olivedrab3]
+R10_1 -> { P10 } [color=olivedrab3]
+R11_1 -> { P11 } [color=olivedrab3]
+R12_1 -> { P12 } [color=olivedrab3]
+R13_1 -> { P13 } [color=olivedrab3]
+R14_1 -> { P14 } [color=olivedrab3]
+R15_1 -> { P15 } [color=olivedrab3]
+R16_1 -> { P16 } [color=olivedrab3]
+R17_1 -> { P17 } [color=olivedrab3]
+R18_1 -> { P18 } [color=olivedrab3]
+R19_1 -> { P21 } [color=olivedrab3]
+R7_2 -> { P21 } [color=olivedrab3]
 R20_1 -> { } [color=olivedrab3]
 R21_1 -> { } [color=olivedrab3]
 R22_1 -> { } [color=olivedrab3]
+R23_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
 P0 R1_1 
@@ -126,46 +130,49 @@ subgraph cluster_6 {
 P6 R4_1 R5_1 
 }
 subgraph cluster_7 {
-P7 R6_1 R7_1 
+P7 R6_1 R7_1 R8_1 
 }
 subgraph cluster_8 {
-P8 R8_1 
+P8 R9_1 
 }
 subgraph cluster_9 {
-P9 R9_1 
+P9 R10_1 
 }
 subgraph cluster_10 {
-P10 R10_1 
+P10 R11_1 
 }
 subgraph cluster_11 {
-P11 R11_1 
+P11 R12_1 
 }
 subgraph cluster_12 {
-P12 R12_1 
+P12 R13_1 
 }
 subgraph cluster_13 {
-P13 R13_1 
+P13 R14_1 
 }
 subgraph cluster_14 {
-P14 R14_1 
+P14 R15_1 
 }
 subgraph cluster_15 {
-P15 R15_1 
+P15 R16_1 
 }
 subgraph cluster_16 {
-P16 R16_1 
+P16 R17_1 
 }
 subgraph cluster_17 {
-P17 R17_1 
+P17 R18_1 
 }
 subgraph cluster_18 {
 P18 
 }
 subgraph cluster_19 {
-P19 R18_1 
+P19 
 }
 subgraph cluster_20 {
-P20 R19_1 R20_1 R21_1 R22_1 
+P20 R19_1 
+}
+subgraph cluster_21 {
+P21 R20_1 R21_1 R22_1 R23_1 
 }
 
 subgraph cluster_imported_resources {
