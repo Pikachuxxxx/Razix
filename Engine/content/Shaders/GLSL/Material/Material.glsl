@@ -34,9 +34,9 @@ layout(set = 1, binding = 7) uniform sampler2D aoMap;
 vec3 getAlbedoColor(vec2 uv)
 {
     if(material.isUsingAlbedoMap)
-        return vec3(texture(albedoMap, uv)) * material.baseColor * material.emissiveIntensity;
+        return vec3(texture(albedoMap, uv)) * material.baseColor;
     else 
-        return material.baseColor * material.emissiveIntensity;
+        return material.baseColor;
 }
 
 vec3 getSpecularColor(vec2 uv)
