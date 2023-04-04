@@ -1,17 +1,15 @@
 #ifndef _LIGHT_GLSL_
 #define _LIGHT_GLSL_
-
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 // Constants and Defines
 // Max no of lights in the scene
 #define MAX_LIGHTS 1024
-
+//----------------------------------------------------------------------------
 // Type of the Light (enum)
 const uint LightType_Directional = 0;
 const uint LightType_Point = 1;
 const uint LightType_Spot = 2;
-
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 // Light Data
 // The light info that every light stores in the scene
 struct LightData {
@@ -27,24 +25,24 @@ struct LightData {
     float outerConeAngle; // [spot] in radians
     uint type;
 };
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 // GPU Light
-// The GPU lights data that will be uploaded to the 
-#define DECLARE_LIGHT_BUFFER(st, index, name)                                   \
-layout(set = st, binding = index) uniform LightBuffer {                         \
-    uint numLights;                                                           \
-    LightData data[];                                                           \
-}                                                                                \
+// The GPU lights data that will be uploaded to the
+#define DECLARE_LIGHT_BUFFER(st, index, name)               \
+layout(set = st, binding = index) uniform LightBuffer {     \
+    uint numLights;                                         \
+    LightData data[MAX_LIGHTS];                             \
+}                                                           \
 name;
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 // Utility DS and Functions
 struct LightContribution {
     vec3 diffuse;
     vec3 specular;
 };
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 float _getLightRange(const in LightData light) { return light.range; }
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 float _getLightAttenuation(const in LightData light, vec3 fragToLight) {
   if (light.type == LightType_Directional) return 1.0;
 
@@ -77,10 +75,9 @@ float _getLightAttenuation(const in LightData light, vec3 fragToLight) {
 
   return rangeAttenuation * spotAttenuation;
 }
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 vec3 _getLightIntensity(const in LightData light, vec3 fragToLight) {
-  return light.color.rgb * light.intensity *
-         _getLightAttenuation(light, fragToLight);
+    return light.color.rgb * light.intensity * _getLightAttenuation(light, fragToLight);
 }
-//------------------------------------------------------
+//----------------------------------------------------------------------------
 #endif

@@ -421,10 +421,8 @@ namespace Razix {
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
 
-            for (sz i = 0; i < descriptorLayouts.size(); i++) {
-                RAZIX_CORE_ERROR("Descriptor Set Handle {0}", fmt::ptr(descriptorLayouts[i]));
+            for (sz i = 0; i < descriptorLayouts.size(); i++)
                 vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), descriptorLayouts[i], nullptr);
-            }
         }
 
         void VKShader::createShaderModules()

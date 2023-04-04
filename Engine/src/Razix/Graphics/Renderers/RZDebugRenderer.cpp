@@ -67,7 +67,7 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = PointShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA8};
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
             pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
@@ -569,7 +569,7 @@ namespace Razix {
             //else {
             //    DrawSphere(light->Radius * 0.5f, light->getPosition(), colour);
             //}
-            else if (light->getType() == LightType::POINT) {
+            else if (light->getType() == LightType::Point) {
                 DrawSphere(light->getRadius() * 0.5f, light->getPosition(), colour);
             }
         }

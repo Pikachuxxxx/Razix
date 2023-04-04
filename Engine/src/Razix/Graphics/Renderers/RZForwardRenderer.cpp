@@ -50,7 +50,7 @@ namespace Razix {
             // FrameBlock Descriptor Set
 
             // 2. Lighting data
-            m_ForwardLightsUBO = Graphics::RZUniformBuffer::Create(sizeof(GPULightsData), &gpuLightsData RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Renderer Light Data"));
+            m_ForwardLightsUBO = Graphics::RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Renderer Light Data"));
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
@@ -107,6 +107,7 @@ namespace Razix {
             auto& registry = scene->getRegistry();
 
             // Upload the lights data
+            GPULightsData gpuLightsData;
             auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
             for (auto entity: group) {
                 const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
