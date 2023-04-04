@@ -14,6 +14,7 @@
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
 #include "Razix/Graphics/Passes/RZPBRLightingPass.h"
+#include "Razix/Graphics/Passes/RZSkyboxPass.h"
 
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
 
@@ -116,7 +117,7 @@ namespace Razix {
             /* Destroy frame graph passes and it's resources */
             void destroy();
 
-            void importGlobalLightProbes(GlobalLightProbe globalLightProbe);
+            void importGlobalLightProbes(LightProbe globalLightProbe);
             void cullLights(Maths::RZFrustum& frustum);
 
         private:
@@ -124,9 +125,8 @@ namespace Razix {
             FrameGraph::RZBlackboard         m_Blackboard;
             FrameGraph::RZTransientResources m_TransientResources;
             // Frame Graph Import Data
-            RZTexture2D*     m_BRDFfLUTTexture = nullptr;
-            RZCubeMap*       m_Skybox          = nullptr;
-            GlobalLightProbe m_GlobalLightProbes{};
+            RZTexture2D* m_BRDFfLUTTexture = nullptr;
+            LightProbe   m_GlobalLightProbes{};
             // List of all passes, renderers and data in the frame graph
             RZCascadedShadowsRenderer m_CascadedShadowsRenderer;
             RZShadowRenderer          m_ShadowRenderer;
@@ -134,6 +134,7 @@ namespace Razix {
             RZGBufferPass             m_GBufferPass;
             RZDeferredLightingPass    m_DeferredPass;
             RZPBRLightingPass         m_PBRLightingPass;
+            RZSkyboxPass              m_SkyboxPass;
             RZImGuiRenderer           m_ImGuiRenderer;
             RZFinalCompositionPass    m_CompositePass;
             RZBloomPass               m_BloomPass;

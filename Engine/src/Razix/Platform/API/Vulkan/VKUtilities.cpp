@@ -188,7 +188,7 @@ namespace Razix {
                 }
             }
 
-            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels /*= 1*/)
+            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels /*= 1*/, u32 layerCount /*= 1*/)
             {
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
@@ -207,7 +207,7 @@ namespace Razix {
                 barrier.subresourceRange.baseMipLevel   = 0;
                 barrier.subresourceRange.levelCount     = mipLevels;
                 barrier.subresourceRange.baseArrayLayer = 0;
-                barrier.subresourceRange.layerCount     = 1;
+                barrier.subresourceRange.layerCount     = layerCount;
 
                 //if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL || newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL) {
                 //    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;

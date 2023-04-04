@@ -330,6 +330,7 @@ namespace Razix {
             pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
+            pipelineInfo.depthOp                = CompareOp::LessOrEqual;
 
             if (m_OverrideGlobalRHIShader)
                 m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Pipeline"));

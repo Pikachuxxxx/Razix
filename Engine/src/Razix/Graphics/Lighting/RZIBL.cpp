@@ -8,10 +8,10 @@
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
-#include "Razix/Graphics/RHI/API/RZShader.h"
 
 #include "Razix/Graphics/RHI/RHI.h"
 
@@ -38,8 +38,8 @@ namespace Razix {
         static const glm::mat4 kCaptureViews[]{
             glm::lookAt(glm::vec3{0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}),      // +X
             glm::lookAt(glm::vec3{0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}),     // -X
-            glm::lookAt(glm::vec3{0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}),       // +Y
-            glm::lookAt(glm::vec3{0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}),     // -Y
+            glm::lookAt(glm::vec3{0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}),       // +Y
+            glm::lookAt(glm::vec3{0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}),     // -Y
             glm::lookAt(glm::vec3{0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}),      // +Z
             glm::lookAt(glm::vec3{0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, -1.0f, 0.0f})};    // -Z
 
@@ -50,7 +50,7 @@ namespace Razix {
 
             // First create the 2D Equirectangular texture
             u32              width, height, bpp;
-            unsigned char*        pixels = Razix::Utilities::LoadImageData(hdrFilePath, &width, &height, &bpp);
+            unsigned char*   pixels = Razix::Utilities::LoadImageData(hdrFilePath, &width, &height, &bpp);
             std::vector<u32> pixelData(width * height * 4);
             memcpy(pixelData.data(), pixels, (width * height * bpp));
 
@@ -72,9 +72,10 @@ namespace Razix {
             auto  shader   = RZShaderLibrary::Get().getShader("EnvToCubeMap.rzsf");
             auto& setInfos = shader->getSetsCreateInfos();
             for (int i = 0; i < 6; i++) {
-                uboData.view       = kCaptureViews[i];
-                uboData.projection = kCubeProjection;
-                uboData.layer      = i;
+                uboData.view             = kCaptureViews[i];
+                uboData.projection       = kCubeProjection;
+                uboData.projection[1][1] = -1;
+                uboData.layer            = i;
 
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
                 UBOs.push_back(viewProjLayerUBO);
