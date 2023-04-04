@@ -27,6 +27,7 @@
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
 #include "Razix/Graphics/Passes/Data/GBufferData.h"
 #include "Razix/Graphics/Passes/Data/GIData.h"
+#include "Razix/Graphics/Passes/Data/GlobalData.h"
 #include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 #include "Razix/Graphics/Passes/Data/ShadowMapData.h"
 
@@ -71,7 +72,7 @@ namespace Razix {
             m_TileDataUBO        = RZUniformBuffer::Create(sizeof(TileData), &m_TileData RZ_DEBUG_NAME_TAG_STR_E_ARG("Tile Data UBO"));
 
             // Lights UBO
-            m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
+            m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
 
             auto  shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
             auto& setInfos = shader->getSetsCreateInfos();
@@ -151,14 +152,15 @@ namespace Razix {
                     //m_FrameBlockUBO->SetData(sizeof(FrameBlock), &m_FrameBlockData);
 
                     // Update the lighting Data
-                    //auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
+                    GPULightsData m_GPULightData{};
+                    //auto          group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
                     //for (auto entity: group) {
                     //    const auto& [light, trans] = group.get<LightComponent, TransformComponent>(entity);
                     //    m_GPULightData.numLights++;
                     //    m_GPULightData.data = light.light.getLightData();
                     //}
 
-                    m_LightDataUBO->SetData(sizeof(GPULightData), &m_GPULightData);
+                    m_LightDataUBO->SetData(sizeof(GPULightsData), &m_GPULightData);
 
                     // Update the Sets only once on first frame to get runtime framegraph resources
                     static bool setsUpdated   = false;

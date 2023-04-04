@@ -1,3 +1,4 @@
+
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -39,7 +40,7 @@ namespace Razix {
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
             // Load the Skybox and Global Light Probes
-#if 0
+#if 1
             m_Skybox                     = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_Skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_Skybox);
@@ -60,6 +61,7 @@ namespace Razix {
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
             uploadFrameData(scene, settings);
+            uploadLightsData(scene, settings);
 
             //-------------------------------
             // Cascaded Shadow Maps x
@@ -131,7 +133,8 @@ namespace Razix {
 
             const SimpleShadowPassData shadowData = m_Blackboard.get<SimpleShadowPassData>();
 
-            m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
+#if 0
+ m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
@@ -211,8 +214,12 @@ namespace Razix {
 
                     Graphics::RHI::SubmitWork({}, {});
                 });
-
-            SceneData forwardSceneData = m_Blackboard.get<SceneData>();
+#endif
+            //-------------------------------
+            // PBR Pass
+            //-------------------------------
+            m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            SceneData sceneData = m_Blackboard.get<SceneData>();
 
             //-------------------------------
             // [x] Bloom Pass
@@ -231,12 +238,13 @@ namespace Razix {
 
                     RZDebugRenderer::Get()->Init();
 
-                    builder.read(forwardSceneData.outputLDR);
+                    builder.read(sceneData.outputHDR);
+                    builder.read(sceneData.depth);
                     builder.read(frameDataBlock.frameData);
                 },
                 [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
-#if 0
+#if 1
                     RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 0.1f);
@@ -254,26 +262,25 @@ namespace Razix {
                     RZDebugRenderer::DrawSphere(1.0f, glm::vec3(3.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
                     RZDebugRenderer::DrawSphere(1.0f, glm::vec3(4.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 #endif
+                    // Draw all lights in the scene
                     auto lights = scene->GetComponentsOfType<LightComponent>();
-
-                    if (lights[0].light.getType() == LightType::POINT)
-                        RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
-
-                    //RZDebugRenderer::DrawCone(50, 6, 45.0f, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-                    //RZDebugRenderer::DrawCylinder(glm::vec3(0.0f), glm::vec3(0.0f), 6.0f, 2.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+                    for (auto& lightComponent: lights) {
+                        if (lightComponent.light.getType() == LightType::Point)
+                            RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
+                    }
 
                     RZDebugRenderer::Get()->Begin(scene);
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputLDR).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{};
-                    info.colorAttachments = {
-                        {rt, {false, scene->getSceneCamera().getBgColor()}}};
-                    //info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
-                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize = true;
+                    info.colorAttachments = {{rt, {false, scene->getSceneCamera().getBgColor()}}};
+                    info.depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
+                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize           = true;
 
                     RHI::BeginRendering(RHI::getCurrentCommandBuffer(), info);
 
@@ -311,15 +318,12 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, RTOnlyPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    // Upload to the Blackboard
-                    //data.outputRT = builder.create<FrameGraph::RZFrameGraphTexture>("ImGui RT", {FrameGraph::TextureType::Texture_RenderTarget, "ImGui RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32});
-
                     data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
 
-                    data.outputRT          = builder.write(forwardSceneData.outputLDR);
+                    data.outputRT          = builder.write(sceneData.outputHDR);
                     data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
-                    builder.read(forwardSceneData.depth);
+                    builder.read(sceneData.depth);
 
                     m_ImGuiRenderer.Init();
                 },
@@ -334,7 +338,7 @@ namespace Razix {
                     RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.depth).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{};
                     info.colorAttachments = {{rt, {false, glm::vec4(0.0f)}}};
@@ -384,20 +388,21 @@ namespace Razix {
             // Destroy Imported Resources
             m_BRDFfLUTTexture->Release(true);
 
-#if 0
+#if 1
             m_Skybox->Release(true);
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
 
 #endif
             // Destroy Renderers
-            m_ForwardRenderer.Destroy();
+            //m_ForwardRenderer.Destroy();
             m_CascadedShadowsRenderer.Destroy();
             m_ShadowRenderer.Destroy();
             m_ImGuiRenderer.Destroy();
             RZDebugRenderer::Get()->Destroy();
 
             // Destroy Passes
+            m_PBRLightingPass.destroy();
             m_CompositePass.destroy();
             //m_GIPass.destroy();
             //m_GBufferPass.destroy();
@@ -417,10 +422,10 @@ namespace Razix {
 
         //--------------------------------------------------------------------------
 
-        void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings settings)
+        void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings& settings)
         {
             m_Blackboard.add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
-                "",
+                "Frame Data Upload",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, FrameData& data) {
                     builder.setAsStandAlonePass();
 
@@ -440,7 +445,7 @@ namespace Razix {
 
                     sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
 #if 0
-
+                    // Test code to view from the Directional Light POV to configure shadow map
                     auto      lights     = scene->GetComponentsOfType<LightComponent>();
                     auto&     dir_light  = lights[0].light;
                     glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -458,6 +463,39 @@ namespace Razix {
 
                     // update and upload the UBO
                     resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle()->SetData(sizeof(GPUFrameData), &gpuData);
+                });
+        }
+
+        void RZWorldRenderer::uploadLightsData(RZScene* scene, RZRendererSettings& settings)
+        {
+            m_Blackboard.add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
+                "Scene Lights Data Upload",
+                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneLightsData& data) {
+                    builder.setAsStandAlonePass();
+
+                    data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("Scene Lights Data", {"Scene Lights Data", sizeof(GPULightsData)});
+                    data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
+                },
+                [=](const SceneLightsData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    GPULightsData gpuLightsData{};
+
+                    auto& registry = scene->getRegistry();
+
+                    // Upload the lights data after updating some stuff such as position etc.
+                    auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
+                    for (auto entity: group) {
+                        const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
+
+                        // Set the Position of the light using this transform component
+                        lightComponent.light.getLightData().position = transformComponent.Translation;
+                        lightComponent.light.setDirection(glm::vec3(glm::degrees(transformComponent.Rotation.x), glm::degrees(transformComponent.Rotation.y), glm::degrees(transformComponent.Rotation.z)));
+                        gpuLightsData.lightData[gpuLightsData.numLights] = lightComponent.light.getLightData();
+
+                        gpuLightsData.numLights++;
+                    }
+
+                    // update and upload the UBO
+                    resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle()->SetData(sizeof(GPUFrameData), &gpuLightsData);
                 });
         }
     }    // namespace Graphics

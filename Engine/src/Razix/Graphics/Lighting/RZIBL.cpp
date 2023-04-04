@@ -66,7 +66,7 @@ namespace Razix {
                 alignas(4) int layer             = 0;
             } uboData;
 
-            // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behaviour is unknown
+            // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
             auto  shader   = RZShaderLibrary::Get().getShader("EnvToCubeMap.rzsf");

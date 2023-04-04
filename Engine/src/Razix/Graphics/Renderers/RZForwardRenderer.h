@@ -39,7 +39,6 @@ namespace Razix {
             void setCSMArrayHeap(RZDescriptorSet* csmSet) { m_CSMSet = csmSet; }
 
         private:
-            GPULightsData    gpuLightsData{};
             RZUniformBuffer* m_ForwardLightsUBO       = nullptr;
             RZDescriptorSet* m_GPULightsDescriptorSet = nullptr;
             RZScene*         m_CurrentScene           = nullptr;

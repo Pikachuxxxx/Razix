@@ -1,6 +1,9 @@
 #ifndef _MATERIAL_GLSL_
 #define _MATERIAL_GLSL_
-
+//----------------------------------------------------------------------------
+// Note:- When using a combined MetallicRoughnessAO map 
+// .r = empty .g = Roughness .b  = Metalness .a = AO
+//----------------------------------------------------------------------------
 // Material Data and maps
 layout(set = 1, binding = 0) uniform Material
 {
@@ -22,7 +25,8 @@ layout(set = 1, binding = 0) uniform Material
     bool isUsingEmissiveMap;
     bool isUsingAOMap;    
 } material;
-
+//----------------------------------------------------------------------------
+// Material Textures
 layout(set = 1, binding = 1) uniform sampler2D albedoMap;
 layout(set = 1, binding = 2) uniform sampler2D normalMap;
 layout(set = 1, binding = 3) uniform sampler2D metallicMap;
@@ -30,15 +34,40 @@ layout(set = 1, binding = 4) uniform sampler2D roughnessMap;
 layout(set = 1, binding = 5) uniform sampler2D specularMap;
 layout(set = 1, binding = 6) uniform sampler2D emissiveMap;
 layout(set = 1, binding = 7) uniform sampler2D aoMap;
-
-vec3 getAlbedoColor(vec2 uv)
+//----------------------------------------------------------------------------
+// Helper Functions
+vec3 Mat_getAlbedoColor(vec2 uv)
 {
     if(material.isUsingAlbedoMap)
-        return vec3(texture(albedoMap, uv)) * material.baseColor;
+        return vec3(texture(albedoMap, uv)) * material.baseColor * material.emissiveIntensity;
     else 
-        return material.baseColor;
+        return material.baseColor * material.emissiveIntensity;
 }
-
+//----------------------------------------------------------------------------
+vec3 Mat_getNormalMapNormals(vec2 uv)
+{
+    if(material.isUsingNormalMap)
+        return vec3(texture(normalMap, uv));
+    else 
+        return vec3(0.0f);
+}
+//----------------------------------------------------------------------------
+float Mat_getMetallicColor(vec2 uv)
+{
+    if(material.isUsingMetallicMap)
+        return vec3(texture(metallicMap, uv)).r;
+    else 
+        return material.metallic;
+}
+//----------------------------------------------------------------------------
+float Mat_getRoughnessColor(vec2 uv)
+{
+    if(material.isUsingRoughnessMap)
+        return vec3(texture(roughnessMap, uv)).r;
+    else 
+        return material.metallic;
+}
+//----------------------------------------------------------------------------
 vec3 getSpecularColor(vec2 uv)
 {
     if(material.isUsingSpecular)
@@ -46,7 +75,15 @@ vec3 getSpecularColor(vec2 uv)
     else 
         return vec3(1.0f);
 }
-
+//----------------------------------------------------------------------------
+float Mat_getAOColor(vec2 uv)
+{
+    if(material.isUsingAOMap)
+        return vec3(texture(aoMap, uv)).r;
+    else 
+        return 1.0f;
+}
+//----------------------------------------------------------------------------
 float getOpacity(vec2 uv)
 {
     if(material.isUsingAlbedoMap)
@@ -54,13 +91,5 @@ float getOpacity(vec2 uv)
     else 
         return material.opacity;
 }
-
-vec3 getNormals(vec2 uv, vec3 normals)
-{
-    //if(material.isUsingNormalMap)
-    //    return vec3(texture(normalMap, uv));
-    //else 
-    return normals;
-}
-
+//----------------------------------------------------------------------------
 #endif

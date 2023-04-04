@@ -52,6 +52,8 @@ namespace Razix {
                 DEPTH_STENCIL,
                 SCREEN,
                 BGRA8_UNORM,
+                R11G11B10A2_UINT,
+                R11G11B10A2_SFLOAT,
                 NONE
             };
 

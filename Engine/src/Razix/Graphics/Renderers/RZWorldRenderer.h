@@ -13,6 +13,7 @@
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
+#include "Razix/Graphics/Passes/RZPBRLightingPass.h"
 
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
 
@@ -37,7 +38,6 @@ namespace Razix {
     namespace Graphics {
 
         // Renderer Settings + Debug flags
-
         enum RZRendererFeatures : u32
         {
             RendererFeature_None = 0,
@@ -133,6 +133,7 @@ namespace Razix {
             RZGIPass                  m_GIPass;
             RZGBufferPass             m_GBufferPass;
             RZDeferredLightingPass    m_DeferredPass;
+            RZPBRLightingPass         m_PBRLightingPass;
             RZImGuiRenderer           m_ImGuiRenderer;
             RZFinalCompositionPass    m_CompositePass;
             RZBloomPass               m_BloomPass;
@@ -144,7 +145,8 @@ namespace Razix {
             Maths::RZAABB m_SceneAABB;
 
         private:
-            void uploadFrameData(RZScene* scene, RZRendererSettings settings);
+            void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
+            void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
         };
     }    // namespace Graphics
 }    // namespace Razix

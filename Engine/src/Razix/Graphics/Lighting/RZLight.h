@@ -1,21 +1,10 @@
 #pragma once
+#include "Razix/Graphics/Lighting/LightData.h"
 
 namespace Razix {
     namespace Graphics {
 
         class RZUniformBuffer;
-
-#define MAX_LIGHTS 128
-
-        enum LightType : u32
-        {
-            DIRECTIONAL = 0,
-            POINT       = 1,
-            SPOT        = 2,
-            AREA,    // Not Supported!
-            FLASH    // Not Supported!
-        };
-
 #if 0
         struct DirectionalLightData
         {
@@ -77,32 +66,6 @@ namespace Razix {
             }
         };
 #endif
-
-        struct RAZIX_MEM_ALIGN LightData
-        {
-            alignas(16) glm::vec3 position  = glm::vec3(1.0f);
-            alignas(4) f32 range            = 10.0f;
-            alignas(16) glm::vec3 color     = glm::vec3(1.0f);
-            alignas(4) f32 intensity        = 1.0f;
-            alignas(16) glm::vec4 direction = glm::vec4(1.0f);
-            alignas(4) f32 constant         = 1.0f;
-            alignas(4) f32 linear           = 0.09f;
-            alignas(4) f32 quadratic        = 0.032f;
-            alignas(4) f32 innerConeAngle   = 12.5f;    // [Spot]
-            alignas(4) f32 outerConeAngle   = 60.0f;    // [Spot]
-            alignas(4) LightType type       = LightType::DIRECTIONAL;
-            alignas(4) u32 _padding[2]      = {0, 0};    // Implicit padding that will be consumed by GLSL for 16 byte alignment
-        };
-
-        /**
-         * Lights Data which will be uploaded to the GPU
-         */
-        struct GPULightsData
-        {
-            alignas(4) u32 numLights   = 0;
-            alignas(4) u32 _padding[3] = {0, 0, 0};    // Will be consumed on GLSL so as to get 16 byte alignment, invisible variable on GLSL
-            alignas(16) LightData lightData[MAX_LIGHTS];
-        };
 
         // TODO: Add methods to render world icons in editor that can be used by the debug renderer
         class RAZIX_API RZLight
