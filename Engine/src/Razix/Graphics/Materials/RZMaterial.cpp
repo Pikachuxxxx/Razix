@@ -27,8 +27,8 @@ namespace Razix {
 
         void RZMaterial::Destroy()
         {
-            //if (m_DescriptorSet)
-            //    m_DescriptorSet->Destroy();
+            if (m_DescriptorSet)
+                m_DescriptorSet->Destroy();
 
             m_MaterialTextures.Destroy();
             if (m_MaterialPropertiesUBO)

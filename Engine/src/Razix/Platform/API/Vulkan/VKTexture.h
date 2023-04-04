@@ -143,7 +143,7 @@ namespace Razix {
             VkSampler             m_ImageSampler;                            /* Sampler information used by shaders to sample the texture                */
             VkDescriptorImageInfo m_Descriptor;                              /* Descriptor info encapsulation the image, view and the sampler            */
             VkImageLayout         m_ImageLayout = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                */
-            u8*              m_data        = nullptr;                   /* Texture data with which the image is create with                         */
+            u8*                   m_data        = nullptr;                   /* Texture data with which the image is create with                         */
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */

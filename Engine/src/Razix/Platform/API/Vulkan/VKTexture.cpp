@@ -576,6 +576,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_Format = RZTexture::Format::DEPTH32F;
+
             VkFormat depthFormat = VKUtilities::FindDepthFormat();
 
             VKTexture2D::CreateImage(m_Width, m_Height, 1, 1, depthFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_NAME_TAG_STR_E_ARG("DepthTexture"));
@@ -584,7 +586,7 @@ namespace Razix {
 
             m_ImageSampler = VKTexture2D::CreateImageSampler(VK_FILTER_LINEAR, VK_FILTER_LINEAR, 0.0f, 1.0f, true, VKDevice::Get().getPhysicalDevice()->getProperties().limits.maxSamplerAnisotropy, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 
-            VKUtilities::TransitionImageLayout(m_Image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+            VKUtilities::TransitionImageLayout(m_Image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
             // Update the Image descriptor with the created view and sampler
             updateDescriptor();
@@ -594,7 +596,7 @@ namespace Razix {
         {
             m_Descriptor.sampler     = m_ImageSampler;
             m_Descriptor.imageView   = m_ImageView;
-            m_Descriptor.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;    //VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;//
+            m_Descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;    //VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;    //
         }
 
         //-----------------------------------------------------------------------------------
@@ -724,7 +726,14 @@ namespace Razix {
             VKTexture2D::CreateImage(m_Width, m_Height, 1, mipLevels, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 1, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Create the Image view for the Vulkan image (uses color bit)
-            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 1, 0 RZ_DEBUG_E_ARG_NAME);
+            VkImageAspectFlagBits aspectBit{};
+            if (m_Format == RZTexture::Format::DEPTH32F || m_Format == RZTexture::Format::DEPTH16_UNORM || m_Format == RZTexture::Format::DEPTH_STENCIL)
+                aspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
+            else
+                aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
+
+            // Create the Image view for the Vulkan image (uses color bit)
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, aspectBit, 1, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();

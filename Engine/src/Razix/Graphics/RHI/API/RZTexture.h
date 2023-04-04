@@ -92,8 +92,8 @@ namespace Razix {
              * @param width     The width of the Texture
              * @param height    The height of the texture
              */
-            static u32 calculateMipMapCount(u32 width, u32 height);
-            static Format   bitsToTextureFormat(u32 bits);
+            static u32    calculateMipMapCount(u32 width, u32 height);
+            static Format bitsToTextureFormat(u32 bits);
 
             // TODO: Move this to the RXBaseAsset class in later designs
             /* Releases the texture data and it's underlying resources */
@@ -135,8 +135,8 @@ namespace Razix {
         protected:
             std::string      m_Name;          /* The name of the texture resource         */
             std::string      m_VirtualPath;   /* The virtual path of the texture          */
-            u32         m_Width;         /* The width of the texture                 */
-            u32         m_Height;        /* The height of the texture                */
+            u32              m_Width;         /* The width of the texture                 */
+            u32              m_Height;        /* The height of the texture                */
             uint64_t         m_Size;          /* The size of the texture resource         */
             Type             m_TextureType;   /* The type of this texture                 */
             Format           m_Format;        /* The internal format of the texture data  */

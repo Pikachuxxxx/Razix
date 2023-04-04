@@ -58,6 +58,10 @@ namespace Razix {
                         (*texture.get())->Release(true);
                 }
 
+                for (auto &buffer: m_Buffers) {
+                    (*buffer.get())->Destroy();
+                }
+
                 for (auto &semaphore: m_Semaphores)
                     (*semaphore.get())->Destroy();
             }
