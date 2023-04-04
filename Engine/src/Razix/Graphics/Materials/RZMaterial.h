@@ -28,8 +28,8 @@ namespace Razix {
             glm::vec3 normal      = glm::vec3(0.0f, 1.0f, 0.0f);
             //bool      _padding_[4]        = {1, 0, 1, 0};
             f32 emissiveIntensity   = 1.0f;
-            f32 metallicColor       = 1.0f;
-            f32 roughnessColor      = 1.0f;
+            f32 metallicColor       = 0.5f;
+            f32 roughnessColor      = 0.5f;
             f32 specularColor       = 1.0f;
             f32 opacity             = 1.0f;
             f32 ambientOcclusion    = 1.0f;

@@ -55,7 +55,7 @@ namespace Razix {
         {
             auto& lc = m_Entity.GetComponent<LightComponent>();
 
-            lc.light.setType((Razix::Graphics::LightType)(idx));
+            lc.light.setType((LightType)(idx));
         }
     }    // namespace Editor
 }    // namespace Razix
