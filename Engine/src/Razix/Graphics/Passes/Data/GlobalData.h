@@ -9,10 +9,18 @@ namespace Razix {
         /**
          * Global light probes for PBR lighting
          */
-        struct GlobalLightProbe
+        struct LightProbe
         {
+            RZCubeMap* skybox;
             RZCubeMap* diffuse;
             RZCubeMap* specular;
+        };
+
+        struct GlobalLightProbeData
+        {
+            Razix::Graphics::FrameGraph::RZFrameGraphResource environmentMap;
+            Razix::Graphics::FrameGraph::RZFrameGraphResource diffuseIrradianceMap;
+            Razix::Graphics::FrameGraph::RZFrameGraphResource specularPreFilteredMap;
         };
 
         // Default pass data types

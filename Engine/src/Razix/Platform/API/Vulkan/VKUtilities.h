@@ -146,7 +146,7 @@ namespace Razix {
             /**
              * Transitions the image layout from one layout to another for better storage on GPU
              */
-            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels = 1);
+            void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels = 1, u32 layerCount = 1);
 
             //-----------------------------------------------------------------------------------
             // Single Time Command Buffer utility functions

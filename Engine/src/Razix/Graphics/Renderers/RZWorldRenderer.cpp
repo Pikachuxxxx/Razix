@@ -22,7 +22,6 @@
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
-#include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 
 #include "Razix/Graphics/Renderers/RZDebugRenderer.h"
 
@@ -41,9 +40,9 @@ namespace Razix {
 
             // Load the Skybox and Global Light Probes
 #if 1
-            m_Skybox                     = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
-            m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_Skybox);
-            m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_Skybox);
+            m_GlobalLightProbes.skybox   = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
+            m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
             importGlobalLightProbes(m_GlobalLightProbes);
 #endif
@@ -95,10 +94,6 @@ namespace Razix {
             m_DeferredPass.setGrid(sceneGrid);
             m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 #endif
-
-            //-------------------------------
-            // [ ] Skybox Pass
-            //-------------------------------
 
             //-------------------------------
             // [ ] SSR Pass
@@ -218,6 +213,11 @@ namespace Razix {
             //-------------------------------
             m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
             SceneData sceneData = m_Blackboard.get<SceneData>();
+
+            //-------------------------------
+            // [ ] Skybox Pass
+            //-------------------------------
+            m_SkyboxPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [x] Bloom Pass
@@ -391,7 +391,7 @@ namespace Razix {
             m_BRDFfLUTTexture->Release(true);
 
 #if 1
-            m_Skybox->Release(true);
+            m_GlobalLightProbes.skybox->Release(true);
             m_GlobalLightProbes.diffuse->Release(true);
             m_GlobalLightProbes.specular->Release(true);
 
@@ -405,6 +405,7 @@ namespace Razix {
 
             // Destroy Passes
             m_PBRLightingPass.destroy();
+            m_SkyboxPass.destroy();
             m_CompositePass.destroy();
             //m_GIPass.destroy();
             //m_GBufferPass.destroy();
@@ -413,9 +414,11 @@ namespace Razix {
             m_TransientResources.destroyResources();
         }
 
-        void RZWorldRenderer::importGlobalLightProbes(GlobalLightProbe globalLightProbe)
+        void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)
         {
             auto& globalLightProbeData = m_Blackboard.add<GlobalLightProbeData>();
+
+            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {FrameGraph::TextureType::Texture_CubeMap, "Environment Map", {globalLightProbe.skybox->getWidth(), globalLightProbe.skybox->getHeight()}, {globalLightProbe.skybox->getFormat()}}, {globalLightProbe.skybox});
 
             globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {FrameGraph::TextureType::Texture_CubeMap, "Diffuse Irradiance", {globalLightProbe.diffuse->getWidth(), globalLightProbe.diffuse->getHeight()}, {globalLightProbe.diffuse->getFormat()}}, {globalLightProbe.diffuse});
 

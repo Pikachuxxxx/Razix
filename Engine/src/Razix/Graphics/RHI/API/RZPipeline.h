@@ -109,7 +109,7 @@ namespace Razix {
             BlendFactor                    alphaSrc            = BlendFactor::One;
             BlendFactor                    alphaDst            = BlendFactor::One;
             BlendOp                        alphaOp             = BlendOp::Add;
-            CompareOp                      depthOp             = CompareOp::LessOrEqual;
+            CompareOp                      depthOp             = CompareOp::Less;
         };
 
         /* Pipeline binds all the resources together that are necessary to render geometry such as shaders, buffers, uniforms, descriptors and pipeline info */
