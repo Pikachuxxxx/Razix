@@ -81,7 +81,7 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA8};
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA8};
             pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
@@ -239,9 +239,13 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Destroy the resources first
-            m_DepthTexture->Release(true);
-
+            if (m_DepthTexture)
+                m_DepthTexture->Release(true);
+            m_ForwardLightsUBO->Destroy();
+            m_Pipeline->Destroy();
             m_GPULightsDescriptorSet->Destroy();
+            m_CSMSet->Destroy();
+            m_FrameDataSet->Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix

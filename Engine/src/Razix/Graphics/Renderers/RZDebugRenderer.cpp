@@ -56,7 +56,7 @@ namespace Razix {
         {
             for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Forward Renderer Main Command Buffers"));
+                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Debug Renderer Main Command Buffers"));
             }
 
             auto PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
@@ -67,7 +67,7 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = PointShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA8};
             pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
@@ -247,6 +247,14 @@ namespace Razix {
 
         void RZDebugRenderer::Destroy()
         {
+            if (m_FrameDataSet)
+                m_FrameDataSet->Destroy();
+            m_Pipeline->Destroy();
+            m_LinePipeline->Destroy();
+            m_PointIBO->Destroy();
+            m_PointVBO->Destroy();
+            m_LineIBO->Destroy();
+            m_LineVBO->Destroy();
         }
 
         void RZDebugRenderer::SetFrameDataHeap(RZDescriptorSet* frameDataSet)

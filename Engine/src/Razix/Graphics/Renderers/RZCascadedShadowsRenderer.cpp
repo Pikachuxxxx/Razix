@@ -62,6 +62,7 @@ namespace Razix {
 
         void RZCascadedShadowsRenderer::Destroy()
         {
+
             m_CascadedMatricesUBO->Destroy();
             for (u32 i = 0; i < kNumCascades; i++) {
                 cascadeGPUResources[i].ViewProjLayerUBO->Destroy();

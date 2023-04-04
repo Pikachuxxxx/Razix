@@ -92,7 +92,7 @@ namespace Razix {
                         return srgb ? GL_SRGB_ALPHA : GL_RGBA;
                         break;
                     default:
-                        RAZIX_CORE_WARN("Unsupported Texture format");
+                        RAZIX_CORE_WARN("GL]Unsupported Texture format");
                         return 0;
                         break;
                 }
@@ -155,7 +155,7 @@ namespace Razix {
                         return GL_RGBA;
 
                     default:
-                        RAZIX_CORE_WARN("[OpenGL] Unsupported Texture Format");
+                        RAZIX_CORE_WARN("[GL] Unsupported Texture Format");
                         return 0;
                 }
             }

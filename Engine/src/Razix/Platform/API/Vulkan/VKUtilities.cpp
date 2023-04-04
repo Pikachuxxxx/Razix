@@ -80,7 +80,7 @@ namespace Razix {
                             return VK_FORMAT_UNDEFINED;
                             break;
                         default:
-                            RAZIX_CORE_WARN("[Texture] Unsupported Texture format");
+                            RAZIX_CORE_WARN("[Texture VK] Unsupported Texture format");
                             return VK_FORMAT_UNDEFINED;
                             break;
                     }
@@ -144,7 +144,7 @@ namespace Razix {
                             return VK_FORMAT_UNDEFINED;
                             break;
                         default:
-                            RAZIX_CORE_WARN("[Texture] Unsupported Texture format");
+                            RAZIX_CORE_WARN("[Texture VK] Unsupported Texture format");
                             return VK_FORMAT_UNDEFINED;
                             break;
                     }
@@ -193,28 +193,31 @@ namespace Razix {
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
 
-                VkImageMemoryBarrier barrier            = {};
-                barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                barrier.oldLayout                       = oldLayout;
-                barrier.newLayout                       = newLayout;
-                barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                barrier.image                           = image;
-                barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                VkImageMemoryBarrier barrier = {};
+                barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                barrier.oldLayout            = oldLayout;
+                barrier.newLayout            = newLayout;
+                barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+                barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+                barrier.image                = image;
+                if (format >= 124 && format <= 130) // All possible depth formats
+                    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+                else
+                    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 barrier.subresourceRange.baseMipLevel   = 0;
                 barrier.subresourceRange.levelCount     = mipLevels;
                 barrier.subresourceRange.baseArrayLayer = 0;
                 barrier.subresourceRange.layerCount     = 1;
 
-                if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL || newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL) {
-                    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+                //if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL || newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL) {
+                //    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
-                    if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT) {
-                        barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-                    }
-                } else {
-                    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                }
+                //    if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT) {
+                //        barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+                //    }
+                //} else {
+                //    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                //}
 
                 VkPipelineStageFlags sourceStage      = 0;
                 VkPipelineStageFlags destinationStage = 0;

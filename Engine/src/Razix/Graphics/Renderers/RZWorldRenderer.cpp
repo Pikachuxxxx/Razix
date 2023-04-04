@@ -136,12 +136,10 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
                     data.outputLDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene LDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene LDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA8});
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
 
-                    data.outputHDR = builder.write(data.outputHDR);
                     data.outputLDR = builder.write(data.outputLDR);
                     data.depth     = builder.write(data.depth);
 
@@ -157,14 +155,12 @@ namespace Razix {
                 [=](const SceneData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     m_ForwardRenderer.Begin(scene);
 
-                    auto rtHDR = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle();
                     auto rtLDR = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputLDR).getHandle();
                     auto dt    = resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle();
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {rtHDR, {true, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)}},
-                        {rtLDR, {true, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)}},
+                        {rtLDR, {true, scene->getSceneCamera().getBgColor()}},
                     };
                     info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
                     info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
@@ -183,7 +179,7 @@ namespace Razix {
                         frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
                         frame_descriptor.uniformBuffer       = frameDataBuffer;
 
-                        m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer")));
+                        m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer Forward")));
 
                         auto csmTextures = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
@@ -221,9 +217,8 @@ namespace Razix {
             //-------------------------------
             // [x] Bloom Pass
             //-------------------------------
-            m_BloomPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-
-            BloomPassData bloomData = m_Blackboard.get<BloomPassData>();
+            if (settings.renderFeatures & RendererFeature_Bloom)
+                m_BloomPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             // FIXME: URGENTLY!!! Use a proper RT & DT from the forward pass
             //-------------------------------
@@ -265,7 +260,6 @@ namespace Razix {
                         RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
 
                     //RZDebugRenderer::DrawCone(50, 6, 45.0f, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
                     //RZDebugRenderer::DrawCylinder(glm::vec3(0.0f), glm::vec3(0.0f), 6.0f, 2.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
                     RZDebugRenderer::Get()->Begin(scene);
@@ -295,7 +289,7 @@ namespace Razix {
                         frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
                         frame_descriptor.uniformBuffer       = frameDataBuffer;
 
-                        RZDebugRenderer::Get()->SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer")));
+                        RZDebugRenderer::Get()->SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer Debug")));
                         updatedSets = true;
                     }
 
@@ -397,8 +391,11 @@ namespace Razix {
 
 #endif
             // Destroy Renderers
+            m_ForwardRenderer.Destroy();
             m_CascadedShadowsRenderer.Destroy();
+            m_ShadowRenderer.Destroy();
             m_ImGuiRenderer.Destroy();
+            RZDebugRenderer::Get()->Destroy();
 
             // Destroy Passes
             m_CompositePass.destroy();

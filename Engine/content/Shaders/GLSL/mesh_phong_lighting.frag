@@ -42,8 +42,7 @@ const mat4 biasMat = mat4(
 );
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
-layout(location = 0) out vec4 sceneColorHDR;
-layout(location = 1) out vec4 sceneColorLDR;
+layout(location = 0) out vec4 outSceneColor;
 //------------------------------------------------------------------------------
 // Functions
 // Cascaded Shadow Map calculation
@@ -167,9 +166,7 @@ vec3 CalculateSpotLightContribution(LightData light, vec3 normal, vec3 viewPos)
 //------------------------------------------------------------------------------
 // Main
 void main()
-{
-    vec4 outFragColor;
-   
+{   
     vec3 normal = getNormals(fs_in.fragTexCoord, fs_in.fragNormal);
     // transform normal vector to range [-1,1]
     //normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
@@ -185,45 +182,36 @@ void main()
         discard;
     //-----------------------------------------------
     // Opacity check
-    outFragColor = vec4(result, getOpacity(fs_in.fragTexCoord));
+    outSceneColor = vec4(result, getOpacity(fs_in.fragTexCoord));
 
     //-----------------------------------------------
     // Shadow map calculation
     vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
     float shadow = DirectionalShadowCalculation(FragPosLightSpace, normalize(normal), lightBuffer.data[0].position);
      
-    outFragColor.rgb *= shadow;
+    outSceneColor.rgb *= shadow;
 
     //-----------------------------------------------
     // Gamma correction
     float gamma = 2.2;
-    outFragColor.rgb = pow(outFragColor.rgb, vec3(1.0/gamma));
+    outSceneColor.rgb = pow(outSceneColor.rgb, vec3(1.0/gamma));
 
     //-----------------------------------------------
     // Test the CSM at layer 0
     //float depthValue = texture(CascadedShadowMaps, vec3(fs_in.fragTexCoord, 0)).r;
-    //outFragColor = vec4(vec3(depthValue), 1.0);
+    //outSceneColor = vec4(vec3(depthValue), 1.0);
     //-----------------------------------------------
     // Cascaded Shadow calculation
     // Get cascade index for the current fragment's view position
-	//uint cascadeIndex = 0;
-	//for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
-	//	if(fs_in.viewPos.z < shadowMapData.cascadeSplits[i]) {	
-	//		cascadeIndex = i + 1;
-	//	}
-	//}
-	// Depth compare for shadowing
-	//vec4 shadowCoord = (biasMat * shadowMapData.cascadeViewProjMat[cascadeIndex]) * vec4(fs_in.fragPos, 1.0);	
-	//float shadow = 0;
-	//shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
-
-     // check whether result is higher than some threshold, if so, output as bloom threshold color
-    float brightness = dot(getAlbedoColor(fs_in.fragTexCoord) * material.emissiveIntensity, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 1.0)
-        sceneColorHDR = vec4(getAlbedoColor(fs_in.fragTexCoord) * material.emissiveIntensity, 1.0);
-    else
-        sceneColorHDR = vec4(0.0, 0.0, 0.0, 1.0);
-
-    sceneColorLDR = outFragColor;
+    //uint cascadeIndex = 0;
+    //for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
+    //	if(fs_in.viewPos.z < shadowMapData.cascadeSplits[i]) {	
+    //		cascadeIndex = i + 1;
+    //	}
+    //}
+    // Depth compare for shadowing
+    //vec4 shadowCoord = (biasMat * shadowMapData.cascadeViewProjMat[cascadeIndex]) * vec4(fs_in.fragPos, 1.0);	
+    //float shadow = 0;
+    //shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
 }
 //------------------------------------------------------------------------------
