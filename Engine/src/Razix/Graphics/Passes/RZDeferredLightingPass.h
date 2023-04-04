@@ -17,13 +17,6 @@ namespace Razix {
 
         class RZMesh;
 
-        struct GPULightData
-        {
-            u32  numLights;
-            u32  _padding;
-            LightData data;
-        };
-
         class RZDeferredLightingPass : public IRZPass
         {
         public:
@@ -39,7 +32,6 @@ namespace Razix {
             Maths::RZGrid                 m_Grid;
             RZUniformBuffer*              m_TileDataUBO;
             TileData                      m_TileData;
-            GPULightData                  m_GPULightData;
             RZUniformBuffer*              m_LightDataUBO;
             RZMesh*                       m_ScreenQuadMesh;
             std::vector<RZDescriptorSet*> m_DescriptorSets;

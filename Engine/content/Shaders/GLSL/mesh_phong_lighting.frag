@@ -101,13 +101,13 @@ vec3 CalculateDirectionalLightContribution(LightData light, vec3 normal, vec3 vi
 {
     // Ambient
     float ambientStrength  = 0.1f;
-    vec3 ambient  = ambientStrength * light.color.rgb * getAlbedoColor(fs_in.fragTexCoord);
+    vec3 ambient  = ambientStrength * light.color.rgb * Mat_getAlbedoColor(fs_in.fragTexCoord);
 
     // Diffuse
     // Since IDK how to use the light direction I will use the position and normalize it
     vec3 lightDir = normalize(light.position.xyz);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color * getAlbedoColor(fs_in.fragTexCoord);
+    vec3 diffuse = diff * light.color * Mat_getAlbedoColor(fs_in.fragTexCoord);
      
     // Specular shading
     float specularStrength = 1.0;
@@ -132,12 +132,12 @@ vec3 CalculatePointLightContribution(LightData light, vec3 normal, vec3 viewPos)
 {
     // Ambient
     float ambientStrength  = 0.1f;
-    vec3 ambient  = ambientStrength * light.color.rgb * getAlbedoColor(fs_in.fragTexCoord);
+    vec3 ambient  = ambientStrength * light.color.rgb * Mat_getAlbedoColor(fs_in.fragTexCoord);
 
     // Diffuse
     vec3 lightDir = normalize(light.position - fs_in.fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color * getAlbedoColor(fs_in.fragTexCoord);
+    vec3 diffuse = diff * light.color * Mat_getAlbedoColor(fs_in.fragTexCoord);
      
     // Specular shading
     float specularStrength = 1.0;
@@ -167,7 +167,7 @@ vec3 CalculateSpotLightContribution(LightData light, vec3 normal, vec3 viewPos)
 // Main
 void main()
 {   
-    vec3 normal = getNormals(fs_in.fragTexCoord, fs_in.fragNormal);
+    vec3 normal = fs_in.fragNormal;
     // transform normal vector to range [-1,1]
     //normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
 

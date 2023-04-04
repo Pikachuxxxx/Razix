@@ -42,6 +42,7 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
             loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
             loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/pbr_lighting.rzsf");
             //-------------------------------------------------------------------
             // Post Processing FX
             loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");
