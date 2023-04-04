@@ -27,8 +27,8 @@ struct GPUFrameData
 {
     f32                time;
     f32                deltaTime;
-    glm::uvec2           resolution;
-    GPUCameraFrameData   camera;
-    u32             renderFeatures;
-    u32             debugFlags;
+    glm::uvec2         resolution;
+    GPUCameraFrameData camera;
+    u32                renderFeatures;
+    u32                debugFlags;
 };

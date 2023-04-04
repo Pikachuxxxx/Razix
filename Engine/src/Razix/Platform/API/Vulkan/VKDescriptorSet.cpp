@@ -50,6 +50,8 @@ namespace Razix {
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
 
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) setLayout)
+
             VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
             descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             descriptorSetAllocateInfo.descriptorPool     = VKRenderContext::GetVKRenderer()->getDescriptorPool();

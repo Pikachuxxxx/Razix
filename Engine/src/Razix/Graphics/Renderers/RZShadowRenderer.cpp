@@ -52,7 +52,6 @@ namespace Razix {
 
         void RZShadowRenderer::Begin(RZScene* scene)
         {
-            
         }
 
         void RZShadowRenderer::Draw(RZCommandBuffer* cmdBuffer)
@@ -69,6 +68,11 @@ namespace Razix {
 
         void RZShadowRenderer::Destroy()
         {
+            m_LightViewProjUBO->Destroy();
+            m_Pipeline->Destroy();
+            if (m_FrameDataSet)
+                m_FrameDataSet->Destroy();
+            m_LVPSet->Destroy();
         }
 
         void RZShadowRenderer::SetFrameDataHeap(RZDescriptorSet* frameDataSet)
@@ -126,7 +130,7 @@ namespace Razix {
 
                     // Update Viewport and Scissor Rect
                     cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
-                     
+
                     LightVPUBOData light_data{};
                     // Get the Light direction
                     auto lights = scene->GetComponentsOfType<LightComponent>();

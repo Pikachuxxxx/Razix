@@ -110,7 +110,7 @@ namespace Razix {
             if (!m_Material)
                 return;
 
-            auto matProps              = m_Material->getProperties();
+            auto matProps              = m_Material->getProperties();    
             matProps.emissiveIntensity = ui.emissiveIntensity->text().toFloat();
             m_Material->setProperties(matProps);
         }
