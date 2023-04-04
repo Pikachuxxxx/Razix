@@ -145,6 +145,8 @@ namespace Razix {
 
             static void DebugDraw(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
 #endif
+            static void DrawGrid(u32 dimension, const glm::vec4& colour);
+
             static void DrawLight(Graphics::RZLight* light, const glm::vec4& colour);
             static void DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour);
             static void DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
