@@ -371,6 +371,15 @@ namespace Razix {
             GenDrawLine(true, start, end, colour);
         }
 
+        void RZDebugRenderer::DrawGrid(u32 dimension, const glm::vec4& colour)
+        {
+            float pos = float(dimension) / 2.0f;
+            for (float x = -(float) dimension / 2.0f; x <= (float) dimension / 2.0f; x++) {
+                DrawLine(glm::vec3(x, 0, -pos), glm::vec3(x, 0, pos), colour);
+                DrawLine(glm::vec3(-pos, 0, x), glm::vec3(pos, 0, x), colour);
+            }
+        }
+
 #if 0
         //Draw Matrix (x,y,z axis at pos)
         void RZDebugRenderer::DrawMatrix(const Maths::Matrix4& mtx)

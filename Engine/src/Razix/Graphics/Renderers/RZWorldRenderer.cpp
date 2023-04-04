@@ -241,15 +241,19 @@ namespace Razix {
                     builder.read(frameDataBlock.frameData);
                 },
                 [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                    // Origin point
                     RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
-#if 1
+
+                    // X, Y, Z lines
+                    RZDebugRenderer::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+                    RZDebugRenderer::DrawGrid(25, glm::vec4(0.5f));
+#if 0
                     RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 0.1f);
-
-                    RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(10.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 10.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 10.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
                     RZDebugRenderer::DrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     RZDebugRenderer::DrawCircle(50, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 90.0f, 0.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));

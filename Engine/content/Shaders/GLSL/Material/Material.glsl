@@ -65,7 +65,7 @@ float Mat_getRoughnessColor(vec2 uv)
     if(material.isUsingRoughnessMap)
         return vec3(texture(roughnessMap, uv)).r;
     else 
-        return material.metallic;
+        return material.roughness;
 }
 //----------------------------------------------------------------------------
 vec3 getSpecularColor(vec2 uv)

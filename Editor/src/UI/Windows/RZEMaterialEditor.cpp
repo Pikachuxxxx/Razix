@@ -25,6 +25,8 @@ namespace Razix {
             connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_DiffuseTextureSelect()));
             connect(ui.diffuseColor, SIGNAL(pressed()), this, SLOT(on_DiffuseColor()));
             connect(ui.specTexture, SIGNAL(pressed()), this, SLOT(on_SpecularTextureSelected()));
+            connect(ui.metallicValue, SIGNAL(returnPressed()), this, SLOT(on_MetallicValueSet()));
+            connect(ui.roughnessValue, SIGNAL(returnPressed()), this, SLOT(on_RoughnessValueSet()));
             connect(ui.emissiveIntensity, SIGNAL(returnPressed()), this, SLOT(on_EmissionIntensity()));
         }
 
@@ -40,6 +42,21 @@ namespace Razix {
             ui.materialNameLbl->setText(material->getName().c_str());
 
             // Diffuse stuff
+            auto& props    = material->getProperties();
+            m_DiffuseColor = QColor(props.albedoColor.x, props.albedoColor.y, props.albedoColor.z);
+            ui.diffuseColor->setStyleSheet("background-color: " + m_DiffuseColor.name());
+
+            // Specular
+            ui.specIntensity->setText(std::to_string(props.specularColor).c_str());
+
+            // Emission
+            ui.emissiveIntensity->setText(std::to_string(props.emissiveIntensity).c_str());
+
+            // Metallic
+            ui.metallicValue->setText(std::to_string(props.metallicColor).c_str());
+
+            // Roughness
+            ui.roughnessValue->setText(std::to_string(props.roughnessColor).c_str());
         }
 
         void RZEMaterialEditor::on_DiffuseTextureSelect()
@@ -105,12 +122,37 @@ namespace Razix {
             // Get the number from the LineEdit and set the specular float in the MaterialData struct
         }
 
+        void RZEMaterialEditor::on_MetallicValueSet()
+        {
+            if (!m_Material)
+                return;
+
+            auto matProps          = m_Material->getProperties();
+            matProps.metallicColor = ui.metallicValue->text().toFloat();
+            m_Material->setProperties(matProps);
+        }
+
+        void RZEMaterialEditor::on_MetallicTextureSelected()
+        {
+        }
+
+        void RZEMaterialEditor::on_RoughnessValueSet()
+        {
+            auto matProps           = m_Material->getProperties();
+            matProps.roughnessColor = ui.roughnessValue->text().toFloat();
+            m_Material->setProperties(matProps);
+        }
+
+        void RZEMaterialEditor::on_RoughnessTextureSelected()
+        {
+        }
+
         void RZEMaterialEditor::on_EmissionIntensity()
         {
             if (!m_Material)
                 return;
 
-            auto matProps              = m_Material->getProperties();    
+            auto matProps              = m_Material->getProperties();
             matProps.emissiveIntensity = ui.emissiveIntensity->text().toFloat();
             m_Material->setProperties(matProps);
         }
