@@ -28,7 +28,6 @@
 #include "Razix/Graphics/Passes/Data/GBufferData.h"
 #include "Razix/Graphics/Passes/Data/GIData.h"
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
-#include "Razix/Graphics/Passes/Data/GlobalLightProbeData.h"
 #include "Razix/Graphics/Passes/Data/ShadowMapData.h"
 
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"

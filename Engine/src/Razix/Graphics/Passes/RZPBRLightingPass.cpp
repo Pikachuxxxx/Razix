@@ -150,6 +150,7 @@ namespace Razix {
                     scene->drawScene(m_Pipeline, m_FrameDataDescriptorSet, m_SceneLightsDataDescriptorSet, {m_ShadowDataSet});
 
                     RHI::EndRendering(cmdBuffer);
+                    RAZIX_MARK_END();
 
                     Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
                     Graphics::RHI::SubmitWork({}, {});

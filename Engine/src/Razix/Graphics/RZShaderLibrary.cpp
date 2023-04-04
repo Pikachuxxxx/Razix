@@ -22,6 +22,7 @@ namespace Razix {
             // pre-load some shaders
             // Basic shaders
             loadShader("//RazixContent/Shaders/Razix/default.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/skybox.rzsf");
             //-------------------------------------------------------------------
             // Renderer related shaders
             loadShader("//RazixContent/Shaders/Razix/grid.rzsf");
