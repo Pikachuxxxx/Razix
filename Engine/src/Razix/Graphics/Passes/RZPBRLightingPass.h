@@ -20,6 +20,8 @@ namespace Razix {
             std::vector<RZCommandBuffer*> m_CommandBuffers;
             RZDescriptorSet*              m_FrameDataDescriptorSet;
             RZDescriptorSet*              m_SceneLightsDataDescriptorSet;
+            RZDescriptorSet*              m_ShadowDataSet;
+
         };
     }    // namespace Graphics
 }    // namespace Razix

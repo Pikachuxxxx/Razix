@@ -59,8 +59,9 @@ namespace Razix {
             pipelineInfo.depthWriteEnabled      = true;
             m_Pipeline                          = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR Pipeline"));
 
-            auto& frameDataBlock       = blackboard.get<FrameData>();
-            auto& sceneLightsDataBlock = blackboard.get<SceneLightsData>();
+            auto&                      frameDataBlock       = blackboard.get<FrameData>();
+            auto&                      sceneLightsDataBlock = blackboard.get<SceneLightsData>();
+            const SimpleShadowPassData shadowData           = blackboard.get<SimpleShadowPassData>();
 
             blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "PBR Lighting Pass",
@@ -76,6 +77,8 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
+                    builder.read(shadowData.shadowMap);
+                    builder.read(shadowData.lightVP);
                 },
                 [=](const SceneData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -122,12 +125,29 @@ namespace Razix {
 
                         m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set - PBR"));
 
+                        auto shadowMap = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
+
+                        RZDescriptor csm_descriptor{};
+                        csm_descriptor.bindingInfo.binding = 0;
+                        csm_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        csm_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        csm_descriptor.texture             = shadowMap;
+
+                        RZDescriptor shadow_data_descriptor{};
+                        shadow_data_descriptor.size                = sizeof(SimpleShadowPassData);
+                        shadow_data_descriptor.bindingInfo.binding = 1;
+                        shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+
+                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Map + VP"));
+
                         updatedSets = true;
                     }
 
                     m_Pipeline->Bind(cmdBuffer);
 
-                    scene->drawScene(m_Pipeline, m_FrameDataDescriptorSet, m_SceneLightsDataDescriptorSet);
+                    scene->drawScene(m_Pipeline, m_FrameDataDescriptorSet, m_SceneLightsDataDescriptorSet, {m_ShadowDataSet});
 
                     RHI::EndRendering(cmdBuffer);
 
@@ -141,6 +161,7 @@ namespace Razix {
             m_Pipeline->Destroy();
             m_FrameDataDescriptorSet->Destroy();
             m_SceneLightsDataDescriptorSet->Destroy();
+            m_ShadowDataSet->Destroy();
         }
 
     }    // namespace Graphics

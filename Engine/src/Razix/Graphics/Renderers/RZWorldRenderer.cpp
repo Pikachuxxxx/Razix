@@ -131,8 +131,6 @@ namespace Razix {
             auto&                frameDataBlock = m_Blackboard.get<FrameData>();
             const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
 
-            const SimpleShadowPassData shadowData = m_Blackboard.get<SimpleShadowPassData>();
-
 #if 0
  m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",

@@ -44,5 +44,12 @@ namespace Razix {
             alignas(4) u32 _padding[3] = {0, 0, 0};    // Will be consumed on GLSL so as to get 16 byte alignment, invisible variable on GLSL
             alignas(16) LightData lightData[MAX_LIGHTS];
         };
+
+        struct SimpleShadowPassData
+        {
+            FrameGraph::RZFrameGraphResource shadowMap;    // Depth texture to store the shadow map data
+            FrameGraph::RZFrameGraphResource lightVP;
+        };
+
     }    // namespace Graphics
 }    // namespace Razix
