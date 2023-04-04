@@ -4,6 +4,8 @@
 
 #include "Razix/Graphics/Renderers/IRZRenderer.h"
 
+#include "Razix/Graphics/Passes/Data/GlobalData.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -12,11 +14,6 @@ namespace Razix {
             glm::mat4 lightViewProj;
         };
 
-        struct SimpleShadowPassData
-        {
-            FrameGraph::RZFrameGraphResource shadowMap;    // Depth texture to store the shadow map data
-            FrameGraph::RZFrameGraphResource lightVP;
-        };
 
         struct OmniDirectionalShadowPassData
         {
