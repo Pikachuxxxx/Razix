@@ -21,9 +21,20 @@ layout(set = 1, binding = 0) uniform samplerCube environmentMap;
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outSceneColor;
 //------------------------------------------------------------------------------
+// Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
+vec3 ACES(vec3 x) {
+  const float a = 2.51;
+  const float b = 0.03;
+  const float c = 2.43;
+  const float d = 0.59;
+  const float e = 0.14;
+  return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+//------------------------------------------------------------------------------
 void main()
 {
-    vec3 envColor = texture(environmentMap, normalize(fs_in.fragLocalPos)).rgb;  
+    vec3 envColor = texture(environmentMap, fs_in.fragLocalPos).rgb;  
+    envColor = ACES(envColor);
     outSceneColor = vec4(envColor, 1.0);
 }
 //------------------------------------------------------------------------------
