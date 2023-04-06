@@ -11,7 +11,7 @@
 //------------------------------------------------------------------------------
 // Constants
 const float PI = 3.14159265359;
-const float roughness = 0.5f;
+const float roughness = 0.0f;
 //------------------------------------------------------------------------------
 // Vertex Input
  layout(location = 0) in VSOutput
