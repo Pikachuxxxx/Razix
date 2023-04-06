@@ -23,6 +23,7 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
+#include "Razix/Graphics/Passes/Data/BRDFData.h"
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
 
@@ -45,7 +46,7 @@ namespace Razix {
                 m_CommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("PBR Command Buffers"));
             }
 
-            auto pbrShader = RZShaderLibrary::Get().getShader("pbr_lighting.rzsf");
+            auto pbrShader = RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
 
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
@@ -59,9 +60,11 @@ namespace Razix {
             pipelineInfo.depthWriteEnabled      = true;
             m_Pipeline                          = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR Pipeline"));
 
-            auto&                      frameDataBlock       = blackboard.get<FrameData>();
-            auto&                      sceneLightsDataBlock = blackboard.get<SceneLightsData>();
-            const SimpleShadowPassData shadowData           = blackboard.get<SimpleShadowPassData>();
+            auto& frameDataBlock       = blackboard.get<FrameData>();
+            auto& sceneLightsDataBlock = blackboard.get<SceneLightsData>();
+            auto& shadowData           = blackboard.get<SimpleShadowPassData>();
+            auto& globalLightProbes    = blackboard.get<GlobalLightProbeData>();
+            auto& brdfData             = blackboard.get<BRDFData>();
 
             blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "PBR Lighting Pass",
@@ -79,6 +82,10 @@ namespace Razix {
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
                     builder.read(shadowData.shadowMap);
                     builder.read(shadowData.lightVP);
+                    builder.read(globalLightProbes.environmentMap);
+                    builder.read(globalLightProbes.diffuseIrradianceMap);
+                    builder.read(globalLightProbes.specularPreFilteredMap);
+                    builder.read(brdfData.lut);
                 },
                 [=](const SceneData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -140,7 +147,30 @@ namespace Razix {
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
-                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Map + VP"));
+                        auto envMap         = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.environmentMap).getHandle();
+                        auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
+                        auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
+                        auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
+
+                        // TODO: Enable this only if we use a skybox
+                        RZDescriptor irradianceMap_descriptor{};
+                        irradianceMap_descriptor.bindingInfo.binding = 2;
+                        irradianceMap_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        irradianceMap_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        irradianceMap_descriptor.texture             = envMap;
+                        RZDescriptor prefiltered_descriptor{};
+                        prefiltered_descriptor.bindingInfo.binding = 3;
+                        prefiltered_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        prefiltered_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        prefiltered_descriptor.texture             = prefilteredMap;
+
+                        RZDescriptor brdflut_descriptor{};
+                        brdflut_descriptor.bindingInfo.binding = 4;
+                        brdflut_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        brdflut_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        brdflut_descriptor.texture             = brdfLUT;
+
+                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor, irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR pass Bindings"));
 
                         updatedSets = true;
                     }

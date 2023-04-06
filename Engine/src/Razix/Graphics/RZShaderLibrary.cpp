@@ -44,6 +44,7 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
             loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
             loadShader("//RazixContent/Shaders/Razix/pbr_lighting.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/pbr_ibl_lighting.rzsf");
             //-------------------------------------------------------------------
             // Post Processing FX
             loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");

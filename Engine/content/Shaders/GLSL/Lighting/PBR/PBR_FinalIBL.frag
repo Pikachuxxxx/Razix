@@ -36,6 +36,11 @@ layout(set = 3, binding = 0) uniform sampler2D shadowMap;
 layout(set = 3, binding = 1) uniform ShadowMapData {
     mat4 lightSpaceMatrix;
 }shadowMapData;
+//--------------------------------------------------------
+// IBL maps
+layout(set = 3, binding = 2) uniform samplerCube irradianceMap;
+layout(set = 3, binding = 3) uniform samplerCube prefilteredMap;
+layout(set = 3, binding = 4) uniform sampler2D brdfLUT;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
@@ -62,6 +67,7 @@ void main()
 {
     vec3 N = normalize(fs_in.fragNormal);
     vec3 V = normalize(fs_in.viewPos - fs_in.fragPos);
+    vec3 R = reflect(-V, N); 
 
     vec3 albedo = Mat_getAlbedoColor(fs_in.fragTexCoord);
     float metallic = Mat_getMetallicColor(fs_in.fragTexCoord);
@@ -96,15 +102,28 @@ void main()
         Lo += CalculateRadiance(L, V, N, F0, albedo, metallic, roughness, light.color, attenuation);
     }
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
-    
+    // ambient lighting (we now use IBL as the ambient term)
+    vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 diffuse = irradiance * albedo;
+
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;   
+    vec2 envBRDF  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
+    vec3 ambient = (specular) * ao; 
+
     vec3 result = ambient + Lo;
 
     //-----------------------------------------------
     // Shadow map calculation
     vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
     float shadow = 1.0f;
-    // FIXME: We assume the first light is the Directiona Light and only use that
+    // FIXME: We assume the first light is the Directional Light and only use that
     if(sceneLights.data[0].type == LightType_Directional)
         shadow = DirectionalShadowCalculation(FragPosLightSpace, N, sceneLights.data[0].position);
 

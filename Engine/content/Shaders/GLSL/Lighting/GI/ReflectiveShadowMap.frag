@@ -44,5 +44,5 @@ void main()
     else 
         color =  texture(albedoMap, vs_in.fragTexCoord).rgb;
 
-    flux = vec4((color) + material.emissiveColor, 1.0f) * 20.0f;
+    flux = vec4((color) + material.emissiveIntensity, 1.0f) * 20.0f;
 }

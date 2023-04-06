@@ -116,12 +116,12 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Cubemap", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
 
-                cmdBuffer->UpdateViewport(1024, 1024);
+                cmdBuffer->UpdateViewport(512, 512);
 
                 RenderingInfo info{};
                 info.colorAttachments = {
                     {cubeMap, {true, glm::vec4(0.0f)}}};
-                info.extent = {1024, 1024};
+                info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
                 RHI::BeginRendering(cmdBuffer, info);
@@ -209,8 +209,6 @@ namespace Razix {
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
-            vkDeviceWaitIdle(VKDevice::Get().getDevice());
-
             u32 layerCount = 6;
 
             // Begin rendering
@@ -220,12 +218,12 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Irradiance cubemap Convolution", glm::vec4(0.8f, 0.4f, 0.3f, 1.0f))
 
-                cmdBuffer->UpdateViewport(1024, 1024);
+                cmdBuffer->UpdateViewport(512, 512);
 
                 RenderingInfo info{};
                 info.colorAttachments = {
                     {irradianceMap, {true, glm::vec4(0.0f)}}};
-                info.extent = {1024, 1024};
+                info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
                 RHI::BeginRendering(cmdBuffer, info);
@@ -323,12 +321,12 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("PreFiltering cubemap", glm::vec4(0.8f, 0.8f, 0.3f, 1.0f))
 
-                cmdBuffer->UpdateViewport(1024, 1024);
+                cmdBuffer->UpdateViewport(512, 512);
 
                 RenderingInfo info{};
                 info.colorAttachments = {
                     {preFilteredMap, {true, glm::vec4(0.0f)}}};
-                info.extent = {1024, 1024};
+                info.extent = {512, 512};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
                 RHI::BeginRendering(cmdBuffer, info);
