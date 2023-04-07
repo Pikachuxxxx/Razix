@@ -1,15 +1,15 @@
 # Razix Engine Release Notes
 
-## Version - 0.30.0 [Development] - 06/03/2022
-![](../Branding/DemoImages/ReleaseNotes/RazixV0.3.0.Dev.SceneTest.png)
-    - Added Entity Component System with entities
-    - Added Robust Scene System and Scene Manager
-    - Added multiple components such as Transform, Tag, ID, Camera, Meshrenderer, Sprite Renderer etc.
-    - Added Model, Mesh and Sprite primitieves with utilities
-    - Added loaders for OBJ, FBX and GLTF2.0
-    - Added test sandbox scenarios to test the above
+#### Version - 0.40.0 [Development] - 08/04/2023
+![](./Branding/DemoImages/ReleaseNotes/Razix_Engine_PBR_Lighting_Demo_3.png)
+    
+    - Added Frame Graph inspired from Frostbiet engine
+    - added GBuffer, Shadow mapping, PBR + IBL lighting model
+    - Imporved editing => Added material editor
+    - Single world renderer to build the entire frame graph
+    - Redesigned rendering architecture
+    - used new vulkan dynamic rendering extension
 
 #### Known Issues
-- some kind of tearing issues when camera moves super fast : [Issue #85](https://github.com/Pikachuxxxx/Razix/issues/85)
-- Vulkan Swapchain or RT initial render target layout transition issue : [Issue #83](https://github.com/Pikachuxxxx/Razix/issues/83)
-- Cannot load Vulkan textures larger than 1024x1024 in dimenstion : [Issue #108](https://github.com/Pikachuxxxx/Razix/issues/108)
+- Distrubution build in not working
+- CSM cascade matrices calculation is wrong
