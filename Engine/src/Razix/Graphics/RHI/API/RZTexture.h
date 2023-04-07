@@ -225,8 +225,14 @@ namespace Razix {
         class RAZIX_API RZCubeMap : public RZTexture
         {
         public:
-            static RZCubeMap* Create(
-                RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+            static RZCubeMap* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, bool enableMipsGeneration = false, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
+
+            void setMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
+
+        protected:
+            u32  m_TotalMipLevels           = 5;
+            u32  m_CurrentMipRenderingLevel = 0;
+            bool m_GenerateMips             = false;
         };
 
         //-----------------------------------------------------------------------------------

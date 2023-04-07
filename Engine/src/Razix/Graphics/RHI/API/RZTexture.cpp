@@ -150,13 +150,12 @@ namespace Razix {
         // Cube Map Texture
         //-----------------------------------------------------------------------------------
 
-        RZCubeMap* RZCubeMap::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        RZCubeMap* RZCubeMap::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, bool enableMipsGeneration /* = false*/, Wrapping wrapMode, Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKCubeMap(name, wrapMode, filterMode); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKCubeMap(name, width, height, enableMipsGeneration, wrapMode, filterMode); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:

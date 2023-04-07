@@ -29,7 +29,9 @@ layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 void main()
 {
-    vec3 normal = normalize(vs_in.localPos);
+    vec3 localPos = vs_in.localPos;
+    localPos.y = -localPos.y;
+    vec3 normal = normalize(localPos);
 
     vec3 irradiance = vec3(0.0f);
 

@@ -250,7 +250,7 @@ namespace Razix {
                     RZDebugRenderer::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
                     // Grid
-                    RZDebugRenderer::DrawGrid(25, glm::vec4(0.5f));
+                    RZDebugRenderer::DrawGrid(25, glm::vec4(0.75f));
 #if 0
                     RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 0.1f);
