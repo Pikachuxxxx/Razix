@@ -215,7 +215,7 @@ namespace Razix {
             SceneData sceneData = m_Blackboard.get<SceneData>();
 
             //-------------------------------
-            // [ ] Skybox Pass
+            // [x] Skybox Pass
             //-------------------------------
             m_SkyboxPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
@@ -249,13 +249,14 @@ namespace Razix {
                     RZDebugRenderer::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     RZDebugRenderer::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-                    RZDebugRenderer::DrawGrid(25, glm::vec4(0.5f));
+                    // Grid
+                    RZDebugRenderer::DrawGrid(25, glm::vec4(0.75f));
 #if 0
                     RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 0.1f);
                     RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 0.1f);
 
-                    RZDebugRenderer::DrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f  , 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     RZDebugRenderer::DrawCircle(50, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 90.0f, 0.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
                     RZDebugRenderer::DrawCircle(50, 3.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 

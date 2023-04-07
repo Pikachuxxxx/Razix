@@ -34,7 +34,7 @@ void main()
     GBuffer0 = vec4(normalize(fs_in.fragNormal), 1.0f);
 
     GBuffer1 = texture(albedoMap, fs_in.fragTexCoord).rgba;
-    GBuffer2 = vec4(material.emissiveColor, 1.0f);
+    GBuffer2 = vec4(vec3(material.emissiveIntensity), 1.0f);
 
     // Since the current GLTTF modedls have a MetalligRoughNesAO maps we hard code this shit ( GLTF texutes .r = empty .g = roughness .b = metallic .a = AO)
     vec4 MetallicRoughnessAO = texture(metallicMap, fs_in.fragTexCoord);

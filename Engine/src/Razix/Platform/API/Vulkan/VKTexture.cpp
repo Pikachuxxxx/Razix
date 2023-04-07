@@ -57,7 +57,7 @@ namespace Razix {
             VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) imageMemory);
         }
 
-        void VKTexture2D::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels)
+        void VKTexture2D::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers /* = 1*/)
         {
             VkFormatProperties formatProperties;
             vkGetPhysicalDeviceFormatProperties(VKDevice::Get().getGPU(), imageFormat, &formatProperties);
@@ -66,66 +66,89 @@ namespace Razix {
                 RAZIX_CORE_ERROR("Texture image format does not support linear blitting!");
             }
 
-            VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+            for (size_t layerIdx = 0; layerIdx < layers; layerIdx++) {
+                VkCommandBuffer      commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                VkImageMemoryBarrier barrier{};
+                barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                barrier.image                           = image;
+                barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                barrier.subresourceRange.baseArrayLayer = layerIdx;
+                barrier.subresourceRange.layerCount     = layers;
+                barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
 
-            VkImageMemoryBarrier barrier{};
-            barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            barrier.image                           = image;
-            barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-            barrier.subresourceRange.baseArrayLayer = 0;
-            barrier.subresourceRange.layerCount     = 1;
-            barrier.subresourceRange.levelCount     = 1;
+                int32_t mipWidth  = texWidth;
+                int32_t mipHeight = texHeight;
 
-            int32_t mipWidth  = texWidth;
-            int32_t mipHeight = texHeight;
+                for (u32 i = 1; i < mipLevels; i++) {
+                    barrier.subresourceRange.baseMipLevel = i - 1;
+                    barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                    barrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    barrier.dstAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
 
-            for (u32 i = 1; i < mipLevels; i++) {
-                barrier.subresourceRange.baseMipLevel = i - 1;
-                barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                barrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    vkCmdPipelineBarrier(commandBuffer,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        0,
+                        0,
+                        nullptr,
+                        0,
+                        nullptr,
+                        1,
+                        &barrier);
+
+                    VkImageBlit blit{};
+                    blit.srcOffsets[0]                 = {0, 0, 0};
+                    blit.srcOffsets[1]                 = {mipWidth, mipHeight, 1};
+                    blit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    blit.srcSubresource.mipLevel       = i - 1;
+                    blit.srcSubresource.baseArrayLayer = layerIdx;
+                    blit.srcSubresource.layerCount     = layers;
+                    blit.dstOffsets[0]                 = {0, 0, 0};
+                    blit.dstOffsets[1]                 = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
+                    blit.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    blit.dstSubresource.mipLevel       = i;
+                    blit.dstSubresource.baseArrayLayer = 0;
+                    blit.dstSubresource.layerCount     = 1;
+
+                    vkCmdBlitImage(commandBuffer,
+                        image,
+                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        image,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        1,
+                        &blit,
+                        VK_FILTER_LINEAR);
+
+                    barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+                    vkCmdPipelineBarrier(commandBuffer,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        0,
+                        0,
+                        nullptr,
+                        0,
+                        nullptr,
+                        1,
+                        &barrier);
+
+                    if (mipWidth > 1)
+                        mipWidth /= 2;
+                    if (mipHeight > 1)
+                        mipHeight /= 2;
+                }
+
+                barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+                barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                barrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
-                barrier.dstAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
-
-                vkCmdPipelineBarrier(commandBuffer,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                    0,
-                    0,
-                    nullptr,
-                    0,
-                    nullptr,
-                    1,
-                    &barrier);
-
-                VkImageBlit blit{};
-                blit.srcOffsets[0]                 = {0, 0, 0};
-                blit.srcOffsets[1]                 = {mipWidth, mipHeight, 1};
-                blit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                blit.srcSubresource.mipLevel       = i - 1;
-                blit.srcSubresource.baseArrayLayer = 0;
-                blit.srcSubresource.layerCount     = 1;
-                blit.dstOffsets[0]                 = {0, 0, 0};
-                blit.dstOffsets[1]                 = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
-                blit.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                blit.dstSubresource.mipLevel       = i;
-                blit.dstSubresource.baseArrayLayer = 0;
-                blit.dstSubresource.layerCount     = 1;
-
-                vkCmdBlitImage(commandBuffer,
-                    image,
-                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    image,
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    1,
-                    &blit,
-                    VK_FILTER_LINEAR);
-
-                barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                barrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
 
                 vkCmdPipelineBarrier(commandBuffer,
                     VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -137,34 +160,11 @@ namespace Razix {
                     nullptr,
                     1,
                     &barrier);
-
-                if (mipWidth > 1)
-                    mipWidth /= 2;
-                if (mipHeight > 1)
-                    mipHeight /= 2;
+                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
             }
-
-            barrier.subresourceRange.baseMipLevel = mipLevels - 1;
-            barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            barrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
-            barrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
-
-            vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                0,
-                0,
-                nullptr,
-                0,
-                nullptr,
-                1,
-                &barrier);
-
-            VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
         }
 
-        VkImageView VKTexture2D::CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer RZ_DEBUG_NAME_TAG_E_ARG)
+        VkImageView VKTexture2D::CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer, u32 baseMipLevel /*= 0*/ RZ_DEBUG_NAME_TAG_E_ARG)
         {
             VkImageViewCreateInfo viewInfo           = {};
             viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -173,8 +173,8 @@ namespace Razix {
             viewInfo.format                          = format;
             viewInfo.components                      = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
             viewInfo.subresourceRange.aspectMask     = aspectMask;
-            viewInfo.subresourceRange.baseMipLevel   = 0;
-            viewInfo.subresourceRange.levelCount     = mipLevels;
+            viewInfo.subresourceRange.baseMipLevel   = baseMipLevel;
+            viewInfo.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
             viewInfo.subresourceRange.baseArrayLayer = baseArrayLayer;
             viewInfo.subresourceRange.layerCount     = layerCount;
 
@@ -290,7 +290,7 @@ namespace Razix {
             else
                 aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
 
-            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D_ARRAY, aspectBit, numLayers, 0 RZ_DEBUG_E_ARG_NAME);
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D_ARRAY, aspectBit, numLayers, 0, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
@@ -411,7 +411,7 @@ namespace Razix {
             GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Format), m_Width, m_Height, mipLevels);
 
             // Create the Image view for the Vulkan image (uses color bit)
-            m_ImageView = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 1, 0 RZ_DEBUG_E_ARG_NAME);
+            m_ImageView = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 1, 0, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Now since we have copied it properly we know the image is accessible from the DEVICE
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -468,7 +468,7 @@ namespace Razix {
             else
                 aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
 
-            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_3D, aspectBit, 1, 0 RZ_DEBUG_E_ARG_NAME);
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_3D, aspectBit, 1, 0, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
@@ -733,7 +733,7 @@ namespace Razix {
                 aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
 
             // Create the Image view for the Vulkan image (uses color bit)
-            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, aspectBit, 1, 0 RZ_DEBUG_E_ARG_NAME);
+            m_ImageView = VKTexture2D::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Format), mipLevels, VK_IMAGE_VIEW_TYPE_2D, aspectBit, 1, 0, 0 RZ_DEBUG_E_ARG_NAME);
 
             // Create a sampler view for the image
             auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
@@ -762,33 +762,48 @@ namespace Razix {
             m_WrapMode    = wrapMode;
             m_TextureType = RZTexture::Type::CUBEMAP;
             m_VirtualPath = hdrFilePath;
+            m_Format      = Format::RGBA32F;
 
             // FIXME: hard coded shit!
-            m_Width  = 512;
-            m_Height = 512;
+            m_Width  = 1024;
+            m_Height = 1024;
 
             updateDescriptor();
         }
 
-        VKCubeMap::VKCubeMap(const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        VKCubeMap::VKCubeMap(const std::string& name, u32 width, u32 height, bool enableMipsGeneration, Wrapping wrapMode, Filtering filterMode)
         {
-            m_Name        = name;
-            m_FilterMode  = filterMode;
-            m_WrapMode    = wrapMode;
-            m_TextureType = RZTexture::Type::CUBEMAP;
+            m_Name         = name;
+            m_FilterMode   = filterMode;
+            m_WrapMode     = wrapMode;
+            m_TextureType  = RZTexture::Type::CUBEMAP;
+            m_GenerateMips = enableMipsGeneration;
+            m_Width        = width;
+            m_Height       = height;
 
-            // FIXME: hard coded shit!
-            m_Width  = 512;
-            m_Height = 512;
+            m_Format    = Format::RGBA32F;
+            auto format = VKUtilities::TextureFormatToVK(m_Format);
 
-            auto format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            VKTexture2D::CreateImage(512, 512, 1, 1, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            if (enableMipsGeneration)
+                m_TotalMipLevels = 5;
+            else
+                m_TotalMipLevels = 1;
 
-            m_ImageView = VKTexture2D::CreateImageView(m_Image, format, 1, VK_IMAGE_VIEW_TYPE_CUBE, VK_IMAGE_ASPECT_COLOR_BIT, 6);
+            VKTexture2D::CreateImage(m_Width, m_Height, 1, m_TotalMipLevels, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
 
-            m_ImageSampler = VKTexture2D::CreateImageSampler(VK_FILTER_LINEAR, VK_FILTER_LINEAR, 0.0f, 1.0f, true, VKDevice::Get().getPhysicalDevice()->getProperties().limits.maxSamplerAnisotropy, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+            if (enableMipsGeneration)
+                VKTexture2D::GenerateMipmaps(m_Image, format, m_Width, m_Height, m_TotalMipLevels);
 
-            VKUtilities::TransitionImageLayout(m_Image, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
+            m_ImageViews.push_back(VKTexture2D::CreateImageView(m_Image, format, m_TotalMipLevels, VK_IMAGE_VIEW_TYPE_CUBE, VK_IMAGE_ASPECT_COLOR_BIT, 6, 0, 0));
+
+            if (enableMipsGeneration) {
+                for (u32 i = 1; i < m_TotalMipLevels; i++)
+                    m_ImageViews.push_back(VKTexture2D::CreateImageView(m_Image, format, m_TotalMipLevels, VK_IMAGE_VIEW_TYPE_CUBE, VK_IMAGE_ASPECT_COLOR_BIT, 6, 0, i));
+            }
+
+            m_ImageSampler = VKTexture2D::CreateImageSampler(VK_FILTER_LINEAR, VK_FILTER_LINEAR, 0.0f, static_cast<f32>(m_TotalMipLevels), true, VKDevice::Get().getPhysicalDevice()->getProperties().limits.maxSamplerAnisotropy, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+
+            VKUtilities::TransitionImageLayout(m_Image, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_TotalMipLevels, 6);
 
             updateDescriptor();
         }
@@ -798,8 +813,9 @@ namespace Razix {
             if (m_ImageSampler != VK_NULL_HANDLE)
                 vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
 
-            if (m_ImageView != VK_NULL_HANDLE)
-                vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageView, nullptr);
+            for (u32 i = 0; i < m_ImageViews.size(); i++)
+                if (m_ImageViews[i] != VK_NULL_HANDLE)
+                    vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageViews[i], nullptr);
 
             if (deleteImage)
                 vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
@@ -818,7 +834,7 @@ namespace Razix {
 
         void* VKCubeMap::GetHandle() const
         {
-            return (void*) &m_Descriptor;
+            return (void*) &m_Descriptors[m_CurrentMipRenderingLevel];
         }
 
         void VKCubeMap::convertEquirectangularToCubemap()
@@ -829,9 +845,22 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Descriptor.sampler     = m_ImageSampler;
-            m_Descriptor.imageView   = m_ImageView;
-            m_Descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            m_Descriptors.resize(1);
+
+            m_Descriptors[0].sampler     = m_ImageSampler;
+            m_Descriptors[0].imageView   = m_ImageViews[0];
+            m_Descriptors[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+            if (!m_GenerateMips)
+                return;
+
+            for (u32 i = 1; i < m_TotalMipLevels; i++) {
+                VkDescriptorImageInfo descriptor;
+                descriptor.sampler     = m_ImageSampler;
+                descriptor.imageView   = m_ImageViews[i];
+                descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                m_Descriptors.push_back(descriptor);
+            }
         }
     }    // namespace Graphics
 }    // namespace Razix

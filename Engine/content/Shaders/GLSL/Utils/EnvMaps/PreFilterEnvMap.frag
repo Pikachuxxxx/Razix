@@ -11,7 +11,6 @@
 //------------------------------------------------------------------------------
 // Constants
 const float PI = 3.14159265359;
-const float roughness = 0.5f;
 //------------------------------------------------------------------------------
 // Vertex Input
  layout(location = 0) in VSOutput
@@ -24,6 +23,10 @@ const float roughness = 0.5f;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
 layout (set = 0, binding = 1) uniform samplerCube envMap;
+
+layout (push_constant) uniform PushConstantData{
+    float roughness;
+}pc_data;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments 
 layout(location = 0) out vec4 outFragColor;
@@ -88,29 +91,23 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 }
 ////////////////////////////////////////////////////////////////////////////////
 // Tonemapping
-// Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
-vec3 lottes(vec3 x) {
-  const vec3 a = vec3(1.6);
-  const vec3 d = vec3(0.977);
-  const vec3 hdrMax = vec3(8.0);
-  const vec3 midIn = vec3(0.18);
-  const vec3 midOut = vec3(0.267);
-
-  const vec3 b =
-      (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
-      ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
-  const vec3 c =
-      (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
-      ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
-
-  return pow(x, a) / (pow(x, a * d) * b + c);
+// Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
+vec3 ACES(vec3 x) {
+  const float a = 2.51;
+  const float b = 0.03;
+  const float c = 2.43;
+  const float d = 0.59;
+  const float e = 0.14;
+  return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 ////////////////////////////////////////////////////////////////////////////////
 
 // Main Function
 void main()
 {
-    vec3 N = normalize(vs_in.localPos);
+    vec3 localPos = vs_in.localPos;
+    localPos.y = -localPos.y;
+    vec3 N = normalize(localPos);
 
     vec3 R = N;
     vec3 V = R;
@@ -123,14 +120,14 @@ void main()
     {
         // generates a sample vector that's biased towards the preferred alignment direction (importance sampling).
         vec2 Xi = Hammersley(i, SAMPLE_COUNT);
-        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+        vec3 H = ImportanceSampleGGX(Xi, N, pc_data.roughness);
         vec3 L  = normalize(2.0 * dot(V, H) * H - V);
 
         float NdotL = max(dot(N, L), 0.0);
         if(NdotL > 0.0)
         {
             // sample from the environment's mip level based on roughness/pdf
-            float D   = DistributionGGX(N, H, roughness);
+            float D   = DistributionGGX(N, H, pc_data.roughness);
             float NdotH = max(dot(N, H), 0.0);
             float HdotV = max(dot(H, V), 0.0);
             float pdf = D * NdotH / (4.0 * HdotV) + 0.0001;
@@ -139,7 +136,7 @@ void main()
             float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
             float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
 
-            float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
+            float mipLevel = pc_data.roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
 
             prefilteredColor += textureLod(envMap, L, mipLevel).rgb * NdotL;
             totalWeight      += NdotL;
@@ -149,7 +146,7 @@ void main()
     prefilteredColor = prefilteredColor / totalWeight;
      
     // Tonemapping
-    vec3 color = lottes(prefilteredColor);
+    vec3 color = ACES(prefilteredColor);
 
     // Gamma correction
     color = pow(prefilteredColor, vec3(1.0/2.2));

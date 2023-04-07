@@ -96,8 +96,6 @@ void main()
         Lo += CalculateRadiance(L, V, N, F0, albedo, metallic, roughness, light.color, attenuation);
     }
 
-    // ambient lighting (note that the next IBL tutorial will replace 
-    // this ambient lighting with environment lighting).
     vec3 ambient = vec3(0.03) * albedo * ao;
     
     vec3 result = ambient + Lo;
@@ -109,7 +107,7 @@ void main()
     // FIXME: We assume the first light is the Directiona Light and only use that
     if(sceneLights.data[0].type == LightType_Directional)
         shadow = DirectionalShadowCalculation(FragPosLightSpace, N, sceneLights.data[0].position);
-     
+
     result *= shadow;
     //-----------------------------------------------
 

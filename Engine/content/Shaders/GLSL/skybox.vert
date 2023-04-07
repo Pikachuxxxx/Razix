@@ -36,6 +36,6 @@ void main()
     mat4 rotView = mat4(mat3(u_Frame.camera.view)); // remove translation from the view matrix
     vec4 clipPos = u_Frame.camera.projection * rotView * vec4(vs_out.fragLocalPos, 1.0);
 
-    gl_Position = vec4(clipPos.xy, 1.0f, 1.0f);
+    gl_Position = clipPos.xyww;
 }
 //------------------------------------------------------------------------------
