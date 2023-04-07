@@ -10,7 +10,7 @@
 
     ;Name and file
     Name "Razix Engine"
-    OutFile "RazixEngineInstaller-V.0.3.0.Dev.exe"
+    OutFile "RazixEngineInstaller-V.0.4.0.Dev.exe"
     Unicode True
     ShowInstDetails show
 
@@ -57,14 +57,14 @@ Section "Razix Engine Components" EngineInstallSec
 
     SetOutPath $INSTDIR
 
-    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Razix.dll"
+    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Razix.dll"
     SetOutPath $INSTDIR
-    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\RazixEditor.exe"
-    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Core.dll"
-    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Gui.dll"
-    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Widgets.dll"
+    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\RazixEditor.exe"
+    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Qt5Cored.dll"
+    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Qt5Guid.dll"
+    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Qt5Widgetsd.dll"
     SetOutPath $INSTDIR\plugins
-    FILE /nonfatal /a /r "..\..\..\bin\Distribution-windows-x86_64\plugins\"
+    FILE /nonfatal /a /r "..\..\..\bin\Debug-windows-x86_64\plugins\"
     SetOutPath $INSTDIR\Engine\content
     FILE /nonfatal /a /r "..\..\..\Engine\content\"
 

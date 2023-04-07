@@ -276,7 +276,7 @@ project "Razix"
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
-        symbols "Off"
+        symbols "On"
         optimize "Full"
         runtime "Release"
 group""
