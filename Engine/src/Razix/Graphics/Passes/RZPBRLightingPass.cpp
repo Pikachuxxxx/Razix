@@ -147,7 +147,6 @@ namespace Razix {
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
-                        auto envMap         = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.environmentMap).getHandle();
                         auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
                         auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
                         auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
@@ -157,7 +156,7 @@ namespace Razix {
                         irradianceMap_descriptor.bindingInfo.binding = 2;
                         irradianceMap_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         irradianceMap_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        irradianceMap_descriptor.texture             = envMap;
+                        irradianceMap_descriptor.texture             = irradianceMap;
                         RZDescriptor prefiltered_descriptor{};
                         prefiltered_descriptor.bindingInfo.binding = 3;
                         prefiltered_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;

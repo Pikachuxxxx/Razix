@@ -103,7 +103,7 @@ namespace Razix {
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
-            RZCubeMap* cubeMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR ") "HDR");
+            RZCubeMap* cubeMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR ") "HDR", 512, 512);
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
@@ -137,7 +137,6 @@ namespace Razix {
                 }
 
                 RHI::EndRendering(cmdBuffer);
-
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
@@ -150,12 +149,14 @@ namespace Razix {
             envMapPipeline->Destroy();
             cubeMesh->Destroy();
 
+            cubeMap->setMipLevel(0);
+
             return cubeMap;
         }
 
         RZCubeMap* RZIBL::generateIrradianceMap(RZCubeMap* cubeMap)
         {
-            RZCubeMap* irradianceMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Irradiance Map") "Irradiance Map");
+            RZCubeMap* irradianceMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Irradiance Map") "Irradiance Map", 32, 32);
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
             RZShader* cubemapConvolutionShader = RZShaderLibrary::Get().getShader("GenerateIrradianceMap.rzsf");
@@ -179,6 +180,7 @@ namespace Razix {
             for (int i = 0; i < 6; i++) {
                 uboData.view       = kCaptureViews[i];
                 uboData.projection = kCubeProjection;
+                uboData.projection[1][1] = -1;
                 uboData.layer      = i;
 
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
@@ -218,12 +220,12 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Irradiance cubemap Convolution", glm::vec4(0.8f, 0.4f, 0.3f, 1.0f))
 
-                cmdBuffer->UpdateViewport(512, 512);
+                cmdBuffer->UpdateViewport(32, 32);
 
                 RenderingInfo info{};
                 info.colorAttachments = {
                     {irradianceMap, {true, glm::vec4(0.0f)}}};
-                info.extent = {512, 512};
+                info.extent = {32, 32};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
                 RHI::BeginRendering(cmdBuffer, info);
@@ -256,12 +258,13 @@ namespace Razix {
 
         RZCubeMap* RZIBL::generatePreFilteredMap(RZCubeMap* cubeMap)
         {
-            RZCubeMap* preFilteredMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Pre Filtered Map") "Pre Filtered Map");
+            u32        dim            = 128;
+            RZCubeMap* preFilteredMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Pre Filtered Map") "Pre Filtered Map", dim, dim, true);
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
             RZShader* cubemapConvolutionShader = RZShaderLibrary::Get().getShader("GeneratePreFilteredMap.rzsf");
 
-            // Create the View Proj buffer
+            // Create the View Projection buffer
 
             std::vector<RZDescriptorSet*> envMapSets;
             std::vector<RZUniformBuffer*> UBOs;
@@ -280,6 +283,7 @@ namespace Razix {
             for (int i = 0; i < 6; i++) {
                 uboData.view       = kCaptureViews[i];
                 uboData.projection = kCubeProjection;
+                uboData.projection[1][1] = -1;
                 uboData.layer      = i;
 
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
@@ -312,7 +316,8 @@ namespace Razix {
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
-            u32 layerCount = 6;
+            u32 layerCount   = 6;
+            u32 maxMipLevels = 5;
 
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
@@ -321,31 +326,50 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("PreFiltering cubemap", glm::vec4(0.8f, 0.8f, 0.3f, 1.0f))
 
-                cmdBuffer->UpdateViewport(512, 512);
+                for (u32 mip = 0; mip < maxMipLevels; mip++) {
+                    cmdBuffer->UpdateViewport(dim, dim);
 
-                RenderingInfo info{};
-                info.colorAttachments = {
-                    {preFilteredMap, {true, glm::vec4(0.0f)}}};
-                info.extent = {512, 512};
-                // NOTE: This is very important for layers to work
-                info.layerCount = 6;
-                RHI::BeginRendering(cmdBuffer, info);
+                    RenderingInfo info{};
+                    info.colorAttachments = {
+                        {preFilteredMap, {true, glm::vec4(0.0f)}}};
+                    info.extent = {dim, dim};
+                    // NOTE: This is very important for layers to work
+                    info.layerCount = 6;
 
-                envMapPipeline->Bind(cmdBuffer);
+                    preFilteredMap->setMipLevel(mip);
+                    RHI::BeginRendering(cmdBuffer, info);
 
-                cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
-                cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
+                    envMapPipeline->Bind(cmdBuffer);
 
-                for (u32 i = 0; i < layerCount; i++) {
-                    RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
-                    RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                    cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
+                    cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
+
+                    for (u32 i = 0; i < layerCount; i++) {
+                        RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
+
+                        float roughness = (float) mip / (float) (maxMipLevels - 1);
+                        struct PCData
+                        {
+                            float roughness;
+                        } data;
+                        data.roughness = roughness;
+                        RZPushConstant pc;
+                        pc.data = &data;
+                        pc.size = sizeof(PCData);
+
+                        RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
+
+                        RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                    }
+
+                    dim = dim / 2;
                 }
-
                 RHI::EndRendering(cmdBuffer);
 
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
+            preFilteredMap->setMipLevel(0);
 
             for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();

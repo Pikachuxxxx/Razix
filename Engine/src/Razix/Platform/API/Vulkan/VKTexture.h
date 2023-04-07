@@ -71,7 +71,7 @@ namespace Razix {
              */
             static void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
 
-            static void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels);
+            static void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers = 1);
 
             /**
              * Creates an ImageView for the Vulkan image
@@ -84,7 +84,7 @@ namespace Razix {
              * @param layerCount The layers of image views usually 1 unless stereoscopic 3D is used
              * @param baseArrayLayer used if sterescopic3D is used to identify the layer of image to create the image view for
              */
-            static VkImageView CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageView! NAME IT !!! LAZY ASS MF#$"));
+            static VkImageView CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer = 0, u32 baseMipLevel = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageView! NAME IT !!! LAZY ASS MF#$"));
 
             /**
              * Creates a sampler to sampler the image in shader pipeline stage
@@ -192,7 +192,7 @@ namespace Razix {
             /* This is used to generate cube map from equirectangular maps or multiple texture files */
             VKCubeMap(const std::string& hdrFilePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
             /* This is used to create a empty cube map that can be used to write data into */
-            VKCubeMap(const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            VKCubeMap(const std::string& name, u32 width, u32 height, bool enableMipsGeneration, Wrapping wrapMode, Filtering filterMode);
             ~VKCubeMap() {}
 
             void  Release(bool deleteImage = true) override;
@@ -204,12 +204,12 @@ namespace Razix {
             VkImage getImage() const { return m_Image; };
 
         private:
-            VkImage               m_Image;        /* Vulkan image handle for the Texture object                               */
-            VkDeviceMemory        m_ImageMemory;  /* Memory for the Vulkan image                                              */
-            VkImageView           m_ImageView;    /* Image view for the image, all images need a view to look into the image  */
-            VkSampler             m_ImageSampler; /* Sampler information used by shaders to sample the texture                */
-            VkImageLayout         m_ImageLayout;  /* Layout aka usage description of the image                                */
-            VkDescriptorImageInfo m_Descriptor;   /* Descriptor info encapsulation the image, view and the sampler            */
+            VkImage                            m_Image;        /* Vulkan image handle for the Texture object                                      */
+            VkDeviceMemory                     m_ImageMemory;  /* Memory for the Vulkan image                                                     */
+            std::vector<VkImageView>           m_ImageViews;   /* Image views for the image, all faces & mips need a view to look into the image  */
+            VkSampler                          m_ImageSampler; /* Sampler information used by shaders to sample the texture                       */
+            VkImageLayout                      m_ImageLayout;  /* Layout aka usage description of the image                                       */
+            std::vector<VkDescriptorImageInfo> m_Descriptors;  /* Descriptors info encapsulation the image, it's views and the sampler            */
 
         private:
             void convertEquirectangularToCubemap();
