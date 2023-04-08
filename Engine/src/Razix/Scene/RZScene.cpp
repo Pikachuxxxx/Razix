@@ -46,7 +46,7 @@ namespace Razix {
 
     void RZScene::drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets)
     {
-        auto cmdBuffer = Graphics::RHI::getCurrentCommandBuffer();
+        auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
 
         // Get the list of entities and their transform component together
         auto& group = m_Registry.group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
@@ -87,7 +87,7 @@ namespace Razix {
 
                 Graphics::RHI::BindDescriptorSets(pipeline, cmdBuffer, setsToBindInOrder);
 
-                Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
+                Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
             }
         }
 

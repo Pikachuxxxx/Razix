@@ -129,7 +129,7 @@ namespace Razix {
                 [=](const SceneColorData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuf = m_CmdBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = m_CmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Deferred Tiled Pass", glm::vec4(0.2, 0.4, 0.6, 1.0f));
 
