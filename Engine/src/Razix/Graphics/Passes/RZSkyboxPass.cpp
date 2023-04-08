@@ -75,7 +75,7 @@ namespace Razix {
                 [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_CommandBuffers[RHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuffer = m_CommandBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
 
                     RHI::Begin(cmdBuffer);
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
@@ -88,7 +88,7 @@ namespace Razix {
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
-                    RHI::BeginRendering(RHI::getCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     // Set the Descriptor Set once rendering starts
                     static bool updatedSets = false;
@@ -131,7 +131,7 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
                     RAZIX_MARK_END();
 
-                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
+                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
                     Graphics::RHI::SubmitWork({}, {});
                 });
         }

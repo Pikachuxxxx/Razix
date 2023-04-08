@@ -138,7 +138,7 @@ namespace Razix {
                 [=](const ReflectiveShadowMapData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_RSMCmdBuffers[RHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuffer = m_RSMCmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
                     RHI::Begin(cmdBuffer);
 
                     struct CheckpointData
@@ -221,7 +221,7 @@ namespace Razix {
                             std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mesh->getMaterial()->getDescriptorSet()};
                             Graphics::RHI::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
-                            Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
+                            Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ namespace Razix {
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                        Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                 // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 #endif
@@ -335,7 +335,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
 #if 1
-                    auto cmdBuffer = m_RadianceInjectionCmdBuffers[RHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuffer = m_RadianceInjectionCmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
                     RHI::Begin(cmdBuffer);
 
                     struct CheckpointData
@@ -461,7 +461,7 @@ namespace Razix {
                 [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_RadiancePropagationCmdBuffers[RHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuffer = m_RadiancePropagationCmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
                     RHI::Begin(cmdBuffer);
 
                     struct CheckpointData

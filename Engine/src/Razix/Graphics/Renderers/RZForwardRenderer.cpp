@@ -97,12 +97,12 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Begin recording the command buffers
-            Graphics::RHI::Begin(m_MainCommandBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()]);
+            Graphics::RHI::Begin(m_MainCommandBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()]);
 
             RAZIX_MARK_BEGIN("Forward Lighting Pass", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
             // Update the viewport
-            Graphics::RHI::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            Graphics::RHI::GetCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             auto& registry = scene->getRegistry();
 
@@ -172,7 +172,7 @@ namespace Razix {
                     std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet, m_CSMSet};
                     Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
-                    Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
+                    Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
                 }
             }
 
@@ -210,7 +210,7 @@ namespace Razix {
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                 mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
             }
         }
 
@@ -218,7 +218,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RHI::EndRendering(Graphics::RHI::getCurrentCommandBuffer());
+            RHI::EndRendering(Graphics::RHI::GetCurrentCommandBuffer());
 
             RAZIX_MARK_END();
         }

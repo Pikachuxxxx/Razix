@@ -123,7 +123,7 @@ namespace Razix {
                 [=](const SimpleShadowPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuf = m_MainCommandBuffers[RHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = m_MainCommandBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
 
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Shadow Pass", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
@@ -199,7 +199,7 @@ namespace Razix {
                             mesh->getVertexBuffer()->Bind(cmdBuf);
                             mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                            Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
+                            Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +235,7 @@ namespace Razix {
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                        Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 

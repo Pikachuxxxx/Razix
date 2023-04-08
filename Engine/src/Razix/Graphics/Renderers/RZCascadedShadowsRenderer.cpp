@@ -306,7 +306,7 @@ namespace Razix {
                      * Since the resource is cloned and we maintain different version of it, the same resource is handled to us every time we ask it
                      */
 
-                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = cascadeGPUResources[cascadeIdx].CmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
@@ -381,7 +381,7 @@ namespace Razix {
                             mesh->getVertexBuffer()->Bind(cmdBuf);
                             mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                            Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mesh->getIndexCount());
+                            Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
                         }
                     }
                     // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
@@ -417,7 +417,7 @@ namespace Razix {
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);
 
-                        Graphics::RHI::DrawIndexed(Graphics::RHI::getCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
+                        Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
 

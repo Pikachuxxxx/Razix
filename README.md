@@ -58,9 +58,10 @@ Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 #### :warning: Still a work in progress
 ![](./Docs/Architecture/RazixEngine-Architecture-V.1.0.0.RC.png)
 
-**For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
+**ex. Lua Scriping API cheatsheet** ![Lua Scriping API cheatsheet](./Docs/RazixLuaScriptingAPICheatSheet.png)
 
- **For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description (ex. [Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png))**
+**For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description 
+ex. Core Systems ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png)**
 
 # Changelog and Release Notes
 

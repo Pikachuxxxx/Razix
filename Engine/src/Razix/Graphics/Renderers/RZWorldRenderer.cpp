@@ -225,7 +225,6 @@ namespace Razix {
             if (settings.renderFeatures & RendererFeature_Bloom)
                 m_BloomPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
-            // FIXME: URGENTLY!!! Use a proper RT & DT from the forward pass
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
@@ -251,20 +250,7 @@ namespace Razix {
 
                     // Grid
                     RZDebugRenderer::DrawGrid(25, glm::vec4(0.75f));
-#if 0
-                    RZDebugRenderer::DrawPoint(glm::vec3(1.0f), 0.1f);
-                    RZDebugRenderer::DrawPoint(glm::vec3(2.0f), 0.1f);
-                    RZDebugRenderer::DrawPoint(glm::vec3(3.0f), 0.1f);
 
-                    RZDebugRenderer::DrawCircle(50, 1.0f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f  , 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawCircle(50, 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 90.0f, 0.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
-                    RZDebugRenderer::DrawCircle(50, 3.0f, glm::vec3(0.0f), glm::vec3(90.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-
-                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(2.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(3.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawSphere(1.0f, glm::vec3(4.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-#endif
                     // Draw all lights in the scene
                     auto lights = scene->GetComponentsOfType<LightComponent>();
                     for (auto& lightComponent: lights) {
@@ -285,7 +271,7 @@ namespace Razix {
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
-                    RHI::BeginRendering(RHI::getCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     static bool updatedSets = false;
                     if (!updatedSets) {
@@ -303,13 +289,13 @@ namespace Razix {
                         updatedSets = true;
                     }
 
-                    RZDebugRenderer::Get()->Draw(RHI::getCurrentCommandBuffer());
+                    RZDebugRenderer::Get()->Draw(RHI::GetCurrentCommandBuffer());
 
-                    RHI::EndRendering(Graphics::RHI::getCurrentCommandBuffer());
+                    RHI::EndRendering(Graphics::RHI::GetCurrentCommandBuffer());
 
                     RZDebugRenderer::Get()->End();
 
-                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
+                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
                     Graphics::RHI::SubmitWork({}, {});
                 });
 
@@ -333,13 +319,6 @@ namespace Razix {
                 [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     m_ImGuiRenderer.Begin(scene);
 
-                    struct CheckpointData
-                    {
-                        std::string RenderPassName = "ImGui Pass";
-                    } checkpointData;
-
-                    RHI::SetCmdCheckpoint(Graphics::RHI::getCurrentCommandBuffer(), &checkpointData);
-
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
@@ -349,14 +328,14 @@ namespace Razix {
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
-                    RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
-                    m_ImGuiRenderer.Draw(Graphics::RHI::getCurrentCommandBuffer());
+                    m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
 
                     // Submit the render queue before presenting next
-                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
+                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
 
                     // Signal on a semaphore for the next pass (Final Composition pass) to wait on
                     Graphics::RHI::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
@@ -375,7 +354,7 @@ namespace Razix {
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
-            std::ofstream os(outPath + "/forward_lighting_test.dot");
+            std::ofstream os(outPath + "/pbr_lighting_test.dot");
             os << m_FrameGraph;
         }
 
@@ -472,6 +451,8 @@ namespace Razix {
                 });
         }
 
+        //--------------------------------------------------------------------------
+
         void RZWorldRenderer::uploadLightsData(RZScene* scene, RZRendererSettings& settings)
         {
             m_Blackboard.add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
@@ -499,7 +480,6 @@ namespace Razix {
 
                         gpuLightsData.numLights++;
                     }
-
                     // update and upload the UBO
                     resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle()->SetData(sizeof(GPUFrameData), &gpuLightsData);
                 });

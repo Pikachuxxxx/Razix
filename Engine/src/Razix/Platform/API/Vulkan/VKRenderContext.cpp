@@ -89,7 +89,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx = RHI::Get().getSwapchain()->getCurrentImageIndex();
+            auto frameIdx = RHI::Get().GetSwapchain()->getCurrentImageIndex();
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
@@ -120,7 +120,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx     = RHI::Get().getSwapchain()->getCurrentImageIndex();
+            auto frameIdx     = RHI::Get().GetSwapchain()->getCurrentImageIndex();
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
 
             std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
@@ -140,7 +140,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx     = RHI::Get().getSwapchain()->getCurrentImageIndex();
+            auto frameIdx     = RHI::Get().GetSwapchain()->getCurrentImageIndex();
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
             m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
         }

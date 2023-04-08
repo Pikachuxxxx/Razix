@@ -29,7 +29,6 @@
 namespace Razix {
     // Forward Declarations
     class RZScene;
-
     class RZCascadedShadowsRenderer;
 
     namespace Maths {
@@ -39,7 +38,7 @@ namespace Razix {
     namespace Graphics {
 
         // Renderer Settings + Debug flags
-        enum RZRendererFeatures : u32
+        enum RendererFeatures : u32
         {
             RendererFeature_None = 0,
 
@@ -58,7 +57,7 @@ namespace Razix {
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };
 
-        enum RZRendererDebugFlag : u32
+        enum RendererDebugFlag : u32
         {
             RendererDebugFlag_None          = 0,
             RendererDebugFlag_Wireframe     = 1 << 0,
@@ -117,9 +116,6 @@ namespace Razix {
             /* Destroy frame graph passes and it's resources */
             void destroy();
 
-            void importGlobalLightProbes(LightProbe globalLightProbe);
-            void cullLights(Maths::RZFrustum& frustum);
-
         private:
             FrameGraph::RZFrameGraph         m_FrameGraph;
             FrameGraph::RZBlackboard         m_Blackboard;
@@ -135,9 +131,9 @@ namespace Razix {
             RZDeferredLightingPass    m_DeferredPass;
             RZPBRLightingPass         m_PBRLightingPass;
             RZSkyboxPass              m_SkyboxPass;
+            RZBloomPass               m_BloomPass;
             RZImGuiRenderer           m_ImGuiRenderer;
             RZFinalCompositionPass    m_CompositePass;
-            RZBloomPass               m_BloomPass;
 
             // Test only
             RZForwardRenderer m_ForwardRenderer;
@@ -146,6 +142,8 @@ namespace Razix {
             Maths::RZAABB m_SceneAABB;
 
         private:
+            void importGlobalLightProbes(LightProbe globalLightProbe);
+            void cullLights(Maths::RZFrustum& frustum);
             void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
             void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
         };
