@@ -124,7 +124,7 @@ namespace Razix {
 
             auto& sceneCamera = scene->getSceneCamera();
 
-            auto cmdBuf = m_MainCommandBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()];
+            auto cmdBuf = m_MainCommandBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
 
             // Begin recording the command buffers
             Graphics::RHI::Begin(cmdBuf);

@@ -150,12 +150,12 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Begin recording the command buffers
-            Graphics::RHI::Begin(m_MainCommandBuffers[Graphics::RHI::getSwapchain()->getCurrentImageIndex()]);
+            Graphics::RHI::Begin(m_MainCommandBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()]);
 
             RAZIX_MARK_BEGIN("ImGui Pass", glm::vec4(1.0f, 7.0f, 0.0f, 1.0f));
 
             // Update the viewport
-            Graphics::RHI::getCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            Graphics::RHI::GetCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
@@ -279,7 +279,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RHI::EndRendering(Graphics::RHI::getCurrentCommandBuffer());
+            RHI::EndRendering(Graphics::RHI::GetCurrentCommandBuffer());
 
             RAZIX_MARK_END();
 

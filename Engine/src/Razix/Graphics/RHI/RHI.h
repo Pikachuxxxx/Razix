@@ -138,13 +138,13 @@ namespace Razix {
             RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer) { return s_APIInstance->SetDepthBiasImpl(cmdBuffer); }
             RAZIX_FORCE_INLINE static void SetScissorRect(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height) { return s_APIInstance->SetScissorRectImpl(cmdBuffer, x, y, width, height); }
 
-            RAZIX_FORCE_INLINE static RZSwapchain*     getSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
-            RAZIX_FORCE_INLINE static RZCommandBuffer* getCurrentCommandBuffer() { return s_APIInstance->m_CurrentCommandBuffer; }
+            RAZIX_FORCE_INLINE static RZSwapchain*     GetSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
+            RAZIX_FORCE_INLINE static RZCommandBuffer* GetCurrentCommandBuffer() { return s_APIInstance->m_CurrentCommandBuffer; }
 
             RAZIX_FORCE_INLINE const u32& getWidth() { return m_Width; }
             RAZIX_FORCE_INLINE const u32& getHeight() { return m_Height; }
 
-            static void SetCmdBuffer(RZCommandBuffer* cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
+            RAZIX_FORCE_INLINE static void SetCmdBuffer(RZCommandBuffer* cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
 
             static void SetCmdCheckpoint(RZCommandBuffer* cmdbuffer, void* markerData)
             {
@@ -152,21 +152,21 @@ namespace Razix {
             }
 
         protected:
-            virtual void InitAPIImpl()                                                                                                                                                                  = 0;
-            virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                              = 0;
-            virtual void BeginAPIImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                       = 0;
-            virtual void SubmitImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                         = 0;
-            virtual void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                           = 0;
-            virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                                     = 0;
-            virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)                                                      = 0;
-            virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, u32 totalSets)                                               = 0;
-            virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                                        = 0;
-            virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                           = 0;
+            virtual void InitAPIImpl()                                                                                                                                              = 0;
+            virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                          = 0;
+            virtual void BeginAPIImpl(RZCommandBuffer* cmdBuffer)                                                                                                                   = 0;
+            virtual void SubmitImpl(RZCommandBuffer* cmdBuffer)                                                                                                                     = 0;
+            virtual void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                       = 0;
+            virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                 = 0;
+            virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)                                  = 0;
+            virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, u32 totalSets)                                = 0;
+            virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                    = 0;
+            virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                            = 0;
             virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0) = 0;
-            virtual void DestroyAPIImpl()                                                                                                                                                               = 0;
-            virtual void OnResizeAPIImpl(u32 width, u32 height)                                                                                                                               = 0;
-            virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                   = 0;
-            virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                          = 0;
+            virtual void DestroyAPIImpl()                                                                                                                                           = 0;
+            virtual void OnResizeAPIImpl(u32 width, u32 height)                                                                                                                     = 0;
+            virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                               = 0;
+            virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                = 0;
 
             virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo) = 0;
             virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                       = 0;
@@ -179,10 +179,10 @@ namespace Razix {
             static RHI* s_APIInstance;
 
             std::string      m_RendererTitle; /* The name of the renderer API that is being used */
-            u32         m_Width      = 0;
-            u32         m_Height     = 0;
-            u32         m_PrevWidth  = 0;
-            u32         m_PrevHeight = 0;
+            u32              m_Width      = 0;
+            u32              m_Height     = 0;
+            u32              m_PrevWidth  = 0;
+            u32              m_PrevHeight = 0;
             CommandQueue     m_CommandQueue; /* The queue of recorded commands that needs execution */
             RZCommandBuffer* m_CurrentCommandBuffer = nullptr;
         };
