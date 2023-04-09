@@ -171,6 +171,11 @@ private:
             auto& dragonEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Dragon");
             dragonEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/chinesedragon.gltf");
 #endif
+
+#if 0
+           auto& lucyModel = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Lucy");
+            lucyModel.AddComponent<Razix::Graphics::RZModel>("//Meshes/lucy.obj");
+#endif
         }
 
         //auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
@@ -223,6 +228,7 @@ int main(int argc, char** argv)
 
     QStyle* style = StyleData::availStyles[1].creator();
     QApplication::setStyle(style);
+
     qrzeditorApp->setWindowIcon(QIcon(":/rzeditor/RazixLogo64.png"));
 
     // First we kickoff the project browser Dialog before anything starts

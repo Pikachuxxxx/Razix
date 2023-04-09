@@ -39,8 +39,9 @@ namespace Razix {
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
             // Load the Skybox and Global Light Probes
+            // FIXME: This is hard coded make this user land material
 #if 1
-            m_GlobalLightProbes.skybox   = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
+            m_GlobalLightProbes.skybox   = RZIBL::convertEquirectangularToCubemap("//Textures/HDR/sunset.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_GlobalLightProbes.skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
