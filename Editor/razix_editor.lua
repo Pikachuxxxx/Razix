@@ -62,6 +62,7 @@ project "RazixEditor"
         -- resource files
         "**.ui",
         "**.qrc",
+        "**.qss",
         "**.png",
         "**.ico",
         -- TODO: Add this under windows only

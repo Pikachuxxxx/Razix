@@ -30,5 +30,6 @@
         <file>grid_snap_icon.png</file>
         <file>local_icon.png</file>
         <file>next.png</file>
+        <file>styles/Combinear.qss</file>
     </qresource>
 </RCC>
