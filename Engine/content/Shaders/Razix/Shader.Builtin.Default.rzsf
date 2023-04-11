@@ -1,6 +1,6 @@
 ﻿/*
  * Razix Shader File 
- * Shader.Builtin.Default.rzsf : Quad shader that can be used to render a screen space quad, useful for post processing effects and multipass shaders for deferred rendedring etc.
+ * default.rzsf : Quad shader that can be used to render a screen space quad, useful for post processing effects and multipass shaders for deferred erndedring etc.
  * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
  */
 

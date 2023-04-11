@@ -21,8 +21,9 @@ namespace Razix {
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
             // pre-load some shaders
             // Basic shaders
-            loadShader("//RazixContent/Shaders/Razix/default.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/skybox.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/Shader.Builtin.Default.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/Shader.Builtin.Skybox.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/Shader.Builtin.ProceduralSkybox.rzsf");
             //-------------------------------------------------------------------
             // Renderer related shaders
             loadShader("//RazixContent/Shaders/Razix/grid.rzsf");
