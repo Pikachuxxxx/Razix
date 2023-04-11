@@ -26,6 +26,10 @@
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
+#include "Razix/Scene/Components/RZComponents.h"
+
+#include "Razix/Scene/RZScene.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -37,7 +41,8 @@ namespace Razix {
                 m_CommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Skybox Command Buffers"));
             }
 
-            auto skyboxShader = RZShaderLibrary::Get().getShader("skybox.rzsf");
+            auto skyboxShader           = RZShaderLibrary::Get().getShader("Shader.Builtin.Skybox.rzsf");
+            auto proceduralSkyboxShader = RZShaderLibrary::Get().getShader("Shader.Builtin.ProceduralSkybox.rzsf");
 
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
@@ -51,6 +56,9 @@ namespace Razix {
             pipelineInfo.depthWriteEnabled      = false;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Skybox Pipeline"));
+
+            pipelineInfo.shader  = proceduralSkyboxShader;
+            m_ProceduralPipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Procedural Skybox Pipeline"));
 
             m_SkyboxCube = MeshFactory::CreateCube();
 
@@ -118,13 +126,43 @@ namespace Razix {
                         updatedSets = true;
                     }
 
-                    m_Pipeline->Bind(cmdBuffer);
+                    if (!m_UseProceduralSkybox)
+                        m_Pipeline->Bind(cmdBuffer);
+                    else
+                        m_ProceduralPipeline->Bind(cmdBuffer);
 
                     m_SkyboxCube->getIndexBuffer()->Bind(cmdBuffer);
                     m_SkyboxCube->getVertexBuffer()->Bind(cmdBuffer);
 
-                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataDescriptorSet, m_LightProbesDescriptorSet};
-                    RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
+                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataDescriptorSet};
+                    if (!m_UseProceduralSkybox) {
+                        setsToBindInOrder.push_back(m_LightProbesDescriptorSet);
+                        RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
+                    } else {
+                        // Since no skybox, we update the directional light direction
+                        auto lights = scene->GetComponentsOfType<LightComponent>();
+                        // We use the first found directional light
+                        // TODO: Cache this
+                        RZLight dirLight;
+                        for (auto& lc: lights) {
+                            if (lc.light.getType() == LightType::DIRECTIONAL)
+                                dirLight = lc.light;
+                            break;
+                        }
+                        struct PCData
+                        {
+                            glm::vec3 worldSpaceLightPos;
+                        } data;
+                        // FIXME: Use direction
+                        data.worldSpaceLightPos = dirLight.getPosition();
+                        RZPushConstant pc;
+                        pc.data        = &data;
+                        pc.size        = sizeof(PCData);
+                        pc.shaderStage = ShaderStage::PIXEL;
+
+                        RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
+                        RHI::BindDescriptorSets(m_ProceduralPipeline, cmdBuffer, setsToBindInOrder);
+                    }
 
                     RHI::DrawIndexed(cmdBuffer, m_SkyboxCube->getIndexBuffer()->getCount());
 
@@ -139,6 +177,7 @@ namespace Razix {
         void RZSkyboxPass::destroy()
         {
             m_Pipeline->Destroy();
+            m_ProceduralPipeline->Destroy();
             m_FrameDataDescriptorSet->Destroy();
             m_LightProbesDescriptorSet->Destroy();
             m_SkyboxCube->Destroy();

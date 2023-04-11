@@ -1,6 +1,6 @@
 /*
  * Razix Engine Shader File
- * Default Fragment Shader that can be used for rendering basic geometry with vertex colors and use a texture as well
+ * Fragment shader to render a skybox as a cubemap
  */
  #version 450
  // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
