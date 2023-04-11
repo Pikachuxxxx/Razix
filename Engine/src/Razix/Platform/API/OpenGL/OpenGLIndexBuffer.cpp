@@ -22,7 +22,7 @@ namespace Razix {
             return 0;
         }
 
-        OpenGLIndexBuffer::OpenGLIndexBuffer(u16* data, u32 count, BufferUsage bufferUsage)
+        OpenGLIndexBuffer::OpenGLIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage)
             : m_IBO(0)
         {
             m_Size       = count * sizeof(u16);
@@ -30,7 +30,7 @@ namespace Razix {
             m_IndexCount = count;
             GL_CALL(glGenBuffers(1, &m_IBO));
             GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
-            GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(u16), data, BufferUsageToOpenGL(m_Usage)));
+            GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(u32), data, BufferUsageToOpenGL(m_Usage)));
         }
 
         OpenGLIndexBuffer::~OpenGLIndexBuffer()

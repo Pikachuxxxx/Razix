@@ -204,7 +204,7 @@ namespace Razix {
             for (auto& primitive: mesh.primitives) {
                 const tinygltf::Accessor& indicesAccessor = model.accessors[primitive.indices];
 
-                std::vector<u16>           indices;
+                std::vector<u32>           indices;
                 std::vector<Graphics::RZVertex> vertices;
 
                 indices.resize(indicesAccessor.count);

@@ -134,14 +134,14 @@ namespace Razix {
                 vb->AddBufferLayout(layout);
                 delete[] data;
 
-                u16 indices[6]{
+                u32 indices[6]{
                     0, 1, 2, 2, 3, 0};
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Plane") indices, 6);
 
                 RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
 
-                auto shader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+                auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -268,7 +268,7 @@ namespace Razix {
                 RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Cube"));
                 delete[] data;
 
-                u16 indices[36]{
+                u32 indices[36]{
                     0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
                 RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Cube") indices, 36);
 
@@ -294,8 +294,8 @@ namespace Razix {
 
                 for (int i = 0; i <= stackCount; ++i) {
                     f32 stackAngle = static_cast<f32>(M_PI / 2 - i * stackStep);    // starting from pi/2 to -pi/2
-                    f32 xy         = radius * cos(stackAngle);                        // r * cos(u)
-                    f32 z          = radius * sin(stackAngle);                        // r * sin(u)
+                    f32 xy         = radius * cos(stackAngle);                      // r * cos(u)
+                    f32 z          = radius * sin(stackAngle);                      // r * sin(u)
 
                     // add (sectorCount+1) vertices per stack
                     // the first and last vertices have same position and normal, but different tex coords
@@ -321,7 +321,7 @@ namespace Razix {
 
                 RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Sphere"));
 
-                std::vector<u16> indices;
+                std::vector<u32> indices;
                 u16              k1, k2;
                 for (u16 i = 0; i < stackCount; ++i) {
                     k1 = i * (static_cast<u16>(sectorCount) + 1U);    // beginning of current stack
@@ -379,7 +379,7 @@ namespace Razix {
                 vb->AddBufferLayout(layout);
                 delete[] data;
 
-                u16 indices[6] = {0, 1, 2, 2, 3, 0};
+                u32 indices[6] = {0, 1, 2, 2, 3, 0};
 
                 RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Screen Quad IB") indices, 6);
 

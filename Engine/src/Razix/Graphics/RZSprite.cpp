@@ -185,7 +185,7 @@ namespace Razix {
                 vertices[3].UV = m_UVs[3];
             }
 
-            u16 indices[6] = {
+            u32 indices[6] = {
                 0, 1, 2, 2, 3, 0};
 
             // Create the vertex buffer

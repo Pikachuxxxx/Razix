@@ -98,7 +98,7 @@ namespace Razix {
                         for (auto& descriptor: setInfo.second) {
                             descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
                         }
-                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"));
+                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"), true);
                         m_DescriptorSets.push_back(descSet);
                     }
                 },

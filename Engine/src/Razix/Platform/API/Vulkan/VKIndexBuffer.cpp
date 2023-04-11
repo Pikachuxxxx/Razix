@@ -8,12 +8,12 @@
 namespace Razix {
     namespace Graphics {
 
-        VKIndexBuffer::VKIndexBuffer(u16* data, u32 count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG)
-            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(u16), data RZ_DEBUG_E_ARG_NAME)
+        VKIndexBuffer::VKIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG)
+            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(u32), data RZ_DEBUG_E_ARG_NAME)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Size       = count * sizeof(u16);
+            m_Size       = count * sizeof(u32);
             m_Usage      = bufferUsage;
             m_IndexCount = count;
         }
@@ -26,7 +26,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkCmdBindIndexBuffer(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdBindIndexBuffer(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
         }
 
         void VKIndexBuffer::Unbind() {}
