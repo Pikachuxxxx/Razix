@@ -12,7 +12,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZIndexBuffer* RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_F_ARG u16* data, u32 count, BufferUsage bufferUsage /*= BufferUsage::STATIC*/)
+        RZIndexBuffer* RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_F_ARG u32* data, u32 count, BufferUsage bufferUsage /*= BufferUsage::STATIC*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

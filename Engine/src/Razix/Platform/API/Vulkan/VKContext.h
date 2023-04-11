@@ -53,8 +53,8 @@ namespace Razix {
             bool                               m_EnabledValidationLayer;         /* Whether or not to enable validation layers on not    */
             std::vector<VkLayerProperties>     m_InstanceLayers;                 /* Collection of list of Instance layers supported      */
             std::vector<VkExtensionProperties> m_InstanceExtensions;             /* Collection of list of supported Extension            */
-            std::vector<cstr>           m_RequiredInstanceLayerNames;     /* The list of Required Layers by the engine            */
-            std::vector<cstr>           m_RequiredInstanceExtensionNames; /* The list of Required Extension by the engine         */
+            std::vector<cstr>                  m_RequiredInstanceLayerNames;     /* The list of Required Layers by the engine            */
+            std::vector<cstr>                  m_RequiredInstanceExtensionNames; /* The list of Required Extension by the engine         */
             VkDebugUtilsMessengerEXT           m_DebugCallbackHandle;            /* Debug callback handle to manage the Vulkan debug     */
             VkDebugUtilsMessengerCreateInfoEXT m_DebugCI;                        /* Debug callback handle creation struct                */
             VkSurfaceKHR                       m_Surface;                        /* The WSI Surface to which Vulkan presents to          */

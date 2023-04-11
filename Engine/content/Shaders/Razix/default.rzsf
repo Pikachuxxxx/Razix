@@ -8,13 +8,13 @@
 // Here #include doesn't mean that it will be copied but rather interpreted as a keyword that it's a file that needs to be read/included into to the shader read stream for reading the byte code
 #shader vertex
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/default.vert.spv
+        #include Compiled/SPIRV/Shaders.Builtin.Default.vert.spv
     #endif
 #end
 
 // Including the default fragment shader
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/default.frag.spv
+        #include Compiled/SPIRV/Shaders.Builtin.Default.frag.spv
     #endif
 #end

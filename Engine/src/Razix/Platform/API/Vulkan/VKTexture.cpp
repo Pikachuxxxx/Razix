@@ -210,7 +210,7 @@ namespace Razix {
             VK_CHECK_RESULT(vkCreateSampler(VKDevice::Get().getDevice(), &samplerInfo, nullptr, &sampler));
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_SAMPLER, (uint64_t) sampler);
-
+             
             return sampler;
         }
 
@@ -351,7 +351,7 @@ namespace Razix {
                     // Here the format for the texture is extracted based on bits per pixel
                     m_Format = Razix::Graphics::RZTexture::bitsToTextureFormat(4);
                     // Size of the texture
-                    m_Size = m_Width * m_Height * bpp;    // Divided by 8 cause char* is 8 bits and size is in bytes
+                    m_Size = m_Width * m_Height * 4;    // Divided by 8 cause char* is 8 bits and size is in bytes
                 }
             }
 
@@ -360,14 +360,8 @@ namespace Razix {
 
             VkDeviceSize imageSize = VkDeviceSize(m_Width * m_Height * 4);
 
-            std::vector<unsigned char> pixelData(imageSize);
-            //if (m_Size != imageSize)
-            //    convert(pixelData.data(), pixels, m_Size);
-            //else
-            memcpy(pixelData.data(), pixels, m_Size);
-
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
-            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(imageSize), pixelData.data() RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
+            VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(imageSize), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
             //stagingBuffer->setData(imageSize, pixels);
 
             u32 mipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //1;//

@@ -85,9 +85,11 @@ namespace Razix {
                     if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(descriptor.texture->GetHandle());
 
-                        //auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
-                        //if (layoutTransition)
-                        //    VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                        if (descriptor.texture->getType() == RZTexture::Type::COLOR_RT) {
+                            auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
+                            if (layoutTransition)
+                                VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                        }
 
                         m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                         //des.imageLayout;

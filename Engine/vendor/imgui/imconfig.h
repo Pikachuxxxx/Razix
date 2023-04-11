@@ -121,3 +121,5 @@ namespace ImGui
 #ifndef ImTextureID
 #define ImTextureID void*
 #endif
+// Razix will use 32-bit indices
+#define ImDrawIdx unsigned int
