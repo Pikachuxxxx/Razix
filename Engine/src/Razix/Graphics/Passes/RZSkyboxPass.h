@@ -17,12 +17,16 @@ namespace Razix {
 
             void destroy() override;
 
+            void useProceduralSkybox(bool use) { m_UseProceduralSkybox = use; }
+
         private:
             RZPipeline*                   m_Pipeline;
+            RZPipeline*                   m_ProceduralPipeline;
             std::vector<RZCommandBuffer*> m_CommandBuffers;
             RZDescriptorSet*              m_FrameDataDescriptorSet;
             RZDescriptorSet*              m_LightProbesDescriptorSet;
             RZMesh*                       m_SkyboxCube;
+            bool                          m_UseProceduralSkybox = true;
         };
     }    // namespace Graphics
 }    // namespace Razix

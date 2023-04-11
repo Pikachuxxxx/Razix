@@ -1,18 +1,18 @@
 ﻿/*
  * Razix Shader File 
- * Shaders.Builtin.Skybox.rzsf : Render a skybox in the scene
+ * Shader.Builtin.ProceduralSkybox.rzsf : Render a Unity like Procedural skybox in the scene
  * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shaders.Builtin.Skybox.vert.spv
+        #include Compiled/SPIRV/Shader.Builtin.Skybox.vert.spv
     #endif
 #end
 
 // Including the default fragment shader
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shaders.Builtin.Skybox.frag.spv
+        #include Compiled/SPIRV/Shader.Builtin.ProceduralSkybox.frag.spv
     #endif
 #end
