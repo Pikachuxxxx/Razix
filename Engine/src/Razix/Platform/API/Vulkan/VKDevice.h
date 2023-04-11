@@ -52,7 +52,7 @@ namespace Razix {
              */
             bool isExtensionSupported(const std::string& extensionName) const;
 
-            u32    getMemoryTypeIndex(u32 typeBits, VkMemoryPropertyFlags properties) const;
+            u32         getMemoryTypeIndex(u32 typeBits, VkMemoryPropertyFlags properties) const;
             std::string getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
 
             inline VkPhysicalDevice           getVulkanPhysicalDevice() const { return m_PhysicalDevice; }
@@ -88,22 +88,22 @@ namespace Razix {
             bool init();
             void destroy();
 
-            VkDevice                     getDevice() const { return m_Device; };
-            VkPhysicalDevice             getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
+            VkDevice                            getDevice() const { return m_Device; };
+            VkPhysicalDevice                    getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
             const rzstl::Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
-            VkQueue                      getGraphicsQueue() const { return m_GraphicsQueue; };
-            VkQueue                      getPresentQueue() const { return m_PresentQueue; };
+            VkQueue                             getGraphicsQueue() const { return m_GraphicsQueue; };
+            VkQueue                             getPresentQueue() const { return m_PresentQueue; };
             const rzstl::Ref<VKCommandPool>&    getCommandPool() const { return m_CommandPool; }
 
         private:
-            VkDevice                 m_Device;
-            VkQueue                  m_GraphicsQueue;
-            VkQueue                  m_PresentQueue;
-            VkPipelineCache          m_PipelineCache;
-            VkDescriptorPool         m_DescriptorPool;
-            VkPhysicalDeviceFeatures m_EnabledFeatures;
-            rzstl::Ref<VKPhysicalDevice>    m_PhysicalDevice;
-            rzstl::Ref<VKCommandPool>       m_CommandPool;
+            VkDevice                     m_Device;
+            VkQueue                      m_GraphicsQueue;
+            VkQueue                      m_PresentQueue;
+            VkPipelineCache              m_PipelineCache;
+            VkDescriptorPool             m_DescriptorPool;
+            VkPhysicalDeviceFeatures     m_EnabledFeatures;
+            rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice;
+            rzstl::Ref<VKCommandPool>    m_CommandPool;
         };
     }    // namespace Graphics
 }    // namespace Razix

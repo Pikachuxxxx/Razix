@@ -88,9 +88,9 @@ namespace Razix {
             m_PointVBO = RZVertexBuffer::Create(RENDERER_POINT_BUFFER_SIZE, nullptr, Graphics::BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Points VBO"));
             m_LineVBO  = RZVertexBuffer::Create(RENDERER_LINE_BUFFER_SIZE, nullptr, Graphics::BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Lines VBO"));
 
-            u16* indices = new u16[MaxPointIndices];
-            u16  offset  = 0;
-            for (u16 i = 0; i < MaxPointIndices; i += 6) {
+            u32* indices = new u32[MaxPointIndices];
+            u32  offset  = 0;
+            for (u32 i = 0; i < MaxPointIndices; i += 6) {
                 indices[i]     = offset + 0;
                 indices[i + 1] = offset + 1;
                 indices[i + 2] = offset + 2;
@@ -106,9 +106,9 @@ namespace Razix {
 
             delete[] indices;
 
-            u16* line_indices = new u16[MaxLineIndices];
+            u32* line_indices = new u32[MaxLineIndices];
 
-            for (int32_t i = 0; i < MaxLineIndices; i++) {
+            for (uint32_t i = 0; i < MaxLineIndices; i++) {
                 line_indices[i] = i;
             }
 

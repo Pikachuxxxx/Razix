@@ -7,7 +7,7 @@ namespace Razix {
         class OpenGLIndexBuffer : public RZIndexBuffer
         {
         public:
-            OpenGLIndexBuffer(u16* data, u32 count, BufferUsage bufferUsage);
+            OpenGLIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage);
             ~OpenGLIndexBuffer();
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;

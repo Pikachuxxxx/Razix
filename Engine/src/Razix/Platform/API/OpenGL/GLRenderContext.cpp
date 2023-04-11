@@ -160,7 +160,7 @@
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             RZEngine::Get().GetStatistics().IndexedDraws++;
             // TODO: Use pipeline object to set the primitive mode here
-            glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, nullptr);
+            glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
         }
 
         void GLRenderContext::DestroyAPIImpl()
