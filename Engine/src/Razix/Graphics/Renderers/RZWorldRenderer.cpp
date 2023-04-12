@@ -38,6 +38,9 @@ namespace Razix {
             m_BRDFfLUTTexture                = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", "BRDF LUT");
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {FrameGraph::TextureType::Texture_2D, "BRDF lut", {m_BRDFfLUTTexture->getWidth(), m_BRDFfLUTTexture->getHeight()}, {m_BRDFfLUTTexture->getFormat()}}, {m_BRDFfLUTTexture});
 
+            m_NoiseTexture                                        = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("Noise Texture") "//RazixContent/Textures/volumetric_clouds_noise.png", "Noise Texture", RZTexture::Wrapping::REPEAT);
+            m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Noise Texture", {FrameGraph::TextureType::Texture_2D, "Noise Texture", {m_NoiseTexture->getWidth(), m_NoiseTexture->getHeight()}, {m_NoiseTexture->getFormat()}}, {m_NoiseTexture});
+
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this user land material
 #if 1
@@ -370,6 +373,7 @@ namespace Razix {
         {
             // Destroy Imported Resources
             m_BRDFfLUTTexture->Release(true);
+            m_NoiseTexture->Release(true);
 
 #if 1
             m_GlobalLightProbes.skybox->Release(true);

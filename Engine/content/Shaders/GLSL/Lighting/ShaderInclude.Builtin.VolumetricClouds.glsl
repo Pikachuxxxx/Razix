@@ -1,4 +1,7 @@
+#ifndef _VOLUMETRIC_CLOUDS_GLSL_
+#define _VOLUMETRIC_CLOUDS_GLSL_
 /*
+Source : https://www.shadertoy.com/view/MstBWs
 Real time PBR Volumetric Clouds by robobo1221.
 Single scattering
 Also includes volumetric light.
@@ -14,16 +17,14 @@ Hope you enjoy!
 #define VOLUMETRIC_LIGHT
 //#define SPHERICAL_PROJECTION
 
-#define cameraMode 1 					//1 is free rotation, 2 is still camera but free sun rotation
-
 #define cloudSpeed 0.02
-#define cloudHeight 1600.0
-#define cloudThickness 500.0
-#define cloudDensity 0.03
+#define cloudHeight 2000.0
+#define cloudThickness 100.0
+#define cloudDensity 0.1
 
-#define fogDensity 0.00003
+#define fogDensity 0.003
 
-#define volumetricCloudSteps 16			//Higher is a better result with rendering of clouds.
+#define volumetricCloudSteps 4			//Higher is a better result with rendering of clouds.
 #define volumetricLightSteps 20			//Higher is a better result with rendering of volumetric light.
 
 #define cloudShadowingSteps 12			//Higher is a better result with shading on clouds.
@@ -37,6 +38,8 @@ const float sunBrightness = 3.0;
 #define earthRadius 6371000.0
 
 //////////////////////////////////////////////////////////////////
+layout(set = 1, binding = 0) uniform sampler2D NoiseTexture;
+//------------------------------------------------------------------------------
 
 float bayer2(vec2 a){
     a = floor(a);
@@ -74,80 +77,11 @@ const float hPi = pi * 0.5;
 const float tau = pi * 2.0;
 const float rLOG2 = 1.0 / log(2.0);
 
-mat3 rotationMatrix(vec3 axis, float angle)
-{
-    axis = normalize(axis);
-    float s = sin(angle);
-    float c = cos(angle);
-    float oc = 1.0 - c;
-    
-    float xx = axis.x * axis.x;
-    float yy = axis.y * axis.y;
-    float zz = axis.z * axis.z;
-    
-    float xy = axis.x * axis.y;
-    float xz = axis.x * axis.z;
-    float zy = axis.z * axis.y;
-    
-    return mat3(oc * xx + c, oc * xy - axis.z * s, oc * xz + axis.y * s,
-                oc * xy + axis.z * s, oc * yy + c, oc * zy - axis.x * s, 
-                oc * xz - axis.y * s, oc * zy + axis.x * s, oc * zz + c);
-}
-
-struct positionStruct
-{
-	vec2 texcoord;
-    vec2 mousecoord;
-    vec3 worldPosition;
-    vec3 worldVector;
-    vec3 sunVector;
-} pos;
-
 vec3 sphereToCart(vec3 sphere) {
     vec2 c = cos(sphere.xy);
     vec2 s = sin(sphere.xy);
     
     return sphere.z * vec3(c.x * c.y, s.y, s.x * c.y);
-}
-
-vec3 calculateWorldSpacePosition(vec2 p)
-{
-	p = p * 2.0 - 1.0;
-    
-    vec3 worldSpacePosition =  vec3(p.x, p.y, 1.0);
-    
-    #ifdef SPHERICAL_PROJECTION
-		worldSpacePosition = sphereToCart(worldSpacePosition * vec3(pi, hPi, 1.0));
-	#endif
-    
-    return worldSpacePosition;
-}
-
-void gatherPositions(inout positionStruct pos, vec2 fragCoord, vec2 mouseCoord, vec2 screenResolution)
-{
-	pos.texcoord = fragCoord / screenResolution;
-    pos.mousecoord = mouseCoord / screenResolution;
-    
-    pos.mousecoord = pos.mousecoord.x < 0.001 ? vec2(0.4, 0.64) : pos.mousecoord;
-    
-    vec2 rotationAngle = radians(vec2(360.0, 180.0) * pos.mousecoord - vec2(0.0, 90.0));
-    
-    mat3 rotateH = rotationMatrix(vec3(0.0, 1.0, 0.0), rotationAngle.x);
-    mat3 rotateV = rotationMatrix(vec3(1.0, 0.0, 0.0), -rotationAngle.y);
-    
-    pos.worldPosition = calculateWorldSpacePosition(pos.texcoord);
-    
-    if (cameraMode == 1) {
-    	pos.worldPosition = rotateH * (rotateV * pos.worldPosition);
-        
-        // Sun position
-    	pos.sunVector = normalize(sunPosition);
-    }
-    if (cameraMode == 2) {
-    	pos.sunVector = normalize(calculateWorldSpacePosition(pos.mousecoord));
-    }
-    
-    pos.worldVector = normalize(pos.worldPosition);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -224,13 +158,13 @@ vec3 calculateScatterIntergral(float opticalDepth, vec3 coeff){
     return exp2(a * opticalDepth) * b + c;
 }
 
-
-vec3 calcAtmosphericScatter(positionStruct pos, out vec3 absorbLight){
+vec3 calcAtmosphericScatter(vec3 sunDirection, vec3 worldViewDirection, out vec3 absorbLight)
+{
     const float ln2 = log(2.0);
     
-    float lDotW = dot(pos.sunVector, pos.worldVector);
-    float lDotU = dot(pos.sunVector, vec3(0.0, 1.0, 0.0));
-    float uDotW = dot(vec3(0.0, 1.0, 0.0), pos.worldVector);
+    float lDotW = dot(sunDirection, worldViewDirection);
+    float lDotU = dot(sunDirection, vec3(0.0, 1.0, 0.0));
+    float uDotW = dot(vec3(0.0, 1.0, 0.0), worldViewDirection);
     
 	float opticalDepth = calcParticleThickness(uDotW);
     float opticalDepthLight = calcParticleThickness(lDotU);
@@ -253,10 +187,10 @@ vec3 calcAtmosphericScatter(positionStruct pos, out vec3 absorbLight){
     return (scatterView);
 }
 
-vec3 calcAtmosphericScatterTop(positionStruct pos){
+vec3 calcAtmosphericScatterTop(vec3 sunDirection){
     const float ln2 = log(2.0);
     
-    float lDotU = dot(pos.sunVector, vec3(0.0, 1.0, 0.0));
+    float lDotU = dot(sunDirection, vec3(0.0, 1.0, 0.0));
     
 	float opticalDepth = calcParticleThicknessConst(1.0);
     float opticalDepthLight = calcParticleThickness(lDotU);
@@ -282,27 +216,25 @@ float Get3DNoise(vec3 pos)
     float p = floor(pos.z);
     float f = pos.z - p;
     
-    const float invNoiseRes = 1.0 / 64.0;
+    const float invNoiseRes = 1.0 / 128.0;
     
-    float zStretch = 17.0 * invNoiseRes;
+    float zStretch = 25.0 * invNoiseRes;
     
     vec2 coord = pos.xy * invNoiseRes + (p * zStretch);
     
-    vec2 noise = vec2(texture(iChannel0, coord).x,
-					  texture(iChannel0, coord + zStretch).x);
+    vec2 noise = vec2(texture(NoiseTexture, coord).x, texture(NoiseTexture, coord + zStretch).x);
     
     return mix(noise.x, noise.y, f);
 }
 
-float getClouds(vec3 p)
+float getClouds(vec3 p, float time)
 {
     p = vec3(p.x, length(p + vec3(0.0, earthRadius, 0.0)) - earthRadius, p.z);
     
     if (p.y < cloudMinHeight || p.y > cloudMaxHeight)
         return 0.0;
-    
-    float time = iTime * cloudSpeed;
-    vec3 movement = vec3(time, 0.0, time);
+
+    vec3 movement = vec3(time, 0.0, time) * cloudSpeed;
     
     vec3 cloudCoord = (p * 0.001) + movement;
     
@@ -312,7 +244,7 @@ float getClouds(vec3 p)
     	  noise += Get3DNoise((cloudCoord + movement) * 16.0) * 0.0625;
     
     const float top = 0.004;
-    const float bottom = 0.01;
+    const float bottom = 0.02;
     
     float horizonHeight = p.y - cloudMinHeight;
     float treshHold = (1.0 - exp2(-bottom * horizonHeight)) * exp2(-top * horizonHeight);
@@ -323,37 +255,37 @@ float getClouds(vec3 p)
     return clouds * cloudDensity;
 }
     
-float getCloudShadow(vec3 p, positionStruct pos)
+float getCloudShadow(vec3 p, vec3 sunDirection)
 {
 	const int steps = volumetricLightShadowSteps;
-    float rSteps = cloudThickness / float(steps) / abs(pos.sunVector.y);
+    float rSteps = cloudThickness / float(steps) / abs(sunDirection.y);
     
-    vec3 increment = pos.sunVector * rSteps;
-    vec3 position = pos.sunVector * (cloudMinHeight - p.y) / pos.sunVector.y + p;
+    vec3 increment = sunDirection* rSteps;
+    vec3 position = sunDirection* (cloudMinHeight - p.y) / sunDirection.y + p;
     
     float transmittance = 0.0;
     
     for (int i = 0; i < steps; i++, position += increment)
     {
-		transmittance += getClouds(position);
+		transmittance += getClouds(position, 1.0f);
     }
     
     return exp2(-transmittance * rSteps);
 }
 
-float getSunVisibility(vec3 p, positionStruct pos)
+float getSunVisibility(vec3 p, vec3 sunDirection, float time)
 {
 	const int steps = cloudShadowingSteps;
     const float rSteps = cloudThickness / float(steps);
     
-    vec3 increment = pos.sunVector * rSteps;
+    vec3 increment = sunDirection * rSteps;
     vec3 position = increment * 0.5 + p;
     
     float transmittance = 0.0;
     
     for (int i = 0; i < steps; i++, position += increment)
     {
-		transmittance += getClouds(position);
+		transmittance += getClouds(position, time);
     }
     
     return exp2(-transmittance * rSteps);
@@ -370,13 +302,13 @@ float phase2Lobes(float x)
     return mix(lobe2, lobe1, m);
 }
 
-vec3 getVolumetricCloudsScattering(float opticalDepth, float phase, vec3 p, vec3 sunColor, vec3 skyLight, positionStruct pos)
+vec3 getVolumetricCloudsScattering(float opticalDepth, float phase, vec3 p, vec3 sunColor, vec3 skyLight, vec3 sunDirection, float time)
 {
     float intergal = calculateScatterIntergral(opticalDepth, 1.11);
     
     float beersPowder = powder(opticalDepth * log(2.0));
     
-	vec3 sunlighting = (sunColor * getSunVisibility(p, pos) * beersPowder) * phase * hPi * sunBrightness;
+	vec3 sunlighting = (sunColor * getSunVisibility(p, sunDirection, time) * beersPowder) * phase * hPi * sunBrightness;
     vec3 skylighting = skyLight * 0.25 * rPi;
     
     return (sunlighting + skylighting) * intergal * pi;
@@ -389,66 +321,27 @@ float getHeightFogOD(float height)
     return exp2(-height * falloff) * fogDensity;
 }
 
-vec3 getVolumetricLightScattering(float opticalDepth, float phase, vec3 p, vec3 sunColor, vec3 skyLight, positionStruct pos)
+vec3 getVolumetricLightScattering(float opticalDepth, float phase, vec3 p, vec3 sunColor, vec3 skyLight, vec3 sunDirection)
 {
     float intergal = calculateScatterIntergral(opticalDepth, 1.11);
     
 	vec3 sunlighting = sunColor * phase * hPi * sunBrightness;
-         sunlighting *= getCloudShadow(p, pos);
+         sunlighting *= getCloudShadow(p, sunDirection);
     vec3 skylighting = skyLight * 0.25 * rPi;
     
     return (sunlighting + skylighting) * intergal * pi;
 }
 
-vec3 calculateVolumetricLight(positionStruct pos, vec3 color, float dither, vec3 sunColor)
-{
-    #ifndef VOLUMETRIC_LIGHT
-    	return color;
-    #endif
-    
-	const int steps = volumetricLightSteps;
-    const float iSteps = 1.0 / float(steps);
-    
-    vec3 increment = pos.worldVector * cloudMinHeight / clamp(pos.worldVector.y, 0.1, 1.0) * iSteps;
-    vec3 rayPosition = increment * dither;
-    
-    float stepLength = length(increment);
-    
-    vec3 scattering = vec3(0.0);
-    vec3 transmittance = vec3(1.0);
-    
-    float lDotW = dot(pos.sunVector, pos.worldVector);
-    float phase = hgPhase(lDotW, 0.8);
-    
-    vec3 skyLight = calcAtmosphericScatterTop(pos);
-    
-    for (int i = 0; i < steps; i++, rayPosition += increment)
-    {
-        float opticalDepth = getHeightFogOD(rayPosition.y) * stepLength;
-        
-        if (opticalDepth <= 0.0)
-            continue;
-        
-		scattering += getVolumetricLightScattering(opticalDepth, phase, rayPosition, sunColor, skyLight, pos) * transmittance;
-        transmittance *= exp2(-opticalDepth);
-    }
-    
-    return color * transmittance + scattering;
-}
-
-vec3 calculateVolumetricClouds(positionStruct pos, vec3 color, float dither, vec3 sunColor)
+vec3 calculateVolumetricClouds(vec3 sunDirection, vec3 worldViewDirection, vec3 color, float dither, vec3 sunColor, float time)
 {
 	const int steps = volumetricCloudSteps;
     const float iSteps = 1.0 / float(steps);
     
-    //if (pos.worldVector.y < 0.0)
-     //   return color;
+    float bottomSphere = rsi(vec3(0.0, 1.0, 0.0) * earthRadius, worldViewDirection, earthRadius + cloudMinHeight).y;
+    float topSphere = rsi(vec3(0.0, 1.0, 0.0) * earthRadius, worldViewDirection, earthRadius + cloudMaxHeight).y;
     
-    float bottomSphere = rsi(vec3(0.0, 1.0, 0.0) * earthRadius, pos.worldVector, earthRadius + cloudMinHeight).y;
-    float topSphere = rsi(vec3(0.0, 1.0, 0.0) * earthRadius, pos.worldVector, earthRadius + cloudMaxHeight).y;
-    
-    vec3 startPosition = pos.worldVector * bottomSphere;
-    vec3 endPosition = pos.worldVector * topSphere;
+    vec3 startPosition = worldViewDirection * bottomSphere;
+    vec3 endPosition = worldViewDirection * topSphere;
     
     vec3 increment = (endPosition - startPosition) * iSteps;
     vec3 cloudPosition = increment * dither + startPosition;
@@ -458,22 +351,21 @@ vec3 calculateVolumetricClouds(positionStruct pos, vec3 color, float dither, vec
     vec3 scattering = vec3(0.0);
     float transmittance = 1.0;
     
-    float lDotW = dot(pos.sunVector, pos.worldVector);
+    float lDotW = dot(sunDirection, worldViewDirection);
     float phase = phase2Lobes(lDotW);
     
-    vec3 skyLight = calcAtmosphericScatterTop(pos);
-    
+    vec3 skyLight = calcAtmosphericScatterTop(sunDirection);
+
     for (int i = 0; i < steps; i++, cloudPosition += increment)
     {
-        float opticalDepth = getClouds(cloudPosition) * stepLength;
+        float opticalDepth = getClouds(cloudPosition, time) * stepLength;
         
         if (opticalDepth <= 0.0)
             continue;
         
-		scattering += getVolumetricCloudsScattering(opticalDepth, phase, cloudPosition, sunColor, skyLight, pos) * transmittance;
+		scattering += getVolumetricCloudsScattering(opticalDepth, phase, cloudPosition, sunColor, skyLight, sunDirection, time) * transmittance;
         transmittance *= exp2(-opticalDepth);
     }
-    
     return mix(color * transmittance + scattering, color, clamp(length(startPosition) * 0.00001, 0.0, 1.0));
 }
 
@@ -488,21 +380,4 @@ vec3 robobo1221Tonemap(vec3 color)
 
     return color;
 }
-
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-    gatherPositions(pos, fragCoord, iMouse.xy, iResolution.xy);
-    
-    float dither = bayer16(fragCoord);
-    
-    vec3 lightAbsorb = vec3(0.0);
-
-    vec3 color = vec3(0.0);
-         calcAtmosphericScatter(pos, lightAbsorb);
-         color = calculateVolumetricClouds(pos, color, dither, lightAbsorb);
-         //color = calculateVolumetricLight(pos, color, dither, lightAbsorb);
-         color = pow(color, vec3(1.0 / 2.2));
-         color = robobo1221Tonemap(color);
-
-    fragColor = vec4(color, 1.0);
-}
+#endif
