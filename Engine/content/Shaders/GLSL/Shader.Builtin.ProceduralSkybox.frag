@@ -191,9 +191,7 @@ void main()
 	vec3 rd = normalize(fs_in.fragLocalPos);
     vec4 proceduralSkyBoxColor = ProceduralSkybox(ro, rd);
 
-    // Volumetric Clouds
-    float dither = bayer16(fs_in.fragLocalPos.xy);
-        
+    // Volumetric Clouds        
     vec3 lightAbsorb = vec3(0.941,0.851,0.580);
     
     vec3 color = vec3(0.0);
