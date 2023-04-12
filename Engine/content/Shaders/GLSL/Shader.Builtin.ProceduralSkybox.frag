@@ -1,12 +1,16 @@
+ #version 450
 /*
  * Razix Engine Shader File
  * Default Fragment Shader that can be used for rendering basic geometry with vertex colors and use a texture as well
  */
- #version 450
  // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
  #extension GL_ARB_separate_shader_objects : enable
  // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
  #extension GL_ARB_shading_language_420pack : enable
+ //------------------------------------------------------------------------------
+ // Includes
+ #include <Lighting/ShaderInclude.Builtin.VolumetricClouds.glsl>
+ //------------------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Shader Toy Source : https://www.shadertoy.com/view/tltGDM
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +77,7 @@ const float kSamples = 2.0;
 layout(location = 0) in VSOutput
 {
     vec3 fragLocalPos;
+    float time;
 }fs_in;
 //------------------------------------------------------------------------------
 layout (push_constant) uniform PushConstantData{
@@ -176,7 +181,7 @@ vec4 ProceduralSkybox(vec3 ro, vec3 rd)
 }
 ////////////////////////////////////////////////////////////////////////////////
 // Volumetric Clouds
-
+// https://www.shadertoy.com/view/MstBWs
 
 ////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------
@@ -186,6 +191,22 @@ void main()
 	vec3 rd = normalize(fs_in.fragLocalPos);
     vec4 proceduralSkyBoxColor = ProceduralSkybox(ro, rd);
 
-    outSceneColor = proceduralSkyBoxColor;
+    // Volumetric Clouds
+    float dither = bayer16(fs_in.fragLocalPos.xy);
+        
+    vec3 lightAbsorb = vec3(0.941,0.851,0.580);
+    
+    vec3 color = vec3(0.0);
+    vec3 sunDirection = normalize(pc_data.WorldSpaceLightPos);
+    calcAtmosphericScatter(sunDirection, normalize(fs_in.fragLocalPos), lightAbsorb);
+    color = calculateVolumetricClouds(sunDirection, normalize(fs_in.fragLocalPos), color, 0.8f, lightAbsorb, fs_in.time);
+
+    color += proceduralSkyBoxColor.xyz;
+
+    outSceneColor = vec4(color, 1.0f);
+    // Gamma Correction
+    outSceneColor.xyz = pow(outSceneColor.xyz, vec3(1.0 / 2.2));
+    // Tonemapping
+    outSceneColor.xyz = robobo1221Tonemap(outSceneColor.xyz); 
 }
 //------------------------------------------------------------------------------

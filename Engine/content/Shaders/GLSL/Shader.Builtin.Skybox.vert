@@ -21,6 +21,7 @@ layout(location = 4) in vec3 inTangent;
 layout(location = 0) out VSOutput
 {
     vec3 fragLocalPos;
+    float time;
 }vs_out;
 
 out gl_PerVertex
@@ -32,6 +33,7 @@ void main()
 {
 	vs_out.fragLocalPos = inPosition;
     vs_out.fragLocalPos.y = -vs_out.fragLocalPos.y;
+    vs_out.time = u_Frame.time;
 
     mat4 rotView = mat4(mat3(u_Frame.camera.view)); // remove translation from the view matrix
     vec4 clipPos = u_Frame.camera.projection * rotView * vec4(vs_out.fragLocalPos, 1.0);

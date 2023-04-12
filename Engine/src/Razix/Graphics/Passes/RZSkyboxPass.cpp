@@ -65,6 +65,7 @@ namespace Razix {
             auto& frameDataBlock  = blackboard.get<FrameData>();
             auto& lightProbesData = blackboard.get<GlobalLightProbeData>();
             auto& sceneData       = blackboard.get<SceneData>();
+            auto& volumetricData  = blackboard.get<VolumetricCloudsData>();
 
             framegraph.addCallbackPass(
                 "Skybox Pass",
@@ -77,6 +78,7 @@ namespace Razix {
                     builder.read(lightProbesData.specularPreFilteredMap);
                     builder.read(sceneData.outputHDR);
                     builder.read(sceneData.depth);
+                    builder.read(volumetricData.noiseTexture);
 
                     builder.write(sceneData.outputHDR);
                 },
@@ -123,6 +125,16 @@ namespace Razix {
 
                         m_LightProbesDescriptorSet = RZDescriptorSet::Create({lightProbes_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Env Map - Skybox"));
 
+                        auto noiseTexture = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle();
+
+                        RZDescriptor volumetric_descriptor{};
+                        volumetric_descriptor.bindingInfo.binding = 0;
+                        volumetric_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        volumetric_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        volumetric_descriptor.texture             = noiseTexture;
+
+                        m_VolumetricDescriptorSet = RZDescriptorSet::Create({volumetric_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Volumetric"));
+
                         updatedSets = true;
                     }
 
@@ -161,6 +173,7 @@ namespace Razix {
                         pc.shaderStage = ShaderStage::PIXEL;
 
                         RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
+                        setsToBindInOrder.push_back(m_VolumetricDescriptorSet);
                         RHI::BindDescriptorSets(m_ProceduralPipeline, cmdBuffer, setsToBindInOrder);
                     }
 
@@ -180,6 +193,7 @@ namespace Razix {
             m_ProceduralPipeline->Destroy();
             m_FrameDataDescriptorSet->Destroy();
             m_LightProbesDescriptorSet->Destroy();
+            m_VolumetricDescriptorSet->Destroy();
             m_SkyboxCube->Destroy();
         }
     }    // namespace Graphics
