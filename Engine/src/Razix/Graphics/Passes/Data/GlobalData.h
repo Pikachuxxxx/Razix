@@ -23,6 +23,11 @@ namespace Razix {
             Razix::Graphics::FrameGraph::RZFrameGraphResource specularPreFilteredMap;
         };
 
+        struct VolumetricCloudsData
+        {
+            Razix::Graphics::FrameGraph::RZFrameGraphResource noiseTexture;
+        };
+
         // Default pass data types
         struct RTOnlyPassData
         {

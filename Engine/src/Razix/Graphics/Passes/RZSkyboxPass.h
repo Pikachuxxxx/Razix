@@ -25,6 +25,7 @@ namespace Razix {
             std::vector<RZCommandBuffer*> m_CommandBuffers;
             RZDescriptorSet*              m_FrameDataDescriptorSet;
             RZDescriptorSet*              m_LightProbesDescriptorSet;
+            RZDescriptorSet*              m_VolumetricDescriptorSet;
             RZMesh*                       m_SkyboxCube;
             bool                          m_UseProceduralSkybox = true;
         };
