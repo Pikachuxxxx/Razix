@@ -1,7 +1,10 @@
 #ifndef _VOLUMETRIC_CLOUDS_GLSL_
 #define _VOLUMETRIC_CLOUDS_GLSL_
+////////////////////////////////////////////////////////////////////////////////
+// Volumetric Clouds
+// https://www.shadertoy.com/view/MstBWs
+////////////////////////////////////////////////////////////////////////////////
 /*
-Source : https://www.shadertoy.com/view/MstBWs
 Real time PBR Volumetric Clouds by robobo1221.
 Single scattering
 Also includes volumetric light.

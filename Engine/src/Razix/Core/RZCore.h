@@ -191,6 +191,7 @@
     /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
     #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
     #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
+    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
 #elif
     #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
 #endif

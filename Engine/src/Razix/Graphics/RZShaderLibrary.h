@@ -2,6 +2,8 @@
 
 #include "Razix/Utilities/TRZSingleton.h"
 
+#include "Razix/Core/RZSmartPointers.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -21,7 +23,7 @@ namespace Razix {
             /* Shuts down the Shader Library releases all the shaders held by it */
             void ShutDown();
 
-            void loadShader(std::string shaderPath);
+            void      loadShader(std::string shaderPath);
             RZShader* getShader(std::string shaderName);
 
         public:

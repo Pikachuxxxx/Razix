@@ -19,7 +19,7 @@ namespace Razix {
             : m_PhysicalDevice(VK_NULL_HANDLE)
         {
             // Query the number of GPUs available
-            u32   numGPUs  = 0;
+            u32        numGPUs  = 0;
             VkInstance instance = VKContext::Get()->getInstance();
             vkEnumeratePhysicalDevices(instance, &numGPUs, nullptr);
             RAZIX_CORE_ASSERT(!(numGPUs == 0), "[Vulkan] No Suitable GPUs found!");
@@ -77,7 +77,7 @@ namespace Razix {
 
             //! BUG: I guess in Distribution mode the set has 2 elements or something is happening such that the queue priority for other element is nan and not 0 as we have provided
             std::set<int32_t> uniqueQueueFamilies = {m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present};
-            f32             queuePriority       = 1.0f;
+            f32               queuePriority       = 1.0f;
             for (u32 queueFamily: uniqueQueueFamilies) {
                 VkDeviceQueueCreateInfo queueCreateInfo{};
                 queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -220,6 +220,22 @@ namespace Razix {
 
             // Create a command pool for single time command buffers
             m_CommandPool = rzstl::CreateRef<VKCommandPool>(m_PhysicalDevice->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
+            // Create the Query Pools
+            // Create timestamp query pool used for GPU timings.
+            VkQueryPoolCreateInfo timestamp_pool_info{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr, 0, VK_QUERY_TYPE_TIMESTAMP, gpu_time_queries_per_frame * 2u, 0};
+            vkCreateQueryPool(m_Device, &timestamp_pool_info, nullptr, &m_timestamp_query_pool);
+
+            // Create pipeline statistics query pool
+            VkQueryPoolCreateInfo statistics_pool_info{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr, 0, VK_QUERY_TYPE_PIPELINE_STATISTICS, 7, 0};
+            statistics_pool_info.pipelineStatistics = VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_CLIPPING_INVOCATIONS_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT;
+            vkCreateQueryPool(m_Device, &statistics_pool_info, nullptr, &m_pipeline_stats_query_pool);
 
             return true;
         }

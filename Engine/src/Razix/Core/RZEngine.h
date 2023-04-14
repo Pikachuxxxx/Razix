@@ -48,18 +48,10 @@ namespace Razix {
             u32 MeshesRendered        = 0;    //[x]
             u32 TexturesInMemory      = 0;
             u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
-            // Renderer pass stats
-            f32 GridPass            = 0.0f;
-            f32 ForwardLightingPass = 0.0f;
-            f32 ImGuiPass           = 0.0f;
 
             void reset()
             {
-                DeltaTime           = 0.0f;
-                GridPass            = 0.0f;
-                ForwardLightingPass = 0.0f;
-                ImGuiPass           = 0.0f;
-
+                DeltaTime         = 0.0f;
                 NumDrawCalls      = 0;
                 Draws             = 0;
                 IndexedDraws      = 0;
@@ -78,8 +70,7 @@ namespace Razix {
         RZSceneManager                m_SceneManagerSystem;     /* Scene Manager Engine System for managing scenes in game world					*/
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
         Graphics::RZWorldRenderer     m_WorldRenderer;          /* Razix world renderer that build and renders the frame graph passes in the scene  */
-        //Graphics::RZRenderStack       m_RenderStack;            /* The render stack that will hold the renderers based on priority                  */
-        Graphics::RZShaderLibrary m_ShaderLibrary; /* Shader library that pre-loads shaders into memory                                */
+        Graphics::RZShaderLibrary     m_ShaderLibrary;          /* Shader library that pre-loads shaders into memory                                */
 
     public:
         /* Starts up the Engine and it's sub-systems */
