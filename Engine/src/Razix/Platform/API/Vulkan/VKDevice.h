@@ -104,6 +104,8 @@ namespace Razix {
             VkPhysicalDeviceFeatures     m_EnabledFeatures;
             rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice;
             rzstl::Ref<VKCommandPool>    m_CommandPool;
+            VkQueryPool                  m_timestamp_query_pool      = VK_NULL_HANDLE;
+            VkQueryPool                  m_pipeline_stats_query_pool = VK_NULL_HANDLE;
         };
     }    // namespace Graphics
 }    // namespace Razix

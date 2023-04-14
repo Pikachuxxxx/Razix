@@ -20,6 +20,7 @@ namespace Razix {
 
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
             // pre-load some shaders
+            //-------------------------------------------------------------------
             // Basic shaders
             loadShader("//RazixContent/Shaders/Razix/Shader.Builtin.Default.rzsf");
             loadShader("//RazixContent/Shaders/Razix/Shader.Builtin.Skybox.rzsf");
@@ -85,7 +86,7 @@ namespace Razix {
                 if (shader->getName() == shaderName)
                     return shader;
 
-            // TODO: If fails load it by searching all the VFS or return a default shader
+            // TODO: If fails load it by searching all the VFS or return a default shader, this is highly unlikely to happen
             return nullptr;
         }
     }    // namespace Graphics

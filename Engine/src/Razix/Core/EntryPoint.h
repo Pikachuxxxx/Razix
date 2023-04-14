@@ -3,6 +3,7 @@
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZProfiling.h"
+#include "Razix/Core/RZSmartPointers.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
@@ -45,8 +46,8 @@ static int EngineMain(int argc, char** argv)
     Razix::Debug::RZLog::StartUp();
 
     // Create the OS Instance
-    auto windowsOS = new Razix::WindowsOS();
-    Razix::RZOS::SetInstance(windowsOS);
+    Razix::rzstl::UniqueRef<Razix::WindowsOS> windowsOS = Razix::rzstl::CreateUniqueRef<Razix::WindowsOS>();
+    Razix::RZOS::SetInstance(windowsOS.get());
 
     //-------------------------------//
     //        Engine Ignition        //
@@ -69,7 +70,7 @@ static int EngineMain(int argc, char** argv)
 
     // Run the  Application with the master controlled given to the OS
     windowsOS->Run();
-    //delete windowsOS;
+    windowsOS.release();
 
     return EXIT_SUCCESS;
 }

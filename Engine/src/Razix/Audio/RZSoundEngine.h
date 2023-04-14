@@ -5,6 +5,8 @@
 namespace Razix {
     namespace Audio {
 
+        // TODO: add OpenAL stuff
+
         class RAZIX_API RZSoundEngine : public RZSingleton<RZSoundEngine>
         {
         public:

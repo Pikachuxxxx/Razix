@@ -3,6 +3,7 @@
 // clang-format on
 #include "RZSoundEngine.h"
 
+#include "Razix/Core/RZSplashScreen.h"
 
 namespace Razix {
     namespace Audio {
@@ -10,6 +11,8 @@ namespace Razix {
         void RZSoundEngine::StartUp()
         {
             RAZIX_CORE_INFO("[Sound Engine] Starting Up Sound Engine");
+            Razix::RZSplashScreen::Get().setLogString("Starting Sound Engine...");
+
             RAZIX_CORE_INFO("[Sound Engine] Backend: OpenAL");
         }
 
