@@ -11,6 +11,8 @@
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/RazixVersion.h"
 
+#include "Razix/Core/RZCPUMemoryManager.h"
+
 #include "Razix/Core/OS/RZInput.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
@@ -267,11 +269,9 @@ namespace Razix {
 
         m_CurrentState = AppState::Running;
 
-        Start();
+        //m_GPUProfiler.Init(&RZCPUMemoryManager::Get().getSystemAllocator(), RAZIX_MAX_FRAMES, 32);
 
-        //while (RenderFrame()) {}
-        //Quit();
-        //SaveApp();
+        Start();
     }
 
     bool RZApplication::RenderFrame()
@@ -381,6 +381,9 @@ namespace Razix {
 
         // Client App Update
         OnUpdate(dt);
+
+        //m_GPUProfiler.update();
+
 #if 1
 
 #endif
@@ -506,10 +509,6 @@ namespace Razix {
 
         // Engine Stats
         {
-            ImFont* font = ImGui::GetFont();
-            font->Scale  = 1.0f;
-            ImGui::PushFont(font);
-
             // Engine stats
             ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
             const f32            DISTANCE         = 10.0f;
@@ -529,10 +528,7 @@ namespace Razix {
                 ImGui::Indent();
                 // TODO: Add Average timings (CPU + GPU) and avg FPS
                 ImGui::Text("FPS                    : %.5d", stats.FramesPerSecond);
-                //ImGui::Text("render time            : %3.3f ms", stats.DeltaTime);
-                ImGui::Text("grid pass              : %3.3f ms", stats.GridPass);
-                ImGui::Text("forward lighting pass  : %3.3f ms", stats.ForwardLightingPass);
-                ImGui::Text("imgui pass             : %3.3f ms", stats.ImGuiPass);
+                ImGui::Text("CPU time               : %.2f ms", stats.DeltaTime);
 
                 ImGui::Separator();
                 ImGui::Text("API calls");
@@ -547,11 +543,10 @@ namespace Razix {
                 ImGui::Unindent();
             }
             ImGui::End();
-
-            ImGui::PopFont();
-            font        = ImGui::GetFont();
-            font->Scale = 1.0f;
         }
+
+        // GPU Profiler Pipeline Stats
+        //m_GPUProfiler.onImGuiDraw();
 
         ImGui::Render();
     }

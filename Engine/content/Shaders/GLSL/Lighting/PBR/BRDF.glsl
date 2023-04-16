@@ -1,7 +1,7 @@
 #ifndef _BRDF_GLSL_
 #define _BRDF_GLSL_
 //----------------------------------------------------------------------------
-#include <Common/Math.glsl>
+#include <Common/ShaderInclude.Math.glsl>
 // Note:- a2 = alphaRoughness = (roughness * roughness)
 //----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)

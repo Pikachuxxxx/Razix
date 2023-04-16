@@ -1,7 +1,7 @@
 #ifndef _LPV_GLSL_
 #define _LPV_GLSL_
 
-#include <Common/Math.glsl>
+#include <Common/ShaderInclude.Math.glsl>
 
 #define SH_C0 0.282094791 // 1 / 2sqrt(pi)
 #define SH_C1 0.488602512 // sqrt(3/pi) / 2

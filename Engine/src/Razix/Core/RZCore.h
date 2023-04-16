@@ -119,8 +119,8 @@
     }
 
 // Make the Class/Struct Object Non-Copyable/Assignable
-#define RAZIX_NONCOPYABLE_CLASS(type_identifier)      \
-    type_identifier(const type_identifier&) = delete; \
+#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
+    type_identifier(const type_identifier&)            = delete; \
     type_identifier& operator=(const type_identifier&) = delete;
 
 // Deprecation error macros

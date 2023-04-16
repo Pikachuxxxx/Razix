@@ -44,11 +44,11 @@ namespace Razix {
         //--------------------------------------------------------------------------
         // Start Up Memory Managers
         //--------------------------
-        u32 SystemHeapSize = Mib(256);    // For now we only manage 256 Mib
-        RZCPUMemoryManager::Get().Init(SystemHeapSize);
-
-        u32 VRamInitSize = Mib(256);    // Initializing with 256 Mib of GPU memory
-        Graphics::RZGPUMemoryManager::Get().Init(VRamInitSize);
+        //u32 SystemHeapSize = Mib(256);    // For now we only manage 256 Mib
+        //RZCPUMemoryManager::Get().Init(SystemHeapSize);
+        //
+        //u32 VRamInitSize = Mib(256);    // Initializing with 256 Mib of GPU memory
+        //Graphics::RZGPUMemoryManager::Get().Init(VRamInitSize);
         //--------------------------------------------------------------------------
 
         // 2. Sound Engine
@@ -108,7 +108,7 @@ namespace Razix {
         // Shutdown the Sound Engine
         RZSceneManager::Get().ShutDown();
         // Shutdown memory systems and free all the memory
-        Graphics::RZGPUMemoryManager::Get().ShutDown();
+        //Graphics::RZGPUMemoryManager::Get().ShutDown();
         // Shutdown the VFS last
         RZVirtualFileSystem::Get().ShutDown();
 
