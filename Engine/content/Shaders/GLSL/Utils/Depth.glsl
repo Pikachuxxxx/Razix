@@ -10,7 +10,7 @@
 #  define NEAR_CLIP_PLANE -1.0
 #endif
 
-#include <Common/Math.glsl>
+#include <Common/ShaderInclude.Math.glsl>
 #include <Utils/SpaceUtils.glsl>
 
 // Returns depth in clip-space

@@ -8,7 +8,7 @@
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
 
-#include <Common/FrameData.glsl>
+#include <Common/ShaderInclude.FrameData.glsl>
 //------------------------------------------------------------------------------
 // Vertex Input
 layout(location = 0) in vec4 inPosition;

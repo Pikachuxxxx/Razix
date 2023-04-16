@@ -18,7 +18,7 @@
 
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 
-#include "Razix/Graphics/Renderers/RZGridRenderer.h"
+#include "Razix/Graphics/RHI/RZGPUProfiler.h"
 
 // glm
 #include <glm/glm.hpp>
@@ -28,9 +28,10 @@
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
 
-//! Some style guide rules are waved off for RZApplication class
+    //! Some style guide rules are waved off for RZApplication class
 
-namespace ImGuizmo {
+    namespace ImGuizmo
+{
     enum OPERATION;
     enum MODE;
 }    // namespace ImGuizmo
@@ -223,27 +224,28 @@ namespace Razix {
         }
 
     private:
-        HWND                         viewportHWND;
-        static RZApplication*        s_AppInstance;                      /* The singleton instance of the application                */
-        AppState                     m_CurrentState = AppState::Loading; /* The current state of the application                     */
-        AppType                      m_appType      = AppType::GAME;     /* The type of the application                              */
-        std::string                  m_ProjectName;                      /* The name of the application                              */
-        std::string                  m_ProjectFilePath;                  /* The path of the Razix Project file (*.razixproject)      */
-        std::string                  m_ProjectPath;                      /* The path of the Razix Project Assets folder              */
-        u32                          m_RenderAPI;                        /* The Render API being used to render the application      */
-        u32                          m_Frames  = 0;                      /* The number of frames per second                          */
-        u32                          m_Updates = 0;                      /* The number of updated per second                         */
-        rzstl::UniqueRef<RZTimer>    m_Timer;                            /* The timer used to calculate the delta time and timesteps */
-        f32                          m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
-        RZTimestep                   m_Timestep;                         /* The timesteps taken to update the application            */
-        RZWindow*                    m_Window = nullptr;                 /* The window that will be used to view graphics            */
-        WindowProperties             m_WindowProperties;                 /* The properties of the window to create with              */
-        RZUUID                       m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
-        std::vector<std::string>     sceneFilePaths;
-        RZEntity                     m_GuizmoEntity;
-        ImGuizmo::OPERATION          m_GuizmoOperation;
-        ImGuizmo::MODE               m_GuizmoMode;
-        f32                          m_GuizmoSnapAmount = 0.0f;
+        HWND                      viewportHWND;
+        static RZApplication*     s_AppInstance;                      /* The singleton instance of the application                */
+        AppState                  m_CurrentState = AppState::Loading; /* The current state of the application                     */
+        AppType                   m_appType      = AppType::GAME;     /* The type of the application                              */
+        std::string               m_ProjectName;                      /* The name of the application                              */
+        std::string               m_ProjectFilePath;                  /* The path of the Razix Project file (*.razixproject)      */
+        std::string               m_ProjectPath;                      /* The path of the Razix Project Assets folder              */
+        u32                       m_RenderAPI;                        /* The Render API being used to render the application      */
+        u32                       m_Frames  = 0;                      /* The number of frames per second                          */
+        u32                       m_Updates = 0;                      /* The number of updated per second                         */
+        rzstl::UniqueRef<RZTimer> m_Timer;                            /* The timer used to calculate the delta time and timesteps */
+        f32                       m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
+        RZTimestep                m_Timestep;                         /* The timesteps taken to update the application            */
+        RZWindow*                 m_Window = nullptr;                 /* The window that will be used to view graphics            */
+        WindowProperties          m_WindowProperties;                 /* The properties of the window to create with              */
+        RZUUID                    m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
+        std::vector<std::string>  sceneFilePaths;
+        RZEntity                  m_GuizmoEntity;
+        ImGuizmo::OPERATION       m_GuizmoOperation;
+        ImGuizmo::MODE            m_GuizmoMode;
+        f32                       m_GuizmoSnapAmount = 0.0f;
+        Graphics::RZGPUProfiler   m_GPUProfiler;
 
     private:
         /* Starts the application */

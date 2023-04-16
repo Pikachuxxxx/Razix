@@ -10,7 +10,7 @@
 
 // TODO: Implement this
 //#include "binding_table.glsl"
-#include <Common/FrameData.glsl>
+#include <Common/ShaderInclude.FrameData.glsl>
 
 //------------------------------------------------------------------------------
 // Vertex Input

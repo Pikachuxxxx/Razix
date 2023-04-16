@@ -285,7 +285,6 @@ namespace Razix {
 
             f32 now = m_RendererTimer.GetElapsedS();
             m_PassTimer.Update(now);
-            RZEngine::Get().GetStatistics().ImGuiPass = abs(RZEngine::Get().GetStatistics().DeltaTime - m_PassTimer.GetTimestepMs());
         }
 
         void RZImGuiRenderer::Resize(u32 width, u32 height)

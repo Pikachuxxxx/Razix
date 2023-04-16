@@ -23,9 +23,9 @@ namespace Razix {
         void Init(u32 systemHeapSize);
         void Shutdown();
 
-        RAZIX_INLINE const Razix::Memory::RZHeapAllocator& getSystemAllocator() { return m_SystemAllocator; }
-        RAZIX_INLINE const Razix::Memory::RZLinearAllocator& getFrameAllocator() { return m_FrameAllocator; }
-        RAZIX_INLINE const Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
+        RAZIX_INLINE Razix::Memory::RZHeapAllocator& getSystemAllocator() { return m_SystemAllocator; }
+        RAZIX_INLINE Razix::Memory::RZLinearAllocator& getFrameAllocator() { return m_FrameAllocator; }
+        RAZIX_INLINE Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
 
     private:
         Razix::Memory::RZHeapAllocator     m_SystemAllocator;

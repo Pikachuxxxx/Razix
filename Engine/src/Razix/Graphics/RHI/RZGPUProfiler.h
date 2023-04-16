@@ -1,25 +1,7 @@
 #pragma once
 
-#ifdef RAZIX_RENDER_API_VULKAN
-    #include <vulkan/vulkan.h>
-#endif
-
 namespace Razix {
     namespace Graphics {
-
-        constexpr u32 gpu_time_queries_per_frame = 32;
-
-        struct GPUTimeStamp
-        {
-            u32 start;
-            u32 end;
-            f32 delta;
-
-            u32 depth;
-            u32 parentIdx;
-
-            cstr name;
-        };
 
         struct GPUTimeQuery
         {
@@ -67,7 +49,11 @@ namespace Razix {
                 Count
             };
 
-            void reset();
+            void reset()
+            {
+                for (u32 i = 0; i < Count; ++i)
+                    statistics[i] = 0;
+            }
 
             u64 statistics[Count];
         };
@@ -81,6 +67,7 @@ namespace Razix {
             u32  resolve(u32 current_frame, GPUTimeQuery* timestamps_to_fill);    // Returns the total queries for this frame.
 
             std::vector<GpuTimeQueryTree> query_trees;
+            GpuTimeQueryTree*             m_TimeQueries;
 
             Memory::IRZAllocator* allocator  = nullptr;
             GPUTimeQuery*         timestamps = nullptr;
