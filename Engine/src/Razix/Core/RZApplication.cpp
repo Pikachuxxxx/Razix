@@ -431,7 +431,7 @@ namespace Razix {
         OnImGui();
 
         // Guizmo Controls for an Entity
-        if (m_GuizmoEntity.entity() != entt::null) {
+        if (m_EnableGuizmoEditing) {
             auto           currentScene = RZEngine::Get().getSceneManager().getCurrentScene();
             auto&          registry     = currentScene->getRegistry();
             auto&          cameraView   = registry.view<CameraComponent>();

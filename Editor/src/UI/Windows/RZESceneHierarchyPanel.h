@@ -7,6 +7,8 @@
 #include <QFrame>
 #include <QMouseEvent>
 
+#include "Razix/Core/RZEngine.h"
+
 namespace Razix {
     class RZEntity;
 }
@@ -27,19 +29,19 @@ namespace Razix {
 
             void keyPressEvent(QKeyEvent* event)
             {
-#if 0
-if (event->key() == Qt::Key::Key_Delete) {
+#if 1
+                if (event->key() == Qt::Key::Key_Delete) {
                     QList<QTreeWidgetItem*> selectedItems = ui.sceneTree->selectedItems();
                     if (!selectedItems.size())
                         return;
 
-                    Razix::RZScene* scene    = RZEngine::Get().getSceneManager().getCurrentScene();
+                    Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
                     auto&           registry = scene->getRegistry();
 
                     for (size_t i = 0; i < selectedItems.size(); i++) {
+                        RZApplication::Get().disableGuizmoEditing();
                         QVariant entityVariant = selectedItems[i]->data(0, Qt::UserRole);
                         auto     entity        = entityVariant.value<RZEntity>();
-                        RZApplication::Get().setGuzimoForEntity(-1);
                         registry.destroy(entity);
                     }
 
