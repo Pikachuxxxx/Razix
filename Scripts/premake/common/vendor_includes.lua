@@ -13,7 +13,7 @@ IncludeDir["lua"]               = "%{wks.location}/../Engine/" .. "vendor/lua/sr
 IncludeDir["tracy"]             = "%{wks.location}/../Engine/" .. "vendor/tracy"
 IncludeDir["optick"]            = "%{wks.location}/../Engine/" .. "vendor/optick/src"
 IncludeDir["simde"]             = "%{wks.location}/../Engine/" .. "vendor/simde"
-IncludeDir["Jolt"]              = "%{wks.location}/../Engine/" .. "vendor/JoltPhysics"
+IncludeDir["Jolt"]              = "%{wks.location}/../Engine/" .. "vendor/Jolt"
 
 IncludeDir["Razix"]             = "%{wks.location}/../Engine/" .. "src"
 IncludeDir["vendor"]            = "%{wks.location}/../Engine/" .. "vendor/"
