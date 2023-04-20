@@ -362,7 +362,6 @@ namespace Razix {
 
                 VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device, &alloc_info, &m_BindlessDescriptorSet));
             }
-
             return true;
         }
 

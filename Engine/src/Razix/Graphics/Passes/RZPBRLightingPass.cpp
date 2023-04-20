@@ -46,7 +46,7 @@ namespace Razix {
                 m_CommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("PBR Command Buffers"));
             }
 
-            auto pbrShader = RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
+            auto pbrShader = RZShaderLibrary::Get().getShader("pbr_lighting.rzsf");
 
             Graphics::PipelineInfo pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
@@ -147,7 +147,8 @@ namespace Razix {
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
-                        auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
+                       #if 0
+ auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
                         auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
                         auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
 
@@ -168,8 +169,9 @@ namespace Razix {
                         brdflut_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         brdflut_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         brdflut_descriptor.texture             = brdfLUT;
+#endif
 
-                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor, irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR pass Bindings"));
+                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor/*, irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor*/} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR pass Bindings"));
 
                         updatedSets = true;
                     }
