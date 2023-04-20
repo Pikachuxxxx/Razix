@@ -7,6 +7,8 @@
 
     #include "VKContext.h"
 
+    #include "Razix/Platform/API/Vulkan/VKUtilities.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -19,7 +21,7 @@ namespace Razix {
             : m_PhysicalDevice(VK_NULL_HANDLE)
         {
             // Query the number of GPUs available
-            u32   numGPUs  = 0;
+            u32        numGPUs  = 0;
             VkInstance instance = VKContext::Get()->getInstance();
             vkEnumeratePhysicalDevices(instance, &numGPUs, nullptr);
             RAZIX_CORE_ASSERT(!(numGPUs == 0), "[Vulkan] No Suitable GPUs found!");
@@ -77,7 +79,7 @@ namespace Razix {
 
             //! BUG: I guess in Distribution mode the set has 2 elements or something is happening such that the queue priority for other element is nan and not 0 as we have provided
             std::set<int32_t> uniqueQueueFamilies = {m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present};
-            f32             queuePriority       = 1.0f;
+            f32               queuePriority       = 1.0f;
             for (u32 queueFamily: uniqueQueueFamilies) {
                 VkDeviceQueueCreateInfo queueCreateInfo{};
                 queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -173,11 +175,24 @@ namespace Razix {
             // Create the Physical device
             m_PhysicalDevice = rzstl::CreateRef<VKPhysicalDevice>();
 
-            // Create the Logical device
-            // Get the device features of the selected GPU and Enable whatever features we need
-            VkPhysicalDeviceFeatures physicalDeviceFeatures;
-            vkGetPhysicalDeviceFeatures(m_PhysicalDevice->getVulkanPhysicalDevice(), &physicalDeviceFeatures);
-            physicalDeviceFeatures.geometryShader = VK_TRUE;
+            // Check if Bindless feature is supported by the GPU
+            // [TAG: BINDLESS]
+            // Query bindless extension, called Descriptor Indexing (https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_EXT_descriptor_indexing.html)
+            VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES, nullptr};
+            VkPhysicalDeviceFeatures2                  device_features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &indexing_features};
+            vkGetPhysicalDeviceFeatures2(getGPU(), &device_features);
+            // For the feature to be correctly working, we need both the possibility to partially bind a descriptor,
+            // as some entries in the bindless array will be empty, and SpirV runtime descriptors.
+            m_IsBindlessSupported = indexing_features.descriptorBindingPartiallyBound && indexing_features.runtimeDescriptorArray;
+
+            if (m_IsBindlessSupported) {
+                indexing_features.descriptorBindingPartiallyBound = VK_TRUE;
+                indexing_features.runtimeDescriptorArray          = VK_TRUE;
+            }
+            device_features.pNext = &indexing_features;
+
+            // Enable Geometry Shaders
+            device_features.features.geometryShader = VK_TRUE;
 
             if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 deviceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -195,6 +210,7 @@ namespace Razix {
             // Enable Dynamic Rendering
             VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures{};
             dynamicRenderingFeatures.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
+            dynamicRenderingFeatures.pNext            = &device_features;
             dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
 
             // Device Create Info
@@ -205,27 +221,158 @@ namespace Razix {
             deviceCI.pQueueCreateInfos       = m_PhysicalDevice->m_QueueCreateInfos.data();
             deviceCI.enabledExtensionCount   = static_cast<u32>(deviceExtensions.size());
             deviceCI.ppEnabledExtensionNames = deviceExtensions.data();
-            deviceCI.pEnabledFeatures        = &physicalDeviceFeatures;
             deviceCI.enabledLayerCount       = 0;
 
             if (vkCreateDevice(m_PhysicalDevice->getVulkanPhysicalDevice(), &deviceCI, nullptr, &m_Device) != VK_SUCCESS) {
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create logical device!");
                 return false;
             } else
-                RAZIX_CORE_TRACE("[Vulkan] Successfully created logical device!");
+                RAZIX_CORE_INFO("[Vulkan] Successfully created logical device!");
 
             // Get the queue handles using the queue index (we assume that the graphics queue also has presentation capability)
             vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
             vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_PresentQueue);
 
+            //------------------------------------------------------------------------------------------------
             // Create a command pool for single time command buffers
             m_CommandPool = rzstl::CreateRef<VKCommandPool>(m_PhysicalDevice->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
+            //-----------------------------------------------------------------------------------------------
+            // Create the Query Pools
+            // Create timestamp query pool used for GPU timings.
+            VkQueryPoolCreateInfo timestamp_pool_info{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr, 0, VK_QUERY_TYPE_TIMESTAMP, k_gpu_time_queries_per_frame * 2u, 0};
+            vkCreateQueryPool(m_Device, &timestamp_pool_info, nullptr, &m_timestamp_query_pool);
+
+            // Create pipeline statistics query pool
+            VkQueryPoolCreateInfo statistics_pool_info{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr, 0, VK_QUERY_TYPE_PIPELINE_STATISTICS, 7, 0};
+            statistics_pool_info.pipelineStatistics = VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_CLIPPING_INVOCATIONS_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT |
+                                                      VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT;
+            vkCreateQueryPool(m_Device, &statistics_pool_info, nullptr, &m_pipeline_stats_query_pool);
+
+            //------------------------------------------------------------------------------------------------
+            // Create the Global Descriptor Pool, used for normal descriptor sets
+            VkDescriptorPoolSize pool_sizes[] = {
+                {VK_DESCRIPTOR_TYPE_SAMPLER, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, k_global_pool_elements},
+                {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, k_global_pool_elements}};
+            VkDescriptorPoolCreateInfo pool_info = {};
+            pool_info.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            pool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+            u32 size                             = (sizeof(pool_sizes) / sizeof(pool_sizes[0]));
+            pool_info.maxSets                    = k_global_pool_elements * size;
+            pool_info.poolSizeCount              = (u32) size;
+            pool_info.pPoolSizes                 = pool_sizes;
+            VK_CHECK_RESULT(vkCreateDescriptorPool(m_Device, &pool_info, nullptr, &m_GlobalDescriptorPool));
+
+            //------------------------------------------------------------------------------------------------
+            // [TAG: BINDLESS]
+            // Create the Descriptor Pool used by bindless, that needs update after bind flag.
+            if (m_IsBindlessSupported) {
+                VkDescriptorPoolSize pool_sizes_bindless[] = {
+                    // We use bindless for Images, Storage images and Uniform Buffers for now
+                    {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, k_max_bindless_resources},
+                    {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, k_max_bindless_resources},
+                    //{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, k_max_bindless_resources}
+                };
+
+                u32 bindless_pool_count = (sizeof(pool_sizes_bindless) / sizeof(pool_sizes_bindless[0]));
+                // Update after bind is needed here, for each binding and in the descriptor set layout creation.
+                pool_info.flags         = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT;    // BINDLESS MAGIC!
+                pool_info.maxSets       = k_max_bindless_resources * bindless_pool_count;
+                pool_info.poolSizeCount = (u32) bindless_pool_count;
+                pool_info.pPoolSizes    = pool_sizes_bindless;
+                VK_CHECK_RESULT(vkCreateDescriptorPool(m_Device, &pool_info, nullptr, &m_BindlessDescriptorPool));
+
+                //------------------------------------------------------------------------------------------------
+                std::vector<VkDescriptorSetLayoutBinding> vk_binding(bindless_pool_count);
+
+                // Actual descriptor set layout
+                // Images
+                VkDescriptorSetLayoutBinding& image_sampler_binding = vk_binding[0];
+                image_sampler_binding.descriptorType                = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                image_sampler_binding.descriptorCount               = k_max_bindless_resources;
+                image_sampler_binding.binding                       = k_bindless_texture_binding;
+                image_sampler_binding.stageFlags                    = VK_SHADER_STAGE_ALL;
+                image_sampler_binding.pImmutableSamplers            = nullptr;
+
+                // Storage Images
+                VkDescriptorSetLayoutBinding& storage_image_binding = vk_binding[1];
+                storage_image_binding.descriptorType                = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+                storage_image_binding.descriptorCount               = k_max_bindless_resources;
+                storage_image_binding.binding                       = k_bindless_texture_binding + 1;
+                storage_image_binding.stageFlags                    = VK_SHADER_STAGE_ALL;
+                storage_image_binding.pImmutableSamplers            = nullptr;
+
+                // Uniform Buffers
+    #if 0
+                VkDescriptorSetLayoutBinding& storage_image_binding = vk_binding[2];
+                storage_image_binding.descriptorType                = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                storage_image_binding.descriptorCount               = k_max_bindless_resources;
+                storage_image_binding.binding                       = k_bindless_texture_binding + 2;
+                storage_image_binding.stageFlags                    = VK_SHADER_STAGE_ALL;
+                storage_image_binding.pImmutableSamplers            = nullptr;
+    #endif
+
+                // Set info
+                VkDescriptorSetLayoutCreateInfo layout_info = {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
+                layout_info.bindingCount                    = bindless_pool_count;
+                layout_info.pBindings                       = vk_binding.data();
+                layout_info.flags                           = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT;
+
+                // To enable the bindless feature we need to pass some params using the pNext field and this is how it's done
+                // Binding flags
+                VkDescriptorBindingFlags              bindless_flags = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT;
+                std::vector<VkDescriptorBindingFlags> binding_flags(bindless_pool_count);
+
+                for (size_t i = 0; i < bindless_pool_count; i++)
+                    binding_flags[i] = bindless_flags;
+
+                VkDescriptorSetLayoutBindingFlagsCreateInfoEXT extended_info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT, nullptr};
+                extended_info.bindingCount  = bindless_pool_count;
+                extended_info.pBindingFlags = binding_flags.data();
+
+                layout_info.pNext = &extended_info;
+
+                VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device, &layout_info, nullptr, &m_BindlessSetLayout));
+                //------------------------------------------------------------------------------------------------
+                // Bindless Descriptor Set
+                VkDescriptorSetAllocateInfo alloc_info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
+                alloc_info.descriptorPool     = m_BindlessDescriptorPool;
+                alloc_info.descriptorSetCount = 1;
+                alloc_info.pSetLayouts        = &m_BindlessSetLayout;
+
+                VkDescriptorSetVariableDescriptorCountAllocateInfoEXT count_info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT};
+                u32                                                   max_binding = k_max_bindless_resources - 1;
+                count_info.descriptorSetCount                                     = 1;
+                // This number is the max allocatable count
+                count_info.pDescriptorCounts = &max_binding;
+
+                VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device, &alloc_info, &m_BindlessDescriptorSet));
+            }
             return true;
         }
 
         void VKDevice::destroy()
         {
+            vkDestroyDescriptorPool(m_Device, m_GlobalDescriptorPool, nullptr);
+            vkDestroyDescriptorPool(m_Device, m_BindlessDescriptorPool, nullptr);
+            vkDestroyDescriptorSetLayout(m_Device, m_BindlessSetLayout, nullptr);
+
+            vkDestroyQueryPool(m_Device, m_pipeline_stats_query_pool, nullptr);
+            vkDestroyQueryPool(m_Device, m_timestamp_query_pool, nullptr);
             // Destroy the single time Command pool
             vkDestroyCommandPool(m_Device, m_CommandPool->getVKPool(), nullptr);
             // Destroy the logical device

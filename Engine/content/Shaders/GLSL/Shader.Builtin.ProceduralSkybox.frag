@@ -179,11 +179,6 @@ vec4 ProceduralSkybox(vec3 ro, vec3 rd)
     if(y < 0.0) color += sunColor * SunAttenuation(normalize(_WorldSpaceLightPos0.xyz), -ray);
     return vec4(sqrt(color),1.0);      
 }
-////////////////////////////////////////////////////////////////////////////////
-// Volumetric Clouds
-// https://www.shadertoy.com/view/MstBWs
-
-////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------
 void main()
 {

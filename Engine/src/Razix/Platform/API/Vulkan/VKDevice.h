@@ -24,6 +24,12 @@ static std::vector<cstr> deviceExtensions = {
 namespace Razix {
     namespace Graphics {
 
+        // TODO: Move these either to RZGraphicsContext or make a new RZGPUDevice class
+        constexpr u32    k_gpu_time_queries_per_frame = 32;   /* Max number of queries that can be made in a frame          */
+        static const u32 k_global_pool_elements       = 128;  /* Max number of global descriptor resources                  */
+        static const u32 k_bindless_texture_binding   = 10;   /* Starting binding Idx of Bindless resources                 */
+        static const u32 k_max_bindless_resources     = 1024; /* Max Bindless resources that can be allocated by the engine */
+
         /* The actual handle to the Physical GPU being used to process the application */
         class VKPhysicalDevice : public RZRoot
         {
@@ -94,16 +100,25 @@ namespace Razix {
             VkQueue                             getGraphicsQueue() const { return m_GraphicsQueue; };
             VkQueue                             getPresentQueue() const { return m_PresentQueue; };
             const rzstl::Ref<VKCommandPool>&    getCommandPool() const { return m_CommandPool; }
+            VkQueryPool                         getPipelineStatsQueryPool() const { return m_pipeline_stats_query_pool; }
+            VkDescriptorPool                    getGlobalDescriptorPool() const { return m_GlobalDescriptorPool; }
+            VkDescriptorPool                    getBindlessDescriptorPool() const { return m_BindlessDescriptorPool; }
 
         private:
             VkDevice                     m_Device;
             VkQueue                      m_GraphicsQueue;
             VkQueue                      m_PresentQueue;
             VkPipelineCache              m_PipelineCache;
-            VkDescriptorPool             m_DescriptorPool;
             VkPhysicalDeviceFeatures     m_EnabledFeatures;
             rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice;
-            rzstl::Ref<VKCommandPool>    m_CommandPool;
+            rzstl::Ref<VKCommandPool>    m_CommandPool;            /* Global Command pool from which the command buffers are allocated from           */
+            VkDescriptorPool             m_GlobalDescriptorPool;   /* Global descriptor pool from which normal descriptor sets are allocated from     */
+            VkDescriptorPool             m_BindlessDescriptorPool; /* Global descriptor pool from which bindless descriptor sets are allocated from   */
+            VkDescriptorSetLayout        m_BindlessSetLayout;
+            VkDescriptorSet              m_BindlessDescriptorSet;
+            VkQueryPool                  m_timestamp_query_pool      = VK_NULL_HANDLE;
+            VkQueryPool                  m_pipeline_stats_query_pool = VK_NULL_HANDLE;
+            bool                         m_IsBindlessSupported;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -2,7 +2,7 @@
 #define _SPACE_UTILS_GLSL_
 
 #ifndef _FRAME_DATA_GLSL_
-#  error "Common/FrameData.glsl required"
+#  error "Common/ShaderInclude.FrameData.glsl required"
 #endif
 
 #define ORIGIN_UPPER_LEFT 0

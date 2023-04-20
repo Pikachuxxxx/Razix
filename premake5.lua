@@ -87,7 +87,7 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/SPIRVCross/SPIRVCross.lua"
         include "Engine/vendor/SPIRVReflect/SPIRVReflect.lua"
         include "Engine/vendor/tracy/tracy.lua"
-        include "Engine/vendor/JoltPhysics/jolt.lua"
+        include "Engine/vendor/Jolt/jolt.lua"
     group ""
 
     -- Uses .NET 4.0

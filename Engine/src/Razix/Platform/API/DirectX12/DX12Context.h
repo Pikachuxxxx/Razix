@@ -20,7 +20,8 @@ namespace Razix {
             void ClearWithColor(f32 r, f32 g, f32 b) override;
 
         private:
-            Microsoft::WRL::ComPtr<ID3D12Device> m_Device; /* DirectX 12 handle to the GPU device */
+            RZWindow*                            m_Window; /* The Window handle                 */
+            Microsoft::WRL::ComPtr<ID3D12Device> m_Device; /* D3D12 handle to the GPU device    */
         };
     }    // namespace Graphics
 }    // namespace Razix
