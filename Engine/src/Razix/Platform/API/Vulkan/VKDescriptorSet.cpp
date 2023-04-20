@@ -92,7 +92,6 @@ namespace Razix {
                         }
 
                         m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                        //des.imageLayout;
                         m_ImageInfoPool[imageIndex].imageView = des.imageView;
                         m_ImageInfoPool[imageIndex].sampler   = des.sampler;
 
