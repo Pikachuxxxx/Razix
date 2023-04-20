@@ -28,10 +28,9 @@
 #include <cereal/types/vector.hpp>
 #pragma warning(pop)
 
-    //! Some style guide rules are waved off for RZApplication class
+//! Some style guide rules are waved off for RZApplication class
 
-    namespace ImGuizmo
-{
+namespace ImGuizmo {
     enum OPERATION;
     enum MODE;
 }    // namespace ImGuizmo
@@ -149,7 +148,12 @@ namespace Razix {
         void           setAppType(AppType appType) { m_appType = appType; }
 
         // Guizmo Operations
-        void setGuizmoForEntity(RZEntity& entity) { m_GuizmoEntity = entity; }
+        void disableGuizmoEditing() { m_EnableGuizmoEditing = false; }
+        void setGuizmoForEntity(RZEntity& entity)
+        {
+            m_GuizmoEntity        = entity;
+            m_EnableGuizmoEditing = true;
+        }
         void setGuizmoOperation(ImGuizmo::OPERATION operation) { m_GuizmoOperation = operation; }
         void setGuizmoMode(ImGuizmo::MODE mode) { m_GuizmoMode = mode; }
         void setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
@@ -246,6 +250,7 @@ namespace Razix {
         ImGuizmo::MODE            m_GuizmoMode;
         f32                       m_GuizmoSnapAmount = 0.0f;
         Graphics::RZGPUProfiler   m_GPUProfiler;
+        bool                      m_EnableGuizmoEditing = false;
 
     private:
         /* Starts the application */
