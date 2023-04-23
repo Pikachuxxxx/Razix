@@ -3,9 +3,9 @@
 #include "generated/ui_RZEMainWindow.h"
 #include "generated/ui_RZEViewport.h"
 
-#include "UI/Windows/RZEMaterialEditor.h"
+#include "QtADS/DockManager.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "UI/Windows/RZEMaterialEditor.h"
 
 #include <QCloseEvent>
 #include <QMainWindow>
@@ -14,6 +14,8 @@
 #include <QToolBar>
 
 #include "UI/Windows/RZEWorldRendererSettingsWindow.h"
+
+#include "Razix/Core/RZApplication.h"
 
 namespace Razix {
     namespace Editor {
@@ -25,8 +27,9 @@ namespace Razix {
             RZEMainWindow(QWidget* parent = Q_NULLPTR, Qt::WindowFlags flags = {});
             ~RZEMainWindow() {}
 
-            QWidget*           getViewport() { return m_Viewport; }
-            ToolWindowManager* getToolWindowManager() { return ui.toolWindowManager; }
+            //ToolWindowManager* getToolWindowManager() { return ui.toolWindowManager; }
+            ads::CDockManager* getDockManager() { return m_DockManager; }
+            void               addDockableWidget(QWidget* widget, std::string name);
 
             void closeEvent(QCloseEvent* event)
             {
@@ -64,10 +67,12 @@ namespace Razix {
             void update();
 
         private:
-            Ui::MainWindow ui;
-            QWidget*       m_Viewport;
-            QLabel*        m_FPSLblSB;
-            QProgressBar*  m_StatusProgressBar;    // TODO: Rename this properly
+            Ui::MainWindow                 ui;
+            ads::CDockManager*             m_DockManager;
+            std::vector<ads::CDockWidget*> m_DockableWidgets;
+
+            QLabel*       m_FPSLblSB;
+            QProgressBar* m_StatusProgressBar;    // TODO: Rename this properly
 
             QPushButton* World_vs_LocalButton;
             QPushButton* enableSnapBtn;

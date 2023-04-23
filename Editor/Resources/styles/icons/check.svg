@@ -1,0 +1,11 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+	<title>New Project</title>
+	<defs>
+		<image  width="100" height="100" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkAQMAAABKLAcXAAAAAXNSR0IB2cksfwAAAANQTFRFDw8PuwF7uQAAABRJREFUeJxjYBgFo2AUjIJRQE8AAAV4AAEI/UWDAAAAAElFTkSuQmCC"/>
+	</defs>
+	<style>
+		.s0 { fill: #0e86ff } 
+	</style>
+	<use id="Background" href="#img1" x="0" y="0"/>
+	<path id="Shape 1" class="s0" d="m42 71l-21-18c0 0-2.2-1.6 0-4 2.2-2.4 5-5 5-5 0 0 1.2-1.6 3 0 1.8 1.6 15.2 13.3 15.2 13.3l25.8-27.9c0 0 0.8-1.3 2-0.4 1.2 0.9 7 6 7 6 0 0 1.5 1-0.7 3.2-2.2 2.1-30.3 32.8-30.3 32.8 0 0-3 2.6-6 0z"/>
+</svg>

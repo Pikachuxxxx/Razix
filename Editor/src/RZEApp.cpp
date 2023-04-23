@@ -84,7 +84,14 @@ public:
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
-            mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+            //mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+
+            mainWindow->addDockableWidget(contentBrowserWindow, "Content Browser");
+
+            QFile file(":/rzeditor/styles/ue.qss");
+            file.open(QFile::ReadOnly);
+            QString styleSheet = QLatin1String(file.readAll());
+            qrzeditorApp->setStyleSheet(styleSheet);
         });
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
@@ -226,8 +233,15 @@ int main(int argc, char** argv)
     // Store the app settings as a .ini file
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
-    QStyle* style = StyleData::availStyles[1].creator();
-    QApplication::setStyle(style);
+    // RenderDoc style from source file
+    //QStyle* style = StyleData::availStyles[1].creator();
+    //QApplication::setStyle(style);
+
+    // UE5 like style from qss
+    QFile file(":/rzeditor/styles/ue.qss");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+    qrzeditorApp->setStyleSheet(styleSheet);
 
     qrzeditorApp->setWindowIcon(QIcon(":/rzeditor/RazixLogo64.png"));
 
@@ -243,10 +257,12 @@ int main(int argc, char** argv)
     mainWindow->setWindowTitle("Razix Engine Editor");
     mainWindow->resize(1280, 720);
     mainWindow->setWindowState(Qt::WindowMaximized);
+    //mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
     // Init the Windows
     materialEditor = new Razix::Editor::RZEMaterialEditor;
-    mainWindow->getToolWindowManager()->addToolWindow(materialEditor, ToolWindowManager::AreaReference(ToolWindowManager::RightWindowSide));
+    //mainWindow->getToolWindowManager()->addToolWindow(materialEditor, ToolWindowManager::AreaReference(ToolWindowManager::RightWindowSide));
+    mainWindow->addDockableWidget(materialEditor, "Material Editor");
 
     sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow);
 
@@ -261,7 +277,8 @@ int main(int argc, char** argv)
     viewportWidget->setWindowIcon(razixIcon);
     viewportWidget->show();
 
-    mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
+    //mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
+    mainWindow->addDockableWidget(inspectorWidget, "Inspector");
 
     // Connect the Signal from Inspector window to a slot in Material editor to set the material if a mesh is selected
     QObject::connect(inspectorWidget, &Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected, materialEditor, &Razix::Editor::RZEMaterialEditor::OnSetEditingMaterial);
@@ -277,12 +294,16 @@ int main(int argc, char** argv)
     // vulkanWindowWidget->resize(1280, 720);
     // vulkanWindowWidget->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
     // Scene Hierarchy
-    mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.2f));
+    //mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.2f));
+    mainWindow->addDockableWidget(sceneHierarchyPanel, "Scene Hierarchy");
 
     // In order for event filter to work this is fookin important
     qrzeditorApp->installEventFilter(viewportWidget->getVulkanWindow());
 
-    mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+    //mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
+    // FIXME: Add this to right of some other window
+    mainWindow->addDockableWidget(viewportWidget, "Viewport");
+
     viewportWidget->resize(1280, 720);
 
     // Load the engine DLL and Ignite it on a separate thread
