@@ -82,7 +82,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgb(255, 0, 4);</string>
        </property>
        <property name="text">
-        <string>X</string>
+        <string>x</string>
        </property>
       </widget>
      </item>
@@ -120,7 +120,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
        </property>
        <property name="text">
-        <string>Y</string>
+        <string>y</string>
        </property>
       </widget>
      </item>
@@ -155,7 +155,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
        </property>
        <property name="text">
-        <string>Z</string>
+        <string>z</string>
        </property>
       </widget>
      </item>
@@ -220,7 +220,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgb(255, 0, 4);</string>
        </property>
        <property name="text">
-        <string>X</string>
+        <string>x</string>
        </property>
       </widget>
      </item>
@@ -258,7 +258,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
        </property>
        <property name="text">
-        <string>Y</string>
+        <string>y</string>
        </property>
       </widget>
      </item>
@@ -293,7 +293,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
        </property>
        <property name="text">
-        <string>Z</string>
+        <string>z</string>
        </property>
       </widget>
      </item>
@@ -358,7 +358,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgb(255, 0, 4);</string>
        </property>
        <property name="text">
-        <string>X</string>
+        <string>x</string>
        </property>
       </widget>
      </item>
@@ -396,7 +396,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
        </property>
        <property name="text">
-        <string>Y</string>
+        <string>y</string>
        </property>
       </widget>
      </item>
@@ -431,7 +431,7 @@ border-bottom: 2px;
         <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
        </property>
        <property name="text">
-        <string>Z</string>
+        <string>z</string>
        </property>
       </widget>
      </item>

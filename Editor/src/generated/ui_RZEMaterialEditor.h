@@ -113,18 +113,19 @@ public:
         if (MaterialEditor->objectName().isEmpty())
             MaterialEditor->setObjectName(QString::fromUtf8("MaterialEditor"));
         MaterialEditor->resize(300, 842);
+        MaterialEditor->setStyleSheet(QString::fromUtf8("background-color: #151515;"));
         verticalLayout = new QVBoxLayout(MaterialEditor);
-        verticalLayout->setSpacing(0);
+        verticalLayout->setSpacing(5);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
+        verticalLayout->setContentsMargins(5, 5, 5, 5);
         scrollArea = new QScrollArea(MaterialEditor);
         scrollArea->setObjectName(QString::fromUtf8("scrollArea"));
         scrollArea->setMinimumSize(QSize(300, 0));
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 298, 840));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 298, 830));
         scrollAreaWidgetContents->setMinimumSize(QSize(0, 0));
         verticalLayout_3 = new QVBoxLayout(scrollAreaWidgetContents);
         verticalLayout_3->setSpacing(6);

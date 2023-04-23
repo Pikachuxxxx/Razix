@@ -252,25 +252,25 @@ public:
     {
         TransformComponent->setWindowTitle(QCoreApplication::translate("TransformComponent", "Form", nullptr));
         PosLbl->setText(QCoreApplication::translate("TransformComponent", "Position", nullptr));
-        PosX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
+        PosX->setText(QCoreApplication::translate("TransformComponent", "x", nullptr));
         PosVal_X->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
-        PosY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
+        PosY->setText(QCoreApplication::translate("TransformComponent", "y", nullptr));
         PosVal_Y->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
-        PosZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
+        PosZ->setText(QCoreApplication::translate("TransformComponent", "z", nullptr));
         PosVal_Z->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
         RotLbl->setText(QCoreApplication::translate("TransformComponent", "Rotation", nullptr));
-        RotX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
+        RotX->setText(QCoreApplication::translate("TransformComponent", "x", nullptr));
         RotVal_X->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
-        RotY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
+        RotY->setText(QCoreApplication::translate("TransformComponent", "y", nullptr));
         RotVal_Y->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
-        RotZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
+        RotZ->setText(QCoreApplication::translate("TransformComponent", "z", nullptr));
         RotVal_Z->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
         ScaleLbl->setText(QCoreApplication::translate("TransformComponent", "Scale", nullptr));
-        ScaleX->setText(QCoreApplication::translate("TransformComponent", "X", nullptr));
+        ScaleX->setText(QCoreApplication::translate("TransformComponent", "x", nullptr));
         ScaleVal_X->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
-        ScaleY->setText(QCoreApplication::translate("TransformComponent", "Y", nullptr));
+        ScaleY->setText(QCoreApplication::translate("TransformComponent", "y", nullptr));
         ScaleVal_Y->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
-        ScaleZ->setText(QCoreApplication::translate("TransformComponent", "Z", nullptr));
+        ScaleZ->setText(QCoreApplication::translate("TransformComponent", "z", nullptr));
         ScaleVal_Z->setText(QCoreApplication::translate("TransformComponent", "0.000000", nullptr));
     } // retranslateUi
 

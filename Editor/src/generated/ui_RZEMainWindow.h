@@ -16,9 +16,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include "Extensions/toolwindowmanager/ToolWindowManager.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -59,8 +57,6 @@ public:
     QAction *actionClear_layout;
     QAction *actionWorld_Renderer_Settings;
     QWidget *centralwidget;
-    QVBoxLayout *verticalLayout;
-    ToolWindowManager *toolWindowManager;
     QMenuBar *menubar;
     QMenu *menuFile;
     QMenu *menuEdit;
@@ -77,7 +73,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(798, 600);
+        MainWindow->resize(799, 600);
         actionLighting_Settings = new QAction(MainWindow);
         actionLighting_Settings->setObjectName(QString::fromUtf8("actionLighting_Settings"));
         actionEnvironment_Settings = new QAction(MainWindow);
@@ -146,17 +142,10 @@ public:
         actionWorld_Renderer_Settings->setObjectName(QString::fromUtf8("actionWorld_Renderer_Settings"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        verticalLayout = new QVBoxLayout(centralwidget);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        toolWindowManager = new ToolWindowManager(centralwidget);
-        toolWindowManager->setObjectName(QString::fromUtf8("toolWindowManager"));
-
-        verticalLayout->addWidget(toolWindowManager);
-
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 798, 21));
+        menubar->setGeometry(QRect(0, 0, 799, 21));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuEdit = new QMenu(menubar);
@@ -191,11 +180,6 @@ public:
         menuFile->addAction(actionSave_Project);
         menuFile->addSeparator();
         menuWindows->addAction(actionWorld_Renderer_Settings);
-        menuWindows->addAction(actionInspector);
-        menuWindows->addAction(actionViewport);
-        menuWindows->addAction(actionScene_Hierarchy);
-        menuWindows->addAction(actionContent_Browser);
-        menuWindows->addAction(actionMaterial_Editor);
         menuGraphics->addAction(actionLighting_Settings);
         menuGraphics->addAction(actionEnvironment_Settings);
         menuCreate->addAction(actionEntity);

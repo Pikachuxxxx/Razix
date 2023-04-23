@@ -63,8 +63,11 @@ project "RazixEditor"
         "**.ui",
         "**.qrc",
         "**.qss",
+        "**.css",
+        "**.rcc",
         "**.png",
         "**.ico",
+        --"**.svg",
         -- TODO: Add this under windows only
         "**.rc"
     }
@@ -77,6 +80,8 @@ project "RazixEditor"
         "../Engine/src/Razix",
         "../Engine",
         "../Editor/src",
+        "../Editor/src/Extensions",
+        "../Editor/src/Extensions/QtADS",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -150,7 +155,8 @@ project "RazixEditor"
         "bin/%{outputdir}/"
     }
 
-    filter "files:**.ui or **.qrc or **.png or **.ico"
+    filter "files:**.ui or **.qrc or **.png or **.ico or **.qss or **.css or **.rcc"
+            removeflags "ExcludeFromBuild"
             buildaction "Embed"
     filter ""
 
