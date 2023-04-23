@@ -6,26 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>798</width>
+    <width>799</width>
     <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="ToolWindowManager" name="toolWindowManager" native="true"/>
-    </item>
-   </layout>
-  </widget>
+  <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>798</width>
+     <width>799</width>
      <height>21</height>
     </rect>
    </property>
@@ -48,11 +42,6 @@
      <string>Windows</string>
     </property>
     <addaction name="actionWorld_Renderer_Settings"/>
-    <addaction name="actionInspector"/>
-    <addaction name="actionViewport"/>
-    <addaction name="actionScene_Hierarchy"/>
-    <addaction name="actionContent_Browser"/>
-    <addaction name="actionMaterial_Editor"/>
    </widget>
    <widget class="QMenu" name="menuGraphics">
     <property name="title">
@@ -283,14 +272,8 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ToolWindowManager</class>
-   <extends>QWidget</extends>
-   <header>Extensions/toolwindowmanager/ToolWindowManager.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../Resources/RZEResources.qrc"/>
+ </resources>
  <connections/>
 </ui>

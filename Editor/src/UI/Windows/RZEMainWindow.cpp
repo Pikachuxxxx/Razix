@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QTimer>
+#include <QWidgetAction>
 
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Scene/RZEntity.h"
@@ -30,6 +31,9 @@ namespace Razix {
         {
             // Link the UI file with this class
             ui.setupUi(this);
+
+            m_DockManager = new ads::CDockManager(this);
+            m_DockManager->setStyleSheet("");
 
             // Set this to every window that one wished to save/restore the state with the LayoutToolWindowManager
             setObjectName(this->windowTitle());
@@ -69,6 +73,19 @@ namespace Razix {
 
             // Restore the layout on start up
             Layout_Restore();
+        }
+
+        void RZEMainWindow::addDockableWidget(QWidget* widget, std::string name)
+        {
+            // Create a dock widget with the title Label 1 and set the created label
+            // as the dock widget content
+            ads::CDockWidget* DockWidget = new ads::CDockWidget(name.c_str());
+            DockWidget->setWidget(widget);
+
+            m_DockableWidgets.push_back(DockWidget);
+
+            ui.menuWindows->addAction(DockWidget->toggleViewAction());
+            m_DockManager->addDockWidget(ads::AllDockAreas, DockWidget);
         }
 
         //------------------------------------------------------------------------------------------------
@@ -189,6 +206,8 @@ namespace Razix {
             m_ProjectSettingsTB->addWidget(openProjectButton);
             m_ProjectSettingsTB->addWidget(newProjectButton);
 
+            m_ProjectSettingsTB->setObjectName("Project Settings Toolbar");
+
             this->addToolBar(m_ProjectSettingsTB);
 
             // Connection for toolbar
@@ -213,7 +232,7 @@ namespace Razix {
 
             // Load next scene (loads first if it's the last scene in a cyclic order)
             QPushButton* nextSceneBtn = new QPushButton;
-            nextSceneBtn->setIcon(QIcon("rzeditor/next.png"));
+            nextSceneBtn->setIcon(QIcon(":/rzeditor/styles/icons/progress-pattern.png"));
 
             m_SceneSettingsTB->addWidget(saveButton);
             m_SceneSettingsTB->addWidget(openButton);
@@ -221,6 +240,8 @@ namespace Razix {
             m_SceneSettingsTB->addWidget(nextSceneBtn);
 
             this->addToolBar(m_SceneSettingsTB);
+
+            m_SceneSettingsTB->setObjectName("Scene Settings Toolbar");
 
             // Connections for Save/Load/Open scene
             connect(saveButton, SIGNAL(clicked()), this, SLOT(on_SaveScene()));
@@ -269,6 +290,8 @@ namespace Razix {
 
             this->addToolBar(transformTB);
 
+            transformTB->setObjectName("Transform Settings Toolbar");
+
             connect(pos, SIGNAL(clicked()), this, SLOT(set_TranslateGuizmo()));
             connect(rot, SIGNAL(clicked()), this, SLOT(set_RotateGuizmo()));
             connect(scale, SIGNAL(clicked()), this, SLOT(set_ScaleGuizmo()));
@@ -305,12 +328,21 @@ namespace Razix {
 
             this->addToolBar(m_RenderSettingsTB);
 
+            m_RenderSettingsTB->setObjectName("Render Settings Toolbar");
+
             // Connection for the selection
             connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_RenderAPIChanged(int)));
         }
 
         void RZEMainWindow::SetupMenu()
         {
+            QWidgetAction* labelAct = new QWidgetAction(ui.menubar);
+            QLabel*        label    = new QLabel(" ", ui.menubar);
+            QPixmap        mypix(":/rzeditor/RazixLogo64.png");
+            label->setPixmap(mypix);
+            labelAct->setDefaultWidget(label);
+            ui.menubar->addAction(labelAct);
+
             // Create Menu commands
             SetupCreateMenuCommands();
             // Setup the Window Commands
@@ -365,24 +397,30 @@ namespace Razix {
         // Layout - Action = Save layout
         void RZEMainWindow::Layout_Save()
         {
-            QSettings layout_settings;
-            layout_settings.setValue(TOOL_WINDOW_LAYOUT_STRING_ID, ui.toolWindowManager->saveState());
-            layout_settings.setValue("geometry", saveGeometry());
+            QSettings layout_settings("RazixEditorSettings.ini", QSettings::IniFormat);
+            layout_settings.setValue("RazixEditor/geometry", this->saveGeometry());
+            layout_settings.setValue("RazixEditor/state", this->saveState());
+            layout_settings.setValue("RazixEditor/DockingState", m_DockManager->saveState());
+
+            m_DockManager->savePerspectives(layout_settings);
         }
         // Layout - Action = Restore layout
         void RZEMainWindow::Layout_Restore()
         {
-            QSettings layout_settings;
-            restoreGeometry(layout_settings.value("geometry").toByteArray());
-            auto variant_map = layout_settings.value(TOOL_WINDOW_LAYOUT_STRING_ID).toMap();
-            ui.toolWindowManager->restoreState(variant_map);
+            QSettings layout_settings("RazixEditorSettings.ini", QSettings::IniFormat);
+            restoreGeometry(layout_settings.value("RazixEditor/geometry").toByteArray());
+            restoreState(layout_settings.value("RazixEditor/state").toByteArray());
+            m_DockManager->restoreState(layout_settings.value("RazixEditor/DockingState").toByteArray());
+
+            m_DockManager->loadPerspectives(layout_settings);
         }
         // Layout - Action = Clear layout
         void RZEMainWindow::Layout_Clear()
         {
-            QSettings settings;
-            settings.remove("geometry");
-            settings.remove(TOOL_WINDOW_LAYOUT_STRING_ID);
+            QSettings settings("RazixEditorSettings.ini", QSettings::IniFormat);
+            settings.remove("RazixEditor/geometry");
+            settings.remove("RazixEditor/state");
+            settings.remove("RazixEditor/DockingState");
         }
     }    // namespace Editor
 }    // namespace Razix

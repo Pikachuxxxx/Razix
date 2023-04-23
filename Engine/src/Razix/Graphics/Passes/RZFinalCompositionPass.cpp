@@ -46,7 +46,7 @@ namespace Razix {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
-                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_SwapchainImage, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::SCREEN});
+                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_SwapchainImage, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::SCREEN });
 
                     data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", {FrameGraph::TextureType::Texture_Depth, "Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
 

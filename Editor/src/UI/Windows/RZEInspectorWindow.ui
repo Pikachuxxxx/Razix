@@ -21,19 +21,22 @@
     <number>0</number>
    </property>
    <property name="leftMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <item>
     <widget class="QScrollArea" name="scrollArea">
+     <property name="styleSheet">
+      <string notr="true">background-color: #151515;</string>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -51,8 +54,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>459</width>
-        <height>301</height>
+        <width>469</width>
+        <height>311</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="scrollLayout">
@@ -121,6 +124,9 @@
            </property>
            <property name="text">
             <string>Static</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
            </property>
           </widget>
          </item>

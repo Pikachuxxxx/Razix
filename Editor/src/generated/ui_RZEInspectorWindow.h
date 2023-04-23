@@ -48,16 +48,17 @@ public:
         verticalLayout = new QVBoxLayout(InspectorWindow);
         verticalLayout->setSpacing(0);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        verticalLayout->setContentsMargins(5, 5, 5, 5);
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
         scrollArea = new QScrollArea(InspectorWindow);
         scrollArea->setObjectName(QString::fromUtf8("scrollArea"));
+        scrollArea->setStyleSheet(QString::fromUtf8("background-color: #151515;"));
         scrollArea->setFrameShape(QFrame::NoFrame);
         scrollArea->setFrameShadow(QFrame::Sunken);
         scrollArea->setLineWidth(1);
         scrollArea->setWidgetResizable(true);
         scrollWidget = new QWidget();
         scrollWidget->setObjectName(QString::fromUtf8("scrollWidget"));
-        scrollWidget->setGeometry(QRect(0, 0, 459, 301));
+        scrollWidget->setGeometry(QRect(0, 0, 469, 311));
         scrollLayout = new QVBoxLayout(scrollWidget);
         scrollLayout->setSpacing(5);
         scrollLayout->setObjectName(QString::fromUtf8("scrollLayout"));
@@ -86,6 +87,7 @@ public:
         sizePolicy.setHeightForWidth(IsStatic->sizePolicy().hasHeightForWidth());
         IsStatic->setSizePolicy(sizePolicy);
         IsStatic->setMaximumSize(QSize(50, 25));
+        IsStatic->setChecked(false);
 
         horizontalLayout->addWidget(IsStatic);
 
