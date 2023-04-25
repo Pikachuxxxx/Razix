@@ -87,11 +87,6 @@ public:
             //mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
 
             mainWindow->addDockableWidget(contentBrowserWindow, "Content Browser");
-
-            QFile file(":/rzeditor/styles/ue.qss");
-            file.open(QFile::ReadOnly);
-            QString styleSheet = QLatin1String(file.readAll());
-            qrzeditorApp->setStyleSheet(styleSheet);
         });
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
