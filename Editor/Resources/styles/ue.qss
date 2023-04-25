@@ -40,8 +40,9 @@ QGroupBox{
 
 QFrame {
   background-color: #242424;
-  border-style: transparent;
-  border-width: 0px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #242424;
  }
 
 QGroupBox {
@@ -317,7 +318,7 @@ QTabBar {
       min-width: 60px; }
     QTabBar::tab:left,
     QTabBar::tab:right {
-      min-height: 60px; }
+      min-height: 90px; }
     QTabBar::tab:hover {
       background-color: #242424; }
     QTabBar::tab:selected {

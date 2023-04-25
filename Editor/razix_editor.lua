@@ -35,7 +35,7 @@ project "RazixEditor"
 	-- current configuration, so can you choose to deactivate a module
 	-- for a specific configuration.
 	--
-	qtmodules { "core", "gui", "widgets" }
+	qtmodules { "core", "gui", "widgets", "opengl" }
 
     --
 	-- Setup the prefix of the Qt libraries. Usually it's Qt4 for Qt 4.x
@@ -55,10 +55,10 @@ project "RazixEditor"
     files
     {
         -- C++ source files
-        "src/*.cpp",
-        "src/*.h",
+        "src/**.c",
         "src/**.cpp",
         "src/**.h",
+        "src/**.hpp",
         -- resource files
         "**.ui",
         "**.qrc",
@@ -80,8 +80,6 @@ project "RazixEditor"
         "../Engine/src/Razix",
         "../Engine",
         "../Editor/src",
-        "../Editor/src/Extensions",
-        "../Editor/src/Extensions/QtADS",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -101,7 +99,14 @@ project "RazixEditor"
         -- API related
         "%{VulkanSDK}/Include",
         -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}"
+        "%{InternalIncludeDir.RazixMemory}",
+        -- Extensions
+        "../Editor/src/Extensions",
+        "../Editor/src/Extensions/QtADS",
+       "../Editor/vendor/QtNodes/src/",
+        "../Editor/vendor/QtNodes/include",
+        "../Editor/vendor/QtNodes/include/QtNodes",
+        "../Editor/vendor/QtNodes/include/QtNodes/internal"
     }
 
     includedirs
@@ -128,7 +133,14 @@ project "RazixEditor"
         -- API related
         "%{VulkanSDK}/Include",
         -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}"
+        "%{InternalIncludeDir.RazixMemory}",
+        -- Extensions
+        "../Editor/src/Extensions",
+        "../Editor/src/Extensions/QtADS",
+        "../Editor/vendor/QtNodes/src/",
+        "../Editor/vendor/QtNodes/include",
+        "../Editor/vendor/QtNodes/include/QtNodes",
+        "../Editor/vendor/QtNodes/include/QtNodes/internal"
     }
 
     links
@@ -197,7 +209,10 @@ project "RazixEditor"
            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
            -- Editor 
            "RAZIX_EDITOR",
-           "RAZIX_CONFIG=" .. outputdir
+           "RAZIX_CONFIG=" .. outputdir,
+           "QT_QTPROPERTYBROWSER_IMPORT",
+           -- Editor Vendor
+           "NODE_EDITOR_SHARED"
        }
        -- https://www.qt.io/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt
        -- buildoptions {"/fsanitize=address", "/fno-omit-frame-pointer"}

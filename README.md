@@ -51,7 +51,7 @@ Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Screenshots/Demos
 ![Editor](./Branding/DemoImages/ReleaseNotes/Razix_Engine_Volumetric_Clouds.png)
-![Editor](./Branding/DemoImages/ReleaseNotes/Razix_Editor_CornellBox_Demo.png)
+![Editor](./Branding/DemoImages/ReleaseNotes/Razix_Editor_CornellBox_PBR_demo.png)
 
 # Architecture
 
