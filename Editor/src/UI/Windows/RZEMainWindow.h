@@ -40,7 +40,7 @@ namespace Razix {
                     RZApplication::Get().setAppState(AppState::Closing);
                     event->accept();
                     // Save the layout on close
-                    Layout_Save();
+                    //Layout_Save();
                 }
             }
 
