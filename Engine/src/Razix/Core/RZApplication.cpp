@@ -192,7 +192,8 @@ namespace Razix {
 
         //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
-        Graphics::RHI::OnResize(e.GetWidth(), e.GetHeight());
+        if (Graphics::RHI::GetPointer() != nullptr)
+            Graphics::RHI::OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;

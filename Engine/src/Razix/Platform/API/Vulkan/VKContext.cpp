@@ -87,10 +87,10 @@ namespace Razix {
 
     #ifndef RAZIX_DISTRIBUTION
         #if RZ_PROFILER_OPTICK
-            auto     device         = VKDevice::Get().getDevice();
-            auto     physicalDevice = VKDevice::Get().getGPU();
-            auto     queuefam       = VKDevice::Get().getGraphicsQueue();
-            u32 numQueues      = VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex();
+            auto device         = VKDevice::Get().getDevice();
+            auto physicalDevice = VKDevice::Get().getGPU();
+            auto queuefam       = VKDevice::Get().getGraphicsQueue();
+            u32  numQueues      = VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex();
             OPTICK_GPU_INIT_VULKAN(&device, &physicalDevice, &queuefam, &numQueues, 1, nullptr);
         #endif    // RZ_PROFILER_OPTICK
 
@@ -158,7 +158,7 @@ namespace Razix {
         std::vector<cstr> VKContext::getRequiredExtensions()
         {
             // First we are sending in the list of desired extensions by GLFW to interface with the WPI
-            u32     glfwExtensionsCount = 0;
+            u32   glfwExtensionsCount = 0;
             cstr* glfwExtensions;
             glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
             RAZIX_CORE_TRACE("[Vulkan] GLFW loaded extensions count : {0}", glfwExtensionsCount);
@@ -236,7 +236,8 @@ namespace Razix {
 
         VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
         {
-            
+            return VK_FALSE;
+
     #ifndef RAZIX_DISTRIBUTION
             // Select prefix depending on flags passed to the callback
             // Note that multiple flags may be set for a single validation message

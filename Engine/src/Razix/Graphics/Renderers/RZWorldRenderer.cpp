@@ -66,12 +66,12 @@ namespace Razix {
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
+#if 0
             //-------------------------------
             // Cascaded Shadow Maps x
             //-------------------------------
             m_CascadedShadowsRenderer.Init();
             m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-#if 0
             //-------------------------------
             // GI - Radiance Pass
             //-------------------------------
@@ -108,7 +108,7 @@ namespace Razix {
             //-------------------------------
 
             m_ShadowRenderer.Init();
-            m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            //m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [Test] Omni-Dir Shadow Pass
@@ -128,39 +128,38 @@ namespace Razix {
             //-------------------------------
 
             auto&                frameDataBlock = m_Blackboard.get<FrameData>();
-            const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
+            //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
+            //auto&                shadowData     = m_Blackboard.get<SimpleShadowPassData>();
 
-#if 0
- m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
+#if 1
+            m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputLDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene LDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene LDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA8});
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
 
-                    data.outputLDR = builder.write(data.outputLDR);
+                    data.outputHDR = builder.write(data.outputHDR);
                     data.depth     = builder.write(data.depth);
 
                     builder.read(frameDataBlock.frameData);
 
-                    builder.read(cascades.cascadedShadowMaps);
-
-                    builder.read(shadowData.shadowMap);
-                    builder.read(shadowData.lightVP);
+                    //builder.read(shadowData.shadowMap);
+                    //builder.read(shadowData.lightVP);
 
                     m_ForwardRenderer.Init();
                 },
                 [=](const SceneData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     m_ForwardRenderer.Begin(scene);
 
-                    auto rtLDR = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputLDR).getHandle();
+                    auto rtHDR = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle();
                     auto dt    = resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle();
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {rtLDR, {true, scene->getSceneCamera().getBgColor()}},
+                        {rtHDR, {true, scene->getSceneCamera().getBgColor()}},
                     };
                     info.depthAttachment = {dt, {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
                     info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
@@ -181,6 +180,7 @@ namespace Razix {
 
                         m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer Forward")));
 
+#if 0
                         auto csmTextures = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
                         RZDescriptor csm_descriptor{};
@@ -195,19 +195,20 @@ namespace Razix {
                         shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+#endif
 
-                        m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM + Matrices")));
+                        m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({/*csm_descriptor, shadow_data_descriptor*/} RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM + Matrices")));
 
                         updatedSets = true;
                     }
 
-                    RHI::BeginRendering(Graphics::RHI::getCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
-                    m_ForwardRenderer.Draw(Graphics::RHI::getCurrentCommandBuffer());
+                    m_ForwardRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
                     m_ForwardRenderer.End();
 
-                    Graphics::RHI::Submit(Graphics::RHI::getCurrentCommandBuffer());
+                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
 
                     Graphics::RHI::SubmitWork({}, {});
                 });
@@ -215,13 +216,13 @@ namespace Razix {
             //-------------------------------
             // PBR Pass
             //-------------------------------
-            m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            //m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
             SceneData sceneData = m_Blackboard.get<SceneData>();
 
             //-------------------------------
             // [x] Skybox Pass
             //-------------------------------
-            m_SkyboxPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            //m_SkyboxPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [x] Bloom Pass

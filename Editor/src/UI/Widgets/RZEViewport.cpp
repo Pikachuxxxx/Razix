@@ -14,6 +14,8 @@ namespace Razix {
 
             ui.centralVLayout->addWidget(QWidget::createWindowContainer(m_VulkanViewportWindow));
 
+            setObjectName("Viewport");
+
             // Connections
             connect(m_VulkanViewportWindow, &RZEVulkanWindow::OnEntitySelected, sceneHierarchyPanel, &RZESceneHierarchyPanel::OnEntitySelectedByUser);
         }

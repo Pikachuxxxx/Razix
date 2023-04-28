@@ -23,6 +23,8 @@
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
+#include "RZEFrameGraphEditor.h"
+
 #include "UI/RZEProjectBrowser.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
@@ -40,6 +42,8 @@ Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
 Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
 Razix::Editor::RZEProjectBrowser*       projectBrowserDialog;
 Razix::Editor::RZEMaterialEditor*       materialEditor;
+
+Razix::Editor::RZEFrameGraphEditor* framegraphEditor;
 
 bool didEngineClose = false;
 
@@ -162,10 +166,10 @@ private:
             armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
 #endif
 
-#if 0
+#if 1
             // since Avocado is already there we load Sponza
             auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
-            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Sponza/Sponza.gltf");
+            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/bistro.obj");
 #endif
 
 #if 0
@@ -179,12 +183,6 @@ private:
             lucyModel.AddComponent<Razix::Graphics::RZModel>("//Meshes/lucy.obj");
 #endif
         }
-
-        //auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        //if (!meshEnitties.size()) {
-        //    auto& planeMesh = activeScene->createEntity("CubeMesh");
-        //    planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
-        //}
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             sceneHierarchyPanel->populateHierarchy();
@@ -300,6 +298,14 @@ int main(int argc, char** argv)
     mainWindow->addDockableWidget(viewportWidget, "Viewport");
 
     viewportWidget->resize(1280, 720);
+
+    framegraphEditor = new Razix::Editor::RZEFrameGraphEditor;
+    qrzeditorApp->installEventFilter(framegraphEditor);
+    // Update at 60 fps
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), framegraphEditor, SLOT(update()));
+    timer.start(16);
+    mainWindow->addDockableWidget(QWidget::createWindowContainer(framegraphEditor), "Frame Graph Editor");
 
     // Load the engine DLL and Ignite it on a separate thread
     QThread* qengineThread = new QThread;

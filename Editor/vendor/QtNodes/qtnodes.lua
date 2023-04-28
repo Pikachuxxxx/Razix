@@ -10,8 +10,9 @@ include 'Scripts/premake/extensions/qt/qt.lua'
 local qt = premake.extensions.qt
 
 project "QtNodes"
-    kind "SharedLib"
+    kind "StaticLib"
     language "C++"
+    staticruntime "off"
 
     -- be carefull, this function enables Qt only for the current configuration.
     -- So if you want to enable it on all configuration, be sure that no filter
@@ -56,6 +57,7 @@ project "QtNodes"
         "src/**.cpp",
         "src/**.h",
         "src/**.hpp",
+        --"generated/**.cpp",
         "include/**.c",
         "include/**.cpp",
         "include/**.h",
@@ -123,6 +125,8 @@ project "QtNodes"
        {
            -- Windows / Vidual Studio
            "WIN32_LEAN_AND_MEAN",
+           "WIN32",
+           "_WINDOWS",
            "_CRT_SECURE_NO_WARNINGS",
            "_DISABLE_EXTENDED_ALIGNED_STORAGE",
            "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
@@ -131,7 +135,11 @@ project "QtNodes"
            "QT_QTPROPERTYBROWSER_IMPORT",
            "NODE_EDITOR_SHARED",
            "NODE_EDITOR_EXPORTS",
-           "QT_NO_KEYWORDS"
+           "QT_NO_KEYWORDS",
+           "QT_CORE_LIB",
+           "QT_WIDGETS_LIB",
+           "QT_GUI_LIB",
+           "QT_OPENGL_LIB"
        }
        -- https://www.qt.io/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt
        -- buildoptions {"/fsanitize=address", "/fno-omit-frame-pointer"}

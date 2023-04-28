@@ -167,7 +167,9 @@ vec3 CalculateSpotLightContribution(LightData light, vec3 normal, vec3 viewPos)
 // Main
 void main()
 {   
-    vec3 normal = fs_in.fragNormal;
+    vec3 normal = normalize(fs_in.fragNormal);
+    outSceneColor = vec4(normal, 1.0f);
+    return;
     // transform normal vector to range [-1,1]
     //normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
 
@@ -182,19 +184,18 @@ void main()
         discard;
     //-----------------------------------------------
     // Opacity check
-    outSceneColor = vec4(result, getOpacity(fs_in.fragTexCoord));
-
+    outSceneColor = vec4(normal, getOpacity(fs_in.fragTexCoord));
     //-----------------------------------------------
     // Shadow map calculation
     vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
     float shadow = DirectionalShadowCalculation(FragPosLightSpace, normalize(normal), lightBuffer.data[0].position);
      
-    outSceneColor.rgb *= shadow;
+    //outSceneColor.rgb *= shadow;
 
     //-----------------------------------------------
     // Gamma correction
-    float gamma = 2.2;
-    outSceneColor.rgb = pow(outSceneColor.rgb, vec3(1.0/gamma));
+    //float gamma = 2.2;
+    //outSceneColor.rgb = pow(outSceneColor.rgb, vec3(1.0/gamma));
 
     //-----------------------------------------------
     // Test the CSM at layer 0

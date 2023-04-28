@@ -13,42 +13,6 @@ project "RazixEditor"
     kind "ConsoleApp"
     language "C++"
 
-    -- be carefull, this function enables Qt only for the current configuration.
-    -- So if you want to enable it on all configuration, be sure that no filter
-    -- is active when calling this (or reset the filter using `filter {}`
-    qt.enable()
-
-    -- TODO: use environment variables to set this
-	-- Setup the Qt path. This apply to the current configuration, so
-	-- if you handle x32 and x64, you can specify a different path
-	-- for both configurations.
-	--
-	-- Note that if this is ommited, the addon will try to look for the
-	-- QTDIR environment variable. If it's not found, then the script
-	-- will return an error since it won't be able to find the path
-	-- to your Qt installation.
-	--
-	qtpath "C:/Qt/Qt_msvc_dir/msvc2017_64"
-
-    --
-	-- Setup which Qt modules will be used. This also apply to the
-	-- current configuration, so can you choose to deactivate a module
-	-- for a specific configuration.
-	--
-	qtmodules { "core", "gui", "widgets", "opengl" }
-
-    --
-	-- Setup the prefix of the Qt libraries. Usually it's Qt4 for Qt 4.x
-	-- versions and Qt5 for Qt 5.x ones. Again, this apply to the current
-	-- configuration. So if you want to have a configuration which uses
-	-- Qt4 and one that uses Qt5, you can do it.
-	--
-	qtprefix "Qt5"
-
-    qtbinpath "C:/Qt/Qt_msvc_dir/msvc2017_64/bin"
-
-    qtgenerateddir "%{prj.location}/../Editor/src/generated"
-
     pchheader "rzepch.h"
     pchsource "src/rzepch.cpp"
 
@@ -59,20 +23,29 @@ project "RazixEditor"
         "src/**.cpp",
         "src/**.h",
         "src/**.hpp",
+        "src/**.inl",
         -- resource files
-        "**.ui",
-        "**.qrc",
-        "**.qss",
-        "**.css",
-        "**.rcc",
-        "**.png",
-        "**.ico",
+        "src/**.ui",
+        "src/**.qrc",
+        "src/**.qss",
+        "src/**.css",
+        "src/**.rcc",
+        "src/**.png",
+        "src/**.ico",
+        "Resources/**.ui",
+        "Resources/**.qrc",
+        "Resources/**.qss",
+        "Resources/**.css",
+        "Resources/**.rcc",
+        "Resources/**.png",
+        "Resources/**.ico",
         --"**.svg",
         -- TODO: Add this under windows only
-        "**.rc"
+        "src/**.rc",
+        "Resources/**.rc"
     }
 
-    removefiles { "src/generated/**" }
+    removefiles { "src/generated/**", ""}
 
      -- Macos include paths
     externalincludedirs
@@ -150,6 +123,7 @@ project "RazixEditor"
         -- because of the client log macros this needs to be linked again because we didn't export the spdlog symbols first time
        "glfw",
        "imgui",
+       "ImGui.lib",
        "spdlog",
        "SPIRVReflect",
        "SPIRVCross",
@@ -164,8 +138,46 @@ project "RazixEditor"
 
     libdirs
     {
-        "bin/%{outputdir}/"
+        "bin/%{outputdir}/",
+        "%{root_dir}/bin/%{outputdir}/"
     }
+
+    -- be carefull, this function enables Qt only for the current configuration.
+    -- So if you want to enable it on all configuration, be sure that no filter
+    -- is active when calling this (or reset the filter using `filter {}`
+    qt.enable()
+
+    -- TODO: use environment variables to set this
+	-- Setup the Qt path. This apply to the current configuration, so
+	-- if you handle x32 and x64, you can specify a different path
+	-- for both configurations.
+	--
+	-- Note that if this is ommited, the addon will try to look for the
+	-- QTDIR environment variable. If it's not found, then the script
+	-- will return an error since it won't be able to find the path
+	-- to your Qt installation.
+	--
+	qtpath "C:/Qt/Qt_msvc_dir/msvc2017_64"
+
+    --
+	-- Setup which Qt modules will be used. This also apply to the
+	-- current configuration, so can you choose to deactivate a module
+	-- for a specific configuration.
+	--
+	qtmodules { "core", "gui", "widgets", "opengl" }
+
+    --
+	-- Setup the prefix of the Qt libraries. Usually it's Qt4 for Qt 4.x
+	-- versions and Qt5 for Qt 5.x ones. Again, this apply to the current
+	-- configuration. So if you want to have a configuration which uses
+	-- Qt4 and one that uses Qt5, you can do it.
+	--
+	qtprefix "Qt5"
+
+    qtbinpath "C:/Qt/Qt_msvc_dir/msvc2017_64/bin"
+
+    qtgenerateddir "%{prj.location}/../Editor/src/generated"
+
 
     filter "files:**.ui or **.qrc or **.png or **.ico or **.qss or **.css or **.rcc"
             removeflags "ExcludeFromBuild"
@@ -176,6 +188,11 @@ project "RazixEditor"
     --    buildmessage "converting %{file.relpath} to dds ..."
     --    buildaction "Resource"
     --filter ""
+
+    disablewarnings
+    {
+        "4141"
+    }
 
     -- Disable warning for vendor
    filter { "files:vendor/**"}

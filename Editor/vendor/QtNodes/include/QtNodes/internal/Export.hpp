@@ -1,7 +1,10 @@
 #pragma once
-  
+
 #include "Compiler.hpp"
 #include "OperatingSystem.hpp"
+
+#define NODE_EDITOR_STATIC
+#undef NODE_EDITOR_SHARED
 
 #ifdef NODE_EDITOR_PLATFORM_WINDOWS
     #define NODE_EDITOR_EXPORT __declspec(dllexport)
@@ -25,9 +28,9 @@
 
 #if defined(NODE_EDITOR_SHARED) && !defined(NODE_EDITOR_STATIC)
     #ifdef NODE_EDITOR_EXPORTS
-        #define NODE_EDITOR_PUBLIC NODE_EDITOR_EXPORT Q_DECL_EXPORT
+        #define NODE_EDITOR_PUBLIC NODE_EDITOR_EXPORT
     #else
-        #define NODE_EDITOR_PUBLIC NODE_EDITOR_IMPORT Q_DECL_IMPORT
+        #define NODE_EDITOR_PUBLIC NODE_EDITOR_IMPORT
     #endif
     #define NODE_EDITOR_PRIVATE NODE_EDITOR_LOCAL
 #elif !defined(NODE_EDITOR_SHARED) && defined(NODE_EDITOR_STATIC)

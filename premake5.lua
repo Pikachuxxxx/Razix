@@ -47,6 +47,8 @@ workspace ( settings.workspace_name )
 
     -- Output directory path based on build config
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+    -- Complete locatoin
+    workspace_location = "%{wks.location}"
     -- Binaries Output directory
     targetdir ("bin/%{outputdir}/")
     -- Intermediate files Output directory
@@ -101,6 +103,11 @@ workspace ( settings.workspace_name )
         --require("Tools/vendor/ATF/Framework/Atf.IronPython/premake5")
         --require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
     group ""
+
+    -- Razix Editor Vendor dependencies
+    --group "Dependencies/Editor"
+    --    include "Editor/vendor/QtNodes/qtnodes.lua"
+    --group ""
 
     -- Build Script for Razix Engine (Internal)
     --------------------------------------------------------------------------------

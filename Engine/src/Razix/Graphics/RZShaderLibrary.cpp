@@ -27,31 +27,31 @@ namespace Razix {
             loadShader("//RazixContent/Shaders/Razix/Shader.Builtin.ProceduralSkybox.rzsf");
             //-------------------------------------------------------------------
             // Renderer related shaders
-            loadShader("//RazixContent/Shaders/Razix/grid.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/grid.rzsf");
             loadShader("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
             loadShader("//RazixContent/Shaders/Razix/imgui.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/sprite.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/sprite_textured.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/sprite.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/sprite_textured.rzsf");
             //-------------------------------------------------------------------
             // Frame Graph Pass Shaders
             // Composite Pass
             loadShader("//RazixContent/Shaders/Razix/composite_pass.rzsf");
             //-------------------------------------------------------------------
             // Lighting
-            loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
             loadShader("//RazixContent/Shaders/Razix/shadow_mapping.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/RSM.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/lpv_radiance_injection.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/RSM.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/lpv_radiance_injection.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
             loadShader("//RazixContent/Shaders/Razix/pbr_lighting.rzsf");
             loadShader("//RazixContent/Shaders/Razix/pbr_ibl_lighting.rzsf");
             //-------------------------------------------------------------------
             // Post Processing FX
-            loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/bloom_downsample.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/bloom_mix.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/bloom_downsample.rzsf");
+            //loadShader("//RazixContent/Shaders/Razix/bloom_mix.rzsf");
             //-------------------------------------------------------------------
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap
