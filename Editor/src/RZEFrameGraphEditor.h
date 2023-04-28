@@ -13,9 +13,6 @@ class QOpenGLContext;
 class QOpenGLPaintDevice;
 QT_END_NAMESPACE
 
-
-
-
 namespace Razix {
     namespace Editor {
         class RZEFrameGraphEditor : public QOpenGLWindow, private QOpenGLExtraFunctions
@@ -31,7 +28,6 @@ namespace Razix {
             void paintGL() override;
 
         private:
-
         };
     }    // namespace Editor
 }    // namespace Razix

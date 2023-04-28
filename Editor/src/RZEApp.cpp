@@ -299,6 +299,7 @@ int main(int argc, char** argv)
 
     viewportWidget->resize(1280, 720);
 
+#if 0
     framegraphEditor = new Razix::Editor::RZEFrameGraphEditor;
     qrzeditorApp->installEventFilter(framegraphEditor);
     // Update at 60 fps
@@ -306,6 +307,7 @@ int main(int argc, char** argv)
     QObject::connect(&timer, SIGNAL(timeout()), framegraphEditor, SLOT(update()));
     timer.start(16);
     mainWindow->addDockableWidget(QWidget::createWindowContainer(framegraphEditor), "Frame Graph Editor");
+#endif
 
     // Load the engine DLL and Ignite it on a separate thread
     QThread* qengineThread = new QThread;
