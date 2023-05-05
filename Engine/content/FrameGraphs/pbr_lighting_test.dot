@@ -4,10 +4,11 @@ node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
 
 P0 [label=<{ {<B>Frame Data Upload</B>} | {&#x2605; Refs: 1<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
 P1 [label=<{ {<B>Scene Lights Data Upload</B>} | {&#x2605; Refs: 1<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
-P2 [label=<{ {<B>Forward Lighting Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 2} }> style="rounded,filled", fillcolor=orange]
-P3 [label=<{ {<B>Debug Pass</B>} | {&#x2605; Refs: 0<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
-P4 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
-P5 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
+P2 [label=<{ {<B>Simple Shadow map pass</B>} | {&#x2605; Refs: 2<BR/> Index: 2} }> style="rounded,filled", fillcolor=orange]
+P3 [label=<{ {<B>Forward Lighting Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
+P4 [label=<{ {<B>Debug Pass</B>} | {&#x2605; Refs: 0<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
+P5 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
+P6 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 6} }> style="rounded,filled", fillcolor=orange]
 
 R0_1 [label=<{ {<B>BRDF lut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
 R1_1 [label=<{ {<B>Noise Texture</B><BR/>(128, 128) - RGBA8 [2D]} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
@@ -16,37 +17,42 @@ R3_1 [label=<{ {<B>Diffuse Irradiance</B><BR/>(32, 32) - RGBA32F [CubeMap]} | {I
 R4_1 [label=<{ {<B>Specular PreFiltered</B><BR/>(128, 128) - RGBA32F [CubeMap]} | {Index: 4<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
 R5_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 5<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
 R6_1 [label=<{ {<B>Scene Lights Data</B><BR/>size : 10256 bytes} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R7_1 [label=<{ {<B>Scene HDR color</B><BR/>(1892, 16) - RGBA32F [RT]} | {Index: 7<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
-R8_1 [label=<{ {<B>Scene Depth</B><BR/>(1892, 16) - DEPTH [Depth]} | {Index: 8<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
-R9_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R7_2 [label=<{ {<B>Scene HDR color</B>   <FONT>v2</FONT><BR/>(1892, 16) - RGBA32F [RT]} | {Index: 7<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R10_1 [label=<{ {<B>Present Image</B><BR/>(1892, 16) - Presentation [Swapchain Image]} | {Index: 10<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R11_1 [label=<{ {<B>Depth Texture</B><BR/>(1892, 16) - DEPTH [Depth]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R13_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 13<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R7_1 [label=<{ {<B>Shadow map</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R8_1 [label=<{ {<B>LightSpaceMatrix</B><BR/>size : 64 bytes} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R9_1 [label=<{ {<B>Scene HDR color</B><BR/>(1892, 16) - RGBA32F [RT]} | {Index: 9<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
+R10_1 [label=<{ {<B>Scene Depth</B><BR/>(1892, 16) - DEPTH [Depth]} | {Index: 10<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
+R11_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R9_2 [label=<{ {<B>Scene HDR color</B>   <FONT>v2</FONT><BR/>(1892, 16) - RGBA32F [RT]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Present Image</B><BR/>(1892, 16) - Presentation [Swapchain Image]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R13_1 [label=<{ {<B>Depth Texture</B><BR/>(1892, 16) - DEPTH [Depth]} | {Index: 13<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R14_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 14<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R15_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 15<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R5_1 } [color=orangered]
 P1 -> { R6_1 } [color=orangered]
 P2 -> { R7_1 R8_1 } [color=orangered]
-P3 -> { } [color=orangered]
-P4 -> { R7_2 R9_1 } [color=orangered]
-P5 -> { R10_1 R11_1 R12_1 R13_1 } [color=orangered]
+P3 -> { R9_1 R10_1 } [color=orangered]
+P4 -> { } [color=orangered]
+P5 -> { R9_2 R11_1 } [color=orangered]
+P6 -> { R12_1 R13_1 R14_1 R15_1 } [color=orangered]
 
 R0_1 -> { } [color=olivedrab3]
 R1_1 -> { } [color=olivedrab3]
 R2_1 -> { } [color=olivedrab3]
 R3_1 -> { } [color=olivedrab3]
 R4_1 -> { } [color=olivedrab3]
-R5_1 -> { P2 P3 } [color=olivedrab3]
+R5_1 -> { P3 P4 } [color=olivedrab3]
 R6_1 -> { } [color=olivedrab3]
-R7_1 -> { P3 P4 } [color=olivedrab3]
-R8_1 -> { P3 P4 } [color=olivedrab3]
-R9_1 -> { P5 } [color=olivedrab3]
-R7_2 -> { P5 } [color=olivedrab3]
-R10_1 -> { } [color=olivedrab3]
-R11_1 -> { } [color=olivedrab3]
+R7_1 -> { } [color=olivedrab3]
+R8_1 -> { } [color=olivedrab3]
+R9_1 -> { P4 P5 } [color=olivedrab3]
+R10_1 -> { P4 P5 } [color=olivedrab3]
+R11_1 -> { P6 } [color=olivedrab3]
+R9_2 -> { P6 } [color=olivedrab3]
 R12_1 -> { } [color=olivedrab3]
 R13_1 -> { } [color=olivedrab3]
+R14_1 -> { } [color=olivedrab3]
+R15_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
 P0 R5_1 
@@ -58,13 +64,16 @@ subgraph cluster_2 {
 P2 R7_1 R8_1 
 }
 subgraph cluster_3 {
-P3 
+P3 R9_1 R10_1 
 }
 subgraph cluster_4 {
-P4 R9_1 
+P4 
 }
 subgraph cluster_5 {
-P5 R10_1 R11_1 R12_1 R13_1 
+P5 R11_1 
+}
+subgraph cluster_6 {
+P6 R12_1 R13_1 R14_1 R15_1 
 }
 
 subgraph cluster_imported_resources {

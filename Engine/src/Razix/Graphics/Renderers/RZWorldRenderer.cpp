@@ -72,7 +72,6 @@ namespace Razix {
             //-------------------------------
             m_CascadedShadowsRenderer.Init();
             m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-#if 0
             //-------------------------------
             // GI - Radiance Pass
             //-------------------------------
@@ -109,7 +108,7 @@ namespace Razix {
             //-------------------------------
 
             m_ShadowRenderer.Init();
-            //m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [Test] Omni-Dir Shadow Pass
@@ -128,12 +127,12 @@ namespace Razix {
             // [Test] Forward Lighting Pass
             //-------------------------------
 
-            auto&                frameDataBlock = m_Blackboard.get<FrameData>();
+            auto& frameDataBlock = m_Blackboard.get<FrameData>();
             //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
             //auto&                shadowData     = m_Blackboard.get<SimpleShadowPassData>();
 
 #if 1
- m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
+            m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
@@ -181,7 +180,7 @@ namespace Razix {
 
                         m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer Forward")));
 
-#if 0
+    #if 0
                         auto csmTextures = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
                         RZDescriptor csm_descriptor{};
@@ -196,9 +195,9 @@ namespace Razix {
                         shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
-#endif
+    #endif
 
-                        m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({/*csm_descriptor, shadow_data_descriptor*/} RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM + Matrices")));
+                        m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({ /*csm_descriptor, shadow_data_descriptor*/ } RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM + Matrices")));
 
                         updatedSets = true;
                     }
@@ -217,7 +216,7 @@ namespace Razix {
             //-------------------------------
             // PBR Pass
             //-------------------------------
-            m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            //m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
             SceneData sceneData = m_Blackboard.get<SceneData>();
 
             //-------------------------------
