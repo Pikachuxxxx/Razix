@@ -133,7 +133,8 @@ project "RazixEditor"
        "optick",
        "tracy",
        -- Internal
-       "RazixMemory"
+       "RazixMemory",
+       "QtNodes.lib"
     }
 
     libdirs

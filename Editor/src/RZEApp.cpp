@@ -299,14 +299,14 @@ int main(int argc, char** argv)
 
     viewportWidget->resize(1280, 720);
 
-#if 0
+#if 1
     framegraphEditor = new Razix::Editor::RZEFrameGraphEditor;
-    qrzeditorApp->installEventFilter(framegraphEditor);
-    // Update at 60 fps
-    QTimer timer;
-    QObject::connect(&timer, SIGNAL(timeout()), framegraphEditor, SLOT(update()));
-    timer.start(16);
-    mainWindow->addDockableWidget(QWidget::createWindowContainer(framegraphEditor), "Frame Graph Editor");
+    //qrzeditorApp->installEventFilter(framegraphEditor);
+    //// Update at 60 fps
+    //QTimer timer;
+    //QObject::connect(&timer, SIGNAL(timeout()), framegraphEditor, SLOT(update()));
+    //timer.start(16);
+    mainWindow->addDockableWidget(framegraphEditor->view, "Frame Graph Editor");
 #endif
 
     // Load the engine DLL and Ignite it on a separate thread
