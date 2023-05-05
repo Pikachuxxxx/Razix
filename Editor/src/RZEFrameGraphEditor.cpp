@@ -8,6 +8,7 @@ namespace Razix {
 
         RZEFrameGraphEditor::RZEFrameGraphEditor()
         {
+            m_NodeGraphWidget = new NodeGraphWidget;
         }
 
     }    // namespace Editor

@@ -23,7 +23,7 @@ public:
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
         Razix::Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
-        RAZIX_CORE_INFO("Initializing Graphics Context...");
+        RAZIX_CORE_INFO("Initializing Graphics Context..."); 
         Razix::Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
     }
@@ -33,12 +33,12 @@ public:
     void OnStart() override
     {
         // Add some model entities
-#if 0
+#if 1
         auto& modelEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
-        if (modelEnitties.size() == 1) {
+        if (!modelEnitties.size()) {
             // since Avocado is already there we load Sponza
             auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
-            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Sponza/Sponza.gltf");
+            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/bistro.obj");
         }
 #endif
 

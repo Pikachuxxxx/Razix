@@ -169,7 +169,7 @@ namespace Razix {
                     mesh->getMaterial()->Bind();
 
                     // Combine System Desc sets with material sets and Bind them
-                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet, m_CSMSet};
+                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet/*, m_CSMSet*/};
                     Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                     Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
@@ -204,7 +204,7 @@ namespace Razix {
                 mrc.Mesh->getMaterial()->Bind();
 
                 // Combine System Desc sets with material sets and Bind them
-                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet, m_CSMSet};
+                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet/*, m_CSMSet*/};
                 Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);

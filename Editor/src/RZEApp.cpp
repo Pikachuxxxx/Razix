@@ -23,6 +23,8 @@
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
+#include "RZEFrameGraphEditor.h"
+
 #include "UI/RZEProjectBrowser.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
@@ -40,6 +42,8 @@ Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
 Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
 Razix::Editor::RZEProjectBrowser*       projectBrowserDialog;
 Razix::Editor::RZEMaterialEditor*       materialEditor;
+
+Razix::Editor::RZEFrameGraphEditor* framegraphEditor;
 
 bool didEngineClose = false;
 
@@ -300,6 +304,11 @@ int main(int argc, char** argv)
     mainWindow->addDockableWidget(viewportWidget, "Viewport");
 
     viewportWidget->resize(1280, 720);
+
+#if 1
+    framegraphEditor = new Razix::Editor::RZEFrameGraphEditor;
+    mainWindow->addDockableWidget(framegraphEditor->getWidget(), "Frame Graph Editor");
+#endif
 
     // Load the engine DLL and Ignite it on a separate thread
     QThread* qengineThread = new QThread;

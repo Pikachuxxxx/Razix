@@ -47,6 +47,8 @@ workspace ( settings.workspace_name )
 
     -- Output directory path based on build config
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+    -- Complete locatoin
+    workspace_location = "%{wks.location}"
     -- Binaries Output directory
     targetdir ("bin/%{outputdir}/")
     -- Intermediate files Output directory
@@ -102,6 +104,11 @@ workspace ( settings.workspace_name )
         --require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
     group ""
 
+    -- Razix Editor Vendor dependencies
+    --group "Dependencies/Editor"
+    --    include "Editor/vendor/QtNodes/qtnodes.lua"
+    --group ""
+
     -- Build Script for Razix Engine (Internal)
     --------------------------------------------------------------------------------
     group "Engine/internal"
@@ -119,6 +126,11 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     group "Editor"
         include "Editor/razix_editor.lua"
+    group ""
+
+    -- in-house extension libraries for Razix Editor
+    group "Editor/internal"
+        include "Editor/internal/QtNodeGraph/QtNodeGraph_razix.lua"
     group ""
 
     --------------------------------------------------------------------------------

@@ -19,7 +19,7 @@ namespace Razix {
         {
             ui.setupUi(this);
 
-            setObjectName(this->windowTitle());
+            setObjectName("Material Editor");
 
             // Connections
             connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_DiffuseTextureSelect()));

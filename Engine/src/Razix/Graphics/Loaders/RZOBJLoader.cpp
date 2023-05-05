@@ -77,9 +77,10 @@ namespace Razix {
                     Graphics::RZVertex vertex;
 
                     // Tex coords
-                    if (!attrib.texcoords.empty())
+                    if (!attrib.texcoords.empty()) {
+                        if (index.texcoord_index > 0)
                         vertex.TexCoords = (glm::vec2(attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]));
-                    else
+                    } else
                         vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 
                     // Positions
@@ -121,47 +122,47 @@ namespace Razix {
 
                 MaterialTextures textures{};
 
-                if (shape.mesh.material_ids[0] >= 0) {
-                    tinyobj::material_t* mp = &materials[shape.mesh.material_ids[0]];
+                //if (shape.mesh.material_ids[0] >= 0) {
+                //    tinyobj::material_t* mp = &materials[shape.mesh.material_ids[0]];
 
-                    if (mp->diffuse_texname.length() > 0) {
-                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Albedo", m_Textures, mp->diffuse_texname, m_Directory);
-                        if (texture)
-                            textures.albedo = texture;
-                    }
+                //    if (mp->diffuse_texname.length() > 0) {
+                //        Graphics::RZTexture2D* texture = LoadMaterialTextures("Albedo", m_Textures, mp->diffuse_texname, m_Directory);
+                //        if (texture)
+                //            textures.albedo = texture;
+                //    }
 
-                    if (mp->bump_texname.length() > 0) {
-                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Normal", m_Textures, mp->bump_texname, m_Directory);
-                        if (texture)
-                            textures.normal = texture;    //pbrMaterial->SetNormalMap(texture);
-                    }
+                //    if (mp->bump_texname.length() > 0) {
+                //        Graphics::RZTexture2D* texture = LoadMaterialTextures("Normal", m_Textures, mp->bump_texname, m_Directory);
+                //        if (texture)
+                //            textures.normal = texture;    //pbrMaterial->SetNormalMap(texture);
+                //    }
 
-                    if (mp->roughness_texname.length() > 0) {
-                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Roughness", m_Textures, mp->roughness_texname.c_str(), m_Directory);
-                        if (texture)
-                            textures.roughness = texture;
-                    }
+                //    if (mp->roughness_texname.length() > 0) {
+                //        Graphics::RZTexture2D* texture = LoadMaterialTextures("Roughness", m_Textures, mp->roughness_texname.c_str(), m_Directory);
+                //        if (texture)
+                //            textures.roughness = texture;
+                //    }
 
-                    if (mp->metallic_texname.length() > 0) {
-                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Metallic", m_Textures, mp->metallic_texname, m_Directory);
-                        if (texture)
-                            textures.metallic = texture;
-                    }
+                //    if (mp->metallic_texname.length() > 0) {
+                //        Graphics::RZTexture2D* texture = LoadMaterialTextures("Metallic", m_Textures, mp->metallic_texname, m_Directory);
+                //        if (texture)
+                //            textures.metallic = texture;
+                //    }
 
-                    if (mp->specular_highlight_texname.length() > 0) {
-                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Specular", m_Textures, mp->specular_texname, m_Directory);
-                        if (texture)
-                            textures.specular = texture;
-                    }
+                //    if (mp->specular_highlight_texname.length() > 0) {
+                //        Graphics::RZTexture2D* texture = LoadMaterialTextures("Specular", m_Textures, mp->specular_texname, m_Directory);
+                //        if (texture)
+                //            textures.specular = texture;
+                //    }
 
-                    if (mp->emissive_texname.length() > 0) {
-                        Graphics::RZTexture2D* texture = LoadMaterialTextures("Emissive", m_Textures, mp->emissive_texname, m_Directory);
-                        if (texture)
-                            textures.emissive = texture;
-                    }
-                }
+                //    if (mp->emissive_texname.length() > 0) {
+                //        Graphics::RZTexture2D* texture = LoadMaterialTextures("Emissive", m_Textures, mp->emissive_texname, m_Directory);
+                //        if (texture)
+                //            textures.emissive = texture;
+                //    }
+                //}
 
-                forwardRendererMaterial->setTextures(textures);
+                //forwardRendererMaterial->setTextures(textures);
                 forwardRendererMaterial->createDescriptorSet();
 
                 // Create the meshes
@@ -175,7 +176,7 @@ namespace Razix {
                 layout.push<glm::vec3>("Tangent");
                 vb->AddBufferLayout(layout);
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(name)  indices, numIndices);
+                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(name) indices, numIndices);
 
                 RZMesh* mesh = new RZMesh(vb, ib, numVertices, numIndices);
                 mesh->setIndexCount(numIndices);

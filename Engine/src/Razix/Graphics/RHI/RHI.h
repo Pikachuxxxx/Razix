@@ -55,7 +55,8 @@ namespace Razix {
             static void Create(u32 width, u32 height);
             static void Release();
 
-            static RHI& Get() { return *s_APIInstance; }
+            static RHI&       Get() { return *s_APIInstance; }
+            static const RHI* GetPointer() { return s_APIInstance; }
 
             /* Initializes the API renderer with the resources it needs */
             RAZIX_FORCE_INLINE static void Init()

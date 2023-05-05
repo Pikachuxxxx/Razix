@@ -291,11 +291,11 @@ namespace Razix {
                     int                  bufferLength = static_cast<int>(indexAccessor.count) * componentLength * componentTypeByteSize;
                     auto                 first        = indexBuffer.data.begin() + bufferOffset;
                     auto                 last         = indexBuffer.data.begin() + bufferOffset + bufferLength;
-                    std::vector<u8> data         = std::vector<u8>(first, last);
+                    std::vector<u32> data         = std::vector<u32>(first, last);
 
                     sz indicesCount = indexAccessor.count;
                     if (componentTypeByteSize == 2) {
-                        u16* in = reinterpret_cast<u16*>(data.data());
+                        u32* in = reinterpret_cast<u32*>(data.data());
                         for (auto iCount = 0; iCount < indicesCount; iCount++) {
                             indices[iCount] = (u32) in[iCount];
                         }
