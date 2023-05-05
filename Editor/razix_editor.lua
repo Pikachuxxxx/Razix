@@ -53,6 +53,8 @@ project "RazixEditor"
         "../Engine/src/Razix",
         "../Engine",
         "../Editor/src",
+        "../Editor/internal",
+        "../Editor/internal/QtNodeGraph/src",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -87,6 +89,8 @@ project "RazixEditor"
         "../Engine/src/Razix",
         "../Engine",
         "../Editor/src",
+        "../Editor/internal",
+        "../Editor/internal/QtNodeGraph/src",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -134,7 +138,7 @@ project "RazixEditor"
        "tracy",
        -- Internal
        "RazixMemory",
-       "QtNodes.lib"
+       "QtNodeGraph"
     }
 
     libdirs

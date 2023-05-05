@@ -301,12 +301,7 @@ int main(int argc, char** argv)
 
 #if 1
     framegraphEditor = new Razix::Editor::RZEFrameGraphEditor;
-    //qrzeditorApp->installEventFilter(framegraphEditor);
-    //// Update at 60 fps
-    //QTimer timer;
-    //QObject::connect(&timer, SIGNAL(timeout()), framegraphEditor, SLOT(update()));
-    //timer.start(16);
-    mainWindow->addDockableWidget(framegraphEditor->view, "Frame Graph Editor");
+    mainWindow->addDockableWidget(framegraphEditor->getWidget(), "Frame Graph Editor");
 #endif
 
     // Load the engine DLL and Ignite it on a separate thread

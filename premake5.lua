@@ -128,6 +128,11 @@ workspace ( settings.workspace_name )
         include "Editor/razix_editor.lua"
     group ""
 
+    -- in-house extension libraries for Razix Editor
+    group "Editor/internal"
+        include "Editor/internal/QtNodeGraph/QtNodeGraph_razix.lua"
+    group ""
+
     --------------------------------------------------------------------------------
     -- Build script for Sandbox
     group "Sandbox"
