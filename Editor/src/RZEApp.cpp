@@ -166,10 +166,10 @@ private:
             armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
 #endif
 
-#if 1
+#if 0
             // since Avocado is already there we load Sponza
             auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
-            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/bistro.obj");
+            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Sponza/Sponza.gltf");
 #endif
 
 #if 0
@@ -183,6 +183,12 @@ private:
             lucyModel.AddComponent<Razix::Graphics::RZModel>("//Meshes/lucy.obj");
 #endif
         }
+
+        //auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        //if (!meshEnitties.size()) {
+        //    auto& planeMesh = activeScene->createEntity("CubeMesh");
+        //    planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
+        //}
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             sceneHierarchyPanel->populateHierarchy();

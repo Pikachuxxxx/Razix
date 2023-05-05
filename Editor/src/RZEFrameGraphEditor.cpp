@@ -10,5 +10,6 @@ namespace Razix {
         {
             m_NodeGraphWidget = new NodeGraphWidget;
         }
+
     }    // namespace Editor
 }    // namespace Razix

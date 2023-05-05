@@ -237,7 +237,7 @@ namespace Razix {
         VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
         {
             return VK_FALSE;
-
+            
     #ifndef RAZIX_DISTRIBUTION
             // Select prefix depending on flags passed to the callback
             // Note that multiple flags may be set for a single validation message

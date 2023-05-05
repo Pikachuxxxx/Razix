@@ -72,6 +72,7 @@ namespace Razix {
             //-------------------------------
             m_CascadedShadowsRenderer.Init();
             m_CascadedShadowsRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+#if 0
             //-------------------------------
             // GI - Radiance Pass
             //-------------------------------
@@ -132,7 +133,7 @@ namespace Razix {
             //auto&                shadowData     = m_Blackboard.get<SimpleShadowPassData>();
 
 #if 1
-            m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
+ m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
@@ -216,7 +217,7 @@ namespace Razix {
             //-------------------------------
             // PBR Pass
             //-------------------------------
-            //m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
             SceneData sceneData = m_Blackboard.get<SceneData>();
 
             //-------------------------------

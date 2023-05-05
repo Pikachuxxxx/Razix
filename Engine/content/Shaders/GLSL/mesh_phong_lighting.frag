@@ -184,7 +184,8 @@ void main()
         discard;
     //-----------------------------------------------
     // Opacity check
-    outSceneColor = vec4(normal, getOpacity(fs_in.fragTexCoord));
+    outSceneColor = vec4(result, getOpacity(fs_in.fragTexCoord));
+
     //-----------------------------------------------
     // Shadow map calculation
     vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
