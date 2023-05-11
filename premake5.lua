@@ -142,8 +142,8 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     -- Engine related tools
     group "Tools"
-            -- Razix CodeEditor project
-            include "Tools/RazixCodeEditor/razix_tool_code_editor.lua"
+            -- [Deprecated] Razix CodeEditor project
+            --include "Tools/RazixCodeEditor/razix_tool_code_editor.lua"
     group ""
 
     group "Tools/Build"

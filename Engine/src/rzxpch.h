@@ -32,6 +32,8 @@
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZProfiling.h"
 #include "Razix/Core/RZRoot.h"
+#include "internal/RazixMemory/include/RZMemory.h"
+
 
 //-----3rd Party-----//
 // Profilers
