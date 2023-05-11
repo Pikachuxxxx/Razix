@@ -1,8 +1,11 @@
 #pragma once
 
-#include "internal/RazixMemory/include/Allocators/RZAllocators.h"
+#include "internal/RazixMemory/include/RZAllocators.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
+
+#define Mib(x) x * 1024 * 1024
+#define Kib(x) x * 1024
 
 namespace Razix {
 
