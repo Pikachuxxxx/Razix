@@ -251,7 +251,7 @@ namespace Razix {
                         sz     uvCount = accessor.count;
                         glm::vec2* uvs     = reinterpret_cast<glm::vec2*>(data.data());
                         for (auto p = 0; p < uvCount; ++p) {
-                            vertices[p].TexCoords = uvs[p];
+                            vertices[p].UV = uvs[p];
                         }
                     }
 

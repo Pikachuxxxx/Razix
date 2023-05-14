@@ -1,8 +1,6 @@
 #pragma once
 
-#include <glm/fwd.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
+#include "Razix/Graphics/RZVertexFormat.h"
 
 namespace Razix {
     namespace Graphics {
@@ -13,42 +11,18 @@ namespace Razix {
         class RZCommandBuffer;
 
         /**
-         * Simple vertex encapsulates the minimum amount of data needed for rendering a simple mesh
-         */
-        struct RAZIX_API RZSimpleVertex
-        {
-            glm::vec4 Position;
-            glm::vec2 TexCoords;
-        };
-
-        /**
-         * Razix Engine vertex data format that will be used to render complex 3D meshes and models 
-         */
-        struct RAZIX_API RZVertex
-        {
-            glm::vec3 Position;
-            glm::vec4 Color;
-            glm::vec2 TexCoords;
-            glm::vec3 Normal;
-            glm::vec3 Tangent;
-
-            RZVertex()
-                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), TexCoords(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)) {}
-
-            bool operator==(const RZVertex& other) const
-            {
-                return Position == other.Position && TexCoords == other.TexCoords && Color == other.Color && Normal == other.Normal && Tangent == other.Tangent;
-            }
-        };
-
-        /**
          * The submesh that will be drawn as a part of actual mesh, this gives info to draw part of the VB & IB
          */
+#if 0
         struct RAZIX_API RZSubMesh
         {
-            u32 vertexOffset;
-            u32 indexOffset;
+            u32         vertexCount;
+            u32         vertexOffset;
+            u32         indexCount;
+            u32         indexOffset;
+            RZMaterial* material;
         };
+#endif
 
         /**
          * Mesh represents the cluster of vertex and index data which is essentially the building block of a 3D Model which will be rendered onto a scene in one draw call
@@ -109,6 +83,8 @@ namespace Razix {
             RZIndexBuffer*        m_IndexBuffer;  /* The Index Buffer that will be uploaded to the GPU      */
             u32                   m_IndexCount;   /* Total indices count of the mesh                        */
             u32                   m_VertexCount;  /* Total vertices count of the mesh                       */
+            glm::vec3             m_MinExtents;
+            glm::vec3             m_MaxExtents;
         };
 
     }    // namespace Graphics
@@ -120,7 +96,7 @@ namespace std {
     {
         sz operator()(Razix::Graphics::RZVertex const& vertex) const
         {
-            return ((hash<glm::vec3>()(vertex.Position) ^ (hash<glm::vec2>()(vertex.TexCoords) << 1) ^ (hash<glm::vec4>()(vertex.Color) << 1) ^ (hash<glm::vec3>()(vertex.Normal) << 1) ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
+            return ((hash<glm::vec3>()(vertex.Position) ^ (hash<glm::vec2>()(vertex.UV) << 1) ^ (hash<glm::vec4>()(vertex.Color) << 1) ^ (hash<glm::vec3>()(vertex.Normal) << 1) ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
         }
     };
 }    // namespace std

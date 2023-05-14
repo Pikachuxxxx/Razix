@@ -79,9 +79,9 @@ namespace Razix {
                     // Tex coords
                     if (!attrib.texcoords.empty()) {
                         if (index.texcoord_index > 0)
-                        vertex.TexCoords = (glm::vec2(attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]));
+                        vertex.UV = (glm::vec2(attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]));
                     } else
-                        vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+                        vertex.UV = glm::vec2(0.0f, 0.0f);
 
                     // Positions
                     vertex.Position = glm::vec3(attrib.vertices[3 * index.vertex_index + 0], attrib.vertices[3 * index.vertex_index + 1], attrib.vertices[3 * index.vertex_index + 2]);

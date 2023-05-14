@@ -106,22 +106,22 @@ namespace Razix {
 
                 data[0].Position  = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
                 data[0].Color     = color;
-                data[0].TexCoords = glm::vec2(0.0f, 0.0f);
+                data[0].UV = glm::vec2(0.0f, 0.0f);
                 data[0].Normal    = normal;
 
                 data[1].Position  = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
                 data[1].Color     = color;
-                data[1].TexCoords = glm::vec2(0.0f, 1.0f);
+                data[1].UV = glm::vec2(0.0f, 1.0f);
                 data[1].Normal    = normal;
 
                 data[2].Position  = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
                 data[2].Color     = color;
-                data[2].TexCoords = glm::vec2(1.0f, 1.0f);
+                data[2].UV = glm::vec2(1.0f, 1.0f);
                 data[2].Normal    = normal;
 
                 data[3].Position  = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
                 data[3].Color     = color;
-                data[3].TexCoords = glm::vec2(1.0f, 0.0f);
+                data[3].UV = glm::vec2(1.0f, 0.0f);
                 data[3].Normal    = normal;
 
                 RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Plane"));
@@ -190,7 +190,7 @@ namespace Razix {
 
                 data[7].Position  = glm::vec3(1.0f, 1.0f, -1.0f);
                 data[7].Color     = glm::vec4(0.0f);
-                data[7].TexCoords = glm::vec2(0.0f, 1.0f);
+                data[7].UV = glm::vec2(0.0f, 1.0f);
                 data[7].Normal    = glm::vec3(1.0f, 0.0f, 0.0f);
 
                 data[8].Position = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -203,7 +203,7 @@ namespace Razix {
 
                 data[10].Position  = glm::vec3(-1.0f, 1.0f, -1.0f);
                 data[10].Color     = glm::vec4(0.0f);
-                data[10].TexCoords = glm::vec2(0.0f, 1.0f);
+                data[10].UV = glm::vec2(0.0f, 1.0f);
                 data[10].Normal    = glm::vec3(0.0f, 1.0f, 0.0f);
 
                 data[11].Position = glm::vec3(-1.0f, 1.0f, 1.0f);
@@ -259,10 +259,10 @@ namespace Razix {
                 data[23].Normal   = glm::vec3(0.0f, 0.0f, -1.0f);
 
                 for (int i = 0; i < 6; i++) {
-                    data[i * 4 + 0].TexCoords = glm::vec2(0.0f, 0.0f);
-                    data[i * 4 + 1].TexCoords = glm::vec2(1.0f, 0.0f);
-                    data[i * 4 + 2].TexCoords = glm::vec2(1.0f, 1.0f);
-                    data[i * 4 + 3].TexCoords = glm::vec2(0.0f, 1.0f);
+                    data[i * 4 + 0].UV = glm::vec2(0.0f, 0.0f);
+                    data[i * 4 + 1].UV = glm::vec2(1.0f, 0.0f);
+                    data[i * 4 + 2].UV = glm::vec2(1.0f, 1.0f);
+                    data[i * 4 + 3].UV = glm::vec2(0.0f, 1.0f);
                 }
 
                 RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Cube"));
@@ -312,7 +312,7 @@ namespace Razix {
 
                         Graphics::RZVertex vertex;
                         vertex.Position  = glm::vec3(x, y, z);
-                        vertex.TexCoords = glm::vec2(s, t);
+                        vertex.UV = glm::vec2(s, t);
                         vertex.Normal    = glm::normalize(glm::vec3(x, y, z));
 
                         data.emplace_back(vertex);

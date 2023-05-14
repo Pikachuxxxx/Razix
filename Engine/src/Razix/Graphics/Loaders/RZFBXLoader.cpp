@@ -224,7 +224,7 @@ namespace Razix {
                     if (normals)
                         vertex.Normal = glm::vec3(f32(normals[i].x), f32(normals[i].y), f32(normals[i].z));
                     if (uvs)
-                        vertex.TexCoords = glm::vec2(f32(uvs[i].x), 1.0f - f32(uvs[i].y));
+                        vertex.UV = glm::vec2(f32(uvs[i].x), 1.0f - f32(uvs[i].y));
                     if (colours)
                         vertex.Color = glm::vec4(f32(colours[i].x), f32(colours[i].y), f32(colours[i].z), f32(colours[i].w));
                     //if (tangents)
