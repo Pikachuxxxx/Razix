@@ -1,6 +1,8 @@
 -- Configuration settings
 include 'Scripts/premake/common/premake-config.lua'
 
+include 'Scripts/premake/common/tool_includes.lua'
+
 -- System overrides to support PS4/PS5/PS3 and XBOX ONE/X/SERIES X and other hardware systems
 include 'Scripts/premake/extensions/system-overides.lua'
 
@@ -20,6 +22,12 @@ print("Generating Engine Config File...")
 config_file = io.open( root_dir .. "/Engine/content/config/razix_engine.config", "w+")
 io.output(config_file)
 io.write("installation_dir=" .. root_dir)
+run_as_admin = "runas /user:administrator"
+set_env = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. " /m"
+set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m"
+-- Set some Razix SDK env variables
+os.execute(set_env)
+os.execute(set_env_tools)
 
 -- Using the command line to get the selected architecture
 Arch = ""
@@ -104,10 +112,10 @@ workspace ( settings.workspace_name )
         --require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
     group ""
 
-    -- Razix Editor Vendor dependencies
-    --group "Dependencies/Editor"
-    --    include "Editor/vendor/QtNodes/qtnodes.lua"
-    --group ""
+    -- Razix Tools Vendor dependencies
+    group "Dependencies/Tools"
+        include "Tools/RazixAssetPacker/vendor/assimp/assimp.lua"
+    group ""
 
     -- Build Script for Razix Engine (Internal)
     --------------------------------------------------------------------------------
@@ -142,15 +150,18 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     -- Engine related tools
     group "Tools"
-            -- [Deprecated] Razix CodeEditor project
-            --include "Tools/RazixCodeEditor/razix_tool_code_editor.lua"
+        include "Tools/RazixAssetPacker/razix_tool_asset_packer.lua"
     group ""
 
+    group "Tools/CLI"
+        include "Tools/RazixAssetPacker/razix_tool_asset_packer_cli.lua"
+    group""
+
     group "Tools/Build"
-            -- premake scripts Utility project for in IDE management
-            include "Tools/Building/premake/premake_regenerate_proj_files.lua"
-            -- Gets the version of the Engine for Build workflows
-            include "Tools/Building/RazixVersion/razix_tool_version.lua"
+        -- premake scripts Utility project for in IDE management
+        include "Tools/Building/premake/premake_regenerate_proj_files.lua"
+        -- Gets the version of the Engine for Build workflows
+        include "Tools/Building/RazixVersion/razix_tool_version.lua"
     group ""
 
     -- Razix Engine Samples and Tests

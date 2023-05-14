@@ -68,6 +68,17 @@ namespace Razix {
             QTreeWidgetItem* Entity = new QTreeWidgetItem;
             Entity->setText(0, nameComponent.Tag.c_str());
             ui.sceneTree->addTopLevelItem(Entity);
+#ifdef ENABLE_CHILD_TEST
+            QTreeWidgetItem* ChildEntity = new QTreeWidgetItem;
+            ChildEntity->setText(0, "Child_0");
+            Entity->addChild(ChildEntity);
+            QTreeWidgetItem* child_2 = new QTreeWidgetItem;
+            child_2->setText(0, "Child_1");
+            Entity->addChild(child_2);
+            QTreeWidgetItem* ChildChildEntity = new QTreeWidgetItem;
+            ChildChildEntity->setText(0, "Child_Child_0");
+            ChildEntity->addChild(ChildChildEntity);
+#endif
             // Set the entity as metadata, this way we don't have to search the registry when we select one from the list
             QVariant entityVariant = QVariant::fromValue<RZEntity>(entity);
             Entity->setData(0, Qt::UserRole, entityVariant);

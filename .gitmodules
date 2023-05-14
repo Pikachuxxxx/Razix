@@ -7,3 +7,6 @@
 [submodule "Editor/internal/QtNodeGraph"]
 	path = Editor/internal/QtNodeGraph
 	url = https://github.com/Pikachuxxxx/QtNodeGraph.git
+[submodule "Tools/RazixAssetPacker"]
+	path = Tools/RazixAssetPacker
+	url = https://github.com/Pikachuxxxx/RazixAssetPacker.git

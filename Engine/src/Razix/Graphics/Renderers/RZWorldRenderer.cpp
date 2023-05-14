@@ -129,9 +129,9 @@ namespace Razix {
 
             auto& frameDataBlock = m_Blackboard.get<FrameData>();
             //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
-            //auto&                shadowData     = m_Blackboard.get<SimpleShadowPassData>();
+            auto&                shadowData     = m_Blackboard.get<SimpleShadowPassData>();
 
-#if 1
+#if 0
             m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
@@ -216,13 +216,13 @@ namespace Razix {
             //-------------------------------
             // PBR Pass
             //-------------------------------
-            //m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            m_PBRLightingPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
             SceneData sceneData = m_Blackboard.get<SceneData>();
 
             //-------------------------------
             // [x] Skybox Pass
             //-------------------------------
-            //m_SkyboxPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            m_SkyboxPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [x] Bloom Pass

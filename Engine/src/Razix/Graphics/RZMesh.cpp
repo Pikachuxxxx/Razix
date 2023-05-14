@@ -56,7 +56,7 @@ namespace Razix {
                 newIndexCount,    // total new indices (not faces)
                 (m_Vertices.data()),
                 (sz) m_Vertices.size(),       // total vertices (not vertex attribute values)
-                sizeof(Graphics::RZVertex)    // vertex stride
+                sizeof(Graphics::RZVertex)    // vertex stride 
             );
 
             RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", indexCount, m_Vertices.size(), newIndexCount, newVertexCount);
@@ -141,7 +141,7 @@ namespace Razix {
                     int b = indices[i + 1];
                     int c = indices[i + 2];
 
-                    const glm::vec3 tangent = GenerateTangent(vertices[a].Position, vertices[b].Position, vertices[c].Position, vertices[a].TexCoords, vertices[b].TexCoords, vertices[c].TexCoords);
+                    const glm::vec3 tangent = GenerateTangent(vertices[a].Position, vertices[b].Position, vertices[c].Position, vertices[a].UV, vertices[b].UV, vertices[c].UV);
 
                     tangents[a] += tangent;
                     tangents[b] += tangent;
@@ -149,7 +149,7 @@ namespace Razix {
                 }
             } else {
                 for (u32 i = 0; i < vertexCount; i += 3) {
-                    const glm::vec3 tangent = GenerateTangent(vertices[i].Position, vertices[i + 1].Position, vertices[i + 2].Position, vertices[i].TexCoords, vertices[i + 1].TexCoords, vertices[i + 2].TexCoords);
+                    const glm::vec3 tangent = GenerateTangent(vertices[i].Position, vertices[i + 1].Position, vertices[i + 2].Position, vertices[i].UV, vertices[i + 1].UV, vertices[i + 2].UV);
 
                     tangents[i] += tangent;
                     tangents[i + 1] += tangent;

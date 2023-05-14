@@ -2,6 +2,8 @@
 include 'Scripts/premake/common/vendor_includes.lua'
 -- Internal libraies include dirs
 include 'Scripts/premake/common/internal_includes.lua'
+-- Razix Tools includes
+include 'Scripts/premake/common/tool_includes.lua'
 -- QT support for premake and VS
 include 'Scripts/premake/extensions/qt/qt.lua'
 
@@ -75,10 +77,12 @@ project "RazixEditor"
         "%{VulkanSDK}/Include",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
+        -- Tools Include Dirs
+        "%{ToolIncludeDir.RazixAssetPacker}",
         -- Extensions
         "../Editor/src/Extensions",
         "../Editor/src/Extensions/QtADS",
-       "../Editor/vendor/QtNodes/src/",
+        "../Editor/vendor/QtNodes/src/",
         "../Editor/vendor/QtNodes/include",
         "../Editor/vendor/QtNodes/include/QtNodes",
         "../Editor/vendor/QtNodes/include/QtNodes/internal"
@@ -111,6 +115,8 @@ project "RazixEditor"
         "%{VulkanSDK}/Include",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
+        -- Tools Include Dirs
+        "%{ToolIncludeDir.RazixAssetPacker}",
         -- Extensions
         "../Editor/src/Extensions",
         "../Editor/src/Extensions/QtADS",
@@ -138,7 +144,9 @@ project "RazixEditor"
        "tracy",
        -- Internal
        "RazixMemory",
-       "QtNodeGraph"
+       "QtNodeGraph",
+       -- Razix Tools
+       "RazixAssetPacker"
     }
 
     libdirs
