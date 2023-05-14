@@ -20,6 +20,12 @@ print("Generating Engine Config File...")
 config_file = io.open( root_dir .. "/Engine/content/config/razix_engine.config", "w+")
 io.output(config_file)
 io.write("installation_dir=" .. root_dir)
+run_as_admin = "runas /user:administrator"
+set_env = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. " /m"
+set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m"
+-- Set some Razix SDK env variables
+os.execute(set_env)
+os.execute(set_env_tools)
 
 -- Using the command line to get the selected architecture
 Arch = ""
