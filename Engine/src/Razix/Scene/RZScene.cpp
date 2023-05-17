@@ -48,7 +48,6 @@ namespace Razix {
     {
         auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
 
-        return;
         // Get the list of entities and their transform component together
         auto& group = m_Registry.group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
         for (auto entity: group) {

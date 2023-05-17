@@ -374,7 +374,7 @@ namespace Razix {
             emit OnEntityAddedToScene();
         }
 
-        static void CreateEntityHierarchy(const Razix::Tool::AssetPacker::Node* parentNode, Razix::RZEntity& parentEntity)
+        static void CreateEntityHierarchy(const Razix::Tool::AssetPacker::Node* parentNode, Razix::RZEntity& parentEntity, const std::string& rootMeshName)
         {
             for (size_t i = 0; i < parentNode->numChildren; i++) {
                 auto childNode                                                    = parentNode->children[i];
@@ -384,7 +384,14 @@ namespace Razix {
                 auto& hc                                                          = childEntity.AddComponent<Razix::HierarchyComponent>(parentEntity);
                 hc.OnConstruct(scene->getRegistry(), childEntity);
 
-                CreateEntityHierarchy(&childNode, childEntity);
+                // Add a Mesh Renderer / Skinned Mesh Renderer component as needed
+                if (std::string(childNode.nodeType) == "$MESH") {
+                    std::string meshFilePath = "//Assets/Meshes/" + rootMeshName + "/" + childNode.name + ".rzmesh";
+                    childEntity.AddComponent<MeshRendererComponent>(meshFilePath);
+                }
+
+                if (childNode.numChildren)
+                    CreateEntityHierarchy(&childNode, childEntity, rootMeshName);
             }
         }
 
@@ -398,9 +405,9 @@ namespace Razix {
                 // Mesh import options
                 Razix::Tool::AssetPacker::MeshImportOptions import_options{};
 
-                Razix::Tool::AssetPacker::MeshImporter importer;
+                Razix::Tool::AssetPacker::MeshImporter* importer = new Razix::Tool::AssetPacker::MeshImporter;
 
-                bool result = importer.importMesh(fileName.toStdString().c_str(), import_result, import_options);
+                bool result = importer->importMesh(fileName.toStdString().c_str(), import_result, import_options);
                 if (!result) {
                     RAZIX_ERROR("[ERROR!] Mesh Import failed for file {0}", fileName.toStdString());
                     return;
@@ -418,17 +425,19 @@ namespace Razix {
                 }
 
                 // Create the Hierarchy, pass the stuff to engine and emit a signal to re-paint the scene hierarchy panel
-                auto rootNode = importer.getRootNode();
+                auto rootNode = importer->getRootNode();
                 // Add the root node first
                 auto rootEntity                                                  = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity(rootNode->name);
                 rootEntity.GetComponent<Razix::TransformComponent>().Translation = rootNode->translation;
                 auto& hc                                                         = rootEntity.AddComponent<Razix::HierarchyComponent>();
                 hc.OnConstruct(RZEngine::Get().getSceneManager().getCurrentScene()->getRegistry(), rootEntity);
 
-                CreateEntityHierarchy(rootNode, rootEntity);
+                CreateEntityHierarchy(rootNode, rootEntity, std::string(rootNode->name));
 
                 // update scene hierarchy panel
                 emit OnEntityAddedToScene();
+
+                delete importer;
             }
         }
 
