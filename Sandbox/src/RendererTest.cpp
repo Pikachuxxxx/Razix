@@ -1,8 +1,8 @@
 #if 1
-#pragma once
-#include <Razix.h>
+    #pragma once
+    #include <Razix.h>
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+    #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 class RendererTest : public Razix::RZApplication
 {
@@ -23,7 +23,7 @@ public:
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
         Razix::Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
-        RAZIX_CORE_INFO("Initializing Graphics Context..."); 
+        RAZIX_CORE_INFO("Initializing Graphics Context...");
         Razix::Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
     }
@@ -33,20 +33,24 @@ public:
     void OnStart() override
     {
         // Add some model entities
-#if 1
+    #if 0
         auto& modelEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
         if (!modelEnitties.size()) {
             // since Avocado is already there we load Sponza
             auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
             spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/bistro.obj");
         }
-#endif
+    #endif
+
+        auto& testMeshEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Test rzMesh");
+        testMeshEntity.AddComponent<Razix::MeshRendererComponent>("//Meshes/scene/Mesh.rzmesh");
 
         // Add a directional light for test
         auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
             auto& directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
             directionalLightEntity.AddComponent<Razix::LightComponent>();
+            directionalLightEntity.GetComponent<Razix::LightComponent>().light.setDirection(glm::vec3(1.0f));
         }
 
         auto scripts = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LuaScriptComponent>();
@@ -73,7 +77,6 @@ public:
 
     void OnResize(uint32_t width, uint32_t height) override
     {
-        
     }
 };
 

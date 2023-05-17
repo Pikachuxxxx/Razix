@@ -6,13 +6,26 @@
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Graphics/RZModel.h"
 
+#include "Razix/Graphics/RZMeshLoader.h"
+
 namespace Razix {
 
     MeshRendererComponent::MeshRendererComponent()
-        : Mesh(nullptr) {}
+        : Mesh(nullptr)
+    {
+    }
     MeshRendererComponent::MeshRendererComponent(Graphics::MeshPrimitive primitive)
-        : Mesh(Graphics::MeshFactory::CreatePrimitive(primitive)), primitive(primitive) {}
+        : Mesh(Graphics::MeshFactory::CreatePrimitive(primitive)), primitive(primitive)
+    {
+    }
     MeshRendererComponent::MeshRendererComponent(Graphics::RZMesh* mesh)
-        : Mesh(mesh) {}
+        : Mesh(mesh)
+    {
+    }
+
+    MeshRendererComponent::MeshRendererComponent(const std::string& filePath)
+    {
+        Mesh = Razix::Graphics::loadMesh(filePath);
+    }
 
 }    // namespace Razix

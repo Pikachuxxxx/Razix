@@ -335,7 +335,7 @@ namespace Razix {
 
                 for (auto& mesh: meshes) {
                     auto subname = node.name;
-                    mesh->setName(subname);
+                    mesh->setName(subname.c_str());
 
                     int materialIndex = model.meshes[node.mesh].primitives[subIndex].material;
                     if (materialIndex >= 0) {

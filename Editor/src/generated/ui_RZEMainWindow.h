@@ -192,7 +192,6 @@ public:
         menuComponent->addAction(actionLight);
         menuComponent->addAction(actionLuaScript);
         menuComponent->addAction(actionMeshRenderer);
-        menuComponent->addAction(actionModel_2);
         menuComponent->addAction(actionSpriteRenderer);
         menuPrimitive->addAction(actionPlane);
         menuPrimitive->addAction(actionCube);

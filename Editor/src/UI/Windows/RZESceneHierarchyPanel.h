@@ -25,7 +25,7 @@ namespace Razix {
             ~RZESceneHierarchyPanel();
 
             void populateHierarchy();
-            void drawEntityNode(RZEntity& entity);
+            void drawEntityNode(RZEntity& entity, RZScene* scene, entt::registry& registry, QTreeWidgetItem* parentItem);
 
             void keyPressEvent(QKeyEvent* event)
             {

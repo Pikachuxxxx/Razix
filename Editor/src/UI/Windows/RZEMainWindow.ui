@@ -62,7 +62,6 @@
      <addaction name="actionLight"/>
      <addaction name="actionLuaScript"/>
      <addaction name="actionMeshRenderer"/>
-     <addaction name="actionModel_2"/>
      <addaction name="actionSpriteRenderer"/>
     </widget>
     <widget class="QMenu" name="menuPrimitive">
