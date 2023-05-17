@@ -44,6 +44,8 @@ namespace Razix {
                 }
             }
 
+            void setProjectPathDir(const std::string& path) { m_ProjectPathDir = path; }
+
         signals:
             void OnEntityAddedToScene();
 
@@ -80,6 +82,8 @@ namespace Razix {
             // Windows
             RZEWorldRendererSettingsWindow* m_WorldSettingsWindow;
 
+            std::string m_ProjectPathDir;
+
         private:
             void SetupToolBars();
             // Toolbar settings
@@ -96,6 +100,8 @@ namespace Razix {
             void SetupCreateMenuCommands();
             // Create - Action = create Entity
             void Create_Entity();
+            // Create - Import - Model - Action = Import a model file from the disk
+            void Create_Import_Model();
             //------------------------------
             // Menu - Windows
             void SetupWindowsCommands();

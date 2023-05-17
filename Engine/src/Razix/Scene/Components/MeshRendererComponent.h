@@ -21,6 +21,7 @@ namespace Razix {
         Graphics::MeshPrimitive primitive;
 
         MeshRendererComponent();
+        MeshRendererComponent(const std::string& filePath);
         MeshRendererComponent(Graphics::MeshPrimitive primitive);
         MeshRendererComponent(Graphics::RZMesh* mesh);
         MeshRendererComponent(const MeshRendererComponent&) = default;
@@ -34,15 +35,20 @@ namespace Razix {
             Mesh      = Graphics::MeshFactory::CreatePrimitive(primitive);
             std::string meshName;
             archive(cereal::make_nvp("MeshName", meshName));
-            Mesh->setName(meshName);
+            //Mesh->setName(meshName);
+            std::string meshPath;
+            archive(cereal::make_nvp("Path", meshPath));
+            //Mesh->setPath(meshPath);
         }
 
         template<class Archive>
         void save(Archive& archive) const
         {
             archive(cereal::make_nvp("Primitive", primitive));
-            if (Mesh)
+            if (Mesh) {
                 archive(cereal::make_nvp("MeshName", Mesh->getName()));
+                archive(cereal::make_nvp("Path", Mesh->getPath()));
+            }
         }
     };
 

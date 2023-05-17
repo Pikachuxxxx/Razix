@@ -157,38 +157,14 @@ private:
             directionalLightEntity.AddComponent<Razix::LightComponent>();
         }
 
-        // Add some model entities
-        auto& modelEnitties = activeScene->GetComponentsOfType<Graphics::RZModel>();
-        if (!modelEnitties.size()) {
-#if 0
-            // Avocado
-            auto& armadilloModelEntity = activeScene->createEntity("Avocado");
-            armadilloModelEntity.AddComponent<Graphics::RZModel>("//Meshes/Avocado.gltf");
-#endif
+        auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        if (!meshEnitties.size()) {
+            auto& planeMesh = activeScene->createEntity("CubeMesh");
+            planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
 
-#if 0
-            // since Avocado is already there we load Sponza
-            auto& spoznaModelEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sponza");
-            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/Sponza/Sponza.gltf");
-#endif
-
-#if 0
-            // Add a Chinese dragon to the scene
-            auto& dragonEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Dragon");
-            dragonEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/chinesedragon.gltf");
-#endif
-
-#if 0
-           auto& lucyModel = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Lucy");
-            lucyModel.AddComponent<Razix::Graphics::RZModel>("//Meshes/lucy.obj");
-#endif
+            auto& testMeshEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Test rzMesh");
+            testMeshEntity.AddComponent<Razix::MeshRendererComponent>("//Meshes/scene/Mesh.rzmesh");
         }
-
-        //auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        //if (!meshEnitties.size()) {
-        //    auto& planeMesh = activeScene->createEntity("CubeMesh");
-        //    planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
-        //}
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             sceneHierarchyPanel->populateHierarchy();
@@ -257,6 +233,7 @@ int main(int argc, char** argv)
     mainWindow->resize(1280, 720);
     mainWindow->setWindowState(Qt::WindowMaximized);
     //mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    mainWindow->setProjectPathDir(projectBrowserDialog->getProjectPath());
 
     // Init the Windows
     materialEditor = new Razix::Editor::RZEMaterialEditor;

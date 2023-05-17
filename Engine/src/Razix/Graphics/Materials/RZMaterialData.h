@@ -30,7 +30,7 @@ namespace Razix {
             //bool      _padding_[4]        = {1, 0, 1, 0};
             f32 emissiveIntensity   = 1.0f;
             f32 metallicColor       = 1.0f;
-            f32 roughnessColor      = 0.0f;
+            f32 roughnessColor      = 0.025f;
             f32 specularColor       = 1.0f;
             f32 opacity             = 1.0f;
             f32 ambientOcclusion    = 1.0f;
@@ -58,90 +58,69 @@ namespace Razix {
             void Destroy();
         };
 
-#if 0
- struct MaterialData
+        struct MaterialTexturePaths
         {
-            MaterialProperties m_MaterialProperties;
-            MaterialTextures   m_MaterialTextures;
+            std::string albedo    = "";
+            std::string normal    = "";
+            std::string metallic  = "";
+            std::string roughness = "";
+            std::string specular  = "";
+            std::string emissive  = "";
+            std::string ao        = "";
+        };
+
+#if 1
+        struct MaterialData
+        {
+            std::string          m_Name;
+            MaterialProperties   m_MaterialProperties;
+            MaterialTexturePaths m_MaterialTextures;
 
             template<typename Archive>
             void save(Archive& archive) const
             {
-                std::string shaderPath = "";
-
-                if (m_Shader) {
-                    std::string path = m_Shader->getPath() + m_Shader->GetName();
-                    RZVirtualFileSystem::Get().absolutePathToVFS(path, shaderPath);
-                }
-
-    #if 0
-                archive(cereal::make_nvp("Albedo", m_MaterialTextures.albedo ? m_MaterialTextures.albedo->getPath() : ""),
-                    cereal::make_nvp("Normal", m_MaterialTextures.normal ? m_MaterialTextures.normal->getPath() : ""),
-                    cereal::make_nvp("Metallic", m_MaterialTextures.metallic ? m_MaterialTextures.metallic->getPath() : ""),
-                    cereal::make_nvp("Roughness", m_MaterialTextures.roughness ? m_MaterialTextures.roughness->getPath() : ""),
-                    cereal::make_nvp("Ao", m_MaterialTextures.ao ? m_MaterialTextures.ao->getPath() : ""),
-                    cereal::make_nvp("Emissive", m_MaterialTextures.emissive ? m_MaterialTextures.emissive->getPath() : ""),
-                    cereal::make_nvp("albedoColor", m_MaterialProperties->albedoColor),
-                    cereal::make_nvp("roughnessColor", m_MaterialProperties->roughnessColor),
-                    cereal::make_nvp("metallicColor", m_MaterialProperties->metallicColor),
-                    cereal::make_nvp("emissiveColor", m_MaterialProperties->emissiveColor),
-                    cereal::make_nvp("isUsingAlbedoMap", m_MaterialProperties->isUsingAlbedoMap),
-                    cereal::make_nvp("isUsingMetallicMap", m_MaterialProperties->isUsingMetallicMap),
-                    cereal::make_nvp("isUsingRoughnessMap", m_MaterialProperties->isUsingRoughnessMap),
-                    cereal::make_nvp("isUsingNormalMap", m_MaterialProperties->isUsingNormalMap),
-                    cereal::make_nvp("isUsingAOMap", m_MaterialProperties->isUsingAOMap),
-                    cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties->isUsingEmissiveMap),
-                    cereal::make_nvp("workflow", m_MaterialProperties->workflow),
-                    cereal::make_nvp("shader", shaderPath));
+    #if 1
+                archive(cereal::make_nvp("Name", m_Name),
+                    cereal::make_nvp("Albedo", m_MaterialTextures.albedo ? m_MaterialTextures.albedo : ""),
+                    cereal::make_nvp("Normal", m_MaterialTextures.normal ? m_MaterialTextures.normal : ""),
+                    cereal::make_nvp("Metallic", m_MaterialTextures.metallic ? m_MaterialTextures.metallic : ""),
+                    cereal::make_nvp("Roughness", m_MaterialTextures.roughness ? m_MaterialTextures.roughness : ""),
+                    cereal::make_nvp("Ao", m_MaterialTextures.ao ? m_MaterialTextures.ao : ""),
+                    cereal::make_nvp("Emissive", m_MaterialTextures.emissive ? m_MaterialTextures.emissive : ""),
+                    cereal::make_nvp("albedoColor", m_MaterialProperties.albedoColor),
+                    cereal::make_nvp("roughnessColor", m_MaterialProperties.roughnessColor),
+                    cereal::make_nvp("metallicColor", m_MaterialProperties.metallicColor),
+                    cereal::make_nvp("emissiveColor", m_MaterialProperties.emissiveIntensity),
+                    cereal::make_nvp("isUsingAlbedoMap", m_MaterialProperties.isUsingAlbedoMap),
+                    cereal::make_nvp("isUsingMetallicMap", m_MaterialProperties.isUsingMetallicMap),
+                    cereal::make_nvp("isUsingRoughnessMap", m_MaterialProperties.isUsingRoughnessMap),
+                    cereal::make_nvp("isUsingNormalMap", m_MaterialProperties.isUsingNormalMap),
+                    cereal::make_nvp("isUsingAOMap", m_MaterialProperties.isUsingAOMap),
+                    cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties.isUsingEmissiveMap));
     #endif
             }
 
             template<typename Archive>
             void load(Archive& archive)
             {
-                std::string albedoFilePath;
-                std::string normalFilePath;
-                std::string roughnessFilePath;
-                std::string metallicFilePath;
-                std::string emissiveFilePath;
-                std::string aoFilePath;
-                std::string shaderFilePath;
-
-    #if 0
-                archive(cereal::make_nvp("Albedo", albedoFilePath),
-                    cereal::make_nvp("Normal", normalFilePath),
-                    cereal::make_nvp("Metallic", metallicFilePath),
-                    cereal::make_nvp("Roughness", roughnessFilePath),
-                    cereal::make_nvp("Ao", aoFilePath),
-                    cereal::make_nvp("Emissive", emissiveFilePath),
-                    cereal::make_nvp("albedoColor", m_MaterialProperties->albedoColor),
-                    cereal::make_nvp("roughnessColor", m_MaterialProperties->roughnessColor),
-                    cereal::make_nvp("metallicColor", m_MaterialProperties->metallicColor),
-                    cereal::make_nvp("emissiveColor", m_MaterialProperties->emissiveColor),
-                    cereal::make_nvp("isUsingAlbedoMap", m_MaterialProperties->isUsingAlbedoMap),
-                    cereal::make_nvp("isUsingMetallicMap", m_MaterialProperties->isUsingMetallicMap),
-                    cereal::make_nvp("isUsingRoughnessMap", m_MaterialProperties->isUsingRoughnessMap),
-                    cereal::make_nvp("isUsingNormalMap", m_MaterialProperties->isUsingNormalMap),
-                    cereal::make_nvp("isUsingAOMap", m_MaterialProperties->isUsingAOMap),
-                    cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties->isUsingEmissiveMap),
-                    cereal::make_nvp("workflow", m_MaterialProperties->workflow),
-                    cereal::make_nvp("shader", shaderFilePath));
-
-                if (!shaderFilePath.empty())
-                    loadShader(shaderFilePath);
-
-                if (!albedoFilePath.empty())
-                    m_MaterialTextures.albedo = (Graphics::Texture2D::CreateFromFile("albedo", albedoFilePath));
-                if (!normalFilePath.empty())
-                    m_MaterialTextures.normal = (Graphics::Texture2D::CreateFromFile("roughness", normalFilePath));
-                if (!metallicFilePath.empty())
-                    m_MaterialTextures.metallic = (Graphics::Texture2D::CreateFromFile("metallic", metallicFilePath));
-                if (!roughnessFilePath.empty())
-                    m_MaterialTextures.roughness = (Graphics::Texture2D::CreateFromFile("roughness", roughnessFilePath));
-                if (!emissiveFilePath.empty())
-                    m_MaterialTextures.emissive = (Graphics::Texture2D::CreateFromFile("emissive", emissiveFilePath));
-                if (!aoFilePath.empty())
-                    m_MaterialTextures.ao = (Graphics::Texture2D::CreateFromFile("ao", aoFilePath));
+    #if 1
+                archive(cereal::make_nvp("Name", m_Name),
+                    cereal::make_nvp("Albedo", m_MaterialTextures.albedo),
+                    cereal::make_nvp("Normal", m_MaterialTextures.normal),
+                    cereal::make_nvp("Metallic", m_MaterialTextures.metallic),
+                    cereal::make_nvp("Roughness", m_MaterialTextures.roughness),
+                    cereal::make_nvp("Ao", m_MaterialTextures.ao),
+                    cereal::make_nvp("Emissive", m_MaterialTextures.emissive),
+                    cereal::make_nvp("albedoColor", m_MaterialProperties.albedoColor),
+                    cereal::make_nvp("roughnessColor", m_MaterialProperties.roughnessColor),
+                    cereal::make_nvp("metallicColor", m_MaterialProperties.metallicColor),
+                    cereal::make_nvp("emissiveColor", m_MaterialProperties.emissiveIntensity),
+                    cereal::make_nvp("isUsingAlbedoMap", m_MaterialProperties.isUsingAlbedoMap),
+                    cereal::make_nvp("isUsingMetallicMap", m_MaterialProperties.isUsingMetallicMap),
+                    cereal::make_nvp("isUsingRoughnessMap", m_MaterialProperties.isUsingRoughnessMap),
+                    cereal::make_nvp("isUsingNormalMap", m_MaterialProperties.isUsingNormalMap),
+                    cereal::make_nvp("isUsingAOMap", m_MaterialProperties.isUsingAOMap),
+                    cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties.isUsingEmissiveMap));
     #endif
             }
         };

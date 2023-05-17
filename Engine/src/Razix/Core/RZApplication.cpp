@@ -60,7 +60,7 @@ namespace Razix {
         // Set the Application root path and Load the project settings
         //const std::string& razixRoot = RZEngine::Get().getEngineInstallationDir();    // RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
         // Path to the Project path (*.razixproject)
-        m_ProjectFilePath = projectRoot;
+        m_ProjectFilePath = projectRoot + "/";
         m_ProjectName     = appName;
         RAZIX_CORE_TRACE("Project file path : {0}", m_ProjectFilePath);
 

@@ -61,7 +61,8 @@ namespace Razix {
             void Destroy();
 
             RAZIX_INLINE const std::string& getName() const { return m_Name; }
-            RAZIX_INLINE void               setName(const std::string& name) { m_Name = name; }
+            RAZIX_INLINE void               setName(const char* name) { m_Name = std::string(name); }
+            RAZIX_INLINE void               setName(std::string name) { strcpy(&m_Name[0], name.c_str()); }
 
             RAZIX_INLINE RZMaterial* getMaterial() { return m_Material; }
             RAZIX_INLINE void        setMaterial(RZMaterial* mat) { m_Material = mat; }
@@ -74,6 +75,24 @@ namespace Razix {
             void setIndexCount(u32 count) { m_IndexCount = count; }
             void setVertexCount(u32 count) { m_VertexCount = count; }
 
+            RAZIX_INLINE glm::vec3 getMaxExtents() { return m_MaxExtents; }
+            RAZIX_INLINE void      setMaxExtents(glm::vec3 extents) { m_MaxExtents = extents; }
+            RAZIX_INLINE glm::vec3 getMinExtents() { return m_MinExtents; }
+            RAZIX_INLINE void      setMinExtents(glm::vec3 extents) { m_MinExtents = extents; }
+
+            RAZIX_INLINE glm::vec3 getModelMaxExtents() { return m_ModelMaxExtents; }
+            RAZIX_INLINE void      setModelMaxExtents(glm::vec3 extents) { m_ModelMaxExtents = extents; }
+            RAZIX_INLINE glm::vec3 getModelMinExtents() { return m_ModelMinExtents; }
+            RAZIX_INLINE void      setModelMinExtents(glm::vec3 extents) { m_ModelMinExtents = extents; }
+
+            u32  getBaseIndex() { return m_BaseIndex; }
+            u32  getBaseVertex() { return m_BaseVertex; }
+            void setBaseIndex(u32 count) { m_BaseIndex = count; }
+            void setBaseVertex(u32 count) { m_BaseVertex = count; }
+
+            std::string getPath() { return m_MeshPath; }
+            void        setPath(std::string path) { m_MeshPath = path; }
+
         private:
             std::string           m_Name;         /* The name of the mesh                                   */
             RZMaterial*           m_Material;     /* The material with which the mesh will be rendered with */
@@ -85,6 +104,11 @@ namespace Razix {
             u32                   m_VertexCount;  /* Total vertices count of the mesh                       */
             glm::vec3             m_MinExtents;
             glm::vec3             m_MaxExtents;
+            glm::vec3             m_ModelMaxExtents;
+            glm::vec3             m_ModelMinExtents;
+            u32                   m_BaseIndex  = 0;
+            u32                   m_BaseVertex = 0;
+            std::string           m_MeshPath;
         };
 
     }    // namespace Graphics

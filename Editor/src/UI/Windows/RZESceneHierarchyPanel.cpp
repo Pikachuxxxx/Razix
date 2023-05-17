@@ -55,33 +55,52 @@ namespace Razix {
                 if (registry.valid(entity)) {
                     auto hierarchyComponent = registry.try_get<HierarchyComponent>(entity);
                     if (!hierarchyComponent || hierarchyComponent->Parent == entt::null) {
-                        drawEntityNode(RZEntity(entity, scene));
+                        QTreeWidgetItem* rootItem      = new QTreeWidgetItem;
+                        //const auto&      nameComponent = RZEntity(entity, scene).GetComponent<TagComponent>();
+                        auto             name          = registry.get<TagComponent>(entity).Tag;
+                        rootItem->setText(0, name.c_str());
+                        // Set the entity as metadata, this way we don't have to search the registry when we select one from the list
+                        QVariant entityVariant = QVariant::fromValue<RZEntity>(RZEntity(entity, scene));
+                        rootItem->setData(0, Qt::UserRole, entityVariant);
+
+                        ui.sceneTree->addTopLevelItem(rootItem);
+
+                        drawEntityNode(RZEntity(entity, scene), scene, registry, rootItem);
                     }
                 }
             });
         }
 
-        void RZESceneHierarchyPanel::drawEntityNode(RZEntity& entity)
+        void RZESceneHierarchyPanel::drawEntityNode(RZEntity& parentEntity, RZScene* scene, entt::registry& registry, QTreeWidgetItem* parentItem)
         {
-            const auto& nameComponent = entity.GetComponent<TagComponent>();
+            auto hierarchyComponent = registry.try_get<HierarchyComponent>(parentEntity);
+            bool noChildren         = true;
 
-            QTreeWidgetItem* Entity = new QTreeWidgetItem;
-            Entity->setText(0, nameComponent.Tag.c_str());
-            ui.sceneTree->addTopLevelItem(Entity);
-#ifdef ENABLE_CHILD_TEST
-            QTreeWidgetItem* ChildEntity = new QTreeWidgetItem;
-            ChildEntity->setText(0, "Child_0");
-            Entity->addChild(ChildEntity);
-            QTreeWidgetItem* child_2 = new QTreeWidgetItem;
-            child_2->setText(0, "Child_1");
-            Entity->addChild(child_2);
-            QTreeWidgetItem* ChildChildEntity = new QTreeWidgetItem;
-            ChildChildEntity->setText(0, "Child_Child_0");
-            ChildEntity->addChild(ChildChildEntity);
-#endif
-            // Set the entity as metadata, this way we don't have to search the registry when we select one from the list
-            QVariant entityVariant = QVariant::fromValue<RZEntity>(entity);
-            Entity->setData(0, Qt::UserRole, entityVariant);
+            if (hierarchyComponent != nullptr && hierarchyComponent->First != entt::null)
+                noChildren = false;
+
+            if (!noChildren) {
+                entt::entity child = hierarchyComponent->First;
+                while (child != entt::null && registry.valid(child)) {
+                    auto childHerarchyComponent = registry.try_get<HierarchyComponent>(child);
+                    // Add this child to the Tree
+                    QTreeWidgetItem* childTreeItem = new QTreeWidgetItem;
+                    parentItem->addChild(childTreeItem);
+
+                    // Set the entity as metadata, this way we don't have to search the registry when we select one from the list
+                    QVariant entityVariant = QVariant::fromValue<RZEntity>(RZEntity(child, scene));
+                    childTreeItem->setData(0, Qt::UserRole, entityVariant);
+                    const auto& childname = registry.get<TagComponent>(child).Tag;
+                    childTreeItem->setText(0, childname.c_str());
+
+                    drawEntityNode(RZEntity(child, scene), scene, registry, childTreeItem);
+
+                    if (registry.valid(child)) {
+                        auto hierarchyComponent = registry.try_get<HierarchyComponent>(child);
+                        child                   = hierarchyComponent ? hierarchyComponent->Next : entt::null;
+                    }
+                }
+            }
         }
 
         void RZESceneHierarchyPanel::OnItemSelected()
