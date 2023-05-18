@@ -9,6 +9,8 @@
 
 #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
+#include "Razix/Utilities/RZStringUtilities.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -50,6 +52,46 @@ namespace Razix {
         {
             m_Name = name;
             // TODO: Deserialize using the path
+        }
+
+        void RZMaterial::loadMaterialTexturesFromFiles(MaterialTexturePaths paths)
+        {
+            if (!paths.albedo.empty()) {
+                auto fileName             = Razix::Utilities::GetFileName(paths.albedo);
+                m_MaterialTextures.albedo = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.albedo, fileName);
+            }
+
+            if (!paths.ao.empty()) {
+                auto fileName         = Razix::Utilities::GetFileName(paths.ao);
+                m_MaterialTextures.ao = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.ao, fileName);
+            }
+
+            if (!paths.emissive.empty()) {
+                auto fileName               = Razix::Utilities::GetFileName(paths.emissive);
+                m_MaterialTextures.emissive = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.emissive, fileName);
+            }
+
+            if (!paths.metallic.empty()) {
+                auto fileName               = Razix::Utilities::GetFileName(paths.metallic);
+                m_MaterialTextures.metallic = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.metallic, fileName);
+            }
+
+            if (!paths.normal.empty()) {
+                auto fileName             = Razix::Utilities::GetFileName(paths.normal);
+                m_MaterialTextures.normal = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.normal, fileName);
+            }
+
+            if (!paths.roughness.empty()) {
+                auto fileName                = Razix::Utilities::GetFileName(paths.roughness);
+                m_MaterialTextures.roughness = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.roughness, fileName);
+            }
+
+            if (!paths.specular.empty()) {
+                auto fileName               = Razix::Utilities::GetFileName(paths.specular);
+                m_MaterialTextures.specular = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.specular, fileName);
+            }
+
+            setTexturesUpdated(true);
         }
 
         void RZMaterial::createDescriptorSet()
