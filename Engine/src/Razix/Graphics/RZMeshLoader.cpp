@@ -75,10 +75,24 @@ namespace Razix {
             //mesh->setBaseIndex(mesh_header.base_index);
             //mesh->setBaseVertex(mesh_header.base_vertex);
 
-            auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
-            RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
-            forwardRendererMaterial->createDescriptorSet();
-            mesh->setMaterial(forwardRendererMaterial);
+            // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
+            std::string                   matPath = "//Assets/Materials/" + std::string(mesh_header.materialName) + ".rzmaterial";
+            Razix::Graphics::MaterialData matData{};
+            std::string                   matPhysicalPath;
+            if (RZVirtualFileSystem::Get().resolvePhysicalPath(matPath, matPhysicalPath)) {
+                if (matPhysicalPath.empty()) {
+                    std::fstream f_mat(matPhysicalPath, std::ios::in | std::ios::binary);
+                    offset = 0;
+                    READ_AND_OFFSET(f_mat, (char*) &matData, sizeof(Razix::Graphics::MaterialData), offset);
+                }
+            }
+
+            auto        shader   = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+            RZMaterial* material = new RZMaterial(shader);
+            material->setProperties(matData.m_MaterialProperties);
+            material->loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
+            material->createDescriptorSet();
+            mesh->setMaterial(material);
 
             return mesh;
         }

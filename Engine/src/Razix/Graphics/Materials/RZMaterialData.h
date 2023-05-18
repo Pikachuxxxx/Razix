@@ -76,6 +76,7 @@ namespace Razix {
             MaterialProperties   m_MaterialProperties;
             MaterialTexturePaths m_MaterialTextures;
 
+            // NOTE: This probably won't be used, we will use binary files instead
             template<typename Archive>
             void save(Archive& archive) const
             {

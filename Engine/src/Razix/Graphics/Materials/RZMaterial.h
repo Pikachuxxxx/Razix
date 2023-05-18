@@ -26,6 +26,7 @@ namespace Razix {
 
             /* Overrides the default material properties and textures by loading the material file and de-serializing it */
             void loadMaterialFromFile(const std::string& name, const std::string& path);
+            void loadMaterialTexturesFromFiles(MaterialTexturePaths paths);
             void createDescriptorSet();
 
             RAZIX_INLINE MaterialTextures& getTextures() { return m_MaterialTextures; }
