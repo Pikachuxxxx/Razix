@@ -80,7 +80,7 @@ namespace Razix {
             Razix::Graphics::MaterialData matData{};
             std::string                   matPhysicalPath;
             if (RZVirtualFileSystem::Get().resolvePhysicalPath(matPath, matPhysicalPath)) {
-                if (matPhysicalPath.empty()) {
+                if (!matPhysicalPath.empty()) {
                     std::fstream f_mat(matPhysicalPath, std::ios::in | std::ios::binary);
                     offset = 0;
                     READ_AND_OFFSET(f_mat, (char*) &matData, sizeof(Razix::Graphics::MaterialData), offset);

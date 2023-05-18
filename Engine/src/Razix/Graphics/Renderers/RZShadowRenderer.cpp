@@ -210,6 +210,9 @@ namespace Razix {
                         // Draw the mesh renderer components
                         const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
+                        if (mrc.Mesh == nullptr)
+                            continue;
+
                         // Bind push constants, VBO, IBO and draw
                         glm::mat4 transform = mesh_trans.GetTransform();
 

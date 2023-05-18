@@ -163,7 +163,7 @@ private:
             planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
 
             auto& testMeshEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Test rzMesh");
-            testMeshEntity.AddComponent<Razix::MeshRendererComponent>("//Meshes/scene/Mesh.rzmesh");
+            testMeshEntity.AddComponent<Razix::MeshRendererComponent>("//Assets/Cache/Meshes/Mesh.rzmesh");
         }
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {

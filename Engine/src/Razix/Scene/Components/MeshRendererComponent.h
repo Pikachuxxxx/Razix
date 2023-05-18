@@ -29,6 +29,7 @@ namespace Razix {
         template<class Archive>
         void load(Archive& archive)
         {
+            // TODO: Store the material name/path as well
             int prim = -1;
             archive(cereal::make_nvp("Primitive", prim));
             primitive = Graphics::MeshPrimitive(prim);

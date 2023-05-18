@@ -60,19 +60,19 @@ namespace Razix {
 
         struct MaterialTexturePaths
         {
-            std::string albedo    = "";
-            std::string normal    = "";
-            std::string metallic  = "";
-            std::string roughness = "";
-            std::string specular  = "";
-            std::string emissive  = "";
-            std::string ao        = "";
+            char albedo[250];
+            char normal[250];
+            char metallic[250];
+            char roughness[250];
+            char specular[250];
+            char emissive[250];
+            char ao[250];
         };
 
 #if 1
         struct MaterialData
         {
-            std::string          m_Name;
+            char                 m_Name[250];
             MaterialProperties   m_MaterialProperties;
             MaterialTexturePaths m_MaterialTextures;
 
