@@ -61,8 +61,8 @@ namespace Razix {
             void Destroy();
 
             RAZIX_INLINE const std::string& getName() const { return m_Name; }
-            RAZIX_INLINE void               setName(const char* name) { m_Name = std::string(name); }
-            RAZIX_INLINE void               setName(std::string name) { strcpy(&m_Name[0], name.c_str()); }
+            RAZIX_INLINE void               setName(const char* name);
+            RAZIX_INLINE void               setName(std::string name);
 
             RAZIX_INLINE RZMaterial* getMaterial() { return m_Material; }
             RAZIX_INLINE void        setMaterial(RZMaterial* mat) { m_Material = mat; }

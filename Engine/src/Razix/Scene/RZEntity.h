@@ -19,8 +19,8 @@ namespace Razix {
         T& AddComponent(Args&&... args)
         {
             RAZIX_CORE_ASSERT((!HasComponent<T>()), "RZEntity already has component!");
-            return m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
-            //m_Scene->OnComponentAdded<T>(*this, component);
+            T& component = m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
+            return component;
         }
 
         template<typename T, typename... Args>
@@ -82,6 +82,6 @@ namespace Razix {
 
     private:
         entt::entity m_Entity = entt::null;
-        RZScene*     m_Scene = nullptr;
+        RZScene*     m_Scene  = nullptr;
     };
 }    // namespace Razix

@@ -7,7 +7,8 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZSplashScreen.h"
 
-#include "Razix/Scene/Components/CameraComponent.h"
+#include "Razix/Scene/Components/RZComponents.h"
+
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
 

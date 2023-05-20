@@ -45,6 +45,7 @@ namespace Razix {
             }
 
             void setProjectPathDir(const std::string& path) { m_ProjectPathDir = path; }
+            void restoreLayout() { Layout_Restore(); }
 
         signals:
             void OnEntityAddedToScene();
@@ -98,25 +99,27 @@ namespace Razix {
             //------------------------------
             // Menu - Create
             void SetupCreateMenuCommands();
-            // Create - Action = create Entity
+            // Create - Entity = create Entity
             void Create_Entity();
-            // Create - Import - Model - Action = Import a model file from the disk
+            // TODO: Create Component Commands
+
+            // Create - Import - Model = Import a model file from the disk
             void Create_Import_Model();
             //------------------------------
             // Menu - Windows
             void SetupWindowsCommands();
-            // Windows - Action = open/close Material Editor
+            // Windows - Material Editor = open/close Material Editor
             void Windows_MaterialEditor();
-            // Windows - Action = open/close World Renderer Settings
+            // Windows - World Settings = open/close World Renderer Settings
             void Windows_WorldRendererSettings();
             //------------------------------
             // Menu - Layout
             void SetupLayoutCommands();
-            // Layout - Action = Save layout
+            // Layout - Save = Save layout
             void Layout_Save();
-            // Layout - Action = Restore layout
+            // Layout - Restore = Restore layout
             void Layout_Restore();
-            // Layout - Action = Clear layout
+            // Layout - Clear = Clear layout
             void Layout_Clear();
         };
     }    // namespace Editor

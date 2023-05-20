@@ -48,7 +48,7 @@ namespace Razix {
             f32  target_error = 1e-3f;
             f32* resultError  = nullptr;
 
-            unsigned int* newIndices = new unsigned int[target_index_count];
+            unsigned int* newIndices    = new unsigned int[target_index_count];
             u32           newIndexCount = meshopt_simplify(newIndices, m_Indices.data(), m_Indices.size(), (const f32*) (&m_Vertices[0]), m_Vertices.size(), sizeof(Graphics::RZVertex), target_index_count, target_error, resultError);
 
             //u32 newVertexCount = meshopt_optimizeVertexFetch(    // return vertices (not vertex attribute values)
@@ -72,6 +72,15 @@ namespace Razix {
             layout.push<glm::vec3>("Normal");
             layout.push<glm::vec3>("Tangent");
             m_VertexBuffer->AddBufferLayout(layout);
+        }
+
+        void RZMesh::setName(const char* name)
+        {
+            m_Name = std::string(name);
+        }
+        void RZMesh::setName(std::string name)
+        {
+            m_Name = name;
         }
 
         void RZMesh::GenerateNormals(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount)

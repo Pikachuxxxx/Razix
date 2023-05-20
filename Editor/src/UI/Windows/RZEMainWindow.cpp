@@ -385,7 +385,6 @@ namespace Razix {
                 hc.OnConstruct(scene->getRegistry(), childEntity);
 
                 // TODO: Add a progress bar (test running on a separate thread)
-
                 // Add a Mesh Renderer / Skinned Mesh Renderer component as needed
                 if (std::string(childNode.nodeType) == "$MESH") {
                     std::string meshFilePath = "//Assets/Cache/Meshes/" + childNode.name + ".rzmesh";

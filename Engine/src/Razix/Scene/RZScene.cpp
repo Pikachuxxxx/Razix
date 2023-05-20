@@ -31,6 +31,9 @@ namespace Razix {
         // 2. Skybox entity with TODO components
         // 3. Environment settings entity with TODO components
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
+        m_Registry.on_construct<HierarchyComponent>().connect<&HierarchyComponent::OnConstruct>();
+        m_Registry.on_destroy<HierarchyComponent>().connect<&HierarchyComponent::OnDestroy>();
     }
 
     RZScene::RZScene(std::string sceneName)
@@ -238,13 +241,9 @@ namespace Razix {
     }
 
     template<typename T>
-    void RZScene::OnComponentAdded(RZEntity entity, T& component, bool enable)
+    void RZScene::OnComponentAdded(RZEntity entity, T& component)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-
-        if (enable)
-            m_Registry.on_construct<T>().connect<&T::OnConstruct>();
-        else
-            m_Registry.on_construct<T>().disconnect<&T::OnConstruct>();
+        m_Registry.on_construct<T>().connect<&T::OnConstruct>();
     }
 }    // namespace Razix

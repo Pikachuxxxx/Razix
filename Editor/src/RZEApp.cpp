@@ -110,6 +110,11 @@ public:
 private:
     void RAZIX_CALL OnStart() override
     {
+        // Force Restore the Layout here
+        QMetaObject::invokeMethod(qrzeditorApp, [] {
+            mainWindow->restoreLayout();
+        });
+
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
         RZScene* activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
 

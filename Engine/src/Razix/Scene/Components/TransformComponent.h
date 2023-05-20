@@ -29,9 +29,5 @@ namespace Razix {
         {
             archive(cereal::make_nvp("Translation", Translation), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale), cereal::make_nvp("Transform", Transform));
         }
-
-    private:
-        //glm::quat rotationQuat{};
-        //glm::mat4 rotationMatrix = glm::mat4(1.0f);
     };
 }    // namespace Razix
