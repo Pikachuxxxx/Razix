@@ -113,6 +113,7 @@ private:
         // Force Restore the Layout here
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             mainWindow->restoreLayout();
+            mainWindow->show();
         });
 
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
@@ -317,7 +318,6 @@ int main(int argc, char** argv)
     //engineLoop->launch();
     qengineThread->start();
 
-    mainWindow->show();
 
     int r = qrzeditorApp->exec();
 
