@@ -11,6 +11,8 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
+#include <cereal/archives/json.hpp>
+
 #define READ_AND_OFFSET(stream, dest, size, offset) \
     stream.read((char*) dest, size);                \
     offset += size;                                 \
@@ -72,34 +74,40 @@ namespace Razix {
             mesh->setName(mesh_header.name);
             mesh->setMaxExtents(mesh_header.max_extents);
             mesh->setMinExtents(mesh_header.min_extents);
+            mesh->setPath(filePath);
             //mesh->setBaseIndex(mesh_header.base_index);
             //mesh->setBaseVertex(mesh_header.base_vertex);
 
-            // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
-            std::string                   matPath = "//Assets/Materials/" + std::string(mesh_header.materialName) + ".rzmaterial";
-            Razix::Graphics::MaterialData matData{};
-            std::string                   matPhysicalPath;
-            if (RZVirtualFileSystem::Get().resolvePhysicalPath(matPath, matPhysicalPath)) {
-                if (matPhysicalPath.empty()) {
-                    std::fstream f_mat(matPhysicalPath, std::ios::in | std::ios::binary);
-                    offset = 0;
-                    READ_AND_OFFSET(f_mat, (char*) &matData, sizeof(Razix::Graphics::MaterialData), offset);
-                }
-            }
+            auto material = loadMaterial(mesh_header.materialName);
 
-            auto        shader   = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
-            RZMaterial* material = new RZMaterial(shader);
-            material->setProperties(matData.m_MaterialProperties);
-            material->loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
-            material->createDescriptorSet();
             mesh->setMaterial(material);
 
             return mesh;
         }
 
-        RZMaterial* loadMaterial(const std::string& filePath)
+        RZMaterial* loadMaterial(const std::string& materialName)
         {
-            RZMaterial* material = nullptr;
+            auto        shader   = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+            RZMaterial* material = new RZMaterial(shader);
+            material->setName(materialName);
+
+            // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
+            std::string                   matPath = "//Assets/Materials/" + std::string(materialName) + ".rzmaterial";
+            Razix::Graphics::MaterialData matData{};
+            std::string                   matPhysicalPath;
+            if (RZVirtualFileSystem::Get().resolvePhysicalPath(matPath, matPhysicalPath)) {
+                if (!matPhysicalPath.empty()) {
+                    std::ifstream AppStream;
+                    AppStream.open(matPhysicalPath, std::ifstream::in);
+                    cereal::JSONInputArchive inputArchive(AppStream);
+
+                    inputArchive(cereal::make_nvp(materialName, matData));
+                }
+            }
+
+            material->setProperties(matData.m_MaterialProperties);
+            material->loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
+            material->createDescriptorSet();
 
             return material;
         }

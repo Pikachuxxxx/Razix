@@ -110,6 +110,11 @@ public:
 private:
     void RAZIX_CALL OnStart() override
     {
+        // Force Restore the Layout here
+        QMetaObject::invokeMethod(qrzeditorApp, [] {
+            mainWindow->restoreLayout();
+        });
+
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
         RZScene* activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
 
@@ -163,7 +168,7 @@ private:
             planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
 
             auto& testMeshEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Test rzMesh");
-            testMeshEntity.AddComponent<Razix::MeshRendererComponent>("//Meshes/scene/Mesh.rzmesh");
+            testMeshEntity.AddComponent<Razix::MeshRendererComponent>("//Assets/Cache/Meshes/Mesh.rzmesh");
         }
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {

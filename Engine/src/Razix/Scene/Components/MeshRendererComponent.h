@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/RZMeshLoader.h"
+
 namespace Razix {
 
     namespace Graphics {
@@ -32,13 +34,21 @@ namespace Razix {
             int prim = -1;
             archive(cereal::make_nvp("Primitive", prim));
             primitive = Graphics::MeshPrimitive(prim);
-            Mesh      = Graphics::MeshFactory::CreatePrimitive(primitive);
+
+            if (prim >= 0)
+                Mesh = Graphics::MeshFactory::CreatePrimitive(primitive);
             std::string meshName;
             archive(cereal::make_nvp("MeshName", meshName));
-            //Mesh->setName(meshName);
             std::string meshPath;
-            archive(cereal::make_nvp("Path", meshPath));
-            //Mesh->setPath(meshPath);
+            archive(cereal::make_nvp("MeshPath", meshPath));
+
+            if (!Mesh || !meshPath.empty())
+                Mesh = Razix::Graphics::loadMesh(meshPath);
+
+            if (Mesh) {
+                Mesh->setName(meshName);
+                Mesh->setPath(meshPath);
+            }
         }
 
         template<class Archive>
@@ -47,7 +57,7 @@ namespace Razix {
             archive(cereal::make_nvp("Primitive", primitive));
             if (Mesh) {
                 archive(cereal::make_nvp("MeshName", Mesh->getName()));
-                archive(cereal::make_nvp("Path", Mesh->getPath()));
+                archive(cereal::make_nvp("MeshPath", Mesh->getPath()));
             }
         }
     };

@@ -369,7 +369,7 @@ namespace Razix {
         {
             // Create an entity
             auto& entity = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Entity");
-            entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
+            //entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
             // Update the scene hierarchy panel to re-draw
             emit OnEntityAddedToScene();
         }
@@ -384,9 +384,10 @@ namespace Razix {
                 auto& hc                                                          = childEntity.AddComponent<Razix::HierarchyComponent>(parentEntity);
                 hc.OnConstruct(scene->getRegistry(), childEntity);
 
+                // TODO: Add a progress bar (test running on a separate thread)
                 // Add a Mesh Renderer / Skinned Mesh Renderer component as needed
                 if (std::string(childNode.nodeType) == "$MESH") {
-                    std::string meshFilePath = "//Assets/Meshes/" + rootMeshName + "/" + childNode.name + ".rzmesh";
+                    std::string meshFilePath = "//Assets/Cache/Meshes/" + childNode.name + ".rzmesh";
                     childEntity.AddComponent<MeshRendererComponent>(meshFilePath);
                 }
 
@@ -415,7 +416,7 @@ namespace Razix {
 
                 // Export Options
                 Razix::Tool::AssetPacker::MeshExportOptions export_options{};
-                export_options.outputDirectory = m_ProjectPathDir + "/Assets/Meshes/";
+                export_options.outputDirectory = m_ProjectPathDir + "/Assets/";
                 // Exporter
                 Razix::Tool::AssetPacker::MeshExporter exporter;
                 result = exporter.exportMesh(import_result, export_options);
@@ -432,7 +433,18 @@ namespace Razix {
                 auto& hc                                                         = rootEntity.AddComponent<Razix::HierarchyComponent>();
                 hc.OnConstruct(RZEngine::Get().getSceneManager().getCurrentScene()->getRegistry(), rootEntity);
 
+                // Now stop the other thread first from rendering before we issue resize commands
+                std::lock_guard<std::mutex> lk(RZApplication::m);
+                RZApplication::ready_for_execution = false;
+                //RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                RZApplication::halt_execution.notify_one();
+
                 CreateEntityHierarchy(rootNode, rootEntity, std::string(rootNode->name));
+
+                // Now stop the other thread first from rendering before we issue resize commands
+                RZApplication::ready_for_execution = true;
+                //RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                RZApplication::halt_execution.notify_one();
 
                 // update scene hierarchy panel
                 emit OnEntityAddedToScene();

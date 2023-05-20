@@ -6,8 +6,6 @@
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Graphics/RZModel.h"
 
-#include "Razix/Graphics/RZMeshLoader.h"
-
 namespace Razix {
 
     MeshRendererComponent::MeshRendererComponent()

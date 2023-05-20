@@ -384,7 +384,7 @@ namespace Razix {
 #endif
             // Destroy Renderers
             //m_ForwardRenderer.Destroy();
-            m_CascadedShadowsRenderer.Destroy();
+            //m_CascadedShadowsRenderer.Destroy();
             m_ShadowRenderer.Destroy();
             m_ImGuiRenderer.Destroy();
             RZDebugRenderer::Get()->Destroy();

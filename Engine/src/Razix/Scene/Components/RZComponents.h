@@ -21,4 +21,4 @@
 */
 
 // Register List of all components that razix implements that is used while serialization adn with entt
-#define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent, Graphics::RZModel, LuaScriptComponent, LightComponent    // The model component is a temporary hack, which will be replaced by MeshRenderer component soon
+#define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent, LuaScriptComponent, LightComponent, HierarchyComponent

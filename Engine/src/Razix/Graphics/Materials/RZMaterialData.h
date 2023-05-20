@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZDataTypes.h"
+#include "Razix/Utilities/RZVendorOverrides.h"
 
 #include <glm/glm.hpp>
 
@@ -60,19 +61,19 @@ namespace Razix {
 
         struct MaterialTexturePaths
         {
-            std::string albedo    = "";
-            std::string normal    = "";
-            std::string metallic  = "";
-            std::string roughness = "";
-            std::string specular  = "";
-            std::string emissive  = "";
-            std::string ao        = "";
+            char albedo[250];
+            char normal[250];
+            char metallic[250];
+            char roughness[250];
+            char specular[250];
+            char emissive[250];
+            char ao[250];
         };
 
 #if 1
         struct MaterialData
         {
-            std::string          m_Name;
+            char                 m_Name[250];
             MaterialProperties   m_MaterialProperties;
             MaterialTexturePaths m_MaterialTextures;
 
@@ -81,13 +82,13 @@ namespace Razix {
             void save(Archive& archive) const
             {
     #if 1
-                archive(cereal::make_nvp("Name", m_Name),
-                    cereal::make_nvp("Albedo", m_MaterialTextures.albedo ? m_MaterialTextures.albedo : ""),
-                    cereal::make_nvp("Normal", m_MaterialTextures.normal ? m_MaterialTextures.normal : ""),
-                    cereal::make_nvp("Metallic", m_MaterialTextures.metallic ? m_MaterialTextures.metallic : ""),
-                    cereal::make_nvp("Roughness", m_MaterialTextures.roughness ? m_MaterialTextures.roughness : ""),
-                    cereal::make_nvp("Ao", m_MaterialTextures.ao ? m_MaterialTextures.ao : ""),
-                    cereal::make_nvp("Emissive", m_MaterialTextures.emissive ? m_MaterialTextures.emissive : ""),
+                archive(cereal::make_nvp("Name", std::string(m_Name)),
+                    cereal::make_nvp("Albedo", m_MaterialTextures.albedo ? std::string(m_MaterialTextures.albedo) : ""),
+                    cereal::make_nvp("Normal", m_MaterialTextures.normal ? std::string(m_MaterialTextures.normal) : ""),
+                    cereal::make_nvp("Metallic", m_MaterialTextures.metallic ? std::string(m_MaterialTextures.metallic) : ""),
+                    cereal::make_nvp("Roughness", m_MaterialTextures.roughness ? std::string(m_MaterialTextures.roughness) : ""),
+                    cereal::make_nvp("Ao", m_MaterialTextures.ao ? std::string(m_MaterialTextures.ao) : ""),
+                    cereal::make_nvp("Emissive", m_MaterialTextures.emissive ? std::string(m_MaterialTextures.emissive) : ""),
                     cereal::make_nvp("albedoColor", m_MaterialProperties.albedoColor),
                     cereal::make_nvp("roughnessColor", m_MaterialProperties.roughnessColor),
                     cereal::make_nvp("metallicColor", m_MaterialProperties.metallicColor),
@@ -104,14 +105,23 @@ namespace Razix {
             template<typename Archive>
             void load(Archive& archive)
             {
+                std::string albedo;
+                std::string normal;
+                std::string metallic;
+                std::string roughness;
+                std::string specular;
+                std::string emissive;
+                std::string ao;
+                std::string name;
+
     #if 1
-                archive(cereal::make_nvp("Name", m_Name),
-                    cereal::make_nvp("Albedo", m_MaterialTextures.albedo),
-                    cereal::make_nvp("Normal", m_MaterialTextures.normal),
-                    cereal::make_nvp("Metallic", m_MaterialTextures.metallic),
-                    cereal::make_nvp("Roughness", m_MaterialTextures.roughness),
-                    cereal::make_nvp("Ao", m_MaterialTextures.ao),
-                    cereal::make_nvp("Emissive", m_MaterialTextures.emissive),
+                archive(cereal::make_nvp("Name", name),
+                    cereal::make_nvp("Albedo", albedo),
+                    cereal::make_nvp("Normal", normal),
+                    cereal::make_nvp("Metallic", metallic),
+                    cereal::make_nvp("Roughness", roughness),
+                    cereal::make_nvp("Ao", ao),
+                    cereal::make_nvp("Emissive", emissive),
                     cereal::make_nvp("albedoColor", m_MaterialProperties.albedoColor),
                     cereal::make_nvp("roughnessColor", m_MaterialProperties.roughnessColor),
                     cereal::make_nvp("metallicColor", m_MaterialProperties.metallicColor),
@@ -122,10 +132,18 @@ namespace Razix {
                     cereal::make_nvp("isUsingNormalMap", m_MaterialProperties.isUsingNormalMap),
                     cereal::make_nvp("isUsingAOMap", m_MaterialProperties.isUsingAOMap),
                     cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties.isUsingEmissiveMap));
+
+                memcpy(m_Name, name.c_str(), 250);
+                memcpy(m_MaterialTextures.albedo, albedo.c_str(), 250);
+                memcpy(m_MaterialTextures.ao, ao.c_str(), 250);
+                memcpy(m_MaterialTextures.emissive, emissive.c_str(), 250);
+                memcpy(m_MaterialTextures.metallic, metallic.c_str(), 250);
+                memcpy(m_MaterialTextures.normal, normal.c_str(), 250);
+                memcpy(m_MaterialTextures.roughness, roughness.c_str(), 250);
+                memcpy(m_MaterialTextures.specular, specular.c_str(), 250);
     #endif
             }
         };
 #endif
-
     }    // namespace Graphics
 }    // namespace Razix

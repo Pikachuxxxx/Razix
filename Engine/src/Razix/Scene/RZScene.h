@@ -106,6 +106,6 @@ namespace Razix {
 
     private:
         template<typename T>
-        void OnComponentAdded(RZEntity entity, T& component, bool enable);
+        void OnComponentAdded(RZEntity entity, T& component);
     };
 }    // namespace Razix

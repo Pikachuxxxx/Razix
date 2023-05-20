@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Razix {
-     /**
+    /**
      * A Tag components allows an entity to have a name
      */
     struct RAZIX_API TagComponent
@@ -20,4 +20,4 @@ namespace Razix {
             archive(cereal::make_nvp("Tag", Tag));
         }
     };
-}
+}    // namespace Razix
