@@ -69,7 +69,7 @@ namespace Razix {
         RZEntity GetParent();
         bool     IsParent(RZEntity potentialParent);
 
-        std::vector<RZEntity> GetChildren();
+        std::vector<RZEntity> GetAllChildren();
 
         entt::entity entity() { return m_Entity; }
 

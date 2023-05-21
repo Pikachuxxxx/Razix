@@ -82,6 +82,9 @@ namespace Razix {
 
             mesh->setMaterial(material);
 
+            vertices.clear();
+            indices.clear();
+
             return mesh;
         }
 

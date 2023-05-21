@@ -193,7 +193,7 @@ namespace Razix {
         //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
         if (Graphics::RHI::GetPointer() != nullptr)
-        Graphics::RHI::OnResize(e.GetWidth(), e.GetHeight());
+            Graphics::RHI::OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -542,6 +542,10 @@ namespace Razix {
 
                 ImGui::Unindent();
                 ImGui::Unindent();
+
+                ImGui::Separator();
+                ImGui::Text("Meshes Renderer    : %d", stats.MeshesRendered);
+                ImGui::Text("Vertices count     : %d", stats.VerticesCount);
             }
             ImGui::End();
         }

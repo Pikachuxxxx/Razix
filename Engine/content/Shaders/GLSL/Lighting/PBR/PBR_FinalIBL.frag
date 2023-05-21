@@ -17,6 +17,7 @@
 // PBR - BRDF helper functions
 #include <Lighting/PBR/BRDF.glsl>
 #include <Lighting/PBR/PBR_DirectLighting.glsl>
+#include <Lighting/ShaderInclude.Builtin.ComputeShadows.glsl>
 //------------------------------------------------------------------------------
 // Vertex Input
 layout(location = 0) in VSOutput
@@ -44,24 +45,6 @@ layout(set = 3, binding = 4) uniform sampler2D brdfLUT;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
-//------------------------------------------------------------------------------
-// Simple Shadow Map calculation
-float DirectionalShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
-{
-    // perform perspective divide
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
-    vec3 transformed_projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, transformed_projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
-    float shadow = currentDepth - bias > closestDepth  ? 0.1 : 1.0;  
-
-    return shadow;
-}
 //------------------------------------------------------------------------------
 void main()
 {
@@ -125,7 +108,7 @@ void main()
     float shadow = 1.0f;
     // FIXME: We assume the first light is the Directional Light and only use that
     if(sceneLights.data[0].type == LightType_Directional)
-        shadow = DirectionalShadowCalculation(FragPosLightSpace, N, sceneLights.data[0].position);
+        shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
 
     result *= shadow;
     //-----------------------------------------------

@@ -46,6 +46,7 @@ namespace Razix {
             u32 UsedRAM        = 0;    //[ ] // Needs platform specific implementation
             // Resource stats
             u32 MeshesRendered        = 0;    //[x]
+            u32 VerticesCount         = 0;
             u32 TexturesInMemory      = 0;
             u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
 

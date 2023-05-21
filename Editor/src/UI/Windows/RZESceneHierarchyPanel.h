@@ -42,7 +42,8 @@ namespace Razix {
                         RZApplication::Get().disableGuizmoEditing();
                         QVariant entityVariant = selectedItems[i]->data(0, Qt::UserRole);
                         auto     entity        = entityVariant.value<RZEntity>();
-                        registry.destroy(entity);
+
+                        DestroyEntity(entity, registry);
                     }
 
                     ui.sceneTree->clear();
@@ -51,6 +52,8 @@ namespace Razix {
                 }
 #endif
             }
+
+            void DestroyEntity(entt::entity entity, entt::registry& registry);
 
         signals:
             void OnEntitySelected(RZEntity entity);

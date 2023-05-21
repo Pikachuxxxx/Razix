@@ -15,13 +15,13 @@ namespace Razix {
     namespace Graphics {
 
         RZMesh::RZMesh()
-            : m_VertexBuffer(nullptr), m_IndexBuffer(nullptr), m_Indices(), m_Vertices(), m_Material(nullptr)
+            : m_VertexBuffer(nullptr), m_IndexBuffer(nullptr), m_Material(nullptr)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
         }
 
         RZMesh::RZMesh(const RZMesh& mesh)
-            : m_VertexBuffer(mesh.m_VertexBuffer), m_IndexBuffer(mesh.m_IndexBuffer), m_Indices(mesh.m_Indices), m_Vertices(mesh.m_Vertices), m_Material(mesh.m_Material)
+            : m_VertexBuffer(mesh.m_VertexBuffer), m_IndexBuffer(mesh.m_IndexBuffer), m_Material(mesh.m_Material)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
         }
@@ -36,34 +36,37 @@ namespace Razix {
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
 
-            m_Indices  = indices;
-            m_Vertices = vertices;
-
-            sz indexCount         = indices.size();
-            sz target_index_count = sz(indices.size() * optimiseThreshold);
+            auto m_Indices  = indices;
+            auto m_Vertices = vertices;
 
             m_IndexCount  = static_cast<u32>(indices.size());
             m_VertexCount = static_cast<u32>(vertices.size());
 
-            f32  target_error = 1e-3f;
-            f32* resultError  = nullptr;
+            // TODO: Move this to AssetPacker
+#if 0
+            //-------------------------------
+            // Mesh Optimization
+            //-------------------------------
 
-            unsigned int* newIndices    = new unsigned int[target_index_count];
-            u32           newIndexCount = meshopt_simplify(newIndices, m_Indices.data(), m_Indices.size(), (const f32*) (&m_Vertices[0]), m_Vertices.size(), sizeof(Graphics::RZVertex), target_index_count, target_error, resultError);
+            // Order is important as per instructions in https://github.com/zeux/meshoptimizer
 
-            //u32 newVertexCount = meshopt_optimizeVertexFetch(    // return vertices (not vertex attribute values)
-            //    (m_Vertices.data()),
-            //    (unsigned short*) (newIndices),
-            //    newIndexCount,    // total new indices (not faces)
-            //    (m_Vertices.data()),
-            //    (sz) m_Vertices.size(),       // total vertices (not vertex attribute values)
-            //    sizeof(Graphics::RZVertex)    // vertex stride
-            //);
+            //-------------------------------
+            // 1. Indexing
+            //-------------------------------
+            // First, generate a remap table from your existing vertex (and, optionally, index) data:
+            std::vector<u32> unique_remapped_vertices(m_IndexCount);    // allocate temporary memory for the remap table
+            u32              vertex_count = meshopt_generateVertexRemap(&unique_remapped_vertices[0], NULL, m_IndexCount, &vertices[0], m_IndexCount, sizeof(Graphics::RZVertex));
 
-            RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", indexCount, m_Vertices.size(), newIndexCount, m_VertexCount);
+            u32* remap_indices = new u32[m_IndexCount];
+            meshopt_remapIndexBuffer<u32>(remap_indices, m_Indices.data(), m_IndexCount, unique_remapped_vertices.data());
+            Graphics::RZVertex* remap_vertices = new Graphics::RZVertex[vertex_count];
+            meshopt_remapVertexBuffer(remap_vertices, m_Vertices.data(), m_VertexCount, sizeof(Graphics::RZVertex), unique_remapped_vertices.data());
 
-            m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) newIndices, newIndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount), m_Vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", m_IndexCount, m_Vertices.size(), m_IndexCount, vertex_count);
+#endif
+
+            m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) m_Indices.data(), m_IndexCount);
+            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount), vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
             // TODO: Add buffer layout by reflecting from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");
@@ -72,6 +75,9 @@ namespace Razix {
             layout.push<glm::vec3>("Normal");
             layout.push<glm::vec3>("Tangent");
             m_VertexBuffer->AddBufferLayout(layout);
+
+            m_Vertices.clear();
+            m_Indices.clear();
         }
 
         void RZMesh::setName(const char* name)

@@ -4,7 +4,7 @@
 #include "MeshRendererComponent.h"
 
 #include "Razix/Graphics/RZMeshFactory.h"
-#include "Razix/Graphics/RZModel.h"
+
 
 namespace Razix {
 

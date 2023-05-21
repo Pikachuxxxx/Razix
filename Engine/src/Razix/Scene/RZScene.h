@@ -28,7 +28,7 @@ namespace Razix {
 
         void updatePhysics();
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
-        void drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets = {});
+        void drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets = {}, void* overridePCData = nullptr, bool disableMaterials = false);
 
         void Destroy();
 

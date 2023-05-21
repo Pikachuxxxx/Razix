@@ -21,7 +21,7 @@
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Graphics/RZMesh.h"
-#include "Razix/Graphics/RZModel.h"
+
 #include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/RHI/RHI.h"
@@ -108,7 +108,7 @@ namespace Razix {
 
             // Upload the lights data
             GPULightsData gpuLightsData;
-            auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
+            auto          group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
             for (auto entity: group) {
                 const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
 
@@ -133,48 +133,6 @@ namespace Razix {
 
             // Bind the pipeline
             m_Pipeline->Bind(cmdBuffer);
-
-            // Get the list of entities and their transform component together
-            auto& group = m_CurrentScene->getRegistry().group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
-            for (auto entity: group) {
-                const auto& [model, trans] = group.get<Razix::Graphics::RZModel, TransformComponent>(entity);
-
-                auto& meshes = model.getMeshes();
-
-                // Bind push constants, VBO, IBO and draw
-                glm::mat4 transform = trans.GetTransform();
-
-                //-----------------------------
-                // Get the shader from the Mesh Material later
-                // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
-
-                struct PCD
-                {
-                    glm::mat4 mat;
-                } pcData;
-                pcData.mat       = transform;
-                modelMatrix.data = &pcData;
-                modelMatrix.size = sizeof(PCD);
-
-                // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-                Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
-                //-----------------------------
-
-                // Bind IBO and VBO
-                for (auto& mesh: meshes) {
-                    mesh->getVertexBuffer()->Bind(cmdBuffer);
-                    mesh->getIndexBuffer()->Bind(cmdBuffer);
-
-                    mesh->getMaterial()->Bind();
-
-                    // Combine System Desc sets with material sets and Bind them
-                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet/*, m_CSMSet*/};
-                    Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
-
-                    Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
-                }
-            }
 
             auto& mesh_group = m_CurrentScene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
             for (auto entity: mesh_group) {
@@ -204,7 +162,7 @@ namespace Razix {
                 mrc.Mesh->getMaterial()->Bind();
 
                 // Combine System Desc sets with material sets and Bind them
-                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet/*, m_CSMSet*/};
+                std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet /*, m_CSMSet*/};
                 Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);

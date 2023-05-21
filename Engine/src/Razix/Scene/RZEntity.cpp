@@ -65,7 +65,7 @@ namespace Razix {
             return RZEntity(entt::null, nullptr);
     }
 
-    std::vector<RZEntity> RZEntity::GetChildren()
+    std::vector<RZEntity> RZEntity::GetAllChildren()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
         std::vector<RZEntity> children;

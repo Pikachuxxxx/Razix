@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Razix/Graphics/RZMeshLoader.h"
+#include "Razix/Graphics/Loaders/RZMeshLoader.h"
+#include "Razix/Graphics/RZMeshFactory.h"
 
 namespace Razix {
 

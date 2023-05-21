@@ -42,9 +42,6 @@ public:
         }
     #endif
 
-        auto& testMeshEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Test rzMesh");
-        testMeshEntity.AddComponent<Razix::MeshRendererComponent>("//Meshes/scene/Mesh.rzmesh");
-
         // Add a directional light for test
         auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
