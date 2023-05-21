@@ -55,9 +55,9 @@ namespace Razix {
                 if (registry.valid(entity)) {
                     auto hierarchyComponent = registry.try_get<HierarchyComponent>(entity);
                     if (!hierarchyComponent || hierarchyComponent->Parent == entt::null) {
-                        QTreeWidgetItem* rootItem      = new QTreeWidgetItem;
+                        QTreeWidgetItem* rootItem = new QTreeWidgetItem;
                         //const auto&      nameComponent = RZEntity(entity, scene).GetComponent<TagComponent>();
-                        auto             name          = registry.get<TagComponent>(entity).Tag;
+                        auto name = registry.get<TagComponent>(entity).Tag;
                         rootItem->setText(0, name.c_str());
                         // Set the entity as metadata, this way we don't have to search the registry when we select one from the list
                         QVariant entityVariant = QVariant::fromValue<RZEntity>(RZEntity(entity, scene));
@@ -101,6 +101,21 @@ namespace Razix {
                     }
                 }
             }
+        }
+
+        void RZESceneHierarchyPanel::DestroyEntity(entt::entity entity, entt::registry& registry)
+        {
+            auto hierarchyComponent = registry.try_get<HierarchyComponent>(entity);
+            if (hierarchyComponent) {
+                entt::entity child = hierarchyComponent->First;
+                while (child != entt::null) {
+                    auto hierarchyComponent = registry.try_get<HierarchyComponent>(child);
+                    auto next               = hierarchyComponent ? hierarchyComponent->Next : entt::null;
+                    DestroyEntity(child, registry);
+                    child = next;
+                }
+            }
+            registry.destroy(entity);
         }
 
         void RZESceneHierarchyPanel::OnItemSelected()

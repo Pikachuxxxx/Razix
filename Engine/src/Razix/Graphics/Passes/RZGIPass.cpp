@@ -18,7 +18,7 @@
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
-#include "Razix/Graphics/RZModel.h"
+
 #include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
@@ -87,7 +87,7 @@ namespace Razix {
 
         ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
         {
-            auto shader   = RZShaderLibrary::Get().getShader("RSM.rzsf");
+            auto shader = RZShaderLibrary::Get().getShader("RSM.rzsf");
 
             // Create the command buffers
             m_RSMCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
@@ -186,45 +186,7 @@ namespace Razix {
                         setUpdated = true;
                     }
 
-                    // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
-                    auto& group = scene->getRegistry().group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
-                    for (auto entity: group) {
-                        const auto& [model, trans] = group.get<Razix::Graphics::RZModel, TransformComponent>(entity);
-
-                        auto& meshes = model.getMeshes();
-
-                        glm::mat4 transform = trans.GetTransform();
-
-                        //-----------------------------
-                        // Get the shader from the Mesh Material later
-                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                        auto& modelMatrix = shader->getPushConstants()[0];
-
-                        struct PCD
-                        {
-                            glm::mat4 mat;
-                        } pcData{};
-                        pcData.mat       = transform;
-                        modelMatrix.data = &pcData;
-                        modelMatrix.size = sizeof(PCD);
-
-                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-                        Graphics::RHI::BindPushConstant(m_RSMPipeline, cmdBuffer, modelMatrix);
-                        //-----------------------------
-
-                        // Bind IBO and VBO
-                        for (auto& mesh: meshes) {
-                            mesh->getVertexBuffer()->Bind(cmdBuffer);
-                            mesh->getIndexBuffer()->Bind(cmdBuffer);
-
-                            // Combine System Desc sets with material sets and Bind them
-                            std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mesh->getMaterial()->getDescriptorSet()};
-                            Graphics::RHI::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
-
-                            Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
-                        }
-                    }
-                    // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
+                    // TODO: Use scene to draw the geometry
 
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
                     auto& mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);

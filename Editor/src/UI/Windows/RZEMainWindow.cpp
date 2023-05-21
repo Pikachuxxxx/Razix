@@ -5,6 +5,7 @@
 
 #include <QComboBox>
 #include <QFileDialog>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
 #include <QTimer>
@@ -374,10 +375,13 @@ namespace Razix {
             emit OnEntityAddedToScene();
         }
 
-        static void CreateEntityHierarchy(const Razix::Tool::AssetPacker::Node* parentNode, Razix::RZEntity& parentEntity, const std::string& rootMeshName)
+        static void CreateEntityHierarchy(const Razix::Tool::AssetPacker::Node* parentNode, Razix::RZEntity& parentEntity, const std::string& rootMeshName, QProgressDialog* progressBar)
         {
             for (size_t i = 0; i < parentNode->numChildren; i++) {
-                auto childNode                                                    = parentNode->children[i];
+                auto childNode = parentNode->children[i];
+                progressBar->setValue(progressBar->value() + 1);
+                auto lbl = std::string("Importing rzmesh...") + std::string(childNode.name);
+                progressBar->setLabelText(lbl.c_str());
                 auto scene                                                        = RZEngine::Get().getSceneManager().getCurrentScene();
                 auto childEntity                                                  = scene->createEntity(childNode.name);
                 childEntity.GetComponent<Razix::TransformComponent>().Translation = childNode.translation;
@@ -392,7 +396,7 @@ namespace Razix {
                 }
 
                 if (childNode.numChildren)
-                    CreateEntityHierarchy(&childNode, childEntity, rootMeshName);
+                    CreateEntityHierarchy(&childNode, childEntity, rootMeshName, progressBar);
             }
         }
 
@@ -401,6 +405,11 @@ namespace Razix {
             // TODO: Add a UI for before and after import launch results and stuff
             auto fileName = QFileDialog::getOpenFileName(this, "Select Model File to load", "", tr("GLTF (*.gltf);;OBJ (*.obj);;Collada(*.dae)"));
             if (!fileName.isEmpty()) {
+                // Progress Dialog
+                QProgressDialog* progressBar = new QProgressDialog("Importing mesh...", "Cancel", 0, 100);
+                progressBar->show();
+                progressBar->setMinimumDuration(0);
+
                 // Results of the mesh import
                 Razix::Tool::AssetPacker::MeshImportResult import_result;
                 // Mesh import options
@@ -414,6 +423,11 @@ namespace Razix {
                     return;
                 }
 
+                progressBar->setLabelText("Mesh Imported!");
+                progressBar->setValue(25);
+
+                progressBar->setLabelText("Exporting to custom format...");
+
                 // Export Options
                 Razix::Tool::AssetPacker::MeshExportOptions export_options{};
                 export_options.outputDirectory = m_ProjectPathDir + "/Assets/";
@@ -424,6 +438,9 @@ namespace Razix {
                     RAZIX_ERROR("[ERROR!] Mesh Export Failed failed for file {0} to path {1}", fileName.toStdString(), export_options.outputDirectory);
                     return;
                 }
+
+                progressBar->setValue(50);
+                progressBar->setLabelText("Importing into Engine and creatingHierarchy!");
 
                 // Create the Hierarchy, pass the stuff to engine and emit a signal to re-paint the scene hierarchy panel
                 auto rootNode = importer->getRootNode();
@@ -439,7 +456,7 @@ namespace Razix {
                 //RAZIX_INFO("Triggering worker thread to halt execution ::::");
                 RZApplication::halt_execution.notify_one();
 
-                CreateEntityHierarchy(rootNode, rootEntity, std::string(rootNode->name));
+                CreateEntityHierarchy(rootNode, rootEntity, std::string(rootNode->name), progressBar);
 
                 // Now stop the other thread first from rendering before we issue resize commands
                 RZApplication::ready_for_execution = true;
@@ -449,6 +466,11 @@ namespace Razix {
                 // update scene hierarchy panel
                 emit OnEntityAddedToScene();
 
+                progressBar->setValue(100);
+                progressBar->setLabelText("Done!");
+
+                progressBar->done(100);
+                delete progressBar;
                 delete importer;
             }
         }

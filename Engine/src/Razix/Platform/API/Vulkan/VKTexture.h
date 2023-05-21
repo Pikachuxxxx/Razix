@@ -137,17 +137,17 @@ namespace Razix {
             VkSampler getSampler() const { return m_ImageSampler; }
 
         private:
-            VkImage               m_Image;                                   /* Vulkan image handle for the Texture object                               */
-            VkDeviceMemory        m_ImageMemory;                             /* Memory for the Vulkan image                                              */
-            VkImageView           m_ImageView;                               /* Image view for the image, all images need a view to look into the image  */
-            VkSampler             m_ImageSampler;                            /* Sampler information used by shaders to sample the texture                */
-            VkDescriptorImageInfo m_Descriptor;                              /* Descriptor info encapsulation the image, view and the sampler            */
-            VkImageLayout         m_ImageLayout = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                */
-            u8*                   m_data        = nullptr;                   /* Texture data with which the image is create with                         */
+            VkImage               m_Image;                                       /* Vulkan image handle for the Texture object                               */
+            VkDeviceMemory        m_ImageMemory;                                 /* Memory for the Vulkan image                                              */
+            VkImageView           m_ImageView;                                   /* Image view for the image, all images need a view to look into the image  */
+            VkSampler             m_ImageSampler;                                /* Sampler information used by shaders to sample the texture                */
+            VkDescriptorImageInfo m_Descriptor;                                  /* Descriptor info encapsulation the image, view and the sampler            */
+            VkImageLayout         m_ImageLayout     = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                */
+            bool                  m_DeleteImageData = false;
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
-            bool load(RZ_DEBUG_NAME_TAG_S_ARG);
+            bool load(void* data RZ_DEBUG_NAME_TAG_E_ARG);
         };
 
         //-----------------------------------------------------------------------------------

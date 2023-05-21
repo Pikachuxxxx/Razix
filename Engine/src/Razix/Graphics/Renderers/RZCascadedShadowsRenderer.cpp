@@ -18,7 +18,7 @@
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
-#include "Razix/Graphics/RZModel.h"
+
 #include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
@@ -348,43 +348,7 @@ namespace Razix {
                     // Draw calls
                     // Get the meshes and the models from the Scene and render them
 
-                    // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
-                    auto group = scene->getRegistry().group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
-                    for (auto entity: group) {
-                        const auto& [model, trans] = group.get<Razix::Graphics::RZModel, TransformComponent>(entity);
-
-                        auto& meshes = model.getMeshes();
-
-                        glm::mat4 transform = trans.GetTransform();
-
-                        //-----------------------------
-                        // Get the shader from the Mesh Material later
-                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                        auto& modelMatrix = shader->getPushConstants()[0];
-
-                        struct PCD
-                        {
-                            glm::mat4 mat;
-                        } pcData;
-                        pcData.mat       = transform;
-                        modelMatrix.data = &pcData;
-                        modelMatrix.size = sizeof(PCD);
-
-                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-                        Graphics::RHI::BindPushConstant(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, modelMatrix);
-                        //-----------------------------
-
-                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
-
-                        // Bind IBO and VBO
-                        for (auto& mesh: meshes) {
-                            mesh->getVertexBuffer()->Bind(cmdBuf);
-                            mesh->getIndexBuffer()->Bind(cmdBuf);
-
-                            Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
-                        }
-                    }
-                    // MODELS ///////////////////////////////////////////////////////////////////////////////////////////
+                  
 
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
                     auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);

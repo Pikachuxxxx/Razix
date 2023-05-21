@@ -19,7 +19,7 @@
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
-#include "Razix/Graphics/RZModel.h"
+
 #include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"

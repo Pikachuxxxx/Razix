@@ -227,13 +227,12 @@ namespace Razix {
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
-            m_data        = static_cast<u8*>(data);
 
             m_TextureType = RZTexture::Type::COLOR_2D;
 
             // Build a render target texture here if the data is nullptr
 
-            bool loadResult = load(RZ_DEBUG_S_ARG_NAME);
+            bool loadResult = load(data RZ_DEBUG_E_ARG_NAME);
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", name);
             updateDescriptor();
         }
@@ -247,7 +246,9 @@ namespace Razix {
 
             m_TextureType = RZTexture::Type::COLOR_2D;
 
-            bool loadResult = load(RZ_DEBUG_S_ARG_NAME);
+            m_DeleteImageData = true;
+
+            bool loadResult = load(nullptr RZ_DEBUG_E_ARG_NAME);
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0} at location : {1}", name, filePath);
             updateDescriptor();
         }
@@ -334,14 +335,14 @@ namespace Razix {
             }
         }
 
-        bool VKTexture2D::load(RZ_DEBUG_NAME_TAG_S_ARG)
+        bool VKTexture2D::load(void* data RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             unsigned char* pixels = nullptr;
 
-            if (m_data != nullptr) {
-                pixels = reinterpret_cast<u8*>(m_data);
+            if (data != nullptr) {
+                pixels = reinterpret_cast<u8*>(data);
                 m_Size = VkDeviceSize(m_Width * m_Height * 4);    // TODO: Get the Bits per pixel from the format
             } else {
                 if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
@@ -362,7 +363,8 @@ namespace Razix {
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
             VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(imageSize), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
-            //stagingBuffer->setData(imageSize, pixels);
+            if (m_DeleteImageData)
+                delete[] pixels;
 
             u32 mipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;
 

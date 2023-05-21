@@ -31,6 +31,7 @@ namespace Razix {
                     vkFreeMemory(VKDevice::Get().getDevice(), m_BufferMemory, nullptr);
                 }
                 vkDestroyBuffer(VKDevice::Get().getDevice(), m_Buffer, nullptr);
+                //free(m_Mapped);
             }
         }
 
@@ -49,6 +50,8 @@ namespace Razix {
 
             if (m_Mapped) {
                 vkUnmapMemory(VKDevice::Get().getDevice(), m_BufferMemory);
+                //free(m_Mapped);
+                //delete m_Mapped;
                 m_Mapped = nullptr;
             }
         }

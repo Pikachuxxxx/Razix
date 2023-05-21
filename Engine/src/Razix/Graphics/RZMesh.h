@@ -96,8 +96,6 @@ namespace Razix {
         private:
             std::string           m_Name;         /* The name of the mesh                                   */
             RZMaterial*           m_Material;     /* The material with which the mesh will be rendered with */
-            std::vector<RZVertex> m_Vertices;     /* The vertex data with which the mesh is made of         */
-            std::vector<u32>      m_Indices;      /* The indices with which the mesh will be attached       */
             RZVertexBuffer*       m_VertexBuffer; /* The Vertex Buffer that will be uploaded to the GPU     */
             RZIndexBuffer*        m_IndexBuffer;  /* The Index Buffer that will be uploaded to the GPU      */
             u32                   m_IndexCount;   /* Total indices count of the mesh                        */

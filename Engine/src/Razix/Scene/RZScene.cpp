@@ -10,7 +10,6 @@
 #include "Razix/Scene/Components/RZComponents.h"
 
 #include "Razix/Graphics/RZMesh.h"
-#include "Razix/Graphics/RZModel.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
@@ -47,52 +46,9 @@ namespace Razix {
         RAZIX_UNIMPLEMENTED_METHOD
     }
 
-    void RZScene::drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets)
+    void RZScene::drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets, void* overridePCData, bool disableMaterials)
     {
         auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
-
-        // Get the list of entities and their transform component together
-        auto& group = m_Registry.group<Razix::Graphics::RZModel>(entt::get<TransformComponent>);
-        for (auto entity: group) {
-            const auto& [model, trans] = group.get<Razix::Graphics::RZModel, TransformComponent>(entity);
-
-            auto& meshes = model.getMeshes();
-
-            // Bind push constants, VBO, IBO and draw
-            glm::mat4 transform = trans.GetTransform();
-
-            //-----------------------------
-            Graphics::RZPushConstant modelMatrixPC;
-            modelMatrixPC.shaderStage = Graphics::ShaderStage::VERTEX;
-            modelMatrixPC.offset      = 0;
-            struct PCD
-            {
-                glm::mat4 mat;
-            } pcData{};
-            pcData.mat         = transform;
-            modelMatrixPC.data = &pcData;
-            modelMatrixPC.size = sizeof(PCD);
-
-            // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-            Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
-            //-----------------------------
-            // Bind IBO and VBO
-            for (auto& mesh: meshes) {
-                mesh->getVertexBuffer()->Bind(cmdBuffer);
-                mesh->getIndexBuffer()->Bind(cmdBuffer);
-
-                mesh->getMaterial()->Bind();
-
-                // Combine System Desc sets with material sets and Bind them
-                std::vector<Graphics::RZDescriptorSet*> setsToBindInOrder = {frameDataSet, mesh->getMaterial()->getDescriptorSet(), sceneLightsSet};
-                if (!userSets.empty())
-                    setsToBindInOrder.insert(setsToBindInOrder.end(), userSets.begin(), userSets.end());
-
-                Graphics::RHI::BindDescriptorSets(pipeline, cmdBuffer, setsToBindInOrder);
-
-                Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mesh->getIndexCount());
-            }
-        }
 
         auto& mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
         for (auto entity: mesh_group) {
@@ -112,6 +68,8 @@ namespace Razix {
             } pcData{};
             pcData.mat         = transform;
             modelMatrixPC.data = &pcData;
+            if (overridePCData != nullptr)
+                modelMatrixPC.data = overridePCData;
             modelMatrixPC.size = sizeof(PCD);
 
             // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
@@ -124,11 +82,22 @@ namespace Razix {
             mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
             // Combine System Desc sets with material sets and Bind them
-            std::vector<Graphics::RZDescriptorSet*> setsToBindInOrder = {frameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), sceneLightsSet};
+            std::vector<Graphics::RZDescriptorSet*> setsToBindInOrder;
+
+            if (frameDataSet)           // @ 0
+                setsToBindInOrder.push_back(frameDataSet);
+
+            if (!disableMaterials)      // @ 1
+                setsToBindInOrder.push_back(mrc.Mesh->getMaterial()->getDescriptorSet());
+
+            if (sceneLightsSet)         // @ 2
+                setsToBindInOrder.push_back(sceneLightsSet);
+
             if (!userSets.empty())
                 setsToBindInOrder.insert(setsToBindInOrder.end(), userSets.begin(), userSets.end());
 
-            Graphics::RHI::BindDescriptorSets(pipeline, cmdBuffer, setsToBindInOrder);
+            if (setsToBindInOrder.size() > 0)
+                Graphics::RHI::BindDescriptorSets(pipeline, cmdBuffer, setsToBindInOrder);
 
             Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
         }
@@ -136,11 +105,6 @@ namespace Razix {
 
     void RZScene::Destroy()
     {
-        // Destroy models
-        auto& mcs = this->GetComponentsOfType<Graphics::RZModel>();
-        for (Graphics::RZModel model: mcs)
-            model.Destroy();
-
         // Meshes
         auto& mrcs = this->GetComponentsOfType<MeshRendererComponent>();
         for (auto& mesh: mrcs)

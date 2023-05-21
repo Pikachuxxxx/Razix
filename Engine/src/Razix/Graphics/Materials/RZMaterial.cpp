@@ -39,8 +39,12 @@ namespace Razix {
 
         void RZMaterial::InitDefaultTexture()
         {
-            u32 pinkTextureData = 0xffff00ff;    // A8B8G8R8
-            s_DefaultTexture    = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "Default Texture", 1, 1, &pinkTextureData, RZTexture::Format::RGBA8);
+            //u32  pinkTextureData    = 0xffff00ff;    // A8B8G8R8
+            u32* pinkTextureDataRaw = new u32;       // A8B8G8R8
+            pinkTextureDataRaw[0]   = {0xffff00ff};
+            //memcpy(pinkTextureDataRaw, &pinkTextureData, sizeof(u32));
+            s_DefaultTexture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "Default Texture", 1, 1, pinkTextureDataRaw, RZTexture::Format::RGBA8);
+            //delete[] pinkTextureDataRaw;
         }
 
         void RZMaterial::ReleaseDefaultTexture()
