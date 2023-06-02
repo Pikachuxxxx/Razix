@@ -1,0 +1,25 @@
+{
+    "wire_177028149": {
+        "Name": "wire_177028149",
+        "Albedo": "//Assets/Models/hydria_apothecary_vase/textures/wire_177028149_diffuse.jpeg",
+        "Normal": "//Assets/Models/hydria_apothecary_vase/textures/wire_177028149_normal.png",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 1.0,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

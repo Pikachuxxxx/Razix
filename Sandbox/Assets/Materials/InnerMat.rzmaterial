@@ -1,0 +1,25 @@
+{
+    "InnerMat": {
+        "Name": "InnerMat",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.20000000298023225,
+            "y": 0.20000000298023225,
+            "z": 0.20000000298023225
+        },
+        "roughnessColor": 0.25,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

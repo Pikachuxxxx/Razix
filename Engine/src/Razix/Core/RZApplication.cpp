@@ -201,52 +201,62 @@ namespace Razix {
 
     bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
     {
-        auto ctx = ImGui::GetCurrentContext();
+#if 0
+ auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io = ImGui::GetIO();
             io.MousePos = ImVec2(e.GetX(), e.GetY());
         }
+#endif
         return true;
     }
 
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
-        auto ctx = ImGui::GetCurrentContext();
+#if 0
+auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
             io.MouseDown[e.GetMouseButton() - 1] = true;
             io.MouseDown[e.GetMouseButton() - 1] = true;
         }
+#endif
         return true;
     }
 
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
-        auto ctx = ImGui::GetCurrentContext();
+#if 0
+auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
             io.MouseDown[e.GetMouseButton() - 1] = false;
         }
+#endif
         return true;
     }
 
     bool RZApplication::OnKeyPress(RZKeyPressedEvent& e)
     {
-        auto ctx = ImGui::GetCurrentContext();
+#if 0
+ auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
             io.KeysDown[e.GetKeyCode()] = true;
         }
+#endif
         return true;
     }
 
     bool RZApplication::OnKeyRelease(RZKeyReleasedEvent& e)
     {
-        auto ctx = ImGui::GetCurrentContext();
+#if 0
+ auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
             io.KeysDown[e.GetKeyCode()] = false;
         }
+#endif
         return true;
     }
 
@@ -367,6 +377,9 @@ namespace Razix {
 
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
+        // Update Scene Graph here
+        RZEngine::Get().getSceneManager().getCurrentScene()->update();
+        // Update the Scene Camera Here
         RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
 
         auto ctx = ImGui::GetCurrentContext();
@@ -376,9 +389,16 @@ namespace Razix {
             (void) io;
             io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
         }
-        // Run the OnUpdate for all the scripts
-        if (RZEngine::Get().getSceneManager().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+
+        // Update the Runtime Systems only on Game Application type
+        if (m_appType == AppType::GAME) {
+            // Run the OnUpdate for all the scripts
+            if (RZEngine::Get().getSceneManager().getCurrentScene())
+                RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+
+            // TODO: Update the Physics Engine here
+            /*RZEngine::Get().getPhysicsEngine().update(dt); */
+        }
 
         // Client App Update
         OnUpdate(dt);
@@ -444,7 +464,7 @@ namespace Razix {
             // Guizmo Editing Here
             TransformComponent& tc = m_GuizmoEntity.GetComponent<TransformComponent>();
 #if 1
-            glm::mat4 transformMatrix = tc.GetTransform();
+            glm::mat4 transformMatrix = tc.GetLocalTransform();
             glm::mat4 deltaMatrix     = glm::mat4(1.0f);
 
             //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));

@@ -15,6 +15,8 @@ namespace Razix {
         glm::vec3 Rotation    = {0, 0, 0}; /* Stores the Rotation in radians */
         glm::vec3 Scale       = {1.0f, 1.0f, 1.0f};
         glm::mat4 Transform   = glm::mat4(1.0);
+        // TODO: Serialize this?
+        glm::mat4 WorldMatrix = glm::mat4(1.0);
 
         TransformComponent()                          = default;
         TransformComponent(const TransformComponent&) = default;
@@ -22,7 +24,10 @@ namespace Razix {
             : Translation(translation) {}
 
         /* Gets the transformation matrix */
-        glm::mat4 GetTransform();
+        glm::mat4 GetGlobalTransform();
+        glm::mat4 GetLocalTransform();
+        glm::mat4 GetWorldTransform() { return GetGlobalTransform(); }
+        void      SetWorldTransform(glm::mat4 matrix) { WorldMatrix = matrix; }
 
         template<typename Archive>
         void serialize(Archive& archive)
