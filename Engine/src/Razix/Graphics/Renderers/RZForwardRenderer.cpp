@@ -140,7 +140,7 @@ namespace Razix {
                 const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
                 // Bind push constants, VBO, IBO and draw
-                glm::mat4 transform = mesh_trans.GetTransform();
+                glm::mat4 transform = mesh_trans.GetGlobalTransform();
 
                 //-----------------------------
                 // Get the shader from the Mesh Material later

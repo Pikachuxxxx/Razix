@@ -43,11 +43,67 @@ namespace Razix {
 
     void RZScene::updatePhysics()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         RAZIX_UNIMPLEMENTED_METHOD
+    }
+
+    void RZScene::update()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+        // GPU/CPU culling can be done here as well
+
+        // Update the Hierarchy Transformations
+        // First update only those entities without and Hierarchy Component
+        auto nonHierarchyTransformsView = m_Registry.view<TransformComponent>(entt::exclude<HierarchyComponent>);
+        for (auto& entity: nonHierarchyTransformsView)
+            m_Registry.get<TransformComponent>(entity).SetWorldTransform(glm::mat4(1.0f));
+
+        // Now Recursively update the Entities with children
+        auto hierarchyView = m_Registry.view<HierarchyComponent>();
+        for (auto& entity: hierarchyView) {
+            const auto hierarchy = m_Registry.try_get<HierarchyComponent>(entity);
+            // Update only the children, always start from root parent to child and update recursively
+            if (hierarchy && hierarchy->Parent == entt::null) {
+                updateTransform(entity);
+            }
+        }
+    }
+
+    void RZScene::updateTransform(entt::entity entity)
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
+        const auto hierarchy = m_Registry.try_get<HierarchyComponent>(entity);
+        if (hierarchy) {
+            auto transform = m_Registry.try_get<TransformComponent>(entity);
+            if (transform) {
+                if (hierarchy->Parent != entt::null) {
+                    auto parentTransform = m_Registry.try_get<TransformComponent>(hierarchy->Parent);
+                    if (parentTransform) {
+                        transform->SetWorldTransform(parentTransform->GetWorldTransform());
+                    } else {
+                        transform->SetWorldTransform(glm::mat4(1.0f));
+                    }
+                }
+            } else {
+                transform->SetWorldTransform(glm::mat4(1.0f));
+            }
+        }
+
+        entt::entity child = hierarchy->First;
+        while (child != entt::null) {
+            auto hierarchyComponent = m_Registry.try_get<HierarchyComponent>(child);
+            auto next               = hierarchyComponent ? hierarchyComponent->Next : entt::null;
+            updateTransform(child);
+            child = next;
+        }
     }
 
     void RZScene::drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets, void* overridePCData, bool disableMaterials)
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
         auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
 
         auto& mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
@@ -56,7 +112,7 @@ namespace Razix {
             const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
             // Bind push constants, VBO, IBO and draw
-            glm::mat4 transform = mesh_trans.GetTransform();
+            glm::mat4 transform = mesh_trans.GetGlobalTransform();
 
             //-----------------------------
             Graphics::RZPushConstant modelMatrixPC;
@@ -84,13 +140,13 @@ namespace Razix {
             // Combine System Desc sets with material sets and Bind them
             std::vector<Graphics::RZDescriptorSet*> setsToBindInOrder;
 
-            if (frameDataSet)           // @ 0
+            if (frameDataSet)    // @ 0
                 setsToBindInOrder.push_back(frameDataSet);
 
-            if (!disableMaterials)      // @ 1
+            if (!disableMaterials)    // @ 1
                 setsToBindInOrder.push_back(mrc.Mesh->getMaterial()->getDescriptorSet());
 
-            if (sceneLightsSet)         // @ 2
+            if (sceneLightsSet)    // @ 2
                 setsToBindInOrder.push_back(sceneLightsSet);
 
             if (!userSets.empty())

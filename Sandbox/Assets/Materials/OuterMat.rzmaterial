@@ -1,0 +1,25 @@
+{
+    "OuterMat": {
+        "Name": "OuterMat",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.10000000149011612,
+            "y": 0.03999999910593033,
+            "z": 0.009999999776482582
+        },
+        "roughnessColor": 0.25,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

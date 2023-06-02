@@ -10,7 +10,7 @@
 
 // https://stackoverflow.com/questions/49609654/quaternion-based-first-person-view-camera
 
-glm::mat4 Razix::TransformComponent::GetTransform()
+glm::mat4 Razix::TransformComponent::GetGlobalTransform()
 {
 #if 0
 glm::quat qPitch = glm::angleAxis(Rotation.x, glm::vec3(1, 0, 0));
@@ -25,6 +25,23 @@ glm::quat qPitch = glm::angleAxis(Rotation.x, glm::vec3(1, 0, 0));
     model *= glm::scale(glm::mat4(1.0f), Scale);
 #endif
 
+    Transform = glm::mat4(1.0f);
+
+    glm::quat rotationQuat{};
+    glm::mat4 rotationMatrix = glm::mat4(1.0f);
+    // Convert the Euler angles into
+    rotationQuat   = glm::quat(Rotation);
+    rotationMatrix = glm::mat4_cast(rotationQuat);
+
+    Transform = glm::translate(Transform, Translation);
+    Transform *= rotationMatrix;
+    Transform = glm::scale(Transform, Scale);
+
+    return WorldMatrix * Transform;
+}
+
+glm::mat4 Razix::TransformComponent::GetLocalTransform()
+{
     Transform = glm::mat4(1.0f);
 
     glm::quat rotationQuat{};

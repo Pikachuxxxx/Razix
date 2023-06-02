@@ -15,7 +15,7 @@ namespace Razix {
     namespace Graphics {
         class RZPipeline;
         class RZDescriptorSet;
-    }
+    }    // namespace Graphics
 
     /**
      * Scene contains entities that will be used by the engine for rendering and other runtime systems
@@ -27,6 +27,9 @@ namespace Razix {
         RZScene(std::string sceneName);
 
         void updatePhysics();
+        /* Updates the Scene Graph Hierarchy transformations */
+        void update();
+        void updateTransform(entt::entity entity);
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
         void drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets = {}, void* overridePCData = nullptr, bool disableMaterials = false);
 
