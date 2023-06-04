@@ -3,7 +3,7 @@
 namespace Razix {
     namespace Debug {
 
-#ifdef RAZIX_DEBUG
+#ifndef RAZIX_DISTRIBUTION
     #define RZ_DEBUG_NAME_TAG_S_ARG        const std::string& bufferName
     #define RZ_DEBUG_NAME_TAG_E_ARG        , const std::string& bufferName
     #define RZ_DEBUG_NAME_TAG_F_ARG        const std::string &bufferName,
