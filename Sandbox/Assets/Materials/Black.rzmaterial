@@ -1,0 +1,25 @@
+{
+    "Black": {
+        "Name": "Black",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "roughnessColor": 0.0,
+        "metallicColor": 0.6000000238418579,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}
