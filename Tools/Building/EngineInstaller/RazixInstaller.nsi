@@ -17,7 +17,7 @@
     ;Default installation folder
     InstallDir "$PROGRAMFILES64\Razix"
 
-    ;Request application privileges for Windows Vista
+    ;Request application privileges for Windows 11
     RequestExecutionLevel admin
 ;--------------------------------
 ;Interface Settings
@@ -57,14 +57,14 @@ Section "Razix Engine Components" EngineInstallSec
 
     SetOutPath $INSTDIR
 
-    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Razix.dll"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Razix.dll"
     SetOutPath $INSTDIR
-    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\RazixEditor.exe"
-    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Qt5Cored.dll"
-    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Qt5Guid.dll"
-    FILE /a /r "..\..\..\bin\Debug-windows-x86_64\Qt5Widgetsd.dll"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\RazixEditor.exe"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Core.dll"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Gui.dll"
+    FILE /a /r "..\..\..\bin\Distribution-windows-x86_64\Qt5Widgets.dll"
     SetOutPath $INSTDIR\plugins
-    FILE /nonfatal /a /r "..\..\..\bin\Debug-windows-x86_64\plugins\"
+    FILE /nonfatal /a /r "..\..\..\bin\Distribution-windows-x86_64\plugins\"
     SetOutPath $INSTDIR\Engine\content
     FILE /nonfatal /a /r "..\..\..\Engine\content\"
 
