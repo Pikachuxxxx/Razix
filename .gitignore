@@ -1,6 +1,10 @@
 # Directories
 .vs/
-bin/
+# https://stackoverflow.com/questions/5533050/gitignore-exclude-folder-but-include-specific-subfolder
+# don't ignore the NSIS Bin folder
+!/Tools/Building.EngineInstaller/NSIS/Bin/**
+# Whitelisting on the Engine bin folder for now
+bin/*
 bin-int/
 build/
 

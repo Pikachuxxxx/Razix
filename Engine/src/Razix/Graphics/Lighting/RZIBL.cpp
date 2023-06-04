@@ -161,7 +161,7 @@ namespace Razix {
             // Load the shader for converting plain cubemap to irradiance map by convolution
             RZShader* cubemapConvolutionShader = RZShaderLibrary::Get().getShader("GenerateIrradianceMap.rzsf");
 
-            // Create the View Proj buffer
+            // Create the View Projection buffer
 
             std::vector<RZDescriptorSet*> envMapSets;
             std::vector<RZUniformBuffer*> UBOs;
@@ -354,6 +354,7 @@ namespace Razix {
                         } data;
                         data.roughness = roughness;
                         RZPushConstant pc;
+                        pc.shaderStage = ShaderStage::PIXEL;
                         pc.data = &data;
                         pc.size = sizeof(PCData);
 

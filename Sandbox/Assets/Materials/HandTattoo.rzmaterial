@@ -1,0 +1,25 @@
+{
+    "HandTattoo": {
+        "Name": "HandTattoo",
+        "Albedo": "//Assets/eattle)/*0",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.0,
+        "metallicColor": 0.47727274894714358,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

@@ -201,7 +201,7 @@ namespace Razix {
 
     bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
     {
-#if 0
+#if 1
  auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io = ImGui::GetIO();
@@ -213,7 +213,7 @@ namespace Razix {
 
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
-#if 0
+#if 1
 auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
@@ -226,7 +226,7 @@ auto ctx = ImGui::GetCurrentContext();
 
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
-#if 0
+#if 1
 auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
