@@ -76,12 +76,13 @@ namespace Razix {
                 barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
                 barrier.subresourceRange.baseArrayLayer = layerIdx;
                 barrier.subresourceRange.layerCount     = layers;
-                barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+                barrier.subresourceRange.levelCount     = 1;
 
                 int32_t mipWidth  = texWidth;
                 int32_t mipHeight = texHeight;
 
                 for (u32 i = 1; i < mipLevels; i++) {
+#if 1
                     barrier.subresourceRange.baseMipLevel = i - 1;
                     barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                     barrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -98,6 +99,7 @@ namespace Razix {
                         nullptr,
                         1,
                         &barrier);
+#endif
 
                     VkImageBlit blit{};
                     blit.srcOffsets[0]                 = {0, 0, 0};
@@ -122,6 +124,7 @@ namespace Razix {
                         &blit,
                         VK_FILTER_LINEAR);
 
+#if 1
                     barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                     barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                     barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
@@ -137,6 +140,7 @@ namespace Razix {
                         nullptr,
                         1,
                         &barrier);
+#endif
 
                     if (mipWidth > 1)
                         mipWidth /= 2;
@@ -145,7 +149,7 @@ namespace Razix {
                 }
 
                 barrier.subresourceRange.baseMipLevel = mipLevels - 1;
-                barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                 barrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
                 barrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
@@ -401,7 +405,7 @@ namespace Razix {
             }
 
             // 2. Transition from transfer to shader layout (This causing some error, some kind of unnecessary layout transition for the mip maps)
-            //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+            //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, mipLevels);
 
             // This barrier transitions the last mip level from VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Format), m_Width, m_Height, mipLevels);
@@ -785,7 +789,9 @@ namespace Razix {
             else
                 m_TotalMipLevels = 1;
 
-            VKTexture2D::CreateImage(m_Width, m_Height, 1, m_TotalMipLevels, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            VKTexture2D::CreateImage(m_Width, m_Height, 1, m_TotalMipLevels, format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, 6, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+
+            VKUtilities::TransitionImageLayout(m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_TotalMipLevels, 6);
 
             if (enableMipsGeneration)
                 VKTexture2D::GenerateMipmaps(m_Image, format, m_Width, m_Height, m_TotalMipLevels);

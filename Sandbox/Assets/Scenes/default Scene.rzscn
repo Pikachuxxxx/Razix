@@ -2,7 +2,7 @@
     "Razix Scene": {
         "UUID": "6bd7764c-2da0-423b-8bd9-26db52166cf0",
         "SceneName": "default Scene",
-        "Total Entities": 12
+        "Total Entities": 6
     },
     "value0": 105,
     "value1": 0,
@@ -84,33 +84,33 @@
     "value77": 2097227,
     "value78": 2097228,
     "value79": 2097229,
-    "value80": 2097230,
-    "value81": 2097231,
-    "value82": 2097232,
-    "value83": 2097233,
-    "value84": 2097234,
-    "value85": 2097235,
-    "value86": 2097236,
-    "value87": 2097237,
-    "value88": 2097238,
-    "value89": 2097239,
-    "value90": 2097240,
-    "value91": 2097241,
-    "value92": 2097242,
-    "value93": 2097243,
-    "value94": 2097244,
-    "value95": 2097245,
-    "value96": 2097246,
-    "value97": 2097247,
-    "value98": 2097248,
-    "value99": 2097249,
-    "value100": 2097251,
-    "value101": 2097252,
-    "value102": 2097253,
-    "value103": 2097254,
-    "value104": 2097255,
-    "value105": 2097256,
-    "value106": 12,
+    "value80": 3145806,
+    "value81": 3145807,
+    "value82": 3145808,
+    "value83": 3145809,
+    "value84": 3145810,
+    "value85": 3145811,
+    "value86": 3145812,
+    "value87": 3145813,
+    "value88": 3145814,
+    "value89": 3145815,
+    "value90": 3145816,
+    "value91": 3145817,
+    "value92": 3145818,
+    "value93": 3145819,
+    "value94": 3145820,
+    "value95": 3145821,
+    "value96": 3145822,
+    "value97": 3145823,
+    "value98": 3145824,
+    "value99": 3145825,
+    "value100": 4194402,
+    "value101": 4194403,
+    "value102": 4194404,
+    "value103": 4194405,
+    "value104": 4194406,
+    "value105": 4194407,
+    "value106": 6,
     "value107": 0,
     "value108": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
@@ -135,83 +135,35 @@
     "value118": {
         "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value119": 2097256,
-    "value120": {
-        "UUID": "ba72d7b0-103d-4f26-a433-f9f8ac5fc244"
-    },
-    "value121": 2097255,
-    "value122": {
-        "UUID": "4e62569d-4949-4a19-9111-0db7f4c47c7c"
-    },
-    "value123": 2097254,
-    "value124": {
-        "UUID": "c3b2e515-4da5-4b3b-9c4a-424fa337dfb3"
-    },
-    "value125": 2097253,
-    "value126": {
-        "UUID": "3602c17a-b792-4d8c-ac78-a2ba478da9bf"
-    },
-    "value127": 2097252,
-    "value128": {
-        "UUID": "576e6736-355d-47df-99b1-51d50cc6d60b"
-    },
-    "value129": 2097251,
-    "value130": {
-        "UUID": "411ad7e2-a0e8-4bb8-8e80-864f5d10ec6b"
-    },
-    "value131": 12,
-    "value132": 0,
-    "value133": {
+    "value119": 6,
+    "value120": 0,
+    "value121": {
         "Tag": "Camera"
     },
-    "value134": 1,
-    "value135": {
+    "value122": 1,
+    "value123": {
         "Tag": "hello_lua"
     },
-    "value136": 2,
-    "value137": {
+    "value124": 2,
+    "value125": {
         "Tag": "imgui_lua"
     },
-    "value138": 3,
-    "value139": {
+    "value126": 3,
+    "value127": {
         "Tag": "Directional Light"
     },
-    "value140": 4,
-    "value141": {
+    "value128": 4,
+    "value129": {
         "Tag": "CubeMesh"
     },
-    "value142": 5,
-    "value143": {
+    "value130": 5,
+    "value131": {
         "Tag": "Test rzMesh"
     },
-    "value144": 2097256,
-    "value145": {
-        "Tag": "testObj"
-    },
-    "value146": 2097255,
-    "value147": {
-        "Tag": "BackGroundMat"
-    },
-    "value148": 2097254,
-    "value149": {
-        "Tag": "InnerMat"
-    },
-    "value150": 2097253,
-    "value151": {
-        "Tag": "LTELogo"
-    },
-    "value152": 2097252,
-    "value153": {
-        "Tag": "Material"
-    },
-    "value154": 2097251,
-    "value155": {
-        "Tag": "OuterMat"
-    },
-    "value156": 0,
-    "value157": 12,
-    "value158": 0,
-    "value159": {
+    "value132": 0,
+    "value133": 6,
+    "value134": 0,
+    "value135": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -254,8 +206,8 @@
             }
         }
     },
-    "value160": 1,
-    "value161": {
+    "value136": 1,
+    "value137": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -298,8 +250,8 @@
             }
         }
     },
-    "value162": 2,
-    "value163": {
+    "value138": 2,
+    "value139": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -342,8 +294,8 @@
             }
         }
     },
-    "value164": 3,
-    "value165": {
+    "value140": 3,
+    "value141": {
         "Translation": {
             "x": 3.4153952598571779,
             "y": 2.459376573562622,
@@ -386,8 +338,8 @@
             }
         }
     },
-    "value166": 4,
-    "value167": {
+    "value142": 4,
+    "value143": {
         "Translation": {
             "x": 2.3257343769073488,
             "y": 0.0,
@@ -430,8 +382,8 @@
             }
         }
     },
-    "value168": 5,
-    "value169": {
+    "value144": 5,
+    "value145": {
         "Translation": {
             "x": 1.918914794921875,
             "y": 0.0,
@@ -474,302 +426,38 @@
             }
         }
     },
-    "value170": 2097256,
-    "value171": {
-        "Translation": {
-            "x": 0.18813619017601014,
-            "y": 0.0,
-            "z": 0.35569286346435549
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": 0.18813619017601014,
-                "value1": 0.0,
-                "value2": 0.35569286346435549,
-                "value3": 1.0
-            }
-        }
-    },
-    "value172": 2097255,
-    "value173": {
-        "Translation": {
-            "x": -0.21545955538749696,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": -0.21545955538749696,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 1.0
-            }
-        }
-    },
-    "value174": 2097254,
-    "value175": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 1.0
-            }
-        }
-    },
-    "value176": 2097253,
-    "value177": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 1.0
-            }
-        }
-    },
-    "value178": 2097252,
-    "value179": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 1.8052875995635987
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.8052875995635987,
-                "value3": 1.0
-            }
-        }
-    },
-    "value180": 2097251,
-    "value181": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 1.0
-            }
-        }
-    },
-    "value182": 1,
-    "value183": 0,
-    "value184": {
+    "value146": 1,
+    "value147": 0,
+    "value148": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": -0.20724840462207795,
-                "y": 3.474238157272339,
-                "z": -5.575265884399414
+                "x": -13.08652114868164,
+                "y": 8.158466339111329,
+                "z": 3.495011806488037
             },
             "Front": {
-                "x": -0.03616214171051979,
-                "y": -0.5591928958892822,
-                "z": 0.8282485604286194
+                "x": 0.9471625685691834,
+                "y": -0.24615328013896943,
+                "z": 0.20564915239810944
             },
             "Up": {
-                "x": -0.024391671642661096,
-                "y": 0.8290376663208008,
-                "z": 0.5586606860160828
+                "x": 0.24054864048957826,
+                "y": 0.9692308902740479,
+                "z": 0.052228230983018878
             },
             "Right": {
-                "x": -0.999048113822937,
+                "x": -0.21217767894268037,
                 "y": 0.0,
-                "z": -0.043619416654109958
+                "z": 0.9772310853004456
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": 92.5,
-            "Pitch": -34.0,
+            "Yaw": 12.25,
+            "Pitch": -14.25,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -789,62 +477,32 @@
             }
         }
     },
-    "value185": 0,
-    "value186": 7,
-    "value187": 4,
-    "value188": {
+    "value149": 0,
+    "value150": 2,
+    "value151": 4,
+    "value152": {
         "Primitive": 2,
         "MeshName": "",
         "MeshPath": ""
     },
-    "value189": 5,
-    "value190": {
+    "value153": 5,
+    "value154": {
         "Primitive": -842150451,
         "MeshName": "Mesh",
         "MeshPath": "//Assets/Cache/Meshes/Mesh.rzmesh"
     },
-    "value191": 2097255,
-    "value192": {
-        "Primitive": -842150451,
-        "MeshName": "BackGro",
-        "MeshPath": "//Assets/Cache/Meshes/BackGroundMat.rzmesh"
-    },
-    "value193": 2097254,
-    "value194": {
-        "Primitive": -842150451,
-        "MeshName": "InnerMa",
-        "MeshPath": "//Assets/Cache/Meshes/InnerMat.rzmesh"
-    },
-    "value195": 2097253,
-    "value196": {
-        "Primitive": -842150451,
-        "MeshName": "LTELogo",
-        "MeshPath": "//Assets/Cache/Meshes/LTELogo.rzmesh"
-    },
-    "value197": 2097252,
-    "value198": {
-        "Primitive": -842150451,
-        "MeshName": "Materia",
-        "MeshPath": "//Assets/Cache/Meshes/Material.rzmesh"
-    },
-    "value199": 2097251,
-    "value200": {
-        "Primitive": -842150451,
-        "MeshName": "OuterMa",
-        "MeshPath": "//Assets/Cache/Meshes/OuterMat.rzmesh"
-    },
-    "value201": 2,
-    "value202": 1,
-    "value203": {
+    "value155": 2,
+    "value156": 1,
+    "value157": {
         "FilePath": "//Scripts/hello_razix.lua"
     },
-    "value204": 2,
-    "value205": {
+    "value158": 2,
+    "value159": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value206": 1,
-    "value207": 3,
-    "value208": {
+    "value160": 1,
+    "value161": 3,
+    "value162": {
         "Light": {
             "type": 0,
             "position": {
@@ -872,47 +530,5 @@
             "outerConeAngle": 60.0
         }
     },
-    "value209": 6,
-    "value210": 2097256,
-    "value211": {
-        "First": 2097255,
-        "Next": 1048575,
-        "Previous": 1048575,
-        "Parent": 1048575
-    },
-    "value212": 2097255,
-    "value213": {
-        "First": 1048575,
-        "Next": 2097254,
-        "Previous": 1048575,
-        "Parent": 2097256
-    },
-    "value214": 2097254,
-    "value215": {
-        "First": 1048575,
-        "Next": 2097253,
-        "Previous": 2097255,
-        "Parent": 2097256
-    },
-    "value216": 2097253,
-    "value217": {
-        "First": 1048575,
-        "Next": 2097252,
-        "Previous": 2097254,
-        "Parent": 2097256
-    },
-    "value218": 2097252,
-    "value219": {
-        "First": 1048575,
-        "Next": 2097251,
-        "Previous": 2097253,
-        "Parent": 2097256
-    },
-    "value220": 2097251,
-    "value221": {
-        "First": 1048575,
-        "Next": 1048575,
-        "Previous": 2097252,
-        "Parent": 2097256
-    }
+    "value163": 0
 }
