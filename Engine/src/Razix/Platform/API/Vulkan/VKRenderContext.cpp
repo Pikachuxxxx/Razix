@@ -246,7 +246,9 @@ namespace Razix {
             renderingInfoKHR.pColorAttachments    = colorAttachments.data();
 
             // Depth Attachment
-            if (renderingInfo.depthAttachment.first) {
+            VkRenderingAttachmentInfoKHR attachInfo{};
+            if (renderingInfo.depthAttachment.first)
+            {
                 // Depth attachment resize
                 if (renderingInfo.resize) {
                     if (m_Width != renderingInfo.depthAttachment.first->getWidth() || m_Height != renderingInfo.depthAttachment.first->getHeight())
@@ -254,14 +256,15 @@ namespace Razix {
                 }
 
                 // Fill the color attachments first
-                VkRenderingAttachmentInfoKHR attachInfo{};
-                attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(renderingInfo.depthAttachment.first->GetHandle());
-                attachInfo.imageView = apiHandle->imageView;
+                attachInfo.sType                               = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (renderingInfo.depthAttachment.first->GetHandle());
+                attachInfo.imageView                           = apiHandle->imageView;
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 
-                if (renderingInfo.depthAttachment.second.clear) {
+                bool clearDepth = renderingInfo.depthAttachment.second.clear;
+
+                if (clearDepth) {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
                 } else {
