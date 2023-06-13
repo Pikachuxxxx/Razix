@@ -5,9 +5,15 @@
 
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <Windows.h>
+    #include <fileapi.h>
     #include <wtypes.h>
 
 namespace Razix {
+
+    bool RZFileSystem::CreateDir(const std::string& path)
+    {
+        return CreateDirectoryA((LPCSTR) path.c_str(), NULL);
+    }
 
     static HANDLE OpenFileForReading(const std::string& path)
     {
@@ -70,7 +76,7 @@ namespace Razix {
     {
         const HANDLE  file   = OpenFileForReading(path);
         const int64_t size   = GetFileSizeInternal(file);
-        u8*      buffer = new u8[static_cast<u32>(size)];
+        u8*           buffer = new u8[static_cast<u32>(size)];
         const bool    result = ReadFileInternal(file, buffer, size);
         CloseHandle(file);
         if (!result)

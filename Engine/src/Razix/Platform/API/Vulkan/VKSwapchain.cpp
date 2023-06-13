@@ -447,8 +447,6 @@ namespace Razix {
             //    return;
             //}
 
-            //VKUtilities::TransitionImageLayout(currentVKImage, m_ColorFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
             if (error == VK_ERROR_OUT_OF_DATE_KHR) {
                 vkDeviceWaitIdle(VKDevice::Get().getDevice());
                 RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");

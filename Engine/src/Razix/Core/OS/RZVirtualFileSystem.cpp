@@ -35,6 +35,9 @@ namespace Razix {
     {
         RAZIX_CORE_TRACE("[Virtual File System] Mounting file path at : {0}", physicalPath);
         m_MountPoints[virtualPath].push_back(physicalPath);
+
+        // Create the Directories as well
+        RZFileSystem::CreateDir(physicalPath);
     }
 
     void RZVirtualFileSystem::unMount(const std::string& path)

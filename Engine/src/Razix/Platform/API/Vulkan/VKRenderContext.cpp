@@ -20,7 +20,7 @@
 namespace Razix {
     namespace Graphics {
 
-        static constexpr u32 MAX_DESCRIPTOR_SET_COUNT = 1500;
+        static constexpr u32 MAX_DESCRIPTOR_SET_COUNT = 2500;
 
         static void CmdBeginRenderingKHR(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo)
         {

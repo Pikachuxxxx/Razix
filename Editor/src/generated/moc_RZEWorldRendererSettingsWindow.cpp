@@ -8,7 +8,7 @@
 
 #include <memory>
 #include "rzepch.h"
-#include "../UI/Windows/RZEWorldRendererSettingsWindow.h"
+#include "../UI/Windows/RZEWorldSettingsWindow.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
@@ -68,10 +68,10 @@ static const uint qt_meta_data_Razix__Editor__RZEWorldRendererSettingsWindow[] =
        0        // eod
 };
 
-void Razix::Editor::RZEWorldRendererSettingsWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void Razix::Editor::RZEWorldSettingsWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<RZEWorldRendererSettingsWindow *>(_o);
+        auto *_t = static_cast<RZEWorldSettingsWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->On_SetFilterRadius(); break;
@@ -82,7 +82,7 @@ void Razix::Editor::RZEWorldRendererSettingsWindow::qt_static_metacall(QObject *
     Q_UNUSED(_a);
 }
 
-QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZEWorldRendererSettingsWindow::staticMetaObject = { {
+QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZEWorldSettingsWindow::staticMetaObject = { {
     QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
     qt_meta_stringdata_Razix__Editor__RZEWorldRendererSettingsWindow.data,
     qt_meta_data_Razix__Editor__RZEWorldRendererSettingsWindow,
@@ -92,12 +92,12 @@ QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZEWorldRendererSettingsWind
 } };
 
 
-const QMetaObject *Razix::Editor::RZEWorldRendererSettingsWindow::metaObject() const
+const QMetaObject *Razix::Editor::RZEWorldSettingsWindow::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *Razix::Editor::RZEWorldRendererSettingsWindow::qt_metacast(const char *_clname)
+void *Razix::Editor::RZEWorldSettingsWindow::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_Razix__Editor__RZEWorldRendererSettingsWindow.stringdata0))
@@ -105,7 +105,7 @@ void *Razix::Editor::RZEWorldRendererSettingsWindow::qt_metacast(const char *_cl
     return QWidget::qt_metacast(_clname);
 }
 
-int Razix::Editor::RZEWorldRendererSettingsWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int Razix::Editor::RZEWorldSettingsWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QWidget::qt_metacall(_c, _id, _a);
     if (_id < 0)

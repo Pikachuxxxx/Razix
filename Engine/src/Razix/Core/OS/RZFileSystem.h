@@ -7,6 +7,15 @@ namespace Razix {
     class RZFileSystem : public RZRoot
     {
     public:
+
+        /**
+         * Creates a Directory and Folders for a given path
+         * 
+         * @param path The folder path to create
+         * @returns True, if the the directory was successfully created
+         */
+        static bool CreateDir(const std::string& path); 
+
         /**
          * Checks if the file exists at the given path
          * 
@@ -99,4 +108,5 @@ namespace Razix {
             return !IsRelativePath(path);
         }
     };
+
 }    // namespace Razix

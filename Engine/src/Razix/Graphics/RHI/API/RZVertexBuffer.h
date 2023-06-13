@@ -13,14 +13,6 @@ namespace Razix {
         /* Forward declaring for reducing coupling */
         class RZCommandBuffer;
 
-        /* Defines how the buffer is used */
-        enum class BufferUsage
-        {
-            STATIC,
-            DYNAMIC,
-            STREAM
-        };
-
         /* Vertex buffer that contains the vertex data that will be used to render geometry */
         class RAZIX_API RZVertexBuffer : public RZRoot
         {

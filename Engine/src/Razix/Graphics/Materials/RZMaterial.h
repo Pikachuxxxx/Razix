@@ -60,5 +60,9 @@ namespace Razix {
             WorkFlow           m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
         };
 
+        static RZMaterial* DefaultMaterial = nullptr;
+
+        RZMaterial* GetDefaultMaterial();
+
     }    // namespace Graphics
 }    // namespace Razix

@@ -90,6 +90,9 @@ namespace Razix {
 
         RZMaterial* loadMaterial(const std::string& materialName)
         {
+            if (materialName == "DefaultMaterial")
+                return GetDefaultMaterial();
+
             auto        shader   = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
             RZMaterial* material = new RZMaterial(shader);
             material->setName(materialName);
