@@ -13,7 +13,7 @@
 #include <QProgressBar>
 #include <QToolBar>
 
-#include "UI/Windows/RZEWorldRendererSettingsWindow.h"
+#include "UI/Windows/RZEWorldSettingsWindow.h"
 
 #include "Razix/Core/RZApplication.h"
 
@@ -81,7 +81,7 @@ namespace Razix {
             QPushButton* enableSnapBtn;
 
             // Windows
-            RZEWorldRendererSettingsWindow* m_WorldSettingsWindow;
+            RZEWorldSettingsWindow* m_WorldSettingsWindow;
 
             std::string m_ProjectPathDir;
 

@@ -397,13 +397,13 @@ namespace Razix {
 
                 if (childNode.numChildren)
                     CreateEntityHierarchy(&childNode, childEntity, rootMeshName, progressBar);
-            }
+            } 
         }
 
         void RZEMainWindow::Create_Import_Model()
         {
             // TODO: Add a UI for before and after import launch results and stuff
-            auto fileName = QFileDialog::getOpenFileName(this, "Select Model File to load", "", tr("GLTF (*.gltf);;OBJ (*.obj);;Collada(*.dae)"));
+            auto fileName = QFileDialog::getOpenFileName(this, "Select Model File to load", "", tr("GLB (*.glb);;GLTF (*.gltf);;OBJ (*.obj);;Collada(*.dae)"));
             if (!fileName.isEmpty()) {
                 // Progress Dialog
                 QProgressDialog* progressBar = new QProgressDialog("Importing mesh...", "Cancel", 0, 100);
@@ -482,7 +482,7 @@ namespace Razix {
             connect(ui.actionMaterial_Editor, &QAction::triggered, this, &RZEMainWindow::Windows_MaterialEditor);
 
             // Create the m_WorldSettingsWindow and connect it
-            m_WorldSettingsWindow = new RZEWorldRendererSettingsWindow;
+            m_WorldSettingsWindow = new RZEWorldSettingsWindow;
             connect(ui.actionWorld_Renderer_Settings, &QAction::triggered, this, &RZEMainWindow::Windows_WorldRendererSettings);
         }
         // Windows - Action = open/close Material Editor

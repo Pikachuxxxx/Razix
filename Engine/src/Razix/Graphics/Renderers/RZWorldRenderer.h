@@ -81,7 +81,6 @@ namespace Razix {
 
         struct RZRendererSettings
         {
-            // TODO: Specify the output RT type here
             u32 renderFeatures{RendererFeature_Default};
             struct
             {
@@ -143,7 +142,15 @@ namespace Razix {
             Maths::RZAABB m_SceneAABB;
 
         private:
+            /**
+             * Imports the Global skybox, diffuse and specular light probes into the scene
+             * 
+             * @param globalLightProbe The global light probe that will be imported into the scene
+             */
             void importGlobalLightProbes(LightProbe globalLightProbe);
+            /**
+             * Culls the scene lights against the Main Camera frustum
+             */
             void cullLights(Maths::RZFrustum& frustum);
             void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
             void uploadLightsData(RZScene* scene, RZRendererSettings& settings);

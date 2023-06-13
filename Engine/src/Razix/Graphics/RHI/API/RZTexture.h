@@ -3,6 +3,7 @@
 #include "Razix/Core/RZLog.h"
 
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
+#include "Razix/Graphics/RHI/API/RZTextureData.h"
 
 namespace Razix {
     namespace Graphics {
@@ -14,79 +15,13 @@ namespace Razix {
         // TODO: Derive Texture from a RazixResource/Asset class this way it gets a resource/asset UUID + serialization by default
         // TODO: Calculate size properly for manually set texture data
         // TODO: Add support and Utility functions for sRGB textures
-        class RAZIX_API RZTexture : public RZRoot
+        class RAZIX_API RZTextureInterface : public RZRoot
         {
-            // Texture internal Types
-        public:
-            /* The type of the texture */
-            enum class Type
-            {
-                COLOR_1D = 0,
-                COLOR_2D,
-                COLOR_3D,
-                COLOR_RT,
-                DEPTH,
-                CUBEMAP
-            };
-
-            /* The format of the Texture resource */
-            enum class Format
-            {
-                R8,
-                R32_INT,
-                R32_UINT,
-                R32F,
-                RG8,
-                RGB8,
-                RGBA8,
-                RGB16,
-                RGBA16,
-                RGB32,
-                RGBA32,
-                RGBA32F,
-                RGB,
-                RGBA,
-                DEPTH16_UNORM,
-                DEPTH32F,
-                STENCIL,
-                DEPTH_STENCIL,
-                SCREEN,
-                BGRA8_UNORM,
-                R11G11B10A2_UINT,
-                R11G11B10A2_SFLOAT,
-                NONE
-            };
-
-            /* Wrap mode for the texture texels */
-            enum class Wrapping
-            {
-                REPEAT,
-                MIRRORED_REPEAT,
-                CLAMP_TO_EDGE,
-                CLAMP_TO_BORDER
-            };
-
-            /* Filtering for the Texture */
-            struct Filtering
-            {
-                enum class FilterMode
-                {
-                    LINEAR,
-                    NEAREST
-                };
-                FilterMode minFilter = FilterMode::LINEAR;
-                FilterMode magFilter = FilterMode::LINEAR;
-
-                Filtering() {}
-                Filtering(FilterMode min, FilterMode max)
-                    : minFilter(min), magFilter(max) {}
-            };
-
         public:
             /* Default constructor, texture resource is done on demand */
-            RZTexture() = default;
+            RZTextureInterface() = default;
             /* Virtual destructor enables the API implementation to delete it's resources */
-            virtual ~RZTexture() {}
+            virtual ~RZTextureInterface() {}
 
             /**
              * Calculates the Mip Map count based on the Width and Height of the texture
@@ -154,7 +89,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         /* 2D Texture interface */
-        class RAZIX_API RZTexture2D : public RZTexture
+        class RAZIX_API RZTexture2D : public RZTextureInterface
         {
         public:
             /**
@@ -201,7 +136,7 @@ namespace Razix {
         // Texture 3D
         //-----------------------------------------------------------------------------------
         /* 3D Texture interface */
-        class RAZIX_API RZTexture3D : public RZTexture
+        class RAZIX_API RZTexture3D : public RZTextureInterface
         {
         public:
             /**
@@ -222,7 +157,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
         // Cube Map Texture
         //-----------------------------------------------------------------------------------
-        class RAZIX_API RZCubeMap : public RZTexture
+        class RAZIX_API RZCubeMap : public RZTextureInterface
         {
         public:
             static RZCubeMap* Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, bool enableMipsGeneration = false, Wrapping wrapMode = RZTexture::Wrapping::CLAMP_TO_EDGE, Filtering filterMode = Filtering{});
@@ -239,7 +174,7 @@ namespace Razix {
         // Depth Texture
         //-----------------------------------------------------------------------------------
 
-        class RAZIX_API RZDepthTexture : public RZTexture
+        class RAZIX_API RZDepthTexture : public RZTextureInterface
         {
         public:
             static RZDepthTexture* Create(u32 width, u32 height);
@@ -249,7 +184,7 @@ namespace Razix {
         // Render Texture
         //-----------------------------------------------------------------------------------
 
-        class RAZIX_API RZRenderTexture : public RZTexture
+        class RAZIX_API RZRenderTexture : public RZTextureInterface
         {
         public:
             static RZRenderTexture* Create(RZ_DEBUG_NAME_TAG_F_ARG

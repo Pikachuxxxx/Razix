@@ -9,6 +9,8 @@
 
 #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
+#include "Razix/Graphics/RZShaderLibrary.h"
+
 #include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix {
@@ -40,7 +42,7 @@ namespace Razix {
         void RZMaterial::InitDefaultTexture()
         {
             //u32  pinkTextureData    = 0xffff00ff;    // A8B8G8R8
-            u32* pinkTextureDataRaw = new u32;       // A8B8G8R8
+            u32* pinkTextureDataRaw = new u32;    // A8B8G8R8
             pinkTextureDataRaw[0]   = {0xffff00ff};
             //memcpy(pinkTextureDataRaw, &pinkTextureData, sizeof(u32));
             s_DefaultTexture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "Default Texture", 1, 1, pinkTextureDataRaw, RZTexture::Format::RGBA8);
@@ -221,6 +223,21 @@ namespace Razix {
                 emissive->Release(true);
             if (ao && ao != RZMaterial::GetDefaultTexture())
                 ao->Release(true);
+        }
+
+        RZMaterial* GetDefaultMaterial()
+        {
+            if (DefaultMaterial == nullptr) {
+                auto shader     = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+                DefaultMaterial = new RZMaterial(shader);
+                DefaultMaterial->setName("DefaultMaterial");
+                Razix::Graphics::MaterialData matData{};
+                DefaultMaterial->setProperties(matData.m_MaterialProperties);
+                DefaultMaterial->loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
+                DefaultMaterial->createDescriptorSet();
+                return DefaultMaterial;
+            } else
+                return DefaultMaterial;
         }
     }    // namespace Graphics
 }    // namespace Razix
