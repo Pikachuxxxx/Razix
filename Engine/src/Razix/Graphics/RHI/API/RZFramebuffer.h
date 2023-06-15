@@ -24,7 +24,7 @@ namespace Razix {
             // TODO: convert this to RenderTexture so that screenFBO boolean can be used to validate if swapchain image is passed instead; it should automatically get the swapchain image if we use screenFBO and depthTexture is created by itself
             Graphics::RZRenderPass* renderPass;       /* The render passes that will performed on the contents of the framebuffer             */
             // TODO: resolve this from the render pass that is provided
-            //RZTexture::Type*        attachmentTypes;        /* The types of the attachments                                                         */
+            //RZTextureProperties::Type*        attachmentTypes;        /* The types of the attachments                                                         */
         };
 
         /* Framebuffer is what the swapchain images and command are executed onto to be used by the GPU to read and present from */

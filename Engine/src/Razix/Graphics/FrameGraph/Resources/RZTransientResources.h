@@ -32,14 +32,14 @@ namespace Razix {
                 void             releaseBuffer(const RZFrameGraphBuffer::Desc &desc, RZUniformBuffer *buffer);
 
             private:
-                std::vector<std::unique_ptr<RZTexture *>>   m_Textures;
-                std::vector<std::unique_ptr<RZSemaphore *>> m_Semaphores;
+                std::vector<std::unique_ptr<RZTexture *>>       m_Textures;
+                std::vector<std::unique_ptr<RZSemaphore *>>     m_Semaphores;
                 std::vector<std::unique_ptr<RZUniformBuffer *>> m_Buffers;
 
                 template<typename T>
                 struct ResourceEntry
                 {
-                    T     resource;
+                    T   resource;
                     f32 life;
                 };
                 template<typename T>

@@ -70,9 +70,13 @@ namespace Razix {
         {
             std::vector<T> components;
 
+#pragma warning(push)
+#pragma warning(disable : 4267)
             auto view = m_Registry.view<T>();
             for (auto& entity: view)
                 components.push_back(view.get<T>(entity));
+
+#pragma warning(pop)
 
             return components;
         }

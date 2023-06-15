@@ -13,7 +13,7 @@ project "Sandbox"
     buildoptions
     {
         -- Remove STL 
-        "-nostdlib"
+        --"-nostdlib"
     }
 
     -- Game source files

@@ -34,26 +34,26 @@ namespace Razix {
             return levels;
         }
 
-        RZTexture::Format RZTexture::bitsToTextureFormat(u32 bits)
+        RZTextureProperties::Format RZTexture::bitsToTextureFormat(u32 bits)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch ((bits * 8)) {
                 case 8:
-                    return RZTexture::Format::R8;
+                    return RZTextureProperties::Format::R8;
                 case 16:
-                    return RZTexture::Format::RG8;
+                    return RZTextureProperties::Format::RG8;
                 case 24:
-                    return RZTexture::Format::RGB8;
+                    return RZTextureProperties::Format::RGB8;
                 case 32:
-                    return RZTexture::Format::RGBA8;
+                    return RZTextureProperties::Format::RGBA8;
                 case 48:
-                    return RZTexture::Format::RGB16;
+                    return RZTextureProperties::Format::RGB16;
                 case 64:
-                    return RZTexture::Format::RGBA16;
+                    return RZTextureProperties::Format::RGBA16;
                 default:
                     RAZIX_CORE_ASSERT(false, "[Texture] Unsupported image bit-depth! ({0})", bits);
-                    return RZTexture::Format::RGB8;
+                    return RZTextureProperties::Format::RGB8;
             }
         }
 
@@ -78,7 +78,7 @@ namespace Razix {
         // Texture 2D
         //-----------------------------------------------------------------------------------
 
-        RZTexture2D* RZTexture2D::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, void* data, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -94,7 +94,7 @@ namespace Razix {
             return nullptr;
         }
 
-        RZTexture2D* RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 numLayers, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 numLayers, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -110,7 +110,7 @@ namespace Razix {
             return nullptr;
         }
 
-        RZTexture2D* RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -130,7 +130,7 @@ namespace Razix {
         // Texture 3D
         //-----------------------------------------------------------------------------------
 
-        RZTexture3D* RZTexture3D::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 depth, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZTexture3D* RZTexture3D::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 depth, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -150,7 +150,7 @@ namespace Razix {
         // Cube Map Texture
         //-----------------------------------------------------------------------------------
 
-        RZCubeMap* RZCubeMap::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, bool enableMipsGeneration /* = false*/, Wrapping wrapMode, Filtering filterMode)
+        RZCubeMap* RZCubeMap::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, bool enableMipsGeneration /* = false*/, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
@@ -189,7 +189,7 @@ namespace Razix {
         // Render Texture
         //-----------------------------------------------------------------------------------
 
-        RZRenderTexture* RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_F_ARG u32 width, u32 height, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZRenderTexture* RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_F_ARG u32 width, u32 height, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

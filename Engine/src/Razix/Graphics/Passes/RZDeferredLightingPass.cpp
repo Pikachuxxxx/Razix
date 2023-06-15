@@ -78,7 +78,7 @@ namespace Razix {
 
             PipelineInfo info{};
             info.shader                 = shader;
-            info.colorAttachmentFormats = {RZTexture::Format::RGBA32F};
+            info.colorAttachmentFormats = {RZTextureProperties::Format::RGBA32F};
 
             m_Pipeline = RZPipeline::Create(info RZ_DEBUG_NAME_TAG_STR_E_ARG("Deferred Lighting Pipeline"));
 
@@ -122,7 +122,7 @@ namespace Razix {
                     //}
 
                     // Write to a HDR render target
-                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {extent.x, extent.y}, RZTexture::Format::RGBA32F});
+                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {extent.x, extent.y}, RZTextureProperties::Format::RGBA32F});
 
                     data.HDR = builder.write(data.HDR);
                 },
@@ -135,7 +135,7 @@ namespace Razix {
 
                     glm::vec2 resolution = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
 
-                    cmdBuf->UpdateViewport(resolution.x, resolution.y);
+                    cmdBuf->UpdateViewport(static_cast<u32>(resolution.x), static_cast<u32>(resolution.y));
 
                     RenderingInfo info{};
                     info.colorAttachments = {

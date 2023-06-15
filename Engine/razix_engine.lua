@@ -162,7 +162,7 @@ project "Razix"
         cppdialect "C++17"
         staticruntime "off"
         systemversion "latest"
-        disablewarnings { 4307 }
+        disablewarnings { 4307, 4267 }
         characterset ("MBCS")
         editandcontinue "Off"
 

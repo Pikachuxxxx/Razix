@@ -74,7 +74,7 @@ namespace Razix {
                 barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                barrier.subresourceRange.baseArrayLayer = layerIdx;
+                barrier.subresourceRange.baseArrayLayer = static_cast<u32>(layerIdx);
                 barrier.subresourceRange.layerCount     = layers;
                 barrier.subresourceRange.levelCount     = 1;
 
@@ -106,7 +106,7 @@ namespace Razix {
                     blit.srcOffsets[1]                 = {mipWidth, mipHeight, 1};
                     blit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
                     blit.srcSubresource.mipLevel       = i - 1;
-                    blit.srcSubresource.baseArrayLayer = layerIdx;
+                    blit.srcSubresource.baseArrayLayer = static_cast<u32>(layerIdx);
                     blit.srcSubresource.layerCount     = layers;
                     blit.dstOffsets[0]                 = {0, 0, 0};
                     blit.dstOffsets[1]                 = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
@@ -222,7 +222,7 @@ namespace Razix {
         // Texture2D
         //-----------------------------------------------------------------------------------
 
-        VKTexture2D::VKTexture2D(const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKTexture2D::VKTexture2D(const std::string& name, u32 width, u32 height, void* data, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_Name        = name;
             m_Width       = width;
@@ -232,7 +232,7 @@ namespace Razix {
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
 
-            m_TextureType = RZTexture::Type::COLOR_2D;
+            m_TextureType = RZTextureProperties::Type::COLOR_2D;
 
             // Build a render target texture here if the data is nullptr
 
@@ -241,14 +241,14 @@ namespace Razix {
             updateDescriptor();
         }
 
-        VKTexture2D::VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKTexture2D::VKTexture2D(const std::string& filePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_VirtualPath = filePath;
             m_Name        = name;
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
 
-            m_TextureType = RZTexture::Type::COLOR_2D;
+            m_TextureType = RZTextureProperties::Type::COLOR_2D;
 
             m_DeleteImageData = true;
 
@@ -260,14 +260,14 @@ namespace Razix {
         VKTexture2D::VKTexture2D(VkImage image, VkImageView imageView)
             : m_Image(image), m_ImageView(imageView), m_ImageSampler(VK_NULL_HANDLE), m_ImageMemory(VK_NULL_HANDLE)
         {
-            m_TextureType = RZTexture::Type::COLOR_2D;
+            m_TextureType = RZTextureProperties::Type::COLOR_2D;
 
             updateDescriptor();
         }
 
-        VKTexture2D::VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKTexture2D::VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
-            m_TextureType = RZTexture::Type::COLOR_2D;    // It is also an Render Target
+            m_TextureType = RZTextureProperties::Type::COLOR_2D;    // It is also an Render Target
             m_Name        = name;
             m_Width       = width;
             m_Height      = height;
@@ -279,7 +279,7 @@ namespace Razix {
             u32 mipLevels = 1;    // static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;
 
             VkImageUsageFlagBits usageBit{};
-            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
+            if (format == RZTextureProperties::Format::DEPTH32F || format == RZTextureProperties::Format::DEPTH16_UNORM || format == RZTextureProperties::Format::DEPTH_STENCIL)
                 usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             else
                 usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -290,7 +290,7 @@ namespace Razix {
 
             // Create the Image view for the Vulkan image (uses color bit)
             VkImageAspectFlagBits aspectBit{};
-            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
+            if (format == RZTextureProperties::Format::DEPTH32F || format == RZTextureProperties::Format::DEPTH16_UNORM || format == RZTextureProperties::Format::DEPTH_STENCIL)
                 aspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
             else
                 aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -434,9 +434,9 @@ namespace Razix {
         // Texture3D
         //-----------------------------------------------------------------------------------
 
-        VKTexture3D::VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKTexture3D::VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
-            m_TextureType = RZTexture::Type::COLOR_3D;
+            m_TextureType = RZTextureProperties::Type::COLOR_3D;
             m_Name        = name;
             m_Width       = width;
             m_Height      = height;
@@ -448,7 +448,7 @@ namespace Razix {
             u32 mipLevels = 1;    //static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;    //
 
             VkImageUsageFlagBits usageBit{};
-            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
+            if (format == RZTextureProperties::Format::DEPTH32F || format == RZTextureProperties::Format::DEPTH16_UNORM || format == RZTextureProperties::Format::DEPTH_STENCIL)
                 usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             else
                 usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -463,7 +463,7 @@ namespace Razix {
 
             // Create the Image view for the Vulkan image (uses color bit)
             VkImageAspectFlagBits aspectBit{};
-            if (format == RZTexture::Format::DEPTH32F || format == RZTexture::Format::DEPTH16_UNORM || format == RZTexture::Format::DEPTH_STENCIL)
+            if (format == RZTextureProperties::Format::DEPTH32F || format == RZTextureProperties::Format::DEPTH16_UNORM || format == RZTextureProperties::Format::DEPTH_STENCIL)
                 aspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
             else
                 aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -525,7 +525,7 @@ namespace Razix {
             m_Width  = width;
             m_Height = height;
 
-            m_TextureType = RZTexture::Type::DEPTH;
+            m_TextureType = RZTextureProperties::Type::DEPTH;
 
             init();
         }
@@ -576,7 +576,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Format = RZTexture::Format::DEPTH32F;
+            m_Format = RZTextureProperties::Format::DEPTH32F;
 
             VkFormat depthFormat = VKUtilities::FindDepthFormat();
 
@@ -603,7 +603,7 @@ namespace Razix {
         // Render Texture
         //-----------------------------------------------------------------------------------
 
-        VKRenderTexture::VKRenderTexture(u32 width, u32 height, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
+        VKRenderTexture::VKRenderTexture(u32 width, u32 height, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
             : m_TransferBuffer(VK_BUFFER_USAGE_TRANSFER_DST_BIT, width * height * 4, NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"))
         {
             m_Name        = "Render Target";
@@ -615,7 +615,7 @@ namespace Razix {
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            m_TextureType = RZTexture::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::COLOR_RT;
 
             init(RZ_DEBUG_S_ARG_NAME);
         }
@@ -627,7 +627,7 @@ namespace Razix {
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            m_TextureType = RZTexture::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::COLOR_RT;
 
             updateDescriptor();
         }
@@ -637,7 +637,7 @@ namespace Razix {
             m_Width  = width;
             m_Height = height;
 
-            m_TextureType = RZTexture::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::COLOR_RT;
 
             Release(true);
             m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -717,7 +717,7 @@ namespace Razix {
         void VKRenderTexture::init(RZ_DEBUG_NAME_TAG_S_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            m_TextureType = RZTexture::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::COLOR_RT;
 
             u32 mipLevels = 1;    // static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
 
@@ -727,7 +727,7 @@ namespace Razix {
 
             // Create the Image view for the Vulkan image (uses color bit)
             VkImageAspectFlagBits aspectBit{};
-            if (m_Format == RZTexture::Format::DEPTH32F || m_Format == RZTexture::Format::DEPTH16_UNORM || m_Format == RZTexture::Format::DEPTH_STENCIL)
+            if (m_Format == RZTextureProperties::Format::DEPTH32F || m_Format == RZTextureProperties::Format::DEPTH16_UNORM || m_Format == RZTextureProperties::Format::DEPTH_STENCIL)
                 aspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
             else
                 aspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -755,14 +755,14 @@ namespace Razix {
         // CubeMap Texture
         //-----------------------------------------------------------------------------------
 
-        VKCubeMap::VKCubeMap(const std::string& hdrFilePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        VKCubeMap::VKCubeMap(const std::string& hdrFilePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             m_Name        = name;
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
-            m_TextureType = RZTexture::Type::CUBEMAP;
+            m_TextureType = RZTextureProperties::Type::CUBEMAP;
             m_VirtualPath = hdrFilePath;
-            m_Format      = Format::RGBA32F;
+            m_Format      = RZTextureProperties::Format::RGBA32F;
 
             // FIXME: hard coded shit!
             m_Width  = 1024;
@@ -771,17 +771,17 @@ namespace Razix {
             updateDescriptor();
         }
 
-        VKCubeMap::VKCubeMap(const std::string& name, u32 width, u32 height, bool enableMipsGeneration, Wrapping wrapMode, Filtering filterMode)
+        VKCubeMap::VKCubeMap(const std::string& name, u32 width, u32 height, bool enableMipsGeneration, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             m_Name         = name;
             m_FilterMode   = filterMode;
             m_WrapMode     = wrapMode;
-            m_TextureType  = RZTexture::Type::CUBEMAP;
+            m_TextureType  = RZTextureProperties::Type::CUBEMAP;
             m_GenerateMips = enableMipsGeneration;
             m_Width        = width;
             m_Height       = height;
 
-            m_Format    = Format::RGBA32F;
+            m_Format    = RZTextureProperties::Format::RGBA32F;
             auto format = VKUtilities::TextureFormatToVK(m_Format);
 
             if (enableMipsGeneration)

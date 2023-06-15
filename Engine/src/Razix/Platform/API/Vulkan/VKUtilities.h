@@ -125,7 +125,7 @@ namespace Razix {
              * @param sRGB Whether or not to convert it to sRGB format
              * @returns Vulkan texture format
              */
-            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb = false);
+            VkFormat TextureFormatToVK(const RZTextureProperties::Format format, bool srgb = false);
 
             /**
              * Engine wrap mode to Vulkan conversion
@@ -133,7 +133,7 @@ namespace Razix {
              * @param wrap The Wrapping mode to convert to
              * @returns Vulkan Wrap mode
              */
-            VkSamplerAddressMode TextureWrapToVK(const RZTexture::Wrapping wrap);
+            VkSamplerAddressMode TextureWrapToVK(const RZTextureProperties::Wrapping wrap);
 
             /**
              * Converts from Engine filtering mode to Vulkan filter
@@ -141,7 +141,7 @@ namespace Razix {
              * @param filter The min/mag filter mode to convert to
              * @returns Vulkan filter mode
              */
-            VkFilter TextureFilterToVK(const RZTexture::Filtering::FilterMode filter);
+            VkFilter TextureFilterToVK(const RZTextureProperties::Filtering::FilterMode filter);
 
             /**
              * Transitions the image layout from one layout to another for better storage on GPU

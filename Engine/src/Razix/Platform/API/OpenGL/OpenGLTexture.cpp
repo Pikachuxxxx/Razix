@@ -13,7 +13,7 @@ namespace Razix {
         // Texture2D
         //-----------------------------------------------------------------------------------
 
-        OpenGLTexture2D::OpenGLTexture2D(const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
+        OpenGLTexture2D::OpenGLTexture2D(const std::string& name, u32 width, u32 height, void* data, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             //? Find out why these variables cannot be allocated in the initializers list
             m_Name        = name;
@@ -27,7 +27,7 @@ namespace Razix {
             m_Handle = load(data);
         }
 
-        OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode)
         {
             m_Name        = name;
             m_FilterMode  = filterMode;
@@ -79,8 +79,8 @@ namespace Razix {
             u32 handle;
             GL_CALL(glGenTextures(1, &handle));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, handle));
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_FilterMode.minFilter == Filtering::FilterMode::LINEAR ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_FilterMode.magFilter == Filtering::FilterMode::LINEAR ? GL_LINEAR : GL_NEAREST));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_FilterMode.minFilter == RZTextureProperties::Filtering::FilterMode::LINEAR ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_FilterMode.magFilter == RZTextureProperties::Filtering::FilterMode::LINEAR ? GL_LINEAR : GL_NEAREST));
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Graphics::OpenGLUtilities::TextureWrapToGL(m_WrapMode)));
 

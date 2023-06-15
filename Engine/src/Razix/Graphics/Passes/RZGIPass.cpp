@@ -105,10 +105,10 @@ namespace Razix {
             pipelineInfo.depthBiasEnabled    = false;
             // worldPos, normal, flux, Depth
             pipelineInfo.colorAttachmentFormats = {
-                Graphics::RZTexture::Format::RGBA32F,
-                Graphics::RZTexture::Format::RGBA32F,
-                Graphics::RZTexture::Format::RGBA32F};
-            pipelineInfo.depthFormat = Graphics::RZTexture::Format::DEPTH16_UNORM;
+                Graphics::RZTextureProperties::Format::RGBA32F,
+                Graphics::RZTextureProperties::Format::RGBA32F,
+                Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH16_UNORM;
 
             m_RSMPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("RSM pipeline"));
 
@@ -120,13 +120,13 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     // Create the output RTs
-                    data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", {FrameGraph::TextureType::Texture_RenderTarget, "RSM/Position", {kRSMResolution, kRSMResolution}, RZTexture::Format::RGBA32F});
+                    data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", {FrameGraph::TextureType::Texture_RenderTarget, "RSM/Position", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::RGBA32F});
 
-                    data.normal = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Normal", {FrameGraph::TextureType::Texture_RenderTarget, "RSM/Normal", {kRSMResolution, kRSMResolution}, RZTexture::Format::RGBA32F});
+                    data.normal = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Normal", {FrameGraph::TextureType::Texture_RenderTarget, "RSM/Normal", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::RGBA32F});
 
-                    data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", {FrameGraph::TextureType::Texture_RenderTarget, "RSM/Flux", {kRSMResolution, kRSMResolution}, RZTexture::Format::RGBA32F});
+                    data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", {FrameGraph::TextureType::Texture_RenderTarget, "RSM/Flux", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::RGBA32F});
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", {FrameGraph::TextureType::Texture_Depth, "RSM/Depth", {kRSMResolution, kRSMResolution}, RZTexture::Format::DEPTH16_UNORM});
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", {FrameGraph::TextureType::Texture_Depth, "RSM/Depth", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::DEPTH16_UNORM});
 
                     data.position = builder.write(data.position);
                     data.normal   = builder.write(data.normal);
@@ -269,7 +269,7 @@ namespace Razix {
             pipelineInfo.alphaSrc = BlendFactor::One;
             pipelineInfo.alphaDst = BlendFactor::One;
             // Depth, worldPos, normal, flux
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F};
 
             m_RIPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Injection pipeline"));
 
@@ -285,9 +285,9 @@ namespace Razix {
                     builder.read(RSM.flux);
 
                     // Create the resource for this pass
-                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
+                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
+                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);
@@ -398,7 +398,7 @@ namespace Razix {
             pipelineInfo.alphaSrc = BlendFactor::One;
             pipelineInfo.alphaDst = BlendFactor::One;
             // Depth, worldPos, normal, flux
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F, Graphics::RZTexture::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F};
 
             m_RPropagationPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Propagation pipeline"));
 
@@ -412,9 +412,9 @@ namespace Razix {
                     builder.read(LPV.b);
 
                     // Create the resource for this pass
-                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
-                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTexture::Format::RGBA32F, grid.size.z});
+                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::TextureType::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
+                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::TextureType::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
+                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::TextureType::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);

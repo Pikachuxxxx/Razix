@@ -46,9 +46,9 @@ namespace Razix {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
-                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_SwapchainImage, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::SCREEN });
+                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_SwapchainImage, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::SCREEN });
 
-                    data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", {FrameGraph::TextureType::Texture_Depth, "Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
+                    data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", {FrameGraph::TextureType::Texture_Depth, "Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
 
                     data.presentationDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("Present Semaphore", {"Composite Present Semaphore"});
                     data.imageReadySemaphore       = builder.create<FrameGraph::RZFrameGraphSemaphore>("Image Ready Semaphore", {"Composite Image Acquire Semaphore"});
@@ -85,7 +85,7 @@ namespace Razix {
                     pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
                     pipelineInfo.shader                 = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
                     pipelineInfo.transparencyEnabled    = true;
-                    pipelineInfo.colorAttachmentFormats = {RZTexture::Format::BGRA8_UNORM};
+                    pipelineInfo.colorAttachmentFormats = {RZTextureProperties::Format::BGRA8_UNORM};
 
                     m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
 

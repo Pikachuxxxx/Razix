@@ -25,7 +25,7 @@ namespace Razix {
                     TextureType                 type;
                     std::string                 name;
                     glm::vec2                   extent;
-                    Graphics::RZTexture::Format format;
+                    Graphics::RZTextureProperties::Format format;
                     u32                         numLayers  = 1;    // Used for 2D texture array layers or a depth for 3D textures
                     bool                        enableMips = false;
                 };

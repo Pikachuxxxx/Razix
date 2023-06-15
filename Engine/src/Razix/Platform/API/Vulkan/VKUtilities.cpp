@@ -20,63 +20,63 @@ namespace Razix {
             // Texture Utility Functions
             //-----------------------------------------------------------------------------------
 
-            VkFormat TextureFormatToVK(const RZTexture::Format format, bool srgb /*= false*/)
+            VkFormat TextureFormatToVK(const RZTextureProperties::Format format, bool srgb /*= false*/)
             {
                 if (srgb) {
                     switch (format) {
-                        case RZTexture::Format::R8:
+                        case RZTextureProperties::Format::R8:
                             return VK_FORMAT_R8_SRGB;
                             break;
-                        case RZTexture::Format::R32_UINT:
+                        case RZTextureProperties::Format::R32_UINT:
                             return VK_FORMAT_R32_UINT;
                             break;
-                        case RZTexture::Format::R32_INT:
+                        case RZTextureProperties::Format::R32_INT:
                             return VK_FORMAT_R32_SINT;
                             break;
-                        case RZTexture::Format::R32F:
+                        case RZTextureProperties::Format::R32F:
                             return VK_FORMAT_R32_SFLOAT;
                             break;
-                        case RZTexture::Format::RGB8:
+                        case RZTextureProperties::Format::RGB8:
                             return VK_FORMAT_R8G8B8_SRGB;
                             break;
-                        case RZTexture::Format::RGBA8:
+                        case RZTextureProperties::Format::RGBA8:
                             return VK_FORMAT_R8G8B8A8_SRGB;
                             break;
-                        case RZTexture::Format::RGB16:
+                        case RZTextureProperties::Format::RGB16:
                             return VK_FORMAT_R16G16B16_SFLOAT;
                             break;
-                        case RZTexture::Format::RGBA16:
+                        case RZTextureProperties::Format::RGBA16:
                             return VK_FORMAT_R16G16B16A16_SFLOAT;
                             break;
-                        case RZTexture::Format::RGB32:
+                        case RZTextureProperties::Format::RGB32:
                             return VK_FORMAT_R32G32B32_SFLOAT;
                             break;
-                        case RZTexture::Format::RGBA32:
+                        case RZTextureProperties::Format::RGBA32:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTexture::Format::RGBA32F:
+                        case RZTextureProperties::Format::RGBA32F:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTexture::Format::RGB:
+                        case RZTextureProperties::Format::RGB:
                             return VK_FORMAT_R8G8B8_SRGB;
                             break;
-                        case RZTexture::Format::RGBA:
+                        case RZTextureProperties::Format::RGBA:
                             return VK_FORMAT_R8G8B8A8_SRGB;
                             break;
-                        case RZTexture::Format::BGRA8_UNORM:
-                        case RZTexture::Format::SCREEN:
+                        case RZTextureProperties::Format::BGRA8_UNORM:
+                        case RZTextureProperties::Format::SCREEN:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case RZTexture::Format::DEPTH16_UNORM:
+                        case RZTextureProperties::Format::DEPTH16_UNORM:
                             return VK_FORMAT_D16_UNORM;
                             break;
-                        case RZTexture::Format::DEPTH_STENCIL:
+                        case RZTextureProperties::Format::DEPTH_STENCIL:
                             return VK_FORMAT_D32_SFLOAT_S8_UINT;
                             break;
-                        case RZTexture::Format::DEPTH32F:
+                        case RZTextureProperties::Format::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
                             break;
-                        case RZTexture::Format::NONE:
+                        case RZTextureProperties::Format::NONE:
                             return VK_FORMAT_UNDEFINED;
                             break;
                         default:
@@ -86,61 +86,61 @@ namespace Razix {
                     }
                 } else {
                     switch (format) {
-                        case RZTexture::Format::R8:
+                        case RZTextureProperties::Format::R8:
                             return VK_FORMAT_R8_UNORM;
                             break;
-                        case RZTexture::Format::R32_UINT:
+                        case RZTextureProperties::Format::R32_UINT:
                             return VK_FORMAT_R32_UINT;
                             break;
-                        case RZTexture::Format::R32_INT:
+                        case RZTextureProperties::Format::R32_INT:
                             return VK_FORMAT_R32_SINT;
                             break;
-                        case RZTexture::Format::R32F:
+                        case RZTextureProperties::Format::R32F:
                             return VK_FORMAT_R32_SFLOAT;
                             break;
-                        case RZTexture::Format::RG8:
+                        case RZTextureProperties::Format::RG8:
                             return VK_FORMAT_R8G8_UNORM;
                             break;
-                        case RZTexture::Format::RGB8:
+                        case RZTextureProperties::Format::RGB8:
                             return VK_FORMAT_R8G8B8_UNORM;
                             break;
-                        case RZTexture::Format::RGBA8:
+                        case RZTextureProperties::Format::RGBA8:
                             return VK_FORMAT_R8G8B8A8_UNORM;
                             break;
-                        case RZTexture::Format::RGB16:
+                        case RZTextureProperties::Format::RGB16:
                             return VK_FORMAT_R16G16B16_UNORM;
                             break;
-                        case RZTexture::Format::RGBA16:
+                        case RZTextureProperties::Format::RGBA16:
                             return VK_FORMAT_R16G16B16A16_UNORM;
                             break;
-                        case RZTexture::Format::RGB32:
+                        case RZTextureProperties::Format::RGB32:
                             return VK_FORMAT_R32G32B32_SFLOAT;
                             break;
-                        case RZTexture::Format::RGBA32:
+                        case RZTextureProperties::Format::RGBA32:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTexture::Format::RGBA32F:
+                        case RZTextureProperties::Format::RGBA32F:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTexture::Format::RGB:
+                        case RZTextureProperties::Format::RGB:
                             return VK_FORMAT_R8G8B8_UNORM;
                             break;
-                        case RZTexture::Format::RGBA:
+                        case RZTextureProperties::Format::RGBA:
                             return VK_FORMAT_R8G8B8A8_UNORM;
                             break;
-                        case RZTexture::Format::BGRA8_UNORM:
+                        case RZTextureProperties::Format::BGRA8_UNORM:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case RZTexture::Format::DEPTH16_UNORM:
+                        case RZTextureProperties::Format::DEPTH16_UNORM:
                             return VK_FORMAT_D16_UNORM;
                             break;
-                        case RZTexture::Format::DEPTH_STENCIL:
+                        case RZTextureProperties::Format::DEPTH_STENCIL:
                             return VK_FORMAT_D32_SFLOAT_S8_UINT;
                             break;
-                        case RZTexture::Format::DEPTH32F:
+                        case RZTextureProperties::Format::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
                             break;
-                        case RZTexture::Format::NONE:
+                        case RZTextureProperties::Format::NONE:
                             return VK_FORMAT_UNDEFINED;
                             break;
                         default:
@@ -151,19 +151,19 @@ namespace Razix {
                 }
             }
 
-            VkSamplerAddressMode TextureWrapToVK(const RZTexture::Wrapping wrap)
+            VkSamplerAddressMode TextureWrapToVK(const RZTextureProperties::Wrapping wrap)
             {
                 switch (wrap) {
-                    case RZTexture::Wrapping::REPEAT:
+                    case RZTextureProperties::Wrapping::REPEAT:
                         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
                         break;
-                    case RZTexture::Wrapping::MIRRORED_REPEAT:
+                    case RZTextureProperties::Wrapping::MIRRORED_REPEAT:
                         return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
                         break;
-                    case RZTexture::Wrapping::CLAMP_TO_EDGE:
+                    case RZTextureProperties::Wrapping::CLAMP_TO_EDGE:
                         return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
                         break;
-                    case RZTexture::Wrapping::CLAMP_TO_BORDER:
+                    case RZTextureProperties::Wrapping::CLAMP_TO_BORDER:
                         return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
                         break;
                     default:
@@ -173,13 +173,13 @@ namespace Razix {
                 }
             }
 
-            VkFilter TextureFilterToVK(const RZTexture::Filtering::FilterMode filter)
+            VkFilter TextureFilterToVK(const RZTextureProperties::Filtering::FilterMode filter)
             {
                 switch (filter) {
-                    case RZTexture::Filtering::FilterMode::LINEAR:
+                    case RZTextureProperties::Filtering::FilterMode::LINEAR:
                         return VK_FILTER_LINEAR;
                         break;
-                    case RZTexture::Filtering::FilterMode::NEAREST:
+                    case RZTextureProperties::Filtering::FilterMode::NEAREST:
                         return VK_FILTER_NEAREST;
                         break;
                     default:

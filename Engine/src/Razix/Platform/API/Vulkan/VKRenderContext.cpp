@@ -216,7 +216,7 @@ namespace Razix {
                 auto apiHandle       = static_cast<VkDescriptorImageInfo*>(attachment.first->GetHandle());
                 attachInfo.imageView = apiHandle->imageView;
 
-                if (attachment.first->getFormat() == RZTexture::Format::SCREEN) {
+                if (attachment.first->getFormat() == RZTextureProperties::Format::SCREEN) {
                     auto vkImage = static_cast<VKTexture2D*>(attachment.first);
                     VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
                     vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
@@ -232,11 +232,11 @@ namespace Razix {
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                if (attachment.first->getType() == RZTexture::Type::COLOR_2D || attachment.first->getType() == RZTexture::Type::COLOR_3D || attachment.first->getType() == RZTexture::Type::COLOR_RT || attachment.first->getType() == RZTexture::Type::CUBEMAP) {
+                if (attachment.first->getType() == RZTextureProperties::Type::COLOR_2D || attachment.first->getType() == RZTextureProperties::Type::COLOR_3D || attachment.first->getType() == RZTextureProperties::Type::COLOR_RT || attachment.first->getType() == RZTextureProperties::Type::CUBEMAP) {
                     auto& clearColor = attachment.second.clearColor;
                     memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
                     colorAttachments.push_back(attachInfo);
-                } else if (attachment.first->getType() == RZTexture::Type::DEPTH) {
+                } else if (attachment.first->getType() == RZTextureProperties::Type::DEPTH) {
                     attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
                     renderingInfoKHR.pDepthAttachment  = &attachInfo;
                 }

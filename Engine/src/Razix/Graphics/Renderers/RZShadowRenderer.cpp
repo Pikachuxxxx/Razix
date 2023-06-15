@@ -105,7 +105,7 @@ namespace Razix {
             pipelineInfo.shader              = shader;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.depthFormat         = {Graphics::RZTexture::Format::DEPTH32F};
+            pipelineInfo.depthFormat         = {Graphics::RZTextureProperties::Format::DEPTH32F};
             m_Pipeline                       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Pass Pipeline"));
 
             blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
@@ -113,7 +113,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SimpleShadowPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {FrameGraph::TextureType::Texture_Depth, "Shadow map", {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32F});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {FrameGraph::TextureType::Texture_Depth, "Shadow map", {kShadowMapSize, kShadowMapSize}, RZTextureProperties::Format::DEPTH32F});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 

@@ -1,39 +1,32 @@
 #pragma once
 
 #include "Razix/Core/RZDataTypes.h"
+#include "Razix/Graphics/RHI/API/RZBufferData.h"
 #include "Razix/Graphics/RHI/API/RZTextureData.h"
 
 namespace Razix {
     namespace Graphics {
 
-        struct RZTexture2DCreateInfo
+        class RZTexture2DCreateInfo
         {
-            std::string          name;
-            u32                  width;
-            u32                  height;
-            void*                data;
-            RZTexture::Format    format;
-            RZTexture::Wrapping  wrapping;
-            RZTexture::Filtering filtering;
+            std::string                    name;
+            u32                            width;
+            u32                            height;
+            void*                          data;
+            RZTextureProperties::Format    format;
+            RZTextureProperties::Wrapping  wrapping;
+            RZTextureProperties::Filtering filtering;
         };
 
-        struct RZTexture2DArrayCreateInfo
+        class RZTexture2DArrayCreateInfo
         {
-            std::string          name;
-            u32                  width;
-            u32                  height;
-            u32                  layers;
-            RZTexture::Format    format;
-            RZTexture::Wrapping  wrapping;
-            RZTexture::Filtering filtering;
-        };
-
-        /* Defines how the buffer is used */
-        enum class BufferUsage
-        {
-            STATIC,
-            DYNAMIC,
-            STREAM
+            std::string                    name;
+            u32                            width;
+            u32                            height;
+            u32                            layers;
+            RZTextureProperties::Format    format;
+            RZTextureProperties::Wrapping  wrapping;
+            RZTextureProperties::Filtering filtering;
         };
 
         struct RZVertexBufferCreateInfo

@@ -3,7 +3,7 @@
 namespace Razix {
     namespace Graphics {
 
-        struct RZTexture
+        struct RZTextureProperties
         {
             /* The type of the texture */
             enum class Type

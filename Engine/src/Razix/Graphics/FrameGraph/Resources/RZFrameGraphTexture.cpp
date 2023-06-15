@@ -9,64 +9,64 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            static std::string FormatToString(const Graphics::RZTexture::Format format)
+            static std::string FormatToString(const Graphics::RZTextureProperties::Format format)
             {
                 switch (format) {
-                    case Razix::Graphics::RZTexture::Format::R8:
+                    case Razix::Graphics::RZTextureProperties::Format::R8:
                         return "R8";
                         break;
-                    case Razix::Graphics::RZTexture::Format::R32_INT:
+                    case Razix::Graphics::RZTextureProperties::Format::R32_INT:
                         return "R32_INT";
                         break;
-                    case Razix::Graphics::RZTexture::Format::R32_UINT:
+                    case Razix::Graphics::RZTextureProperties::Format::R32_UINT:
                         return "R32_UINT";
                         break;
-                    case Razix::Graphics::RZTexture::Format::R32F:
+                    case Razix::Graphics::RZTextureProperties::Format::R32F:
                         return "R32F";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RG8:
+                    case Razix::Graphics::RZTextureProperties::Format::RG8:
                         return "RG8";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGB8:
+                    case Razix::Graphics::RZTextureProperties::Format::RGB8:
                         return "RGB8";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGBA8:
+                    case Razix::Graphics::RZTextureProperties::Format::RGBA8:
                         return "RGBA8";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGB16:
+                    case Razix::Graphics::RZTextureProperties::Format::RGB16:
                         return "RGB16";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGBA16:
+                    case Razix::Graphics::RZTextureProperties::Format::RGBA16:
                         return "RGBA16";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGB32:
+                    case Razix::Graphics::RZTextureProperties::Format::RGB32:
                         return "RGB32";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGBA32:
+                    case Razix::Graphics::RZTextureProperties::Format::RGBA32:
                         return "RGBA32";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGBA32F:
+                    case Razix::Graphics::RZTextureProperties::Format::RGBA32F:
                         return "RGBA32F";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGB:
+                    case Razix::Graphics::RZTextureProperties::Format::RGB:
                         return "RGB";
                         break;
-                    case Razix::Graphics::RZTexture::Format::RGBA:
+                    case Razix::Graphics::RZTextureProperties::Format::RGBA:
                         return "RGBA";
                         break;
-                    case Razix::Graphics::RZTexture::Format::DEPTH16_UNORM:
+                    case Razix::Graphics::RZTextureProperties::Format::DEPTH16_UNORM:
                         return "DEPTH";
                         break;
-                    case Razix::Graphics::RZTexture::Format::STENCIL:
+                    case Razix::Graphics::RZTextureProperties::Format::STENCIL:
                         return "STENCIL";
                         break;
-                    case Razix::Graphics::RZTexture::Format::DEPTH_STENCIL:
+                    case Razix::Graphics::RZTextureProperties::Format::DEPTH_STENCIL:
                         return "DEPTH_STENCIL";
                         break;
-                    case Razix::Graphics::RZTexture::Format::SCREEN:
+                    case Razix::Graphics::RZTextureProperties::Format::SCREEN:
                         return "Presentation";
                         break;
-                    case Razix::Graphics::RZTexture::Format::BGRA8_UNORM:
+                    case Razix::Graphics::RZTextureProperties::Format::BGRA8_UNORM:
                         return "BGRA8_UNORM";
                         break;
                     default:

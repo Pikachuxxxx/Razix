@@ -56,11 +56,11 @@ namespace Razix {
             pipelineInfo.depthTestEnabled    = true;
             // Using 32 bit f32ing point formats to support HDR colors
             pipelineInfo.colorAttachmentFormats = {
-                Graphics::RZTexture::Format::RGBA32F,
-                Graphics::RZTexture::Format::RGBA32F,
-                Graphics::RZTexture::Format::RGBA32F,
-                Graphics::RZTexture::Format::RGBA32F};
-            pipelineInfo.depthFormat = Graphics::RZTexture::Format::DEPTH16_UNORM;
+                Graphics::RZTextureProperties::Format::RGBA32F,
+                Graphics::RZTextureProperties::Format::RGBA32F,
+                Graphics::RZTextureProperties::Format::RGBA32F,
+                Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH16_UNORM;
 
             m_Pipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer pipeline"));
 
@@ -71,15 +71,15 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, GBufferData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.Normal = builder.create<FrameGraph::RZFrameGraphTexture>("Normal", {FrameGraph::TextureType::Texture_RenderTarget, "Normal", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
+                    data.Normal = builder.create<FrameGraph::RZFrameGraphTexture>("Normal", {FrameGraph::TextureType::Texture_RenderTarget, "Normal", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.Albedo = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo", {FrameGraph::TextureType::Texture_RenderTarget, "Albedo", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
+                    data.Albedo = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo", {FrameGraph::TextureType::Texture_RenderTarget, "Albedo", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.Emissive = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive", {FrameGraph::TextureType::Texture_RenderTarget, "Emissive", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
+                    data.Emissive = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive", {FrameGraph::TextureType::Texture_RenderTarget, "Emissive", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.MetRougAOSpec = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOSpec", {FrameGraph::TextureType::Texture_RenderTarget, "MetRougAOSpec", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::RGBA32F});
+                    data.MetRougAOSpec = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOSpec", {FrameGraph::TextureType::Texture_RenderTarget, "MetRougAOSpec", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", {FrameGraph::TextureType::Texture_Depth, "Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTexture::Format::DEPTH16_UNORM});
+                    data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", {FrameGraph::TextureType::Texture_Depth, "Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
 
                     data.Normal        = builder.write(data.Normal);
                     data.Albedo        = builder.write(data.Albedo);

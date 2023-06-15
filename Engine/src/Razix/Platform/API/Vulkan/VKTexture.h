@@ -29,12 +29,12 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D(const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture2D(const std::string& name, u32 width, u32 height, void* data, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
 
             /**
              * Creates an Empty 2D array texture
              */
-            VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
 
             /**
              * Creates a 2D Vulkan texture
@@ -44,7 +44,7 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture2D(const std::string& filePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
             /**
              * Creates a TRXTexture2D from the given image and it's view
              * @brief Used by swapchain and render passes to create their own texture resources
@@ -158,7 +158,7 @@ namespace Razix {
         {
         public:
             /* This is used to generate cube map from equirectangular maps or multiple texture files */
-            VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, Format format, Wrapping wrapMode, Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKTexture3D() {}
 
             void  Release(bool deleteImage = true) override;
@@ -190,9 +190,9 @@ namespace Razix {
         {
         public:
             /* This is used to generate cube map from equirectangular maps or multiple texture files */
-            VKCubeMap(const std::string& hdrFilePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            VKCubeMap(const std::string& hdrFilePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode);
             /* This is used to create a empty cube map that can be used to write data into */
-            VKCubeMap(const std::string& name, u32 width, u32 height, bool enableMipsGeneration, Wrapping wrapMode, Filtering filterMode);
+            VKCubeMap(const std::string& name, u32 width, u32 height, bool enableMipsGeneration, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode);
             ~VKCubeMap() {}
 
             void  Release(bool deleteImage = true) override;
@@ -257,7 +257,7 @@ namespace Razix {
         {
         public:
             VKRenderTexture(
-                u32 width, u32 height, Format format = RZTexture::Format::SCREEN, Wrapping wrapMode = RZTexture::Wrapping::REPEAT, Filtering filterMode = Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
+                u32 width, u32 height, RZTextureProperties::Format format = RZTextureProperties::Format::SCREEN, RZTextureProperties::Wrapping wrapMode = RZTextureProperties::Wrapping::REPEAT, RZTextureProperties::Filtering filterMode = RZTextureProperties::Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
             VKRenderTexture(VkImage image, VkImageView imageView);
             ~VKRenderTexture() {}
 

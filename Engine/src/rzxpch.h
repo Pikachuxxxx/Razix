@@ -59,3 +59,6 @@
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/RegisterTypes.h>
+
+// Disable Warnings
+#pragma warning(disable : 4100)

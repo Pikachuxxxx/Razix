@@ -227,7 +227,11 @@ namespace Razix {
         cereal::JSONOutputArchive defArchive(opAppStream);
         defArchive(cereal::make_nvp("Razix Scene", *this));
 
+        // This line causes a nodiscard warning ignore it
+#pragma warning(push)
+#pragma warning(disable : 4834)
         entt::snapshot{m_Registry}.entities(defArchive).component<RAZIX_COMPONENTS>(defArchive);
+#pragma warning(pop)
     }
 
     void RZScene::deSerialiseScene(const std::string& filePath)
@@ -258,6 +262,7 @@ namespace Razix {
             // check it it's primary and only then return only a single camera component
             return view.get<CameraComponent>(entity).Camera;
         }
+        // This will cause a not all control paths return a value warning, it's fine cause it doesn't make the engine to run without a camera!
     }
 
     template<typename T>
