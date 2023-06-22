@@ -47,7 +47,7 @@ namespace Razix {
             }
 
             // Create the Pipeline
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
@@ -71,15 +71,15 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, GBufferData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.Normal = builder.create<FrameGraph::RZFrameGraphTexture>("Normal", {FrameGraph::TextureType::Texture_RenderTarget, "Normal", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.Normal = builder.create<FrameGraph::RZFrameGraphTexture>("Normal", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Normal", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.Albedo = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo", {FrameGraph::TextureType::Texture_RenderTarget, "Albedo", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.Albedo = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Albedo", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.Emissive = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive", {FrameGraph::TextureType::Texture_RenderTarget, "Emissive", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.Emissive = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Emissive", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.MetRougAOSpec = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOSpec", {FrameGraph::TextureType::Texture_RenderTarget, "MetRougAOSpec", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.MetRougAOSpec = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOSpec", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "MetRougAOSpec", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
-                    data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", {FrameGraph::TextureType::Texture_Depth, "Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
+                    data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
 
                     data.Normal        = builder.write(data.Normal);
                     data.Albedo        = builder.write(data.Albedo);

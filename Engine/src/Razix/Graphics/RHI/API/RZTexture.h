@@ -2,8 +2,8 @@
 
 #include "Razix/Core/RZLog.h"
 
+#include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
-#include "Razix/Graphics/RHI/API/RZTextureData.h"
 
 namespace Razix {
     namespace Graphics {
@@ -183,6 +183,8 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
         // Render Texture
         //-----------------------------------------------------------------------------------
+
+        // TODO: Remove this and add method in RZTexture to bind any texture as a Render Target, currently this class creates a 2D render target only
 
         class RAZIX_API RZRenderTexture : public RZTexture
         {

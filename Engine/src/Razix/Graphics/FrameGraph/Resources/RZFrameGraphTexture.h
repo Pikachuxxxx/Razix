@@ -4,31 +4,15 @@
 
 namespace Razix {
     namespace Graphics {
-        namespace FrameGraph {
 
-            enum class TextureType
-            {
-                Texture_2D,
-                Texture_3D,
-                Texture_CubeMap,
-                Texture_Depth,
-                Texture_RenderTarget,
-                Texture_SwapchainImage
-            };
+        struct RZTextureDesc;
+
+        namespace FrameGraph {
 
             class RZFrameGraphTexture
             {
             public:
-                struct Desc
-                {
-                    // TODO: Name only exists in debug mode or use the name while creating the resource
-                    TextureType                 type;
-                    std::string                 name;
-                    glm::vec2                   extent;
-                    Graphics::RZTextureProperties::Format format;
-                    u32                         numLayers  = 1;    // Used for 2D texture array layers or a depth for 3D textures
-                    bool                        enableMips = false;
-                };
+                typedef RZTextureDesc Desc;
 
                 void create(const Desc& desc, void* allocator);
                 void destroy(const Desc& desc, void* allocator);

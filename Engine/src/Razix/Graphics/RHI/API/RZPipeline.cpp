@@ -3,9 +3,10 @@
 // clang-format on
 #include "RZPipeline.h"
 
+#include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
-#ifdef RAZIX_RENDER_API_VULKAN 
+#ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKPipeline.h"
 #endif
 
@@ -16,7 +17,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZPipeline* RZPipeline::Create(const PipelineInfo& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
+        RZPipeline* RZPipeline::Create(const PipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

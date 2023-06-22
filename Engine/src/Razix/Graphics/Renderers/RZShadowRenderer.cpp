@@ -99,7 +99,7 @@ namespace Razix {
             }
 
             // Create the Pipeline
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::BACK;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader              = shader;
@@ -113,7 +113,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SimpleShadowPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {FrameGraph::TextureType::Texture_Depth, "Shadow map", {kShadowMapSize, kShadowMapSize}, RZTextureProperties::Format::DEPTH32F});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Shadow map", {kShadowMapSize, kShadowMapSize}, RZTextureProperties::Format::DEPTH32F});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 

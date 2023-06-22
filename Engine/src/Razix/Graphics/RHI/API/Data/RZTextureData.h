@@ -8,12 +8,15 @@ namespace Razix {
             /* The type of the texture */
             enum class Type
             {
-                COLOR_1D = 0,
-                COLOR_2D,
-                COLOR_3D,
-                COLOR_RT,
-                DEPTH,
-                CUBEMAP
+                Texture_1D = 0,
+                Texture_2D,
+                Texture_2DArray,
+                Texture_3D,
+                Texture_RenderTarget,
+                Texture_DepthTarget,
+                Texture_CubeMap,
+                Texture_CubeMapArray,
+                Texture_SwapchainImage
             };
 
             /* The format of the Texture resource */
@@ -69,5 +72,5 @@ namespace Razix {
                     : minFilter(min), magFilter(max) {}
             };
         };
-    }
+    }    // namespace Graphics
 }    // namespace Razix

@@ -61,7 +61,7 @@ namespace Razix {
 
             auto PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
 
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;

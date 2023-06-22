@@ -1,7 +1,7 @@
 project "test_hello_triangle"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
 
     files
     {

@@ -43,7 +43,7 @@ namespace Razix {
             auto upsamplingShader   = RZShaderLibrary::Get().getShader("bloom_upsample.rzsf");
             auto downsamplingShader = RZShaderLibrary::Get().getShader("bloom_downsample.rzsf");
 
-            PipelineInfo pipelineInfo{};
+            PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.transparencyEnabled    = false;
@@ -114,7 +114,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, BloomSubPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", {FrameGraph::TextureType::Texture_RenderTarget, "Bloom Mip", {bloomSourceMip.size.x, bloomSourceMip.size.y}, RZTextureProperties::Format::RGBA32F});
+                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Bloom Mip", {bloomSourceMip.size.x, bloomSourceMip.size.y}, RZTextureProperties::Format::RGBA32F});
 
                     // Read the mip from the previous pass
                     builder.read(bloomSourceMip.mip);
@@ -228,7 +228,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, BloomSubPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", {FrameGraph::TextureType::Texture_RenderTarget, "Bloom Mip", {bloomSourceMip.size.x, bloomSourceMip.size.y}, RZTextureProperties::Format::RGBA32F});
+                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Bloom Mip", {bloomSourceMip.size.x, bloomSourceMip.size.y}, RZTextureProperties::Format::RGBA32F});
 
                     // Read the mip from the previous pass
                     builder.read(bloomSourceMip.mip);
@@ -330,7 +330,7 @@ namespace Razix {
 
             auto bloomMixShader = RZShaderLibrary::Get().getShader("bloom_mix.rzsf");
 
-            PipelineInfo pipelineInfo{};
+            PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.transparencyEnabled    = false;

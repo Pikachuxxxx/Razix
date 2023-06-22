@@ -195,3 +195,14 @@
 #elif
     #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
 #endif
+
+/****************************************************************************************************
+ *                                         Vendor Settings                                          * 
+ ****************************************************************************************************/
+
+#define RAZIX_DEFINE_SAVE_LOAD   \
+    template<class Archive>      \
+    void load(Archive& archive); \
+                                 \
+    template<class Archive>      \
+    void save(Archive& archive) const;

@@ -5,105 +5,11 @@
 
 #include "Razix/Graphics/FrameGraph/Resources/RZTransientResources.h"
 
+#include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
+
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
-
-            static std::string FormatToString(const Graphics::RZTextureProperties::Format format)
-            {
-                switch (format) {
-                    case Razix::Graphics::RZTextureProperties::Format::R8:
-                        return "R8";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::R32_INT:
-                        return "R32_INT";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::R32_UINT:
-                        return "R32_UINT";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::R32F:
-                        return "R32F";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RG8:
-                        return "RG8";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGB8:
-                        return "RGB8";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGBA8:
-                        return "RGBA8";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGB16:
-                        return "RGB16";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGBA16:
-                        return "RGBA16";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGB32:
-                        return "RGB32";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGBA32:
-                        return "RGBA32";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGBA32F:
-                        return "RGBA32F";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGB:
-                        return "RGB";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::RGBA:
-                        return "RGBA";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::DEPTH16_UNORM:
-                        return "DEPTH";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::STENCIL:
-                        return "STENCIL";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::DEPTH_STENCIL:
-                        return "DEPTH_STENCIL";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::SCREEN:
-                        return "Presentation";
-                        break;
-                    case Razix::Graphics::RZTextureProperties::Format::BGRA8_UNORM:
-                        return "BGRA8_UNORM";
-                        break;
-                    default:
-                        return "BGRA8_UNORM";
-                        break;
-                        break;
-                }
-                return "BGRA8_UNORM";
-            }
-
-            static std::string TypeToString(TextureType type)
-            {
-                switch (type) {
-                    case Razix::Graphics::FrameGraph::TextureType::Texture_2D:
-                        return "2D";
-                        break;
-                    case Razix::Graphics::FrameGraph::TextureType::Texture_3D:
-                        return "3D";
-                        break;
-                    case Razix::Graphics::FrameGraph::TextureType::Texture_CubeMap:
-                        return "CubeMap";
-                        break;
-                    case Razix::Graphics::FrameGraph::TextureType::Texture_Depth:
-                        return "Depth";
-                        break;
-                    case Razix::Graphics::FrameGraph::TextureType::Texture_RenderTarget:
-                        return "RT";
-                        break;
-                    case Razix::Graphics::FrameGraph::TextureType::Texture_SwapchainImage:
-                        return "Swapchain Image";
-                        break;
-                    default:
-                        return "NONE";
-                        break;
-                }
-                return "NONE";
-            }
 
             void RZFrameGraphTexture::create(const Desc& desc, void* allocator)
             {
@@ -118,10 +24,10 @@ namespace Razix {
             std::string RZFrameGraphTexture::toString(const Desc& desc)
             {
                 // Size, Format
-                if (desc.numLayers > 1)
-                    return "(" + std::to_string(int(desc.extent.x)) + ", " + std::to_string(int(desc.extent.y)) + ", " + std::to_string(desc.numLayers) + ") - " + FormatToString(desc.format) + " [" + TypeToString(desc.type) + "]";
+                if (desc.layers > 1)
+                    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ", " + std::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
                 else
-                    return "(" + std::to_string(int(desc.extent.x)) + ", " + std::to_string(int(desc.extent.y)) + ") - " + FormatToString(desc.format) + " [" + TypeToString(desc.type) + "]";
+                    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

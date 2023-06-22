@@ -23,10 +23,10 @@ namespace Razix {
             RenderPassAttachmentInfo*          attachmentTypes = frameBufInfo.renderPass->getAttachmentTypes();
             for (u32 i = 0; i < m_AttachmentCount; i++) {
                 switch (attachmentTypes[i].type) {
-                    case RZTextureProperties::Type::COLOR_2D:
+                    case RZTextureProperties::Type::Texture_2D:
                         attachments.push_back(static_cast<VKTexture2D*>(frameBufInfo.attachments[i])->getImageView());
                         break;
-                    case RZTextureProperties::Type::DEPTH:
+                    case RZTextureProperties::Type::Texture_DepthTarget:
                         attachments.push_back(static_cast<VKTexture2D*>(frameBufInfo.attachments[i])->getImageView());
                         break;
                     default:

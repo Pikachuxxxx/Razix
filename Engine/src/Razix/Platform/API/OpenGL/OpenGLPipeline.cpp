@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Graphics {
 
-        OpenGLPipeline::OpenGLPipeline(const PipelineInfo& pipelineInfo)
+        OpenGLPipeline::OpenGLPipeline(const PipelineDesc& pipelineInfo)
             : m_Shader(pipelineInfo.shader), m_PipelineInfo(pipelineInfo)
         {
         }

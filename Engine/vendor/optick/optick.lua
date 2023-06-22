@@ -4,7 +4,7 @@ include 'Scripts/premake/common/vendor_includes.lua'
 project "optick"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
 
     files
     {

@@ -76,7 +76,7 @@ namespace Razix {
             auto  shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
             auto& setInfos = shader->getSetsCreateInfos();
 
-            PipelineInfo info{};
+            PipelineDesc info{};
             info.shader                 = shader;
             info.colorAttachmentFormats = {RZTextureProperties::Format::RGBA32F};
 
@@ -122,7 +122,7 @@ namespace Razix {
                     //}
 
                     // Write to a HDR render target
-                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {extent.x, extent.y}, RZTextureProperties::Format::RGBA32F});
+                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Scene HDR color", {extent.x, extent.y}, RZTextureProperties::Format::RGBA32F});
 
                     data.HDR = builder.write(data.HDR);
                 },

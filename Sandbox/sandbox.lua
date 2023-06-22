@@ -89,7 +89,7 @@ project "Sandbox"
        warnings "Off"
 
     filter "system:windows"
-        cppdialect "C++17"
+        cppdialect "C++20"
         staticruntime "off"
         systemversion "latest"
         -- entrypoint "WinMainCRTStartup"

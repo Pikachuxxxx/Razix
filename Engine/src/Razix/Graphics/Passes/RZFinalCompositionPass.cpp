@@ -19,6 +19,8 @@
 #include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
 
+#include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
+
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
 
@@ -35,20 +37,35 @@ namespace Razix {
                 imguiPassData = blackboard.get<RTOnlyPassData>();
 
             DescriptorSetsCreateInfos setInfos;
-            Graphics::PipelineInfo    pipelineInfo{};
+
+            PipelineDesc pipelineInfo{
+                // Build the pipeline here for this pass
+                .shader                 = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf"),
+                .colorAttachmentFormats = {RZTextureProperties::Format::BGRA8_UNORM},
+                .cullMode               = Graphics::CullMode::NONE,
+                .drawType               = Graphics::DrawType::TRIANGLE,
+                .transparencyEnabled    = true,
+                .depthBiasEnabled       = false};
 
             // Get the final Scene Color HDR RT
             //SceneColorData sceneColor = blackboard.get<SceneColorData>();
 
+#if 1
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Final Composition",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CompositeData& data) {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
-                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", {FrameGraph::TextureType::Texture_SwapchainImage, "Presentation Image", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::SCREEN });
+                    RZTextureDesc presentImageDesc{
+                        .name = "Present Image"};
 
-                    data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", {FrameGraph::TextureType::Texture_Depth, "Depth Texture", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
+                    RZTextureDesc depthImageDesc{
+                        .name = "Depth Image"};
+
+                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", (FrameGraph::RZFrameGraphTexture::Desc) presentImageDesc);
+
+                    data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", (FrameGraph::RZFrameGraphTexture::Desc) depthImageDesc);
 
                     data.presentationDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("Present Semaphore", {"Composite Present Semaphore"});
                     data.imageReadySemaphore       = builder.create<FrameGraph::RZFrameGraphSemaphore>("Image Ready Semaphore", {"Composite Image Acquire Semaphore"});
@@ -78,14 +95,6 @@ namespace Razix {
                      * 3. (Current Workaround) Since the pass is what specifies the shader we can think of Material as a alias for setting the properties on "a" shader, it need not be it's own
                      * It can set it for the current shader that the pass uses
                      */
-
-                    // Build the pipeline here for this pass
-                    pipelineInfo.cullMode               = Graphics::CullMode::NONE;
-                    pipelineInfo.depthBiasEnabled       = false;
-                    pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
-                    pipelineInfo.shader                 = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
-                    pipelineInfo.transparencyEnabled    = true;
-                    pipelineInfo.colorAttachmentFormats = {RZTextureProperties::Format::BGRA8_UNORM};
 
                     m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
 
@@ -118,7 +127,7 @@ namespace Razix {
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
                     if (!updatedRT) {
-                        auto& setInfos = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf")->getSetsCreateInfos();
+                        auto setInfos = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf")->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
@@ -160,6 +169,7 @@ namespace Razix {
                     RHI::SubmitWork({waitOnPreviousPassSemaphore, imageReadySemaphore}, {presentSemaphore});
                     RHI::Present(presentSemaphore);
                 });
+#endif
         }
 
         void RZFinalCompositionPass::init()

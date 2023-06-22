@@ -232,11 +232,11 @@ namespace Razix {
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                if (attachment.first->getType() == RZTextureProperties::Type::COLOR_2D || attachment.first->getType() == RZTextureProperties::Type::COLOR_3D || attachment.first->getType() == RZTextureProperties::Type::COLOR_RT || attachment.first->getType() == RZTextureProperties::Type::CUBEMAP) {
+                if (attachment.first->getType() == RZTextureProperties::Type::Texture_2D || attachment.first->getType() == RZTextureProperties::Type::Texture_3D || attachment.first->getType() == RZTextureProperties::Type::Texture_RenderTarget || attachment.first->getType() == RZTextureProperties::Type::Texture_CubeMap) {
                     auto& clearColor = attachment.second.clearColor;
                     memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
                     colorAttachments.push_back(attachInfo);
-                } else if (attachment.first->getType() == RZTextureProperties::Type::DEPTH) {
+                } else if (attachment.first->getType() == RZTextureProperties::Type::Texture_DepthTarget) {
                     attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
                     renderingInfoKHR.pDepthAttachment  = &attachInfo;
                 }

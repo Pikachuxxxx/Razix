@@ -46,7 +46,7 @@ ENFORCE_CONCEPT_IMPL inline RZFrameGraphResource RZFrameGraph::import(const std:
         RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kResourceInitialVersion, true});
     return createResourceNode(name, resourceId).m_ID;
 }
-ENFORCE_CONCEPT_IMPL inline typename const T::Desc &RZFrameGraph::getDescriptor(RZFrameGraphResource id)
+ENFORCE_CONCEPT_IMPL inline const T::Desc &RZFrameGraph::getDescriptor(RZFrameGraphResource id)
 {
     return getResourceEntry(id).getTypeResource<T>()->descriptor;
 }
@@ -69,7 +69,7 @@ ENFORCE_CONCEPT_IMPL inline T &RZFrameGraphPassResources::get(RZFrameGraphResour
     return m_FrameGraph.getResourceEntry(id).get<T>();
 }
 
-ENFORCE_CONCEPT_IMPL inline typename const T::Desc &RZFrameGraphPassResources::getDescriptor(RZFrameGraphResource id) const
+ENFORCE_CONCEPT_IMPL inline const T::Desc &RZFrameGraphPassResources::getDescriptor(RZFrameGraphResource id) const
 {
     assert(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) ||
            m_PassNode.canWriteResouce(id));

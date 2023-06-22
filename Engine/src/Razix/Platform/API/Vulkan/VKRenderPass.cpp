@@ -109,13 +109,13 @@ namespace Razix {
             for (u32 i = 0; i < renderpassInfo.attachmentCount; i++) {
                 attachments.push_back(getAttachmentDescription(renderpassInfo.attachmentInfos[i], renderpassInfo.attachmentInfos[i].clear));
 
-                if (renderpassInfo.attachmentInfos[i].type == RZTextureProperties::Type::COLOR_2D) {
+                if (renderpassInfo.attachmentInfos[i].type == RZTextureProperties::Type::Texture_2D) {
                     VkAttachmentReference colourAttachmentRef = {};
                     colourAttachmentRef.attachment            = u32(i);
                     colourAttachmentRef.layout                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     colourAttachmentReferences.push_back(colourAttachmentRef);
                     m_DepthOnly = false;
-                } else if (renderpassInfo.attachmentInfos[i].type == RZTextureProperties::Type::DEPTH) {
+                } else if (renderpassInfo.attachmentInfos[i].type == RZTextureProperties::Type::Texture_DepthTarget) {
                     VkAttachmentReference depthAttachmentRef = {};
                     depthAttachmentRef.attachment            = u32(i);
                     depthAttachmentRef.layout                = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -193,10 +193,10 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             VkAttachmentDescription attachment = {};
-            if (info.type == RZTextureProperties::Type::COLOR_2D) {
+            if (info.type == RZTextureProperties::Type::Texture_2D) {
                 attachment.format      = info.format == RZTextureProperties::Format::SCREEN ? VKContext::Get()->getSwapchain()->getColorFormat() : VKUtilities::TextureFormatToVK(info.format, true);
                 attachment.finalLayout = info.format == RZTextureProperties::Format::SCREEN ? VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            } else if (info.type == RZTextureProperties::Type::DEPTH) {
+            } else if (info.type == RZTextureProperties::Type::Texture_DepthTarget) {
                 attachment.format      = VKUtilities::FindDepthFormat();
                 attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             } else {
@@ -215,7 +215,7 @@ namespace Razix {
             }
 
             // We are always clearing the depth after every render pass so yeah beware of this make this optional for the render pass add explicit bool to control this
-            if (info.type == RZTextureProperties::Type::DEPTH) {
+            if (info.type == RZTextureProperties::Type::Texture_DepthTarget) {
                 attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;

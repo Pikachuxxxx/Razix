@@ -191,8 +191,8 @@ void main()
     
     vec3 color = vec3(0.0);
     vec3 sunDirection = normalize(pc_data.WorldSpaceLightPos);
-    calcAtmosphericScatter(sunDirection, normalize(fs_in.fragLocalPos), lightAbsorb);
-    color = calculateVolumetricClouds(sunDirection, normalize(fs_in.fragLocalPos), color, 0.8f, lightAbsorb, fs_in.time);
+    //calcAtmosphericScatter(sunDirection, normalize(fs_in.fragLocalPos), lightAbsorb);
+    //color = calculateVolumetricClouds(sunDirection, normalize(fs_in.fragLocalPos), color, 0.8f, lightAbsorb, fs_in.time);
 
     color += proceduralSkyBoxColor.xyz;
 

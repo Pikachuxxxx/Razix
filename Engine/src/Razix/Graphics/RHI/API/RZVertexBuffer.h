@@ -5,7 +5,7 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDebugConfig.h"
 
-#include "Razix/Graphics/RHI/API/RZBufferData.h"
+#include "Razix/Graphics/RHI/API/Data/RZBufferData.h"
 #include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
 
 namespace Razix {

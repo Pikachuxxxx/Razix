@@ -232,7 +232,7 @@ namespace Razix {
             m_WrapMode    = wrapMode;
             m_VirtualPath = "";
 
-            m_TextureType = RZTextureProperties::Type::COLOR_2D;
+            m_TextureType = RZTextureProperties::Type::Texture_2D;
 
             // Build a render target texture here if the data is nullptr
 
@@ -248,7 +248,7 @@ namespace Razix {
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
 
-            m_TextureType = RZTextureProperties::Type::COLOR_2D;
+            m_TextureType = RZTextureProperties::Type::Texture_2D;
 
             m_DeleteImageData = true;
 
@@ -260,14 +260,14 @@ namespace Razix {
         VKTexture2D::VKTexture2D(VkImage image, VkImageView imageView)
             : m_Image(image), m_ImageView(imageView), m_ImageSampler(VK_NULL_HANDLE), m_ImageMemory(VK_NULL_HANDLE)
         {
-            m_TextureType = RZTextureProperties::Type::COLOR_2D;
+            m_TextureType = RZTextureProperties::Type::Texture_2D;
 
             updateDescriptor();
         }
 
         VKTexture2D::VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
-            m_TextureType = RZTextureProperties::Type::COLOR_2D;    // It is also an Render Target
+            m_TextureType = RZTextureProperties::Type::Texture_2D;    // It is also an Render Target
             m_Name        = name;
             m_Width       = width;
             m_Height      = height;
@@ -436,7 +436,7 @@ namespace Razix {
 
         VKTexture3D::VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG)
         {
-            m_TextureType = RZTextureProperties::Type::COLOR_3D;
+            m_TextureType = RZTextureProperties::Type::Texture_3D;
             m_Name        = name;
             m_Width       = width;
             m_Height      = height;
@@ -525,7 +525,7 @@ namespace Razix {
             m_Width  = width;
             m_Height = height;
 
-            m_TextureType = RZTextureProperties::Type::DEPTH;
+            m_TextureType = RZTextureProperties::Type::Texture_DepthTarget;
 
             init();
         }
@@ -615,7 +615,7 @@ namespace Razix {
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            m_TextureType = RZTextureProperties::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::Texture_RenderTarget;
 
             init(RZ_DEBUG_S_ARG_NAME);
         }
@@ -627,7 +627,7 @@ namespace Razix {
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            m_TextureType = RZTextureProperties::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::Texture_RenderTarget;
 
             updateDescriptor();
         }
@@ -637,7 +637,7 @@ namespace Razix {
             m_Width  = width;
             m_Height = height;
 
-            m_TextureType = RZTextureProperties::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::Texture_RenderTarget;
 
             Release(true);
             m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -717,7 +717,7 @@ namespace Razix {
         void VKRenderTexture::init(RZ_DEBUG_NAME_TAG_S_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            m_TextureType = RZTextureProperties::Type::COLOR_RT;
+            m_TextureType = RZTextureProperties::Type::Texture_RenderTarget;
 
             u32 mipLevels = 1;    // static_cast<u32>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;//1;//
 
@@ -760,7 +760,7 @@ namespace Razix {
             m_Name        = name;
             m_FilterMode  = filterMode;
             m_WrapMode    = wrapMode;
-            m_TextureType = RZTextureProperties::Type::CUBEMAP;
+            m_TextureType = RZTextureProperties::Type::Texture_CubeMap;
             m_VirtualPath = hdrFilePath;
             m_Format      = RZTextureProperties::Format::RGBA32F;
 
@@ -776,7 +776,7 @@ namespace Razix {
             m_Name         = name;
             m_FilterMode   = filterMode;
             m_WrapMode     = wrapMode;
-            m_TextureType  = RZTextureProperties::Type::CUBEMAP;
+            m_TextureType  = RZTextureProperties::Type::Texture_CubeMap;
             m_GenerateMips = enableMipsGeneration;
             m_Width        = width;
             m_Height       = height;

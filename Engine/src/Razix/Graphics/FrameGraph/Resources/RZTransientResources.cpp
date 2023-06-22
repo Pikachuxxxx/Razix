@@ -77,32 +77,32 @@ namespace Razix {
                     u32 h = static_cast<u32>(desc.extent.y);
 
                     switch (desc.type) {
-                        case TextureType::Texture_2D: {
+                        case RZTextureProperties::Type::Texture_2D: {
                             if (desc.numLayers > 1)
                                 texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
                             else
                                 texture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, nullptr, desc.format);
                         } break;
-                        case TextureType::Texture_3D:
+                        case RZTextureProperties::Type::Texture_3D:
                             texture = Graphics::RZTexture3D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
                             break;
-                        case TextureType::Texture_CubeMap:
+                        case RZTextureProperties::Type::Texture_CubeMap:
                             texture = Graphics::RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h);
                             break;
-                        case TextureType::Texture_Depth:
+                        case RZTextureProperties::Type::Texture_Depth:
                             if (desc.numLayers > 1) {
                                 texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
-                                texture->setType(RZTextureProperties::Type::DEPTH);
+                                texture->setType(RZTextureProperties::Type::Texture_DepthTarget);
                             } else
                                 texture = Graphics::RZDepthTexture::Create(w, h);
                             break;
-                        case TextureType::Texture_RenderTarget:
+                        case RZTextureProperties::Type::Texture_RenderTarget:
                             if (desc.numLayers == 1)
                                 texture = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) w, h, desc.format);
                             else
-                                RAZIX_CORE_ASSERT(desc.numLayers == 1, "Use TextureType::Texture_2D type for Render Targets whose depth/layers > 1");
+                                RAZIX_CORE_ASSERT(desc.numLayers == 1, "Use RZTextureProperties::Type::Texture_2D type for Render Targets whose depth/layers > 1");
                             break;
-                        case TextureType::Texture_SwapchainImage:
+                        case RZTextureProperties::Type::Texture_SwapchainImage:
                             //m_Texture = RZRHI::getSwapchain()->GetCurrentImage()
                             break;
                     }
