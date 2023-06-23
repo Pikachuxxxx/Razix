@@ -57,7 +57,7 @@ namespace Razix {
             Q_OBJECT
 
         public:
-            RZECollapsingHeader(QString& headerTitle, QWidget* childWidget, QIcon* icon = nullptr, QWidget* parent = nullptr);
+            RZECollapsingHeader(QString headerTitle, QWidget* childWidget, QIcon* icon = nullptr, QWidget* parent = nullptr);
             ~RZECollapsingHeader();
 
         private:

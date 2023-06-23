@@ -129,9 +129,9 @@ private:
 
         // Add entities to the scene programatically for the first time
         // Camera Entity
-        auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
+        auto cameras = activeScene->GetComponentsOfType<CameraComponent>();
         if (!cameras.size()) {
-            RZEntity& camera = activeScene->createEntity("Camera");
+            RZEntity camera = activeScene->createEntity("Camera");
             camera.AddComponent<CameraComponent>();
             if (camera.HasComponent<CameraComponent>()) {
                 CameraComponent& cc = camera.GetComponent<CameraComponent>();
@@ -157,15 +157,15 @@ private:
         }
 
         // Add a directional light for test
-        auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
+        auto lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
-            auto& directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
+            auto directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
             directionalLightEntity.AddComponent<Razix::LightComponent>();
         }
 
-        auto& meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        auto meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
         if (!meshEnitties.size()) {
-            auto& planeMesh = activeScene->createEntity("CubeMesh");
+            auto planeMesh = activeScene->createEntity("CubeMesh");
             planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
         }
 

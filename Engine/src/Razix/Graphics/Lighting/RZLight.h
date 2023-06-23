@@ -1,73 +1,13 @@
 #pragma once
 #include "Razix/Graphics/Lighting/LightData.h"
 
+#include <cereal/cereal.hpp>
+
 namespace Razix {
     namespace Graphics {
 
         class RZUniformBuffer;
-#if 0
-        struct DirectionalLightData
-        {
-            alignas(16) glm::vec3 direction = glm::vec3(0.0f);
-            alignas(16) glm::vec3 color     = glm::vec3(0.0f);
-            alignas(16) f32 time          = 0.0f;
 
-            template<class Archive>
-            void serialize(Archive& archive)
-            {
-                archive(cereal::make_nvp("direction", direction));
-                archive(cereal::make_nvp("color", color));
-                archive(cereal::make_nvp("time", time));
-            }
-        };
-
-        struct PointLightData
-        {
-            alignas(16) glm::vec3 position = glm::vec3(0.0f);
-            alignas(16) glm::vec3 color    = glm::vec3(0.0f);
-            alignas(16) f32 radius       = 0.0f;
-            alignas(16) f32 constant     = 0.0f;
-            alignas(16) f32 linear       = 0.0f;
-            alignas(16) f32 quadratic    = 0.0f;
-
-            template<class Archive>
-            void serialize(Archive& archive)
-            {
-                archive(cereal::make_nvp("position", position));
-                archive(cereal::make_nvp("color", color));
-                archive(cereal::make_nvp("radius", radius));
-                archive(cereal::make_nvp("constant", constant));
-                archive(cereal::make_nvp("linear", linear));
-                archive(cereal::make_nvp("quadratic", quadratic));
-            }
-        };
-
-        struct SpotLightData
-        {
-            // TODO: To be implemented
-            alignas(16) glm::vec3 position  = glm::vec3(0.0f);
-            alignas(16) glm::vec3 direction = glm::vec3(0.0f);
-            alignas(16) glm::vec3 color     = glm::vec3(0.0f);
-            alignas(16) f32 coneRadius    = 0.0f;
-            alignas(16) f32 constant      = 0.0f;
-            alignas(16) f32 linear        = 0.0f;
-            alignas(16) f32 quadratic     = 0.0f;
-
-            template<class Archive>
-            void serialize(Archive& archive)
-            {
-                archive(cereal::make_nvp("position", position));
-                archive(cereal::make_nvp("direction", direction));
-                archive(cereal::make_nvp("color", color));
-                archive(cereal::make_nvp("coneRadius", coneRadius));
-                archive(cereal::make_nvp("constant", constant));
-                archive(cereal::make_nvp("linear", linear));
-                archive(cereal::make_nvp("quadratic", quadratic));
-            }
-        };
-#endif
-
-        // TODO: Add methods to render world icons in editor that can be used by the debug renderer
         class RAZIX_API RZLight
         {
         public:

@@ -71,7 +71,7 @@ namespace Razix {
             });
         }
 
-        void RZESceneHierarchyPanel::drawEntityNode(RZEntity& parentEntity, RZScene* scene, entt::registry& registry, QTreeWidgetItem* parentItem)
+        void RZESceneHierarchyPanel::drawEntityNode(RZEntity parentEntity, RZScene* scene, entt::registry& registry, QTreeWidgetItem* parentItem)
         {
             auto hierarchyComponent = registry.try_get<HierarchyComponent>(parentEntity);
             bool noChildren         = true;

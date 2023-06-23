@@ -9,7 +9,7 @@
 
 namespace Razix {
     namespace Editor {
-        RZECollapsingHeader::RZECollapsingHeader(QString& headerTitle, QWidget* childWidget, QIcon* icon, QWidget* parent /* = nullptr*/)
+        RZECollapsingHeader::RZECollapsingHeader(QString headerTitle, QWidget* childWidget, QIcon* icon, QWidget* parent /* = nullptr*/)
             : QFrame(parent), m_ChildWidget(childWidget)
         {
             m_BoxVLayout = new QVBoxLayout(this);
