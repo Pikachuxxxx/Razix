@@ -25,7 +25,7 @@ namespace Razix {
             ~RZESceneHierarchyPanel();
 
             void populateHierarchy();
-            void drawEntityNode(RZEntity& entity, RZScene* scene, entt::registry& registry, QTreeWidgetItem* parentItem);
+            void drawEntityNode(RZEntity entity, RZScene* scene, entt::registry& registry, QTreeWidgetItem* parentItem);
 
             void keyPressEvent(QKeyEvent* event)
             {
@@ -38,7 +38,7 @@ namespace Razix {
                     Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
                     auto&           registry = scene->getRegistry();
 
-                    for (size_t i = 0; i < selectedItems.size(); i++) {
+                    for (u32 i = 0; i < selectedItems.size(); i++) {
                         RZApplication::Get().disableGuizmoEditing();
                         QVariant entityVariant = selectedItems[i]->data(0, Qt::UserRole);
                         auto     entity        = entityVariant.value<RZEntity>();

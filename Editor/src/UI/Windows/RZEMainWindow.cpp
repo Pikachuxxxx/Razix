@@ -369,7 +369,7 @@ namespace Razix {
         void RZEMainWindow::Create_Entity()
         {
             // Create an entity
-            auto& entity = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Entity");
+            auto entity = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Entity");
             //entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
             // Update the scene hierarchy panel to re-draw
             emit OnEntityAddedToScene();

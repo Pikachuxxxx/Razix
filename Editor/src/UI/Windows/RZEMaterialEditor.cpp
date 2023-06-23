@@ -75,7 +75,7 @@ namespace Razix {
 
             auto& matTextures = m_Material->getTextures();
             //matTextures.albedo->Release();
-            matTextures.albedo = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), fileName.toStdString());
+            matTextures.albedo = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
             m_Material->setTextures(matTextures);
         }
 
@@ -116,7 +116,7 @@ namespace Razix {
 
             auto& matTextures = m_Material->getTextures();
             //matTextures.albedo->Release();
-            matTextures.specular = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), fileName.toStdString());
+            matTextures.specular = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
             m_Material->setTextures(matTextures);
         }
 

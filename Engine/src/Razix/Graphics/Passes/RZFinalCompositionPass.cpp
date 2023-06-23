@@ -143,7 +143,7 @@ namespace Razix {
                             }
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }
-                        updatedRT = true;
+                        //updatedRT = true;
                     }
 
                     RenderingInfo info{};

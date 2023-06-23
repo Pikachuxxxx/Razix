@@ -1,0 +1,25 @@
+{
+    "Stingray_Piece_metal": {
+        "Name": "Stingray_Piece_metal",
+        "Albedo": "//Assets/Models/Chess/Piece_White_D.jpg",
+        "Normal": "//Assets/Models/Chess/Piece_White_N.png",
+        "Metallic": "//Assets/Models/Chess/Piece_Metall_R_20.jpg",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.02500000037252903,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}
