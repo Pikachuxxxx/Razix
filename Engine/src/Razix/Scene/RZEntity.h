@@ -2,6 +2,8 @@
 
 #include <entt.hpp>
 
+#include "Razix/Scene/RZScene.h"
+
 namespace Razix {
 
     // Forward declaration

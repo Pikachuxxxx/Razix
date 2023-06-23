@@ -49,15 +49,14 @@ namespace Razix {
             //RZPipeline*                   m_Pipeline; // Diffifult to be own as Material can't have knowledge of the RTs in a pass and RZPipeline needs that before hand along with shader
 
             static RZTexture2D* s_DefaultTexture;
-            //MaterialData        m_MaterialData;
-            MaterialProperties m_MaterialProperties;
-            MaterialTextures   m_MaterialTextures;
-            std::string        m_Name                  = "PBR material";
-            RZShader*          m_Shader                = nullptr;
-            RZDescriptorSet*   m_DescriptorSet         = nullptr;
-            RZUniformBuffer*   m_MaterialPropertiesUBO = nullptr;
-            bool               m_TexturesUpdated       = false;
-            WorkFlow           m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+            MaterialProperties  m_MaterialProperties;
+            MaterialTextures    m_MaterialTextures;
+            std::string         m_Name                  = "PBR material";
+            RZShader*           m_Shader                = nullptr;
+            RZDescriptorSet*    m_DescriptorSet         = nullptr;
+            RZUniformBuffer*    m_MaterialPropertiesUBO = nullptr;
+            bool                m_TexturesUpdated       = false;
+            WorkFlow            m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
         };
 
         static RZMaterial* DefaultMaterial = nullptr;

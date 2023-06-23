@@ -5,6 +5,7 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDebugConfig.h"
 
+#include "Razix/Graphics/RHI/API/Data/RZBufferData.h"
 #include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
 
 namespace Razix {
@@ -46,7 +47,7 @@ namespace Razix {
             virtual void Destroy() = 0;
 
             virtual void Map(u32 size = 0, u32 offset = 0) = 0;
-            virtual void UnMap()                                     = 0;
+            virtual void UnMap()                           = 0;
             /**
              * Gets the region on the HOST to which the device memory was mapped to
              * 
@@ -59,7 +60,7 @@ namespace Razix {
 
         protected:
             BufferUsage m_Usage  = BufferUsage::STATIC;
-            u32    m_Size   = 0;
+            u32         m_Size   = 0;
             bool        m_Mapped = false;
         };
 

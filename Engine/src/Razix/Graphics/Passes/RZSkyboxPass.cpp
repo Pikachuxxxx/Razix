@@ -44,14 +44,14 @@ namespace Razix {
             auto skyboxShader           = RZShaderLibrary::Get().getShader("Shader.Builtin.Skybox.rzsf");
             auto proceduralSkyboxShader = RZShaderLibrary::Get().getShader("Shader.Builtin.ProceduralSkybox.rzsf");
 
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = skyboxShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.depthFormat            = Graphics::RZTextureProperties::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = false;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;

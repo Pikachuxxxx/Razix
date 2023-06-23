@@ -6,18 +6,18 @@
 namespace Razix {
     namespace rzstl {
 
-        RefCounter::RefCounter()
+        RefCounterManager::RefCounterManager()
         {
             m_RefCounter.InitRefCount();
             m_RefCounterInit.InitRefCount(0);
             m_WeakRefCounter.InitRefCount(0);
         }
 
-        RefCounter::~RefCounter()
+        RefCounterManager::~RefCounterManager()
         {
         }
 
-        bool RefCounter::InitRef()
+        bool RefCounterManager::InitRef()
         {
             if (Reference()) {
                 if (m_RefCounterInit.GetRefCount() > 0) {
@@ -29,33 +29,33 @@ namespace Razix {
                 return false;
         }
 
-        bool RefCounter::Reference()
+        bool RefCounterManager::Reference()
         {
             return m_RefCounter.Ref();
         }
 
-        bool RefCounter::Unreference()
+        bool RefCounterManager::Unreference()
         {
             return m_RefCounter.Unref();
         }
 
-        bool RefCounter::WeakReference()
+        bool RefCounterManager::WeakReference()
         {
             return m_WeakRefCounter.Ref();
         }
 
-        bool RefCounter::WeakUnreference()
+        bool RefCounterManager::WeakUnreference()
         {
             bool die = m_WeakRefCounter.Unref() && m_RefCounter.count == 0;
             return die;
         }
 
-        int RefCounter::GetReferenceCount() const
+        int RefCounterManager::GetReferenceCount() const
         {
             return m_RefCounter.GetRefCount();
         }
 
-        int RefCounter::GetWeakReferenceCount() const
+        int RefCounterManager::GetWeakReferenceCount() const
         {
             return m_WeakRefCounter.GetRefCount();
         }

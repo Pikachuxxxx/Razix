@@ -45,7 +45,7 @@ namespace Razix {
             u32* pinkTextureDataRaw = new u32;    // A8B8G8R8
             pinkTextureDataRaw[0]   = {0xffff00ff};
             //memcpy(pinkTextureDataRaw, &pinkTextureData, sizeof(u32));
-            s_DefaultTexture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture") "Default Texture", 1, 1, pinkTextureDataRaw, RZTexture::Format::RGBA8);
+            s_DefaultTexture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture"){.name = "Default Texture", .width = 1, .height = 1, .data = pinkTextureDataRaw, .format = RZTextureProperties::Format::RGBA8});
             //delete[] pinkTextureDataRaw;
         }
 
@@ -65,43 +65,43 @@ namespace Razix {
             if (paths.albedo && paths.albedo != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.albedo);
                 if (!fileName.empty())
-                    m_MaterialTextures.albedo = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.albedo, fileName);
+                    m_MaterialTextures.albedo = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.albedo, {.name = fileName});
             }
 
             if (paths.ao && paths.ao != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.ao);
                 if (!fileName.empty())
-                    m_MaterialTextures.ao = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.ao, fileName);
+                    m_MaterialTextures.ao = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.ao, {.name = fileName});
             }
 
             if (paths.emissive && paths.emissive != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.emissive);
                 if (!fileName.empty())
-                    m_MaterialTextures.emissive = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.emissive, fileName);
+                    m_MaterialTextures.emissive = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.emissive, {.name = fileName});
             }
 
             if (paths.metallic && paths.metallic != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.metallic);
                 if (!fileName.empty())
-                    m_MaterialTextures.metallic = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.metallic, fileName);
+                    m_MaterialTextures.metallic = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.metallic, {.name = fileName});
             }
 
             if (paths.normal && paths.normal != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.normal);
                 if (!fileName.empty())
-                    m_MaterialTextures.normal = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.normal, fileName);
+                    m_MaterialTextures.normal = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.normal, {.name = fileName});
             }
 
             if (paths.roughness && paths.roughness != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.roughness);
                 if (!fileName.empty())
-                    m_MaterialTextures.roughness = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.roughness, fileName);
+                    m_MaterialTextures.roughness = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.roughness, {.name = fileName});
             }
 
             if (paths.specular && paths.specular != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.specular);
                 if (!fileName.empty())
-                    m_MaterialTextures.specular = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.specular, fileName);
+                    m_MaterialTextures.specular = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.specular, {.name = fileName});
             }
 
             setTexturesUpdated(true);

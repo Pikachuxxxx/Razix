@@ -86,8 +86,8 @@ namespace Razix {
         void RZShadowRenderer::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Load the shader
-            auto  shader   = RZShaderLibrary::Get().getShader("shadow_mapping.rzsf");
-            auto& setInfos = shader->getSetsCreateInfos();
+            auto shader   = RZShaderLibrary::Get().getShader("shadow_mapping.rzsf");
+            auto setInfos = shader->getSetsCreateInfos();
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -99,13 +99,13 @@ namespace Razix {
             }
 
             // Create the Pipeline
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::BACK;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader              = shader;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.depthFormat         = {Graphics::RZTexture::Format::DEPTH32F};
+            pipelineInfo.depthFormat         = {Graphics::RZTextureProperties::Format::DEPTH32F};
             m_Pipeline                       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Pass Pipeline"));
 
             blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
@@ -113,7 +113,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SimpleShadowPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {FrameGraph::TextureType::Texture_Depth, "Shadow map", {kShadowMapSize, kShadowMapSize}, RZTexture::Format::DEPTH32F});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = RZTextureProperties::Type::Texture_DepthTarget, .format = RZTextureProperties::Format::DEPTH32F});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 

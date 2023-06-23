@@ -44,8 +44,9 @@ namespace Razix {
         {
             // Get data from the blackboard
             // Get the GBuffer data
-            const GBufferData& gBuffer = blackboard.get<GBufferData>();
-            const auto         extent  = framegraph.getDescriptor<FrameGraph::RZFrameGraphTexture>(gBuffer.Depth).extent;
+            const GBufferData& gBuffer      = blackboard.get<GBufferData>();
+            auto               gbuffer_desc = framegraph.getDescriptor<FrameGraph::RZFrameGraphTexture>(gBuffer.Depth);
+            const auto         extent       = glm::vec2(gbuffer_desc.width, gbuffer_desc.height);
 
             // BRDF
             const BRDFData& brdf = blackboard.get<BRDFData>();
@@ -73,12 +74,12 @@ namespace Razix {
             // Lights UBO
             m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
 
-            auto  shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
-            auto& setInfos = shader->getSetsCreateInfos();
+            auto shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
+            auto setInfos = shader->getSetsCreateInfos();
 
-            PipelineInfo info{};
+            PipelineDesc info{};
             info.shader                 = shader;
-            info.colorAttachmentFormats = {RZTexture::Format::RGBA32F};
+            info.colorAttachmentFormats = {RZTextureProperties::Format::RGBA32F};
 
             m_Pipeline = RZPipeline::Create(info RZ_DEBUG_NAME_TAG_STR_E_ARG("Deferred Lighting Pipeline"));
 
@@ -122,7 +123,14 @@ namespace Razix {
                     //}
 
                     // Write to a HDR render target
-                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_RenderTarget, "Scene HDR color", {extent.x, extent.y}, RZTexture::Format::RGBA32F});
+                    RZTextureDesc sceneHDRDesc{
+                        .name   = "Scene HDR Color",
+                        .width  = static_cast<u32>(extent.x),
+                        .height = static_cast<u32>(extent.y),
+                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .format = RZTextureProperties::Format::RGBA32F};
+
+                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", CAST_TO_FG_TEX_DESC sceneHDRDesc);
 
                     data.HDR = builder.write(data.HDR);
                 },
@@ -135,7 +143,7 @@ namespace Razix {
 
                     glm::vec2 resolution = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
 
-                    cmdBuf->UpdateViewport(resolution.x, resolution.y);
+                    cmdBuf->UpdateViewport(static_cast<u32>(resolution.x), static_cast<u32>(resolution.y));
 
                     RenderingInfo info{};
                     info.colorAttachments = {

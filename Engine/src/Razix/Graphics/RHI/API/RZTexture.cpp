@@ -34,26 +34,26 @@ namespace Razix {
             return levels;
         }
 
-        RZTexture::Format RZTexture::bitsToTextureFormat(u32 bits)
+        RZTextureProperties::Format RZTexture::bitsToTextureFormat(u32 bits)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch ((bits * 8)) {
                 case 8:
-                    return RZTexture::Format::R8;
+                    return RZTextureProperties::Format::R8;
                 case 16:
-                    return RZTexture::Format::RG8;
+                    return RZTextureProperties::Format::RG8;
                 case 24:
-                    return RZTexture::Format::RGB8;
+                    return RZTextureProperties::Format::RGB8;
                 case 32:
-                    return RZTexture::Format::RGBA8;
+                    return RZTextureProperties::Format::RGBA8;
                 case 48:
-                    return RZTexture::Format::RGB16;
+                    return RZTextureProperties::Format::RGB16;
                 case 64:
-                    return RZTexture::Format::RGBA16;
+                    return RZTextureProperties::Format::RGBA16;
                 default:
                     RAZIX_CORE_ASSERT(false, "[Texture] Unsupported image bit-depth! ({0})", bits);
-                    return RZTexture::Format::RGB8;
+                    return RZTextureProperties::Format::RGB8;
             }
         }
 
@@ -62,7 +62,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RZDescriptor descriptor{};
-            descriptor.name                = m_Name;
+            descriptor.name                = m_Desc.name;
             descriptor.bindingInfo.binding = 0;
             descriptor.bindingInfo.count   = 1;
             descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
@@ -71,20 +71,20 @@ namespace Razix {
 
             std::vector<RZDescriptor> descriptors = {descriptor};
 
-            m_DescriptorSet = Graphics::RZDescriptorSet::Create(descriptors RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            m_DescriptorSet = Graphics::RZDescriptorSet::Create(descriptors RZ_DEBUG_NAME_TAG_STR_E_ARG(descriptor.name));
         }
 
         //-----------------------------------------------------------------------------------
         // Texture 2D
         //-----------------------------------------------------------------------------------
 
-        RZTexture2D* RZTexture2D::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::Create(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(name, width, height, data, format, wrapMode, filterMode); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(name, width, height, data, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(desc); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(RZ_DEBUG_F_ARG_NAME desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -94,13 +94,13 @@ namespace Razix {
             return nullptr;
         }
 
-        RZTexture2D* RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 numLayers, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(name, width, height, nullptr, format, wrapMode, filterMode); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(name, width, height, numLayers, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(desc); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2DArray(RZ_DEBUG_F_ARG_NAME desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -110,13 +110,13 @@ namespace Razix {
             return nullptr;
         }
 
-        RZTexture2D* RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode)
+        RZTexture2D* RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const RZTextureDesc& desc)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(filePath, name, wrapMode, filterMode); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(filePath, name, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(filePath, desc); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(RZ_DEBUG_F_ARG_NAME filePath, desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -130,13 +130,13 @@ namespace Razix {
         // Texture 3D
         //-----------------------------------------------------------------------------------
 
-        RZTexture3D* RZTexture3D::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, u32 depth, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZTexture3D* RZTexture3D::Create(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return nullptr; break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture3D(name, width, height, depth, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture3D(RZ_DEBUG_F_ARG_NAME desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -150,12 +150,12 @@ namespace Razix {
         // Cube Map Texture
         //-----------------------------------------------------------------------------------
 
-        RZCubeMap* RZCubeMap::Create(RZ_DEBUG_NAME_TAG_F_ARG const std::string& name, u32 width, u32 height, bool enableMipsGeneration /* = false*/, Wrapping wrapMode, Filtering filterMode)
+        RZCubeMap* RZCubeMap::Create(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKCubeMap(name, width, height, enableMipsGeneration, wrapMode, filterMode); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKCubeMap(RZ_DEBUG_F_ARG_NAME desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -169,13 +169,13 @@ namespace Razix {
         // Depth Texture
         //-----------------------------------------------------------------------------------
 
-        RZDepthTexture* RZDepthTexture::Create(u32 width, u32 height)
+        RZDepthTexture* RZDepthTexture::Create(const RZTextureDesc& desc)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return nullptr; break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKDepthTexture(width, height); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKDepthTexture(desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -189,13 +189,13 @@ namespace Razix {
         // Render Texture
         //-----------------------------------------------------------------------------------
 
-        RZRenderTexture* RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_F_ARG u32 width, u32 height, Format format, Wrapping wrapMode, Filtering filterMode)
+        RZRenderTexture* RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKRenderTexture(width, height, format, wrapMode, filterMode RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKRenderTexture(RZ_DEBUG_F_ARG_NAME desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:

@@ -46,49 +46,49 @@ namespace Razix {
             }
 
             //TODO: USe macros to generate this code automatically
-            static uint32_t TextureFormatToGL(const RZTexture::Format format, bool srgb)
+            static uint32_t TextureFormatToGL(const RZTextureProperties::Format format, bool srgb)
             {
                 switch (format) {
-                    case RZTexture::Format::R8:
+                    case RZTextureProperties::Format::R8:
                         return GL_R8;
                         break;
-                    case RZTexture::Format::R32_UINT:
+                    case RZTextureProperties::Format::R32_UINT:
                         return GL_R32UI;
                         break;
-                    case RZTexture::Format::R32_INT:
+                    case RZTextureProperties::Format::R32_INT:
                         return GL_R32I;
                         break;
-                    case RZTexture::Format::R32F:
+                    case RZTextureProperties::Format::R32F:
                         return GL_RG32F;
                         break;
-                    case RZTexture::Format::RG8:
+                    case RZTextureProperties::Format::RG8:
                         return GL_RG8;
                         break;
-                    case RZTexture::Format::RGB8:
+                    case RZTextureProperties::Format::RGB8:
                         return srgb ? GL_SRGB8 : GL_RGB8;
                         break;
-                    case RZTexture::Format::RGB16:
+                    case RZTextureProperties::Format::RGB16:
                         return GL_RGB16;
                         break;
-                    case RZTexture::Format::RGB32:
+                    case RZTextureProperties::Format::RGB32:
                         return GL_RGB;
                         break;
-                    case RZTexture::Format::RGBA8:
+                    case RZTextureProperties::Format::RGBA8:
                         return srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
                         break;
-                    case RZTexture::Format::RGBA16:
+                    case RZTextureProperties::Format::RGBA16:
                         return GL_RGBA16;
                         break;
-                    case RZTexture::Format::RGBA32:
+                    case RZTextureProperties::Format::RGBA32:
                         return GL_RGBA;
                         break;
-                    case RZTexture::Format::RGBA32F:
+                    case RZTextureProperties::Format::RGBA32F:
                         return GL_RGBA32F;
                         break;
-                    case RZTexture::Format::RGB:
+                    case RZTextureProperties::Format::RGB:
                         return srgb ? GL_SRGB : GL_RGB;
                         break;
-                    case RZTexture::Format::RGBA:
+                    case RZTextureProperties::Format::RGBA:
                         return srgb ? GL_SRGB_ALPHA : GL_RGBA;
                         break;
                     default:
@@ -98,19 +98,19 @@ namespace Razix {
                 }
             }
 
-            static uint32_t TextureWrapToGL(const RZTexture::Wrapping wrap)
+            static uint32_t TextureWrapToGL(const RZTextureProperties::Wrapping wrap)
             {
                 switch (wrap) {
-                    case RZTexture::Wrapping::REPEAT:
+                    case RZTextureProperties::Wrapping::REPEAT:
                         return GL_REPEAT;
                         break;
-                    case RZTexture::Wrapping::MIRRORED_REPEAT:
+                    case RZTextureProperties::Wrapping::MIRRORED_REPEAT:
                         return GL_MIRRORED_REPEAT;
                         break;
-                    case RZTexture::Wrapping::CLAMP_TO_EDGE:
+                    case RZTextureProperties::Wrapping::CLAMP_TO_EDGE:
                         return GL_CLAMP_TO_EDGE;
                         break;
-                    case RZTexture::Wrapping::CLAMP_TO_BORDER:
+                    case RZTextureProperties::Wrapping::CLAMP_TO_BORDER:
                         return GL_CLAMP_TO_BORDER;
                         break;
 

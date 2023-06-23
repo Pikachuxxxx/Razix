@@ -16,5 +16,4 @@ namespace Razix {
     {
         Sprite = new Graphics::RZSprite(color);
     }
-
 }    // namespace Razix

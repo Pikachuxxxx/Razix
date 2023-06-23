@@ -4,8 +4,8 @@
 #include "RZBloomPass.h"
 
 #include "Razix/Core/RZApplication.h"
-#include "Razix/Core/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
@@ -43,13 +43,13 @@ namespace Razix {
             auto upsamplingShader   = RZShaderLibrary::Get().getShader("bloom_upsample.rzsf");
             auto downsamplingShader = RZShaderLibrary::Get().getShader("bloom_downsample.rzsf");
 
-            PipelineInfo pipelineInfo{};
+            PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.depthTestEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
 
             pipelineInfo.shader = upsamplingShader;
             m_UpsamplePipeline  = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Upsample Pipeline"));
@@ -114,7 +114,15 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, BloomSubPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", {FrameGraph::TextureType::Texture_RenderTarget, "Bloom Mip", {bloomSourceMip.size.x, bloomSourceMip.size.y}, RZTexture::Format::RGBA32F});
+                    RZTextureDesc bloomMipDesc{
+                        .name   = "Bloom Mip",
+                        .width  = static_cast<u32>(bloomSourceMip.size.x),
+                        .height = static_cast<u32>(bloomSourceMip.size.y),
+                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .format = RZTextureProperties::Format::RGBA32F,
+                    };
+
+                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
 
                     // Read the mip from the previous pass
                     builder.read(bloomSourceMip.mip);
@@ -134,13 +142,13 @@ namespace Razix {
                     RAZIX_MARK_BEGIN("Bloom Upsample Pass" + std::to_string(mipindex), glm::vec4(0.25, 0.23, 0.86f, 1.0f));
 
                     // Update Viewport and Scissor Rect
-                    cmdBuf->UpdateViewport(bloomSourceMip.size.x, bloomSourceMip.size.y);
+                    cmdBuf->UpdateViewport(static_cast<u32>(bloomSourceMip.size.x), static_cast<u32>(bloomSourceMip.size.y));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
                     if (!updatedRT) {
-                        auto& setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_upsample.rzsf")->getSetsCreateInfos();
+                        auto setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_upsample.rzsf")->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
@@ -228,7 +236,15 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, BloomSubPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", {FrameGraph::TextureType::Texture_RenderTarget, "Bloom Mip", {bloomSourceMip.size.x, bloomSourceMip.size.y}, RZTexture::Format::RGBA32F});
+                    RZTextureDesc bloomMipDesc{
+                        .name   = "Bloom Mip",
+                        .width  = static_cast<u32>(bloomSourceMip.size.x),
+                        .height = static_cast<u32>(bloomSourceMip.size.y),
+                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .format = RZTextureProperties::Format::RGBA32F,
+                    };
+
+                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
 
                     // Read the mip from the previous pass
                     builder.read(bloomSourceMip.mip);
@@ -248,13 +264,13 @@ namespace Razix {
                     RAZIX_MARK_BEGIN("Bloom Downsample Pass" + std::to_string(mipindex), glm::vec4(0.85, 0.23, 0.56f, 1.0f));
 
                     // Update Viewport and Scissor Rect
-                    cmdBuf->UpdateViewport(bloomSourceMip.size.x, bloomSourceMip.size.y);
+                    cmdBuf->UpdateViewport(static_cast<u32>(bloomSourceMip.size.x), static_cast<u32>(bloomSourceMip.size.y));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
                     if (!updatedRT) {
-                        auto& setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_downsample.rzsf")->getSetsCreateInfos();
+                        auto setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_downsample.rzsf")->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
@@ -330,13 +346,13 @@ namespace Razix {
 
             auto bloomMixShader = RZShaderLibrary::Get().getShader("bloom_mix.rzsf");
 
-            PipelineInfo pipelineInfo{};
+            PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.depthTestEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA8};
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA8};
             pipelineInfo.shader                 = bloomMixShader;
             m_HDRBloomMixPipeline               = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Mix Tonemapper Pipeline"));
 
@@ -373,7 +389,7 @@ namespace Razix {
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
                     if (!updatedRT) {
-                        auto& setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_mix.rzsf")->getSetsCreateInfos();
+                        auto setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_mix.rzsf")->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.binding == 0)
@@ -387,10 +403,10 @@ namespace Razix {
                     }
 
                     // Begin Rendering
-                    RenderingInfo info{};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputLDR).getHandle(), {true, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)}}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
+                    RenderingInfo info{
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputLDR).getHandle(), {true, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)}}},
+                        .resize           = true};
                     RHI::BeginRendering(cmdBuf, info);
 
                     m_HDRBloomMixPipeline->Bind(cmdBuf);

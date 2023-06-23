@@ -159,10 +159,10 @@ project "Razix"
 
     -- Razix Project settings for Windows
     filter "system:windows"
-        cppdialect "C++17"
+        cppdialect "C++20"
         staticruntime "off"
         systemversion "latest"
-        disablewarnings { 4307 }
+        disablewarnings { 4307, 4267, 4275 } -- Disabling the 4275 cause this will propagate into everything ig
         characterset ("MBCS")
         editandcontinue "Off"
 

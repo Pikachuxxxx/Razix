@@ -13,11 +13,11 @@ namespace Razix {
         /// <summary>
         /// Manages the counter for different types of smart pointers and global reference count
         /// </summary>
-        class RAZIX_API RefCounter : public RZRoot
+        class RAZIX_API RefCounterManager : public RZRoot
         {
         public:
-            RefCounter();
-            ~RefCounter();
+            RefCounterManager();
+            ~RefCounterManager();
 
             /// <summary>
             /// Tells whether or not the object is being referenced at all or is a free f32ing object
@@ -126,7 +126,7 @@ namespace Razix {
 
             inline T* GetPointer() const { return m_Ptr; }
 
-            inline RefCounter* GetCounter() const { m_Counter; }
+            inline RefCounterManager* GetCounter() const { m_Counter; }
 
             inline T* Release() noexcept
             {
@@ -149,7 +149,7 @@ namespace Razix {
                 m_Counter = nullptr;
 
                 if (m_Ptr != nullptr) {
-                    m_Counter = new RefCounter();
+                    m_Counter = new RefCounterManager();
                     m_Counter->InitRef();
                 }
             }
@@ -242,7 +242,7 @@ namespace Razix {
                 RAZIX_ASSERT(ptr, "Creating shared pointer with nullptr");
 
                 m_Ptr     = ptr;
-                m_Counter = new RefCounter();
+                m_Counter = new rzstl::RefCounterManager();
                 m_Counter->InitRef();
             }
 
@@ -271,7 +271,7 @@ namespace Razix {
             /// Pointer to the Object being referred to
             T* m_Ptr = nullptr;
             /// Reference counter to track the Referencing nature of the object (pointer cause to transfer this object with the parent ref, all around)
-            RefCounter* m_Counter = nullptr;
+            rzstl::RefCounterManager* m_Counter = nullptr;
         };
         //--------------------------------------------------------------------------------------------------------//
         /// <summary>
@@ -301,7 +301,7 @@ namespace Razix {
             explicit WeakReference(T* ptr) noexcept
                 : m_Ptr(ptr)
             {
-                m_Counter = new RefCount();
+                m_Counter = new rzstl::RefCounterManager();
                 m_Counter->WeakReference();
             }
 
@@ -384,8 +384,8 @@ namespace Razix {
             }
 
         private:
-            T*          m_Ptr;
-            RefCounter* m_Counter = nullptr;
+            T*                 m_Ptr;
+            rzstl::RefCounterManager* m_Counter = nullptr;
         };
         //--------------------------------------------------------------------------------------------------------//
         /// <summary>

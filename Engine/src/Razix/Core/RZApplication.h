@@ -40,6 +40,7 @@ namespace Razix::Graphics {
 }    // namespace Razix::Graphics
 
 namespace Razix {
+
     /* Determines the state of the application */
     enum class AppState
     {
@@ -73,6 +74,9 @@ namespace Razix {
         RAZIX_CALL RZApplication(const std::string& projectRoot, const std::string& appName = "Razix App");
         /* Simple Virtual destructor */
         virtual ~RZApplication() {}
+
+        /* Gets the static reference to the application instance */
+        inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
 
         // TODO: Have 2 inits ==> Static and Runtime
         /* Initializes the application and other runtime systems */
@@ -122,9 +126,6 @@ namespace Razix {
         // Event callbacks for client
         virtual void RAZIX_CALL OnResize(u32 width, u32 height) {}
 
-        /* Gets the static reference to the application instance */
-        inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
-
         /* Returns a reference to the application window */
         inline RZWindow* RAZIX_CALL getWindow() { return m_Window; }
         /* Gets the window size */
@@ -160,72 +161,9 @@ namespace Razix {
 
         RAZIX_INLINE const AppState& getAppState() const { return m_CurrentState; }
         void                         setAppState(AppState state) { m_CurrentState = state; }
-        /* Application Serialization */
 
-        // Load mechanism for the RZApplication class
-        // TODO: Make this look more neat
-        template<class Archive>
-        void load(Archive& archive)
-        {
-            std::string projectName;
-            archive(cereal::make_nvp("Project Name", projectName));
-            RAZIX_ASSERT_MESSAGE((projectName == m_ProjectName), "Project name doesn't match with Executable");
-            /**
-             * Currently the project name will be verified with the one given in the sandbox or game project
-             * If it doesn't match it updates the project name, it's not necessary that the name must match the 
-             * executable name, since the Editor can load any *.razixproject file, this should also mean that
-             * it should be able to load any project name since the project name is always mutable just all it's properties
-             * There's not enforcement on the project names and other properties, the Razix Editor Application 
-             * and can load any thing as long it is supplies with the required data to
-             */
-            m_ProjectName = projectName;
-            // TODO: Verify these two!
-            //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
-            //archive(cereal::make_nvp("Project Version", 0));
-            archive(cereal::make_nvp("Render API", m_RenderAPI));
-            // Set the render API from the De-serialized data
-            Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) m_RenderAPI);
-            u32 Width, Height;
-            archive(cereal::make_nvp("Width", Width));
-            archive(cereal::make_nvp("Height", Height));
-            m_WindowProperties.Width  = Width;
-            m_WindowProperties.Height = Height;
-
-            // Extract the project UUID as as string and convert it back to the RZUUID
-            std::string uuid_string;
-            archive(cereal::make_nvp("Project ID", uuid_string));
-            m_ProjectID = RZUUID::FromStrFactory(uuid_string);
-
-            // Load the scenes from the project file for the engine to load and present
-            RAZIX_CORE_TRACE("Loading Scenes...");
-            archive(cereal::make_nvp("Scenes", sceneFilePaths));
-            for (auto& sceneFilePath: sceneFilePaths)
-                RAZIX_CORE_TRACE("\t scene : {0}", sceneFilePath);
-        }
-
-        // Save mechanism for the RZApplication class
-        template<class Archive>
-        void save(Archive& archive) const
-        {
-            RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
-            archive(cereal::make_nvp("Project Name", m_ProjectName));
-            archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
-            archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
-            archive(cereal::make_nvp("Render API", (u32) Graphics::RZGraphicsContext::GetRenderAPI()));
-            archive(cereal::make_nvp("Width", m_Window->getWidth()));
-            archive(cereal::make_nvp("Height", m_Window->getHeight()));
-            archive(cereal::make_nvp("Project Path", m_ProjectFilePath));    // Why am I even serializing this?
-
-            auto& paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
-
-            std::vector<std::string> newPaths;
-            for (auto& path: paths) {
-                std::string newPath;
-                RZVirtualFileSystem::Get().absolutePathToVFS(path, newPath);
-                newPaths.push_back(path);
-            }
-            archive(cereal::make_nvp("Scenes", newPaths));
-        }
+        // Application Save and Load Functions
+        RAZIX_DEFINE_SAVE_LOAD
 
     private:
         HWND                      viewportHWND;

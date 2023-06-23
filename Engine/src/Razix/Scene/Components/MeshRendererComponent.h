@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Razix/Graphics/Loaders/RZMeshLoader.h"
+#include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
+
+#include <cereal/cereal.hpp>
 
 namespace Razix {
 
@@ -14,7 +17,7 @@ namespace Razix {
      * Mesh renderer component references a mesh that will taken by the render to render a mesh on the 3D scene
      * It holds the reference to a 3D model or a primitive mesh to be rendered, so if a model is instantiated as
      * a Entity in the scene, each of it's children(which are also entities) will have a mesh renderer component
-     *  will be instantiated as entities in the scene with a Hierarchy, Transform,Tag, Active and default components
+     * will be instantiated as entities in the scene with a Hierarchy, Transform,Tag, Active and default components
      * attached to them, these all meshes are taken at once by the Renderer and rendered to the scene, any additional
      * information required to rendered can be inferred as needed
      */

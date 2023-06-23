@@ -3,9 +3,6 @@
 // clang-format on
 #include "MeshRendererComponent.h"
 
-#include "Razix/Graphics/RZMeshFactory.h"
-
-
 namespace Razix {
 
     MeshRendererComponent::MeshRendererComponent()
@@ -25,5 +22,4 @@ namespace Razix {
     {
         Mesh = Razix::Graphics::loadMesh(filePath);
     }
-
 }    // namespace Razix

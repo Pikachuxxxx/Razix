@@ -3,3 +3,6 @@
 // clang-format on
 #include "LightComponent.h"
 
+namespace Razix {
+
+}    // namespace Razix

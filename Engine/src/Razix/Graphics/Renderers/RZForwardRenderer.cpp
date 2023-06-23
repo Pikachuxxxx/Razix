@@ -75,14 +75,14 @@ namespace Razix {
                 m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Forward Renderer Main Command Buffers"));
             }
 
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA8};
-            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA8};
+            pipelineInfo.depthFormat            = Graphics::RZTextureProperties::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
 
@@ -134,7 +134,7 @@ namespace Razix {
             // Bind the pipeline
             m_Pipeline->Bind(cmdBuffer);
 
-            auto& mesh_group = m_CurrentScene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+            auto mesh_group = m_CurrentScene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
             for (auto entity: mesh_group) {
                 // Draw the mesh renderer components
                 const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);

@@ -5,6 +5,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <cereal/cereal.hpp>
+
 namespace Razix {
     /**
      * A transform components represents the transformation of the entity in the game world

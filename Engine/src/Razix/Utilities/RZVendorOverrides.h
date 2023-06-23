@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <cereal/cereal.hpp>
+
 namespace glm {
     // glm vectors
     template<class Archive>

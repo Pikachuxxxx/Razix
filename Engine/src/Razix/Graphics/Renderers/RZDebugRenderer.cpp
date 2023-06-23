@@ -61,14 +61,14 @@ namespace Razix {
 
             auto PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
 
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = PointShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.depthFormat            = Graphics::RZTextureProperties::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;

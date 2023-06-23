@@ -1,7 +1,7 @@
 project "ImGui"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
     staticruntime "off"
 
      includedirs
@@ -29,7 +29,7 @@ project "ImGui"
 
     filter "system:windows"
         systemversion "latest"
-        cppdialect "C++17"
+        cppdialect "C++20"
         staticruntime "off"
 
     filter "configurations:Debug"

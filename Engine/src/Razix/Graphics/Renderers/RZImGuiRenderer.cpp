@@ -92,7 +92,7 @@ namespace Razix {
             //uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto& setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
+            auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
 
             // Add icon fonts to ImGui
             // merge in icons from Font Awesome
@@ -109,7 +109,7 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             //sz uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas") "Awesome Font Icon Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
+            m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas"){.name = "Awesome Font Icon Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .type = RZTextureProperties::Type::Texture_2D, .format = RZTextureProperties::Format::RGBA8, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE});
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -319,14 +319,14 @@ namespace Razix {
         void RZImGuiRenderer::initDisposableResources()
         {
             // Create the graphics pipeline
-            Graphics::PipelineInfo pipelineInfo{};
+            Graphics::PipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTexture::Format::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::RZTexture::Format::DEPTH32F;
+            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.depthFormat            = Graphics::RZTextureProperties::Format::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
@@ -355,7 +355,7 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             //sz uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas (path one)") "ImGui Font Atlas", texWidth, texHeight, fontData, RZTexture::Format::RGBA8, RZTexture::Wrapping::CLAMP_TO_EDGE);
+            m_FontAtlasTexture = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui Font Atlas (path one)"){.name = "ImGui Font Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .type = RZTextureProperties::Type::Texture_2D, .format = RZTextureProperties::Format::RGBA8, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE});
         }
     }    // namespace Graphics
 }    // namespace Razix

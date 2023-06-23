@@ -10,8 +10,8 @@ namespace Razix {
         class OpenGLTexture2D : public RZTexture2D
         {
         public:
-            OpenGLTexture2D(const std::string& name, u32 width, u32 height, void* data, Format format, Wrapping wrapMode, Filtering filterMode);
-            OpenGLTexture2D(const std::string& filePath, const std::string& name, Wrapping wrapMode, Filtering filterMode);
+            OpenGLTexture2D(const RZTextureDesc& desc);
+            OpenGLTexture2D(const std::string& filePath, const RZTextureDesc& desc);
 
             void Bind(u32 slot) override;
             void Unbind(u32 slot) override;

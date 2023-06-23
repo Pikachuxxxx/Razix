@@ -32,8 +32,8 @@
 #include "Razix/Core/RZLog.h"
 #include "Razix/Core/RZProfiling.h"
 #include "Razix/Core/RZRoot.h"
+#include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
 #include "internal/RazixMemory/include/RZMemory.h"
-
 
 //-----3rd Party-----//
 // Profilers
@@ -42,6 +42,8 @@
 #include <sol/sol.hpp>
 // GLM
 #include <glm/glm.hpp>
+// Cereal
+#include <cereal/cereal.hpp>
 
 // Physics Engine
 // The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
@@ -59,3 +61,6 @@
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/RegisterTypes.h>
+
+// Disable Warnings
+#pragma warning(disable : 4100)

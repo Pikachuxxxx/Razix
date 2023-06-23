@@ -95,8 +95,8 @@ namespace Razix {
         {
             // Render pass
             Graphics::RenderPassAttachmentInfo textureTypes[2] = {
-                {Graphics::RZTexture::Type::COLOR, Graphics::RZTexture::Format::BGRA8_UNORM, true},
-                {Graphics::RZTexture::Type::DEPTH, Graphics::RZTexture::Format::DEPTH, true}};
+                {Graphics::RZTextureProperties::Type::COLOR, Graphics::RZTextureProperties::Format::BGRA8_UNORM, true},
+                {Graphics::RZTextureProperties::Type::DEPTH, Graphics::RZTextureProperties::Format::DEPTH, true}};
 
             Graphics::RenderPassInfo renderPassInfo{};
             renderPassInfo.attachmentCount = 2;
@@ -118,9 +118,9 @@ namespace Razix {
 
             // Framebuffer (we need on per frame ==> 3 in total)
             // Create the framebuffer
-            Graphics::RZTexture::Type attachmentTypes[2];
-            attachmentTypes[0] = Graphics::RZTexture::Type::COLOR;
-            attachmentTypes[1] = Graphics::RZTexture::Type::DEPTH;
+            Graphics::RZTextureProperties::Type attachmentTypes[2];
+            attachmentTypes[0] = Graphics::RZTextureProperties::Type::COLOR;
+            attachmentTypes[1] = Graphics::RZTextureProperties::Type::DEPTH;
 
             auto swapImgCount = Graphics::RZRHI::getSwapchain()->GetSwapchainImageCount();
             m_DepthTexture    = Graphics::RZDepthTexture::Create(m_ScreenBufferWidth, m_ScreenBufferHeight);

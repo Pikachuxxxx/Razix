@@ -202,7 +202,7 @@ namespace Razix {
     bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
     {
 #if 1
- auto ctx = ImGui::GetCurrentContext();
+        auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io = ImGui::GetIO();
             io.MousePos = ImVec2(e.GetX(), e.GetY());
@@ -214,7 +214,7 @@ namespace Razix {
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
 #if 1
-auto ctx = ImGui::GetCurrentContext();
+        auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
             io.MouseDown[e.GetMouseButton() - 1] = true;
@@ -227,7 +227,7 @@ auto ctx = ImGui::GetCurrentContext();
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
 #if 1
-auto ctx = ImGui::GetCurrentContext();
+        auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
             io.MouseDown[e.GetMouseButton() - 1] = false;
@@ -360,6 +360,71 @@ auto ctx = ImGui::GetCurrentContext();
         return m_CurrentState != AppState::Closing;
     }
 
+    /* Application Serialization */
+    // Load mechanism for the RZApplication class
+    template<class Archive>
+    void RZApplication::load(Archive& archive)
+    {
+        std::string projectName;
+        archive(cereal::make_nvp("Project Name", projectName));
+        RAZIX_ASSERT_MESSAGE((projectName == m_ProjectName), "Project name doesn't match with Executable");
+        /**
+             * Currently the project name will be verified with the one given in the sandbox or game project
+             * If it doesn't match it updates the project name, it's not necessary that the name must match the 
+             * executable name, since the Editor can load any *.razixproject file, this should also mean that
+             * it should be able to load any project name since the project name is always mutable just all it's properties
+             * There's not enforcement on the project names and other properties, the Razix Editor Application 
+             * and can load any thing as long it is supplies with the required data to
+             */
+        m_ProjectName = projectName;
+        // TODO: Verify these two!
+        //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
+        //archive(cereal::make_nvp("Project Version", 0));
+        archive(cereal::make_nvp("Render API", m_RenderAPI));
+        // Set the render API from the De-serialized data
+        Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) m_RenderAPI);
+        u32 Width, Height;
+        archive(cereal::make_nvp("Width", Width));
+        archive(cereal::make_nvp("Height", Height));
+        m_WindowProperties.Width  = Width;
+        m_WindowProperties.Height = Height;
+
+        // Extract the project UUID as as string and convert it back to the RZUUID
+        std::string uuid_string;
+        archive(cereal::make_nvp("Project ID", uuid_string));
+        m_ProjectID = RZUUID::FromStrFactory(uuid_string);
+
+        // Load the scenes from the project file for the engine to load and present
+        RAZIX_CORE_TRACE("Loading Scenes...");
+        archive(cereal::make_nvp("Scenes", sceneFilePaths));
+        for (auto& sceneFilePath: sceneFilePaths)
+            RAZIX_CORE_TRACE("\t scene : {0}", sceneFilePath);
+    }
+
+    // Save mechanism for the RZApplication class
+    template<class Archive>
+    void RZApplication::save(Archive& archive) const
+    {
+        RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
+        archive(cereal::make_nvp("Project Name", m_ProjectName));
+        archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
+        archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
+        archive(cereal::make_nvp("Render API", (u32) Graphics::RZGraphicsContext::GetRenderAPI()));
+        archive(cereal::make_nvp("Width", m_Window->getWidth()));
+        archive(cereal::make_nvp("Height", m_Window->getHeight()));
+        archive(cereal::make_nvp("Project Path", m_ProjectFilePath));    // Why am I even serializing this?
+
+        auto& paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
+
+        std::vector<std::string> newPaths;
+        for (auto& path: paths) {
+            std::string newPath;
+            RZVirtualFileSystem::Get().absolutePathToVFS(path, newPath);
+            newPaths.push_back(path);
+        }
+        archive(cereal::make_nvp("Scenes", newPaths));
+    }
+
     void RZApplication::Start()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
@@ -455,7 +520,7 @@ auto ctx = ImGui::GetCurrentContext();
         if (m_EnableGuizmoEditing) {
             auto           currentScene = RZEngine::Get().getSceneManager().getCurrentScene();
             auto&          registry     = currentScene->getRegistry();
-            auto&          cameraView   = registry.view<CameraComponent>();
+            auto           cameraView   = registry.view<CameraComponent>();
             RZSceneCamera* cam          = nullptr;
             if (!cameraView.empty()) {
                 // By using front we get the one and only or the first one in the list of camera entities
@@ -549,7 +614,7 @@ auto ctx = ImGui::GetCurrentContext();
                 ImGui::Indent();
                 // TODO: Add Average timings (CPU + GPU) and avg FPS
                 ImGui::Text("FPS                    : %.5d", stats.FramesPerSecond);
-                ImGui::Text("CPU time               : %.2f ms", stats.DeltaTime);
+                ImGui::Text("CPU time               : %2.2f ms", stats.DeltaTime);
 
                 ImGui::Separator();
                 ImGui::Text("API calls");
