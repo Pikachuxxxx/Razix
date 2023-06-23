@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZUUID.h"
 
+#include <cereal/cereal.hpp>
+
 namespace Razix {
 
     /**
@@ -29,4 +31,4 @@ namespace Razix {
             archive(cereal::make_nvp("UUID", UUID.prettyString()));
         }
     };
-}   // Razix
+}    // namespace Razix

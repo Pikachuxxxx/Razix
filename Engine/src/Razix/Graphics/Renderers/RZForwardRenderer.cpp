@@ -134,7 +134,7 @@ namespace Razix {
             // Bind the pipeline
             m_Pipeline->Bind(cmdBuffer);
 
-            auto& mesh_group = m_CurrentScene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+            auto mesh_group = m_CurrentScene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
             for (auto entity: mesh_group) {
                 // Draw the mesh renderer components
                 const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);

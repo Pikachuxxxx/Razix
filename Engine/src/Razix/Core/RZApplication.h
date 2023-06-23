@@ -75,6 +75,9 @@ namespace Razix {
         /* Simple Virtual destructor */
         virtual ~RZApplication() {}
 
+        /* Gets the static reference to the application instance */
+        inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
+
         // TODO: Have 2 inits ==> Static and Runtime
         /* Initializes the application and other runtime systems */
         void RAZIX_CALL Init();
@@ -122,9 +125,6 @@ namespace Razix {
 
         // Event callbacks for client
         virtual void RAZIX_CALL OnResize(u32 width, u32 height) {}
-
-        /* Gets the static reference to the application instance */
-        inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
 
         /* Returns a reference to the application window */
         inline RZWindow* RAZIX_CALL getWindow() { return m_Window; }

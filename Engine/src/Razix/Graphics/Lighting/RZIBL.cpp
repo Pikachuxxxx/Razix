@@ -52,7 +52,7 @@ namespace Razix {
             u32            width, height, bpp;
             unsigned char* pixels = Razix::Utilities::LoadImageData(hdrFilePath, &width, &height, &bpp);
 
-            RZTexture2D* equirectangularMap = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("HDR Cube Map Texture") "HDR Cube Map Texture", width, height, pixels, RZTextureProperties::Format::RGBA8, RZTextureProperties::Wrapping::CLAMP_TO_EDGE);
+            RZTexture2D* equirectangularMap = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("HDR Cube Map Texture"){.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = RZTextureProperties::Format::RGBA8, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE});
 
             std::vector<RZDescriptorSet*> envMapSets;
             std::vector<RZUniformBuffer*> UBOs;
@@ -67,8 +67,8 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto  shader   = RZShaderLibrary::Get().getShader("EnvToCubeMap.rzsf");
-            auto& setInfos = shader->getSetsCreateInfos();
+            auto shader   = RZShaderLibrary::Get().getShader("EnvToCubeMap.rzsf");
+            auto setInfos = shader->getSetsCreateInfos();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -103,7 +103,7 @@ namespace Razix {
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
-            RZCubeMap* cubeMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR ") "HDR", 512, 512);
+            RZCubeMap* cubeMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Envmap HDR "){"HDR", 512, 512});
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
@@ -156,7 +156,7 @@ namespace Razix {
 
         RZCubeMap* RZIBL::generateIrradianceMap(RZCubeMap* cubeMap)
         {
-            RZCubeMap* irradianceMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Irradiance Map") "Irradiance Map", 32, 32);
+            RZCubeMap* irradianceMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Irradiance Map"){.name = "Irradiance Map", .width = 32, .height = 32, .type = RZTextureProperties::Type::Texture_CubeMap});
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
             RZShader* cubemapConvolutionShader = RZShaderLibrary::Get().getShader("GenerateIrradianceMap.rzsf");
@@ -176,12 +176,12 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto& setInfos = cubemapConvolutionShader->getSetsCreateInfos();
+            auto setInfos = cubemapConvolutionShader->getSetsCreateInfos();
             for (int i = 0; i < 6; i++) {
-                uboData.view       = kCaptureViews[i];
-                uboData.projection = kCubeProjection;
+                uboData.view             = kCaptureViews[i];
+                uboData.projection       = kCubeProjection;
                 uboData.projection[1][1] = -1;
-                uboData.layer      = i;
+                uboData.layer            = i;
 
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
                 UBOs.push_back(viewProjLayerUBO);
@@ -259,7 +259,7 @@ namespace Razix {
         RZCubeMap* RZIBL::generatePreFilteredMap(RZCubeMap* cubeMap)
         {
             u32        dim            = 128;
-            RZCubeMap* preFilteredMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Pre Filtered Map") "Pre Filtered Map", dim, dim, true);
+            RZCubeMap* preFilteredMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Pre Filtered Map"){.name = "Pre Filtered Map", .width = dim, .height = dim, .layers = 6, .enableMips = true});
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
             RZShader* cubemapConvolutionShader = RZShaderLibrary::Get().getShader("GeneratePreFilteredMap.rzsf");
@@ -279,12 +279,12 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto& setInfos = cubemapConvolutionShader->getSetsCreateInfos();
+            auto setInfos = cubemapConvolutionShader->getSetsCreateInfos();
             for (int i = 0; i < 6; i++) {
-                uboData.view       = kCaptureViews[i];
-                uboData.projection = kCubeProjection;
+                uboData.view             = kCaptureViews[i];
+                uboData.projection       = kCubeProjection;
                 uboData.projection[1][1] = -1;
-                uboData.layer      = i;
+                uboData.layer            = i;
 
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
                 UBOs.push_back(viewProjLayerUBO);
@@ -355,8 +355,8 @@ namespace Razix {
                         data.roughness = roughness;
                         RZPushConstant pc;
                         pc.shaderStage = ShaderStage::PIXEL;
-                        pc.data = &data;
-                        pc.size = sizeof(PCData);
+                        pc.data        = &data;
+                        pc.size        = sizeof(PCData);
 
                         RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 

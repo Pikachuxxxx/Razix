@@ -58,12 +58,20 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc presentImageDesc{
-                        .name = "Present Image"};
+                        .name   = "Present Image",
+                        .width  = RZApplication::Get().getWindow()->getWidth(),
+                        .height = RZApplication::Get().getWindow()->getHeight(),
+                        .type   = RZTextureProperties::Type::Texture_2D,
+                        .format = RZTextureProperties::Format::BGRA8_UNORM};
 
                     RZTextureDesc depthImageDesc{
-                        .name = "Depth Image"};
+                        .name   = "Depth Image",
+                        .width  = RZApplication::Get().getWindow()->getWidth(),
+                        .height = RZApplication::Get().getWindow()->getHeight(),
+                        .type   = RZTextureProperties::Type::Texture_DepthTarget,
+                        .format = RZTextureProperties::Format::DEPTH16_UNORM};
 
-                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", (FrameGraph::RZFrameGraphTexture::Desc) presentImageDesc);
+                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
 
                     data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", (FrameGraph::RZFrameGraphTexture::Desc) depthImageDesc);
 
@@ -135,7 +143,7 @@ namespace Razix {
                             }
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }
-                        //updatedRT = true;
+                        updatedRT = true;
                     }
 
                     RenderingInfo info{};

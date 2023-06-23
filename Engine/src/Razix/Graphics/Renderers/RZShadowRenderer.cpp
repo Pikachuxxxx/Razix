@@ -86,8 +86,8 @@ namespace Razix {
         void RZShadowRenderer::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Load the shader
-            auto  shader   = RZShaderLibrary::Get().getShader("shadow_mapping.rzsf");
-            auto& setInfos = shader->getSetsCreateInfos();
+            auto shader   = RZShaderLibrary::Get().getShader("shadow_mapping.rzsf");
+            auto setInfos = shader->getSetsCreateInfos();
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -113,7 +113,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SimpleShadowPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Shadow map", {kShadowMapSize, kShadowMapSize}, RZTextureProperties::Format::DEPTH32F});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = RZTextureProperties::Type::Texture_DepthTarget, .format = RZTextureProperties::Format::DEPTH32F});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 

@@ -2,6 +2,8 @@
 
 #include "Razix/Graphics/Lighting/RZLight.h"
 
+#include <cereal/cereal.hpp>
+
 namespace Razix {
 
     class RAZIX_API LightComponent

@@ -106,7 +106,7 @@ namespace Razix {
 
         auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
 
-        auto& mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
+        auto mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
         for (auto entity: mesh_group) {
             // Draw the mesh renderer components
             const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
@@ -162,12 +162,12 @@ namespace Razix {
     void RZScene::Destroy()
     {
         // Meshes
-        auto& mrcs = this->GetComponentsOfType<MeshRendererComponent>();
+        auto mrcs = this->GetComponentsOfType<MeshRendererComponent>();
         for (auto& mesh: mrcs)
             mesh.Mesh->Destroy();
 
         // Sprites
-        auto& sprites = this->GetComponentsOfType<SpriteRendererComponent>();
+        auto sprites = this->GetComponentsOfType<SpriteRendererComponent>();
         for (auto& sprite: sprites)
             sprite.Sprite->destroy();
     }
@@ -263,6 +263,24 @@ namespace Razix {
             return view.get<CameraComponent>(entity).Camera;
         }
         // This will cause a not all control paths return a value warning, it's fine cause it doesn't make the engine to run without a camera!
+    }
+
+    // Serialization Functions
+    template<class Archive>
+    void RZScene::save(Archive& archive) const
+    {
+        archive(cereal::make_nvp("UUID", m_SceneUUID.prettyString()));
+        archive(cereal::make_nvp("SceneName", m_SceneName));
+        archive(cereal::make_nvp("Total Entities", (u32) m_Registry.alive()));
+    }
+
+    template<class Archive>
+    void RZScene::load(Archive& archive)
+    {
+        std::string uuid_string;
+        archive(cereal::make_nvp("UUID", uuid_string));
+        m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
+        archive(cereal::make_nvp("SceneName", m_SceneName));
     }
 
     template<typename T>

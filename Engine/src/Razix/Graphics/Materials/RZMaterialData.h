@@ -4,6 +4,7 @@
 #include "Razix/Utilities/RZVendorOverrides.h"
 
 #include <glm/glm.hpp>
+#include <cereal/cereal.hpp>
 
 namespace Razix {
     namespace Graphics {

@@ -62,7 +62,6 @@ namespace Razix {
 
         void RZCascadedShadowsRenderer::Destroy()
         {
-
             m_CascadedMatricesUBO->Destroy();
             for (u32 i = 0; i < kNumCascades; i++) {
                 cascadeGPUResources[i].ViewProjLayerUBO->Destroy();
@@ -267,8 +266,8 @@ namespace Razix {
             }
 
             // Load the shader
-            auto  shader   = RZShaderLibrary::Get().getShader("cascaded_shadow_maps.rzsf");
-            auto& setInfos = shader->getSetsCreateInfos();
+            auto shader   = RZShaderLibrary::Get().getShader("cascaded_shadow_maps.rzsf");
+            auto setInfos = shader->getSetsCreateInfos();
 
             cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ModelViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));
 
@@ -296,7 +295,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CascadeSubPassData& data) { 
                         builder.setAsStandAlonePass();
                     if (cascadeIdx == 0) {
-                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap sArray", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "CascadedShadowMapsArray", {kShadowMapSize, kShadowMapSize}, RZTextureProperties::Format::DEPTH32F, kNumCascades});
+                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap Array", {  .name = "CascadedShadowMapsArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = RZTextureProperties::Type::Texture_DepthTarget,.format =  RZTextureProperties::Format::DEPTH32F});
                     }
                     data.cascadeOuput = builder.write(cascadeShadowMap); },
                 [=](const CascadeSubPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
@@ -347,8 +346,6 @@ namespace Razix {
 
                     // Draw calls
                     // Get the meshes and the models from the Scene and render them
-
-                  
 
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
                     auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);

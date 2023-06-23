@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cereal/cereal.hpp>
+
 namespace Razix {
     /**
      * A Tag components allows an entity to have a name

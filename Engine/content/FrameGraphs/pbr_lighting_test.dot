@@ -25,7 +25,7 @@ R10_1 [label=<{ {<B>Scene Depth</B><BR/>(1920, 1009) - DEPTH [Depth]} | {Index: 
 R9_2 [label=<{ {<B>Scene HDR RT</B>   <FONT>v2</FONT><BR/>(1920, 1009) - RGBA32F [RT]} | {Index: 9<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R11_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R9_3 [label=<{ {<B>Scene HDR RT</B>   <FONT>v3</FONT><BR/>(1920, 1009) - RGBA32F [RT]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Present Image</B><BR/>(1920, 1009) - Presentation [Swapchain Image]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Present Image</B><BR/>(1920, 1009) - BGRA8_UNORM [2D]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R13_1 [label=<{ {<B>Depth Texture</B><BR/>(1920, 1009) - DEPTH [Depth]} | {Index: 13<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R14_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 14<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R15_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 15<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]

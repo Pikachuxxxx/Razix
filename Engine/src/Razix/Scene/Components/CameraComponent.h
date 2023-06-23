@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Scene/RZSceneCamera.h"
+#include <cereal/cereal.hpp>
 
 namespace Razix {
 

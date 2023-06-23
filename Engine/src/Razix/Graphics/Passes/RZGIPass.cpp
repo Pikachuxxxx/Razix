@@ -119,14 +119,29 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, ReflectiveShadowMapData& data) {
                     builder.setAsStandAlonePass();
 
+                    RZTextureDesc textureDesc{
+                        .name   = "RSM/Position",
+                        .width  = kRSMResolution,
+                        .height = kRSMResolution,
+                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .format = RZTextureProperties::Format::RGBA32F};
+
                     // Create the output RTs
-                    data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "RSM/Position", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::RGBA32F});
+                    data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", CAST_TO_FG_TEX_DESC textureDesc);
 
-                    data.normal = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Normal", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "RSM/Normal", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::RGBA32F});
+                    textureDesc.name = "RSM/Normal";
 
-                    data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "RSM/Flux", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::RGBA32F});
+                    data.normal = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Normal", CAST_TO_FG_TEX_DESC textureDesc);
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "RSM/Depth", {kRSMResolution, kRSMResolution}, RZTextureProperties::Format::DEPTH16_UNORM});
+                    textureDesc.name = "RSM/Flux";
+
+                    data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", CAST_TO_FG_TEX_DESC textureDesc);
+
+                    textureDesc.name   = "RSM/Depth";
+                    textureDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
+                    textureDesc.type   = RZTextureProperties::Type::Texture_DepthTarget;
+
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.position = builder.write(data.position);
                     data.normal   = builder.write(data.normal);
@@ -172,7 +187,7 @@ namespace Razix {
                     // Update the View Projection descriptor set only once
                     static bool setUpdated = false;
                     if (!setUpdated) {
-                        auto& setInfos = shader->getSetsCreateInfos();
+                        auto setInfos = shader->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
                                 for (auto& descriptor: setInfo.second) {
@@ -189,7 +204,7 @@ namespace Razix {
                     // TODO: Use scene to draw the geometry
 
                     // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
-                    auto& mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
                     for (auto entity: mesh_group) {
                         // Draw the mesh renderer components
                         const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
@@ -284,10 +299,20 @@ namespace Razix {
                     builder.read(RSM.normal);
                     builder.read(RSM.flux);
 
+                    RZTextureDesc textureDesc{
+                        .name   = "SH/R",
+                        .width  = grid.size.x,
+                        .height = grid.size.y,
+                        .layers = grid.size.z,
+                        .type   = RZTextureProperties::Type::Texture_3D,
+                        .format = RZTextureProperties::Format::RGBA32F};
+
                     // Create the resource for this pass
-                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::RZTextureProperties::Type::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
-                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::RZTextureProperties::Type::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
-                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::RZTextureProperties::Type::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
+                    data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
+                    textureDesc.name = "SH/G";
+                    data.g           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", CAST_TO_FG_TEX_DESC textureDesc);
+                    textureDesc.name = "SH/B";
+                    data.b           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);
@@ -411,10 +436,20 @@ namespace Razix {
                     builder.read(LPV.g);
                     builder.read(LPV.b);
 
+                    RZTextureDesc textureDesc{
+                        .name   = "SH/R",
+                        .width  = grid.size.x,
+                        .height = grid.size.y,
+                        .layers = grid.size.z,
+                        .type   = RZTextureProperties::Type::Texture_3D,
+                        .format = RZTextureProperties::Format::RGBA32F};
+
                     // Create the resource for this pass
-                    data.r = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", {FrameGraph::RZTextureProperties::Type::Texture_3D, "SH/R", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
-                    data.g = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", {FrameGraph::RZTextureProperties::Type::Texture_3D, "SH/G", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
-                    data.b = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", {FrameGraph::RZTextureProperties::Type::Texture_3D, "SH/B", {grid.size.x, grid.size.y}, RZTextureProperties::Format::RGBA32F, grid.size.z});
+                    data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
+                    textureDesc.name = "SH/G";
+                    data.g           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", CAST_TO_FG_TEX_DESC textureDesc);
+                    textureDesc.name = "SH/B";
+                    data.b           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);

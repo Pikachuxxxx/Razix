@@ -71,15 +71,32 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, GBufferData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.Normal = builder.create<FrameGraph::RZFrameGraphTexture>("Normal", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Normal", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    RZTextureDesc gbufferTexturesDesc{
+                        .name   = "Normal",
+                        .width  = RZApplication::Get().getWindow()->getWidth(),
+                        .height = RZApplication::Get().getWindow()->getHeight(),
+                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .format = RZTextureProperties::Format::RGBA32F};
 
-                    data.Albedo = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Albedo", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.Normal = builder.create<FrameGraph::RZFrameGraphTexture>("Normal", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.Emissive = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Emissive", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    gbufferTexturesDesc.name = "Albedo";
 
-                    data.MetRougAOSpec = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOSpec", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "MetRougAOSpec", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.Albedo = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
+                    gbufferTexturesDesc.name = "Emissive";
+
+                    data.Emissive = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+
+                    gbufferTexturesDesc.name = "MetRougAOSpec";
+
+                    data.MetRougAOSpec = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOSpec", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+
+                    gbufferTexturesDesc.name   = "Depth";
+                    gbufferTexturesDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
+                    gbufferTexturesDesc.type   = RZTextureProperties::Type::Texture_DepthTarget;
+
+                    data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     data.Normal        = builder.write(data.Normal);
                     data.Albedo        = builder.write(data.Albedo);
@@ -99,17 +116,17 @@ namespace Razix {
 
                     cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
-                    RenderingInfo info{};
-                    info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal).getHandle(), {true, glm::vec4(0.0f)}},           // location = 0
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo).getHandle(), {true, glm::vec4(0.0f)}},           // location = 1
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.Emissive).getHandle(), {true, glm::vec4(0.0f)}},         // location = 2
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.MetRougAOSpec).getHandle(), {true, glm::vec4(0.0f)}},    // location = 3
+                    RenderingInfo info{
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal).getHandle(), {true, glm::vec4(0.0f)}},           // location = 0
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo).getHandle(), {true, glm::vec4(0.0f)}},           // location = 1
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Emissive).getHandle(), {true, glm::vec4(0.0f)}},         // location = 2
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.MetRougAOSpec).getHandle(), {true, glm::vec4(0.0f)}},    // location = 3
 
-                    };
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}};
-                    info.extent          = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize          = false;
+                        },
+                        .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}},
+                        .resize          = false};
 
                     RHI::BeginRendering(cmdBuffer, info);
 
@@ -131,45 +148,8 @@ namespace Razix {
                         updatedSets = true;
                     }
 
-                    // TODO: Use scene to draw geometry
-
-                    // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
-                    auto& mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
-                    for (auto entity: mesh_group) {
-                        // Draw the mesh renderer components
-                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
-
-                        // Bind push constants, VBO, IBO and draw
-                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
-
-                        //-----------------------------
-                        // Get the shader from the Mesh Material later
-                        // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                        auto& modelMatrix = shader->getPushConstants()[0];
-
-                        struct PCD
-                        {
-                            glm::mat4 mat;
-                        } pcData;
-                        pcData.mat       = transform;
-                        modelMatrix.data = &pcData;
-                        modelMatrix.size = sizeof(PCD);
-
-                        // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-                        Graphics::RHI::BindPushConstant(m_Pipeline, cmdBuffer, modelMatrix);
-                        //-----------------------------
-
-                        // Combine System Desc sets with material sets and Bind them
-                        std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet()};
-                        Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
-
-                        mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
-                        mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
-
-                        Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
-                    }
-
-                    // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
+                    // Use scene to draw geometry
+                    scene->drawScene(m_Pipeline, m_FrameDataSet, nullptr);
 
                     RAZIX_MARK_END();
                     RHI::EndRendering(cmdBuffer);

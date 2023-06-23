@@ -20,7 +20,7 @@ namespace std {
         std::size_t operator()(const Razix::Graphics::FrameGraph::RZFrameGraphTexture::Desc &desc) const noexcept
         {
             std::size_t h{0};
-            hashCombine(h, desc.extent.x, desc.extent.y, desc.type, desc.name);
+            hashCombine(h, desc.width, desc.height, desc.type, desc.name);
             return h;
         }
     };
@@ -73,34 +73,34 @@ namespace Razix {
                 if (pool.empty()) {
                     Graphics::RZTexture *texture = nullptr;
 
-                    u32 w = static_cast<u32>(desc.extent.x);
-                    u32 h = static_cast<u32>(desc.extent.y);
+                    u32 w = static_cast<u32>(desc.width);
+                    u32 h = static_cast<u32>(desc.height);
 
                     switch (desc.type) {
                         case RZTextureProperties::Type::Texture_2D: {
-                            if (desc.numLayers > 1)
-                                texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
+                            if (desc.layers > 1)
+                                texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                             else
-                                texture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, nullptr, desc.format);
+                                texture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                         } break;
                         case RZTextureProperties::Type::Texture_3D:
-                            texture = Graphics::RZTexture3D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
+                            texture = Graphics::RZTexture3D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                             break;
                         case RZTextureProperties::Type::Texture_CubeMap:
-                            texture = Graphics::RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h);
+                            texture = Graphics::RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                             break;
-                        case RZTextureProperties::Type::Texture_Depth:
-                            if (desc.numLayers > 1) {
-                                texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc.name, w, h, desc.numLayers, desc.format);
+                        case RZTextureProperties::Type::Texture_DepthTarget:
+                            if (desc.layers > 1) {
+                                texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                                 texture->setType(RZTextureProperties::Type::Texture_DepthTarget);
                             } else
-                                texture = Graphics::RZDepthTexture::Create(w, h);
+                                texture = Graphics::RZDepthTexture::Create(desc);
                             break;
                         case RZTextureProperties::Type::Texture_RenderTarget:
-                            if (desc.numLayers == 1)
-                                texture = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) w, h, desc.format);
+                            if (desc.layers == 1)
+                                texture = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                             else
-                                RAZIX_CORE_ASSERT(desc.numLayers == 1, "Use RZTextureProperties::Type::Texture_2D type for Render Targets whose depth/layers > 1");
+                                RAZIX_CORE_ASSERT(desc.layers == 1, "Use RZTextureProperties::Type::Texture_2D type for Render Targets whose depth/layers > 1");
                             break;
                         case RZTextureProperties::Type::Texture_SwapchainImage:
                             //m_Texture = RZRHI::getSwapchain()->GetCurrentImage()

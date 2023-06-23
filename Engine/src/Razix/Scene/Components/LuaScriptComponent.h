@@ -2,6 +2,8 @@
 
 #include "Razix/Utilities/RZTimestep.h"
 
+#include <cereal/cereal.hpp>
+
 namespace Razix {
 
     class RAZIX_API LuaScriptComponent

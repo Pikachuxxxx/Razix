@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cereal/cereal.hpp>
+
 namespace Razix {
- /**
+    /**
      * Active component is used to tell whether the component is active or inactive in the scene
      */
     struct RAZIX_API ActiveComponent
@@ -20,4 +22,4 @@ namespace Razix {
             archive(cereal::make_nvp("isActive", Active));
         }
     };
-}
+}    // namespace Razix

@@ -44,8 +44,9 @@ namespace Razix {
         {
             // Get data from the blackboard
             // Get the GBuffer data
-            const GBufferData& gBuffer = blackboard.get<GBufferData>();
-            const auto         extent  = framegraph.getDescriptor<FrameGraph::RZFrameGraphTexture>(gBuffer.Depth).extent;
+            const GBufferData& gBuffer      = blackboard.get<GBufferData>();
+            auto               gbuffer_desc = framegraph.getDescriptor<FrameGraph::RZFrameGraphTexture>(gBuffer.Depth);
+            const auto         extent       = glm::vec2(gbuffer_desc.width, gbuffer_desc.height);
 
             // BRDF
             const BRDFData& brdf = blackboard.get<BRDFData>();
@@ -73,8 +74,8 @@ namespace Razix {
             // Lights UBO
             m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
 
-            auto  shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
-            auto& setInfos = shader->getSetsCreateInfos();
+            auto shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
+            auto setInfos = shader->getSetsCreateInfos();
 
             PipelineDesc info{};
             info.shader                 = shader;
@@ -122,7 +123,14 @@ namespace Razix {
                     //}
 
                     // Write to a HDR render target
-                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Scene HDR color", {extent.x, extent.y}, RZTextureProperties::Format::RGBA32F});
+                    RZTextureDesc sceneHDRDesc{
+                        .name   = "Scene HDR Color",
+                        .width  = static_cast<u32>(extent.x),
+                        .height = static_cast<u32>(extent.y),
+                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .format = RZTextureProperties::Format::RGBA32F};
+
+                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", CAST_TO_FG_TEX_DESC sceneHDRDesc);
 
                     data.HDR = builder.write(data.HDR);
                 },

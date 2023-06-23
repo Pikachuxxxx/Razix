@@ -2,10 +2,11 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include <cereal/cereal.hpp>
 #include <entt.hpp>
 
 namespace Razix {
- /**
+    /**
      * Establishes a hierarchical relationship between the entities in a scene
      */
     struct RAZIX_API HierarchyComponent
@@ -37,4 +38,4 @@ namespace Razix {
             archive(cereal::make_nvp("First", First), cereal::make_nvp("Next", Next), cereal::make_nvp("Previous", Prev), cereal::make_nvp("Parent", Parent));
         }
     };
-}
+}    // namespace Razix

@@ -17,13 +17,15 @@ namespace Razix {
             std::string                    name       = "UN-NAMED_TEXTURE";                             /* Name of the texture                                                                      */
             u32                            width      = 0;                                              /*  The Width of the texture                                                                */
             u32                            height     = 0;                                              /* The Height of the texture                                                                */
-            u32                            layers     = 0;                                              /* The Height/Layers/Depth of the texture (depending on if it's a array or cubemap or 3D)   */
+            u32                            layers     = 1;                                              /* The Height/Layers/Depth of the texture (depending on if it's a array or cubemap or 3D)   */
             void*                          data       = nullptr;                                        /* The Data uses to initialize the Texture with                                             */
             RZTextureProperties::Type      type       = RZTextureProperties::Type::Texture_2D;          /* The type of the Texture                                                                  */
-            RZTextureProperties::Format    format     = RZTextureProperties::Format::RGBA;              /* The format of the texture                                                                */
+            RZTextureProperties::Format    format     = RZTextureProperties::Format::RGBA32F;           /* The format of the texture                                                                */
             RZTextureProperties::Wrapping  wrapping   = RZTextureProperties::Wrapping::CLAMP_TO_BORDER; /* Wrap mode of the texture in memory                                                       */
             RZTextureProperties::Filtering filtering  = RZTextureProperties::Filtering{};               /* Filtering mode of the texture                                                            */
             bool                           enableMips = false;                                          /* Whether or not to generate mip maps or not for the texture                               */
+            bool                           flipX      = false;                                          /* Flip the texture on X-axis during load                                                   */
+            bool                           flipY      = false;                                          /* Flip the texture on Y-axis during load                                                   */
 
             /**
              * Returns the Format of the Texture in string

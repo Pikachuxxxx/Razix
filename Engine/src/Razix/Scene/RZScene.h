@@ -86,23 +86,7 @@ namespace Razix {
         /* Gets the entity registry of the current scene */
         RAZIX_INLINE entt::registry& getRegistry() { return m_Registry; }
 
-        // Serialization Functions
-        template<class Archive>
-        void save(Archive& archive) const
-        {
-            archive(cereal::make_nvp("UUID", m_SceneUUID.prettyString()));
-            archive(cereal::make_nvp("SceneName", m_SceneName));
-            archive(cereal::make_nvp("Total Entities", (u32) m_Registry.alive()));
-        }
-
-        template<class Archive>
-        void load(Archive& archive)
-        {
-            std::string uuid_string;
-            archive(cereal::make_nvp("UUID", uuid_string));
-            m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
-            archive(cereal::make_nvp("SceneName", m_SceneName));
-        }
+        RAZIX_DEFINE_SAVE_LOAD
 
     private:
         entt::registry m_Registry;                  /* Scene registry for storing all the entities  */

@@ -43,9 +43,9 @@ public:
     #endif
 
         // Add a directional light for test
-        auto& lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
+        auto lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
-            auto& directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
+            auto directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
             directionalLightEntity.AddComponent<Razix::LightComponent>();
             directionalLightEntity.GetComponent<Razix::LightComponent>().light.setDirection(glm::vec3(1.0f));
         }
@@ -61,9 +61,9 @@ public:
         }
 
         // Camera Entity
-        auto& cameras = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::CameraComponent>();
+        auto cameras = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::CameraComponent>();
         if (!cameras.size()) {
-            Razix::RZEntity& camera = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Camera");
+            Razix::RZEntity camera = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Camera");
             camera.AddComponent<Razix::CameraComponent>();
             if (camera.HasComponent<Razix::CameraComponent>()) {
                 Razix::CameraComponent& cc = camera.GetComponent<Razix::CameraComponent>();
@@ -83,7 +83,7 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new RendererTest();
 }
 
-void main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     EngineMain(argc, argv);
 
@@ -93,5 +93,7 @@ void main(int argc, char** argv)
     Razix::RZApplication::Get().SaveApp();
 
     EngineExit();
+
+    return EXIT_SUCCESS;
 }
 #endif

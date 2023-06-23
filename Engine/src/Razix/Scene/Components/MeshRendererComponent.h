@@ -1,5 +1,11 @@
 #pragma once
 
+#include "Razix/Graphics/Loaders/RZMeshLoader.h"
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
+
+#include <cereal/cereal.hpp>
+
 namespace Razix {
 
     namespace Graphics {
@@ -26,7 +32,38 @@ namespace Razix {
         MeshRendererComponent(Graphics::RZMesh* mesh);
         MeshRendererComponent(const MeshRendererComponent&) = default;
 
-        RAZIX_DEFINE_SAVE_LOAD
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            int prim = -1;
+            archive(cereal::make_nvp("Primitive", prim));
+            primitive = Graphics::MeshPrimitive(prim);
+
+            if (prim >= 0)
+                Mesh = Graphics::MeshFactory::CreatePrimitive(primitive);
+            std::string meshName;
+            archive(cereal::make_nvp("MeshName", meshName));
+            std::string meshPath;
+            archive(cereal::make_nvp("MeshPath", meshPath));
+
+            if (!Mesh || !meshPath.empty())
+                Mesh = Razix::Graphics::loadMesh(meshPath);
+
+            if (Mesh) {
+                Mesh->setName(meshName);
+                Mesh->setPath(meshPath);
+            }
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("Primitive", primitive));
+            if (Mesh) {
+                archive(cereal::make_nvp("MeshName", Mesh->getName()));
+                archive(cereal::make_nvp("MeshPath", Mesh->getPath()));
+            }
+        }
     };
 
 }    // namespace Razix

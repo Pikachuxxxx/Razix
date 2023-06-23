@@ -74,7 +74,7 @@ namespace Razix {
             enqueScene(defaultScene);
             loadSceneSettings();
             // Add a camera and a cube just like Blender (+ a sun light when it's available)
-            RZEntity& camera = m_CurrentScene->createEntity("Camera");
+            RZEntity camera = m_CurrentScene->createEntity("Camera");
             camera.AddComponent<CameraComponent>();
             if (camera.HasComponent<CameraComponent>()) {
                 CameraComponent& cc = camera.GetComponent<CameraComponent>();

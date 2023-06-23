@@ -29,12 +29,7 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D(const std::string& name, u32 width, u32 height, void* data, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
-
-            /**
-             * Creates an Empty 2D array texture
-             */
-            VKTexture2D(const std::string& name, u32 width, u32 height, u32 numLayers, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture2D(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
 
             /**
              * Creates a 2D Vulkan texture
@@ -44,7 +39,7 @@ namespace Razix {
              * @param wrapMode The wrapping mode of the texture
              * @param filterMode The filtering to use for the texture
              */
-            VKTexture2D(const std::string& filePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture2D(RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const RZTextureDesc& desc);
             /**
              * Creates a TRXTexture2D from the given image and it's view
              * @brief Used by swapchain and render passes to create their own texture resources
@@ -77,7 +72,7 @@ namespace Razix {
              * Creates an ImageView for the Vulkan image
              *
              * @param image The handle for vulkan image
-             * @param format The format of the image
+             * @param format The format of the image 
              * @param mipLevels The number of mip maps to generate
              * @param viewType How are we viewing the image in 1D or 2D etc
              * @param aspectMask Bit mask flags specifying which aspects of an image are included in a view for purposes such as identifying a subresource
@@ -151,6 +146,62 @@ namespace Razix {
         };
 
         //-----------------------------------------------------------------------------------
+
+        // TODO: Derive this from VKTexture2D
+        class VKTexture2DArray : public RZTexture2D
+        {
+        public:
+            /**
+             * Creates an Empty 2D array texture
+             */
+            VKTexture2DArray(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
+
+            /* Binds the texture object to the given slot */
+            void Bind(u32 slot) override {}
+            /* Unbinds the texture object to the given slot */
+            void Unbind(u32 slot) override {}
+
+            /* Releases the vulkan texture resources */
+            void Release(bool deleteImage) override;
+
+            /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
+            void* GetHandle() const override { return (void*) &m_Descriptor; }
+            /* Sets the texture with the given pixel data */
+            void SetData(const void* pixels) override {}
+
+            /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
+            void updateDescriptor();
+
+            /* Gets the layout of the image ex. depth or optimal etc. */
+            VkImageLayout getLayout() { return m_ImageLayout; }
+            /* Sets the vulkan image layout */
+            void setImageLayout(VkImageLayout layout)
+            {
+                m_ImageLayout = layout;
+                updateDescriptor();
+            }
+            /* Gets the descriptor info about the Vulkan Texture object */
+            VkDescriptorImageInfo getDescriptor() { return m_Descriptor; }
+            /* Gets the vulkan image object */
+            VkImage getImage() const { return m_Image; };
+            /* Gets the Vulkan image memory handle */
+            VkDeviceMemory getMemory() const { return m_ImageMemory; }
+            /* Gets the image view of the Vulkan image */
+            VkImageView getImageView() const { return m_ImageView; }
+            /* Gets the sampler for the Vulkan image */
+            VkSampler getSampler() const { return m_ImageSampler; }
+
+        private:
+            VkImage               m_Image;                                       /* Vulkan image handle for the Texture object                               */
+            VkDeviceMemory        m_ImageMemory;                                 /* Memory for the Vulkan image                                              */
+            VkImageView           m_ImageView;                                   /* Image view for the image, all images need a view to look into the image  */
+            VkSampler             m_ImageSampler;                                /* Sampler information used by shaders to sample the texture                */
+            VkDescriptorImageInfo m_Descriptor;                                  /* Descriptor info encapsulation the image, view and the sampler            */
+            VkImageLayout         m_ImageLayout     = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                */
+            bool                  m_DeleteImageData = false;
+        };
+
+        //-----------------------------------------------------------------------------------
         // Texture3D
         //-----------------------------------------------------------------------------------
 
@@ -158,7 +209,7 @@ namespace Razix {
         {
         public:
             /* This is used to generate cube map from equirectangular maps or multiple texture files */
-            VKTexture3D(const std::string& name, u32 width, u32 height, u32 depth, RZTextureProperties::Format format, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode RZ_DEBUG_NAME_TAG_E_ARG);
+            VKTexture3D(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
             ~VKTexture3D() {}
 
             void  Release(bool deleteImage = true) override;
@@ -189,10 +240,8 @@ namespace Razix {
         class VKCubeMap : public RZCubeMap
         {
         public:
-            /* This is used to generate cube map from equirectangular maps or multiple texture files */
-            VKCubeMap(const std::string& hdrFilePath, const std::string& name, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode);
             /* This is used to create a empty cube map that can be used to write data into */
-            VKCubeMap(const std::string& name, u32 width, u32 height, bool enableMipsGeneration, RZTextureProperties::Wrapping wrapMode, RZTextureProperties::Filtering filterMode);
+            VKCubeMap(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
             ~VKCubeMap() {}
 
             void  Release(bool deleteImage = true) override;
@@ -224,7 +273,7 @@ namespace Razix {
         class VKDepthTexture : public RZDepthTexture
         {
         public:
-            VKDepthTexture(u32 width, u32 height);
+            VKDepthTexture(const RZTextureDesc& desc);
             ~VKDepthTexture();
 
             void  Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG) override;
@@ -256,8 +305,7 @@ namespace Razix {
         class VKRenderTexture : public RZRenderTexture
         {
         public:
-            VKRenderTexture(
-                u32 width, u32 height, RZTextureProperties::Format format = RZTextureProperties::Format::SCREEN, RZTextureProperties::Wrapping wrapMode = RZTextureProperties::Wrapping::REPEAT, RZTextureProperties::Filtering filterMode = RZTextureProperties::Filtering {} RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "some RenderTExture! NAME IT !!! LAZY ASS MF#$"));
+            VKRenderTexture(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
             VKRenderTexture(VkImage image, VkImageView imageView);
             ~VKRenderTexture() {}
 

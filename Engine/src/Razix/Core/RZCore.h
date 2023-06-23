@@ -100,6 +100,10 @@
 // Function Bind macro
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::RZApplication::x, this, std::placeholders::_1)
 
+#define CAST_TO_FG_DESC(t)  (Razix::Graphics::FrameGraph::t::Desc)
+#define CAST_TO_FG_TEX_DESC (Razix::Graphics::FrameGraph::RZFrameGraphTexture::Desc)
+#define CAST_TO_FG_BUF_DESC (Razix::Graphics::FrameGraph::RZFrameGraphBuffer::Desc)
+
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)
 
@@ -206,3 +210,7 @@
                                  \
     template<class Archive>      \
     void save(Archive& archive) const;
+
+#define RAZIX_SEREALIZE     \
+    template<class Archive> \
+    void serialize(Archive& archive);

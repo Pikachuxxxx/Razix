@@ -71,9 +71,20 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR RT", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Scene HDR RT", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    RZTextureDesc textureDesc{
+                        .name   = "Scene HDR",
+                        .width  = RZApplication::Get().getWindow()->getWidth(),
+                        .height = RZApplication::Get().getWindow()->getHeight(),
+                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .format = RZTextureProperties::Format::RGBA32F};
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR RT", CAST_TO_FG_TEX_DESC textureDesc);
+
+                    textureDesc.name   = "Scene Depth";
+                    textureDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
+                    textureDesc.type   = RZTextureProperties::Type::Texture_DepthTarget;
+
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.outputHDR = builder.write(data.outputHDR);
                     data.depth     = builder.write(data.depth);

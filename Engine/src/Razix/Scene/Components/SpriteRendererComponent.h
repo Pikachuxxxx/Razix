@@ -1,8 +1,5 @@
 #pragma once
 
-// TODO: This should be removed!!!!!
-#include <glm/glm.hpp>
-
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RZSprite.h"
 
@@ -24,14 +21,14 @@ namespace Razix {
         SpriteRendererComponent(Graphics::RZTexture2D* texture);
         SpriteRendererComponent(const SpriteRendererComponent&) = default;
 
-       template<class Archive>
+        template<class Archive>
         void load(Archive& archive)
         {
             //Sprite = new Graphics::RZSprite;
             std::string texturePath;
             archive(cereal::make_nvp("TexturePath", texturePath));
             if (!texturePath.empty()) {
-                Graphics::RZTexture2D* texture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(texturePath) texturePath, "sprite", Graphics::RZTextureProperties::Wrapping::CLAMP_TO_BORDER);
+                Graphics::RZTexture2D* texture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(texturePath) texturePath, {.name = "sprite", .wrapping = Graphics::RZTextureProperties::Wrapping::CLAMP_TO_BORDER});
                 Sprite                         = new Graphics::RZSprite(texture);
             } else {
                 glm::vec4 color;

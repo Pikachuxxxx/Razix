@@ -5,7 +5,7 @@
 
 namespace Razix {
     namespace Graphics {
-        static std::string FormatToString(const Graphics::RZTextureProperties::Format format)
+        std::string RZTextureDesc::FormatToString(const Graphics::RZTextureProperties::Format format)
         {
             switch (format) {
                 case Razix::Graphics::RZTextureProperties::Format::R8:
@@ -73,7 +73,7 @@ namespace Razix {
             return "BGRA8_UNORM";
         }
 
-        static std::string TypeToString(RZTextureProperties::Type type)
+        std::string RZTextureDesc::TypeToString(RZTextureProperties::Type type)
         {
             switch (type) {
                 case Razix::Graphics::RZTextureProperties::Type::Texture_2D:
