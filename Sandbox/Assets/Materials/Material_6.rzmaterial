@@ -1,0 +1,25 @@
+{
+    "Material_6": {
+        "Name": "Material_6",
+        "Albedo": "//Assets/Models/Sponza/14650633544276105767.jpg",
+        "Normal": "//Assets/Models/Sponza/2051777328469649772.jpg",
+        "Metallic": "//Assets/Models/Sponza/4871783166746854860.jpg",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.02500000037252903,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

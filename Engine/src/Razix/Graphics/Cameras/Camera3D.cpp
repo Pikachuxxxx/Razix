@@ -8,6 +8,33 @@
 namespace Razix {
     namespace Graphics {
 
+        // Taken from this article:
+        // http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
+        //
+
+        static float glm_lerp(float from, float to, float t)
+        {
+            return from + t * (to - from);
+        }
+
+        static float lerp(float a, float b, float t, float dt)
+        {
+            return glm_lerp(a, b, 1.f - powf(1 - t, dt));
+        }
+
+        static glm::vec3 lerp3(const glm::vec3& from, const glm::vec3& to, f32 t, f32 dt)
+        {
+            return glm::vec3{lerp(from.x, to.x, t, dt), lerp(from.y, to.y, t, dt), lerp(from.z, to.z, t, dt)};
+        }
+
+        // https://graphicscompendium.com/opengl/22-interpolation
+        static glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float t)
+        {
+            return x * (1.f - t) + y * t;
+        }
+
+        //----------------------------------------------------------------------------------------------------
+
         Camera3D::Camera3D(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3 up /*= glm::vec3(0.0f, 1.0f, 0.0f)*/, f32 yaw /*= YAW*/, f32 pitch /*= PITCH*/)
         {
             this->Position = position;
@@ -59,18 +86,27 @@ namespace Razix {
 
             f32 velocity = this->MovementSpeed * (f32) deltaTime;
 
+            // TODO: Use lerp here to smoothly move the camera
+
+            glm::vec3 CameraMovement = glm::vec3(0.0f);
+
             if (direction == FORWARD)
-                this->Position += this->Front * velocity;
+                CameraMovement += this->Front;
             if (direction == BACKWARD)
-                this->Position -= this->Front * velocity;
+                CameraMovement -= this->Front;
             if (direction == LEFT)
-                this->Position -= this->Right * velocity;
+                CameraMovement -= this->Right;
             if (direction == RIGHT)
-                this->Position += this->Right * velocity;
+                CameraMovement += this->Right;
             if (direction == UP)
-                this->Position += this->Up * velocity;
+                CameraMovement += this->Up;
             if (direction == DOWN)
-                this->Position -= this->Up * velocity;
+                CameraMovement -= this->Up;
+
+            TargetMovement = TargetMovement + (CameraMovement * velocity);
+
+            this->Position = TargetMovement;
+            //lerp3(this->Position, TargetMovement, 0.9f, deltaTime);
         }
 
         void Camera3D::processMouseMovement(f32 xoffset, f32 yoffset, bool constrainPitch /*= true*/)
@@ -79,6 +115,8 @@ namespace Razix {
 
             xoffset *= this->MouseSensitivity;
             yoffset *= this->MouseSensitivity;
+
+            // TODO: Use lerp here to smoothly rotate the camera
 
             this->Yaw += xoffset;
             this->Pitch += yoffset;

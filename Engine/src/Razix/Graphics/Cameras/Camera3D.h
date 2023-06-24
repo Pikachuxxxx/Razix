@@ -46,7 +46,8 @@ namespace Razix {
             RAZIX_INLINE const glm::vec3& getPosition() const { return Position; }
             void                          setPosition(glm::vec3 vector)
             {
-                Position = vector;
+                Position       = vector;
+                TargetMovement = Position;
                 updateCameraVectors();
             }
 
@@ -79,35 +80,35 @@ namespace Razix {
             }
 
             RAZIX_INLINE const f32& getYaw() const { return Yaw; }
-            void                      setYaw(f32 value)
+            void                    setYaw(f32 value)
             {
                 Yaw = value;
                 updateCameraVectors();
             }
 
             RAZIX_INLINE const f32& getPitch() const { return Pitch; }
-            void                      setPitch(f32 value)
+            void                    setPitch(f32 value)
             {
                 Pitch = value;
                 updateCameraVectors();
             }
 
             RAZIX_INLINE const f32& getZoom() const { return Zoom; }
-            void                      setZoom(f32 value)
+            void                    setZoom(f32 value)
             {
                 Zoom = value;
                 updateCameraVectors();
             }
 
             RAZIX_INLINE const f32& getSpeed() const { return MovementSpeed; }
-            void                      setSpeed(f32 speed)
+            void                    setSpeed(f32 speed)
             {
                 MovementSpeed = speed;
                 updateCameraVectors();
             }
 
             RAZIX_INLINE const f32& getSensitivity() const { return MouseSensitivity; }
-            void                      setSensitivity(f32 sensitivity)
+            void                    setSensitivity(f32 sensitivity)
             {
                 MouseSensitivity = sensitivity;
                 updateCameraVectors();
@@ -135,6 +136,8 @@ namespace Razix {
             f32 Zoom             = ZOOM;
 
             f32 m_OldX = 0, m_OldY = 0;
+
+            glm::vec3 TargetMovement = glm::vec3(0.0f);
 
         private:
             // Calculates the front vector from the Camera's (updated) Euler Angles

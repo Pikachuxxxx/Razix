@@ -88,7 +88,7 @@ namespace Razix {
         RAZIX_INLINE const glm::vec4& getBgColor() const { return m_BgColor; }
         RAZIX_INLINE void             setBgColor(const glm::vec4& color) { m_BgColor = color; }
 
-         template<class Archive>
+        template<class Archive>
         void save(Archive& archive) const
         {
             archive(cereal::make_nvp("Position", getPosition()));

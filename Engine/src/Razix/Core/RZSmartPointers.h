@@ -4,6 +4,8 @@
 
 #undef CUSTOM_SMART_PTR
 
+// https://stackoverflow.com/questions/44413478/abstract-class-and-unique-pointer
+
 namespace Razix {
 
     namespace rzstl {
@@ -384,7 +386,7 @@ namespace Razix {
             }
 
         private:
-            T*                 m_Ptr;
+            T*                        m_Ptr;
             rzstl::RefCounterManager* m_Counter = nullptr;
         };
         //--------------------------------------------------------------------------------------------------------//

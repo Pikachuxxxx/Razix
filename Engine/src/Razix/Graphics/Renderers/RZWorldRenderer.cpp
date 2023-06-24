@@ -127,9 +127,8 @@ namespace Razix {
             //-------------------------------
             // [Test] Forward Lighting Pass
             //-------------------------------
-
             auto& frameDataBlock = m_Blackboard.get<FrameData>();
-            //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
+            //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>(); // Cascaded Shadow Map Data
             auto& shadowData = m_Blackboard.get<SimpleShadowPassData>();
 
 #if 0
@@ -271,11 +270,11 @@ namespace Razix {
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
-                    RenderingInfo info{};
-                    info.colorAttachments = {{rt, {false, scene->getSceneCamera().getBgColor()}}};
-                    info.depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
+                    RenderingInfo info{
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, scene->getSceneCamera().getBgColor()}}},
+                        .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
+                        .resize           = true};
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
@@ -328,11 +327,11 @@ namespace Razix {
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
-                    RenderingInfo info{};
-                    info.colorAttachments = {{rt, {false, glm::vec4(0.0f)}}};
-                    info.depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
+                    RenderingInfo info{
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
+                        .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
+                        .resize           = true};
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 

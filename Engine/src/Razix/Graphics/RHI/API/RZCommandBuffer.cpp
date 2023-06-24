@@ -43,6 +43,5 @@ namespace Razix {
                 default: return nullptr; break;
             }
         }
-
     }    // namespace Graphics
 }    // namespace Razix

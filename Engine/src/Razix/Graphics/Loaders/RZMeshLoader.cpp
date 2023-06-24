@@ -40,7 +40,7 @@ namespace Razix {
                 return nullptr;
 
             Razix::AssetSystem::BINFileHeader     file_header{};
-            Razix::AssetSystem::BINMeshFileHeader mesh_header{};
+            Razix::AssetSystem::BINMeshFileHeader mesh_header{}; 
 
             size_t offset = 0;
 
