@@ -6,11 +6,11 @@ namespace Razix {
         static const unsigned NUM_FRUSTUM_PLANES   = 6;
         static const unsigned NUM_FRUSTUM_VERTICES = 8;
 
-        class RZFrustum
+        class Frustum
         {
         public:
-            RZFrustum()  = default;
-            ~RZFrustum() = default;
+            Frustum()  = default;
+            ~Frustum() = default;
 
             //void build(f32 fov, f32 aspectRatio, f32 zoom, f32 farz, glm::mat3x4);
 

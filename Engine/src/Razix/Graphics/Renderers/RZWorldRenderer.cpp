@@ -263,6 +263,19 @@ namespace Razix {
                             RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
                     }
 
+                    // Draw AABBs for all the Meshes in the Scene
+
+                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    for (auto entity: mesh_group) {
+                        // Draw the mesh renderer components
+                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+
+                        // Bind push constants, VBO, IBO and draw
+                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
+
+                        RZDebugRenderer::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    }
+
                     RZDebugRenderer::Get()->Begin(scene);
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);

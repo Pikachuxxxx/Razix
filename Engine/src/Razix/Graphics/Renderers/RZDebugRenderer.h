@@ -7,8 +7,8 @@
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Maths/RZAABB.h"
-#include "Razix/Maths/RZFrustum.h"
+#include "Razix/Maths/AABB.h"
+#include "Razix/Maths/Frustum.h"
 
 namespace Razix {
     namespace Graphics {
@@ -142,13 +142,13 @@ namespace Razix {
             static void DrawMatrix(const glm::mat3& rotation_mtx, const glm::vec3& position);
             static void DrawMatrixNDT(const glm::mat4& transform_mtx);
             static void DrawMatrixNDT(const glm::mat3& rotation_mtx, const glm::vec3& position);
-
-            static void DebugDraw(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
 #endif
+
+            static void DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
             static void DrawGrid(u32 dimension, const glm::vec4& colour);
 
             static void DrawLight(Graphics::RZLight* light, const glm::vec4& colour);
-            static void DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour);
+            static void DrawFrustum(const Maths::Frustum& frustum, const glm::vec4& colour);
             static void DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
             static void DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
 

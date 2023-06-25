@@ -32,7 +32,7 @@ namespace Razix {
     class RZCascadedShadowsRenderer;
 
     namespace Maths {
-        class RZFrustum;
+        class Frustum;
     }
 
     namespace Graphics {
@@ -139,7 +139,7 @@ namespace Razix {
             RZForwardRenderer m_ForwardRenderer;
 
             // Other Variables
-            Maths::RZAABB m_SceneAABB;
+            Maths::AABB m_SceneAABB;
 
         private:
             /**
@@ -151,7 +151,7 @@ namespace Razix {
             /**
              * Culls the scene lights against the Main Camera frustum
              */
-            void cullLights(Maths::RZFrustum& frustum);
+            void cullLights(Maths::Frustum& frustum);
             void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
             void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
         };

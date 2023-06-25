@@ -41,7 +41,7 @@ namespace Razix {
     // RZGrid
     //-----------------------------------------------------------------------------------
 
-    Maths::RZGrid::RZGrid(const Maths::RZAABB& _aabb)
+    Maths::RZGrid::RZGrid(const Maths::AABB& _aabb)
         : aabb{_aabb}
     {
         const auto extent = aabb.getExtent();

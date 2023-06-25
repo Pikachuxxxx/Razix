@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZFrustum.h"
+#include "Frustum.h"
 
 namespace Razix {
     namespace Maths {

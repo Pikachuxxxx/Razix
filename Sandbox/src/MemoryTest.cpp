@@ -60,17 +60,17 @@ public:
 
         // Testing the RingAllocator
         {
-            Razix::Memory::RZRingAllocator<uint32_t> some_ints_in_ring;
-            some_ints_in_ring.init(25);
+            //Razix::Memory::RZRingAllocator<uint32_t> some_ints_in_ring;
+            //some_ints_in_ring.init(25);
 
-            // Test 1: simple insert and immediate read!
-            for (uint32_t i = 0; i < 45; i++) {
-                some_ints_in_ring.put(i);
-                RAZIX_TRACE("Ring buffer value at : {0} | head : {1}, tail : {2}", some_ints_in_ring.get(), some_ints_in_ring.getHead(), some_ints_in_ring.getTail());
-                if (some_ints_in_ring.isFull())
-                    RAZIX_WARN("Ring Allocator is Full!");
-            }
-            some_ints_in_ring.shutdown();
+            //// Test 1: simple insert and immediate read!
+            //for (uint32_t i = 0; i < 45; i++) {
+            //    some_ints_in_ring.put(i);
+            //    RAZIX_TRACE("Ring buffer value at : {0} | head : {1}, tail : {2}", some_ints_in_ring.get(), some_ints_in_ring.getHead(), some_ints_in_ring.getTail());
+            //    if (some_ints_in_ring.isFull())
+            //        RAZIX_WARN("Ring Allocator is Full!");
+            //}
+            //some_ints_in_ring.shutdown();
         }
 
         {

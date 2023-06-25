@@ -372,6 +372,33 @@ namespace Razix {
             GenDrawLine(true, start, end, colour);
         }
 
+        void RZDebugRenderer::DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
+        {
+            // 8 vertices
+            glm::vec3 v1(box.min.x, box.min.y, box.min.z);
+            glm::vec3 v2(box.min.x, box.min.y, box.max.z);
+            glm::vec3 v3(box.min.x, box.max.y, box.min.z);
+            glm::vec3 v4(box.min.x, box.max.y, box.max.z);
+            glm::vec3 v5(box.max.x, box.min.y, box.min.z);
+            glm::vec3 v6(box.max.x, box.min.y, box.max.z);
+            glm::vec3 v7(box.max.x, box.max.y, box.min.z);
+            glm::vec3 v8(box.max.x, box.max.y, box.max.z);
+
+            // 12 edges
+            DrawLine(v1, v2, edgeColour);
+            DrawLine(v1, v3, edgeColour);
+            DrawLine(v1, v5, edgeColour);
+            DrawLine(v2, v4, edgeColour);
+            DrawLine(v2, v6, edgeColour);
+            DrawLine(v3, v4, edgeColour);
+            DrawLine(v3, v7, edgeColour);
+            DrawLine(v4, v8, edgeColour);
+            DrawLine(v5, v6, edgeColour);
+            DrawLine(v5, v7, edgeColour);
+            DrawLine(v6, v8, edgeColour);
+            DrawLine(v7, v8, edgeColour);
+        }
+
         void RZDebugRenderer::DrawGrid(u32 dimension, const glm::vec4& colour)
         {
             float pos = float(dimension) / 2.0f;

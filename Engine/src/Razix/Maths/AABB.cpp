@@ -1,27 +1,27 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZAABB.h"
+#include "AABB.h"
 
 namespace Razix {
     namespace Maths {
 
-        glm::vec3 RZAABB::getExtent() const
+        glm::vec3 AABB::getExtent() const
         {
             return max - min;
         }
 
-        glm::vec3 RZAABB::getCenter() const
+        glm::vec3 AABB::getCenter() const
         {
             return (max + min) * 0.5f;
         }
 
-        f32 RZAABB::getRadius() const
+        f32 AABB::getRadius() const
         {
             return glm::length(getExtent() * 0.5f);
         }
 
-        RZAABB RZAABB::transform(const glm::mat4& m) const
+        AABB AABB::transform(const glm::mat4& m) const
         {
             // https://dev.theomader.com/transform-bounding-boxes/
 
