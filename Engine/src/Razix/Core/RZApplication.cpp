@@ -350,7 +350,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;
@@ -495,6 +495,8 @@ namespace Razix {
 
     void RZApplication::RenderGUI()
     {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
         auto ctx = ImGui::GetCurrentContext();
         if (!ctx)
             return;
@@ -547,15 +549,6 @@ namespace Razix {
             tc.Transform   = transformMatrix;
 #endif
         }
-
-#if 0
-        {
-            // Draw the Grid using ImGui
-            glm::mat4 identity = glm::mat4(1.0f);
-            auto&     cam      = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
-            ImGuizmo::DrawGrid(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), glm::value_ptr(identity), 10.f);
-        }
-#endif
 
         ImGui::SetNextWindowBgAlpha(0.1f);    // Transparent background
         ImGui::Begin("Icons Test");

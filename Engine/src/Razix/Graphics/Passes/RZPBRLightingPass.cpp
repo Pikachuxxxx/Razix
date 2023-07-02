@@ -25,6 +25,7 @@
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
+#include "Razix/Graphics/Passes/Data/GBufferData.h"
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
 
 #include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
@@ -40,15 +41,9 @@ namespace Razix {
 
         void RZPBRLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
-            m_CommandBuffers.resize(3);
-            for (sz i = 0; i < 3; i++) {
-                m_CommandBuffers[i] = RZCommandBuffer::Create();
-                m_CommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("PBR Command Buffers"));
-            }
-
             auto pbrShader = RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
 
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
@@ -65,6 +60,9 @@ namespace Razix {
             auto& shadowData           = blackboard.get<SimpleShadowPassData>();
             auto& globalLightProbes    = blackboard.get<GlobalLightProbeData>();
             auto& brdfData             = blackboard.get<BRDFData>();
+            //auto& gbufferData          = blackboard.get<GBufferData>();
+
+            m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
 
             blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "PBR Lighting Pass",
@@ -97,16 +95,18 @@ namespace Razix {
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
                     builder.read(brdfData.lut);
+                    //builder.read(gbufferData.Albedo_PosY);
+                    //builder.read(gbufferData.Emissive_PosZ);
+                    //builder.read(gbufferData.Normal_PosX);
+                    //builder.read(gbufferData.MetRougAOAlpha);
+                    //builder.read(gbufferData.Depth);
                 },
                 [=](const SceneData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_CommandBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
-
-                    RHI::Begin(cmdBuffer);
                     RAZIX_MARK_BEGIN("PBR pass", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 
-                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{};
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, scene->getSceneCamera().getBgColor()}}};
@@ -169,6 +169,7 @@ namespace Razix {
                         irradianceMap_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         irradianceMap_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         irradianceMap_descriptor.texture             = irradianceMap;
+
                         RZDescriptor prefiltered_descriptor{};
                         prefiltered_descriptor.bindingInfo.binding = 3;
                         prefiltered_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
@@ -184,18 +185,61 @@ namespace Razix {
 
                         m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor, irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR pass Bindings"));
 
+#if 0
+RZDescriptor gbuffer0_descriptor{};
+                        gbuffer0_descriptor.bindingInfo.binding = 0;
+                        gbuffer0_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        gbuffer0_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        gbuffer0_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Normal_PosX).getHandle();
+
+                        RZDescriptor gbuffer1_descriptor{};
+                        gbuffer1_descriptor.bindingInfo.binding = 1;
+                        gbuffer1_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        gbuffer1_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        gbuffer1_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Albedo_PosY).getHandle();
+
+                        RZDescriptor gbuffer2_descriptor{};
+                        gbuffer2_descriptor.bindingInfo.binding = 2;
+                        gbuffer2_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        gbuffer2_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        gbuffer2_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Emissive_PosZ).getHandle();
+
+                        RZDescriptor gbuffer3_descriptor{};
+                        gbuffer3_descriptor.bindingInfo.binding = 3;
+                        gbuffer3_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        gbuffer3_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        gbuffer3_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.MetRougAOAlpha).getHandle();
+
+                        m_GBufferDataSet = RZDescriptorSet::Create({gbuffer0_descriptor, gbuffer1_descriptor, gbuffer2_descriptor, gbuffer3_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer Bindings"));
+#endif
+
                         updatedSets = true;
                     }
 
-                    m_Pipeline->Bind(cmdBuffer);
+                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
+
+                    // Bind the descriptor sets
+                    //std::vector<RZDescriptorSet*> sets = {m_FrameDataDescriptorSet, m_SceneLightsDataDescriptorSet, m_ShadowDataSet};
+                    //Graphics::RHI::BindDescriptorSets(m_Pipeline, RHI::GetCurrentCommandBuffer(), sets);
+                    //Graphics::RZPushConstant modelMatrixPC;
+                    //modelMatrixPC.shaderStage = Graphics::ShaderStage::PIXEL;
+                    //modelMatrixPC.offset      = 0;
+                    //struct PCD
+                    //{
+                    //    glm::vec3 viewPos;
+                    //} pcData{};
+                    //pcData.viewPos     = scene->getSceneCamera().getPosition();
+                    //modelMatrixPC.data = &pcData;
+                    //modelMatrixPC.size = sizeof(PCD);
+                    // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
+                    //Graphics::RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), modelMatrixPC);
+                    // Bind the pipeline
+                    //m_ScreenQuadMesh->Draw(RHI::GetCurrentCommandBuffer());
 
                     scene->drawScene(m_Pipeline, m_FrameDataDescriptorSet, m_SceneLightsDataDescriptorSet, {m_ShadowDataSet});
 
-                    RHI::EndRendering(cmdBuffer);
+                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
-
-                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
-                    Graphics::RHI::SubmitWork({}, {});
                 });
         }
 

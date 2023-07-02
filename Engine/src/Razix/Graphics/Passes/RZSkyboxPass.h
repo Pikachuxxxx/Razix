@@ -22,7 +22,6 @@ namespace Razix {
         private:
             RZPipeline*                   m_Pipeline;
             RZPipeline*                   m_ProceduralPipeline;
-            std::vector<RZCommandBuffer*> m_CommandBuffers;
             RZDescriptorSet*              m_FrameDataDescriptorSet;
             RZDescriptorSet*              m_LightProbesDescriptorSet;
             RZDescriptorSet*              m_VolumetricDescriptorSet;

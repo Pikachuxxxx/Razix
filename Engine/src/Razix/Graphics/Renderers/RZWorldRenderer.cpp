@@ -10,6 +10,7 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
@@ -37,20 +38,19 @@ namespace Razix {
             // Upload BRDF look up texture to the GPU
             m_BRDFfLUTTexture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", {"BRDF LUT"});
 
+            m_NoiseTexture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("Noise Texture") "//RazixContent/Textures/volumetric_clouds_noise.png", {.name = "Noise Texture", .wrapping = RZTextureProperties::Wrapping::REPEAT});
+
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {.name = "BRDF lut", .width = m_BRDFfLUTTexture->getWidth(), .height = m_BRDFfLUTTexture->getHeight(), .type = RZTextureProperties::Type::Texture_2D, .format = m_BRDFfLUTTexture->getFormat()}, {m_BRDFfLUTTexture});
 
-            m_NoiseTexture                                        = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("Noise Texture") "//RazixContent/Textures/volumetric_clouds_noise.png", {.name = "Noise Texture", .wrapping = RZTextureProperties::Wrapping::REPEAT});
             m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Noise Texture", {.name = "BRDF lut", .width = m_NoiseTexture->getWidth(), .height = m_NoiseTexture->getHeight(), .type = RZTextureProperties::Type::Texture_2D, .format = m_NoiseTexture->getFormat()}, {m_NoiseTexture});
 
             // Load the Skybox and Global Light Probes
-            // FIXME: This is hard coded make this user land material
-#if 1
+            // FIXME: This is hard coded make this a user land material
             m_GlobalLightProbes.skybox   = RZIBL::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_GlobalLightProbes.skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
             importGlobalLightProbes(m_GlobalLightProbes);
-#endif
 
             // Cull Lights (Directional + Point) on CPU against camera Frustum First
             // TODO: Get the list of lights in the scene and cull them against the camera frustum and disable ActiveComponent for culled lights, but for now we can just ignore that
@@ -79,11 +79,6 @@ namespace Razix {
             m_GIPass.setGrid(sceneGrid);
             m_GIPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
-            //-------------------------------
-            // GBuffer Pass
-            //-------------------------------
-            m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-
             // TODO: will be implemented once proper point lights support is completed
             //-------------------------------
             // [ ] Tiled Lighting Pass
@@ -105,17 +100,21 @@ namespace Razix {
             //-------------------------------
 
             //-------------------------------
+            // GBuffer Pass
+            //-------------------------------
+            //m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+
+            //-------------------------------
             // [Test] Simple Shadow map Pass
             //-------------------------------
-
             m_ShadowRenderer.Init();
             m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
+#if 0
             //-------------------------------
             // [Test] Omni-Dir Shadow Pass
             //-------------------------------
 
-#if 0
             m_Blackboard.add<OmniDirectionalShadowPassData>() = m_FrameGraph.addCallbackPass<OmniDirectionalShadowPassData>(
                 "Omni-Directional shadow pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, OmniDirectionalShadowPassData& data) {
@@ -127,9 +126,8 @@ namespace Razix {
             //-------------------------------
             // [Test] Forward Lighting Pass
             //-------------------------------
-
             auto& frameDataBlock = m_Blackboard.get<FrameData>();
-            //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>();
+            //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>(); // Cascaded Shadow Map Data
             auto& shadowData = m_Blackboard.get<SimpleShadowPassData>();
 
 #if 0
@@ -228,12 +226,13 @@ namespace Razix {
             //-------------------------------
             // [x] Bloom Pass
             //-------------------------------
-            if (settings.renderFeatures & RendererFeature_Bloom)
-                m_BloomPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            //if (settings.renderFeatures & RendererFeature_Bloom)
+            //    m_BloomPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
+#if 1
             m_FrameGraph.addCallbackPass(
                 "Debug Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto& data) {
@@ -264,6 +263,19 @@ namespace Razix {
                             RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
                     }
 
+                    // Draw AABBs for all the Meshes in the Scene
+
+                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    for (auto entity: mesh_group) {
+                        // Draw the mesh renderer components
+                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+
+                        // Bind push constants, VBO, IBO and draw
+                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
+
+                        RZDebugRenderer::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    }
+
                     RZDebugRenderer::Get()->Begin(scene);
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
@@ -271,11 +283,11 @@ namespace Razix {
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
-                    RenderingInfo info{};
-                    info.colorAttachments = {{rt, {false, scene->getSceneCamera().getBgColor()}}};
-                    info.depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
+                    RenderingInfo info{
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, scene->getSceneCamera().getBgColor()}}},
+                        .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
+                        .resize           = true};
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
@@ -300,10 +312,8 @@ namespace Razix {
                     RHI::EndRendering(Graphics::RHI::GetCurrentCommandBuffer());
 
                     RZDebugRenderer::Get()->End();
-
-                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
-                    Graphics::RHI::SubmitWork({}, {});
                 });
+#endif
 
             //-------------------------------
             // ImGui Pass
@@ -323,28 +333,22 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
-                    m_ImGuiRenderer.Begin(scene);
+                    //m_ImGuiRenderer.Begin(scene);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
+                    //auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+                    //auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
-                    RenderingInfo info{};
-                    info.colorAttachments = {{rt, {false, glm::vec4(0.0f)}}};
-                    info.depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
+                    //RenderingInfo info{
+                    //    .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                    //    .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
+                    //    .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
+                    //    .resize           = true};
 
-                    RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
+                    //RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
-                    m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
+                    //m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
-                    m_ImGuiRenderer.End();
-
-                    // Submit the render queue before presenting next
-                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
-
-                    // Signal on a semaphore for the next pass (Final Composition pass) to wait on
-                    Graphics::RHI::SubmitWork({}, {resources.get<FrameGraph::RZFrameGraphSemaphore>(data.passDoneSemaphore).getHandle()});
+                    //m_ImGuiRenderer.End();
                 });
 
             //-------------------------------
@@ -366,9 +370,37 @@ namespace Razix {
 
         void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Update calls passes
             m_CascadedShadowsRenderer.updateCascades(scene);
 
-            m_FrameGraph.execute(nullptr, &m_TransientResources);
+            // Main Frame Graph World Rendering Loop
+            {
+                // Acquire Image to render onto
+                 Graphics::RHI::AcquireImage(nullptr);
+
+                // Begin Recording  onto the command buffer, select one as per the frame idx
+                RHI::Begin(Graphics::RHI::GetCurrentCommandBuffer());
+
+                // Begin Frame Marker
+                RAZIX_MARK_BEGIN("Frame [back buffer #" + std::to_string(RHI::GetSwapchain()->getCurrentImageIndex()), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+
+                // Execute the Frame Graph passes
+                m_FrameGraph.execute(nullptr, &m_TransientResources);
+
+                // End Frame Marker
+                RAZIX_MARK_END();
+
+                // Submit the render queue before presenting next
+                Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
+
+                // Signal on a semaphore for the presentation engine to wait on
+                //Graphics::RHI::SubmitWork();
+
+                // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
+                Graphics::RHI::Present(nullptr);
+            }
         }
 
         void RZWorldRenderer::destroy()

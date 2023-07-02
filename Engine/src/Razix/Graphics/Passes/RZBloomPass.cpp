@@ -43,7 +43,7 @@ namespace Razix {
             auto upsamplingShader   = RZShaderLibrary::Get().getShader("bloom_upsample.rzsf");
             auto downsamplingShader = RZShaderLibrary::Get().getShader("bloom_downsample.rzsf");
 
-            PipelineDesc pipelineInfo{};
+            RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.transparencyEnabled    = false;
@@ -346,7 +346,7 @@ namespace Razix {
 
             auto bloomMixShader = RZShaderLibrary::Get().getShader("bloom_mix.rzsf");
 
-            PipelineDesc pipelineInfo{};
+            RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.transparencyEnabled    = false;

@@ -38,7 +38,7 @@ namespace Razix {
 
             DescriptorSetsCreateInfos setInfos;
 
-            PipelineDesc pipelineInfo{
+            RZPipelineDesc pipelineInfo{
                 // Build the pipeline here for this pass
                 .shader                 = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf"),
                 .colorAttachmentFormats = {RZTextureProperties::Format::BGRA8_UNORM},
@@ -124,13 +124,9 @@ namespace Razix {
 
                     auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();
 
-                    Graphics::RHI::AcquireImage(imageReadySemaphore);
-
-                    auto cmdBuf = m_CmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
-                    RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
-                    cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
@@ -154,42 +150,26 @@ namespace Razix {
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
-                    RHI::BeginRendering(cmdBuf, info);
+                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     // Bind pipeline and stuff
-                    m_Pipeline->Bind(cmdBuf);
+                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
 
                     // Bind the descriptor sets
-                    Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+                    Graphics::RHI::BindDescriptorSets(m_Pipeline, RHI::GetCurrentCommandBuffer(), m_DescriptorSets);
 
                     // Bind the pipeline
-                    m_ScreenQuadMesh->Draw(cmdBuf);
+                    m_ScreenQuadMesh->Draw(RHI::GetCurrentCommandBuffer());
 
-                    RHI::EndRendering(cmdBuf);
+                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
 
                     RAZIX_MARK_END();
-                    RHI::Submit(cmdBuf);
-
-                    // Wait on the previous pass semaphore for stuff to be done
-                    auto waitOnPreviousPassSemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(imguiPassData.passDoneSemaphore).getHandle();
-                    auto presentSemaphore            = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.presentationDoneSemaphore).getHandle();
-
-                    RHI::SubmitWork({waitOnPreviousPassSemaphore, imageReadySemaphore}, {presentSemaphore});
-                    RHI::Present(presentSemaphore);
                 });
 #endif
         }
 
         void RZFinalCompositionPass::init()
         {
-            // Create the pipeline resource for the pass
-            // Command Buffers
-            for (sz i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
-                m_CmdBuffers[i] = RZCommandBuffer::Create();
-                m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Final Composition Pass Command Buffers"));
-            }
-
-            // Create the render pass and the attachments
         }
 
         void RZFinalCompositionPass::destroy()

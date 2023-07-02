@@ -19,7 +19,7 @@ namespace Razix {
         int      texWidth = 0, texHeight = 0, texChannels = 0;
         stbi_uc* pixels = nullptr;
 
-        stbi_set_flip_vertically_on_load(false);
+        stbi_set_flip_vertically_on_load(true);
         pixels = stbi_load(physicalPath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
         RAZIX_CORE_ASSERT((pixels != nullptr), "Could not load image from : {0}", physicalPath);
@@ -47,7 +47,7 @@ namespace Razix {
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
             return nullptr;
 
-        int      texWidth = 0, texHeight = 0, texChannels = 0;
+        int  texWidth = 0, texHeight = 0, texChannels = 0;
         f32* pixels = nullptr;
 
         stbi_set_flip_vertically_on_load(false);
@@ -64,7 +64,7 @@ namespace Razix {
         if (bpp)
             *bpp = texChannels;
 
-        const int32_t size   = texWidth * texHeight * 4; // 4 cause we used STBI_rgb_alpha and this will force the image to load in a 4-channel format
+        const int32_t size   = texWidth * texHeight * 4;    // 4 cause we used STBI_rgb_alpha and this will force the image to load in a 4-channel format
         f32*          result = new f32[size];
         memcpy(result, pixels, size);
 

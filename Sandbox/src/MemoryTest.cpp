@@ -1,4 +1,4 @@
-#if 0
+#if 1
     #include <Razix.h>
 
 using namespace Razix;
@@ -41,29 +41,58 @@ public:
 
     void OnStart() override
     {
-        Razix::Memory::RZHeapAllocator heapAlloc;
-        RAZIX_INFO("Allocating 16 Mb of Heap memory");
-        heapAlloc.init(static_cast<size_t>(16 * 1024 * 1024));
+        // Testing the HeapAllocator
+        {
+            Razix::Memory::RZHeapAllocator heapAlloc;
+            RAZIX_INFO("Allocating 16 Mb of Heap memory");
+            heapAlloc.init(static_cast<size_t>(16 * 1024 * 1024));
 
-        void* alloc_1 = heapAlloc.allocate(245 * 1024, 16);
-        void* alloc_2 = heapAlloc.allocate(128 * 1024, 16);
-        void* alloc_3 = heapAlloc.allocate(512 * 1024, 16);
+            void* alloc_1 = heapAlloc.allocate(245 * 1024, 16);
+            void* alloc_2 = heapAlloc.allocate(128 * 1024, 16);
+            void* alloc_3 = heapAlloc.allocate(512 * 1024, 16);
 
-        heapAlloc.deallocate(alloc_1);
-        heapAlloc.deallocate(alloc_2);
-        heapAlloc.deallocate(alloc_3);
+            heapAlloc.deallocate(alloc_1);
+            heapAlloc.deallocate(alloc_2);
+            heapAlloc.deallocate(alloc_3);
 
-        heapAlloc.shutdown();
+            heapAlloc.shutdown();
+        }
+
+        // Testing the RingAllocator
+        {
+            //Razix::Memory::RZRingAllocator<uint32_t> some_ints_in_ring;
+            //some_ints_in_ring.init(25);
+
+            //// Test 1: simple insert and immediate read!
+            //for (uint32_t i = 0; i < 45; i++) {
+            //    some_ints_in_ring.put(i);
+            //    RAZIX_TRACE("Ring buffer value at : {0} | head : {1}, tail : {2}", some_ints_in_ring.get(), some_ints_in_ring.getHead(), some_ints_in_ring.getTail());
+            //    if (some_ints_in_ring.isFull())
+            //        RAZIX_WARN("Ring Allocator is Full!");
+            //}
+            //some_ints_in_ring.shutdown();
+        }
+
+        {
+            //Razix::Memory::RZRingAllocator<std::unique_ptr<Graphics::RZCommandBuffer>> frame_command_buffers;
+            //frame_command_buffers.init(3);
+            //for (uint32_t i = 0; i < 45; i++) {
+            //    frame_command_buffers.put(std::make_unique<Graphics::RZCommandBuffer>(Razix::Graphics::RZCommandBuffer::Create()));
+            //    RAZIX_TRACE("Ring buffer value at : {0} | head : {1}, tail : {2}", fmt::ptr(frame_command_buffers.get()), frame_command_buffers.getHead(), frame_command_buffers.getTail());
+            //    if (frame_command_buffers.isFull())
+            //        RAZIX_WARN("Ring Allocator is Full!");
+            //}
+        }
     }
 };
-
+ 
 Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Sandbox Application [MemoryTest]");
     return new MemoryTest();
 }
 
-void main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     EngineMain(argc, argv);
 
@@ -73,5 +102,7 @@ void main(int argc, char** argv)
     Razix::RZApplication::Get().SaveApp();
 
     EngineExit();
+
+    return EXIT_SUCCESS;
 }
 #endif

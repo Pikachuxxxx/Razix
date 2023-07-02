@@ -25,6 +25,9 @@ namespace Razix {
 
         void VKSemaphore::Destroy()
         {
+            // Wait for completion before deleting them
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+
             for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; ++i)
                 vkDestroySemaphore(VKDevice::Get().getDevice(), m_Handles[i], nullptr);
         }

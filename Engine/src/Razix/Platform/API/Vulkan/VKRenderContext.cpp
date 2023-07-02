@@ -9,7 +9,6 @@
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDescriptorSet.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
-#include "Razix/Platform/API/Vulkan/VKFence.h"
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
 #include "Razix/Platform/API/Vulkan/VKSemaphore.h"
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
@@ -81,18 +80,23 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_DrawCommandBuffers.resize(MAX_SWAPCHAIN_BUFFERS);
+            for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                m_DrawCommandBuffers[i] = Graphics::RZCommandBuffer::Create();
+                m_DrawCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Command Buffers #" + std::to_string(i)));
+            }
+
             // Cache the reference to the Vulkan context to avoid frequent calling
-            m_Context = VKContext::Get();
+            m_Context              = VKContext::Get();
         }
 
         void VKRenderContext::AcquireImageAPIImpl(RZSemaphore* signalSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto frameIdx = RHI::Get().GetSwapchain()->getCurrentImageIndex();
-
             // Get the next image to present
-            m_Context->getSwapchain()->acquireNextImage(signalSemaphore ? *(VkSemaphore*) signalSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
+            m_Context->getSwapchain()->acquireNextImage(VK_NULL_HANDLE);
+            m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentImageIndex()];
         }
 
         void VKRenderContext::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
@@ -102,10 +106,7 @@ namespace Razix {
             // Begin recording to the command buffer
             m_CurrentCommandBuffer = cmdBuffer;
 
-            if (m_CurrentCommandBuffer->getState() == CommandBufferState::Submitted)
-                m_Context->getSwapchain()->getCurrentFrameSyncData().renderFence->wait();
-
-            cmdBuffer->BeginRecording();
+            m_CurrentCommandBuffer->BeginRecording();
         }
 
         void VKRenderContext::SubmitImpl(RZCommandBuffer* cmdBuffer)
@@ -120,6 +121,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+#if 0
             auto frameIdx     = RHI::Get().GetSwapchain()->getCurrentImageIndex();
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
 
@@ -130,19 +132,25 @@ namespace Razix {
             std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
             for (sz i = 0; i < signalSemaphores.size(); i++)
                 vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(frameIdx);
-
+            
             m_Context->getSwapchain()->queueSubmit(m_CommandQueue, vkWaitSemaphores, vkSignalSemaphores);
-
+            
             m_CommandQueue.clear();
+#endif
         }
 
         void VKRenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+#if 0
             auto frameIdx     = RHI::Get().GetSwapchain()->getCurrentImageIndex();
             auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
             m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
+#endif
+
+            m_Context->getSwapchain()->submitGraphicsAndFlip(m_CommandQueue);
+            m_CommandQueue.clear();
         }
 
         void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
@@ -218,8 +226,10 @@ namespace Razix {
 
                 if (attachment.first->getFormat() == RZTextureProperties::Format::SCREEN) {
                     auto vkImage = static_cast<VKTexture2D*>(attachment.first);
-                    VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
-                    vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                    if (vkImage->getLayout() != VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL) {
+                        VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                        vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                    }
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 } else
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
@@ -228,7 +238,7 @@ namespace Razix {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
                 } else {
-                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was nted previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
@@ -247,8 +257,7 @@ namespace Razix {
 
             // Depth Attachment
             VkRenderingAttachmentInfoKHR attachInfo{};
-            if (renderingInfo.depthAttachment.first)
-            {
+            if (renderingInfo.depthAttachment.first) {
                 // Depth attachment resize
                 if (renderingInfo.resize) {
                     if (m_Width != renderingInfo.depthAttachment.first->getWidth() || m_Height != renderingInfo.depthAttachment.first->getHeight())
@@ -256,9 +265,9 @@ namespace Razix {
                 }
 
                 // Fill the color attachments first
-                attachInfo.sType                               = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                attachInfo.sType                 = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
                 VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (renderingInfo.depthAttachment.first->GetHandle());
-                attachInfo.imageView                           = apiHandle->imageView;
+                attachInfo.imageView             = apiHandle->imageView;
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 

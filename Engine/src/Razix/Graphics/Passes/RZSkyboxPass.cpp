@@ -35,16 +35,10 @@ namespace Razix {
 
         void RZSkyboxPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
-            m_CommandBuffers.resize(3);
-            for (sz i = 0; i < 3; i++) {
-                m_CommandBuffers[i] = RZCommandBuffer::Create();
-                m_CommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Skybox Command Buffers"));
-            }
-
             auto skyboxShader           = RZShaderLibrary::Get().getShader("Shader.Builtin.Skybox.rzsf");
             auto proceduralSkyboxShader = RZShaderLibrary::Get().getShader("Shader.Builtin.ProceduralSkybox.rzsf");
 
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
@@ -85,12 +79,9 @@ namespace Razix {
                 [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_CommandBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
-
-                    RHI::Begin(cmdBuffer);
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
 
-                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{};
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, glm::vec4(0.0f)}}};
@@ -139,17 +130,17 @@ namespace Razix {
                     }
 
                     if (!m_UseProceduralSkybox)
-                        m_Pipeline->Bind(cmdBuffer);
+                        m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
                     else
-                        m_ProceduralPipeline->Bind(cmdBuffer);
+                        m_ProceduralPipeline->Bind(RHI::GetCurrentCommandBuffer());
 
-                    m_SkyboxCube->getIndexBuffer()->Bind(cmdBuffer);
-                    m_SkyboxCube->getVertexBuffer()->Bind(cmdBuffer);
+                    m_SkyboxCube->getIndexBuffer()->Bind(RHI::GetCurrentCommandBuffer());
+                    m_SkyboxCube->getVertexBuffer()->Bind(RHI::GetCurrentCommandBuffer());
 
                     std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataDescriptorSet};
                     if (!m_UseProceduralSkybox) {
                         setsToBindInOrder.push_back(m_LightProbesDescriptorSet);
-                        RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
+                        RHI::BindDescriptorSets(m_Pipeline, RHI::GetCurrentCommandBuffer(), setsToBindInOrder);
                     } else {
                         // Since no skybox, we update the directional light direction
                         auto lights = scene->GetComponentsOfType<LightComponent>();
@@ -172,18 +163,15 @@ namespace Razix {
                         pc.size        = sizeof(PCData);
                         pc.shaderStage = ShaderStage::PIXEL;
 
-                        RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
+                        RHI::BindPushConstant(m_ProceduralPipeline, RHI::GetCurrentCommandBuffer(), pc);
                         setsToBindInOrder.push_back(m_VolumetricDescriptorSet);
-                        RHI::BindDescriptorSets(m_ProceduralPipeline, cmdBuffer, setsToBindInOrder);
+                        RHI::BindDescriptorSets(m_ProceduralPipeline, RHI::GetCurrentCommandBuffer(), setsToBindInOrder);
                     }
 
-                    RHI::DrawIndexed(cmdBuffer, m_SkyboxCube->getIndexBuffer()->getCount());
+                    RHI::DrawIndexed(RHI::GetCurrentCommandBuffer(), m_SkyboxCube->getIndexBuffer()->getCount());
 
-                    RHI::EndRendering(cmdBuffer);
+                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
-
-                    Graphics::RHI::Submit(Graphics::RHI::GetCurrentCommandBuffer());
-                    Graphics::RHI::SubmitWork({}, {});
                 });
         }
 

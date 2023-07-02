@@ -38,10 +38,21 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is Signaled!");
+            //RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is Signaled!");
 
             // Waits until the fence is signaled
-            const VkResult result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT32_MAX);
+            const VkResult result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT64_MAX);
+
+#if 0
+                        // Waits until the fence is signaled
+            VkResult result;    // = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT32_MAX);
+
+            result = vkGetFenceStatus(VKDevice::Get().getDevice(), m_Fence);
+
+            if (result != VK_SUCCESS) {
+                result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, VK_TRUE, UINT64_MAX);
+            }
+#endif
 
             VK_CHECK_RESULT(result);
             if (result == VK_SUCCESS) {

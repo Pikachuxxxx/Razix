@@ -5,8 +5,8 @@
 
 #include "Razix/Core/RZApplication.h"
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/Materials/RZMaterial.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -32,7 +32,7 @@ namespace Razix {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: s_APIInstance = new GLRenderContext(width, height); break;
                 case Razix::Graphics::RenderAPI::VULKAN: s_APIInstance = new VKRenderContext(width, height); break;
-                case Razix::Graphics::RenderAPI::D3D12: // to be implemented soon
+                case Razix::Graphics::RenderAPI::D3D12:    // to be implemented soon
                 default: s_APIInstance = nullptr; break;
             }
         }

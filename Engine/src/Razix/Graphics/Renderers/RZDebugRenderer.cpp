@@ -54,14 +54,9 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRenderer::Init()
         {
-            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Debug Renderer Main Command Buffers"));
-            }
-
             auto PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
 
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
@@ -124,20 +119,15 @@ namespace Razix {
 
             auto& sceneCamera = scene->getSceneCamera();
 
-            auto cmdBuf = m_MainCommandBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
-
-            // Begin recording the command buffers
-            Graphics::RHI::Begin(cmdBuf);
-
             RAZIX_MARK_BEGIN("Debug Renderer Pass", glm::vec4(0.0f, 0.85f, 0.0f, 1.0f));
 
             // Update the viewport
-            cmdBuf->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            RHI::GetCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // POINTS
             {
                 // Prepare the points VBO and IBO and update them
-                m_PointVBO->Bind(cmdBuf);
+                m_PointVBO->Bind(RHI::GetCurrentCommandBuffer());
 
                 // Map the VBO
                 m_PointVBO->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
@@ -180,7 +170,7 @@ namespace Razix {
 
             // LINES
             {
-                m_LineVBO->Bind(cmdBuf);
+                m_LineVBO->Bind(RHI::GetCurrentCommandBuffer());
 
                 m_LineVBO->Map(RENDERER_LINE_SIZE * static_cast<u32>(m_DrawList.m_DebugLines.size()));
                 LineVertexData* lineVtxData = (LineVertexData*) m_LineVBO->GetMappedBuffer();
@@ -370,6 +360,33 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawLine(true, start, end, colour);
+        }
+
+        void RZDebugRenderer::DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
+        {
+            // 8 vertices
+            glm::vec3 v1(box.min.x, box.min.y, box.min.z);
+            glm::vec3 v2(box.min.x, box.min.y, box.max.z);
+            glm::vec3 v3(box.min.x, box.max.y, box.min.z);
+            glm::vec3 v4(box.min.x, box.max.y, box.max.z);
+            glm::vec3 v5(box.max.x, box.min.y, box.min.z);
+            glm::vec3 v6(box.max.x, box.min.y, box.max.z);
+            glm::vec3 v7(box.max.x, box.max.y, box.min.z);
+            glm::vec3 v8(box.max.x, box.max.y, box.max.z);
+
+            // 12 edges
+            DrawLine(v1, v2, edgeColour);
+            DrawLine(v1, v3, edgeColour);
+            DrawLine(v1, v5, edgeColour);
+            DrawLine(v2, v4, edgeColour);
+            DrawLine(v2, v6, edgeColour);
+            DrawLine(v3, v4, edgeColour);
+            DrawLine(v3, v7, edgeColour);
+            DrawLine(v4, v8, edgeColour);
+            DrawLine(v5, v6, edgeColour);
+            DrawLine(v5, v7, edgeColour);
+            DrawLine(v6, v8, edgeColour);
+            DrawLine(v7, v8, edgeColour);
         }
 
         void RZDebugRenderer::DrawGrid(u32 dimension, const glm::vec4& colour)

@@ -39,7 +39,7 @@ layout(set = 1, binding = 7) uniform sampler2D aoMap;
 vec3 Mat_getAlbedoColor(vec2 uv)
 {
     if(material.isUsingAlbedoMap)
-        return vec3(texture(albedoMap, uv)) * material.baseColor * material.emissiveIntensity;
+        return vec3(texture(albedoMap, uv));
     else 
         return material.baseColor * material.emissiveIntensity;
 }
@@ -84,7 +84,7 @@ float Mat_getAOColor(vec2 uv)
         return 1.0f;
 }
 //----------------------------------------------------------------------------
-float getOpacity(vec2 uv)
+float Mat_getOpacity(vec2 uv)
 {
     if(material.isUsingAlbedoMap)
         return texture(albedoMap, uv).a;

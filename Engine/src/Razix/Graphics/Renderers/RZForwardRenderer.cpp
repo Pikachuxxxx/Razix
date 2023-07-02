@@ -69,13 +69,7 @@ namespace Razix {
                 }
             }
 
-            // TODO: This is also to be moved to the renderer static initialization
-            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Forward Renderer Main Command Buffers"));
-            }
-
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
@@ -95,9 +89,6 @@ namespace Razix {
 
             m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
-
-            // Begin recording the command buffers
-            Graphics::RHI::Begin(m_MainCommandBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()]);
 
             RAZIX_MARK_BEGIN("Forward Lighting Pass", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
@@ -187,10 +178,6 @@ namespace Razix {
 
             m_ScreenBufferWidth  = width;
             m_ScreenBufferHeight = height;
-
-            // Destroy the resources first
-            m_DepthTexture->Release(true);
-            //m_Pipeline->Destroy();
         }
 
         void RZForwardRenderer::Destroy()
@@ -198,8 +185,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Destroy the resources first
-            if (m_DepthTexture)
-                m_DepthTexture->Release(true);
             m_ForwardLightsUBO->Destroy();
             m_Pipeline->Destroy();
             m_GPULightsDescriptorSet->Destroy();
