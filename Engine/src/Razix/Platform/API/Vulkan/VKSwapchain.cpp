@@ -337,7 +337,36 @@ namespace Razix {
                     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
                         vkDeviceWaitIdle(VKDevice::Get().getDevice());
                         //Destroy();
-                        //createSwapchain();
+
+                        for (u32 i = 0; i < m_SwapchainImageCount; i++) {
+                            auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+                            tex->Release(false);
+                        }
+                        m_SwapchainImageTextures.clear();
+                        vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
+
+                        //Init(m_Width, m_Height);
+
+                        // Create the KHR Swapchain
+                        createSwapchain();
+
+                        // Retrieve and create the swapchain images
+                        std::vector<VkImage> images = retrieveSwapchainImages();
+
+                        // Create image view for the retrieved swapchain images
+                        std::vector<VkImageView> imageView = createSwapImageViews(images);
+
+                        // Encapsulate the swapchain images and image views in a RZTexture2D
+                        m_SwapchainImageTextures.clear();
+                        for (u32 i = 0; i < m_SwapchainImageCount; i++) {
+                            VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+                            VKTexture2D* swapImageTexture = new VKTexture2D(images[i], imageView[i]);
+                            m_SwapchainImageTextures.push_back(swapImageTexture);
+                        }
+
+                        result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
+                        VK_CHECK_RESULT(result);
+                        frameData.renderFence->reset();
                     }
                     return;
                 } else if (result != VK_SUCCESS)
