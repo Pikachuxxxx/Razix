@@ -139,7 +139,7 @@ namespace Razix {
             RZForwardRenderer m_ForwardRenderer;
 
             // Other Variables
-            Maths::AABB m_SceneAABB;
+            Maths::AABB                   m_SceneAABB;
 
         private:
             /**

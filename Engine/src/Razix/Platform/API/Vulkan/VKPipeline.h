@@ -10,13 +10,13 @@ namespace Razix {
         class VKPipeline : public RZPipeline
         {
         public:
-            VKPipeline(const PipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
+            VKPipeline(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKPipeline() {}
 
             void Bind(RZCommandBuffer* commandBuffer) override;
             void Destroy() override;
 
-            void init(const PipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
+            void init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
 
             inline const VkPipeline&       getPipeline() const { return m_Pipeline; }
             inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }

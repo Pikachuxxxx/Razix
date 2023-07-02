@@ -149,9 +149,6 @@ namespace Razix {
             m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
-            // Begin recording the command buffers
-            Graphics::RHI::Begin(m_MainCommandBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()]);
-
             RAZIX_MARK_BEGIN("ImGui Pass", glm::vec4(1.0f, 7.0f, 0.0f, 1.0f));
 
             // Update the viewport
@@ -282,9 +279,6 @@ namespace Razix {
             RHI::EndRendering(Graphics::RHI::GetCurrentCommandBuffer());
 
             RAZIX_MARK_END();
-
-            f32 now = m_RendererTimer.GetElapsedS();
-            m_PassTimer.Update(now);
         }
 
         void RZImGuiRenderer::Resize(u32 width, u32 height)
@@ -296,7 +290,6 @@ namespace Razix {
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
-            m_DepthTexture->Release(true);
 
             m_Pipeline->Destroy();
 
@@ -319,7 +312,7 @@ namespace Razix {
         void RZImGuiRenderer::initDisposableResources()
         {
             // Create the graphics pipeline
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
@@ -333,12 +326,6 @@ namespace Razix {
 
             if (m_OverrideGlobalRHIShader)
                 m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Pipeline"));
-
-            // TODO: This is also to be moved to the renderer static initialization
-            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("ImGui Renderer Main Command Buffers"));
-            }
         }
 
         void RZImGuiRenderer::uploadUIFont(const std::string& fontPath)

@@ -54,14 +54,9 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRenderer::Init()
         {
-            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Debug Renderer Main Command Buffers"));
-            }
-
             auto PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
 
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
@@ -124,20 +119,15 @@ namespace Razix {
 
             auto& sceneCamera = scene->getSceneCamera();
 
-            auto cmdBuf = m_MainCommandBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
-
-            // Begin recording the command buffers
-            Graphics::RHI::Begin(cmdBuf);
-
             RAZIX_MARK_BEGIN("Debug Renderer Pass", glm::vec4(0.0f, 0.85f, 0.0f, 1.0f));
 
             // Update the viewport
-            cmdBuf->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            RHI::GetCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // POINTS
             {
                 // Prepare the points VBO and IBO and update them
-                m_PointVBO->Bind(cmdBuf);
+                m_PointVBO->Bind(RHI::GetCurrentCommandBuffer());
 
                 // Map the VBO
                 m_PointVBO->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
@@ -180,7 +170,7 @@ namespace Razix {
 
             // LINES
             {
-                m_LineVBO->Bind(cmdBuf);
+                m_LineVBO->Bind(RHI::GetCurrentCommandBuffer());
 
                 m_LineVBO->Map(RENDERER_LINE_SIZE * static_cast<u32>(m_DrawList.m_DebugLines.size()));
                 LineVertexData* lineVtxData = (LineVertexData*) m_LineVBO->GetMappedBuffer();

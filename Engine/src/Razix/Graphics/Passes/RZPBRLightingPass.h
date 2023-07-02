@@ -5,6 +5,8 @@
 namespace Razix {
     namespace Graphics {
 
+        class RZMesh;
+
         class RZPBRLightingPass : public IRZPass
         {
         public:
@@ -16,12 +18,12 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZPipeline*                   m_Pipeline;
-            std::vector<RZCommandBuffer*> m_CommandBuffers;
-            RZDescriptorSet*              m_FrameDataDescriptorSet;
-            RZDescriptorSet*              m_SceneLightsDataDescriptorSet;
-            RZDescriptorSet*              m_ShadowDataSet;
-
+            RZPipeline*      m_Pipeline;
+            RZDescriptorSet* m_FrameDataDescriptorSet;
+            RZDescriptorSet* m_SceneLightsDataDescriptorSet;
+            RZDescriptorSet* m_ShadowDataSet;
+            RZDescriptorSet* m_GBufferDataSet;
+            RZMesh*          m_ScreenQuadMesh = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

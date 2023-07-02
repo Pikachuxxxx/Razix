@@ -1,0 +1,16 @@
+/*
+ * Razix Shader File 
+ * [PBR Deffered Rendering] Uses the PBR model to render the geometry using Deffered IBL
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/quad.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/PBR_Deffered_FinalIBL.frag.spv
+    #endif
+#end

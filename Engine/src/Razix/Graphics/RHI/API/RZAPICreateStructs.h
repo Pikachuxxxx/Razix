@@ -56,7 +56,7 @@ namespace Razix {
         };
 
         /* Information necessary to create the pipeline */
-        struct PipelineDesc
+        struct RZPipelineDesc
         {
             RZShader*                                shader                 = nullptr;                           /* Shader used by the Pipeline                                                 */
             std::vector<RZTextureProperties::Format> colorAttachmentFormats = {};                                /* color attachments used by this pipeline, that we write to                   */

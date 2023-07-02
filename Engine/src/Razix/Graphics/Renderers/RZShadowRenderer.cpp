@@ -42,12 +42,6 @@ namespace Razix {
         void RZShadowRenderer::Init()
         {
             m_LightViewProjUBO = RZUniformBuffer::Create(sizeof(LightVPUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("LightViewProj"));
-
-            // Build the command buffers
-            for (sz i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_MainCommandBuffers[i] = RZCommandBuffer::Create();
-                m_MainCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Shadpw mapping Command Buffers"));
-            }
         }
 
         void RZShadowRenderer::Begin(RZScene* scene)
@@ -99,7 +93,7 @@ namespace Razix {
             }
 
             // Create the Pipeline
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::BACK;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader              = shader;
@@ -123,13 +117,10 @@ namespace Razix {
                 [=](const SimpleShadowPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuf = m_MainCommandBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
-
-                    RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Shadow Pass", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
 
                     // Update Viewport and Scissor Rect
-                    cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
+                    RHI::GetCurrentCommandBuffer()->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
                     LightVPUBOData light_data{};
                     // Get the Light direction
@@ -157,9 +148,9 @@ namespace Razix {
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
                     info.resize          = false;
-                    RHI::BeginRendering(cmdBuf, info);
+                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-                    m_Pipeline->Bind(cmdBuf);
+                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
 
                     m_LightViewProjUBO->SetData(sizeof(LightVPUBOData), &light_data);
 
@@ -171,16 +162,8 @@ namespace Razix {
                     scene->drawScene(m_Pipeline, nullptr, nullptr, {m_LVPSet}, nullptr, true);
 
                     // End Rendering
-                    RHI::EndRendering(cmdBuf);
-
+                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
-
-                    // End Command Buffer Recording
-                    RHI::Submit(cmdBuf);
-
-                    // Submit the work for execution + synchronization
-                    // Signal a passDoneSemaphore only on the last cascade pass
-                    RHI::SubmitWork({}, {/*PassDoneSemaphore*/});
                 });
         }
 

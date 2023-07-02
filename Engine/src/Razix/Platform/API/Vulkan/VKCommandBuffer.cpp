@@ -25,7 +25,7 @@ namespace Razix {
 
         VKCommandBuffer::~VKCommandBuffer()
         {
-            Reset();
+            //Reset();
         }
 
         void VKCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)

@@ -77,7 +77,7 @@ namespace Razix {
             auto shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
             auto setInfos = shader->getSetsCreateInfos();
 
-            PipelineDesc info{};
+            RZPipelineDesc info{};
             info.shader                 = shader;
             info.colorAttachmentFormats = {RZTextureProperties::Format::RGBA32F};
 
@@ -100,11 +100,11 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     // Reads
-                    builder.read(gBuffer.Albedo);
+                    builder.read(gBuffer.Normal_PosX);
+                    builder.read(gBuffer.Albedo_PosY);
+                    builder.read(gBuffer.Emissive_PosZ);
+                    builder.read(gBuffer.MetRougAOAlpha);
                     builder.read(gBuffer.Depth);
-                    builder.read(gBuffer.Emissive);
-                    builder.read(gBuffer.MetRougAOSpec);
-                    builder.read(gBuffer.Normal);
 
                     builder.read(brdf.lut);
 
@@ -185,19 +185,19 @@ namespace Razix {
                                     // This needs to be updated only once when the framegraph resources are available in the execute lambda
                                     switch (descriptor.bindingInfo.binding) {
                                         case 0:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal).getHandle();
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal_PosX).getHandle();
                                             break;
                                         case 1:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal).getHandle();
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal_PosX).getHandle();
                                             break;
                                         case 2:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Albedo).getHandle();
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Albedo_PosY).getHandle();
                                             break;
                                         case 3:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Emissive).getHandle();
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Emissive_PosZ).getHandle();
                                             break;
                                         case 4:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.MetRougAOSpec).getHandle();
+                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.MetRougAOAlpha).getHandle();
                                             break;
                                         case 5:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(brdf.lut).getHandle();

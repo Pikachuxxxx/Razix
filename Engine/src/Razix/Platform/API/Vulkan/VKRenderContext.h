@@ -22,11 +22,12 @@ namespace Razix {
             inline const VkDescriptorPool& getDescriptorPool() const { return m_DescriptorPool; }
 
         protected:
-            void InitAPIImpl() override;
             void AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override;
+            void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores) override;
+            
+            void InitAPIImpl() override;
             void BeginAPIImpl(RZCommandBuffer* cmdBuffer) override;
             void SubmitImpl(RZCommandBuffer* cmdBuffer) override;
-            void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores) override;
             void PresentAPIImpl(RZSemaphore* waitSemaphore) override;
             void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets) override;
             void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT) override;

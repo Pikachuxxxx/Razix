@@ -12,7 +12,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKPipeline::VKPipeline(const PipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
+        VKPipeline::VKPipeline(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             m_Shader         = pipelineInfo.shader;
             m_PipelineLayout = static_cast<VKShader*>(m_Shader)->getPipelineLayout();
@@ -34,7 +34,7 @@ namespace Razix {
             vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
         }
 
-        void VKPipeline::init(const PipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKPipeline::init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

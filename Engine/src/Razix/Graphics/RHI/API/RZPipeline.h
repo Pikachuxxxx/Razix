@@ -9,7 +9,7 @@ namespace Razix {
     namespace Graphics {
 
         // Forward decelerations to reduce include files complexity
-        struct PipelineDesc;
+        struct RZPipelineDesc;
         class RZCommandBuffer;
 
         /**
@@ -28,7 +28,7 @@ namespace Razix {
             RZPipeline() = default;
             virtual ~RZPipeline() {}
 
-            static RZPipeline* Create(const PipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
+            static RZPipeline* Create(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
 
             virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
             virtual void Destroy()                            = 0;

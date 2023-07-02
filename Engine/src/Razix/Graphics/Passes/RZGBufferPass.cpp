@@ -41,13 +41,8 @@ namespace Razix {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getShader("gbuffer_pass.rzsf");
 
-            for (sz i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
-                m_CmdBuffers[i] = RZCommandBuffer::Create();
-                m_CmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("GBuffer Command Buffers"));
-            }
-
             // Create the Pipeline
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
@@ -60,7 +55,7 @@ namespace Razix {
                 Graphics::RZTextureProperties::Format::RGBA32F,
                 Graphics::RZTextureProperties::Format::RGBA32F,
                 Graphics::RZTextureProperties::Format::RGBA32F};
-            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH16_UNORM;
+            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH32F;
 
             m_Pipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer pipeline"));
 
@@ -72,25 +67,25 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc gbufferTexturesDesc{
-                        .name   = "Normal",
+                        .name   = "Normal_PosX",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
                         .type   = RZTextureProperties::Type::Texture_RenderTarget,
                         .format = RZTextureProperties::Format::RGBA32F};
 
-                    data.Normal = builder.create<FrameGraph::RZFrameGraphTexture>("Normal", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.Normal_PosX = builder.create<FrameGraph::RZFrameGraphTexture>("Normal_PosX", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name = "Albedo";
+                    gbufferTexturesDesc.name = "Albedo_PosY";
 
-                    data.Albedo = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.Albedo_PosY = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo_PosY", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name = "Emissive";
+                    gbufferTexturesDesc.name = "Emissive_PosZ";
 
-                    data.Emissive = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.Emissive_PosZ = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive_PosZ", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name = "MetRougAOSpec";
+                    gbufferTexturesDesc.name = "MetRougAOAlpha";
 
-                    data.MetRougAOSpec = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOSpec", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.MetRougAOAlpha = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOAlpha", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name   = "Depth";
                     gbufferTexturesDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
@@ -98,39 +93,36 @@ namespace Razix {
 
                     data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.Normal        = builder.write(data.Normal);
-                    data.Albedo        = builder.write(data.Albedo);
-                    data.Emissive      = builder.write(data.Emissive);
-                    data.MetRougAOSpec = builder.write(data.MetRougAOSpec);
-                    data.Depth         = builder.write(data.Depth);
+                    data.Normal_PosX    = builder.write(data.Normal_PosX);
+                    data.Albedo_PosY    = builder.write(data.Albedo_PosY);
+                    data.Emissive_PosZ  = builder.write(data.Emissive_PosZ);
+                    data.MetRougAOAlpha = builder.write(data.MetRougAOAlpha);
+                    data.Depth          = builder.write(data.Depth);
 
                     builder.read(frameDataBlock.frameData);
                 },
                 [=](const GBufferData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_CmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
-                    RHI::Begin(cmdBuffer);
-
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
 
-                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal).getHandle(), {true, glm::vec4(0.0f)}},           // location = 0
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo).getHandle(), {true, glm::vec4(0.0f)}},           // location = 1
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Emissive).getHandle(), {true, glm::vec4(0.0f)}},         // location = 2
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.MetRougAOSpec).getHandle(), {true, glm::vec4(0.0f)}},    // location = 3
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_PosX).getHandle(), {true, glm::vec4(0.0f)}},       // location = 0
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_PosY).getHandle(), {true, glm::vec4(0.0f)}},       // location = 1
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Emissive_PosZ).getHandle(), {true, glm::vec4(0.0f)}},     // location = 2
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.MetRougAOAlpha).getHandle(), {true, glm::vec4(0.0f)}},    // location = 3
 
                         },
                         .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}},
                         .resize          = false};
 
-                    RHI::BeginRendering(cmdBuffer, info);
+                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-                    m_Pipeline->Bind(cmdBuffer);
+                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
 
                     // Set the Descriptor Set once rendering starts
                     auto        frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
@@ -152,10 +144,7 @@ namespace Razix {
                     scene->drawScene(m_Pipeline, m_FrameDataSet, nullptr);
 
                     RAZIX_MARK_END();
-                    RHI::EndRendering(cmdBuffer);
-
-                    RHI::Submit(cmdBuffer);
-                    RHI::SubmitWork({}, {});
+                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                 });
         }
 

@@ -70,11 +70,13 @@ namespace Razix {
             RZVertexBuffer* m_ImGuiVBO = nullptr;
             RZIndexBuffer*  m_ImGuiIBO = nullptr;
 
+            RZShader* m_OverrideGlobalRHIShader;
+
             //int32_t vertexCount = 0;
             //int32_t indexCount  = 0;
 
             std::vector<ImGuiVertex> m_VertexData;
-            std::vector<u16>    m_IndexData;
+            std::vector<u16>         m_IndexData;
 
         private:
             void initDisposableResources();

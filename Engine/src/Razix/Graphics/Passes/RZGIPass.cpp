@@ -97,7 +97,7 @@ namespace Razix {
             }
 
             // Create the Pipeline
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
@@ -270,7 +270,7 @@ namespace Razix {
             }
 
             // Create the Pipeline
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::POINT;
@@ -409,7 +409,7 @@ namespace Razix {
             m_RadiancePropagationUBO = RZUniformBuffer::Create(sizeof(RadiancePropagationUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("RPropagation UBO"));
 
             // Create the Pipeline
-            Graphics::PipelineDesc pipelineInfo{};
+            Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode            = Graphics::CullMode::NONE;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::POINT;

@@ -25,6 +25,12 @@
             m_RendererTitle = "OpenGL";
             m_Width         = width;
             m_Height        = height;
+
+            m_DrawCommandBuffers.resize(MAX_SWAPCHAIN_BUFFERS);
+            for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                m_DrawCommandBuffers[i] = Graphics::RZCommandBuffer::Create();
+                m_DrawCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Command Buffers #" + std::to_string(i)));
+            }
         }
 
         GLRenderContext::~GLRenderContext()

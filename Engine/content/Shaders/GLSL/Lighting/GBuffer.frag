@@ -23,24 +23,24 @@ layout(location = 0) in VSOutput
 }fs_in;
 //------------------------------------------------------------------------------ 
 // Output from Fragment Shader or Output to Framebuffer attachments
-layout(location = 0) out vec4 GBuffer0; // .rgb = Normal .a = empty (1.0f)
-layout(location = 1) out vec4 GBuffer1; // .rgb = Albedo .a = empty (1.0f)
-layout(location = 2) out vec4 GBuffer2; // .rgb = Emissive .a = empty (1.0f)
-layout(location = 3) out vec4 GBuffer3; // .r = Metallic .g = roughness .b = AO .a = specular
+layout(location = 0) out vec4 GBuffer0; // .rgb = Normal .a = Position.x
+layout(location = 1) out vec4 GBuffer1; // .rgb = Albedo .a = Position.y
+layout(location = 2) out vec4 GBuffer2; // .rgb = Position .a = Position.z
+layout(location = 3) out vec4 GBuffer3; // .r = Metallic .g = roughness .b = AO .a = alpha/opacity
 //------------------------------------------------------------------------------
 void main()
 {
     // Write the Normals to the GBuffer0  
     GBuffer0 = vec4(normalize(fs_in.fragNormal), 1.0f);
 
-    GBuffer1 = texture(albedoMap, fs_in.fragTexCoord).rgba;
-    GBuffer2 = vec4(vec3(material.emissiveIntensity), 1.0f);
+    GBuffer1 = vec4(texture(albedoMap, fs_in.fragTexCoord).rgb, 1.0f);
+    GBuffer2 = vec4(vec3(fs_in.fragPos), 1.0f);
 
-    // Since the current GLTTF modedls have a MetalligRoughNesAO maps we hard code this shit ( GLTF texutes .r = empty .g = roughness .b = metallic .a = AO)
+    // Since the current GLTTF modedls have a MetallicgRoughNesAO maps we hard code this shit ( GLTF texutes .r = empty (mostly) .g = roughness .b = metallic .a = AO)
     vec4 MetallicRoughnessAO = texture(metallicMap, fs_in.fragTexCoord);
 
     // GBuffer3 :: .r = Metallic .g = roughness .b = AO .a = specular
-    GBuffer3 = vec4( MetallicRoughnessAO.b, MetallicRoughnessAO.g, MetallicRoughnessAO.a, material.specular);
+    GBuffer3 = vec4( MetallicRoughnessAO.b, MetallicRoughnessAO.g, MetallicRoughnessAO.a, material.opacity);
 }
 //------------------------------------------------------------------------------
 

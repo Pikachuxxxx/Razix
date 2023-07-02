@@ -17,7 +17,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZPipeline* RZPipeline::Create(const PipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
+        RZPipeline* RZPipeline::Create(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

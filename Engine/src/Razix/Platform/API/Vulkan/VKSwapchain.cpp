@@ -69,7 +69,7 @@ namespace Razix {
                 m_SwapchainImageTextures.push_back(swapImageTexture);
             }
 
-            // Create the sync primitives for each frame + Command Buffers
+            // Create the sync primitives for each frame
             createFrameData();
         }
 
@@ -80,8 +80,8 @@ namespace Razix {
             // Delete the frame data
             for (auto& frame: m_Frames) {
                 //frame.mainCommandBuffer->Reset();
-                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.presentSemaphore, nullptr);
-                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderSemaphore, nullptr);
+                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.imageAvailableSemaphore, nullptr);
+                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderingDoneSemaphore, nullptr);
                 vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
             }
 
@@ -220,7 +220,7 @@ namespace Razix {
             swcCI.imageArrayLayers                                    = 1;
             swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
             VKPhysicalDevice::QueueFamilyIndices indices              = VKDevice::Get().getPhysicalDevice().get()->getQueueFamilyIndices();
-            u32                             queueFamilyIndices[] = {static_cast<u32>(indices.Graphics), static_cast<u32>(indices.Present)};
+            u32                                  queueFamilyIndices[] = {static_cast<u32>(indices.Graphics), static_cast<u32>(indices.Present)};
 
             if (indices.Graphics != indices.Present) {
                 swcCI.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
@@ -309,10 +309,10 @@ namespace Razix {
                     semaphoreInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
                     semaphoreInfo.pNext                 = nullptr;
 
-                    if (m_Frames[i].presentSemaphore == VK_NULL_HANDLE)
-                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].presentSemaphore));
-                    if (m_Frames[i].renderSemaphore == VK_NULL_HANDLE)
-                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].renderSemaphore));
+                    if (m_Frames[i].imageAvailableSemaphore == VK_NULL_HANDLE)
+                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].imageAvailableSemaphore));
+                    if (m_Frames[i].renderingDoneSemaphore == VK_NULL_HANDLE)
+                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].renderingDoneSemaphore));
 
                     m_Frames[i].renderFence = rzstl::CreateRef<VKFence>(true);
                 }
@@ -325,28 +325,26 @@ namespace Razix {
 
             if (m_IsResizing)
                 return;
-            u32 nextCmdBufferIndex = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
+
             {
-                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, signalSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
+                auto& frameData = getCurrentFrameSyncData();
+                frameData.renderFence->wait();
+
+                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
                     VK_CHECK_RESULT(result);
 
                     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-                        /*             
-                            std::unique_lock<std::mutex> lk(RZApplication::m);
-                            RZApplication::halt_execution.wait(lk, [] {
-                                return RZApplication::ready_for_execution;
-                            });
-                        */
-                        //OnResize(m_Width, m_Height);
                         vkDeviceWaitIdle(VKDevice::Get().getDevice());
-                        //acquireNextImage();
+                        //Destroy();
+                        //createSwapchain();
                     }
                     return;
                 } else if (result != VK_SUCCESS)
                     RAZIX_CORE_ERROR("[Vulkan] Failed to acquire swap chain image!");
 
-                m_CurrentBuffer = nextCmdBufferIndex;
+                frameData.renderFence->reset();
+
                 return;
             }
         }
@@ -358,6 +356,8 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto& frameData = getCurrentFrameSyncData();
+
+            frameData.renderFence->wait();
 
             VkSubmitInfo submitInfo       = {};
             submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -405,19 +405,18 @@ namespace Razix {
                 }
 #endif
             }
-
-            frameData.renderFence->wait();
         }
 
         void VKSwapchain::present(VkSemaphore waitSemaphore)
         {
             if (m_IsResizing)
                 return;
+
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto& frameData = getCurrentFrameSyncData();
+            //auto& frameData = getCurrentFrameSyncData();
 
-            auto currentVKImage = static_cast<Graphics::VKTexture2D*>(m_SwapchainImageTextures[m_AcquireImageIndex])->getImage();
+            //auto currentVKImage = static_cast<Graphics::VKTexture2D*>(m_SwapchainImageTextures[m_AcquireImageIndex])->getImage();
 
             //VKUtilities::TransitionImageLayout(currentVKImage, m_ColorFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
@@ -455,5 +454,74 @@ namespace Razix {
             else
                 VK_CHECK_RESULT(error);
         }
+
+        void VKSwapchain::submitGraphicsAndFlip(CommandQueue& commandQueue)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Submit and Flip the Graphics Queue
+            VkResult result;
+
+            auto& frameData = getCurrentFrameSyncData();
+
+            //----------------------------------------------------------
+            // SUBMITING CMD BUFFERS
+            //----------------------------------------------------------
+
+            VkSubmitInfo submitInfo       = {};
+            submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext              = VK_NULL_HANDLE;
+            submitInfo.commandBufferCount = static_cast<u32>(commandQueue.size());
+            // !TODO: OPTIMIZE THIS SHITTY SNIPPET!!!
+            std::vector<VkCommandBuffer> cmdBuffs;
+            for (sz i = 0; i < submitInfo.commandBufferCount; i++)
+                cmdBuffs.push_back(*((VkCommandBuffer*) commandQueue[i]->getAPIBuffer()));
+            submitInfo.pCommandBuffers = cmdBuffs.data();
+
+            // We can do a VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT (will still need memory barriers) which will stall the GPU until all the work is done
+            // but this will make memory and pipeline barriers redundant and make async command buffer processing less efficient
+            // This should only wait for the final presentation target to finish writing to the final color target!
+            VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+
+            // Submit for work as soon as we have a image to swapchain image to render onto
+            submitInfo.waitSemaphoreCount = 1;
+            submitInfo.pWaitSemaphores    = &frameData.imageAvailableSemaphore;
+            submitInfo.pWaitDstStageMask  = waitStages;
+
+            // Signal that the rendering is done for the presentation engine to resume flip and presenting to the screen
+            submitInfo.signalSemaphoreCount = 1;
+            submitInfo.pSignalSemaphores    = &frameData.renderingDoneSemaphore;
+
+            // Submit the command buffers for execution and signal a fence to let the CPU know when the submitted command buffers finish execution so that they can be re-used for recording
+            result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence());
+            VK_CHECK_RESULT(result);
+
+            //----------------------------------------------------------
+            // PRESENTATION
+            //----------------------------------------------------------
+
+            VkPresentInfoKHR presentInfo{};
+            presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+            presentInfo.pNext              = VK_NULL_HANDLE;
+            presentInfo.swapchainCount     = 1;
+            presentInfo.pSwapchains        = &m_Swapchain;
+            presentInfo.pImageIndices      = &m_AcquireImageIndex;
+            presentInfo.waitSemaphoreCount = 1;
+            presentInfo.pWaitSemaphores    = &frameData.renderingDoneSemaphore;
+            presentInfo.pResults           = VK_NULL_HANDLE;
+
+            result = vkQueuePresentKHR(VKDevice::Get().getPresentQueue(), &presentInfo);
+
+            if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+                vkDeviceWaitIdle(VKDevice::Get().getDevice());
+                RAZIX_CORE_ERROR("[Vulkan] Swapchain out of date");
+            } else if (result == VK_SUBOPTIMAL_KHR)
+                RAZIX_CORE_ERROR("[Vulkan] Swapchain suboptimal");
+            else
+                VK_CHECK_RESULT(result);
+
+            m_CurrentBuffer = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
+        }
+
     }    // namespace Graphics
 }    // namespace Razix

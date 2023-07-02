@@ -185,7 +185,8 @@ namespace Razix {
             u32              m_PrevWidth  = 0;
             u32              m_PrevHeight = 0;
             CommandQueue     m_CommandQueue; /* The queue of recorded commands that needs execution */
-            RZCommandBuffer* m_CurrentCommandBuffer = nullptr;
+            RZCommandBuffer*              m_CurrentCommandBuffer = nullptr;
+            std::vector<RZCommandBuffer*> m_DrawCommandBuffers;
         };
     }    // namespace Graphics
 }    // namespace Razix

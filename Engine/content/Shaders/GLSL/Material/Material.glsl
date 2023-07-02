@@ -84,7 +84,7 @@ float Mat_getAOColor(vec2 uv)
         return 1.0f;
 }
 //----------------------------------------------------------------------------
-float getOpacity(vec2 uv)
+float Mat_getOpacity(vec2 uv)
 {
     if(material.isUsingAlbedoMap)
         return texture(albedoMap, uv).a;
