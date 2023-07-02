@@ -1,5 +1,20 @@
 # Razix Engine Release Notes
 
+for verions 0.4x.yy.Dev
+
+#### Version - 0.42.0 [Development] - 02/07/2023
+    - Single command buffer per frame
+    - Improved synchronization and command buffer management 
+    - Gained performance
+    - Minor improvements and fixes
+    - AABB boundingboxes can be visualised for all meshes now
+    - Disabled imgui; fg resource barriers WIP
+
+#### Version - 0.41.2 [Development] - 04/06/2023    
+    - Patch for crash
+#### Version - 0.41.1 [Development] - 04/06/2023
+    - Patch for crash
+
 #### Version - 0.41.0 [Development] - 04/06/2023
     
     - Added custom mesh and model formats and loaders for engine and RazixAssetPacker project

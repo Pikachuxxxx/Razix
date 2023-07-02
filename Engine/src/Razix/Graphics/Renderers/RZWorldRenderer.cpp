@@ -328,7 +328,7 @@ namespace Razix {
                     data.outputRT          = builder.write(sceneData.outputHDR);
                     data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
-                    builder.read(sceneData.depth);
+                    builder.read(sceneData.depth); 
 
                     m_ImGuiRenderer.Init();
                 },
