@@ -162,7 +162,7 @@ project "Razix"
         cppdialect "C++20"
         staticruntime "off"
         systemversion "latest"
-        disablewarnings { 4307, 4267, 4275 } -- Disabling the 4275 cause this will propagate into everything ig
+        disablewarnings { 4307, 4267, 4275, 4715 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
         editandcontinue "Off"
 

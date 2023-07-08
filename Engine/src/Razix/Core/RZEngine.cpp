@@ -10,6 +10,8 @@
 #include "Razix/Core/RZCPUMemoryManager.h"
 #include "Razix/Graphics/RHI/RZGPUMemoryManager.h"
 
+#include "Razix/Graphics/Resources/RZResourceManager.h"
+
 #include <chrono>
 
 #include <d3d11.h>
@@ -88,6 +90,9 @@ namespace Razix {
         RAZIX_CORE_INFO("*   Post Graphics Ignition....    *");
         RAZIX_CORE_INFO("***********************************");
 
+        // Initialize the Resource Manager
+        Graphics::RZResourceManager::Get().StartUp();
+
         // Ignite the shader library after the Graphics has been initialized
         Graphics::RZShaderLibrary::Get().StartUp();
         Graphics::RZMaterial::InitDefaultTexture();
@@ -101,6 +106,8 @@ namespace Razix {
 
         // Shutting down all the sub-systems
 
+        // Shutdown the Resource System
+        Graphics::RZResourceManager::Get().ShutDown();
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager

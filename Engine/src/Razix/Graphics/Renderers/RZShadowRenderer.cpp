@@ -26,8 +26,8 @@
 
 #include "Razix/Graphics/Lighting/RZLight.h"
 
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
+#include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 

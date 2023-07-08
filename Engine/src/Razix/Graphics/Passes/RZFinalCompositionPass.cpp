@@ -21,8 +21,8 @@
 
 #include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
 
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
+#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
+#include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 namespace Razix {
     namespace Graphics {

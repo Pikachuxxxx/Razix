@@ -25,9 +25,9 @@
 
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
 
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
+#include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
+#include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 

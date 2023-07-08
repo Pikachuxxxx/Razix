@@ -15,9 +15,9 @@
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphSemaphore.h"
-#include "Razix/Graphics/FrameGraph/Resources/RZFrameGraphTexture.h"
+#include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
+#include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Graphics/Lighting/RZIBL.h"
 
@@ -328,7 +328,7 @@ namespace Razix {
                     data.outputRT          = builder.write(sceneData.outputHDR);
                     data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
 
-                    builder.read(sceneData.depth); 
+                    builder.read(sceneData.depth);
 
                     m_ImGuiRenderer.Init();
                 },
@@ -374,11 +374,12 @@ namespace Razix {
 
             // Update calls passes
             m_CascadedShadowsRenderer.updateCascades(scene);
+            m_SkyboxPass.useProceduralSkybox(settings.useProceduralSkybox);
 
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
-                 Graphics::RHI::AcquireImage(nullptr);
+                Graphics::RHI::AcquireImage(nullptr);
 
                 // Begin Recording  onto the command buffer, select one as per the frame idx
                 RHI::Begin(Graphics::RHI::GetCurrentCommandBuffer());

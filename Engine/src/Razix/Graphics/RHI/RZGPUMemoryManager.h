@@ -17,8 +17,9 @@ namespace Razix {
             void ShutDown();
 
             RAZIX_INLINE const Razix::Memory::RZHeapAllocator& getVideoAllocator() const { return m_VideoAllocator; }
+
         private:
-            Razix::Memory::RZHeapAllocator m_VideoAllocator;
+            Razix::Memory::RZHeapAllocator m_VideoAllocator; /* Persistently mapped GPU memory allocator */
             //Razix::Memory::RZRingAllocator m_VideoRingAllocator;
         };
     }    // namespace Graphics
