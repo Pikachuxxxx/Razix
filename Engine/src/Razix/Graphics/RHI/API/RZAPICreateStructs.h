@@ -14,7 +14,7 @@ namespace Razix {
 
         struct RZTextureDesc
         {
-            std::string                    name       = "UN-NAMED_TEXTURE";                             /* Name of the texture                                                                      */
+            std::string                    name       = "UN_NAMED_TEXTURE_RESOURCE";                    /* Name of the texture                                                                      */
             u32                            width      = 0;                                              /*  The Width of the texture                                                                */
             u32                            height     = 0;                                              /* The Height of the texture                                                                */
             u32                            layers     = 1;                                              /* The Height/Layers/Depth of the texture (depending on if it's a array or cubemap or 3D)   */

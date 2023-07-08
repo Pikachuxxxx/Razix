@@ -5,11 +5,11 @@
 #include "Razix/Utilities/TRZSingleton.h"
 
 #define Mib(x) x * 1024 * 1024
-#define Kib(x) x * 1024 
+#define Kib(x) x * 1024
 
 namespace Razix {
 
-#define RAZIX_FRAME_BUDGET Mib(128)    // Total frame allocations size = 128 Mib
+#define RAZIX_FRAME_BUDGET Mib(512)    // Total frame allocations size = 512 Mib
 #define RAZIX_PACKET_SIZE  Kib(64)     // Max size of each packet in a 2-sided allocator
 #define RAZIX_PACKETS      1024        // Total number of two-sided allocations
 

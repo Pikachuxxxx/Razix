@@ -41,7 +41,6 @@
     <property name="title">
      <string>Windows</string>
     </property>
-    <addaction name="actionWorld_Renderer_Settings"/>
    </widget>
    <widget class="QMenu" name="menuGraphics">
     <property name="title">

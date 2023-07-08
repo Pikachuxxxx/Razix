@@ -29,6 +29,10 @@ class Ui_WorldSettings
 public:
     QVBoxLayout *verticalLayout;
     QLabel *label_3;
+    QGroupBox *groupBox_5;
+    QVBoxLayout *verticalLayout_6;
+    QCheckBox *useProcSkyboxChkBox;
+    QFrame *line_6;
     QGroupBox *groupBox;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout_2;
@@ -38,12 +42,14 @@ public:
     QVBoxLayout *verticalLayout_3;
     QLineEdit *filterRadius;
     QLineEdit *strength;
+    QSpacerItem *horizontalSpacer;
     QFrame *line_2;
     QGroupBox *groupBox_2;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label;
     QFrame *line_3;
     QComboBox *comboBox;
+    QSpacerItem *horizontalSpacer_2;
     QFrame *line_4;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_4;
@@ -79,11 +85,33 @@ public:
 
         verticalLayout->addWidget(label_3);
 
-        groupBox = new QGroupBox(WorldSettings);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox_5 = new QGroupBox(WorldSettings);
+        groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
         QFont font1;
         font1.setFamily(QString::fromUtf8("Fira Code Light"));
         font1.setPointSize(10);
+        groupBox_5->setFont(font1);
+        verticalLayout_6 = new QVBoxLayout(groupBox_5);
+        verticalLayout_6->setSpacing(6);
+        verticalLayout_6->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
+        useProcSkyboxChkBox = new QCheckBox(groupBox_5);
+        useProcSkyboxChkBox->setObjectName(QString::fromUtf8("useProcSkyboxChkBox"));
+
+        verticalLayout_6->addWidget(useProcSkyboxChkBox);
+
+
+        verticalLayout->addWidget(groupBox_5);
+
+        line_6 = new QFrame(WorldSettings);
+        line_6->setObjectName(QString::fromUtf8("line_6"));
+        line_6->setFrameShape(QFrame::HLine);
+        line_6->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_6);
+
+        groupBox = new QGroupBox(WorldSettings);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
         groupBox->setFont(font1);
         horizontalLayout = new QHBoxLayout(groupBox);
         horizontalLayout->setSpacing(6);
@@ -136,6 +164,10 @@ public:
 
         horizontalLayout->addLayout(verticalLayout_3);
 
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer);
+
 
         verticalLayout->addWidget(groupBox);
 
@@ -180,6 +212,10 @@ public:
         comboBox->setObjectName(QString::fromUtf8("comboBox"));
 
         horizontalLayout_2->addWidget(comboBox);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer_2);
 
 
         verticalLayout->addWidget(groupBox_2);
@@ -267,6 +303,8 @@ public:
     {
         WorldSettings->setWindowTitle(QCoreApplication::translate("WorldSettings", "World Settings", nullptr));
         label_3->setText(QCoreApplication::translate("WorldSettings", "World Settings", nullptr));
+        groupBox_5->setTitle(QCoreApplication::translate("WorldSettings", "Environment Settings", nullptr));
+        useProcSkyboxChkBox->setText(QCoreApplication::translate("WorldSettings", "Use Procedural Skybox", nullptr));
         groupBox->setTitle(QCoreApplication::translate("WorldSettings", "Bloom Settings", nullptr));
         filterRadiusLbl->setText(QCoreApplication::translate("WorldSettings", "filterRadius", nullptr));
         strengthLbl->setText(QCoreApplication::translate("WorldSettings", "strength", nullptr));

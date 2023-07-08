@@ -397,7 +397,7 @@ namespace Razix {
 
                 if (childNode.numChildren)
                     CreateEntityHierarchy(&childNode, childEntity, rootMeshName, progressBar);
-            } 
+            }
         }
 
         void RZEMainWindow::Create_Import_Model()
@@ -483,6 +483,9 @@ namespace Razix {
 
             // Create the m_WorldSettingsWindow and connect it
             m_WorldSettingsWindow = new RZEWorldSettingsWindow;
+            // Register it with the DockManager
+            addDockableWidget(m_WorldSettingsWindow, "World Settings");
+            //m_WorldSettingsWindow->hide();
             connect(ui.actionWorld_Renderer_Settings, &QAction::triggered, this, &RZEMainWindow::Windows_WorldRendererSettings);
         }
         // Windows - Action = open/close Material Editor

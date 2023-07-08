@@ -15,6 +15,10 @@ namespace Razix {
             ~RZEWorldSettingsWindow();
 
         public slots:
+            // Environment Settings
+            void On_UseProceduralSkybox();
+
+            // Bloom Settings
             void On_SetFilterRadius();
             void On_SetStrength();
 

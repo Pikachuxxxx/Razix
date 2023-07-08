@@ -15,6 +15,8 @@
 
 #include "Razix/Graphics/RHI/API/RZShader.h"
 
+#include "Razix/Graphics/Resources/IRZResource.h"
+
 namespace Razix {
     namespace Graphics {
 

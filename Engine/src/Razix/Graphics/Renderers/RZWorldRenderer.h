@@ -5,7 +5,7 @@
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 
-#include "Razix/Graphics/FrameGraph/Resources/RZTransientResources.h"
+#include "Razix/Graphics/Resources/RZTransientResources.h"
 
 // Passes
 #include "Razix/Graphics/Passes/RZBloomPass.h"
@@ -92,7 +92,8 @@ namespace Razix {
                 int32_t numPropagations{6};
             } globalIlluminationConfig;
             u32         debugFlags{0u};
-            TonemapMode tonemapMode = ACES;
+            TonemapMode tonemapMode         = ACES;
+            bool        useProceduralSkybox = true;
         };
 
         /**
@@ -114,6 +115,8 @@ namespace Razix {
             void drawFrame(RZRendererSettings& settings, Razix::RZScene* scene);
             /* Destroy frame graph passes and it's resources */
             void destroy();
+
+            // Getters/Setters
 
         private:
             FrameGraph::RZFrameGraph         m_FrameGraph;
@@ -139,7 +142,7 @@ namespace Razix {
             RZForwardRenderer m_ForwardRenderer;
 
             // Other Variables
-            Maths::AABB                   m_SceneAABB;
+            Maths::AABB m_SceneAABB;
 
         private:
             /**

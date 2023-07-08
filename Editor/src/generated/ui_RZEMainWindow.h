@@ -179,7 +179,6 @@ public:
         menuFile->addAction(actionOpen_Project);
         menuFile->addAction(actionSave_Project);
         menuFile->addSeparator();
-        menuWindows->addAction(actionWorld_Renderer_Settings);
         menuGraphics->addAction(actionLighting_Settings);
         menuGraphics->addAction(actionEnvironment_Settings);
         menuCreate->addAction(actionEntity);
