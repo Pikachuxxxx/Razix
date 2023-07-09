@@ -27,7 +27,7 @@ namespace Razix {
             if (func != nullptr)
                 func(commandBuffer, pRenderingInfo);
             else
-                RAZIX_CORE_ERROR("Function not found");
+                RAZIX_CORE_ERROR("CmdBeginRenderingKHR Function not found");
         }
 
         static void CmdEndRenderingKHR(VkCommandBuffer commandBuffer)
@@ -36,7 +36,7 @@ namespace Razix {
             if (func != nullptr)
                 func(commandBuffer);
             else
-                RAZIX_CORE_ERROR("Function not found");
+                RAZIX_CORE_ERROR("CmdEndRenderingKHR Function not found");
         }
 
         VKRenderContext::VKRenderContext(u32 width, u32 height)
