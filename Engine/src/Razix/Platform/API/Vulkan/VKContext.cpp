@@ -38,6 +38,8 @@ namespace Razix {
             auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
             if (func != nullptr)
                 func(instance, debugMessenger, pAllocator);
+            else
+                RAZIX_CORE_ERROR("DestroyDebugUtilsMessengerEXT Function not found");
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -596,8 +596,8 @@ namespace Razix {
                 auto func = (PFN_vkCmdBeginDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdBeginDebugUtilsLabelEXT");
                 if (func != nullptr)
                     func(cmdBuffer, &label);
-                else
-                    RAZIX_CORE_ERROR("Function not found");
+                //else
+                //    RAZIX_CORE_ERROR("CmdBeginDebugUtilsLabelEXT Function not found");
             }
 
             void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color)
@@ -610,8 +610,8 @@ namespace Razix {
                 auto func = (PFN_vkCmdInsertDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdInsertDebugUtilsLabelEXT");
                 if (func != nullptr)
                     func(cmdBuffer, &label);
-                else
-                    RAZIX_CORE_ERROR("Function not found");
+                //else
+                //    RAZIX_CORE_ERROR("CmdInsertDebugUtilsLabelEXT Function not found");
             }
 
             void CmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer)
@@ -619,8 +619,8 @@ namespace Razix {
                 auto func = (PFN_vkCmdEndDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdEndDebugUtilsLabelEXT");
                 if (func != nullptr)
                     func(cmdBuffer);
-                else
-                    RAZIX_CORE_ERROR("Function not found");
+                //else
+                //    RAZIX_CORE_ERROR("CmdEndDebugUtilsLabelEXT Function not found");
             }
 
             VkResult CreateDebugObjName(const std::string& name, VkObjectType type, uint64_t handle)

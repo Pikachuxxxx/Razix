@@ -19,6 +19,8 @@
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 #endif
 
+#include "Razix/Graphics/Resources/RZResourceManager.h"
+
 namespace Razix {
 
     namespace Graphics {
@@ -31,6 +33,9 @@ namespace Razix {
         void RZGraphicsContext::Create(const WindowProperties& properties, RZWindow* window)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Initialize the Resource Manager here!
+            Graphics::RZResourceManager::Get().StartUp();
 
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL: s_Context = new OpenGLContext((GLFWwindow*) window->GetNativeWindow()); break;
@@ -45,6 +50,9 @@ namespace Razix {
 
         void RZGraphicsContext::Release()
         {
+            // Shutdown the Resource System
+            Graphics::RZResourceManager::Get().ShutDown();
+
             s_Context->Destroy();
             //delete s_Context; // This is causing unnecessary crashes
         }
@@ -57,7 +65,7 @@ namespace Razix {
                 case Razix::Graphics::RenderAPI::OPENGL: return static_cast<OpenGLContext*>(s_Context); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return static_cast<VKContext*>(s_Context); break;
                 case Razix::Graphics::RenderAPI::D3D11: return static_cast<DX11Context*>(s_Context); break;
-                case Razix::Graphics::RenderAPI::D3D12: return static_cast<DX12Context*>(s_Context); break  ;
+                case Razix::Graphics::RenderAPI::D3D12: return static_cast<DX12Context*>(s_Context); break;
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return s_Context; break;

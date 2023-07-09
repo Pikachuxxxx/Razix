@@ -23,7 +23,7 @@ namespace Razix {
             void ShutDown();
 
             template<class T>
-            RZResourcePoolTyped<T> getPool()
+            RZResourcePoolTyped<T>& getPool()
             {
                 if (typeid(T) == typeid(RZTexture2D))
                     return m_Texture2DPool;

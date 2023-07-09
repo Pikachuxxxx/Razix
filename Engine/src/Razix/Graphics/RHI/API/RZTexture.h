@@ -9,6 +9,8 @@
 
 #include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
 
+#define GET_INSTANCE_SIZE static u32 GetInstanceSize();
+
 namespace Razix {
     namespace Graphics {
 
@@ -124,6 +126,8 @@ namespace Razix {
             static RZTexture2D* CreateFromFile(
                 RZ_DEBUG_NAME_TAG_F_ARG const std::string& filePath, const RZTextureDesc& desc);
 
+            GET_INSTANCE_SIZE
+
             /**
              * Sets the pixel data for the 2D Texture 
              * 
@@ -152,6 +156,8 @@ namespace Razix {
              * @returns Pointer to Texture object of the underlying API
              */
             static RZTexture3D* Create(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
+
+            GET_INSTANCE_SIZE
         };
 
         //-----------------------------------------------------------------------------------

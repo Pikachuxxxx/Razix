@@ -85,7 +85,7 @@ public:
         }
     }
 };
- 
+
 Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
 {
     RAZIX_INFO("Creating Razix Sandbox Application [MemoryTest]");

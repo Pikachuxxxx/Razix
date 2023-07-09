@@ -14,7 +14,7 @@ namespace Razix {
 
             // TODO: Use static methods on resource to calculate the actual size of the underlying API class implementations
             // Initialize all the Pools
-            m_Texture2DPool.init(128, sizeof(RZTexture2D));
+            m_Texture2DPool.init(128, RZTexture2D::GetInstanceSize());
             //m_VertexBufferPool.init(128);
             //m_IndexBufferPool.init(128);
         }

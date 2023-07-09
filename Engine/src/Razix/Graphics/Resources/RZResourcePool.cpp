@@ -34,7 +34,7 @@ namespace Razix {
                 RAZIX_CORE_ERROR("Resource pool has un-freed resources.\n");
 
                 for (u32 i = 0; i < m_FreeIndicesHead; ++i) {
-                    RAZIX_CORE_ERROR("\tResource %u\n", m_FreeIndices[i]);
+                    RAZIX_CORE_ERROR("\tResource {0}\n", m_FreeIndices[i]);
                 }
             }
 
