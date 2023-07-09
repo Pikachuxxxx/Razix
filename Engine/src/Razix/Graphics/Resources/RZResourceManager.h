@@ -2,10 +2,11 @@
 
 #include "Razix/Core/RZHandle.h"
 
+#include "Razix/Graphics/Resources/RZResourcePool.h"
+
 #include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 
-#include "Razix/Graphics/Resources/RZResourcePool.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
 
