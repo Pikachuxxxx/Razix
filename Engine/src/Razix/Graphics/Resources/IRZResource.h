@@ -29,7 +29,7 @@ namespace Razix {
             }
 
             // This is the Magic right here, these will make sure new will allocate the memory from their respective ResourcePools, no need to use placement new and make things looks messy
-
+            // Operators are STATIC FUNCTIONS!
             void* operator new(size_t size);
             void* operator new[](size_t size);
             void* operator new[](size_t size, void* where);
@@ -79,17 +79,21 @@ namespace Razix {
         template<typename T>
         void IRZResource<T>::operator delete(void* pointer)
         {
-            // Memory is deallocated manually and we will never use delete
+            // Memory is deallocated manually using pool allocator indices and we will never use free
             // in fact crash the app if someone tried to use and issue a warning saying it's the wrong way to do it
-            //RZResourceManager::Get().getPool<T>().release(m_Handle.getIndex());
+            // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
+            auto res = (IRZResource*) (pointer);
+            RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
         }
 
         template<typename T>
         void IRZResource<T>::operator delete[](void* pointer)
         {
-            // Memory is deallocated manually and we will never use delete
+            // Memory is deallocated manually using pool allocator indices and we will never use free
             // in fact crash the app if someone tried to use and issue a warning saying it's the wrong way to do it
-            //RZResourceManager::Get().getPool<T>().release(idx);
+            // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
+            auto res = (IRZResource*) (pointer);
+            RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
         }
 
     }    // namespace Graphics
