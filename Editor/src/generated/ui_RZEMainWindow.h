@@ -16,6 +16,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -56,7 +57,11 @@ public:
     QAction *actionRestore_layout;
     QAction *actionClear_layout;
     QAction *actionWorld_Renderer_Settings;
+    QAction *actionProject_Settings;
+    QAction *actionEngine_Settings;
+    QAction *actionDebug_Modes;
     QWidget *centralwidget;
+    QVBoxLayout *verticalLayout_2;
     QMenuBar *menubar;
     QMenu *menuFile;
     QMenu *menuEdit;
@@ -140,8 +145,16 @@ public:
         actionClear_layout->setObjectName(QString::fromUtf8("actionClear_layout"));
         actionWorld_Renderer_Settings = new QAction(MainWindow);
         actionWorld_Renderer_Settings->setObjectName(QString::fromUtf8("actionWorld_Renderer_Settings"));
+        actionProject_Settings = new QAction(MainWindow);
+        actionProject_Settings->setObjectName(QString::fromUtf8("actionProject_Settings"));
+        actionEngine_Settings = new QAction(MainWindow);
+        actionEngine_Settings->setObjectName(QString::fromUtf8("actionEngine_Settings"));
+        actionDebug_Modes = new QAction(MainWindow);
+        actionDebug_Modes->setObjectName(QString::fromUtf8("actionDebug_Modes"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
+        verticalLayout_2 = new QVBoxLayout(centralwidget);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -179,8 +192,11 @@ public:
         menuFile->addAction(actionOpen_Project);
         menuFile->addAction(actionSave_Project);
         menuFile->addSeparator();
+        menuEdit->addAction(actionProject_Settings);
+        menuEdit->addAction(actionEngine_Settings);
         menuGraphics->addAction(actionLighting_Settings);
         menuGraphics->addAction(actionEnvironment_Settings);
+        menuGraphics->addAction(actionDebug_Modes);
         menuCreate->addAction(actionEntity);
         menuCreate->addAction(menuComponent->menuAction());
         menuCreate->addAction(actionLua_Script);
@@ -245,6 +261,9 @@ public:
         actionRestore_layout->setText(QCoreApplication::translate("MainWindow", "Restore layout", nullptr));
         actionClear_layout->setText(QCoreApplication::translate("MainWindow", "Clear layout", nullptr));
         actionWorld_Renderer_Settings->setText(QCoreApplication::translate("MainWindow", "World Renderer Settings", nullptr));
+        actionProject_Settings->setText(QCoreApplication::translate("MainWindow", "Project Settings", nullptr));
+        actionEngine_Settings->setText(QCoreApplication::translate("MainWindow", "Engine Settings", nullptr));
+        actionDebug_Modes->setText(QCoreApplication::translate("MainWindow", "Debug Modes", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuEdit->setTitle(QCoreApplication::translate("MainWindow", "Edit", nullptr));
         menuWindows->setTitle(QCoreApplication::translate("MainWindow", "Windows", nullptr));

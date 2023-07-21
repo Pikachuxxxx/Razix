@@ -338,7 +338,7 @@ namespace Razix {
         // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
 
-        // FLip the swapchain to present the rendered image
+        // FLip the swap chain to present the rendered image
         //swapchain->Flip();
 
         {
@@ -350,7 +350,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;

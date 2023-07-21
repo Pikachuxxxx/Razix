@@ -13,7 +13,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2"/>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -36,6 +38,8 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionProject_Settings"/>
+    <addaction name="actionEngine_Settings"/>
    </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="title">
@@ -48,6 +52,7 @@
     </property>
     <addaction name="actionLighting_Settings"/>
     <addaction name="actionEnvironment_Settings"/>
+    <addaction name="actionDebug_Modes"/>
    </widget>
    <widget class="QMenu" name="menuCreate">
     <property name="title">
@@ -267,6 +272,21 @@
   <action name="actionWorld_Renderer_Settings">
    <property name="text">
     <string>World Renderer Settings</string>
+   </property>
+  </action>
+  <action name="actionProject_Settings">
+   <property name="text">
+    <string>Project Settings</string>
+   </property>
+  </action>
+  <action name="actionEngine_Settings">
+   <property name="text">
+    <string>Engine Settings</string>
+   </property>
+  </action>
+  <action name="actionDebug_Modes">
+   <property name="text">
+    <string>Debug Modes</string>
    </property>
   </action>
  </widget>

@@ -17,6 +17,8 @@ namespace Razix {
 
         std::shared_ptr<spdlog::logger> RZLog::s_CoreLogger;
         std::shared_ptr<spdlog::logger> RZLog::s_ApplicationLogger;
+        std::vector<spdlog::sink_ptr>   RZLog::s_CoreLoggerSinks;
+        std::vector<spdlog::sink_ptr>   RZLog::s_AppLoggerSinks;
 
         void RZLog::StartUp()
         {
@@ -28,6 +30,10 @@ namespace Razix {
 
             s_CoreLogger = spdlog::stdout_color_mt(coreLoggerName.str());
             s_CoreLogger->set_level(spdlog::level::trace);
+            // Add the sinks
+            auto& core_sinks = s_CoreLogger->sinks();
+            core_sinks.insert(core_sinks.end(), s_CoreLoggerSinks.begin(), s_CoreLoggerSinks.end());
+
             RAZIX_CORE_INFO("Starting Up Core Engine Logger");
             Razix::RZSplashScreen::Get().setLogString("Starting Up Core Engine Logger");
 
@@ -37,6 +43,9 @@ namespace Razix {
             appLoggerName << std::setw(18) << std::left << "Razix Application";
 
             s_ApplicationLogger = spdlog::stdout_color_mt(appLoggerName.str());
+            // Add the sinks
+            auto& app_sinks = s_ApplicationLogger->sinks();
+            app_sinks.insert(app_sinks.end(), s_AppLoggerSinks.begin(), s_AppLoggerSinks.end());
             s_ApplicationLogger->set_level(spdlog::level::trace);
             RAZIX_INFO("Starting Up Engine Application Logger");
             Razix::RZSplashScreen::Get().setLogString("Starting Up Engine Application Logger");

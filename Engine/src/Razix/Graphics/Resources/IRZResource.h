@@ -52,6 +52,7 @@ namespace Razix {
             RZHandle<T>             m_Handle;
             std::string             m_ResourceName;
 
+        private:
             //template<typename U>
             //friend RZResourcePoolTyped<U>;
         };
@@ -95,6 +96,5 @@ namespace Razix {
             auto res = (IRZResource*) (pointer);
             RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
         }
-
     }    // namespace Graphics
 }    // namespace Razix

@@ -20,7 +20,7 @@
 namespace Razix {
     namespace Graphics {
 
-        #define GET_INSTANCE_SIZE_IMPL(TYPE)                                                        \
+#define GET_INSTANCE_SIZE_IMPL(TYPE)                                                        \
     u32 TYPE::GetInstanceSize()                                                             \
     {                                                                                       \
         switch (Graphics::RZGraphicsContext::GetRenderAPI()) {                              \
@@ -36,7 +36,6 @@ namespace Razix {
 
         GET_INSTANCE_SIZE_IMPL(RZTexture2D)
         GET_INSTANCE_SIZE_IMPL(RZTexture3D)
-
 
         //-----------------------------------------------------------------------------------
         // Texture
@@ -104,6 +103,7 @@ namespace Razix {
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture2D(desc); break;
+                //case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture2D(RZ_DEBUG_F_ARG_NAME desc))->getHandle(); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKTexture2D(RZ_DEBUG_F_ARG_NAME desc); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
