@@ -3,16 +3,16 @@
 #include "generated/ui_RZEMainWindow.h"
 #include "generated/ui_RZEViewport.h"
 
-#include "QtADS/DockManager.h"
-
-#include "UI/Windows/RZEMaterialEditor.h"
-
 #include <QCloseEvent>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QToolBar>
 
+#include "QtADS/DockManager.h"
+#include "qspdlog/qspdlog.hpp"
+
+#include "UI/Windows/RZEMaterialEditor.h"
 #include "UI/Windows/RZEWorldSettingsWindow.h"
 
 #include "Razix/Core/RZApplication.h"
@@ -46,6 +46,8 @@ namespace Razix {
 
             void setProjectPathDir(const std::string& path) { m_ProjectPathDir = path; }
             void restoreLayout() { Layout_Restore(); }
+
+            inline spdlog::sink_ptr getConsolerLoggerSink() { return m_ConsoleLogWidget->sink(); }
 
         signals:
             void OnEntityAddedToScene();
@@ -82,6 +84,7 @@ namespace Razix {
 
             // Windows
             RZEWorldSettingsWindow* m_WorldSettingsWindow;
+            QSpdLog*                m_ConsoleLogWidget;
 
             std::string m_ProjectPathDir;
 

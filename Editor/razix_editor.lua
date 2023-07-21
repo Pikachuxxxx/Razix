@@ -82,10 +82,7 @@ project "RazixEditor"
         -- Extensions
         "../Editor/src/Extensions",
         "../Editor/src/Extensions/QtADS",
-        "../Editor/vendor/QtNodes/src/",
-        "../Editor/vendor/QtNodes/include",
-        "../Editor/vendor/QtNodes/include/QtNodes",
-        "../Editor/vendor/QtNodes/include/QtNodes/internal"
+        "../Editor/src/Extensions/qspdlog/include"
     }
 
     includedirs
@@ -120,10 +117,7 @@ project "RazixEditor"
         -- Extensions
         "../Editor/src/Extensions",
         "../Editor/src/Extensions/QtADS",
-        "../Editor/vendor/QtNodes/src/",
-        "../Editor/vendor/QtNodes/include",
-        "../Editor/vendor/QtNodes/include/QtNodes",
-        "../Editor/vendor/QtNodes/include/QtNodes/internal"
+        "../Editor/src/Extensions/qspdlog/include"
     }
 
     links
@@ -131,22 +125,22 @@ project "RazixEditor"
         -- ofc links to Razix Engine after all
         "Razix",
         -- because of the client log macros this needs to be linked again because we didn't export the spdlog symbols first time
-       "glfw",
-       "imgui",
-       "ImGui.lib",
-       "spdlog",
-       "SPIRVReflect",
-       "SPIRVCross",
-       "meshoptimizer",
-       "OpenFBX",
-       "lua",
-       "optick",
-       "tracy",
-       -- Internal
-       "RazixMemory",
-       "QtNodeGraph",
-       -- Razix Tools
-       "RazixAssetPacker"
+        "glfw",
+        "imgui",
+        "ImGui.lib",
+        "spdlog",
+        "SPIRVReflect",
+        "SPIRVCross",
+        "meshoptimizer",
+        "OpenFBX",
+        "lua",
+        "optick",
+        "tracy",
+        -- Internal
+        "RazixMemory",
+        "QtNodeGraph",
+        -- Razix Tools
+        "RazixAssetPacker"
     }
 
     libdirs

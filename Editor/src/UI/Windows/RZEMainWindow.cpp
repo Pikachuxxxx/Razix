@@ -11,6 +11,8 @@
 #include <QTimer>
 #include <QWidgetAction>
 
+#include "qspdlog/src/qspdlog_toolbar.hpp"
+
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Scene/RZEntity.h"
 
@@ -40,8 +42,21 @@ namespace Razix {
             // Link the UI file with this class
             ui.setupUi(this);
 
+            // Create the dock manager after the ui is setup. Because the
+            // parent parameter is a QMainWindow the dock manager registers
+            // itself as the central widget as such the ui must be set up first.
             m_DockManager = new ads::CDockManager(this);
             m_DockManager->setStyleSheet("");
+
+            // Qt spdlog console widget
+            m_ConsoleLogWidget = new QSpdLog;
+            m_ConsoleLogWidget->setObjectName("Razix Console Log");
+            m_ConsoleLogWidget->setMaxEntries(500);
+            QSpdLogToolBar* consoleToolBar = new QSpdLogToolBar();
+            m_ConsoleLogWidget->registerToolbar(consoleToolBar);
+            dynamic_cast<QVBoxLayout*>(m_ConsoleLogWidget->layout())->insertWidget(0, consoleToolBar);
+
+            addDockableWidget(m_ConsoleLogWidget, "Console Log");
 
             // Set this to every window that one wished to save/restore the state with the LayoutToolWindowManager
             setObjectName(this->windowTitle());
@@ -57,6 +72,7 @@ namespace Razix {
             layout->setMargin(0);
             ui.statusbar->addWidget(widget, 1);
             ui.statusbar->setContentsMargins(0, 0, 0, 0);
+            ui.statusbar->setMinimumHeight(50);
 
             // Add a FPS label to the progress bar
             m_FPSLblSB             = new QLabel;
@@ -72,6 +88,12 @@ namespace Razix {
             //m_StatusProgressBar = new QProgressBar;
             //m_StatusProgressBar->setRange(0, 100);
             //layout->addWidget(m_StatusProgressBar, 0, 0, 1, 1, Qt::AlignVCenter | Qt::AlignRight);
+
+            // Custom TitleBar
+            // Remove the TitleBar first
+            //setWindowFlag(Qt::FramelessWindowHint);
+            // Add events to handle moving and resizing
+            // Add Custom title bar buttons, labels etc.
 
             // Menu Init
             SetupMenu();

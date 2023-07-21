@@ -238,6 +238,9 @@ int main(int argc, char** argv)
     //mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     mainWindow->setProjectPathDir(projectBrowserDialog->getProjectPath());
 
+    // Register the Qt Consoler Logger Sinks
+    Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getConsolerLoggerSink());
+
     // Init the Windows
     materialEditor = new Razix::Editor::RZEMaterialEditor;
     //mainWindow->getToolWindowManager()->addToolWindow(materialEditor, ToolWindowManager::AreaReference(ToolWindowManager::RightWindowSide));
@@ -314,7 +317,6 @@ int main(int argc, char** argv)
 
     //engineLoop->launch();
     qengineThread->start();
-
 
     int r = qrzeditorApp->exec();
 
