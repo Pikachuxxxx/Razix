@@ -48,8 +48,9 @@ QFrame {
 QGroupBox {
   padding-top: 10px; }
   QGroupBox::title {
-    padding: 0px; }
-
+    padding: 0px; 
+    color: #c0c0c0;
+}
 
 QMenuBar {
   background-color: #151515;

@@ -29,8 +29,8 @@ namespace Razix {
         private:
             u8*  m_MemoryChunk     = nullptr;
             u32* m_FreeIndices     = nullptr;
-            u32  m_PoolSize        = 16;
-            u32  m_ResourceSize    = 4;
+            u32  m_PoolSize        = 0;
+            u32  m_ResourceSize    = 0;
             u32  m_FreeIndicesHead = 0;
             u32  m_UsedIndices     = 0;
         };

@@ -339,6 +339,8 @@ namespace Razix {
 
             if (m_ImageMemory != VK_NULL_HANDLE)
                 vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+
+            //delete this;
         }
 
         void VKTexture2D::updateDescriptor()

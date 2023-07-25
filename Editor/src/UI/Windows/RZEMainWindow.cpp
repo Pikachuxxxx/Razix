@@ -72,7 +72,7 @@ namespace Razix {
             layout->setMargin(0);
             ui.statusbar->addWidget(widget, 1);
             ui.statusbar->setContentsMargins(0, 0, 0, 0);
-            ui.statusbar->setMinimumHeight(50);
+            ui.statusbar->setMinimumHeight(25);
 
             // Add a FPS label to the progress bar
             m_FPSLblSB             = new QLabel;

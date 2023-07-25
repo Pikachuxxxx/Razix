@@ -125,7 +125,7 @@ namespace Razix {
 
         // TODO: Load any other Engine systems that needs to be done only in the Application
         // Destroy the Splash Screen before we create the window
-        Razix::RZSplashScreen::Get().destroy();
+        //Razix::RZSplashScreen::Get().destroy();
 
         // Create the Window only if it's not set before (using the native window pointer, usually done by the QT editor)
         if (m_Window == nullptr) {
@@ -262,12 +262,15 @@ namespace Razix {
 
     void RZApplication::Run()
     {
+        Razix::RZSplashScreen::Get().setLogString("Initializing RHI...");
+
         // Create the API renderer to issue render commands
         Graphics::RHI::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
         Graphics::RHI::Init();
 
         // TODO: Job system and Engine Systems(run-time) Initialization
+        Razix::RZSplashScreen::Get().setLogString("Loading Scene...");
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
@@ -276,9 +279,17 @@ namespace Razix {
         // Load a scene into memory
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
 
+        Razix::RZSplashScreen::Get().setLogString("Scene Loading Successful...");
+
+        Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
+
         Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), Razix::RZEngine::Get().getSceneManager().getCurrentScene());
 
         m_CurrentState = AppState::Running;
+
+        Razix::RZSplashScreen::Get().setLogString("Starting Razix Application...");
+
+        Razix::RZSplashScreen::Get().destroy();
 
         //m_GPUProfiler.Init(&RZCPUMemoryManager::Get().getSystemAllocator(), RAZIX_MAX_FRAMES, 32);
 
