@@ -29,7 +29,7 @@ namespace Razix {
             }
 
             // This is the Magic right here, these will make sure new will allocate the memory from their respective ResourcePools, no need to use placement new and make things looks messy
-            // Operators are STATIC FUNCTIONS!
+            // Note: Operators are STATIC FUNCTIONS!
             void* operator new(size_t size);
             void* operator new[](size_t size);
             void* operator new[](size_t size, void* where);
@@ -67,12 +67,15 @@ namespace Razix {
         template<typename T>
         void* IRZResource<T>::operator new[](size_t size)
         {
+            // Return the pre allocated memory from it's respective Resource Memory Pool
             return RZResourceManager::Get().getPool<T>().obtain();
         }
 
         template<typename T>
         void* IRZResource<T>::operator new[](size_t size, void* where)
         {
+            // Placement new DOES nothing at this point, throw and error if we allocate memory from pool this way
+            RAZIX_ASSERT(false, "[Resource] Placement new cannot be used to allocate memory! Please use T::Create or RZResourceManager::CreateXXX(TDesc&)");
             (void) size;
             return (where);
         }

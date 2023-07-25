@@ -23,10 +23,14 @@ namespace Razix {
             m_BoxVLayout->addWidget(m_ChildWidget);
 
             connect(m_Header, SIGNAL(clicked()), this, SLOT(toggleCollapse()));
+
+            // Start in collapsed
+            toggleCollapse();
         }
 
         RZECollapsingHeader::~RZECollapsingHeader()
-        {}
+        {
+        }
 
         RZEHeaderFrame::RZEHeaderFrame(QString& headerTitle, QIcon* icon /*= nullptr*/, bool isCollapsed /*= true*/, QWidget* parent /*= nullptr*/)
             : QFrame(parent)
@@ -42,7 +46,7 @@ namespace Razix {
             arrow = new Arrow(this);
             Hlayout->addWidget(arrow);
 
-            auto pixmap     = icon->pixmap(20, 20);
+            auto pixmap = icon->pixmap(20, 20);
 
             if (icon != nullptr) {
                 auto iconLbl = new QLabel();

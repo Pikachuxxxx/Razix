@@ -20,6 +20,7 @@
 #include "UI/Windows/RZEContentBrowserWindow.h"
 #include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEMainWindow.h"
+#include "UI/Windows/RZEResourceViewer.h"
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
@@ -42,6 +43,7 @@ Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
 Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
 Razix::Editor::RZEProjectBrowser*       projectBrowserDialog;
 Razix::Editor::RZEMaterialEditor*       materialEditor;
+Razix::Editor::RZEResourceViewer*       resourceViewer;
 
 Razix::Editor::RZEFrameGraphEditor* framegraphEditor;
 
@@ -86,11 +88,15 @@ public:
 
         Razix::RZApplication::Get().Init();
 
+        // Add any QT UI after the Application start up
         QMetaObject::invokeMethod(qrzeditorApp, [] {
+            // We defer the content browser until a later stage for the engine to mount VFS
             contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
-            //mainWindow->getToolWindowManager()->addToolWindow(contentBrowserWindow, ToolWindowManager::AreaReference(ToolWindowManager::BottomOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
-
             mainWindow->addDockableWidget(contentBrowserWindow, "Content Browser");
+
+            // We defer resource view UI until after the Post-Graphics initialization and API has been initialized
+            resourceViewer = new Razix::Editor::RZEResourceViewer;
+            mainWindow->addDockableWidget(resourceViewer, "Resource Viewer");
         });
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);

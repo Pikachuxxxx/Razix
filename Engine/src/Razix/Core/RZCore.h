@@ -163,10 +163,6 @@
 #define RAZIX_INLINE       inline
 #define RAZIX_FORCE_INLINE __forceinline
 
-#ifdef RAZIX_DISTRIBUTION
-    #define RAZIX_INLINE RAZIX_FORCE_INLINE
-#endif
-
 // Release for API convention consistency
 //#define RAZIX_RELEASE(x)            \
 //    {                               \

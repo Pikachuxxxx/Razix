@@ -28,7 +28,6 @@ namespace Razix {
 
         static void Construct();
 
-
         void Destroy() override;
 
     private:
