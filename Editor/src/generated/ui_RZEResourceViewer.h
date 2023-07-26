@@ -31,19 +31,19 @@ public:
     QGroupBox *ResourceListGroup;
     QHBoxLayout *horizontalLayout;
     QTableWidget *ResourcesTable;
-    QSpacerItem *verticalSpacer;
 
     void setupUi(QWidget *ResourceViewer)
     {
         if (ResourceViewer->objectName().isEmpty())
             ResourceViewer->setObjectName(QString::fromUtf8("ResourceViewer"));
-        ResourceViewer->resize(1150, 167);
+        ResourceViewer->resize(1150, 723);
         verticalLayout = new QVBoxLayout(ResourceViewer);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         PoolGroup = new QGroupBox(ResourceViewer);
         PoolGroup->setObjectName(QString::fromUtf8("PoolGroup"));
+        PoolGroup->setMaximumSize(QSize(16777215, 300));
         PoolGroupVLayout = new QVBoxLayout(PoolGroup);
         PoolGroupVLayout->setSpacing(6);
         PoolGroupVLayout->setContentsMargins(11, 11, 11, 11);
@@ -95,10 +95,6 @@ public:
 
 
         verticalLayout->addWidget(ResourceListGroup);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout->addItem(verticalSpacer);
 
 
         retranslateUi(ResourceViewer);
