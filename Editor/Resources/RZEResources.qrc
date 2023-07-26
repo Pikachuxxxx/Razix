@@ -46,5 +46,6 @@
         <file>styles/icons/uncheck.png</file>
         <file>styles/icons/unradio.png</file>
         <file>styles/ue.qss</file>
+        <file>memory_pool_icon.png</file>
     </qresource>
 </RCC>

@@ -15,29 +15,33 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Features
 - Support for Windows, Linux, macOS, PSVita and PS3 systems.
 - Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
-- Framegraph based on EA's frostbite engine (currently code-driven)
-- 3D audio using OpenAL.
+- Framegraph based on EA's frostbite engine (currently code-driven) **WIP Node Editor**
+| Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_WIP.png" width="200"> |
+| ------------- | ------------- |
+- 3D audio using OpenAL
 - Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
 - Level Editor & tools built using QT
 - Multi Physics engine support.
 - 3D physics using Jolt.
 - Basic lua scripting support for entities.
-- Extremely detailed profiling using Tracy, RenderDoc and Razor integrated deep into the engine systems.
-- Custom Animation and state machine engine
-- Supports GLSL, HLSL shading languages to create custom materials + Custom Raziz Shaders files for easy compilation
-- Asset streaming pipeline and custom asset format
-- Data drive pipeline architecture
+- Extremely detailed profiling using Tracy and RenderDoc integrated
+- Supports GLSL, HLSL shading languages to create custom materials + Custom Razix Shaders files for easy compilation
+- Resource Pool base management and custom asset format
+| Resource Viewer | <img src="./Branding/DemoImages/ReleaseNotes/ResourceViewerPreview.png" width="200"> |
+| ------------- | ------------- |
+- Data drive pipeline architecture - **WIP**
 - Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
 
 
 # Tools
 Razix also provides a rich set of GUI and Commmand Line [**Tools**](https://github.com/Pikachuxxxx/Razix/tree/master/Tools) along with the Editor for various purposes such as
-- [**Razix Code Editor**](https://github.com/Pikachuxxxx/RazixCodeEditor) - Shaders and Scripts code editor for Razix Engine
+- [**Razix Asset Packer**](https://github.com/Pikachuxxxx/RazixAssetPacker) - **CLI Tool + API for Editor** - Export 3D Models into custom razix format Meshes and Materials
+- [**Razix Code Editor**](https://github.com/Pikachuxxxx/RazixCodeEditor) - Shaders and Scripts code editor for Razix Engine (Sony ATF)
+
 ### TODO
     - Blender exporter and Importer for model and navmesh formats
-    - Razix Asset packer
     - Blender Integration
-    - Script debugger
+    - Script debugger for Lua
 
 # RoadMap
 
@@ -50,8 +54,8 @@ More information will be update on creating PRs and other ways to contribute to 
 Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Screenshots/Demos
-![Editor](./Branding/DemoImages/ReleaseNotes/Razix_Engine_Volumetric_Clouds.png)
 ![Editor](./Branding/DemoImages/ReleaseNotes/Razix_Editor_CornellBox_PBR_demo.png)
+![Editor](./Branding/DemoImages/ReleaseNotes/Razix_Engine_Volumetric_Clouds.png)
 
 # Architecture
 
@@ -60,7 +64,7 @@ Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 **ex. Lua Scriping API cheatsheet** ![Lua Scriping API cheatsheet](./Docs/RazixLuaScriptingAPICheatSheet.png)
 
-**For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description 
+**For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description
 ex. Core Systems ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png)**
 
 # Changelog and Release Notes

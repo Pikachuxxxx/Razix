@@ -494,7 +494,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.6194790601730347,
+            "AspectRatio": 1.0615034103393555,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,

@@ -5,7 +5,7 @@
 
 #include "UI/Widgets/RZECollapsingHeader.h"
 
-#include "ui/Widgets/RZEMemoryPoolView.h"
+#include "ui/Widgets/RZEMemoryPoolGraphicsView.h"
 
 namespace Razix {
     namespace Editor {
@@ -17,27 +17,37 @@ namespace Razix {
 
             setObjectName("Resource Viewer");
 
-            QGraphicsView*       m_PoolView        = new QGraphicsView;
-            MemoryGraphicsScene* m_MemoryPoolScene = new MemoryGraphicsScene;
-            m_PoolView->setScene(m_MemoryPoolScene);
-            m_PoolView->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
-            m_PoolView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-            m_PoolView->setMaximumHeight(200);
-            m_PoolView->setMinimumHeight(200);
+            auto pool_0 = new MemoryPoolView(448 * 1024 * 1024, 128, 48, "Texture2D");
+            pool_0->m_View->setOccupiedElements(64);
+            auto pool_1 = new MemoryPoolView(128 * 1024 * 1024, 64, 32, "VertexBuffer");
+            pool_1->m_View->setOccupiedElements(16);
 
-            // Add a Item for Pool_0 to the scene
-            auto poolItem = new RZEMemoryPoolView;
-            m_MemoryPoolScene->addItem(poolItem);
+            auto testCollapsingHeaderPool_0 = new RZECollapsingHeader(QString("Pool_0 - Texture2D"), pool_0->m_GraphicsView, new QIcon(":/rzeditor/memory_pool_icon.png"));
+            ui.PoolGroupVLayout->insertWidget(0, testCollapsingHeaderPool_0);
 
-            auto testCollapsingHeaderPool = new RZECollapsingHeader(QString("Pool_0 - Texture2D"), m_PoolView, new QIcon(":/rzeditor/memory_pool_icon.png"));
-            testCollapsingHeaderPool->setMaximumHeight(200);
-            testCollapsingHeaderPool->setMinimumHeight(200);
-            ui.PoolGroupVLayout->addWidget(testCollapsingHeaderPool);
+            auto testCollapsingHeaderPool_1 = new RZECollapsingHeader(QString("Pool_1 - VertexBuffer"), pool_1->m_GraphicsView, new QIcon(":/rzeditor/memory_pool_icon.png"));
+            testCollapsingHeaderPool_1->setMaximumHeight(200);
+            testCollapsingHeaderPool_1->setMinimumHeight(200);
+            //ui.PoolGroupVLayout->insertWidget(1, testCollapsingHeaderPool_1);
         }
 
         RZEResourceViewer::~RZEResourceViewer()
         {
         }
 
+        MemoryPoolView::MemoryPoolView(u32 totalSize, u32 capacity, u32 elementSize, const std::string& typeName)
+        {
+            m_GraphicsView    = new QGraphicsView;
+            m_MemoryPoolScene = new MemoryGraphicsScene;
+            m_GraphicsView->setScene(m_MemoryPoolScene);
+            m_GraphicsView->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+            m_GraphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+            m_GraphicsView->setMaximumHeight(200);
+            m_GraphicsView->setMinimumHeight(200);
+
+            // Add a Item for Pool_0 to the scene
+            m_View = new RZEMemoryPoolGraphicsView(totalSize, capacity, elementSize, typeName);
+            m_MemoryPoolScene->addItem(m_View);
+        }
     }    // namespace Editor
 }    // namespace Razix

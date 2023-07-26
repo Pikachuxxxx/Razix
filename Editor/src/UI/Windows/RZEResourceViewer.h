@@ -6,6 +6,8 @@
 #include <QGraphicsView>
 #include <QWidget>
 
+#include "UI/Widgets/RZEMemoryPoolGraphicsView.h"
+
 namespace Razix {
     namespace Editor {
 
@@ -18,7 +20,7 @@ namespace Razix {
                 m_LightColor = QColor("#1F1F1F");
                 m_LightPen.setColor(m_LightColor);
                 m_LightPen.setWidth(1.0f);
-                // setSceneRect(0, 0, 100, 100);
+                //setSceneRect(0, 0, 200, 400);
                 setBackgroundBrush(QBrush(QColor("#292929")));
             }
             ~MemoryGraphicsScene() {}
@@ -52,6 +54,16 @@ namespace Razix {
             QColor   m_LightColor;
             QPen     m_LightPen;
             uint32_t m_GridSize = 25;
+        };
+
+        class MemoryPoolView
+        {
+        public:
+            RZEMemoryPoolGraphicsView *m_View;
+            QGraphicsView             *m_GraphicsView;
+            MemoryGraphicsScene       *m_MemoryPoolScene;
+
+            MemoryPoolView(u32 totalSize, u32 capacity, u32 elementSize, const std::string &typeName);
         };
 
         class RZEResourceViewer : public QWidget
