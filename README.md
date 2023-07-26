@@ -15,9 +15,11 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Features
 - Support for Windows, Linux, macOS, PSVita and PS3 systems.
 - Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
-- Framegraph based on EA's frostbite engine (currently code-driven) **WIP Node Editor**
-| Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_WIP.png" width="200"> |
+- Framegraph based on EA's frostbite engine (currently code-driven) **WIP custom [Node Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
+
+| Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_WIP.png" width="200"> |  
 | ------------- | ------------- |
+
 - 3D audio using OpenAL
 - Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
 - Level Editor & tools built using QT
@@ -27,8 +29,10 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Extremely detailed profiling using Tracy and RenderDoc integrated
 - Supports GLSL, HLSL shading languages to create custom materials + Custom Razix Shaders files for easy compilation
 - Resource Pool base management and custom asset format
-| Resource Viewer | <img src="./Branding/DemoImages/ReleaseNotes/ResourceViewerPreview.png" width="200"> |
+
+| Resource Viewer | <img src="./Branding/DemoImages/ReleaseNotes/ResourceViewerPreview.png" width="200"> |  
 | ------------- | ------------- |
+
 - Data drive pipeline architecture - **WIP**
 - Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
 
