@@ -15,8 +15,8 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Features
 - Support for Windows, Linux, macOS, PSVita and PS3 systems.
 - Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
-- Framegraph based on EA's frostbite engine (currently code-driven) **WIP Node Editor**
-  
+- Framegraph based on EA's frostbite engine (currently code-driven) **WIP custom [Node Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
+
 | Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_WIP.png" width="200"> |  
 | ------------- | ------------- |
 
