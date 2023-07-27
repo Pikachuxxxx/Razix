@@ -12,6 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGroupBox>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QVBoxLayout>
@@ -26,7 +27,7 @@ public:
     QGroupBox *PoolGroup;
     QVBoxLayout *PoolGroupVLayout;
     QGroupBox *ResourceListGroup;
-    QVBoxLayout *verticalLayout_2;
+    QHBoxLayout *horizontalLayout;
     QTableWidget *ResourcesTable;
 
     void setupUi(QWidget *ResourceViewer)
@@ -57,14 +58,14 @@ public:
 
         ResourceListGroup = new QGroupBox(ResourceViewer);
         ResourceListGroup->setObjectName(QString::fromUtf8("ResourceListGroup"));
-        verticalLayout_2 = new QVBoxLayout(ResourceListGroup);
-        verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        verticalLayout_2->setContentsMargins(9, 9, 9, 9);
+        horizontalLayout = new QHBoxLayout(ResourceListGroup);
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setContentsMargins(9, 9, 9, 9);
         ResourcesTable = new QTableWidget(ResourceListGroup);
-        if (ResourcesTable->columnCount() < 11)
-            ResourcesTable->setColumnCount(11);
+        if (ResourcesTable->columnCount() < 10)
+            ResourcesTable->setColumnCount(10);
         QTableWidgetItem *__qtablewidgetitem = new QTableWidgetItem();
         ResourcesTable->setHorizontalHeaderItem(0, __qtablewidgetitem);
         QTableWidgetItem *__qtablewidgetitem1 = new QTableWidgetItem();
@@ -85,14 +86,19 @@ public:
         ResourcesTable->setHorizontalHeaderItem(8, __qtablewidgetitem8);
         QTableWidgetItem *__qtablewidgetitem9 = new QTableWidgetItem();
         ResourcesTable->setHorizontalHeaderItem(9, __qtablewidgetitem9);
-        QTableWidgetItem *__qtablewidgetitem10 = new QTableWidgetItem();
-        ResourcesTable->setHorizontalHeaderItem(10, __qtablewidgetitem10);
         ResourcesTable->setObjectName(QString::fromUtf8("ResourcesTable"));
-        ResourcesTable->horizontalHeader()->setProperty("showSortIndicator", QVariant(true));
+        ResourcesTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        ResourcesTable->setWordWrap(false);
+        ResourcesTable->setCornerButtonEnabled(false);
+        ResourcesTable->setColumnCount(10);
+        ResourcesTable->horizontalHeader()->setVisible(true);
+        ResourcesTable->horizontalHeader()->setCascadingSectionResizes(false);
+        ResourcesTable->horizontalHeader()->setProperty("showSortIndicator", QVariant(false));
         ResourcesTable->horizontalHeader()->setStretchLastSection(true);
+        ResourcesTable->verticalHeader()->setVisible(false);
         ResourcesTable->verticalHeader()->setCascadingSectionResizes(true);
 
-        verticalLayout_2->addWidget(ResourcesTable);
+        horizontalLayout->addWidget(ResourcesTable);
 
 
         verticalLayout->addWidget(ResourceListGroup);
@@ -111,25 +117,23 @@ public:
         QTableWidgetItem *___qtablewidgetitem = ResourcesTable->horizontalHeaderItem(0);
         ___qtablewidgetitem->setText(QCoreApplication::translate("ResourceViewer", "UUID", nullptr));
         QTableWidgetItem *___qtablewidgetitem1 = ResourcesTable->horizontalHeaderItem(1);
-        ___qtablewidgetitem1->setText(QCoreApplication::translate("ResourceViewer", "ID", nullptr));
+        ___qtablewidgetitem1->setText(QCoreApplication::translate("ResourceViewer", "Pool", nullptr));
         QTableWidgetItem *___qtablewidgetitem2 = ResourcesTable->horizontalHeaderItem(2);
-        ___qtablewidgetitem2->setText(QCoreApplication::translate("ResourceViewer", "Pool", nullptr));
+        ___qtablewidgetitem2->setText(QCoreApplication::translate("ResourceViewer", "ID", nullptr));
         QTableWidgetItem *___qtablewidgetitem3 = ResourcesTable->horizontalHeaderItem(3);
         ___qtablewidgetitem3->setText(QCoreApplication::translate("ResourceViewer", "Name", nullptr));
         QTableWidgetItem *___qtablewidgetitem4 = ResourcesTable->horizontalHeaderItem(4);
         ___qtablewidgetitem4->setText(QCoreApplication::translate("ResourceViewer", "Type", nullptr));
         QTableWidgetItem *___qtablewidgetitem5 = ResourcesTable->horizontalHeaderItem(5);
-        ___qtablewidgetitem5->setText(QCoreApplication::translate("ResourceViewer", "Validity", nullptr));
+        ___qtablewidgetitem5->setText(QCoreApplication::translate("ResourceViewer", "CPU Memory", nullptr));
         QTableWidgetItem *___qtablewidgetitem6 = ResourcesTable->horizontalHeaderItem(6);
-        ___qtablewidgetitem6->setText(QCoreApplication::translate("ResourceViewer", "Location", nullptr));
+        ___qtablewidgetitem6->setText(QCoreApplication::translate("ResourceViewer", "GPU Memory", nullptr));
         QTableWidgetItem *___qtablewidgetitem7 = ResourcesTable->horizontalHeaderItem(7);
-        ___qtablewidgetitem7->setText(QCoreApplication::translate("ResourceViewer", "Lifetime", nullptr));
+        ___qtablewidgetitem7->setText(QCoreApplication::translate("ResourceViewer", "Asset Location", nullptr));
         QTableWidgetItem *___qtablewidgetitem8 = ResourcesTable->horizontalHeaderItem(8);
         ___qtablewidgetitem8->setText(QCoreApplication::translate("ResourceViewer", "Status", nullptr));
         QTableWidgetItem *___qtablewidgetitem9 = ResourcesTable->horizontalHeaderItem(9);
-        ___qtablewidgetitem9->setText(QCoreApplication::translate("ResourceViewer", "Memory Size", nullptr));
-        QTableWidgetItem *___qtablewidgetitem10 = ResourcesTable->horizontalHeaderItem(10);
-        ___qtablewidgetitem10->setText(QCoreApplication::translate("ResourceViewer", "References", nullptr));
+        ___qtablewidgetitem9->setText(QCoreApplication::translate("ResourceViewer", "References", nullptr));
     } // retranslateUi
 
 };

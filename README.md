@@ -30,7 +30,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Supports GLSL, HLSL shading languages to create custom materials + Custom Razix Shaders files for easy compilation
 - Resource Pool base management and custom asset format
 
-| Resource Viewer | <img src="./Branding/DemoImages/ReleaseNotes/ResourceViewerPreview.png" width="200"> |  
+| Resource Viewer | <img src="./Branding/DemoImages/ReleaseNotes/ResourceViewerPreview_2_Full.png" width="400"> |  
 | ------------- | ------------- |
 
 - Data drive pipeline architecture - **WIP**
