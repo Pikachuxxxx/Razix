@@ -37,9 +37,9 @@ namespace Razix {
         void RZEMemoryPoolGraphicsView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /*= nullptr*/)
         {
             //--------------------------------------------------------------------------------------------------------------
-            // Memory Block
+            // Memory Block - CPU
             // Total Size of the Pool Memory Block
-            auto poolSizeStr = QString(MemBytesToString(m_TotalMemorySize).c_str());
+            auto poolSizeStr = "CPU : " + QString(MemBytesToString(m_TotalMemorySize).c_str());
 
             auto BlockPath = QPainterPath();
             BlockPath.addRect(25, 0, m_Width - 50, m_Height - 25);
@@ -60,7 +60,7 @@ namespace Razix {
             poolMemoryFont.setWeight(QFont::ExtraLight);
             poolMemoryFont.setStyleHint(QFont::Courier, QFont::PreferAntialias);
             poolMemoryFont.setPointSize(20);
-            poolMemoryFont.setBold(true);
+            //poolMemoryFont.setBold(true);
             QFontMetrics fm(poolMemoryFont);
             painter->setPen(QPen(QColor("#000000")));
             painter->setBrush(QBrush(QColor("#000000")));
@@ -68,15 +68,43 @@ namespace Razix {
 
             painter->drawPath(SizeTextPath.simplified());
             //--------------------------------------------------------------------------------------------------------------
+            // Memory Block - GPU
+            auto GPUpoolSizeStr = "GPU : " + QString(MemBytesToString(m_OccupiedGPUMemory).c_str());
+
+            // Draw it only until the Slider with some text in it
+            auto GPUBlockPath = QPainterPath();
+            GPUBlockPath.addRect(25, m_Height - 20, m_MemoryOccupanySliderValue, (m_Height - 25) / 2);
+
+            painter->setPen(QPen(QColor("#121212")));
+
+            // TODO: FIXME: Fix the gradient coloring later
+            QLinearGradient linearGradOrange(QPointF(0, 0), QPointF(0, (m_Height - 25) / 2));
+            linearGradOrange.setColorAt(0.7, QColor("#ffe9ba"));
+            linearGradOrange.setColorAt(0.4, QColor("#ffc438"));
+            linearGradOrange.setColorAt(0.8, QColor("#e49c37"));
+            painter->setBrush(linearGradOrange);
+
+            painter->drawPath(GPUBlockPath.simplified());
+
+            auto GPUSizeTextPath = QPainterPath();
+
+            poolMemoryFont.setPointSize(10);
+            painter->setPen(QPen(QColor("#000000")));
+            painter->setBrush(QBrush(QColor("#000000")));
+            GPUSizeTextPath.addText(30, m_Height, poolMemoryFont, GPUpoolSizeStr);
+
+            painter->drawPath(GPUSizeTextPath.simplified());
+
+            //--------------------------------------------------------------------------------------------------------------
             // Type
             paintBorderRectWithText(painter, QString("Type : ") + QString(m_PoolTypeName.c_str()), QColor("#504b35"), QColor("#ddc988"), 5, -25);
             //--------------------------------------------------------------------------------------------------------------
             // Used slots
-            paintBorderRectWithText(painter, QString("Occupancy : ") + QString(std::to_string(m_OccupiedElements).c_str()), QColor("#8d1439"), QColor("#e75380"), m_MemoryOccupanySliderValue, 90);
+            paintBorderRectWithText(painter, QString("Occupancy : ") + QString(std::to_string(m_OccupiedElements).c_str()), QColor("#8d1439"), QColor("#e75380"), m_MemoryOccupanySliderValue, 110);
             //--------------------------------------------------------------------------------------------------------------
             // Occupancy Slider
             auto OccupancyBarPath = new QPainterPath;
-            OccupancyBarPath->addRect(m_MemoryOccupanySliderValue + 25, 0, 5, 60);
+            OccupancyBarPath->addRect(m_MemoryOccupanySliderValue + 25, 0, 5, 75);
             painter->setBrush(QColor("#FF11FF"));
             painter->setPen(QColor("#FF11FF"));
             QPolygonF Triangle;
@@ -84,7 +112,7 @@ namespace Razix {
             Triangle.append(QPointF(0., -10));
             Triangle.append(QPointF(-10., 0));
             Triangle.append(QPointF(10., 0));
-            Triangle.translate(m_MemoryOccupanySliderValue + 2.5 + 25, 67.5);
+            Triangle.translate(m_MemoryOccupanySliderValue + 2.5 + 25, 82);
             OccupancyBarPath->addPolygon(Triangle);
 
             painter->drawPath(OccupancyBarPath->simplified());
@@ -97,8 +125,10 @@ namespace Razix {
             QFont occupancyMemoryFont;
             occupancyMemoryFont.setWeight(QFont::ExtraLight);
             occupancyMemoryFont.setStyleHint(QFont::Courier, QFont::PreferAntialias);
-            std::string occupancyStats = "Used : " + MemBytesToString(m_OccupiedMemory) + "/" + MemBytesToString(m_TotalMemorySize) + " | Free : " + MemBytesToString(m_TotalMemorySize - m_OccupiedMemory);
-            SliderMemoryPath->addText(m_MemoryOccupanySliderValue + 50, 65, occupancyMemoryFont, occupancyStats.c_str());
+            std::string CPU_occupancyStats = "[CPU] Used : " + MemBytesToString(m_OccupiedMemory) + "/" + MemBytesToString(m_TotalMemorySize) + " | Free : " + MemBytesToString(m_TotalMemorySize - m_OccupiedMemory);
+            SliderMemoryPath->addText(m_MemoryOccupanySliderValue + 50, 65, occupancyMemoryFont, CPU_occupancyStats.c_str());
+            std::string GPU_occupancyStats = "[GPU] Used : " + MemBytesToString(m_OccupiedGPUMemory);
+            SliderMemoryPath->addText(m_MemoryOccupanySliderValue + 50, 75, occupancyMemoryFont, GPU_occupancyStats.c_str());
 
             painter->drawPath(SliderMemoryPath->simplified());
             //--------------------------------------------------------------------------------------------------------------

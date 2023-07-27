@@ -31,6 +31,7 @@ namespace Razix {
             u32         m_MemoryOccupanySliderValue = 0;      /* Slider Value for current no. of occupied elements (same as m_OccupiedElements) */
             u32         m_TotalMemorySize           = 0;      /* Total memory size of the Pool in bytes                                         */
             u32         m_OccupiedMemory            = 0;      /* Total memory occupied the elements                                             */
+            u32         m_OccupiedGPUMemory         = 0;      /* Total GPU memory occupied by the pool elements                                 */
             u32         m_Capacity                  = 0;      /* Total capacity of the pool                                                     */
             u32         m_OccupiedElements          = 0;      /* Current no. of occupied elements                                               */
             //-----------------------
