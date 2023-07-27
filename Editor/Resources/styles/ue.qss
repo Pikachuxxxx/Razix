@@ -192,11 +192,6 @@ QTreeView,
 QListView {
   background-color: #151515; }
 
-QTableView::item,
-QTreeView::item,
-QListView::item {
-  color: #c0c0c0; }
-
 QTableView::item::selected,
 QTreeView::item::selected,
 QListView::item::selected {

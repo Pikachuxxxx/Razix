@@ -66,6 +66,21 @@ namespace Razix {
             MemoryPoolView(u32 totalSize, u32 capacity, u32 elementSize, const std::string &typeName);
         };
 
+        enum ResourceTableColumns : u32
+        {
+            UUID = 0,
+            Pool,
+            ID,
+            Name,
+            Type,
+            CPUMemory,
+            GPUMemory,
+            AssetLocation,
+            Status,
+            References,
+            COUNT
+        };
+
         class RZEResourceViewer : public QWidget
         {
             Q_OBJECT
@@ -74,8 +89,14 @@ namespace Razix {
             RZEResourceViewer(QWidget *parent = nullptr);
             ~RZEResourceViewer();
 
+            void updateView();
+
         private:
             Ui::ResourceViewer ui;
+
+            void addPools();
+            void initTable();
+            void addRow(const std::string &uuid, const std::string &poolName, u32 index, const std::string &name, const std::string &typeName, u32 cpuMem, u32 gpuMem, const std::string &location, u32 status, u32 refs);
         };
     }    // namespace Editor
 }    // namespace Razix
