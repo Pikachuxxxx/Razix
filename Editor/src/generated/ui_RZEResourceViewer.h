@@ -12,9 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGroupBox>
-#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -27,40 +25,43 @@ public:
     QVBoxLayout *verticalLayout;
     QGroupBox *PoolGroup;
     QVBoxLayout *PoolGroupVLayout;
-    QSpacerItem *verticalSpacer_2;
     QGroupBox *ResourceListGroup;
-    QHBoxLayout *horizontalLayout;
+    QVBoxLayout *verticalLayout_2;
     QTableWidget *ResourcesTable;
 
     void setupUi(QWidget *ResourceViewer)
     {
         if (ResourceViewer->objectName().isEmpty())
             ResourceViewer->setObjectName(QString::fromUtf8("ResourceViewer"));
-        ResourceViewer->resize(1150, 723);
+        ResourceViewer->resize(1150, 541);
         verticalLayout = new QVBoxLayout(ResourceViewer);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setSizeConstraint(QLayout::SetMinimumSize);
         PoolGroup = new QGroupBox(ResourceViewer);
         PoolGroup->setObjectName(QString::fromUtf8("PoolGroup"));
-        PoolGroup->setMaximumSize(QSize(16777215, 300));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(PoolGroup->sizePolicy().hasHeightForWidth());
+        PoolGroup->setSizePolicy(sizePolicy);
+        PoolGroup->setMaximumSize(QSize(16777215, 16777215));
         PoolGroupVLayout = new QVBoxLayout(PoolGroup);
         PoolGroupVLayout->setSpacing(6);
         PoolGroupVLayout->setContentsMargins(11, 11, 11, 11);
         PoolGroupVLayout->setObjectName(QString::fromUtf8("PoolGroupVLayout"));
-        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        PoolGroupVLayout->addItem(verticalSpacer_2);
-
+        PoolGroupVLayout->setContentsMargins(9, 9, 9, 9);
 
         verticalLayout->addWidget(PoolGroup);
 
         ResourceListGroup = new QGroupBox(ResourceViewer);
         ResourceListGroup->setObjectName(QString::fromUtf8("ResourceListGroup"));
-        horizontalLayout = new QHBoxLayout(ResourceListGroup);
-        horizontalLayout->setSpacing(6);
-        horizontalLayout->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        verticalLayout_2 = new QVBoxLayout(ResourceListGroup);
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        verticalLayout_2->setContentsMargins(9, 9, 9, 9);
         ResourcesTable = new QTableWidget(ResourceListGroup);
         if (ResourcesTable->columnCount() < 11)
             ResourcesTable->setColumnCount(11);
@@ -91,7 +92,7 @@ public:
         ResourcesTable->horizontalHeader()->setStretchLastSection(true);
         ResourcesTable->verticalHeader()->setCascadingSectionResizes(true);
 
-        horizontalLayout->addWidget(ResourcesTable);
+        verticalLayout_2->addWidget(ResourcesTable);
 
 
         verticalLayout->addWidget(ResourceListGroup);

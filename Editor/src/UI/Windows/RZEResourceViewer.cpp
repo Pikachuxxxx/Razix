@@ -26,9 +26,7 @@ namespace Razix {
             ui.PoolGroupVLayout->insertWidget(0, testCollapsingHeaderPool_0);
 
             auto testCollapsingHeaderPool_1 = new RZECollapsingHeader(QString("Pool_1 - VertexBuffer"), pool_1->m_GraphicsView, new QIcon(":/rzeditor/memory_pool_icon.png"));
-            testCollapsingHeaderPool_1->setMaximumHeight(200);
-            testCollapsingHeaderPool_1->setMinimumHeight(200);
-            //ui.PoolGroupVLayout->insertWidget(1, testCollapsingHeaderPool_1);
+            ui.PoolGroupVLayout->insertWidget(1, testCollapsingHeaderPool_1);
         }
 
         RZEResourceViewer::~RZEResourceViewer()
@@ -42,7 +40,7 @@ namespace Razix {
             m_GraphicsView->setScene(m_MemoryPoolScene);
             m_GraphicsView->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
             m_GraphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-            m_GraphicsView->setMaximumHeight(200);
+            //m_GraphicsView->setMaximumHeight(400);
             m_GraphicsView->setMinimumHeight(200);
 
             // Add a Item for Pool_0 to the scene
