@@ -41,7 +41,7 @@ namespace Razix {
         return result;
     }
 
-    RAZIX_API f32* Utilities::LoadImageDataF(const std::string& filePath, u32* width, u32* height, u32* bpp)
+    RAZIX_API f32* Utilities::LoadImageDataFloat(const std::string& filePath, u32* width, u32* height, u32* bpp)
     {
         std::string physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
@@ -64,7 +64,7 @@ namespace Razix {
         if (bpp)
             *bpp = texChannels;
 
-        const int32_t size   = texWidth * texHeight * 4;    // 4 cause we used STBI_rgb_alpha and this will force the image to load in a 4-channel format
+        const uint32_t size   = texWidth * texHeight * 4 * sizeof(float);    // 4 cause we used STBI_rgb_alpha and this will force the image to load in a 4-channel format
         f32*          result = new f32[size];
         memcpy(result, pixels, size);
 

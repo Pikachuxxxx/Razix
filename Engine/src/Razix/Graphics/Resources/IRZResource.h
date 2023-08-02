@@ -42,6 +42,8 @@ namespace Razix {
 
             inline u32  getPoolIndex() { return m_Handle.getIndex(); }
             inline void setPoolIndex(u32 index) { m_Handle.setIndex(index); }
+            inline u32  getGenerationIndex() { return m_Handle.getGeneration(); }
+            inline void setGenerationIndex(u32 index) { m_Handle.setGeneration(index); }
 
             inline RZHandle<T>& getHandle() { return m_Handle; }
             inline RZUUID&      getUUID() { return m_UUID; }
@@ -61,14 +63,24 @@ namespace Razix {
         void* IRZResource<T>::operator new(size_t size)
         {
             // Return the pre allocated memory from it's respective Resource Memory Pool
-            return RZResourceManager::Get().getPool<T>().obtain();
+            u32   index    = 0;
+            void* ptr      = RZResourceManager::Get().getPool<T>().obtain(index);
+            auto  resource = (IRZResource*) ptr;
+            resource->setPoolIndex(index);
+            resource->setGenerationIndex(index);
+            return ptr;
         }
 
         template<typename T>
         void* IRZResource<T>::operator new[](size_t size)
         {
             // Return the pre allocated memory from it's respective Resource Memory Pool
-            return RZResourceManager::Get().getPool<T>().obtain();
+            u32   index    = 0;
+            void* ptr      = RZResourceManager::Get().getPool<T>().obtain(index);
+            auto  resource = (IRZResource*) ptr;
+            resource->setPoolIndex(index);
+            resource->setGenerationIndex(index);
+            return ptr;
         }
 
         template<typename T>
@@ -86,6 +98,7 @@ namespace Razix {
             // Memory is deallocated manually using pool allocator indices and we will never use free
             // in fact crash the app if someone tried to use and issue a warning saying it's the wrong way to do it
             // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
+            // TODO: Destroy Generation Index
             auto res = (IRZResource*) (pointer);
             RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
         }
@@ -96,6 +109,7 @@ namespace Razix {
             // Memory is deallocated manually using pool allocator indices and we will never use free
             // in fact crash the app if someone tried to use and issue a warning saying it's the wrong way to do it
             // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
+            // TODO: Destroy Generation Index
             auto res = (IRZResource*) (pointer);
             RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
         }

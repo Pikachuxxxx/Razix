@@ -19,9 +19,6 @@ namespace Razix {
         RZHandle()
             : m_Index(0), m_Generation(0) {}
 
-        RZHandle(u32 index, u32 generation)
-            : m_Index(index), m_Generation(generation) {}
-
         inline bool isValid() const { return m_Generation != 0; }
 
         inline u32  getIndex() { return m_Index; }
@@ -30,9 +27,19 @@ namespace Razix {
         inline u32  getGeneration() { return m_Generation; }
         inline void setGeneration(u32 gen) { m_Generation = gen; }
 
+        friend bool operator!=(RZHandle const& h1, RZHandle const& h2)
+        {
+            return h1.m_Index != h2.m_Index;
+        }
+
+        friend bool operator==(RZHandle const& h1, RZHandle const& h2)
+        {
+            return h1.m_Index == h2.m_Index;
+        }
+
     private:
-        u32 m_Index;      /* The array Index of the Handle in the pool it belongs to    */
-        u32 m_Generation; /* Generated index for deletion verification                  */
+        u32 m_Index      = 0; /* The array Index of the Handle in the pool it belongs to    */
+        u32 m_Generation = 0; /* Generated index for deletion verification                  */
 
         /* All the handles are stored in a pool */
         template<typename U>

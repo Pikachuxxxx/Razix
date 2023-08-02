@@ -158,11 +158,11 @@ namespace Razix {
             depthStencilSCI.pNext                 = nullptr;
             depthStencilSCI.depthTestEnable       = pipelineInfo.depthTestEnabled;
             depthStencilSCI.depthWriteEnable      = pipelineInfo.depthWriteEnabled;
-            depthStencilSCI.depthCompareOp        = VKUtilities::CompareOpToVK(pipelineInfo.depthOp);    
+            depthStencilSCI.depthCompareOp        = VKUtilities::CompareOpToVK(pipelineInfo.depthOp);
             depthStencilSCI.depthBoundsTestEnable = VK_FALSE;
 
             // Stencil Testing is always disabled so no need to care about it's operations
-            depthStencilSCI.stencilTestEnable     = VK_FALSE;
+            depthStencilSCI.stencilTestEnable = VK_FALSE;
 
             depthStencilSCI.back.failOp      = VK_STENCIL_OP_KEEP;
             depthStencilSCI.back.passOp      = VK_STENCIL_OP_KEEP;
@@ -184,10 +184,10 @@ namespace Razix {
             multiSampleSCI.pNext                 = nullptr;
             multiSampleSCI.pSampleMask           = nullptr;
             multiSampleSCI.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
-            multiSampleSCI.sampleShadingEnable   = VK_FALSE;
+            multiSampleSCI.sampleShadingEnable   = VK_TRUE;
             multiSampleSCI.alphaToCoverageEnable = VK_FALSE;
             multiSampleSCI.alphaToOneEnable      = VK_FALSE;
-            multiSampleSCI.minSampleShading      = 0.0;
+            multiSampleSCI.minSampleShading      = 0.5;
 
             //----------------------------
             // Dynamic Rendering KHR
@@ -200,7 +200,7 @@ namespace Razix {
                 formats.push_back(VKUtilities::TextureFormatToVK(attachment));
             renderingCI.colorAttachmentCount    = static_cast<u32>(pipelineInfo.colorAttachmentFormats.size());
             renderingCI.pColorAttachmentFormats = formats.data();
-            renderingCI.depthAttachmentFormat   = VKUtilities::TextureFormatToVK(pipelineInfo.depthFormat);  // defaults to VK_FORMAT_UNDEFINED
+            renderingCI.depthAttachmentFormat   = VKUtilities::TextureFormatToVK(pipelineInfo.depthFormat);    // defaults to VK_FORMAT_UNDEFINED
 
             //----------------------------
             // Graphics Pipeline

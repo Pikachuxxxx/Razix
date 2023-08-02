@@ -91,7 +91,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         /* 2D Texture interface */
-        class RAZIX_API RZTexture2D : public RZTexture, public IRZResource<RZTexture2D>
+        class RAZIX_API RZTexture2D : public RZTexture//, public IRZResource<RZTexture2D>
         {
         public:
             /**

@@ -452,7 +452,7 @@ namespace Razix {
 
                 // Export Options
                 Razix::Tool::AssetPacker::MeshExportOptions export_options{};
-                export_options.outputDirectory = m_ProjectPathDir + "/Assets/";
+                export_options.outputDirectory = m_ProjectPathDir + "/Assets/Cache/Meshes/Battle of the Trash god/";
                 // Exporter
                 Razix::Tool::AssetPacker::MeshExporter exporter;
                 result = exporter.exportMesh(import_result, export_options);

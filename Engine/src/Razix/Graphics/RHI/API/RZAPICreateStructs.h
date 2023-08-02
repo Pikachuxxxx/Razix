@@ -26,6 +26,7 @@ namespace Razix {
             bool                           enableMips = false;                                          /* Whether or not to generate mip maps or not for the texture                               */
             bool                           flipX      = false;                                          /* Flip the texture on X-axis during load                                                   */
             bool                           flipY      = false;                                          /* Flip the texture on Y-axis during load                                                   */
+            u32                            dataSize   = sizeof(unsigned char);
 
             /**
              * Returns the Format of the Texture in string

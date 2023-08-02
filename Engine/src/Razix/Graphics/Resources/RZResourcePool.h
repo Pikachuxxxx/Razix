@@ -10,6 +10,9 @@ namespace Razix {
         class RZCPUMemoryManager;
         class RZGPUMemoryManager;
 
+        template<typename U>
+        class IRZResource;
+
         class RZResourcePool
         {
         public:
@@ -41,11 +44,14 @@ namespace Razix {
             void init(u32 pool_size, u32 resource_size);
             void shutdown();
 
-            T*   obtain();
+            T*   obtain(u32& index);
             void release(u32 index);
 
             T*       get(u32 index);
             const T* get(u32 index) const;
+
+        private:
+            void initResource(void* resource, u32 index, u32 genIdx);
         };
 
         template<typename T>
@@ -61,13 +67,12 @@ namespace Razix {
         }
 
         template<typename T>
-        inline T* RZResourcePoolTyped<T>::obtain()
+        inline T* RZResourcePoolTyped<T>::obtain(u32& index)
         {
-            u32 resource_index = RZResourcePool::allocateResource();
-            if (resource_index != u32_max) {
-                T* resource = get(resource_index);
-                //(IRZResource*) (resource)->getHandle().setIndex(resource_index);
-                //(IRZResource*) (resource)->getHandle().setGeneration(resource_index);
+            index = RZResourcePool::allocateResource();
+            if (index != u32_max) {
+                T* resource = get(index);
+                //initResource(resource, resource_index, resource_index);
                 return resource;
             }
 

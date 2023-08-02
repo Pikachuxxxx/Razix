@@ -5,6 +5,8 @@
 
 #include <internal/RazixMemory/include/RZMemoryFunctions.h>
 
+#include "IRZResource.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -66,7 +68,8 @@ namespace Razix {
         const void* RZResourcePool::accessResource(u32 index)
         {
             if (index != k_invalid_index) {
-                return &m_MemoryChunk[index * m_ResourceSize];
+                auto resource = &m_MemoryChunk[index * m_ResourceSize];
+                return resource;
             }
             return nullptr;
         }
