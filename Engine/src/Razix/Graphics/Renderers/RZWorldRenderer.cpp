@@ -46,7 +46,7 @@ namespace Razix {
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
-            m_GlobalLightProbes.skybox   = RZIBL::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
+            m_GlobalLightProbes.skybox   = RZIBL::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
             m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_GlobalLightProbes.skybox);
             m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph

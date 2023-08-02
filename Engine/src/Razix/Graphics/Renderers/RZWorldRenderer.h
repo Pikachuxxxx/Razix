@@ -93,7 +93,7 @@ namespace Razix {
             } globalIlluminationConfig;
             u32         debugFlags{0u};
             TonemapMode tonemapMode         = ACES;
-            bool        useProceduralSkybox = true;
+            bool        useProceduralSkybox = false;
         };
 
         /**

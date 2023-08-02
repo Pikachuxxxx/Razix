@@ -49,10 +49,10 @@ namespace Razix {
             // https://www.reddit.com/r/vulkan/comments/xec0vg/multilayered_rendering_to_create_a_cubemap/
 
             // First create the 2D Equirectangular texture
-            u32            width, height, bpp;
-            unsigned char* pixels = Razix::Utilities::LoadImageData(hdrFilePath, &width, &height, &bpp);
+            u32  width, height, bpp;
+            f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTexture2D* equirectangularMap = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("HDR Cube Map Texture"){.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = RZTextureProperties::Format::RGBA8, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE});
+            RZTexture2D* equirectangularMap = RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("HDR Cube Map Texture"){.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = RZTextureProperties::Format::RGBA32F, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE, .dataSize = sizeof(float)});
 
             std::vector<RZDescriptorSet*> envMapSets;
             std::vector<RZUniformBuffer*> UBOs;
@@ -258,7 +258,7 @@ namespace Razix {
 
         RZCubeMap* RZIBL::generatePreFilteredMap(RZCubeMap* cubeMap)
         {
-            u32        dim            = 128;
+            u32        dim            = 256;
             RZCubeMap* preFilteredMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Pre Filtered Map"){.name = "Pre Filtered Map", .width = dim, .height = dim, .layers = 6, .enableMips = true});
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
@@ -327,12 +327,15 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("PreFiltering cubemap", glm::vec4(0.8f, 0.8f, 0.3f, 1.0f))
 
                 for (u32 mip = 0; mip < maxMipLevels; mip++) {
-                    cmdBuffer->UpdateViewport(dim, dim);
+                    unsigned int mipWidth  = dim * std::pow(0.5, mip);
+                    unsigned int mipHeight = dim * std::pow(0.5, mip);
+
+                    cmdBuffer->UpdateViewport(mipWidth, mipHeight);
 
                     RenderingInfo info{};
                     info.colorAttachments = {
                         {preFilteredMap, {true, glm::vec4(0.0f)}}};
-                    info.extent = {dim, dim};
+                    info.extent = {mipWidth, mipHeight};
                     // NOTE: This is very important for layers to work
                     info.layerCount = 6;
 
@@ -362,8 +365,6 @@ namespace Razix {
 
                         RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                     }
-
-                    dim = dim / 2;
                 }
                 RHI::EndRendering(cmdBuffer);
 

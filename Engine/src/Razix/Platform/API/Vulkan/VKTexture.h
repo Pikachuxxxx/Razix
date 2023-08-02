@@ -142,7 +142,7 @@ namespace Razix {
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
-            bool load(void* data RZ_DEBUG_NAME_TAG_E_ARG);
+            bool load(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
         };
 
         //-----------------------------------------------------------------------------------

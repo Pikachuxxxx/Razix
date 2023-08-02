@@ -83,6 +83,37 @@ public:
             //        RAZIX_WARN("Ring Allocator is Full!");
             //}
         }
+        // https://www.shadertoy.com/view/4tf3D8
+        // PBR materials test
+        {
+            int nrRows    = 7;
+            int nrColumns = 7;
+            int spacing   = 2.5f;
+
+            Razix::Graphics::MaterialProperties mat;
+            mat.albedoColor      = glm::vec3(1.0f, 0.3f, 0.75f);
+            mat.ambientOcclusion = 1.0f;
+
+            for (int row = 0; row < nrRows; ++row) {
+                float metallic = (float) row / (float) nrRows;
+                for (int col = 0; col < nrColumns; ++col) {
+                    float roughness                                             = glm::clamp((float) col / (float) nrColumns, 0.05f, 1.0f);
+                    auto  pos                                                   = glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f);
+                    auto  sphereEntity                                          = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sphere");
+                    sphereEntity.GetComponent<TransformComponent>().Translation = pos;
+                    sphereEntity.GetComponent<TransformComponent>().Scale       = glm::vec3(0.75f);
+                    auto& mrc                                                   = sphereEntity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Sphere);
+                    auto  material                                              = mrc.Mesh->getMaterial();
+                    mat.metallicColor                                           = metallic;
+                    mat.roughnessColor                                          = roughness;
+                    material->setProperties(mat);
+                }
+            }
+        }
+    }
+
+    void OnRender() override
+    {
     }
 };
 

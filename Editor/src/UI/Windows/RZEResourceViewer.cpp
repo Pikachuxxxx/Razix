@@ -30,10 +30,13 @@ namespace Razix {
         {
             ui.setupUi(this);
 
+            setWindowFlags(windowFlags() | Qt::WindowMinimizeButtonHint);
+
             setObjectName("Resource Viewer");
 
             addPools();
 
+            ui.ResourcesTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
             initTable();
         }
 
@@ -93,7 +96,7 @@ namespace Razix {
             ui.ResourcesTable->setItem(row, ResourceTableColumns::GPUMemory, gpuMemItem);
 
             auto assetLocItem = new QTableWidgetItem(location.c_str());
-            assetLocItem->setForeground(QBrush(QColor(255, 250, 0)));
+            assetLocItem->setForeground(QBrush(QColor("#ffffe0")));
             ui.ResourcesTable->setItem(row, ResourceTableColumns::AssetLocation, assetLocItem);
 
             ui.ResourcesTable->setItem(row, ResourceTableColumns::Status, new QTableWidgetItem(std::to_string(status).c_str()));

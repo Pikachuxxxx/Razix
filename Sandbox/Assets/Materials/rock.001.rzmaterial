@@ -1,0 +1,25 @@
+{
+    "rock.001": {
+        "Name": "rock.001",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.13725490868091584,
+            "y": 0.1882352977991104,
+            "z": 0.1921568661928177
+        },
+        "roughnessColor": 1.0,
+        "metallicColor": 0.858578622341156,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

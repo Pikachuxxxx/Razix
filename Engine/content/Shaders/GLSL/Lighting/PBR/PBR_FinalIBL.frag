@@ -46,6 +46,26 @@ layout(set = 3, binding = 4) uniform sampler2D brdfLUT;
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
 //------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+// Tonemapping
+// Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
+vec3 lottes(vec3 x) {
+  const vec3 a = vec3(1.6);
+  const vec3 d = vec3(0.977);
+  const vec3 hdrMax = vec3(8.0);
+  const vec3 midIn = vec3(0.18);
+  const vec3 midOut = vec3(0.267);
+
+  const vec3 b =
+      (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
+      ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+  const vec3 c =
+      (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
+      ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+
+  return pow(x, a) / (pow(x, a * d) * b + c);
+}
+////////////////////////////////////////////////////////////////////////////////
 void main()
 {
     vec3 N = normalize(fs_in.fragNormal);
@@ -90,6 +110,7 @@ void main()
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
+
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
 
@@ -100,7 +121,7 @@ void main()
 
     vec3 ambient = (kD * diffuse + specular ) * ao; 
 
-    vec3 result = ambient + Lo;
+    vec3 result = lottes(ambient + Lo);
 
     //-----------------------------------------------
     // Shadow map calculation
@@ -110,11 +131,11 @@ void main()
     if(sceneLights.data[0].type == LightType_Directional)
         shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
 
-    result *= shadow;
+    //result *= shadow;
     //-----------------------------------------------
 
     // gamma correct
     result = pow(result, vec3(1.0/2.2)); 
 
-    outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragTexCoord));
+    outSceneColor = vec4(result, 1.0f/*Mat_getOpacity(fs_in.fragTexCoord)*/);
 }

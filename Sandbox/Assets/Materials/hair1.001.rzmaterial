@@ -1,0 +1,25 @@
+{
+    "hair1.001": {
+        "Name": "hair1.001",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.658823549747467,
+            "y": 0.4901960790157318,
+            "z": 0.09019608050584793
+        },
+        "roughnessColor": 1.0,
+        "metallicColor": 0.858578622341156,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

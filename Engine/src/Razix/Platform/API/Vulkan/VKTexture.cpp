@@ -262,7 +262,7 @@ namespace Razix {
                 auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
                 m_ImageSampler           = CreateImageSampler(VKUtilities::TextureFilterToVK(m_Desc.filtering.magFilter), VKUtilities::TextureFilterToVK(m_Desc.filtering.minFilter), 0.0f, static_cast<f32>(mipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping) RZ_DEBUG_E_ARG_NAME);
             } else {
-                bool loadResult = load(desc.data RZ_DEBUG_E_ARG_NAME);
+                bool loadResult = load(desc RZ_DEBUG_E_ARG_NAME);
                 RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", desc.name);
             }
 
@@ -278,7 +278,7 @@ namespace Razix {
             m_Desc.type = RZTextureProperties::Type::Texture_2D;
 
             // Build a render target texture here if the data is nullptr
-            bool loadResult = load(desc.data RZ_DEBUG_E_ARG_NAME);
+            bool loadResult = load(desc RZ_DEBUG_E_ARG_NAME);
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", desc.name);
             updateDescriptor();
         }
@@ -363,15 +363,15 @@ namespace Razix {
             }
         }
 
-        bool VKTexture2D::load(void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        bool VKTexture2D::load(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            unsigned char* pixels = nullptr;
+            void* pixels = nullptr;
 
-            if (data != nullptr) {
-                pixels = reinterpret_cast<u8*>(data);
-                m_Size = VkDeviceSize(m_Desc.width * m_Desc.height * 4);    // TODO: Get the Bits per pixel from the format
+            if (desc.data != nullptr) {
+                pixels = desc.data;
+                m_Size = VkDeviceSize(m_Desc.width * m_Desc.height * 4 * desc.dataSize);    // TODO: Get the Bits per pixel from the format
             } else {
                 if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
                     u32 bpp;
@@ -387,7 +387,7 @@ namespace Razix {
             if (pixels == nullptr)
                 return false;
 
-            VkDeviceSize imageSize = VkDeviceSize(m_Desc.width * m_Desc.height * 4);
+            VkDeviceSize imageSize = VkDeviceSize(m_Desc.width * m_Desc.height * 4 * desc.dataSize);
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
             VKBuffer* stagingBuffer = new VKBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(imageSize), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
