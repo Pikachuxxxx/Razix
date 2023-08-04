@@ -56,6 +56,7 @@ namespace Razix {
 
             static void GenerateNormals(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount);
             static void GenerateTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount);
+            static void GenerateTangentsAndBiTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 numIndices);
 
             void Draw(RZCommandBuffer* cmdBuf);
 

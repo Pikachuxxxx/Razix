@@ -25,14 +25,15 @@ namespace Razix {
             RAZIX_INLINE void setWorkflow(WorkFlow workflow) { m_Workflow = workflow; }
 
             /* Overrides the default material properties and textures by loading the material file and de-serializing it */
-            void loadMaterialFromFile(const std::string& name, const std::string& path);
+            void loadFromFile(const std::string& path);
+            void saveToFile(const std::string& path = "");
             void loadMaterialTexturesFromFiles(MaterialTexturePaths paths);
             void createDescriptorSet();
 
             RAZIX_INLINE MaterialTextures& getTextures() { return m_MaterialTextures; }
             void                           setTextures(MaterialTextures& textures);
 
-            RAZIX_INLINE const MaterialProperties& getProperties() const { return m_MaterialProperties; }
+            RAZIX_INLINE const MaterialProperties& getProperties() const { return m_MaterialData.m_MaterialProperties; }
             void                                   setProperties(MaterialProperties& props);
 
             void Bind();
@@ -49,7 +50,7 @@ namespace Razix {
             //RZPipeline*                   m_Pipeline; // Diffifult to be own as Material can't have knowledge of the RTs in a pass and RZPipeline needs that before hand along with shader
 
             static RZTexture2D* s_DefaultTexture;
-            MaterialProperties  m_MaterialProperties;
+            MaterialData        m_MaterialData;
             MaterialTextures    m_MaterialTextures;
             std::string         m_Name                  = "PBR material";
             RZShader*           m_Shader                = nullptr;

@@ -17,7 +17,7 @@ layout(location = 0) in VSOutput
 {
     vec3 fragPos;
     vec4 fragColor;
-    vec2 fragTexCoord;
+    vec2 fragUV;
     vec3 fragNormal;
     vec3 fragTangent;
     vec3 viewPos;
@@ -34,7 +34,7 @@ void main()
     worldPos = vec4(vs_in.fragPos, 1.0f);
 
     if(material.isUsingNormalMap)
-        normal = texture(normalMap, vs_in.fragTexCoord);
+        normal = texture(normalMap, vs_in.fragUV);
     else 
         normal = vec4(normalize(vs_in.fragNormal), 1.0f);
         
@@ -42,7 +42,7 @@ void main()
     if(material.isUsingAlbedoMap)
         color = material.baseColor;
     else 
-        color =  texture(albedoMap, vs_in.fragTexCoord).rgb;
+        color =  texture(albedoMap, vs_in.fragUV).rgb;
 
     flux = vec4((color) + material.emissiveIntensity, 1.0f) * 20.0f;
 }

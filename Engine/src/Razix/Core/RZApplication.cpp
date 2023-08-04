@@ -102,6 +102,7 @@ namespace Razix {
         RZVirtualFileSystem::Get().mount("Scripts", m_ProjectFilePath + std::string("/Assets/Scripts"));
         RZVirtualFileSystem::Get().mount("Sounds", m_ProjectFilePath + std::string("/Assets/Sounds"));
         RZVirtualFileSystem::Get().mount("Textures", m_ProjectFilePath + std::string("/Assets/Textures"));
+        RZVirtualFileSystem::Get().mount("Materials", m_ProjectFilePath + std::string("/Assets/Materials"));
 
         // Check the command line arguments for the rendering api
         if (RZEngine::Get().commandLineParser.isSet("rendering api"))

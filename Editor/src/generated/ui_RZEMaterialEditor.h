@@ -68,12 +68,12 @@ public:
     QSpacerItem *horizontalSpacer_6;
     QGroupBox *groupBox_3;
     QHBoxLayout *horizontalLayout_8;
-    QPushButton *pushButton_3;
+    QPushButton *normalTexture;
     QVBoxLayout *verticalLayout_4;
     QCheckBox *checkBox_3;
     QGroupBox *groupBox_4;
     QHBoxLayout *horizontalLayout_10;
-    QPushButton *pushButton_4;
+    QPushButton *metallicTexture;
     QVBoxLayout *verticalLayout_5;
     QCheckBox *checkBox_4;
     QHBoxLayout *horizontalLayout_11;
@@ -82,7 +82,7 @@ public:
     QSpacerItem *horizontalSpacer_4;
     QGroupBox *groupBox_5;
     QHBoxLayout *horizontalLayout_12;
-    QPushButton *pushButton_5;
+    QPushButton *roughnessTexture;
     QVBoxLayout *verticalLayout_6;
     QCheckBox *checkBox_5;
     QHBoxLayout *horizontalLayout_13;
@@ -91,7 +91,7 @@ public:
     QSpacerItem *horizontalSpacer_5;
     QGroupBox *groupBox_7;
     QHBoxLayout *horizontalLayout_16;
-    QPushButton *pushButton_7;
+    QPushButton *emissiveTexture;
     QVBoxLayout *verticalLayout_8;
     QCheckBox *checkBox_7;
     QHBoxLayout *horizontalLayout_17;
@@ -100,19 +100,19 @@ public:
     QSpacerItem *horizontalSpacer_7;
     QGroupBox *groupBox_8;
     QHBoxLayout *horizontalLayout_18;
-    QPushButton *pushButton_8;
+    QPushButton *aoTexture;
     QVBoxLayout *verticalLayout_9;
     QCheckBox *checkBox_8;
     QHBoxLayout *horizontalLayout_19;
     QLabel *label_12;
-    QLineEdit *lineEdit_8;
+    QLineEdit *aoIntensity;
     QSpacerItem *horizontalSpacer_8;
 
     void setupUi(QWidget *MaterialEditor)
     {
         if (MaterialEditor->objectName().isEmpty())
             MaterialEditor->setObjectName(QString::fromUtf8("MaterialEditor"));
-        MaterialEditor->resize(300, 842);
+        MaterialEditor->resize(310, 842);
         MaterialEditor->setStyleSheet(QString::fromUtf8("background-color: #151515;"));
         verticalLayout = new QVBoxLayout(MaterialEditor);
         verticalLayout->setSpacing(5);
@@ -329,13 +329,13 @@ public:
         horizontalLayout_8->setSpacing(6);
         horizontalLayout_8->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
-        pushButton_3 = new QPushButton(groupBox_3);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-        sizePolicy.setHeightForWidth(pushButton_3->sizePolicy().hasHeightForWidth());
-        pushButton_3->setSizePolicy(sizePolicy);
-        pushButton_3->setMinimumSize(QSize(50, 50));
+        normalTexture = new QPushButton(groupBox_3);
+        normalTexture->setObjectName(QString::fromUtf8("normalTexture"));
+        sizePolicy.setHeightForWidth(normalTexture->sizePolicy().hasHeightForWidth());
+        normalTexture->setSizePolicy(sizePolicy);
+        normalTexture->setMinimumSize(QSize(50, 50));
 
-        horizontalLayout_8->addWidget(pushButton_3);
+        horizontalLayout_8->addWidget(normalTexture);
 
         verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(6);
@@ -357,13 +357,13 @@ public:
         horizontalLayout_10->setSpacing(6);
         horizontalLayout_10->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
-        pushButton_4 = new QPushButton(groupBox_4);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
-        sizePolicy.setHeightForWidth(pushButton_4->sizePolicy().hasHeightForWidth());
-        pushButton_4->setSizePolicy(sizePolicy);
-        pushButton_4->setMinimumSize(QSize(50, 50));
+        metallicTexture = new QPushButton(groupBox_4);
+        metallicTexture->setObjectName(QString::fromUtf8("metallicTexture"));
+        sizePolicy.setHeightForWidth(metallicTexture->sizePolicy().hasHeightForWidth());
+        metallicTexture->setSizePolicy(sizePolicy);
+        metallicTexture->setMinimumSize(QSize(50, 50));
 
-        horizontalLayout_10->addWidget(pushButton_4);
+        horizontalLayout_10->addWidget(metallicTexture);
 
         verticalLayout_5 = new QVBoxLayout();
         verticalLayout_5->setSpacing(6);
@@ -405,13 +405,13 @@ public:
         horizontalLayout_12->setSpacing(6);
         horizontalLayout_12->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
-        pushButton_5 = new QPushButton(groupBox_5);
-        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
-        sizePolicy.setHeightForWidth(pushButton_5->sizePolicy().hasHeightForWidth());
-        pushButton_5->setSizePolicy(sizePolicy);
-        pushButton_5->setMinimumSize(QSize(50, 50));
+        roughnessTexture = new QPushButton(groupBox_5);
+        roughnessTexture->setObjectName(QString::fromUtf8("roughnessTexture"));
+        sizePolicy.setHeightForWidth(roughnessTexture->sizePolicy().hasHeightForWidth());
+        roughnessTexture->setSizePolicy(sizePolicy);
+        roughnessTexture->setMinimumSize(QSize(50, 50));
 
-        horizontalLayout_12->addWidget(pushButton_5);
+        horizontalLayout_12->addWidget(roughnessTexture);
 
         verticalLayout_6 = new QVBoxLayout();
         verticalLayout_6->setSpacing(6);
@@ -453,13 +453,13 @@ public:
         horizontalLayout_16->setSpacing(6);
         horizontalLayout_16->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
-        pushButton_7 = new QPushButton(groupBox_7);
-        pushButton_7->setObjectName(QString::fromUtf8("pushButton_7"));
-        sizePolicy.setHeightForWidth(pushButton_7->sizePolicy().hasHeightForWidth());
-        pushButton_7->setSizePolicy(sizePolicy);
-        pushButton_7->setMinimumSize(QSize(50, 50));
+        emissiveTexture = new QPushButton(groupBox_7);
+        emissiveTexture->setObjectName(QString::fromUtf8("emissiveTexture"));
+        sizePolicy.setHeightForWidth(emissiveTexture->sizePolicy().hasHeightForWidth());
+        emissiveTexture->setSizePolicy(sizePolicy);
+        emissiveTexture->setMinimumSize(QSize(50, 50));
 
-        horizontalLayout_16->addWidget(pushButton_7);
+        horizontalLayout_16->addWidget(emissiveTexture);
 
         verticalLayout_8 = new QVBoxLayout();
         verticalLayout_8->setSpacing(6);
@@ -501,13 +501,13 @@ public:
         horizontalLayout_18->setSpacing(6);
         horizontalLayout_18->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_18->setObjectName(QString::fromUtf8("horizontalLayout_18"));
-        pushButton_8 = new QPushButton(groupBox_8);
-        pushButton_8->setObjectName(QString::fromUtf8("pushButton_8"));
-        sizePolicy.setHeightForWidth(pushButton_8->sizePolicy().hasHeightForWidth());
-        pushButton_8->setSizePolicy(sizePolicy);
-        pushButton_8->setMinimumSize(QSize(50, 50));
+        aoTexture = new QPushButton(groupBox_8);
+        aoTexture->setObjectName(QString::fromUtf8("aoTexture"));
+        sizePolicy.setHeightForWidth(aoTexture->sizePolicy().hasHeightForWidth());
+        aoTexture->setSizePolicy(sizePolicy);
+        aoTexture->setMinimumSize(QSize(50, 50));
 
-        horizontalLayout_18->addWidget(pushButton_8);
+        horizontalLayout_18->addWidget(aoTexture);
 
         verticalLayout_9 = new QVBoxLayout();
         verticalLayout_9->setSpacing(6);
@@ -525,10 +525,10 @@ public:
 
         horizontalLayout_19->addWidget(label_12);
 
-        lineEdit_8 = new QLineEdit(groupBox_8);
-        lineEdit_8->setObjectName(QString::fromUtf8("lineEdit_8"));
+        aoIntensity = new QLineEdit(groupBox_8);
+        aoIntensity->setObjectName(QString::fromUtf8("aoIntensity"));
 
-        horizontalLayout_19->addWidget(lineEdit_8);
+        horizontalLayout_19->addWidget(aoIntensity);
 
         horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -575,22 +575,22 @@ public:
         useSpecTexture->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_10->setText(QCoreApplication::translate("MaterialEditor", "spec intensity", nullptr));
         groupBox_3->setTitle(QCoreApplication::translate("MaterialEditor", "Normal", nullptr));
-        pushButton_3->setText(QString());
+        normalTexture->setText(QString());
         checkBox_3->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         groupBox_4->setTitle(QCoreApplication::translate("MaterialEditor", "Metallic", nullptr));
-        pushButton_4->setText(QString());
+        metallicTexture->setText(QString());
         checkBox_4->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_8->setText(QCoreApplication::translate("MaterialEditor", "value", nullptr));
         groupBox_5->setTitle(QCoreApplication::translate("MaterialEditor", "Roughness", nullptr));
-        pushButton_5->setText(QString());
+        roughnessTexture->setText(QString());
         checkBox_5->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_9->setText(QCoreApplication::translate("MaterialEditor", "value", nullptr));
         groupBox_7->setTitle(QCoreApplication::translate("MaterialEditor", "Emissive", nullptr));
-        pushButton_7->setText(QString());
+        emissiveTexture->setText(QString());
         checkBox_7->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_11->setText(QCoreApplication::translate("MaterialEditor", "HDR intensity", nullptr));
         groupBox_8->setTitle(QCoreApplication::translate("MaterialEditor", "AO", nullptr));
-        pushButton_8->setText(QString());
+        aoTexture->setText(QString());
         checkBox_8->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_12->setText(QCoreApplication::translate("MaterialEditor", "Color", nullptr));
     } // retranslateUi

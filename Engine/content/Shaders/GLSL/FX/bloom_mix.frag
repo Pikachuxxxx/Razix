@@ -14,7 +14,7 @@
  // Vertex Input
  layout(location = 0) in VSOutput
  {
-     vec2 fragTexCoord;
+     vec2 fragUV;
  }fs_in;
 
  //------------------------------------------------------------------------------
@@ -33,8 +33,8 @@ layout(location = 0) out vec4 outFragColor;
 
 void main()
 {
-    vec3 hdrColor = texture(sceneHDRTexture, fs_in.fragTexCoord).rgb;
-    vec3 bloomColor = texture(bloomBlurTexture, fs_in.fragTexCoord).rgb;
+    vec3 hdrColor = texture(sceneHDRTexture, fs_in.fragUV).rgb;
+    vec3 bloomColor = texture(bloomBlurTexture, fs_in.fragUV).rgb;
     vec3 color =  mix(hdrColor, bloomColor, pcData.bloomStrength); // linear interpolation
 
     switch(pcData.toneMapMode)

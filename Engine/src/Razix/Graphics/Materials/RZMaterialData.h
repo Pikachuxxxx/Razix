@@ -3,8 +3,8 @@
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Utilities/RZVendorOverrides.h"
 
-#include <glm/glm.hpp>
 #include <cereal/cereal.hpp>
+#include <glm/glm.hpp>
 
 namespace Razix {
     namespace Graphics {
@@ -62,21 +62,21 @@ namespace Razix {
 
         struct MaterialTexturePaths
         {
-            char albedo[250];
-            char normal[250];
-            char metallic[250];
-            char roughness[250];
-            char specular[250];
-            char emissive[250];
-            char ao[250];
+            char albedo[250]    = {};
+            char normal[250]    = {};
+            char metallic[250]  = {};
+            char roughness[250] = {};
+            char specular[250]  = {};
+            char emissive[250]  = {};
+            char ao[250]        = {};
         };
 
 #if 1
         struct MaterialData
         {
-            char                 m_Name[250];
-            MaterialProperties   m_MaterialProperties;
-            MaterialTexturePaths m_MaterialTextures;
+            char                 m_Name[250]          = {};
+            MaterialProperties   m_MaterialProperties = {};
+            MaterialTexturePaths m_MaterialTextures   = {};
 
             // NOTE: This probably won't be used, we will use binary files instead
             template<typename Archive>

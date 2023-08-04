@@ -24,7 +24,7 @@ layout(location = 0) in VSOutput
 {
     vec3 fragPos;
     vec4 fragColor;
-    vec2 fragTexCoord;
+    vec2 fragUV;
     vec3 fragNormal;
     vec3 fragTangent;
     vec3 viewPos;
@@ -46,10 +46,10 @@ void main()
     vec3 N = normalize(fs_in.fragNormal);
     vec3 V = normalize(fs_in.viewPos - fs_in.fragPos);
 
-    vec3 albedo = Mat_getAlbedoColor(fs_in.fragTexCoord);
-    float metallic = Mat_getMetallicColor(fs_in.fragTexCoord);
-    float roughness = Mat_getRoughnessColor(fs_in.fragTexCoord);
-    float ao = Mat_getAOColor(fs_in.fragTexCoord);
+    vec3 albedo = Mat_getAlbedoColor(fs_in.fragUV);
+    float metallic = Mat_getMetallicColor(fs_in.fragUV);
+    float roughness = Mat_getRoughnessColor(fs_in.fragUV);
+    float ao = Mat_getAOColor(fs_in.fragUV);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -97,5 +97,5 @@ void main()
     // gamma correct
     result = pow(result, vec3(1.0/2.2)); 
 
-    outSceneColor = vec4(result, getOpacity(fs_in.fragTexCoord));
+    outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
 }

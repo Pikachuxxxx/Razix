@@ -23,7 +23,7 @@ layout (push_constant) uniform PushConstants {
 // Vertex Shader Stage Output
 layout(location = 0) out VSOutput
 {
-     vec2 fragTexCoord;
+     vec2 fragUV;
      vec4 fragColor;
 }vs_out;
 
@@ -43,7 +43,7 @@ void main()
     //float CPr = float((inColor & 0x000000ff)) / 255.0;
 
     // Out from vertex shader
-	vs_out.fragTexCoord = inUV;
+	vs_out.fragUV = inUV;
     vs_out.fragColor    = inColor;
 }
 //------------------------------------------------------------------------------

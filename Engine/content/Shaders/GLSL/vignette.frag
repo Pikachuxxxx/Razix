@@ -12,7 +12,7 @@
  // Vertex Input
  layout(location = 0) in VSOutput
  {
-     vec2 fragTexCoord;
+     vec2 fragUV;
  }fs_in;
 
  layout (push_constant) uniform Resolution{
@@ -28,7 +28,7 @@ layout(location = 0) out vec4 outFragColor;
 void main()
 {
 
-	vec2 uv = fs_in.fragTexCoord;
+	vec2 uv = fs_in.fragUV;
    
     uv *=  1.0 - uv.yx;   //vec2(1.0)- uv.yx; -> 1.-u.yx; Thanks FabriceNeyret !
     
@@ -36,8 +36,8 @@ void main()
     
     vig = pow(vig, 0.25); // change pow for modifying the extend of the  vignette
 
-    outFragColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
-    outFragColor = texture(texSampler, fs_in.fragTexCoord) * vec4(vec3(vig), 1.0f);
+    outFragColor = vec4(fs_in.fragUV, 0.0f, 1.0f);
+    outFragColor = texture(texSampler, fs_in.fragUV) * vec4(vec3(vig), 1.0f);
 
 }
 //------------------------------------------------------------------------------

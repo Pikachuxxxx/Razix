@@ -34,6 +34,8 @@ namespace Razix {
             // Specular
             void on_SpecularTextureSelected();
             void on_SpecularIntensity();
+            // Normal
+            void on_NormaTextureSelected();
             // Metallic
             void on_MetallicValueSet();
             void on_MetallicTextureSelected();
@@ -43,6 +45,9 @@ namespace Razix {
             // Emission
             /* Used for HDR Bloom intensity */
             void on_EmissionIntensity();
+            // AO
+            void on_AOValueSet();
+            void on_AOTextureSelected();
 
         private:
             Ui::MaterialEditor           ui;

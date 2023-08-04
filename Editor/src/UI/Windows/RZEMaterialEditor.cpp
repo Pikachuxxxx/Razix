@@ -25,9 +25,14 @@ namespace Razix {
             connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_DiffuseTextureSelect()));
             connect(ui.diffuseColor, SIGNAL(pressed()), this, SLOT(on_DiffuseColor()));
             connect(ui.specTexture, SIGNAL(pressed()), this, SLOT(on_SpecularTextureSelected()));
+            connect(ui.normalTexture, SIGNAL(pressed()), this, SLOT(on_NormaTextureSelected()));
             connect(ui.metallicValue, SIGNAL(returnPressed()), this, SLOT(on_MetallicValueSet()));
+            connect(ui.metallicTexture, SIGNAL(pressed()), this, SLOT(on_MetallicTextureSelected()));
             connect(ui.roughnessValue, SIGNAL(returnPressed()), this, SLOT(on_RoughnessValueSet()));
+            connect(ui.roughnessTexture, SIGNAL(pressed()), this, SLOT(on_RoughnessTextureSelected()));
             connect(ui.emissiveIntensity, SIGNAL(returnPressed()), this, SLOT(on_EmissionIntensity()));
+            connect(ui.aoIntensity, SIGNAL(returnPressed()), this, SLOT(on_AOValueSet()));
+            connect(ui.aoTexture, SIGNAL(pressed()), this, SLOT(on_AOTextureSelected()));
         }
 
         RZEMaterialEditor::~RZEMaterialEditor()
@@ -47,7 +52,10 @@ namespace Razix {
             // Diffuse stuff
             auto& props    = material->getProperties();
             m_DiffuseColor = QColor(props.albedoColor.x, props.albedoColor.y, props.albedoColor.z);
-            ui.diffuseColor->setStyleSheet("background-color: " + m_DiffuseColor.name());
+            QPalette pal   = ui.diffuseColor->palette();
+            pal.setColor(QPalette::Button, m_DiffuseColor);
+            ui.diffuseColor->setAutoFillBackground(true);
+            ui.diffuseColor->setPalette(pal);
 
             // Specular
             ui.specIntensity->setText(std::to_string(props.specularColor).c_str());
@@ -62,6 +70,7 @@ namespace Razix {
             ui.roughnessValue->setText(std::to_string(props.roughnessColor).c_str());
         }
 
+        //---------------------------------------------------------------------------
         void RZEMaterialEditor::on_DiffuseTextureSelect()
         {
             auto    fileName = QFileDialog::getOpenFileName(this, "Select Diffuse Texture", "");
@@ -70,7 +79,7 @@ namespace Razix {
             ui.diffuseTexture->setIcon(ButtonIcon);
             ui.diffuseTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material)
+            if (!m_Material || fileName.isEmpty())
                 return;
 
             auto& matTextures = m_Material->getTextures();
@@ -103,6 +112,8 @@ namespace Razix {
             m_Material->setProperties(matProps);
         }
 
+        //---------------------------------------------------------------------------
+
         void RZEMaterialEditor::on_SpecularTextureSelected()
         {
             auto    fileName = QFileDialog::getOpenFileName(this, "Select Specular Texture", "");
@@ -111,7 +122,7 @@ namespace Razix {
             ui.specTexture->setIcon(ButtonIcon);
             ui.specTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material)
+            if (!m_Material || fileName.isEmpty())
                 return;
 
             auto& matTextures = m_Material->getTextures();
@@ -125,6 +136,25 @@ namespace Razix {
             // Get the number from the LineEdit and set the specular float in the MaterialData struct
         }
 
+        //---------------------------------------------------------------------------
+
+        void RZEMaterialEditor::on_NormaTextureSelected()
+        {
+            auto    fileName = QFileDialog::getOpenFileName(this, "Select Normal Texture", "");
+            QPixmap pixmap(fileName);
+            QIcon   ButtonIcon(pixmap);
+            ui.normalTexture->setIcon(ButtonIcon);
+            ui.normalTexture->setIconSize(QSize(40, 40));
+
+            if (!m_Material || fileName.isEmpty())
+                return;
+
+            auto& matTextures  = m_Material->getTextures();
+            matTextures.normal = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
+            m_Material->setTextures(matTextures);
+        }
+        //---------------------------------------------------------------------------
+
         void RZEMaterialEditor::on_MetallicValueSet()
         {
             if (!m_Material)
@@ -137,10 +167,26 @@ namespace Razix {
 
         void RZEMaterialEditor::on_MetallicTextureSelected()
         {
+            auto    fileName = QFileDialog::getOpenFileName(this, "Select Metallic Texture", "");
+            QPixmap pixmap(fileName);
+            QIcon   ButtonIcon(pixmap);
+            ui.metallicTexture->setIcon(ButtonIcon);
+            ui.metallicTexture->setIconSize(QSize(40, 40));
+
+            if (!m_Material || fileName.isEmpty())
+                return;
+
+            auto& matTextures    = m_Material->getTextures();
+            matTextures.metallic = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
+            m_Material->setTextures(matTextures);
         }
+        //---------------------------------------------------------------------------
 
         void RZEMaterialEditor::on_RoughnessValueSet()
         {
+            if (!m_Material)
+                return;
+
             auto matProps           = m_Material->getProperties();
             matProps.roughnessColor = ui.roughnessValue->text().toFloat();
             m_Material->setProperties(matProps);
@@ -148,7 +194,20 @@ namespace Razix {
 
         void RZEMaterialEditor::on_RoughnessTextureSelected()
         {
+            auto    fileName = QFileDialog::getOpenFileName(this, "Select Roughness Texture", "");
+            QPixmap pixmap(fileName);
+            QIcon   ButtonIcon(pixmap);
+            ui.roughnessTexture->setIcon(ButtonIcon);
+            ui.roughnessTexture->setIconSize(QSize(40, 40));
+
+            if (!m_Material || fileName.isEmpty())
+                return;
+
+            auto& matTextures     = m_Material->getTextures();
+            matTextures.roughness = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
+            m_Material->setTextures(matTextures);
         }
+        //---------------------------------------------------------------------------
 
         void RZEMaterialEditor::on_EmissionIntensity()
         {
@@ -159,5 +218,35 @@ namespace Razix {
             matProps.emissiveIntensity = ui.emissiveIntensity->text().toFloat();
             m_Material->setProperties(matProps);
         }
+        //---------------------------------------------------------------------------
+
+        void RZEMaterialEditor::on_AOValueSet()
+        {
+            if (!m_Material)
+                return;
+
+            auto matProps             = m_Material->getProperties();
+            matProps.ambientOcclusion = ui.roughnessValue->text().toFloat();
+            m_Material->setProperties(matProps);
+        }
+
+        void RZEMaterialEditor::on_AOTextureSelected()
+        {
+            auto    fileName = QFileDialog::getOpenFileName(this, "Select AO Texture", "");
+            QPixmap pixmap(fileName);
+            QIcon   ButtonIcon(pixmap);
+            ui.aoTexture->setIcon(ButtonIcon);
+            ui.aoTexture->setIconSize(QSize(40, 40));
+
+            if (!m_Material || fileName.isEmpty())
+                return;
+
+            auto& matTextures = m_Material->getTextures();
+            matTextures.ao    = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
+            m_Material->setTextures(matTextures);
+        }
+
+        //---------------------------------------------------------------------------
+
     }    // namespace Editor
 }    // namespace Razix

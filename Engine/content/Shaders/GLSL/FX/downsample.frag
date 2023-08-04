@@ -21,7 +21,7 @@
  // Vertex Input
  layout(location = 0) in VSOutput
  {
-     vec2 fragTexCoord;
+     vec2 fragUV;
  }fs_in;
 
 //------------------------------------------------------------------------------
@@ -50,22 +50,22 @@ void main()
     // - l - m -
     // g - h - i
     // === ('e' is the current texel) ===
-    vec3 a = texture(srcTexture, vec2(fs_in.fragTexCoord.x - 2*x, fs_in.fragTexCoord.y + 2*y)).rgb;
-    vec3 b = texture(srcTexture, vec2(fs_in.fragTexCoord.x,       fs_in.fragTexCoord.y + 2*y)).rgb;
-    vec3 c = texture(srcTexture, vec2(fs_in.fragTexCoord.x + 2*x, fs_in.fragTexCoord.y + 2*y)).rgb;
+    vec3 a = texture(srcTexture, vec2(fs_in.fragUV.x - 2*x, fs_in.fragUV.y + 2*y)).rgb;
+    vec3 b = texture(srcTexture, vec2(fs_in.fragUV.x,       fs_in.fragUV.y + 2*y)).rgb;
+    vec3 c = texture(srcTexture, vec2(fs_in.fragUV.x + 2*x, fs_in.fragUV.y + 2*y)).rgb;
 
-    vec3 d = texture(srcTexture, vec2(fs_in.fragTexCoord.x - 2*x, fs_in.fragTexCoord.y)).rgb;
-    vec3 e = texture(srcTexture, vec2(fs_in.fragTexCoord.x,       fs_in.fragTexCoord.y)).rgb;
-    vec3 f = texture(srcTexture, vec2(fs_in.fragTexCoord.x + 2*x, fs_in.fragTexCoord.y)).rgb;
+    vec3 d = texture(srcTexture, vec2(fs_in.fragUV.x - 2*x, fs_in.fragUV.y)).rgb;
+    vec3 e = texture(srcTexture, vec2(fs_in.fragUV.x,       fs_in.fragUV.y)).rgb;
+    vec3 f = texture(srcTexture, vec2(fs_in.fragUV.x + 2*x, fs_in.fragUV.y)).rgb;
 
-    vec3 g = texture(srcTexture, vec2(fs_in.fragTexCoord.x - 2*x, fs_in.fragTexCoord.y - 2*y)).rgb;
-    vec3 h = texture(srcTexture, vec2(fs_in.fragTexCoord.x,       fs_in.fragTexCoord.y - 2*y)).rgb;
-    vec3 i = texture(srcTexture, vec2(fs_in.fragTexCoord.x + 2*x, fs_in.fragTexCoord.y - 2*y)).rgb;
+    vec3 g = texture(srcTexture, vec2(fs_in.fragUV.x - 2*x, fs_in.fragUV.y - 2*y)).rgb;
+    vec3 h = texture(srcTexture, vec2(fs_in.fragUV.x,       fs_in.fragUV.y - 2*y)).rgb;
+    vec3 i = texture(srcTexture, vec2(fs_in.fragUV.x + 2*x, fs_in.fragUV.y - 2*y)).rgb;
 
-    vec3 j = texture(srcTexture, vec2(fs_in.fragTexCoord.x - x, fs_in.fragTexCoord.y + y)).rgb;
-    vec3 k = texture(srcTexture, vec2(fs_in.fragTexCoord.x + x, fs_in.fragTexCoord.y + y)).rgb;
-    vec3 l = texture(srcTexture, vec2(fs_in.fragTexCoord.x - x, fs_in.fragTexCoord.y - y)).rgb;
-    vec3 m = texture(srcTexture, vec2(fs_in.fragTexCoord.x + x, fs_in.fragTexCoord.y - y)).rgb;
+    vec3 j = texture(srcTexture, vec2(fs_in.fragUV.x - x, fs_in.fragUV.y + y)).rgb;
+    vec3 k = texture(srcTexture, vec2(fs_in.fragUV.x + x, fs_in.fragUV.y + y)).rgb;
+    vec3 l = texture(srcTexture, vec2(fs_in.fragUV.x - x, fs_in.fragUV.y - y)).rgb;
+    vec3 m = texture(srcTexture, vec2(fs_in.fragUV.x + x, fs_in.fragUV.y - y)).rgb;
 
     // Apply weighted distribution:
     // 0.5 + 0.125 + 0.125 + 0.125 + 0.125 = 1

@@ -19,7 +19,7 @@ layout(location = 0) in VSOutput
 {
     vec3 fragPos;
     vec4 fragColor;
-    vec2 fragTexCoord;
+    vec2 fragUV;
     vec3 fragNormal;
     vec3 fragTangent;
     vec3 viewPos;
@@ -101,20 +101,20 @@ vec3 CalculateDirectionalLightContribution(LightData light, vec3 normal, vec3 vi
 {
     // Ambient
     float ambientStrength  = 0.1f;
-    vec3 ambient  = ambientStrength * light.color.rgb * Mat_getAlbedoColor(fs_in.fragTexCoord);
+    vec3 ambient  = ambientStrength * light.color.rgb * Mat_getAlbedoColor(fs_in.fragUV);
 
     // Diffuse
     // Since IDK how to use the light direction I will use the position and normalize it
     vec3 lightDir = normalize(light.position.xyz);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color * Mat_getAlbedoColor(fs_in.fragTexCoord);
+    vec3 diffuse = diff * light.color * Mat_getAlbedoColor(fs_in.fragUV);
      
     // Specular shading
     float specularStrength = 1.0;
     vec3 viewDir = normalize(viewPos - fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * light.color * getSpecularColor(fs_in.fragTexCoord);
+    vec3 specular = specularStrength * spec * light.color * getSpecularColor(fs_in.fragUV);
 
     // combine results
     return ambient + diffuse + specular;
@@ -132,19 +132,19 @@ vec3 CalculatePointLightContribution(LightData light, vec3 normal, vec3 viewPos)
 {
     // Ambient
     float ambientStrength  = 0.1f;
-    vec3 ambient  = ambientStrength * light.color.rgb * Mat_getAlbedoColor(fs_in.fragTexCoord);
+    vec3 ambient  = ambientStrength * light.color.rgb * Mat_getAlbedoColor(fs_in.fragUV);
 
     // Diffuse
     vec3 lightDir = normalize(light.position - fs_in.fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color * Mat_getAlbedoColor(fs_in.fragTexCoord);
+    vec3 diffuse = diff * light.color * Mat_getAlbedoColor(fs_in.fragUV);
      
     // Specular shading
     float specularStrength = 1.0;
     vec3 viewDir = normalize(viewPos - fs_in.fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * light.color * getSpecularColor(fs_in.fragTexCoord);
+    vec3 specular = specularStrength * spec * light.color * getSpecularColor(fs_in.fragUV);
 
     // attenuation
     float distance    = length(light.position - fs_in.fragPos);
@@ -180,11 +180,11 @@ void main()
         result += CalculatePointLightContribution(lightBuffer.data[0], normalize(normal), fs_in.viewPos);
 
     // Discard alpha samples
-    if(getOpacity(fs_in.fragTexCoord) < 0.1)
+    if(Mat_getOpacity(fs_in.fragUV) < 0.1)
         discard;
     //-----------------------------------------------
     // Opacity check
-    outSceneColor = vec4(result, getOpacity(fs_in.fragTexCoord));
+    outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
 
     //-----------------------------------------------
     // Shadow map calculation
@@ -200,7 +200,7 @@ void main()
 
     //-----------------------------------------------
     // Test the CSM at layer 0
-    //float depthValue = texture(CascadedShadowMaps, vec3(fs_in.fragTexCoord, 0)).r;
+    //float depthValue = texture(CascadedShadowMaps, vec3(fs_in.fragUV, 0)).r;
     //outSceneColor = vec4(vec3(depthValue), 1.0);
     //-----------------------------------------------
     // Cascaded Shadow calculation

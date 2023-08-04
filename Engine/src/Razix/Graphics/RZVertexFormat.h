@@ -30,7 +30,7 @@ namespace Razix {
             glm::vec3 Tangent;
 
             RZVertex()
-                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), UV(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)) {}
+                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), UV(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)){}
 
             bool operator==(const RZVertex& other) const
             {

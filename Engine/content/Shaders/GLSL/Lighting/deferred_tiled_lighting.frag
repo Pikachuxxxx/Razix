@@ -13,7 +13,7 @@
 // Vertex Input
 layout(location = 0) in VSOutput
 { 
-    vec2 fragTexCoord;
+    vec2 fragUV;
 }fs_in;
 //------------------------------------------------------------------------------ 
 // Uniforms and Sampler Input attachments
@@ -96,13 +96,13 @@ void main()
     //// Decoding the GBuffer textures
     ////---------------------------------------------------------------------------
     //// Get the depth of the fragments + clipping for <= 1.0f
-    //const float depth = getDepth(SceneDepth, fs_in.fragTexCoord);
+    //const float depth = getDepth(SceneDepth, fs_in.fragUV);
     //if (depth >= 1.0) discard;
     //
-    //const vec3 albedoColor = texture(GBuffer1, fs_in.fragTexCoord).rgb;
-    //const vec3 emissiveColor = texture(GBuffer2, fs_in.fragTexCoord).rgb;
+    //const vec3 albedoColor = texture(GBuffer1, fs_in.fragUV).rgb;
+    //const vec3 emissiveColor = texture(GBuffer2, fs_in.fragUV).rgb;
     //
-    //vec4 mroa = texture(GBuffer3, fs_in.fragTexCoord);
+    //vec4 mroa = texture(GBuffer3, fs_in.fragUV);
     //
     //const float metallic = mroa.r;
     //const float roughness = mroa.g;
@@ -117,10 +117,10 @@ void main()
     //// V = fragment to eye direction (eyeViewDir)
     //// H = halfway vector (between V and L)
     //
-    //const vec3 fragPosViewSpace = viewPositionFromDepth(depth, fs_in.fragTexCoord);
+    //const vec3 fragPosViewSpace = viewPositionFromDepth(depth, fs_in.fragUV);
     //const vec3 fragPosWorldSpace = (u_Frame.camera.inversedView * vec4(fragPosViewSpace, 1.0)).xyz;
     //
-    //vec3 N = normalize(texture(GBuffer0, fs_in.fragTexCoord).rgb);
+    //vec3 N = normalize(texture(GBuffer0, fs_in.fragUV).rgb);
     //const vec3 V = normalize(getCameraPosition() - fragPosWorldSpace);
     //const float NdotV = clamp01(dot(N, V));
     //

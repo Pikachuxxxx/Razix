@@ -16,7 +16,7 @@ layout(location = 0) in VSOutput
 {
     vec3 fragPos;
     vec4 fragColor;
-    vec2 fragTexCoord;
+    vec2 fragUV;
     vec3 fragNormal;
     vec3 fragTangent;
     vec3 viewPos;
@@ -33,11 +33,11 @@ void main()
     // Write the Normals to the GBuffer0  
     GBuffer0 = vec4(normalize(fs_in.fragNormal), 1.0f);
 
-    GBuffer1 = vec4(texture(albedoMap, fs_in.fragTexCoord).rgb, 1.0f);
+    GBuffer1 = vec4(texture(albedoMap, fs_in.fragUV).rgb, 1.0f);
     GBuffer2 = vec4(vec3(fs_in.fragPos), 1.0f);
 
     // Since the current GLTTF modedls have a MetallicgRoughNesAO maps we hard code this shit ( GLTF texutes .r = empty (mostly) .g = roughness .b = metallic .a = AO)
-    vec4 MetallicRoughnessAO = texture(metallicMap, fs_in.fragTexCoord);
+    vec4 MetallicRoughnessAO = texture(metallicMap, fs_in.fragUV);
 
     // GBuffer3 :: .r = Metallic .g = roughness .b = AO .a = specular
     GBuffer3 = vec4( MetallicRoughnessAO.b, MetallicRoughnessAO.g, MetallicRoughnessAO.a, material.opacity);

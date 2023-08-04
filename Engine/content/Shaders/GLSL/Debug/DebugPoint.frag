@@ -13,7 +13,7 @@
  layout(location = 0) in VSOutput
  {
     vec4 fragColor;
-    vec2 fragTexCoord;
+    vec2 fragUV;
 }fs_in;
 
 //------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ float LinearizeDepth(float depth)
 
 void main()
 {
-	float distSq = dot(fs_in.fragTexCoord, fs_in.fragTexCoord);
+	float distSq = dot(fs_in.fragUV, fs_in.fragUV);
 	if (distSq > 1.0)
 	{
 		discard;

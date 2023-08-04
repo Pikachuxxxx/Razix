@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEMaterialEditor_t {
-    QByteArrayData data[15];
-    char stringdata0[326];
+    QByteArrayData data[18];
+    char stringdata0[385];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -43,11 +43,14 @@ QT_MOC_LITERAL(6, 117, 27), // "onDiffuseTextureUseCheckbox"
 QT_MOC_LITERAL(7, 145, 15), // "on_DiffuseColor"
 QT_MOC_LITERAL(8, 161, 26), // "on_SpecularTextureSelected"
 QT_MOC_LITERAL(9, 188, 20), // "on_SpecularIntensity"
-QT_MOC_LITERAL(10, 209, 19), // "on_MetallicValueSet"
-QT_MOC_LITERAL(11, 229, 26), // "on_MetallicTextureSelected"
-QT_MOC_LITERAL(12, 256, 20), // "on_RoughnessValueSet"
-QT_MOC_LITERAL(13, 277, 27), // "on_RoughnessTextureSelected"
-QT_MOC_LITERAL(14, 305, 20) // "on_EmissionIntensity"
+QT_MOC_LITERAL(10, 209, 23), // "on_NormaTextureSelected"
+QT_MOC_LITERAL(11, 233, 19), // "on_MetallicValueSet"
+QT_MOC_LITERAL(12, 253, 26), // "on_MetallicTextureSelected"
+QT_MOC_LITERAL(13, 280, 20), // "on_RoughnessValueSet"
+QT_MOC_LITERAL(14, 301, 27), // "on_RoughnessTextureSelected"
+QT_MOC_LITERAL(15, 329, 20), // "on_EmissionIntensity"
+QT_MOC_LITERAL(16, 350, 13), // "on_AOValueSet"
+QT_MOC_LITERAL(17, 364, 20) // "on_AOTextureSelected"
 
     },
     "Razix::Editor::RZEMaterialEditor\0"
@@ -56,10 +59,11 @@ QT_MOC_LITERAL(14, 305, 20) // "on_EmissionIntensity"
     "on_DiffuseTextureSelect\0"
     "onDiffuseTextureUseCheckbox\0on_DiffuseColor\0"
     "on_SpecularTextureSelected\0"
-    "on_SpecularIntensity\0on_MetallicValueSet\0"
-    "on_MetallicTextureSelected\0"
+    "on_SpecularIntensity\0on_NormaTextureSelected\0"
+    "on_MetallicValueSet\0on_MetallicTextureSelected\0"
     "on_RoughnessValueSet\0on_RoughnessTextureSelected\0"
-    "on_EmissionIntensity"
+    "on_EmissionIntensity\0on_AOValueSet\0"
+    "on_AOTextureSelected"
 };
 #undef QT_MOC_LITERAL
 
@@ -69,7 +73,7 @@ static const uint qt_meta_data_Razix__Editor__RZEMaterialEditor[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      14,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -77,20 +81,26 @@ static const uint qt_meta_data_Razix__Editor__RZEMaterialEditor[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   69,    2, 0x0a /* Public */,
-       5,    0,   72,    2, 0x0a /* Public */,
-       6,    0,   73,    2, 0x0a /* Public */,
-       7,    0,   74,    2, 0x0a /* Public */,
-       8,    0,   75,    2, 0x0a /* Public */,
-       9,    0,   76,    2, 0x0a /* Public */,
-      10,    0,   77,    2, 0x0a /* Public */,
-      11,    0,   78,    2, 0x0a /* Public */,
-      12,    0,   79,    2, 0x0a /* Public */,
-      13,    0,   80,    2, 0x0a /* Public */,
-      14,    0,   81,    2, 0x0a /* Public */,
+       1,    1,   84,    2, 0x0a /* Public */,
+       5,    0,   87,    2, 0x0a /* Public */,
+       6,    0,   88,    2, 0x0a /* Public */,
+       7,    0,   89,    2, 0x0a /* Public */,
+       8,    0,   90,    2, 0x0a /* Public */,
+       9,    0,   91,    2, 0x0a /* Public */,
+      10,    0,   92,    2, 0x0a /* Public */,
+      11,    0,   93,    2, 0x0a /* Public */,
+      12,    0,   94,    2, 0x0a /* Public */,
+      13,    0,   95,    2, 0x0a /* Public */,
+      14,    0,   96,    2, 0x0a /* Public */,
+      15,    0,   97,    2, 0x0a /* Public */,
+      16,    0,   98,    2, 0x0a /* Public */,
+      17,    0,   99,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -117,11 +127,14 @@ void Razix::Editor::RZEMaterialEditor::qt_static_metacall(QObject *_o, QMetaObje
         case 3: _t->on_DiffuseColor(); break;
         case 4: _t->on_SpecularTextureSelected(); break;
         case 5: _t->on_SpecularIntensity(); break;
-        case 6: _t->on_MetallicValueSet(); break;
-        case 7: _t->on_MetallicTextureSelected(); break;
-        case 8: _t->on_RoughnessValueSet(); break;
-        case 9: _t->on_RoughnessTextureSelected(); break;
-        case 10: _t->on_EmissionIntensity(); break;
+        case 6: _t->on_NormaTextureSelected(); break;
+        case 7: _t->on_MetallicValueSet(); break;
+        case 8: _t->on_MetallicTextureSelected(); break;
+        case 9: _t->on_RoughnessValueSet(); break;
+        case 10: _t->on_RoughnessTextureSelected(); break;
+        case 11: _t->on_EmissionIntensity(); break;
+        case 12: _t->on_AOValueSet(); break;
+        case 13: _t->on_AOTextureSelected(); break;
         default: ;
         }
     }
@@ -156,13 +169,13 @@ int Razix::Editor::RZEMaterialEditor::qt_metacall(QMetaObject::Call _c, int _id,
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 14;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 14)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 11;
+        _id -= 14;
     }
     return _id;
 }
