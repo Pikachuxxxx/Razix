@@ -36,6 +36,9 @@ namespace Razix {
             RAZIX_INLINE const MaterialProperties& getProperties() const { return m_MaterialData.m_MaterialProperties; }
             void                                   setProperties(MaterialProperties& props);
 
+            RAZIX_INLINE const MaterialTexturePaths& getTexturePaths() const { return m_MaterialData.m_MaterialTexturePaths; }
+            void                                     setTexturePaths(MaterialTexturePaths& paths);
+
             void Bind();
 
             RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }

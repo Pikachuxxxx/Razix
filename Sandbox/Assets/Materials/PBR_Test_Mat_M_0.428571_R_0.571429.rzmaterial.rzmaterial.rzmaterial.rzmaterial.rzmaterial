@@ -1,0 +1,25 @@
+{
+    "$MATERIAL": {
+        "Name": "",
+        "Albedo": "",
+        "Normal": "",
+        "Metallic": "",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 0.30000001192092898,
+            "z": 0.75
+        },
+        "roughnessColor": 0.5714285969734192,
+        "metallicColor": 0.4285714328289032,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

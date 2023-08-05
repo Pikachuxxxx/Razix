@@ -112,7 +112,7 @@ namespace Razix {
             }
 
             material->setProperties(matData.m_MaterialProperties);
-            material->loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
+            material->loadMaterialTexturesFromFiles(matData.m_MaterialTexturePaths);
             material->createDescriptorSet();
 
             return material;

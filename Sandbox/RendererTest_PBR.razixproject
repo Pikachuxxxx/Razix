@@ -8,7 +8,7 @@
         "Height": 1238,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
         "Scenes": [
-            "//Scenes/default Scene.rzscn"
+            "//Scenes/PBR_Balls_Test_Scene.rzscn"
         ]
     }
 }

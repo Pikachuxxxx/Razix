@@ -22,6 +22,8 @@ namespace Razix {
             setObjectName("Material Editor");
 
             // Connections
+            connect(ui.materialName, SIGNAL(returnPressed()), this, SLOT(on_NameChanged()));
+
             connect(ui.diffuseTexture, SIGNAL(pressed()), this, SLOT(on_DiffuseTextureSelect()));
             connect(ui.diffuseColor, SIGNAL(pressed()), this, SLOT(on_DiffuseColor()));
             connect(ui.specTexture, SIGNAL(pressed()), this, SLOT(on_SpecularTextureSelected()));
@@ -44,10 +46,12 @@ namespace Razix {
             m_Material = material;
 
             // Set the Material Name
-            ui.materialNameLbl->setText(m_Material->getName().c_str());
+            ui.materialName->setText(m_Material->getName().c_str());
 
             // Set the Material Editor Properties
-            ui.materialNameLbl->setText(material->getName().c_str());
+            ui.materialName->setText(material->getName().c_str());
+
+            // TODO: Set texture from MaterialTexturePaths struct
 
             // Diffuse stuff
             auto& props    = material->getProperties();
@@ -70,6 +74,14 @@ namespace Razix {
             ui.roughnessValue->setText(std::to_string(props.roughnessColor).c_str());
         }
 
+        void RZEMaterialEditor::on_NameChanged()
+        {
+            if (!m_Material || ui.materialName->text().isEmpty())
+                return;
+
+            m_Material->setName(ui.materialName->text().toStdString());
+        }
+
         //---------------------------------------------------------------------------
         void RZEMaterialEditor::on_DiffuseTextureSelect()
         {
@@ -82,9 +94,14 @@ namespace Razix {
             if (!m_Material || fileName.isEmpty())
                 return;
 
+            auto matTexturePaths = m_Material->getTexturePaths();
+            memcpy(matTexturePaths.albedo, fileName.toStdString().c_str(), 250);
+            m_Material->setTexturePaths(matTexturePaths);
+
             auto& matTextures = m_Material->getTextures();
             //matTextures.albedo->Release();
             matTextures.albedo = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
+
             m_Material->setTextures(matTextures);
         }
 
@@ -125,6 +142,10 @@ namespace Razix {
             if (!m_Material || fileName.isEmpty())
                 return;
 
+            auto matTexturePaths = m_Material->getTexturePaths();
+            memcpy(matTexturePaths.specular, fileName.toStdString().c_str(), 250);
+            m_Material->setTexturePaths(matTexturePaths);
+
             auto& matTextures = m_Material->getTextures();
             //matTextures.albedo->Release();
             matTextures.specular = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
@@ -148,6 +169,10 @@ namespace Razix {
 
             if (!m_Material || fileName.isEmpty())
                 return;
+
+            auto matTexturePaths = m_Material->getTexturePaths();
+            memcpy(matTexturePaths.normal, fileName.toStdString().c_str(), 250);
+            m_Material->setTexturePaths(matTexturePaths);
 
             auto& matTextures  = m_Material->getTextures();
             matTextures.normal = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
@@ -176,6 +201,10 @@ namespace Razix {
             if (!m_Material || fileName.isEmpty())
                 return;
 
+            auto matTexturePaths = m_Material->getTexturePaths();
+            memcpy(matTexturePaths.metallic, fileName.toStdString().c_str(), 250);
+            m_Material->setTexturePaths(matTexturePaths);
+
             auto& matTextures    = m_Material->getTextures();
             matTextures.metallic = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
             m_Material->setTextures(matTextures);
@@ -202,6 +231,10 @@ namespace Razix {
 
             if (!m_Material || fileName.isEmpty())
                 return;
+
+            auto matTexturePaths = m_Material->getTexturePaths();
+            memcpy(matTexturePaths.roughness, fileName.toStdString().c_str(), 250);
+            m_Material->setTexturePaths(matTexturePaths);
 
             auto& matTextures     = m_Material->getTextures();
             matTextures.roughness = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});
@@ -240,6 +273,10 @@ namespace Razix {
 
             if (!m_Material || fileName.isEmpty())
                 return;
+
+            auto matTexturePaths = m_Material->getTexturePaths();
+            memcpy(matTexturePaths.ao, fileName.toStdString().c_str(), 250);
+            m_Material->setTexturePaths(matTexturePaths);
 
             auto& matTextures = m_Material->getTextures();
             matTextures.ao    = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName.toStdString()) fileName.toStdString(), {.name = fileName.toStdString()});

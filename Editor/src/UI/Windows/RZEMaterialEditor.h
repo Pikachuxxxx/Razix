@@ -26,6 +26,7 @@ namespace Razix {
 
         public slots:
             void OnSetEditingMaterial(Razix::Graphics::RZMaterial* material);
+            void on_NameChanged();
             // TODO: In Future use the reflection data to create the fields automatically, since we use a single Material this is perfectly acceptable
             // Diffuse
             void on_DiffuseTextureSelect();

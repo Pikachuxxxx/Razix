@@ -71,7 +71,7 @@ namespace Razix {
                 }
             }
             setProperties(matData.m_MaterialProperties);
-            loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
+            loadMaterialTexturesFromFiles(matData.m_MaterialTexturePaths);
             createDescriptorSet();
         }
 
@@ -99,7 +99,7 @@ namespace Razix {
 
         void RZMaterial::loadMaterialTexturesFromFiles(MaterialTexturePaths paths)
         {
-            m_MaterialData.m_MaterialTextures = paths;
+            m_MaterialData.m_MaterialTexturePaths = paths;
 
             if (paths.albedo && paths.albedo != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.albedo);
@@ -228,6 +228,11 @@ namespace Razix {
             m_MaterialPropertiesUBO->SetData(sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties);
         }
 
+        void RZMaterial::setTexturePaths(MaterialTexturePaths& paths)
+        {
+            memcpy(&m_MaterialData.m_MaterialTexturePaths, &paths, sizeof(paths));
+        }
+
         void RZMaterial::Bind()
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
@@ -272,7 +277,7 @@ namespace Razix {
                 DefaultMaterial->setName("DefaultMaterial");
                 Razix::Graphics::MaterialData matData{};
                 DefaultMaterial->setProperties(matData.m_MaterialProperties);
-                DefaultMaterial->loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
+                DefaultMaterial->loadMaterialTexturesFromFiles(matData.m_MaterialTexturePaths);
                 DefaultMaterial->createDescriptorSet();
                 return DefaultMaterial;
             } else

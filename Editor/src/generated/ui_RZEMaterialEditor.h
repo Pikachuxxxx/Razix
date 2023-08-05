@@ -46,7 +46,7 @@ public:
     QFrame *line;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_4;
-    QLabel *materialNameLbl;
+    QLineEdit *materialName;
     QSpacerItem *horizontalSpacer_2;
     QGroupBox *groupBox;
     QHBoxLayout *horizontalLayout_5;
@@ -200,19 +200,24 @@ public:
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setSpacing(6);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setSizeConstraint(QLayout::SetFixedSize);
         label_4 = new QLabel(scrollAreaWidgetContents);
         label_4->setObjectName(QString::fromUtf8("label_4"));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
+        label_4->setSizePolicy(sizePolicy);
+        label_4->setMaximumSize(QSize(16777215, 50));
 
         horizontalLayout_3->addWidget(label_4);
 
-        materialNameLbl = new QLabel(scrollAreaWidgetContents);
-        materialNameLbl->setObjectName(QString::fromUtf8("materialNameLbl"));
-        materialNameLbl->setStyleSheet(QString::fromUtf8("border-color: rgb(147, 147, 147);\n"
-"border:1px;\n"
-"border-radius:5;\n"
-"border-style:solid;"));
+        materialName = new QLineEdit(scrollAreaWidgetContents);
+        materialName->setObjectName(QString::fromUtf8("materialName"));
+        materialName->setMaximumSize(QSize(16777215, 50));
+        materialName->setFrame(true);
 
-        horizontalLayout_3->addWidget(materialNameLbl);
+        horizontalLayout_3->addWidget(materialName);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -223,17 +228,18 @@ public:
 
         groupBox = new QGroupBox(scrollAreaWidgetContents);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setFlat(false);
         horizontalLayout_5 = new QHBoxLayout(groupBox);
         horizontalLayout_5->setSpacing(6);
         horizontalLayout_5->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
         diffuseTexture = new QPushButton(groupBox);
         diffuseTexture->setObjectName(QString::fromUtf8("diffuseTexture"));
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(diffuseTexture->sizePolicy().hasHeightForWidth());
-        diffuseTexture->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(diffuseTexture->sizePolicy().hasHeightForWidth());
+        diffuseTexture->setSizePolicy(sizePolicy1);
         diffuseTexture->setMinimumSize(QSize(50, 50));
         diffuseTexture->setIconSize(QSize(50, 50));
         diffuseTexture->setFlat(false);
@@ -283,8 +289,8 @@ public:
         horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
         specTexture = new QPushButton(groupBox_6);
         specTexture->setObjectName(QString::fromUtf8("specTexture"));
-        sizePolicy.setHeightForWidth(specTexture->sizePolicy().hasHeightForWidth());
-        specTexture->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(specTexture->sizePolicy().hasHeightForWidth());
+        specTexture->setSizePolicy(sizePolicy1);
         specTexture->setMinimumSize(QSize(50, 50));
 
         horizontalLayout_14->addWidget(specTexture);
@@ -331,8 +337,8 @@ public:
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         normalTexture = new QPushButton(groupBox_3);
         normalTexture->setObjectName(QString::fromUtf8("normalTexture"));
-        sizePolicy.setHeightForWidth(normalTexture->sizePolicy().hasHeightForWidth());
-        normalTexture->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(normalTexture->sizePolicy().hasHeightForWidth());
+        normalTexture->setSizePolicy(sizePolicy1);
         normalTexture->setMinimumSize(QSize(50, 50));
 
         horizontalLayout_8->addWidget(normalTexture);
@@ -359,8 +365,8 @@ public:
         horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
         metallicTexture = new QPushButton(groupBox_4);
         metallicTexture->setObjectName(QString::fromUtf8("metallicTexture"));
-        sizePolicy.setHeightForWidth(metallicTexture->sizePolicy().hasHeightForWidth());
-        metallicTexture->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(metallicTexture->sizePolicy().hasHeightForWidth());
+        metallicTexture->setSizePolicy(sizePolicy1);
         metallicTexture->setMinimumSize(QSize(50, 50));
 
         horizontalLayout_10->addWidget(metallicTexture);
@@ -407,8 +413,8 @@ public:
         horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
         roughnessTexture = new QPushButton(groupBox_5);
         roughnessTexture->setObjectName(QString::fromUtf8("roughnessTexture"));
-        sizePolicy.setHeightForWidth(roughnessTexture->sizePolicy().hasHeightForWidth());
-        roughnessTexture->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(roughnessTexture->sizePolicy().hasHeightForWidth());
+        roughnessTexture->setSizePolicy(sizePolicy1);
         roughnessTexture->setMinimumSize(QSize(50, 50));
 
         horizontalLayout_12->addWidget(roughnessTexture);
@@ -455,8 +461,8 @@ public:
         horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
         emissiveTexture = new QPushButton(groupBox_7);
         emissiveTexture->setObjectName(QString::fromUtf8("emissiveTexture"));
-        sizePolicy.setHeightForWidth(emissiveTexture->sizePolicy().hasHeightForWidth());
-        emissiveTexture->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(emissiveTexture->sizePolicy().hasHeightForWidth());
+        emissiveTexture->setSizePolicy(sizePolicy1);
         emissiveTexture->setMinimumSize(QSize(50, 50));
 
         horizontalLayout_16->addWidget(emissiveTexture);
@@ -503,8 +509,8 @@ public:
         horizontalLayout_18->setObjectName(QString::fromUtf8("horizontalLayout_18"));
         aoTexture = new QPushButton(groupBox_8);
         aoTexture->setObjectName(QString::fromUtf8("aoTexture"));
-        sizePolicy.setHeightForWidth(aoTexture->sizePolicy().hasHeightForWidth());
-        aoTexture->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(aoTexture->sizePolicy().hasHeightForWidth());
+        aoTexture->setSizePolicy(sizePolicy1);
         aoTexture->setMinimumSize(QSize(50, 50));
 
         horizontalLayout_18->addWidget(aoTexture);
@@ -564,7 +570,7 @@ public:
         EditBtn->setText(QCoreApplication::translate("MaterialEditor", "Edit Code", nullptr));
         ShowReflectionBtn->setText(QCoreApplication::translate("MaterialEditor", "Show Reflection Info", nullptr));
         label_4->setText(QCoreApplication::translate("MaterialEditor", "Name :", nullptr));
-        materialNameLbl->setText(QCoreApplication::translate("MaterialEditor", "PBRMaterial", nullptr));
+        materialName->setPlaceholderText(QCoreApplication::translate("MaterialEditor", "New Material Name", nullptr));
         groupBox->setTitle(QCoreApplication::translate("MaterialEditor", "Diffuse", nullptr));
         diffuseTexture->setText(QString());
         useDiffuseTexure->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
