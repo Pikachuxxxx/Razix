@@ -26,7 +26,7 @@ layout(set = 0, binding = 0) uniform ViewProjectionUBOData
 layout(location = 0) out VSOutput
 {
     vec3 fragPosition;
-    vec2 fragTexCoord;
+    vec2 fragUV;
 }vs_out;
 
 out gl_PerVertex
@@ -39,6 +39,6 @@ void main()
     gl_Position = view_proj_ubo.proj * view_proj_ubo.view * vec4(inPosition, 1.0);
     // Out data from vertex shader
     vs_out.fragPosition = inPosition;
-	vs_out.fragTexCoord  = inTexCoord;
+	vs_out.fragUV  = inTexCoord;
 }
 //------------------------------------------------------------------------------

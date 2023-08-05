@@ -12,7 +12,7 @@
 // Vertex Input
 layout(location = 0) in VSOutput
 {
-    vec2 fragTexCoord;
+    vec2 fragUV;
     vec4 fragColor;
 }fs_in;
 
@@ -26,6 +26,6 @@ layout(location = 0) out vec4 outFragColor;
 
 void main()
 {
-    outFragColor = fs_in.fragColor * texture(fontSampler, fs_in.fragTexCoord);
+    outFragColor = fs_in.fragColor * texture(fontSampler, fs_in.fragUV);
 }
 //------------------------------------------------------------------------------

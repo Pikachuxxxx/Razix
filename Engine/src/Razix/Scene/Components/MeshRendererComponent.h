@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Graphics/Loaders/RZMeshLoader.h"
+#include "Razix/Graphics/Materials/RZMaterial.h"
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
 
@@ -11,6 +12,7 @@ namespace Razix {
     namespace Graphics {
         class RZMesh;
         enum MeshPrimitive : int;
+        class RZMaterial;
     }    // namespace Graphics
 
     /**
@@ -53,6 +55,14 @@ namespace Razix {
                 Mesh->setName(meshName);
                 Mesh->setPath(meshPath);
             }
+
+            // Load/Create a new Material (override the save location)
+            std::string materialPath;
+            archive(cereal::make_nvp("MaterialPath", materialPath));
+            if (!materialPath.empty()) {
+                // Since we have the path to a material file load it, deserialize it and create the material
+                Mesh->getMaterial()->loadFromFile(materialPath);
+            }
         }
 
         template<class Archive>
@@ -62,8 +72,11 @@ namespace Razix {
             if (Mesh) {
                 archive(cereal::make_nvp("MeshName", Mesh->getName()));
                 archive(cereal::make_nvp("MeshPath", Mesh->getPath()));
+
+                auto matPath = "//Assets/Materials/" + Mesh->getMaterial()->getName() + ".rzmaterial";
+                archive(cereal::make_nvp("MaterialPath", matPath));
+                Mesh->getMaterial()->saveToFile();
             }
         }
     };
-
 }    // namespace Razix

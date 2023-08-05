@@ -14,7 +14,7 @@ layout(location = 0) in VSOutput
 {
     vec3 fragPos;
     vec4 fragColor;
-    vec2 fragTexCoord;
+    vec2 fragUV;
     vec3 fragNormal;
     vec3 fragTangent;
 }fs_in;

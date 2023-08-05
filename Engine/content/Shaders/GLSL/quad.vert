@@ -16,7 +16,7 @@ layout(location = 1) in vec2 inTexCoord;
 // Vertex Shader Stage Output
 layout(location = 0) out VSOutput
 {
-    vec2 fragTexCoord;
+    vec2 fragUV;
 }vs_out;
 
 out gl_PerVertex
@@ -28,7 +28,7 @@ void main()
 {
     gl_Position = vec4(inPosition.xyz, 1.0);
     // Out from vertex shader
-	vs_out.fragTexCoord = inTexCoord;
+	vs_out.fragUV = inTexCoord;
 
 }
 //------------------------------------------------------------------------------

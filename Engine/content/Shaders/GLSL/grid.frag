@@ -13,7 +13,7 @@
  layout(location = 0) in VSOutput
  {
     vec3 fragPosition;
-    vec2 fragTexCoord;
+    vec2 fragUV;
  }fs_in;
  //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
@@ -38,7 +38,7 @@ const float subdivisions = 10.0f;
 // Utility methods
 vec4 Grid(float divisions)
 {
-	vec2 coord = fs_in.fragTexCoord.xy * divisions;
+	vec2 coord = fs_in.fragUV.xy * divisions;
 
 	vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
 	float line = min(grid.x, grid.y);
@@ -61,6 +61,6 @@ void main()
 	outFragColor = Grid(divs) + Grid(divs / subdivisions);
 	outFragColor.a *= clamp((decreaseDistance - distanceToCamera) / decreaseDistance, 0.0f, 1.0f);
 
-	//outFragColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
+	//outFragColor = vec4(fs_in.fragUV, 0.0f, 1.0f);
 }
 //------------------------------------------------------------------------------

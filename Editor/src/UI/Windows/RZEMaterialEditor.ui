@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>310</width>
     <height>842</height>
    </rect>
   </property>
@@ -157,23 +157,41 @@ border-style:solid;</string>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetFixedSize</enum>
+         </property>
          <item>
           <widget class="QLabel" name="label_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
            <property name="text">
             <string>Name :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="materialNameLbl">
-           <property name="styleSheet">
-            <string notr="true">border-color: rgb(147, 147, 147);
-border:1px;
-border-radius:5;
-border-style:solid;</string>
+          <widget class="QLineEdit" name="materialName">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
            </property>
-           <property name="text">
-            <string>PBRMaterial</string>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>New Material Name</string>
            </property>
           </widget>
          </item>
@@ -196,6 +214,9 @@ border-style:solid;</string>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Diffuse</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
@@ -350,7 +371,7 @@ border-style:solid;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
-           <widget class="QPushButton" name="pushButton_3">
+           <widget class="QPushButton" name="normalTexture">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -389,7 +410,7 @@ border-style:solid;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
-           <widget class="QPushButton" name="pushButton_4">
+           <widget class="QPushButton" name="metallicTexture">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -455,7 +476,7 @@ border-style:solid;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_12">
           <item>
-           <widget class="QPushButton" name="pushButton_5">
+           <widget class="QPushButton" name="roughnessTexture">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -521,7 +542,7 @@ border-style:solid;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_16">
           <item>
-           <widget class="QPushButton" name="pushButton_7">
+           <widget class="QPushButton" name="emissiveTexture">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -587,7 +608,7 @@ border-style:solid;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_18">
           <item>
-           <widget class="QPushButton" name="pushButton_8">
+           <widget class="QPushButton" name="aoTexture">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -624,7 +645,7 @@ border-style:solid;</string>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_8"/>
+               <widget class="QLineEdit" name="aoIntensity"/>
               </item>
               <item>
                <spacer name="horizontalSpacer_8">

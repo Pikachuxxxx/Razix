@@ -13,7 +13,7 @@
  layout(location = 0) in VSOutput
  {
      vec4 fragColor;
-     vec2 fragTexCoord;
+     vec2 fragUV;
      vec3 fragNormal;
  }fs_in;
 
@@ -29,11 +29,11 @@ void main()
 {
     outFragColor = vec4(fs_in.fragColor);
     //if(gl_FragCoord.x < 400)
-    //    outFragColor = texture(texSampler, fs_in.fragTexCoord);
+    //    outFragColor = texture(texSampler, fs_in.fragUV);
     //else
-    //    outFragColor = texture(texSampler2, fs_in.fragTexCoord);
+    //    outFragColor = texture(texSampler2, fs_in.fragUV);
 
-    outFragColor = texture(texSampler, fs_in.fragTexCoord);
+    outFragColor = texture(texSampler, fs_in.fragUV);
     //outFragColor = vec4(1.0, 0.0, 0.0, 1.0);
     outFragColor = vec4(fs_in.fragColor.xyz, 1.0F);
 

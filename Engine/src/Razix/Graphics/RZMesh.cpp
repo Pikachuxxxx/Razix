@@ -65,13 +65,18 @@ namespace Razix {
             RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", m_IndexCount, m_Vertices.size(), m_IndexCount, vertex_count);
 #endif
 
+            // Fill any missing tangents, bi tangents and normals
+            //GenerateNormals(&m_Vertices[0], m_VertexCount, nullptr, 0);
+            //GenerateTangentsAndBiTangents(m_Vertices.data(), m_VertexCount, nullptr, 0);
+            GenerateTangents(&m_Vertices[0], m_VertexCount, nullptr, 0);
+
             m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) m_Indices.data(), m_IndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount), vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount), m_Vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
             // TODO: Add buffer layout by reflecting from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");
             layout.push<glm::vec4>("Color");
-            layout.push<glm::vec2>("TexCoords");
+            layout.push<glm::vec2>("UV");
             layout.push<glm::vec3>("Normal");
             layout.push<glm::vec3>("Tangent");
             m_VertexBuffer->AddBufferLayout(layout);
@@ -176,6 +181,56 @@ namespace Razix {
                 vertices[i].Tangent = glm::normalize(tangents[i]);
 
             delete[] tangents;
+        }
+
+        void RZMesh::GenerateTangentsAndBiTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 numIndices)
+        {
+#if 0
+for (int i = 0; i < vertexCount; i++) {
+                vertices[i].Tangent   = glm::vec3(0.0f);
+                vertices[i].BiTangent = glm::vec3(0.0f);
+            }
+
+            for (uint32_t i = 0; i < numIndices; i += 3) {
+                glm::vec3 v0 = vertices[indices[i]].Position;
+                glm::vec3 v1 = vertices[indices[i + 1]].Position;
+                glm::vec3 v2 = vertices[indices[i + 2]].Position;
+
+                glm::vec2 uv0 = vertices[indices[i]].UV;
+                glm::vec2 uv1 = vertices[indices[i + 1]].UV;
+                glm::vec2 uv2 = vertices[indices[i + 2]].UV;
+
+                glm::vec3 n0 = vertices[indices[i]].Normal;
+                glm::vec3 n1 = vertices[indices[i + 1]].Normal;
+                glm::vec3 n2 = vertices[indices[i + 2]].Normal;
+
+                glm::vec3 edge1 = v1 - v0;
+                glm::vec3 edge2 = v2 - v0;
+
+                glm::vec2 deltaUV1 = uv1 - uv0;
+                glm::vec2 deltaUV2 = uv2 - uv0;
+
+                float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+                glm::vec3 tangent   = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
+                glm::vec3 BiTangent = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
+
+                // Store tangent and BiTangent for each vertex of the triangle
+                vertices[indices[i]].Tangent += tangent;
+                vertices[indices[i + 1]].Tangent += tangent;
+                vertices[indices[i + 2]].Tangent += tangent;
+
+                vertices[indices[i]].BiTangent += BiTangent;
+                vertices[indices[i + 1]].BiTangent += BiTangent;
+                vertices[indices[i + 2]].BiTangent += BiTangent;
+            }
+
+            // Normalize the tangent and BiTangent vectors
+            for (uint32_t i = 0; i < vertexCount; i++) {
+                vertices[i].Tangent   = glm::normalize(vertices[i].Tangent);
+                vertices[i].BiTangent = glm::normalize(vertices[i].BiTangent);
+            }
+#endif
         }
 
         void RZMesh::Draw(RZCommandBuffer* cmdBuf)

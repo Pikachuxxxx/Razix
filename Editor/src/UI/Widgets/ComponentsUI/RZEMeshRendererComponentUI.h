@@ -27,6 +27,7 @@ namespace Razix {
 
             void OnBrowseMesh();
             void OnBrowseMaterial();
+            void OnAddNewMaterial();
 
         private:
             Ui::MeshRendererComponentUI ui;

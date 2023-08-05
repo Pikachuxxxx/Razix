@@ -125,6 +125,7 @@ private:
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
         RZScene* activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
 
+        // This won't actually work though! cause by the time we reach here we will have a default scene
         if (!activeScene) {
             RAZIX_TRACE("Creatng new scene...");
             Razix::RZScene* editormodelLightScene = new Razix::RZScene("Editor_Scene_1");
@@ -169,11 +170,11 @@ private:
             directionalLightEntity.AddComponent<Razix::LightComponent>();
         }
 
-        auto meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
-        if (!meshEnitties.size()) {
-            auto planeMesh = activeScene->createEntity("CubeMesh");
-            planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
-        }
+        //auto meshEnitties = activeScene->GetComponentsOfType<MeshRendererComponent>();
+        //if (!meshEnitties.size()) {
+        //    auto planeMesh = activeScene->createEntity("CubeMesh");
+        //    planeMesh.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
+        //}
 
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             sceneHierarchyPanel->populateHierarchy();

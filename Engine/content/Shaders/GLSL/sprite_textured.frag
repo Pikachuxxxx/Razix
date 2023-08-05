@@ -13,7 +13,7 @@
  layout(location = 0) in VSOutput
  {
      vec4 fragColor;
-     vec2 fragTexCoord;
+     vec2 fragUV;
  }fs_in;
 //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
@@ -25,7 +25,7 @@ layout(location = 0) out vec4 outFragColor;
 
 void main()
 {
-    outFragColor = texture(texSampler, fs_in.fragTexCoord);
-    //outFragColor = vec4(fs_in.fragTexCoord, 0.0f, 1.0f);
+    outFragColor = texture(texSampler, fs_in.fragUV);
+    //outFragColor = vec4(fs_in.fragUV, 0.0f, 1.0f);
 }
 //------------------------------------------------------------------------------

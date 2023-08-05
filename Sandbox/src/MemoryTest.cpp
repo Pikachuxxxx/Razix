@@ -83,7 +83,37 @@ public:
             //        RAZIX_WARN("Ring Allocator is Full!");
             //}
         }
-        // https://www.shadertoy.com/view/4tf3D8
+
+        // Add a directional light for test
+        auto lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
+        if (!lightEnitties.size()) {
+            auto directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
+            directionalLightEntity.AddComponent<Razix::LightComponent>();
+            directionalLightEntity.GetComponent<Razix::LightComponent>().light.setDirection(glm::vec3(1.0f));
+        }
+
+        auto scripts = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LuaScriptComponent>();
+        if (!scripts.size()) {
+            Razix::RZEntity imguiEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("imgui_script_entity");
+            imguiEntity.AddComponent<Razix::LuaScriptComponent>();
+            if (imguiEntity.HasComponent<Razix::LuaScriptComponent>()) {
+                Razix::LuaScriptComponent& lsc = imguiEntity.GetComponent<Razix::LuaScriptComponent>();
+                lsc.loadScript("//Scripts/imgui_test.lua");
+            }
+        }
+
+        // Camera Entity
+        auto cameras = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::CameraComponent>();
+        if (!cameras.size()) {
+            Razix::RZEntity camera = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Camera");
+            camera.AddComponent<Razix::CameraComponent>();
+            if (camera.HasComponent<Razix::CameraComponent>()) {
+                Razix::CameraComponent& cc = camera.GetComponent<Razix::CameraComponent>();
+                cc.Camera.setViewportSize(getWindow()->getWidth(), getWindow()->getHeight());
+            }
+        }
+
+    #if 0
         // PBR materials test
         {
             int nrRows    = 7;
@@ -97,7 +127,7 @@ public:
             for (int row = 0; row < nrRows; ++row) {
                 float metallic = (float) row / (float) nrRows;
                 for (int col = 0; col < nrColumns; ++col) {
-                    float roughness                                             = glm::clamp((float) col / (float) nrColumns, 0.05f, 1.0f);
+                    float roughness                                             = glm::clamp((float) col / (float) nrColumns, 0.075f, 1.0f);
                     auto  pos                                                   = glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f);
                     auto  sphereEntity                                          = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sphere");
                     sphereEntity.GetComponent<TransformComponent>().Translation = pos;
@@ -107,9 +137,14 @@ public:
                     mat.metallicColor                                           = metallic;
                     mat.roughnessColor                                          = roughness;
                     material->setProperties(mat);
+                    // Save to file (assign a new and unique name)
+                    auto name = "PBR_Test_Mat_M_" + std::to_string(metallic) + "_R_" + std::to_string(roughness);
+                    material->setName(name);
+                    material->saveToFile();
                 }
             }
         }
+    #endif
     }
 
     void OnRender() override

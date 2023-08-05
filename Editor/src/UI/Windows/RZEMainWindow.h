@@ -108,6 +108,8 @@ namespace Razix {
 
             // Create - Import - Model = Import a model file from the disk
             void Create_Import_Model();
+            // Create - Component(s)
+            //void Create_MeshRendererComponent();
             //------------------------------
             // Menu - Windows
             void SetupWindowsCommands();

@@ -23,7 +23,7 @@ layout (push_constant) uniform ModelPushConstantData{
 layout(location = 0) out VSOutput
 {
      vec4 fragColor;
-     vec2 fragTexCoord;
+     vec2 fragUV;
 }vs_out;
 
 out gl_PerVertex
@@ -38,6 +38,6 @@ void main()
 
     // Out from vertex shader
     vs_out.fragColor    = inColor;
-	vs_out.fragTexCoord = inTexCoord;
+	vs_out.fragUV = inTexCoord;
 }
 //------------------------------------------------------------------------------

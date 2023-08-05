@@ -87,9 +87,9 @@
      <addaction name="actionShader"/>
     </widget>
     <addaction name="actionEntity"/>
-    <addaction name="menuComponent"/>
     <addaction name="actionLua_Script"/>
     <addaction name="menuPrimitive"/>
+    <addaction name="menuComponent"/>
     <addaction name="separator"/>
     <addaction name="menuImport"/>
    </widget>

@@ -13,7 +13,7 @@
  layout(location = 0) in VSOutput
  {
      vec4 fragColor;
-     vec2 fragTexCoord;
+     vec2 fragUV;
  }fs_in;
 
 //------------------------------------------------------------------------------

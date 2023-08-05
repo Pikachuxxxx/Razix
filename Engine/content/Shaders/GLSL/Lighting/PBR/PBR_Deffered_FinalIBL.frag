@@ -22,7 +22,7 @@
 // Vertex Input
 layout(location = 0) in VSOutput
 {
-    vec2 fragTexCoord;
+    vec2 fragUV;
 }fs_in;
 //--------------------------------------------------------
 // Push constant
@@ -54,7 +54,7 @@ layout(location = 0) out vec4 outSceneColor;
 //------------------------------------------------------------------------------
 void main()
 {
-    vec2 uv = fs_in.fragTexCoord;
+    vec2 uv = fs_in.fragUV;
     
     vec3 N = normalize(texture(gBuffer0, uv).rgb);
     vec3 Position = texture(gBuffer2, uv).rgb;// vec3(texture(gBuffer0, uv).a, texture(gBuffer1, uv).a, texture(gBuffer2, uv).a);

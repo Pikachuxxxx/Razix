@@ -40,7 +40,7 @@ layout(location = 0) out VSOutput
 {
     vec3 fragPos;
     vec4 fragColor;
-    vec2 fragTexCoord;
+    vec2 fragUV;
     vec3 fragNormal;
     vec3 fragTangent;
 }vs_out;
@@ -60,7 +60,7 @@ void main()
     // Out from vertex shader
     vs_out.fragPos      = vec3(mvp.model * vec4(inPosition, 1.0));
     vs_out.fragColor    = inColor;
-	vs_out.fragTexCoord = inTexCoord;
+	vs_out.fragUV = inTexCoord;
     vs_out.fragNormal   = mat3(transpose(inverse(mvp.model))) * inNormal;
     vs_out.fragTangent  = inTangent;
 }

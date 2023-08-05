@@ -26,6 +26,7 @@ namespace Razix {
 
         public slots:
             void OnSetEditingMaterial(Razix::Graphics::RZMaterial* material);
+            void on_NameChanged();
             // TODO: In Future use the reflection data to create the fields automatically, since we use a single Material this is perfectly acceptable
             // Diffuse
             void on_DiffuseTextureSelect();
@@ -34,6 +35,8 @@ namespace Razix {
             // Specular
             void on_SpecularTextureSelected();
             void on_SpecularIntensity();
+            // Normal
+            void on_NormaTextureSelected();
             // Metallic
             void on_MetallicValueSet();
             void on_MetallicTextureSelected();
@@ -43,6 +46,9 @@ namespace Razix {
             // Emission
             /* Used for HDR Bloom intensity */
             void on_EmissionIntensity();
+            // AO
+            void on_AOValueSet();
+            void on_AOTextureSelected();
 
         private:
             Ui::MaterialEditor           ui;

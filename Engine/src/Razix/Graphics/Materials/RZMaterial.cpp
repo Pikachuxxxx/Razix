@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZMaterial.h"
 
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+
 #include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
@@ -13,6 +15,8 @@
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
+#include <cereal/archives/json.hpp>
+
 namespace Razix {
     namespace Graphics {
 
@@ -22,11 +26,8 @@ namespace Razix {
         {
             m_Shader = shader;
 
-            m_MaterialPropertiesUBO = nullptr;
-
             // Create the uniform buffer first
-
-            m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(MaterialProperties), &m_MaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO"));
+            m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO"));
         }
 
         void RZMaterial::Destroy()
@@ -54,14 +55,52 @@ namespace Razix {
             s_DefaultTexture->Release(true);
         }
 
-        void RZMaterial::loadMaterialFromFile(const std::string& name, const std::string& path)
+        void RZMaterial::loadFromFile(const std::string& path)
         {
-            m_Name = name;
-            // TODO: Deserialize using the path
+            m_Name = Utilities::GetFileName(path);
+            // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
+            Razix::Graphics::MaterialData matData{};
+            std::string                   matPhysicalPath;
+            if (RZVirtualFileSystem::Get().resolvePhysicalPath(path, matPhysicalPath)) {
+                if (!matPhysicalPath.empty()) {
+                    std::ifstream AppStream;
+                    AppStream.open(matPhysicalPath, std::ifstream::in);
+                    cereal::JSONInputArchive inputArchive(AppStream);
+
+                    inputArchive(cereal::make_nvp("$MATERIAL", matData));
+                }
+            }
+            setProperties(matData.m_MaterialProperties);
+            loadMaterialTexturesFromFiles(matData.m_MaterialTexturePaths);
+            createDescriptorSet();
+        }
+
+        void RZMaterial::saveToFile(const std::string& path)
+        {
+            if (path.empty()) {
+                // Just resolve the folder path to save to
+                std::string matPath = "//Assets/Materials/";
+                std::string matPhysicalPath;
+                if (RZVirtualFileSystem::Get().resolvePhysicalPath(matPath, matPhysicalPath, true)) {
+                    matPhysicalPath += std::string(m_Name) + ".rzmaterial";
+                    std::ofstream             opAppStream(matPhysicalPath);
+                    cereal::JSONOutputArchive defArchive(opAppStream);
+                    defArchive(cereal::make_nvp("$MATERIAL", m_MaterialData));
+                }
+            } else {
+                std::string matPhysicalPath;
+                if (RZVirtualFileSystem::Get().resolvePhysicalPath(path, matPhysicalPath)) {
+                    std::ofstream             opAppStream(matPhysicalPath);
+                    cereal::JSONOutputArchive defArchive(opAppStream);
+                    defArchive(cereal::make_nvp("$MATERIAL", m_MaterialData));
+                }
+            }
         }
 
         void RZMaterial::loadMaterialTexturesFromFiles(MaterialTexturePaths paths)
         {
+            m_MaterialData.m_MaterialTexturePaths = paths;
+
             if (paths.albedo && paths.albedo != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.albedo);
                 if (!fileName.empty())
@@ -124,37 +163,37 @@ namespace Razix {
                                 case TextureBindingTable::TEX_BINDING_IDX_ALBEDO:
                                     descriptor.texture = m_MaterialTextures.albedo ? m_MaterialTextures.albedo : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)
-                                        m_MaterialProperties.isUsingAlbedoMap = true;
+                                        m_MaterialData.m_MaterialProperties.isUsingAlbedoMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_NORMAL:
                                     descriptor.texture = m_MaterialTextures.normal ? m_MaterialTextures.normal : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)
-                                        m_MaterialProperties.isUsingNormalMap = true;
+                                        m_MaterialData.m_MaterialProperties.isUsingNormalMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_METALLLIC:
                                     descriptor.texture = m_MaterialTextures.metallic ? m_MaterialTextures.metallic : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)
-                                        m_MaterialProperties.isUsingMetallicMap = true;
+                                        m_MaterialData.m_MaterialProperties.isUsingMetallicMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_ROUGHNESS:
                                     descriptor.texture = m_MaterialTextures.roughness ? m_MaterialTextures.roughness : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)
-                                        m_MaterialProperties.isUsingRoughnessMap = true;
+                                        m_MaterialData.m_MaterialProperties.isUsingRoughnessMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_SPECULAR:
                                     descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.specular : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)
-                                        m_MaterialProperties.isUsingSpecular = true;
+                                        m_MaterialData.m_MaterialProperties.isUsingSpecular = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_EMISSIVE:
                                     descriptor.texture = m_MaterialTextures.emissive ? m_MaterialTextures.emissive : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)
-                                        m_MaterialProperties.isUsingEmissiveMap = true;
+                                        m_MaterialData.m_MaterialProperties.isUsingEmissiveMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_AO:
                                     descriptor.texture = m_MaterialTextures.ao ? m_MaterialTextures.ao : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)
-                                        m_MaterialProperties.isUsingAOMap = true;
+                                        m_MaterialData.m_MaterialProperties.isUsingAOMap = true;
                                     break;
                                 default:
                                     descriptor.texture = s_DefaultTexture;
@@ -185,8 +224,13 @@ namespace Razix {
 
         void RZMaterial::setProperties(MaterialProperties& props)
         {
-            memcpy(&m_MaterialProperties, &props, sizeof(MaterialProperties));
-            m_MaterialPropertiesUBO->SetData(sizeof(MaterialProperties), &m_MaterialProperties);
+            memcpy(&m_MaterialData.m_MaterialProperties, &props, sizeof(MaterialProperties));
+            m_MaterialPropertiesUBO->SetData(sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties);
+        }
+
+        void RZMaterial::setTexturePaths(MaterialTexturePaths& paths)
+        {
+            memcpy(&m_MaterialData.m_MaterialTexturePaths, &paths, sizeof(paths));
         }
 
         void RZMaterial::Bind()
@@ -199,7 +243,7 @@ namespace Razix {
                 createDescriptorSet();
                 setTexturesUpdated(false);
                 // Since the mat props have been updated regarding isTextureAvailable or not we need to update the UBO data again
-                setProperties(m_MaterialProperties);
+                setProperties(m_MaterialData.m_MaterialProperties);
             }
             // Since we need to bind all the sets at once IDK about using bind, how does the mat get the Render System Descriptors to bind???
             // This possible if do something like Unity does, have a Renderer Component for every renderable entity in the scene ==> this makes
@@ -233,7 +277,7 @@ namespace Razix {
                 DefaultMaterial->setName("DefaultMaterial");
                 Razix::Graphics::MaterialData matData{};
                 DefaultMaterial->setProperties(matData.m_MaterialProperties);
-                DefaultMaterial->loadMaterialTexturesFromFiles(matData.m_MaterialTextures);
+                DefaultMaterial->loadMaterialTexturesFromFiles(matData.m_MaterialTexturePaths);
                 DefaultMaterial->createDescriptorSet();
                 return DefaultMaterial;
             } else

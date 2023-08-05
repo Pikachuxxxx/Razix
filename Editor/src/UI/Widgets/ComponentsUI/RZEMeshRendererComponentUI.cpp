@@ -8,6 +8,8 @@
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Scene/Components/MeshRendererComponent.h"
 
+#include <QInputDialog>
+
 namespace Razix {
     namespace Editor {
         RZEMeshRendererComponentUI::RZEMeshRendererComponentUI(QWidget* parent)
@@ -51,5 +53,12 @@ namespace Razix {
         void RZEMeshRendererComponentUI::OnBrowseMaterial()
         {
         }
+
+        void RZEMeshRendererComponentUI::OnAddNewMaterial()
+        {
+            QString text = QInputDialog::getText(this, "Enter New Material Name", "Name");
+
+        }
+
     }    // namespace Editor
-}    // namespace Razix
+}    // namespace Razix  

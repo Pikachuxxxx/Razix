@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEMeshRendererComponentUI_t {
-    QByteArrayData data[8];
-    char stringdata0[150];
+    QByteArrayData data[9];
+    char stringdata0[167];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -40,13 +40,15 @@ QT_MOC_LITERAL(3, 65, 8), // "meshType"
 QT_MOC_LITERAL(4, 74, 20), // "OnMeshLocationEdited"
 QT_MOC_LITERAL(5, 95, 24), // "OnMaterialLocationEdited"
 QT_MOC_LITERAL(6, 120, 12), // "OnBrowseMesh"
-QT_MOC_LITERAL(7, 133, 16) // "OnBrowseMaterial"
+QT_MOC_LITERAL(7, 133, 16), // "OnBrowseMaterial"
+QT_MOC_LITERAL(8, 150, 16) // "OnAddNewMaterial"
 
     },
     "Razix::Editor::RZEMeshRendererComponentUI\0"
     "on_mesh_type_selected\0\0meshType\0"
     "OnMeshLocationEdited\0OnMaterialLocationEdited\0"
-    "OnBrowseMesh\0OnBrowseMaterial"
+    "OnBrowseMesh\0OnBrowseMaterial\0"
+    "OnAddNewMaterial"
 };
 #undef QT_MOC_LITERAL
 
@@ -56,7 +58,7 @@ static const uint qt_meta_data_Razix__Editor__RZEMeshRendererComponentUI[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+       6,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -64,14 +66,16 @@ static const uint qt_meta_data_Razix__Editor__RZEMeshRendererComponentUI[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   39,    2, 0x0a /* Public */,
-       4,    0,   42,    2, 0x0a /* Public */,
-       5,    0,   43,    2, 0x0a /* Public */,
-       6,    0,   44,    2, 0x0a /* Public */,
-       7,    0,   45,    2, 0x0a /* Public */,
+       1,    1,   44,    2, 0x0a /* Public */,
+       4,    0,   47,    2, 0x0a /* Public */,
+       5,    0,   48,    2, 0x0a /* Public */,
+       6,    0,   49,    2, 0x0a /* Public */,
+       7,    0,   50,    2, 0x0a /* Public */,
+       8,    0,   51,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::Int,    3,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -91,6 +95,7 @@ void Razix::Editor::RZEMeshRendererComponentUI::qt_static_metacall(QObject *_o, 
         case 2: _t->OnMaterialLocationEdited(); break;
         case 3: _t->OnBrowseMesh(); break;
         case 4: _t->OnBrowseMaterial(); break;
+        case 5: _t->OnAddNewMaterial(); break;
         default: ;
         }
     }
@@ -125,13 +130,13 @@ int Razix::Editor::RZEMeshRendererComponentUI::qt_metacall(QMetaObject::Call _c,
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 6;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 6)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 5;
+        _id -= 6;
     }
     return _id;
 }

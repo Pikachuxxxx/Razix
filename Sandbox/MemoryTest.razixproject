@@ -5,10 +5,10 @@
         "Project ID": "9bd6e126-d5a1-4ad0-a4d3-ce178594d0dd",
         "Render API": 1,
         "Width": 1280,
-        "Height": 796,
+        "Height": 720,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox//",
         "Scenes": [
-            "//Scenes/default Scene.rzscn"
+            "//Scenes/PBR_Balls_Test_Scene.rzscn"
         ]
     }
 }
