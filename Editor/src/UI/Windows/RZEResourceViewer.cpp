@@ -55,11 +55,11 @@ namespace Razix {
             auto pool_1 = new MemoryPoolView(128 * 1024 * 1024, 64, 32, "VertexBuffer");
             pool_1->m_View->setOccupiedElements(16);
 
-            auto testCollapsingHeaderPool_0 = new RZECollapsingHeader(QString("Pool_0 - RZTexture2D"), pool_0->m_GraphicsView, new QIcon(":/rzeditor/memory_pool_icon.png"));
+            auto testCollapsingHeaderPool_0 = new RZECollapsingHeader(QString("Pool_0 - RZTexture2D"), pool_0->m_GraphicsView, new QIcon(":/rzeditor/memory_pool_icon.png"), false);
             testCollapsingHeaderPool_0->toggleCollapse();
             ui.PoolGroupVLayout->insertWidget(0, testCollapsingHeaderPool_0);
 
-            auto testCollapsingHeaderPool_1 = new RZECollapsingHeader(QString("Pool_1 - RZVertexBuffer"), pool_1->m_GraphicsView, new QIcon(":/rzeditor/memory_pool_icon.png"));
+            auto testCollapsingHeaderPool_1 = new RZECollapsingHeader(QString("Pool_1 - RZVertexBuffer"), pool_1->m_GraphicsView, new QIcon(":/rzeditor/memory_pool_icon.png"), false);
             ui.PoolGroupVLayout->insertWidget(1, testCollapsingHeaderPool_1);
         }
 

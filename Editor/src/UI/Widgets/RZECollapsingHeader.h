@@ -3,6 +3,7 @@
 #include <QBoxLayout>
 #include <QFrame>
 #include <QPainter>
+#include <QPushButton>
 
 namespace Razix {
     namespace Editor {
@@ -36,7 +37,7 @@ namespace Razix {
         {
             Q_OBJECT
         public:
-            RZEHeaderFrame(QString& headerTitle, QIcon* icon = nullptr, bool isCollapsed = true, QWidget* parent = nullptr);
+            RZEHeaderFrame(QString& headerTitle, QIcon* icon = nullptr, bool isCollapsed = true, bool enableUtilButton = true, QWidget* parent = nullptr);
             ~RZEHeaderFrame() {}
             Arrow* arrow;
 
@@ -49,15 +50,19 @@ namespace Razix {
                 emit clicked();
                 QFrame::mousePressEvent(event);
             }
+
+            QPushButton* m_UtilButton;
+
+            friend class RZECollapsingHeader;
         };
 
-        // TODO: Add either delete/remove or more pop-up options button 
+        // TODO: Add either delete/remove or more pop-up options button
         class RZECollapsingHeader : public QFrame
         {
             Q_OBJECT
 
         public:
-            RZECollapsingHeader(QString headerTitle, QWidget* childWidget, QIcon* icon = nullptr, QWidget* parent = nullptr);
+            RZECollapsingHeader(QString headerTitle, QWidget* childWidget, QIcon* icon = nullptr, bool enableUtilButton = true, QWidget* parent = nullptr);
             ~RZECollapsingHeader();
 
         private:
@@ -77,6 +82,10 @@ namespace Razix {
                 else
                     m_ChildWidget->hide();
             }
+
+        signals:
+            void utilButtonClicked();
+
         };
     }    // namespace Editor
 }    // namespace Razix

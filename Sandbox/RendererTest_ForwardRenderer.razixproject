@@ -1,6 +1,6 @@
 {
     "Razix Application": {
-        "Project Name": "RendererTest_ForwardRenderer",
+        "Project Name": "RendererTest_PBR",
         "Engine Version": "0.42.0",
         "Project ID": "7ff2c30d-b54d-4801-b03e-6c167f8b2d9b",
         "Render API": 1,
@@ -8,7 +8,6 @@
         "Height": 1238,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
         "Scenes": [
-            "//Scenes/default Scene.rzscn"
         ]
     }
 }

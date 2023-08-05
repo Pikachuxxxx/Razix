@@ -30,9 +30,9 @@ namespace Razix {
             connect(ui.projects_history_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(on_SelectProject(QListWidgetItem*)));
 
             // Add a default project for debugging
-            ui.projects_history_list->addItem(QString("C:/Dev/Game Engines/Razix/Sandbox/RendererTest_ForwardRenderer.razixproject"));
+            ui.projects_history_list->addItem(QString("C:/Dev/Game Engines/Razix/Sandbox/RendererTest_PBR.razixproject"));
             m_ProjectPath = "C:/Dev/Game Engines/Razix/Sandbox";
-            m_ProjectName = "RendererTest_ForwardRenderer";
+            m_ProjectName = "RendererTest_PBR";
         }
 
         RZEProjectBrowser::~RZEProjectBrowser()

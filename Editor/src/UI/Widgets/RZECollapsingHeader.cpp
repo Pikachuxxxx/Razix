@@ -9,12 +9,12 @@
 
 namespace Razix {
     namespace Editor {
-        RZECollapsingHeader::RZECollapsingHeader(QString headerTitle, QWidget* childWidget, QIcon* icon, QWidget* parent /* = nullptr*/)
+        RZECollapsingHeader::RZECollapsingHeader(QString headerTitle, QWidget* childWidget, QIcon* icon, bool enableUtilButton /*= true*/, QWidget* parent /* = nullptr*/)
             : QFrame(parent), m_ChildWidget(childWidget)
         {
             m_BoxVLayout = new QVBoxLayout(this);
 
-            m_Header = new RZEHeaderFrame(headerTitle, icon, true, this);
+            m_Header = new RZEHeaderFrame(headerTitle, icon, true, enableUtilButton, this);
 
             m_BoxVLayout->setSpacing(4);
             m_BoxVLayout->setMargin(0);
@@ -24,6 +24,10 @@ namespace Razix {
 
             connect(m_Header, SIGNAL(clicked()), this, SLOT(toggleCollapse()));
 
+            if (enableUtilButton) {
+                connect(m_Header->m_UtilButton, SIGNAL(pressed()), this, SIGNAL(utilButtonClicked()));
+            }
+
             // Start in collapsed
             toggleCollapse();
         }
@@ -32,7 +36,7 @@ namespace Razix {
         {
         }
 
-        RZEHeaderFrame::RZEHeaderFrame(QString& headerTitle, QIcon* icon /*= nullptr*/, bool isCollapsed /*= true*/, QWidget* parent /*= nullptr*/)
+        RZEHeaderFrame::RZEHeaderFrame(QString& headerTitle, QIcon* icon /*= nullptr*/, bool isCollapsed /*= true*/, bool enableUtilButton /*= true*/, QWidget* parent /*= nullptr*/)
             : QFrame(parent)
         {
             this->setMaximumHeight(20);
@@ -65,6 +69,16 @@ namespace Razix {
             title->setStyleSheet("border:0px");
 
             Hlayout->addWidget(title);
+
+            // Add a + button that can be used to add more components
+            if (enableUtilButton) {
+                QIcon icon(":/rzeditor/Add_icon.png");
+                auto  pixmap = icon.pixmap(20, 20);
+                m_UtilButton = new QPushButton;
+                m_UtilButton->setIcon(icon);
+                Hlayout->addStretch(2);
+                Hlayout->addWidget(m_UtilButton);
+            }
         }
 
         Arrow::Arrow(bool collapsed, QWidget* parent /*= nullptr*/)

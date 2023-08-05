@@ -198,9 +198,9 @@ public:
         menuGraphics->addAction(actionEnvironment_Settings);
         menuGraphics->addAction(actionDebug_Modes);
         menuCreate->addAction(actionEntity);
-        menuCreate->addAction(menuComponent->menuAction());
         menuCreate->addAction(actionLua_Script);
         menuCreate->addAction(menuPrimitive->menuAction());
+        menuCreate->addAction(menuComponent->menuAction());
         menuCreate->addSeparator();
         menuCreate->addAction(menuImport->menuAction());
         menuComponent->addAction(actionCamera);

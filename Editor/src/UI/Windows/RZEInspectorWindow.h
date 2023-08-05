@@ -64,6 +64,13 @@ namespace Razix {
         public slots:
             void OnNameEdit();
             void OnEntitySelected(RZEntity entity);
+            void ShowComponentsUtilContextMenu();
+
+            void AddCameraComponent();
+            void AddLightComponent();
+            void AddLuaScriptComponent();
+            void AddMeshRendererComponent();
+            void AddSpriteRendererComponent();
 
         private:
             Ui::InspectorWindow ui;
@@ -84,6 +91,12 @@ namespace Razix {
             RZECollapsingHeader* m_LuaScriptComponentSection;
             RZECollapsingHeader* m_MeshRendererComponentSection;
             RZECollapsingHeader* m_SpriteRendererComponentSection;
+            QMenu*               m_ComponentUtilMenu;
+            QAction*             m_AddCameraComponent;
+            QAction*             m_AddLightComponent;
+            QAction*             m_AddLuaScriptComponent;
+            QAction*             m_AddMeshRendererComponent;
+            QAction*             m_AddSpriteRendererComponent;
 
         private:
             void initComponents();

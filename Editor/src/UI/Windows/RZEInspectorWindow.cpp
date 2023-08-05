@@ -9,6 +9,8 @@
 
 #include "UI/Widgets/RZECollapsingHeader.h"
 
+#include "RZEMainWindow.h"
+
 namespace Razix {
     namespace Editor {
         RZEInspectorWindow::RZEInspectorWindow(RZESceneHierarchyPanel* hierarchyPanel, QFrame* parent)
@@ -23,6 +25,8 @@ namespace Razix {
 
             ui.UUIDLbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
+            this->setContextMenuPolicy(Qt::CustomContextMenu);
+
             // Add the list of components that will be enabled and disables based on the entity
             // At index 0 and 1 we have the Tag and ID components in the box layout by the QDesigner
             // And Check boxes for Active Component and Static Mesh
@@ -30,12 +34,38 @@ namespace Razix {
             // 2. Transform component
             m_TrasformComponentUI      = new Razix::Editor::RZETransformComponentUI;
             m_TrasformComponentSection = new Razix::Editor::RZECollapsingHeader(QString("Transform"), m_TrasformComponentUI, new QIcon(":/rzeditor/transform_icon.png"));
+            connect(m_TrasformComponentSection, SIGNAL(utilButtonClicked()), this, SLOT(ShowComponentsUtilContextMenu()));
+
             // Since everything has a Transform Component
             this->getBoxLayout().insertWidget(RZ_FLAG_COMPONENT_TRANSFORM, m_TrasformComponentSection);
 
             initComponents();
 
-            // TODO: Add "Add Component" Button
+            m_ComponentUtilMenu = new QMenu("Add Component", this);
+
+            m_ComponentUtilMenu->addAction("AddComponent");
+
+            m_ComponentUtilMenu->addSeparator();
+
+            m_AddCameraComponent = new QAction("Camera Component", this);
+            m_ComponentUtilMenu->addAction(m_AddCameraComponent);
+            connect(m_AddCameraComponent, SIGNAL(triggered()), this, SLOT(AddCameraComponent()));
+
+            m_AddLightComponent = new QAction("Light Component", this);
+            m_ComponentUtilMenu->addAction(m_AddLightComponent);
+            connect(m_AddLightComponent, SIGNAL(triggered()), this, SLOT(AddLightComponent()));
+
+            m_AddLuaScriptComponent = new QAction("Lua Script Component", this);
+            m_ComponentUtilMenu->addAction(m_AddLuaScriptComponent);
+            connect(m_AddLuaScriptComponent, SIGNAL(triggered()), this, SLOT(AddLuaScriptComponent()));
+
+            m_AddMeshRendererComponent = new QAction("Mesh Renderer Component", this);
+            m_ComponentUtilMenu->addAction(m_AddMeshRendererComponent);
+            connect(m_AddMeshRendererComponent, SIGNAL(triggered()), this, SLOT(AddMeshRendererComponent()));
+
+            m_AddSpriteRendererComponent = new QAction("Sprite Renderer Component", this);
+            m_ComponentUtilMenu->addAction(m_AddSpriteRendererComponent);
+            connect(m_AddSpriteRendererComponent, SIGNAL(triggered()), this, SLOT(AddSpriteRendererComponent()));
 
             // connections
             // Name change
@@ -79,6 +109,7 @@ namespace Razix {
             uint32_t idx = this->getBoxLayout().count() - 1;
             if (entity.HasComponent<CameraComponent>()) {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_CAMERA;
+                connect(m_CameraComponentSection, SIGNAL(utilButtonClicked()), this, SLOT(ShowComponentsUtilContextMenu()));
                 this->getBoxLayout().insertWidget(idx, m_CameraComponentSection);
                 m_CameraComponentSection->setVisible(true);
                 // Set the Editing Entity
@@ -87,6 +118,7 @@ namespace Razix {
             }
             if (entity.HasComponent<LightComponent>()) {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_LIGHT;
+                connect(m_LightComponentSection, SIGNAL(utilButtonClicked()), this, SLOT(ShowComponentsUtilContextMenu()));
                 this->getBoxLayout().insertWidget(idx, m_LightComponentSection);
                 m_LightComponentSection->setVisible(true);
                 // Set the editing entity
@@ -95,12 +127,14 @@ namespace Razix {
             }
             if (entity.HasComponent<LuaScriptComponent>()) {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_LUA_SCRIPT;
+                connect(m_LuaScriptComponentSection, SIGNAL(utilButtonClicked()), this, SLOT(ShowComponentsUtilContextMenu()));
                 this->getBoxLayout().insertWidget(idx, m_LuaScriptComponentSection);
                 m_LuaScriptComponentSection->setVisible(true);
                 idx++;
             }
             if (entity.HasComponent<MeshRendererComponent>()) {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_MESH_RENDERER;
+                connect(m_MeshRendererComponentSection, SIGNAL(utilButtonClicked()), this, SLOT(ShowComponentsUtilContextMenu()));
                 this->getBoxLayout().insertWidget(idx, m_MeshRendererComponentSection);
                 m_MeshRendererComponentSection->setVisible(true);
                 // Connect the entity and the MRC UI
@@ -110,6 +144,7 @@ namespace Razix {
             }
             if (entity.HasComponent<SpriteRendererComponent>()) {
                 m_ComponentsMask |= RZ_FLAG_COMPONENT_SPRITE_RENDERER;
+                connect(m_SpriteRendererComponentSection, SIGNAL(utilButtonClicked()), this, SLOT(ShowComponentsUtilContextMenu()));
                 this->getBoxLayout().insertWidget(idx, m_SpriteRendererComponentSection);
                 m_SpriteRendererComponentSection->setVisible(true);
                 idx++;
@@ -117,6 +152,41 @@ namespace Razix {
 
             // Update the transform component
             m_TrasformComponentUI->setEditingEntity(entity);
+        }
+
+        void RZEInspectorWindow::ShowComponentsUtilContextMenu()
+        {
+            m_ComponentUtilMenu->exec(QCursor::pos());
+        }
+
+        void RZEInspectorWindow::AddCameraComponent()
+        {
+            m_InspectingEntity.AddComponent<CameraComponent>();
+            OnEntitySelected(m_InspectingEntity);
+        }
+
+        void RZEInspectorWindow::AddLightComponent()
+        {
+            m_InspectingEntity.AddComponent<LightComponent>();
+            OnEntitySelected(m_InspectingEntity);
+        }
+
+        void RZEInspectorWindow::AddLuaScriptComponent()
+        {
+            m_InspectingEntity.AddComponent<LuaScriptComponent>();
+            OnEntitySelected(m_InspectingEntity);
+        }
+
+        void RZEInspectorWindow::AddMeshRendererComponent()
+        {
+            m_InspectingEntity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Sphere);
+            OnEntitySelected(m_InspectingEntity);
+        }
+
+        void RZEInspectorWindow::AddSpriteRendererComponent()
+        {
+            m_InspectingEntity.AddComponent<SpriteRendererComponent>(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+            OnEntitySelected(m_InspectingEntity);
         }
 
         void RZEInspectorWindow::initComponents()

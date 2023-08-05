@@ -38,7 +38,7 @@ namespace Razix {
                     Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
                     auto&           registry = scene->getRegistry();
 
-                    for (u32 i = 0; i < selectedItems.size(); i++) {
+                    for (i32 i = 0; i < selectedItems.size(); i++) {
                         RZApplication::Get().disableGuizmoEditing();
                         QVariant entityVariant = selectedItems[i]->data(0, Qt::UserRole);
                         auto     entity        = entityVariant.value<RZEntity>();
