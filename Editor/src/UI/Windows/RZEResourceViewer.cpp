@@ -35,7 +35,7 @@ namespace Razix {
             setObjectName("Resource Viewer");
 
             addPools();
-
+             
             ui.ResourcesTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
             initTable();
         }
