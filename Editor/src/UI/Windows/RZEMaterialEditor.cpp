@@ -45,9 +45,6 @@ namespace Razix {
         {
             m_Material = material;
 
-            // Set the Material Name
-            ui.materialName->setText(m_Material->getName().c_str());
-
             // Set the Material Editor Properties
             ui.materialName->setText(material->getName().c_str());
 

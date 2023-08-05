@@ -2,9 +2,9 @@
     "Razix Scene": {
         "UUID": "b6266dd5-13ee-4080-ba65-0d8d5e190e69",
         "SceneName": "default Scene",
-        "Total Entities": 6
+        "Total Entities": 13
     },
-    "value0": 6,
+    "value0": 13,
     "value1": 0,
     "value2": 1,
     "value3": 2,
@@ -12,59 +12,122 @@
     "value5": 4,
     "value6": 5,
     "value7": 6,
-    "value8": 0,
-    "value9": {
-        "UUID": "33333333-3333-3335-2d33-3333332d3333"
+    "value8": 7,
+    "value9": 8,
+    "value10": 9,
+    "value11": 10,
+    "value12": 11,
+    "value13": 12,
+    "value14": 13,
+    "value15": 0,
+    "value16": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value10": 1,
-    "value11": {
-        "UUID": "33333336-3333-3334-2d33-3333332d3333"
+    "value17": 1,
+    "value18": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value12": 2,
-    "value13": {
-        "UUID": "33333333-3333-3330-2d33-3333362d3333"
+    "value19": 2,
+    "value20": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
     },
-    "value14": 3,
-    "value15": {
-        "UUID": "33333333-3333-3334-2d33-3333362d3333"
-    },
-    "value16": 4,
-    "value17": {
-        "UUID": "33333333-3333-3337-2d33-3333332d3333"
-    },
-    "value18": 5,
-    "value19": {
-        "UUID": "33333333-3339-3339-2d36-3136362d3335"
-    },
-    "value20": 6,
-    "value21": 0,
+    "value21": 3,
     "value22": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value23": 4,
+    "value24": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value25": 5,
+    "value26": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value27": 6,
+    "value28": {
+        "UUID": "33333335-3336-3332-2d33-3633312d3336"
+    },
+    "value29": 7,
+    "value30": {
+        "UUID": "33303332-3335-3330-2d33-3536332d3337"
+    },
+    "value31": 8,
+    "value32": {
+        "UUID": "64306633-3831-3966-2d61-6233642d3432"
+    },
+    "value33": 9,
+    "value34": {
+        "UUID": "37656436-6236-6636-2d31-6435302d3464"
+    },
+    "value35": 10,
+    "value36": {
+        "UUID": "30653436-3933-6639-2d31-3566342d3465"
+    },
+    "value37": 11,
+    "value38": {
+        "UUID": "dbff2ef5-def1-4269-952b-455fdf19e37d"
+    },
+    "value39": 12,
+    "value40": {
+        "UUID": "360330f0-79c3-4f74-ada3-79965b70ed07"
+    },
+    "value41": 13,
+    "value42": 0,
+    "value43": {
         "Tag": "Camera"
     },
-    "value23": 1,
-    "value24": {
+    "value44": 1,
+    "value45": {
         "Tag": "hello_lua"
     },
-    "value25": 2,
-    "value26": {
+    "value46": 2,
+    "value47": {
         "Tag": "imgui_lua"
     },
-    "value27": 3,
-    "value28": {
+    "value48": 3,
+    "value49": {
         "Tag": "Directional Light"
     },
-    "value29": 4,
-    "value30": {
+    "value50": 4,
+    "value51": {
         "Tag": "Ice"
     },
-    "value31": 5,
-    "value32": {
-        "Tag": "Entity"
+    "value52": 5,
+    "value53": {
+        "Tag": "Gift"
     },
-    "value33": 0,
-    "value34": 6,
-    "value35": 0,
-    "value36": {
+    "value54": 6,
+    "value55": {
+        "Tag": "WoodenSkull"
+    },
+    "value56": 7,
+    "value57": {
+        "Tag": "Sofa"
+    },
+    "value58": 8,
+    "value59": {
+        "Tag": "Colorful Tiles"
+    },
+    "value60": 9,
+    "value61": {
+        "Tag": "Gift"
+    },
+    "value62": 10,
+    "value63": {
+        "Tag": "MetalPlates"
+    },
+    "value64": 11,
+    "value65": {
+        "Tag": "Pattern"
+    },
+    "value66": 12,
+    "value67": {
+        "Tag": "Decorative Tiles"
+    },
+    "value68": 0,
+    "value69": 13,
+    "value70": 0,
+    "value71": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -107,8 +170,8 @@
             }
         }
     },
-    "value37": 1,
-    "value38": {
+    "value72": 1,
+    "value73": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -151,8 +214,8 @@
             }
         }
     },
-    "value39": 2,
-    "value40": {
+    "value74": 2,
+    "value75": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -195,8 +258,8 @@
             }
         }
     },
-    "value41": 3,
-    "value42": {
+    "value76": 3,
+    "value77": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -239,54 +302,10 @@
             }
         }
     },
-    "value43": 4,
-    "value44": {
+    "value78": 4,
+    "value79": {
         "Translation": {
-            "x": -5.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
             "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 3.0,
-            "y": 3.0,
-            "z": 3.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 3.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 3.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 3.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": -5.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 1.0
-            }
-        }
-    },
-    "value45": 5,
-    "value46": {
-        "Translation": {
-            "x": 5.0,
             "y": 0.0,
             "z": 0.0
         },
@@ -320,45 +339,397 @@
                 "value3": 0.0
             },
             "value3": {
-                "value0": 5.0,
+                "value0": 0.0,
                 "value1": 0.0,
                 "value2": 0.0,
                 "value3": 1.0
             }
         }
     },
-    "value47": 1,
-    "value48": 0,
-    "value49": {
+    "value80": 5,
+    "value81": {
+        "Translation": {
+            "x": -7.5,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 3.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -7.5,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value82": 6,
+    "value83": {
+        "Translation": {
+            "x": 7.5,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 3.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 7.5,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value84": 7,
+    "value85": {
+        "Translation": {
+            "x": 0.0,
+            "y": 7.5,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 3.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 7.5,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value86": 8,
+    "value87": {
+        "Translation": {
+            "x": -7.5,
+            "y": 7.5,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 3.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -7.5,
+                "value1": 7.5,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value88": 9,
+    "value89": {
+        "Translation": {
+            "x": 7.5,
+            "y": 7.5,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 1.5707958936691285,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 2.9999992847442629,
+            "z": 2.9999992847442629
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.0000010728833785833559,
+                "value2": 2.9999992847442629,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": -2.9999992847442629,
+                "value2": 0.0000010728833785833559,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 7.5,
+                "value1": 7.5,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value90": 10,
+    "value91": {
+        "Translation": {
+            "x": -7.5,
+            "y": -7.5,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 3.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -7.5,
+                "value1": -7.5,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value92": 11,
+    "value93": {
+        "Translation": {
+            "x": 0.0,
+            "y": -7.5,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 3.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": -7.5,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value94": 12,
+    "value95": {
+        "Translation": {
+            "x": 7.5,
+            "y": -7.5,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 3.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 3.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 7.5,
+                "value1": -7.5,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value96": 1,
+    "value97": 0,
+    "value98": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 1.216485619544983,
-                "y": 8.32553768157959,
-                "z": 13.839110374450684
+                "x": 2.0511887073516847,
+                "y": 2.755441427230835,
+                "z": 35.299869537353519
             },
             "Front": {
-                "x": -0.011910998262465,
-                "y": -0.4146932363510132,
-                "z": -0.9098833203315735
+                "x": -0.03925041854381561,
+                "y": -0.02181488648056984,
+                "z": -0.9989913105964661
             },
             "Up": {
-                "x": -0.0054281544871628288,
-                "y": 0.9099612832069397,
-                "z": -0.41465771198272707
+                "x": -0.0008564471499994397,
+                "y": 0.9997620582580566,
+                "z": -0.021798066794872285
             },
             "Right": {
-                "x": 0.9999143481254578,
+                "x": 0.9992290139198303,
                 "y": 0.0,
-                "z": -0.013089566491544247
+                "z": -0.03925975784659386
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -90.75,
-            "Pitch": -24.5,
+            "Yaw": -92.25,
+            "Pitch": -1.25,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -369,7 +740,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.526655912399292,
+            "AspectRatio": 1.499192237854004,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
@@ -378,34 +749,83 @@
             }
         }
     },
-    "value50": 0,
-    "value51": 2,
-    "value52": 4,
-    "value53": {
+    "value99": 0,
+    "value100": 9,
+    "value101": 4,
+    "value102": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/Ice.rzmaterial.rzmaterial.rzmaterial"
+        "MaterialPath": "//Assets/Materials/Ice.rzmaterial"
     },
-    "value54": 5,
-    "value55": {
+    "value103": 5,
+    "value104": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/HolidayCookie.rzmaterial.rzmaterial.rzmaterial"
+        "MaterialPath": "//Assets/Materials/HolidayCookie.rzmaterial"
     },
-    "value56": 2,
-    "value57": 1,
-    "value58": {
+    "value105": 6,
+    "value106": {
+        "Primitive": 4,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/WoodenSkull.rzmaterial"
+    },
+    "value107": 7,
+    "value108": {
+        "Primitive": 4,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/Sofa.rzmaterial"
+    },
+    "value109": 8,
+    "value110": {
+        "Primitive": 4,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/Colorful Tiles.rzmaterial"
+    },
+    "value111": 9,
+    "value112": {
+        "Primitive": 4,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/Gift.rzmaterial"
+    },
+    "value113": 10,
+    "value114": {
+        "Primitive": 4,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/MetalPlates.rzmaterial"
+    },
+    "value115": 11,
+    "value116": {
+        "Primitive": 4,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/Pattern.rzmaterial"
+    },
+    "value117": 12,
+    "value118": {
+        "Primitive": 4,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/Decorative Tiles.rzmaterial"
+    },
+    "value119": 2,
+    "value120": 1,
+    "value121": {
         "FilePath": "//Scripts/hello_razix.lua"
     },
-    "value59": 2,
-    "value60": {
+    "value122": 2,
+    "value123": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value61": 1,
-    "value62": 3,
-    "value63": {
+    "value124": 1,
+    "value125": 3,
+    "value126": {
         "Light": {
             "type": 0,
             "position": {
@@ -433,5 +853,5 @@
             "outerConeAngle": 60.0
         }
     },
-    "value64": 0
+    "value127": 0
 }

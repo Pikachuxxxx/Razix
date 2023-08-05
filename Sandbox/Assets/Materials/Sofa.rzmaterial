@@ -1,0 +1,25 @@
+{
+    "$MATERIAL": {
+        "Name": "",
+        "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Sofa/d_Diffuse.jpg",
+        "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Sofa/n_Normal.jpg",
+        "Metallic": "",
+        "Roughness": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Sofa/r_Roughness.jpg",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.02500000037252903,
+        "metallicColor": 0.20000000298023225,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 1,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 1,
+        "isUsingNormalMap": 1,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

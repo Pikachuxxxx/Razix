@@ -57,7 +57,7 @@ namespace Razix {
 
         void RZMaterial::loadFromFile(const std::string& path)
         {
-            m_Name = Utilities::GetFileName(path);
+            m_Name = Utilities::RemoveFilePathExtension(Utilities::GetFileName(path));
             // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
             Razix::Graphics::MaterialData matData{};
             std::string                   matPhysicalPath;
