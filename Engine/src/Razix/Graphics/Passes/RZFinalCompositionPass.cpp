@@ -68,7 +68,7 @@ namespace Razix {
                         .name   = "Depth Image",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = RZTextureProperties::Type::Texture_DepthTarget,
+                        .type   = RZTextureProperties::Type::Texture_Depth,
                         .format = RZTextureProperties::Format::DEPTH16_UNORM};
 
                     data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
@@ -113,7 +113,7 @@ namespace Razix {
                     setInfos = pipelineInfo.shader->getSetsCreateInfos();
                     for (auto& setInfo: setInfos) {
                         for (auto& descriptor: setInfo.second) {
-                            descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
+                            descriptor.texture.texture2d = Graphics::RZMaterial::GetDefaultTexture();
                         }
                         auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"), true);
                         m_DescriptorSets.push_back(descSet);
@@ -135,7 +135,7 @@ namespace Razix {
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
-                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
+                                descriptor.texture.texture2d = dynamic_cast<RZTexture2D*>(resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle())->getHandle();
                             }
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }

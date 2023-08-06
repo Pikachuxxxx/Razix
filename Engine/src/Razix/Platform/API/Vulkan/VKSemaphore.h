@@ -14,7 +14,7 @@ namespace Razix {
 
             void Destroy() override;
 
-            void* getHandle(u32 idx) override;
+            void* getAPIHandlePtr(u32 idx) override;
 
         private:
             VkSemaphore m_Handles[RAZIX_MAX_SWAP_IMAGES_COUNT];

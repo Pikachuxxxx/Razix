@@ -28,7 +28,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void* DX11Texture::GetHandle() const
+        void* DX11Texture::GetAPIHandlePtr() const
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

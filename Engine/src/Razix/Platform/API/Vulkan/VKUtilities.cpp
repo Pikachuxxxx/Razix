@@ -173,6 +173,53 @@ namespace Razix {
                 }
             }
 
+            VkImageType TextureTypeToVK(const RZTextureProperties::Type type)
+            {
+                switch (type) {
+                    case RZTextureProperties::Type::Texture_1D:
+                        return VK_IMAGE_TYPE_1D;
+                    case RZTextureProperties::Type::Texture_2D:
+                    case RZTextureProperties::Type::Texture_2DArray:
+                    case RZTextureProperties::Type::Texture_Depth:
+                    case RZTextureProperties::Type::Texture_CubeMap:
+                    case RZTextureProperties::Type::Texture_CubeMapArray:
+                    case RZTextureProperties::Type::Texture_SwapchainImage:
+                        return VK_IMAGE_TYPE_2D;
+                    case RZTextureProperties::Type::Texture_3D:
+                        return VK_IMAGE_TYPE_3D;
+                    default:
+                        RAZIX_CORE_WARN("[Texture] Unsupported Texture Type");
+                        return VK_IMAGE_TYPE_2D;
+                        break;
+                }
+            }
+
+            VkImageViewType TextureTypeToVKViewType(const RZTextureProperties::Type type)
+            {
+                switch (type) {
+                    case RZTextureProperties::Type::Texture_1D:
+                        return VK_IMAGE_VIEW_TYPE_1D;
+                    case RZTextureProperties::Type::Texture_2D:
+                        return VK_IMAGE_VIEW_TYPE_2D;
+                    case RZTextureProperties::Type::Texture_2DArray:
+                        return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+                    case RZTextureProperties::Type::Texture_Depth:
+                        return VK_IMAGE_VIEW_TYPE_2D;
+                    case RZTextureProperties::Type::Texture_CubeMap:
+                        return VK_IMAGE_VIEW_TYPE_CUBE;
+                    case RZTextureProperties::Type::Texture_CubeMapArray:
+                        return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+                    case RZTextureProperties::Type::Texture_SwapchainImage:
+                        return VK_IMAGE_VIEW_TYPE_2D;
+                    case RZTextureProperties::Type::Texture_3D:
+                        return VK_IMAGE_VIEW_TYPE_3D;
+                    default:
+                        RAZIX_CORE_WARN("[Texture] Unsupported Texture View Type");
+                        return VK_IMAGE_VIEW_TYPE_2D;
+                        break;
+                }
+            }
+
             VkFilter TextureFilterToVK(const RZTextureProperties::Filtering::FilterMode filter)
             {
                 switch (filter) {
@@ -200,7 +247,7 @@ namespace Razix {
                 barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
                 barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
                 barrier.image                = image;
-                if (format >= 124 && format <= 130) // All possible depth formats
+                if (format >= 124 && format <= 130)    // All possible depth formats
                     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
                 else
                     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

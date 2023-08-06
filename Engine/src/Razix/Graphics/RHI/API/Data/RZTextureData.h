@@ -12,8 +12,7 @@ namespace Razix {
                 Texture_2D,
                 Texture_2DArray,
                 Texture_3D,
-                Texture_RenderTarget,
-                Texture_DepthTarget,
+                Texture_Depth,
                 Texture_CubeMap,
                 Texture_CubeMapArray,
                 Texture_SwapchainImage

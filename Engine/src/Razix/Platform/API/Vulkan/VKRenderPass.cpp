@@ -115,7 +115,7 @@ namespace Razix {
                     colourAttachmentRef.layout                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     colourAttachmentReferences.push_back(colourAttachmentRef);
                     m_DepthOnly = false;
-                } else if (renderpassInfo.attachmentInfos[i].type == RZTextureProperties::Type::Texture_DepthTarget) {
+                } else if (renderpassInfo.attachmentInfos[i].type == RZTextureProperties::Type::Texture_Depth) {
                     VkAttachmentReference depthAttachmentRef = {};
                     depthAttachmentRef.attachment            = u32(i);
                     depthAttachmentRef.layout                = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -196,7 +196,7 @@ namespace Razix {
             if (info.type == RZTextureProperties::Type::Texture_2D) {
                 attachment.format      = info.format == RZTextureProperties::Format::SCREEN ? VKContext::Get()->getSwapchain()->getColorFormat() : VKUtilities::TextureFormatToVK(info.format, true);
                 attachment.finalLayout = info.format == RZTextureProperties::Format::SCREEN ? VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            } else if (info.type == RZTextureProperties::Type::Texture_DepthTarget) {
+            } else if (info.type == RZTextureProperties::Type::Texture_Depth) {
                 attachment.format      = VKUtilities::FindDepthFormat();
                 attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             } else {
@@ -215,7 +215,7 @@ namespace Razix {
             }
 
             // We are always clearing the depth after every render pass so yeah beware of this make this optional for the render pass add explicit bool to control this
-            if (info.type == RZTextureProperties::Type::Texture_DepthTarget) {
+            if (info.type == RZTextureProperties::Type::Texture_Depth) {
                 attachment.loadOp        = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;

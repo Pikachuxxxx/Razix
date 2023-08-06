@@ -221,7 +221,7 @@ namespace Razix {
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
                 attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(attachment.first->GetHandle());
+                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(attachment.first->GetAPIHandlePtr());
                 attachInfo.imageView = apiHandle->imageView;
 
                 if (attachment.first->getFormat() == RZTextureProperties::Format::SCREEN) {
@@ -246,7 +246,7 @@ namespace Razix {
                     auto& clearColor = attachment.second.clearColor;
                     memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
                     colorAttachments.push_back(attachInfo);
-                } else if (attachment.first->getType() == RZTextureProperties::Type::Texture_DepthTarget) {
+                } else if (attachment.first->getType() == RZTextureProperties::Type::Texture_Depth) {
                     attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
                     renderingInfoKHR.pDepthAttachment  = &attachInfo;
                 }
@@ -266,7 +266,7 @@ namespace Razix {
 
                 // Fill the color attachments first
                 attachInfo.sType                 = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (renderingInfo.depthAttachment.first->GetHandle());
+                VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (renderingInfo.depthAttachment.first->GetAPIHandlePtr());
                 attachInfo.imageView             = apiHandle->imageView;
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;

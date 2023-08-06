@@ -67,7 +67,7 @@ namespace Razix {
             void* ptr      = RZResourceManager::Get().getPool<T>().obtain(index);
             auto  resource = (IRZResource*) ptr;
             resource->setPoolIndex(index);
-            resource->setGenerationIndex(index);
+            resource->setGenerationIndex(++index);
             return ptr;
         }
 
@@ -79,7 +79,7 @@ namespace Razix {
             void* ptr      = RZResourceManager::Get().getPool<T>().obtain(index);
             auto  resource = (IRZResource*) ptr;
             resource->setPoolIndex(index);
-            resource->setGenerationIndex(index);
+            resource->setGenerationIndex(++index);
             return ptr;
         }
 
@@ -100,6 +100,7 @@ namespace Razix {
             // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
             // TODO: Destroy Generation Index
             auto res = (IRZResource*) (pointer);
+            res->setGenerationIndex(0);
             RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
         }
 
@@ -111,6 +112,7 @@ namespace Razix {
             // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
             // TODO: Destroy Generation Index
             auto res = (IRZResource*) (pointer);
+            res->setGenerationIndex(0);
             RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
         }
     }    // namespace Graphics

@@ -20,7 +20,7 @@
 namespace Razix {
     namespace Graphics {
 
-        RZTexture2D* RZMaterial::s_DefaultTexture = nullptr;
+        RZTextureHandle RZMaterial::s_DefaultTexture;
 
         RZMaterial::RZMaterial(RZShader* shader)
         {
@@ -46,13 +46,13 @@ namespace Razix {
             u32* pinkTextureDataRaw = new u32;    // A8B8G8R8
             pinkTextureDataRaw[0]   = {0xffff00ff};
             //memcpy(pinkTextureDataRaw, &pinkTextureData, sizeof(u32));
-            s_DefaultTexture = Graphics::RZTexture2D::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Default Texture"){.name = "Default Texture", .width = 1, .height = 1, .data = pinkTextureDataRaw, .format = RZTextureProperties::Format::RGBA8});
+            s_DefaultTexture = RZResourceManager::Get().createTexture2D({.name = "Default Texture", .width = 1, .height = 1, .data = pinkTextureDataRaw, .format = RZTextureProperties::Format::RGBA8});
             //delete[] pinkTextureDataRaw;
         }
 
         void RZMaterial::ReleaseDefaultTexture()
         {
-            s_DefaultTexture->Release(true);
+            RZResourceManager::Get().releaseTexture2D(s_DefaultTexture);
         }
 
         void RZMaterial::loadFromFile(const std::string& path)
@@ -104,43 +104,43 @@ namespace Razix {
             if (paths.albedo && paths.albedo != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.albedo);
                 if (!fileName.empty())
-                    m_MaterialTextures.albedo = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.albedo, {.name = fileName});
+                    m_MaterialTextures.albedo = RZResourceManager::Get().createTexture2DFromFile(paths.albedo, {.name = fileName});
             }
 
             if (paths.ao && paths.ao != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.ao);
                 if (!fileName.empty())
-                    m_MaterialTextures.ao = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.ao, {.name = fileName});
+                    m_MaterialTextures.ao = RZResourceManager::Get().createTexture2DFromFile(paths.ao, {.name = fileName});
             }
 
             if (paths.emissive && paths.emissive != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.emissive);
                 if (!fileName.empty())
-                    m_MaterialTextures.emissive = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.emissive, {.name = fileName});
+                    m_MaterialTextures.emissive = RZResourceManager::Get().createTexture2DFromFile(paths.emissive, {.name = fileName});
             }
 
             if (paths.metallic && paths.metallic != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.metallic);
                 if (!fileName.empty())
-                    m_MaterialTextures.metallic = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.metallic, {.name = fileName});
+                    m_MaterialTextures.metallic = RZResourceManager::Get().createTexture2DFromFile(paths.metallic, {.name = fileName});
             }
 
             if (paths.normal && paths.normal != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.normal);
                 if (!fileName.empty())
-                    m_MaterialTextures.normal = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.normal, {.name = fileName});
+                    m_MaterialTextures.normal = RZResourceManager::Get().createTexture2DFromFile(paths.normal, {.name = fileName});
             }
 
             if (paths.roughness && paths.roughness != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.roughness);
                 if (!fileName.empty())
-                    m_MaterialTextures.roughness = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.roughness, {.name = fileName});
+                    m_MaterialTextures.roughness = RZResourceManager::Get().createTexture2DFromFile(paths.roughness, {.name = fileName});
             }
 
             if (paths.specular && paths.specular != "") {
                 auto fileName = Razix::Utilities::GetFileName(paths.specular);
                 if (!fileName.empty())
-                    m_MaterialTextures.specular = RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG(fileName) paths.specular, {.name = fileName});
+                    m_MaterialTextures.specular = RZResourceManager::Get().createTexture2DFromFile(paths.specular, {.name = fileName});
             }
 
             setTexturesUpdated(true);
@@ -161,42 +161,42 @@ namespace Razix {
                             // Choose the mat textures based on the workflow & preset
                             switch (descriptor.bindingInfo.binding) {
                                 case TextureBindingTable::TEX_BINDING_IDX_ALBEDO:
-                                    descriptor.texture = m_MaterialTextures.albedo ? m_MaterialTextures.albedo : s_DefaultTexture;
-                                    if (descriptor.texture != s_DefaultTexture)
+                                    descriptor.texture.texture2d = m_MaterialTextures.albedo.isValid() ? m_MaterialTextures.albedo : s_DefaultTexture;
+                                    if (descriptor.texture.texture2d != s_DefaultTexture)
                                         m_MaterialData.m_MaterialProperties.isUsingAlbedoMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_NORMAL:
-                                    descriptor.texture = m_MaterialTextures.normal ? m_MaterialTextures.normal : s_DefaultTexture;
-                                    if (descriptor.texture != s_DefaultTexture)
+                                    descriptor.texture.texture2d = m_MaterialTextures.normal.isValid() ? m_MaterialTextures.normal : s_DefaultTexture;
+                                    if (descriptor.texture.texture2d != s_DefaultTexture)
                                         m_MaterialData.m_MaterialProperties.isUsingNormalMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_METALLLIC:
-                                    descriptor.texture = m_MaterialTextures.metallic ? m_MaterialTextures.metallic : s_DefaultTexture;
-                                    if (descriptor.texture != s_DefaultTexture)
+                                    descriptor.texture.texture2d = m_MaterialTextures.metallic.isValid() ? m_MaterialTextures.metallic : s_DefaultTexture;
+                                    if (descriptor.texture.texture2d != s_DefaultTexture)
                                         m_MaterialData.m_MaterialProperties.isUsingMetallicMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_ROUGHNESS:
-                                    descriptor.texture = m_MaterialTextures.roughness ? m_MaterialTextures.roughness : s_DefaultTexture;
-                                    if (descriptor.texture != s_DefaultTexture)
+                                    descriptor.texture.texture2d = m_MaterialTextures.roughness.isValid() ? m_MaterialTextures.roughness : s_DefaultTexture;
+                                    if (descriptor.texture.texture2d != s_DefaultTexture)
                                         m_MaterialData.m_MaterialProperties.isUsingRoughnessMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_SPECULAR:
-                                    descriptor.texture = m_MaterialTextures.specular ? m_MaterialTextures.specular : s_DefaultTexture;
-                                    if (descriptor.texture != s_DefaultTexture)
+                                    descriptor.texture.texture2d = m_MaterialTextures.specular.isValid() ? m_MaterialTextures.specular : s_DefaultTexture;
+                                    if (descriptor.texture.texture2d != s_DefaultTexture)
                                         m_MaterialData.m_MaterialProperties.isUsingSpecular = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_EMISSIVE:
-                                    descriptor.texture = m_MaterialTextures.emissive ? m_MaterialTextures.emissive : s_DefaultTexture;
-                                    if (descriptor.texture != s_DefaultTexture)
+                                    descriptor.texture.texture2d = m_MaterialTextures.emissive.isValid() ? m_MaterialTextures.emissive : s_DefaultTexture;
+                                    if (descriptor.texture.texture2d != s_DefaultTexture)
                                         m_MaterialData.m_MaterialProperties.isUsingEmissiveMap = true;
                                     break;
                                 case TextureBindingTable::TEX_BINDING_IDX_AO:
-                                    descriptor.texture = m_MaterialTextures.ao ? m_MaterialTextures.ao : s_DefaultTexture;
-                                    if (descriptor.texture != s_DefaultTexture)
+                                    descriptor.texture.texture2d = m_MaterialTextures.ao.isValid() ? m_MaterialTextures.ao : s_DefaultTexture;
+                                    if (descriptor.texture.texture2d != s_DefaultTexture)
                                         m_MaterialData.m_MaterialProperties.isUsingAOMap = true;
                                     break;
                                 default:
-                                    descriptor.texture = s_DefaultTexture;
+                                    descriptor.texture.texture2d = s_DefaultTexture;
                                     break;
                             }
                         }
@@ -253,20 +253,20 @@ namespace Razix {
 
         void MaterialTextures::Destroy()
         {
-            if (albedo && albedo != RZMaterial::GetDefaultTexture())
-                albedo->Release(true);
-            if (normal && normal != RZMaterial::GetDefaultTexture())
-                normal->Release(true);
-            if (metallic && metallic != RZMaterial::GetDefaultTexture())
-                metallic->Release(true);
-            if (roughness && roughness != RZMaterial::GetDefaultTexture())
-                roughness->Release(true);
-            if (specular && specular != RZMaterial::GetDefaultTexture())
-                specular->Release(true);
-            if (emissive && emissive != RZMaterial::GetDefaultTexture())
-                emissive->Release(true);
-            if (ao && ao != RZMaterial::GetDefaultTexture())
-                ao->Release(true);
+            if (albedo != RZMaterial::GetDefaultTexture())
+                RZResourceManager::Get().releaseTexture2D(albedo);
+            if (normal != RZMaterial::GetDefaultTexture())
+                RZResourceManager::Get().releaseTexture2D(normal);
+            if (metallic != RZMaterial::GetDefaultTexture())
+                RZResourceManager::Get().releaseTexture2D(metallic);
+            if (roughness != RZMaterial::GetDefaultTexture())
+                RZResourceManager::Get().releaseTexture2D(roughness);
+            if (specular != RZMaterial::GetDefaultTexture())
+                RZResourceManager::Get().releaseTexture2D(specular);
+            if (emissive != RZMaterial::GetDefaultTexture())
+                RZResourceManager::Get().releaseTexture2D(emissive);
+            if (ao != RZMaterial::GetDefaultTexture())
+                RZResourceManager::Get().releaseTexture2D(ao);
         }
 
         RZMaterial* GetDefaultMaterial()

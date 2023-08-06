@@ -19,7 +19,7 @@ namespace Razix {
         protected:
             void  Bind(u32 slot) override;
             void  Unbind(u32 slot) override;
-            void* GetHandle() const override;
+            void* GetAPIHandlePtr() const override;
         };
     }    // namespace Graphics
 }    // namespace Razix

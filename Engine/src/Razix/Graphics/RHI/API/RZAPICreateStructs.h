@@ -12,21 +12,23 @@ namespace Razix {
 
         // Graphics API
 
+        // TODO: Add checks for data members based on type, ex. Texture_CubeMap must have layers > 1 etc.
         struct RZTextureDesc
         {
-            std::string                    name       = "UN_NAMED_TEXTURE_RESOURCE";                    /* Name of the texture                                                                      */
+            std::string                    name       = "$UNNAMED_TEXTURE_RESOURCE";                    /* Name of the texture                                                                      */
             u32                            width      = 0;                                              /*  The Width of the texture                                                                */
             u32                            height     = 0;                                              /* The Height of the texture                                                                */
-            u32                            layers     = 1;                                              /* The Height/Layers/Depth of the texture (depending on if it's a array or cubemap or 3D)   */
+            u32                            depth      = 0;                                              /* The depth of the texture used only for 3D textures                                       */
+            u32                            layers     = 1;                                              /* The array Layers of the texture used for Arrays and CubeMaps                             */
             void*                          data       = nullptr;                                        /* The Data uses to initialize the Texture with                                             */
             RZTextureProperties::Type      type       = RZTextureProperties::Type::Texture_2D;          /* The type of the Texture                                                                  */
             RZTextureProperties::Format    format     = RZTextureProperties::Format::RGBA32F;           /* The format of the texture                                                                */
             RZTextureProperties::Wrapping  wrapping   = RZTextureProperties::Wrapping::CLAMP_TO_BORDER; /* Wrap mode of the texture in memory                                                       */
             RZTextureProperties::Filtering filtering  = RZTextureProperties::Filtering{};               /* Filtering mode of the texture                                                            */
-            bool                           enableMips = false;                                          /* Whether or not to generate mip maps or not for the texture                               */
+            bool                           enableMips = true;                                           /* Whether or not to generate mip maps or not for the texture                               */
             bool                           flipX      = false;                                          /* Flip the texture on X-axis during load                                                   */
             bool                           flipY      = false;                                          /* Flip the texture on Y-axis during load                                                   */
-            u32                            dataSize   = sizeof(unsigned char);
+            u32                            dataSize   = sizeof(unsigned char);                          /* data size of each pixel, HDR data vs normal pixel data                                   */
 
             /**
              * Returns the Format of the Texture in string

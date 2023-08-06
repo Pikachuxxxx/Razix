@@ -26,7 +26,7 @@ namespace Razix {
                     case RZTextureProperties::Type::Texture_2D:
                         attachments.push_back(static_cast<VKTexture2D*>(frameBufInfo.attachments[i])->getImageView());
                         break;
-                    case RZTextureProperties::Type::Texture_DepthTarget:
+                    case RZTextureProperties::Type::Texture_Depth:
                         attachments.push_back(static_cast<VKTexture2D*>(frameBufInfo.attachments[i])->getImageView());
                         break;
                     default:

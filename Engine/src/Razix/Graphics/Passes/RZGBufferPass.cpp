@@ -89,7 +89,7 @@ namespace Razix {
 
                     gbufferTexturesDesc.name   = "Depth";
                     gbufferTexturesDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
-                    gbufferTexturesDesc.type   = RZTextureProperties::Type::Texture_DepthTarget;
+                    gbufferTexturesDesc.type   = RZTextureProperties::Type::Texture_Depth;
 
                     data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 

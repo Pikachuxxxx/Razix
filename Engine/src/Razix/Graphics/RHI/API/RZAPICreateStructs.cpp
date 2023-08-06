@@ -85,7 +85,7 @@ namespace Razix {
                 case Razix::Graphics::RZTextureProperties::Type::Texture_CubeMap:
                     return "CubeMap";
                     break;
-                case Razix::Graphics::RZTextureProperties::Type::Texture_DepthTarget:
+                case Razix::Graphics::RZTextureProperties::Type::Texture_Depth:
                     return "Depth";
                     break;
                 case Razix::Graphics::RZTextureProperties::Type::Texture_RenderTarget:

@@ -32,7 +32,7 @@ namespace Razix {
 
                 attachment->Bind(i);
 
-	            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, *(u32*)(attachment->GetHandle()), 0);
+	            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, *(u32*)(attachment->GetAPIHandlePtr()), 0);
             }
 
             glGenRenderbuffers(1, &m_RBO);

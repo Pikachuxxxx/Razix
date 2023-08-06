@@ -80,7 +80,7 @@ namespace Razix {
 
                     textureDesc.name   = "Scene Depth";
                     textureDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
-                    textureDesc.type   = RZTextureProperties::Type::Texture_DepthTarget;
+                    textureDesc.type   = RZTextureProperties::Type::Texture_Depth;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", CAST_TO_FG_TEX_DESC textureDesc);
 

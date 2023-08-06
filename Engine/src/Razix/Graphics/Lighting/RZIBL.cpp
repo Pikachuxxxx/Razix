@@ -82,7 +82,7 @@ namespace Razix {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
-                            descriptor.texture = equirectangularMap;
+                            descriptor.texture.texture2d = equirectangularMap->getHandle();
                         if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
@@ -190,7 +190,7 @@ namespace Razix {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
-                            descriptor.texture = cubeMap;
+                            descriptor.texture.cubemap = cubeMap->getHandle();
                         if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
@@ -293,7 +293,7 @@ namespace Razix {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
-                            descriptor.texture = cubeMap;
+                            descriptor.texture.cubemap = cubeMap->getHandle();
                         if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
@@ -327,8 +327,8 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("PreFiltering cubemap", glm::vec4(0.8f, 0.8f, 0.3f, 1.0f))
 
                 for (u32 mip = 0; mip < maxMipLevels; mip++) {
-                    unsigned int mipWidth  = dim * std::pow(0.5, mip);
-                    unsigned int mipHeight = dim * std::pow(0.5, mip);
+                    u32 mipWidth  = static_cast<u32>(dim * std::pow(0.5, mip));
+                    u32 mipHeight = static_cast<u32>(dim * std::pow(0.5, mip));
 
                     cmdBuffer->UpdateViewport(mipWidth, mipHeight);
 

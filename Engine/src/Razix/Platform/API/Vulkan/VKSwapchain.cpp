@@ -66,7 +66,7 @@ namespace Razix {
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
                 VKTexture2D* swapImageTexture = new VKTexture2D(images[i], imageView[i]);
-                m_SwapchainImageTextures.push_back(swapImageTexture);
+                m_SwapchainImageTextures.push_back(swapImageTexture->getHandle());
             }
 
             // Create the sync primitives for each frame
@@ -86,8 +86,9 @@ namespace Razix {
             }
 
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-                tex->Release(false);
+                //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+                //tex->Release(false);
+                RZResourceManager::Get().releaseTexture2D(m_SwapchainImageTextures[i]);
             }
             m_SwapchainImageTextures.clear();
             vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
@@ -116,8 +117,9 @@ namespace Razix {
             m_OldSwapChain = m_Swapchain;
 
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-                tex->Release(false);
+                //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+                //tex->Release(false);
+                RZResourceManager::Get().releaseTexture2D(m_SwapchainImageTextures[i]);
             }
             m_SwapchainImageTextures.clear();
 
@@ -339,13 +341,12 @@ namespace Razix {
                         //Destroy();
 
                         for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                            auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-                            tex->Release(false);
+                            //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+                            //tex->Release(false);
+                            RZResourceManager::Get().releaseTexture2D(m_SwapchainImageTextures[i]);
                         }
                         m_SwapchainImageTextures.clear();
                         vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
-
-                        //Init(m_Width, m_Height);
 
                         // Create the KHR Swapchain
                         createSwapchain();
@@ -361,7 +362,7 @@ namespace Razix {
                         for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                             VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
                             VKTexture2D* swapImageTexture = new VKTexture2D(images[i], imageView[i]);
-                            m_SwapchainImageTextures.push_back(swapImageTexture);
+                            m_SwapchainImageTextures.push_back(swapImageTexture->getHandle());
                         }
 
                         result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);

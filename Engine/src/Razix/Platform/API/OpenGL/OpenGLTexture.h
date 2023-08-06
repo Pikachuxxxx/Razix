@@ -18,7 +18,7 @@ namespace Razix {
 
             void Release(bool deleteImage) override {}
 
-            void* GetHandle() const override { return (void*) (sz) m_Handle; }
+            void* GetAPIHandlePtr() const override { return (void*) (sz) m_Handle; }
             void  SetData(const void* pixels) override;
 
         private:

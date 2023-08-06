@@ -90,10 +90,10 @@ namespace Razix {
                         case RZTextureProperties::Type::Texture_CubeMap:
                             texture = Graphics::RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                             break;
-                        case RZTextureProperties::Type::Texture_DepthTarget:
+                        case RZTextureProperties::Type::Texture_Depth:
                             if (desc.layers > 1) {
                                 texture = Graphics::RZTexture2D::CreateArray(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
-                                texture->setType(RZTextureProperties::Type::Texture_DepthTarget);
+                                texture->setType(RZTextureProperties::Type::Texture_Depth);
                             } else
                                 texture = Graphics::RZDepthTexture::Create(desc);
                             break;

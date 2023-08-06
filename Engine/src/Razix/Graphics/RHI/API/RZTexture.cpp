@@ -33,13 +33,43 @@ namespace Razix {
             default: return sizeof(RZTexture); break;                                       \
         }                                                                                   \
     }
-
-        GET_INSTANCE_SIZE_IMPL(RZTexture2D)
-        GET_INSTANCE_SIZE_IMPL(RZTexture3D)
+        GET_INSTANCE_SIZE_IMPL(RZTexture)
+        //GET_INSTANCE_SIZE_IMPL(RZTexture2D)
+        //GET_INSTANCE_SIZE_IMPL(RZTexture3D)
 
         //-----------------------------------------------------------------------------------
         // Texture
         //-----------------------------------------------------------------------------------
+
+        RZTextureHandle RZTexture::Create(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture(desc); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture2D(desc RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
+                case Razix::Graphics::RenderAPI::GXM:
+                case Razix::Graphics::RenderAPI::GCM:
+                default: return RZTextureHandle(); break;
+            }
+            return RZTextureHandle();
+        }
+
+        RZTextureHandle RZTexture::CreateFromFile(const std::string& filePath, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture(desc, filePath); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture2D(desc, filePath RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::D3D11:
+                case Razix::Graphics::RenderAPI::D3D12:
+                case Razix::Graphics::RenderAPI::GXM:
+                case Razix::Graphics::RenderAPI::GCM:
+                default: return RZTextureHandle(); break;
+            }
+            return RZTextureHandle();
+        }
 
         u32 RZTexture::calculateMipMapCount(u32 width, u32 height)
         {
@@ -86,13 +116,14 @@ namespace Razix {
             descriptor.bindingInfo.count   = 1;
             descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
             descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-            descriptor.texture             = (RZTexture2D*) this;
+            //descriptor.texture             = (RZTexture2D*) this;
 
             std::vector<RZDescriptor> descriptors = {descriptor};
 
             m_DescriptorSet = Graphics::RZDescriptorSet::Create(descriptors RZ_DEBUG_NAME_TAG_STR_E_ARG(descriptor.name));
         }
 
+#if 0
         //-----------------------------------------------------------------------------------
         // Texture 2D
         //-----------------------------------------------------------------------------------
@@ -224,5 +255,6 @@ namespace Razix {
             }
             return nullptr;
         }
+#endif
     }    // namespace Graphics
 }    // namespace Razix
