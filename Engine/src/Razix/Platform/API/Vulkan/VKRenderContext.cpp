@@ -217,7 +217,7 @@ namespace Razix {
                 // Resize attachments when resized
                 if (renderingInfo.resize) {
                     if (m_Width != colorAttachment->getWidth() || m_Height != colorAttachment->getHeight())
-                        colorAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(colorAttachment->getName()));
+                        colorAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y);
                 }
 
                 // Fill the color attachments first
@@ -258,7 +258,7 @@ namespace Razix {
                 // Depth attachment resize
                 if (renderingInfo.resize) {
                     if (m_Width != depthAttachment->getWidth() || m_Height != depthAttachment->getHeight())
-                        depthAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(depthAttachment->getName()));
+                        depthAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y);
                 }
 
                 // Fill the color attachments first

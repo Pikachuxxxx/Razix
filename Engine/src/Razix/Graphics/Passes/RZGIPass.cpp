@@ -108,7 +108,7 @@ namespace Razix {
                 Graphics::RZTextureProperties::Format::RGBA32F,
                 Graphics::RZTextureProperties::Format::RGBA32F,
                 Graphics::RZTextureProperties::Format::RGBA32F};
-            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH16_UNORM;
+            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH32F;
 
             m_RSMPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("RSM pipeline"));
 
@@ -138,7 +138,7 @@ namespace Razix {
                     data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", CAST_TO_FG_TEX_DESC textureDesc);
 
                     textureDesc.name   = "RSM/Depth";
-                    textureDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
+                    textureDesc.format = RZTextureProperties::Format::DEPTH32F;
                     textureDesc.type   = RZTextureProperties::Type::Texture_Depth;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);

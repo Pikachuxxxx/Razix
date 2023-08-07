@@ -78,9 +78,10 @@ namespace Razix {
 
                     data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR RT", CAST_TO_FG_TEX_DESC textureDesc);
 
-                    textureDesc.name   = "Scene Depth";
-                    textureDesc.format = RZTextureProperties::Format::DEPTH16_UNORM;
-                    textureDesc.type   = RZTextureProperties::Type::Texture_Depth;
+                    textureDesc.name       = "Scene Depth";
+                    textureDesc.format     = RZTextureProperties::Format::DEPTH32F;
+                    textureDesc.type       = RZTextureProperties::Type::Texture_Depth;
+                    textureDesc.enableMips = false;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", CAST_TO_FG_TEX_DESC textureDesc);
 

@@ -15,13 +15,14 @@ namespace Razix {
 
             void RZFrameGraphTexture::create(const Desc& desc, void* allocator)
             {
-                m_TextureHandle = RZResourceManager::Get().createTexture(desc);    //static_cast<FrameGraph::RZTransientResources*>(allocator)->acquireTexture(desc);
+                if (!m_TextureHandle.isValid())
+                    m_TextureHandle = RZResourceManager::Get().createTexture(desc);    //static_cast<FrameGraph::RZTransientResources*>(allocator)->acquireTexture(desc);
             }
 
             void RZFrameGraphTexture::destroy(const Desc& desc, void* allocator)
             {
                 //static_cast<FrameGraph::RZTransientResources*>(allocator)->releaseTexture(desc, m_Texture);
-                RZResourceManager::Get().releaseTexture(m_TextureHandle);
+                //RZResourceManager::Get().releaseTexture(m_TextureHandle);
             }
 
             std::string RZFrameGraphTexture::toString(const Desc& desc)

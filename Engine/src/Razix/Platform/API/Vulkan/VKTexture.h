@@ -87,6 +87,9 @@ namespace Razix {
             /* Releases the vulkan texture resources */
             void Destroy() override;
 
+            /* Resize the texture mostly useful for RTs and DRTs */
+            void Resize(u32 width, u32 height) override;
+
             /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
             void* GetAPIHandlePtr() const override { return (void*) &m_Descriptors[m_CurrentMipRenderingLevel]; }
 
@@ -123,11 +126,12 @@ namespace Razix {
             std::vector<VkDescriptorImageInfo> m_Descriptors     = {};                        /* Descriptors info encapsulation the image, it's views and the sampler            */
             VkImageLayout                      m_ImageLayout     = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                       */
             bool                               m_DeleteImageData = false;                     /* Whether or not to delete image intermediate data                                */
-            VkImageAspectFlagBits              m_AspectBit       = VK_IMAGE_ASPECT_COLOR_BIT; /* Aspect bit of the image                                                         */
+            VkImageAspectFlagBits              m_AspectBit       = VK_IMAGE_ASPECT_NONE;      /* Aspect bit of the image                                                         */
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
             bool load(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            void init(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
         };
 
     #if 0

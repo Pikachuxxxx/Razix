@@ -387,8 +387,8 @@ namespace Razix {
 
                         RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                     }
+                    RHI::EndRendering(cmdBuffer);
                 }
-                RHI::EndRendering(cmdBuffer);
 
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);

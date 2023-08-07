@@ -65,11 +65,12 @@ namespace Razix {
                         .format = RZTextureProperties::Format::BGRA8_UNORM};
 
                     RZTextureDesc depthImageDesc{
-                        .name   = "Depth Image",
-                        .width  = RZApplication::Get().getWindow()->getWidth(),
-                        .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = RZTextureProperties::Type::Texture_Depth,
-                        .format = RZTextureProperties::Format::DEPTH16_UNORM};
+                        .name       = "Depth Image",
+                        .width      = RZApplication::Get().getWindow()->getWidth(),
+                        .height     = RZApplication::Get().getWindow()->getHeight(),
+                        .type       = RZTextureProperties::Type::Texture_Depth,
+                        .format     = RZTextureProperties::Format::DEPTH32F,
+                        .enableMips = false};
 
                     data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
 

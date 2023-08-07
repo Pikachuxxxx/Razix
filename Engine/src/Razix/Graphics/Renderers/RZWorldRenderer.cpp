@@ -36,9 +36,9 @@ namespace Razix {
         {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTextureFromFile({"BRDF LUT"}, "//RazixContent/Textures/brdf_lut.png");
+            m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTextureFromFile({.name = "BRDF LUT", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
 
-            m_NoiseTextureHandle = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = RZTextureProperties::Wrapping::REPEAT}, "//RazixContent/Textures/volumetric_clouds_noise.png");
+            m_NoiseTextureHandle = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = RZTextureProperties::Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
 
             const auto& BRDFfLUTTextureDesc  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
@@ -391,6 +391,20 @@ namespace Razix {
 
                 // Execute the Frame Graph passes
                 m_FrameGraph.execute(nullptr, &m_TransientResources);
+
+#if 0
+                RenderingInfo info{};
+                info.colorAttachments = {
+                    {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
+                };
+                info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                info.resize = true;
+
+                RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
+
+                RHI::EndRendering(RHI::GetCurrentCommandBuffer());
+#endif
 
                 // End Frame Marker
                 RAZIX_MARK_END();

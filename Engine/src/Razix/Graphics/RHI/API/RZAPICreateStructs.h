@@ -25,7 +25,7 @@ namespace Razix {
             RZTextureProperties::Format    format     = RZTextureProperties::Format::RGBA32F;           /* The format of the texture                                                                */
             RZTextureProperties::Wrapping  wrapping   = RZTextureProperties::Wrapping::CLAMP_TO_BORDER; /* Wrap mode of the texture in memory                                                       */
             RZTextureProperties::Filtering filtering  = RZTextureProperties::Filtering{};               /* Filtering mode of the texture                                                            */
-            bool                           enableMips = true;                                           /* Whether or not to generate mip maps or not for the texture                               */
+            bool                           enableMips = false;                                          /* Whether or not to generate mip maps or not for the texture                               */
             bool                           flipX      = false;                                          /* Flip the texture on X-axis during load                                                   */
             bool                           flipY      = false;                                          /* Flip the texture on Y-axis during load                                                   */
             u32                            dataSize   = sizeof(unsigned char);                          /* data size of each pixel, HDR data vs normal pixel data                                   */

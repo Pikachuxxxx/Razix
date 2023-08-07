@@ -107,7 +107,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SimpleShadowPassData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = RZTextureProperties::Type::Texture_Depth, .format = RZTextureProperties::Format::DEPTH32F});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = RZTextureProperties::Type::Texture_Depth, .format = RZTextureProperties::Format::DEPTH32F, .enableMips = false});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 

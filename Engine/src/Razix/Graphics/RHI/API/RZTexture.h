@@ -54,7 +54,7 @@ namespace Razix {
             virtual void Unbind(u32 slot) = 0;
 
             /* Resize the texture */
-            virtual void Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG) {}
+            virtual void Resize(u32 width, u32 height) {}
 
             /* Gets the handle to the underlying API texture instance */
             virtual void* GetAPIHandlePtr() const = 0;
@@ -98,7 +98,6 @@ namespace Razix {
             RZTextureDesc    m_Desc;                             /* Texture properties and create desc                          */
             u32              m_TotalMipLevels           = 1;     /* Total Mips, Calculated by a formula except for RZCubeMap    */
             u32              m_CurrentMipRenderingLevel = 0;     /* Current mip level to which we are rendering to (as RT)      */
-            bool             m_GenerateMips             = false; /* Whether or not to enable mips generation                    */
             bool             m_IsRenderTexture          = true;  /* Any texture not imported from file and created is a RT      */
 
         private:
