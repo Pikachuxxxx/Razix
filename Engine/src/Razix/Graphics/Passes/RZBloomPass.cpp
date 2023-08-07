@@ -118,7 +118,7 @@ namespace Razix {
                         .name   = "Bloom Mip",
                         .width  = static_cast<u32>(bloomSourceMip.size.x),
                         .height = static_cast<u32>(bloomSourceMip.size.y),
-                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .type   = RZTextureProperties::Type::Texture_2D,
                         .format = RZTextureProperties::Format::RGBA32F,
                     };
 
@@ -240,7 +240,7 @@ namespace Razix {
                         .name   = "Bloom Mip",
                         .width  = static_cast<u32>(bloomSourceMip.size.x),
                         .height = static_cast<u32>(bloomSourceMip.size.y),
-                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .type   = RZTextureProperties::Type::Texture_2D,
                         .format = RZTextureProperties::Format::RGBA32F,
                     };
 

@@ -2,6 +2,7 @@
 
 #include "Razix/Core/RZProfiling.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 
 namespace Razix {
@@ -31,11 +32,11 @@ namespace Razix {
 
         struct RenderingInfo
         {
-            glm::uvec2                                              extent;
-            std::vector<std::pair<RZTexture*, AttachmentClearInfo>> colorAttachments;
-            std::pair<RZTexture*, AttachmentClearInfo>              depthAttachment;
-            int                                                     layerCount = 1;
-            bool                                                    resize     = false;
+            glm::uvec2                                                   extent;
+            std::vector<std::pair<RZTextureHandle, AttachmentClearInfo>> colorAttachments;
+            std::pair<RZTextureHandle, AttachmentClearInfo>              depthAttachment;
+            int                                                          layerCount = 1;
+            bool                                                         resize     = false;
         };
 
         /* Command Queue is a collection of command buffers that will be submitted for execution at once */
@@ -179,12 +180,12 @@ namespace Razix {
         protected:
             static RHI* s_APIInstance;
 
-            std::string      m_RendererTitle; /* The name of the renderer API that is being used */
-            u32              m_Width      = 0;
-            u32              m_Height     = 0;
-            u32              m_PrevWidth  = 0;
-            u32              m_PrevHeight = 0;
-            CommandQueue     m_CommandQueue; /* The queue of recorded commands that needs execution */
+            std::string                   m_RendererTitle; /* The name of the renderer API that is being used */
+            u32                           m_Width      = 0;
+            u32                           m_Height     = 0;
+            u32                           m_PrevWidth  = 0;
+            u32                           m_PrevHeight = 0;
+            CommandQueue                  m_CommandQueue; /* The queue of recorded commands that needs execution */
             RZCommandBuffer*              m_CurrentCommandBuffer = nullptr;
             std::vector<RZCommandBuffer*> m_DrawCommandBuffers;
         };

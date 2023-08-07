@@ -23,10 +23,14 @@ namespace Razix {
             {
                 auto refValue = m_AtomicRefCounter.Unref();
                 if (refValue <= 0) {
+                    RAZIX_CORE_ERROR("Resource ${0}$ has no References! | UUID : {1} | pool idx : {2} !!! NEEDS TO BE RELEASED FROM POOL !!!", m_ResourceName, m_UUID.prettyString(), m_Handle.getIndex());
                     // TODO: Since this has no references Inform the pool it belongs to deallocate it's memory
-                    RAZIX_CORE_TRACE("Resource ${0}$ has no References! | UUID : {1} | pool idx : {2} ", m_ResourceName, m_UUID.prettyString(), m_Handle.getIndex());
+                    // TODO: Release this from memory!???
+                    //RZResourceManager::Get().getPool<T>().release(getHandle());
                 }
             }
+
+            virtual void Destroy() = 0;
 
             // This is the Magic right here, these will make sure new will allocate the memory from their respective ResourcePools, no need to use placement new and make things looks messy
             // Note: Operators are STATIC FUNCTIONS!
@@ -46,7 +50,9 @@ namespace Razix {
             inline void setGenerationIndex(u32 index) { m_Handle.setGeneration(index); }
 
             inline RZHandle<T>& getHandle() { return m_Handle; }
-            inline RZUUID&      getUUID() { return m_UUID; }
+            inline void         setHandle(const RZHandle<T>& handle) { m_Handle = handle; }
+
+            inline RZUUID& getUUID() { return m_UUID; }
 
         protected:
             rzstl::ReferenceCounter m_AtomicRefCounter;
@@ -63,11 +69,10 @@ namespace Razix {
         void* IRZResource<T>::operator new(size_t size)
         {
             // Return the pre allocated memory from it's respective Resource Memory Pool
-            u32   index    = 0;
-            void* ptr      = RZResourceManager::Get().getPool<T>().obtain(index);
-            auto  resource = (IRZResource*) ptr;
-            resource->setPoolIndex(index);
-            resource->setGenerationIndex(++index);
+            RZHandle<T> handle;
+            void*       ptr      = RZResourceManager::Get().getPool<T>().obtain(handle);
+            auto        resource = (IRZResource*) ptr;
+            resource->setHandle(handle);
             return ptr;
         }
 
@@ -75,11 +80,10 @@ namespace Razix {
         void* IRZResource<T>::operator new[](size_t size)
         {
             // Return the pre allocated memory from it's respective Resource Memory Pool
-            u32   index    = 0;
-            void* ptr      = RZResourceManager::Get().getPool<T>().obtain(index);
-            auto  resource = (IRZResource*) ptr;
-            resource->setPoolIndex(index);
-            resource->setGenerationIndex(++index);
+            RZHandle<T> handle;
+            void*       ptr      = RZResourceManager::Get().getPool<T>().obtain(handle);
+            auto        resource = (IRZResource*) ptr;
+            resource->setHandle(handle);
             return ptr;
         }
 
@@ -101,7 +105,7 @@ namespace Razix {
             // TODO: Destroy Generation Index
             auto res = (IRZResource*) (pointer);
             res->setGenerationIndex(0);
-            RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
+            RZResourceManager::Get().getPool<T>().release(res->getHandle());
         }
 
         template<typename T>
@@ -113,7 +117,7 @@ namespace Razix {
             // TODO: Destroy Generation Index
             auto res = (IRZResource*) (pointer);
             res->setGenerationIndex(0);
-            RZResourceManager::Get().getPool<T>().release(res->getPoolIndex());
+            RZResourceManager::Get().getPool<T>().release(res->getHandle());
         }
     }    // namespace Graphics
 }    // namespace Razix

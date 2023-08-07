@@ -48,10 +48,6 @@ namespace Razix {
             static u32                         calculateMipMapCount(u32 width, u32 height);
             static RZTextureProperties::Format bitsToTextureFormat(u32 bits);
 
-            // TODO: Move this to the RXBaseAsset class in later designs
-            /* Releases the texture data and it's underlying resources */
-            virtual void Release(bool deleteImage = true) = 0;
-
             /* Binds the Texture resource to the Pipeline */
             virtual void Bind(u32 slot) = 0;
             /* Unbinds the Texture resource from the pipeline */
@@ -63,9 +59,11 @@ namespace Razix {
             /* Gets the handle to the underlying API texture instance */
             virtual void* GetAPIHandlePtr() const = 0;
 
+            virtual void SetData(const void* pixels) {}
+
             virtual int32_t ReadPixels(u32 x, u32 y) = 0;
 
-            RZTextureDesc getDescription() { return m_Desc; }
+            const RZTextureDesc& getDescription() const { return m_Desc; }
 
             /* Returns the name of the texture resource */
             std::string getName() const { return m_Desc.name; }
@@ -105,7 +103,7 @@ namespace Razix {
 
         private:
             static RZTextureHandle Create(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            static RZTextureHandle CreateFromFile(const std::string& filePath, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            static RZTextureHandle CreateFromFile(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
 
             friend class RZResourceManager;
         };

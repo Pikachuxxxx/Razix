@@ -20,18 +20,18 @@
 namespace Razix {
     namespace Graphics {
 
-#define GET_INSTANCE_SIZE_IMPL(TYPE)                                                        \
-    u32 TYPE::GetInstanceSize()                                                             \
-    {                                                                                       \
-        switch (Graphics::RZGraphicsContext::GetRenderAPI()) {                              \
-            case Razix::Graphics::RenderAPI::OPENGL: return sizeof(OpenGLTexture2D); break; \
-            case Razix::Graphics::RenderAPI::VULKAN: return sizeof(VKTexture2D); break;     \
-            case Razix::Graphics::RenderAPI::D3D11:                                         \
-            case Razix::Graphics::RenderAPI::D3D12:                                         \
-            case Razix::Graphics::RenderAPI::GXM:                                           \
-            case Razix::Graphics::RenderAPI::GCM:                                           \
-            default: return sizeof(RZTexture); break;                                       \
-        }                                                                                   \
+#define GET_INSTANCE_SIZE_IMPL(TYPE)                                                      \
+    u32 TYPE::GetInstanceSize()                                                           \
+    {                                                                                     \
+        switch (Graphics::RZGraphicsContext::GetRenderAPI()) {                            \
+            case Razix::Graphics::RenderAPI::OPENGL: return sizeof(OpenGLTexture); break; \
+            case Razix::Graphics::RenderAPI::VULKAN: return sizeof(VKTexture); break;     \
+            case Razix::Graphics::RenderAPI::D3D11:                                       \
+            case Razix::Graphics::RenderAPI::D3D12:                                       \
+            case Razix::Graphics::RenderAPI::GXM:                                         \
+            case Razix::Graphics::RenderAPI::GCM:                                         \
+            default: return sizeof(RZTexture); break;                                     \
+        }                                                                                 \
     }
         GET_INSTANCE_SIZE_IMPL(RZTexture)
         //GET_INSTANCE_SIZE_IMPL(RZTexture2D)
@@ -46,8 +46,8 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture(desc); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture2D(desc RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::OPENGL: return (new OpenGLTexture(desc))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture(desc RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
@@ -57,11 +57,11 @@ namespace Razix {
             return RZTextureHandle();
         }
 
-        RZTextureHandle RZTexture::CreateFromFile(const std::string& filePath, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+        RZTextureHandle RZTexture::CreateFromFile(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLTexture(desc, filePath); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture2D(desc, filePath RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::OPENGL: return (new OpenGLTexture(desc, filePath))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture(desc, filePath RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:

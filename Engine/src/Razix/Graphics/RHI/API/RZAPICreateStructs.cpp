@@ -88,11 +88,17 @@ namespace Razix {
                 case Razix::Graphics::RZTextureProperties::Type::Texture_Depth:
                     return "Depth";
                     break;
-                case Razix::Graphics::RZTextureProperties::Type::Texture_RenderTarget:
-                    return "RT";
-                    break;
                 case Razix::Graphics::RZTextureProperties::Type::Texture_SwapchainImage:
                     return "Swapchain Image";
+                    break;
+                case RZTextureProperties::Type::Texture_1D:
+                    return "1D";
+                    break;
+                case RZTextureProperties::Type::Texture_2DArray:
+                    return "2D Array";
+                    break;
+                case RZTextureProperties::Type::Texture_CubeMapArray:
+                    return "CubeMap Array";
                     break;
                 default:
                     return "NONE";

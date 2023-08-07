@@ -123,7 +123,7 @@ namespace Razix {
                         .name   = "RSM/Position",
                         .width  = kRSMResolution,
                         .height = kRSMResolution,
-                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .type   = RZTextureProperties::Type::Texture_2D,
                         .format = RZTextureProperties::Format::RGBA32F};
 
                     // Create the output RTs

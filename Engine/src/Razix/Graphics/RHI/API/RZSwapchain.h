@@ -5,6 +5,8 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 namespace Razix {
     namespace Graphics {
 

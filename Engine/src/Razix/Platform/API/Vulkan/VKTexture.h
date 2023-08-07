@@ -85,10 +85,14 @@ namespace Razix {
             void Unbind(u32 slot) override {}
 
             /* Releases the vulkan texture resources */
-            void Release(bool deleteImage) override;
+            void Destroy() override;
 
             /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
             void* GetAPIHandlePtr() const override { return (void*) &m_Descriptors[m_CurrentMipRenderingLevel]; }
+
+            // TODO: Add support for reading z/array layer
+            /* Reads the pixels from the Image (supports only 2D as of now!) in a particular mip */
+            int32_t ReadPixels(u32 x, u32 y) override;
 
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
             RAZIX_INLINE void updateDescriptor();
@@ -112,14 +116,14 @@ namespace Razix {
             RAZIX_INLINE VkSampler getSampler() const { return m_ImageSampler; }
 
         private:
-            VkImage                            m_Image;                                       /* Vulkan image handle for the Texture object                                      */
-            VkDeviceMemory                     m_ImageMemory;                                 /* Memory for the Vulkan image                                                     */
-            VkSampler                          m_ImageSampler;                                /* Sampler information used by shaders to sample the texture                       */
-            std::vector<VkImageView>           m_ImageViews;                                  /* Image views for the image, all faces & mips need a view to look into the image  */
-            std::vector<VkDescriptorImageInfo> m_Descriptors;                                 /* Descriptors info encapsulation the image, it's views and the sampler            */
+            VkImage                            m_Image           = VK_NULL_HANDLE;            /* Vulkan image handle for the Texture object                                      */
+            VkDeviceMemory                     m_ImageMemory     = VK_NULL_HANDLE;            /* Memory for the Vulkan image                                                     */
+            VkSampler                          m_ImageSampler    = VK_NULL_HANDLE;            /* Sampler information used by shaders to sample the texture                       */
+            std::vector<VkImageView>           m_ImageViews      = {};                        /* Image views for the image, all faces & mips need a view to look into the image  */
+            std::vector<VkDescriptorImageInfo> m_Descriptors     = {};                        /* Descriptors info encapsulation the image, it's views and the sampler            */
             VkImageLayout                      m_ImageLayout     = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                       */
             bool                               m_DeleteImageData = false;                     /* Whether or not to delete image intermediate data                                */
-            VkImageAspectFlagBits              m_AspectBit{};                                 /* Aspect bit of the image                                                         */
+            VkImageAspectFlagBits              m_AspectBit       = VK_IMAGE_ASPECT_COLOR_BIT; /* Aspect bit of the image                                                         */
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */

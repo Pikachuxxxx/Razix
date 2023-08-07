@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Razix/Graphics/Resources/RZTransientResources.h"
 #include "Razix/Graphics/Lighting/LightData.h"
+#include "Razix/Graphics/Resources/RZTransientResources.h"
 
 namespace Razix {
     namespace Graphics {
@@ -11,9 +11,9 @@ namespace Razix {
          */
         struct LightProbe
         {
-            RZCubeMap* skybox;
-            RZCubeMap* diffuse;
-            RZCubeMap* specular;
+            RZTextureHandle skybox;
+            RZTextureHandle diffuse;
+            RZTextureHandle specular;
         };
 
         struct GlobalLightProbeData

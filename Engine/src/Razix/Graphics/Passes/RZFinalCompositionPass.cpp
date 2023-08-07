@@ -113,7 +113,7 @@ namespace Razix {
                     setInfos = pipelineInfo.shader->getSetsCreateInfos();
                     for (auto& setInfo: setInfos) {
                         for (auto& descriptor: setInfo.second) {
-                            descriptor.texture.texture2d = Graphics::RZMaterial::GetDefaultTexture();
+                            descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
                         }
                         auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"), true);
                         m_DescriptorSets.push_back(descSet);
@@ -135,7 +135,7 @@ namespace Razix {
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
-                                descriptor.texture.texture2d = dynamic_cast<RZTexture2D*>(resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle())->getHandle();
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
                             }
                             m_DescriptorSets[0]->UpdateSet(setInfo.second);
                         }

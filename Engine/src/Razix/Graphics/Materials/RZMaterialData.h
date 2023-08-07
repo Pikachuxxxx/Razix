@@ -10,7 +10,7 @@ namespace Razix {
     namespace Graphics {
         // Forward declaration
         class RZShader;
-        class RZTexture2D;
+        class RZTexture;
         class RZUniformBuffer;
         class RZDescriptorSet;
 

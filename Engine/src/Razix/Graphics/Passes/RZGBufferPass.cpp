@@ -70,7 +70,7 @@ namespace Razix {
                         .name   = "Normal_PosX",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .type   = RZTextureProperties::Type::Texture_2D,
                         .format = RZTextureProperties::Format::RGBA32F};
 
                     data.Normal_PosX = builder.create<FrameGraph::RZFrameGraphTexture>("Normal_PosX", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);

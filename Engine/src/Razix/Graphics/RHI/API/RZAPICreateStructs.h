@@ -18,7 +18,7 @@ namespace Razix {
             std::string                    name       = "$UNNAMED_TEXTURE_RESOURCE";                    /* Name of the texture                                                                      */
             u32                            width      = 0;                                              /*  The Width of the texture                                                                */
             u32                            height     = 0;                                              /* The Height of the texture                                                                */
-            u32                            depth      = 0;                                              /* The depth of the texture used only for 3D textures                                       */
+            u32                            depth      = 1;                                              /* The depth of the texture used only for 3D textures                                       */
             u32                            layers     = 1;                                              /* The array Layers of the texture used for Arrays and CubeMaps                             */
             void*                          data       = nullptr;                                        /* The Data uses to initialize the Texture with                                             */
             RZTextureProperties::Type      type       = RZTextureProperties::Type::Texture_2D;          /* The type of the Texture                                                                  */

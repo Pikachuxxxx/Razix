@@ -24,16 +24,16 @@ namespace Razix {
             m_Swapchain->Present(1u, 0u);
         }
 
-        Razix::Graphics::RZTexture* DX11Swapchain::GetImage(u32 index)
+        Razix::Graphics::RZTextureHandle DX11Swapchain::GetImage(u32 index)
         {
             RAZIX_UNIMPLEMENTED_METHOD
-            return nullptr;
+            return {};
         }
 
-        Razix::Graphics::RZTexture* DX11Swapchain::GetCurrentImage()
+        Razix::Graphics::RZTextureHandle DX11Swapchain::GetCurrentImage()
         {
             RAZIX_UNIMPLEMENTED_METHOD
-            return nullptr;
+            return {};
         }
 
         sz DX11Swapchain::GetSwapchainImageCount()

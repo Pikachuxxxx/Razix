@@ -24,10 +24,10 @@ namespace Razix {
             for (u32 i = 0; i < m_AttachmentCount; i++) {
                 switch (attachmentTypes[i].type) {
                     case RZTextureProperties::Type::Texture_2D:
-                        attachments.push_back(static_cast<VKTexture2D*>(frameBufInfo.attachments[i])->getImageView());
+                        attachments.push_back(static_cast<VKTexture*>(frameBufInfo.attachments[i])->getImageView());
                         break;
                     case RZTextureProperties::Type::Texture_Depth:
-                        attachments.push_back(static_cast<VKTexture2D*>(frameBufInfo.attachments[i])->getImageView());
+                        attachments.push_back(static_cast<VKTexture*>(frameBufInfo.attachments[i])->getImageView());
                         break;
                     default:
                         RAZIX_UNIMPLEMENTED_METHOD_MARK

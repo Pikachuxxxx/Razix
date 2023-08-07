@@ -35,16 +35,18 @@ namespace Razix {
             return RZTexture::Create(desc RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
         }
 
-        RZTextureHandle RZResourceManager::createTextureFromFile(const char* filePath, const RZTextureDesc& desc)
+        RZTextureHandle RZResourceManager::createTextureFromFile(const RZTextureDesc& desc, const std::string& filePath)
         {
-            return RZTexture::CreateFromFile(filePath, desc RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+            return RZTexture::CreateFromFile(desc, filePath RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
         }
 
-        void RZResourceManager::releaseTexture(RZTextureHandle handle)
+        void RZResourceManager::releaseTexture(RZTextureHandle& handle)
         {
-            // Delete only if it's a valid handle
+            // Delete only if it's a valid handle, else skip it and report it
             if (handle.isValid())
-                m_TexturePool.releaseResource(handle.getIndex());
+                m_TexturePool.release(handle);
+            else
+                RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a resource with Invalid handle!");
         }
 
         RZVertexBufferHandle RZResourceManager::createVertexBuffer(RZVertexBufferDesc& desc)

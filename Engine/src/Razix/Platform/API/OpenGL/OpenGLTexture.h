@@ -7,19 +7,21 @@
 namespace Razix {
     namespace Graphics {
 
-        class OpenGLTexture2D : public RZTexture2D
+        class OpenGLTexture : public RZTexture
         {
         public:
-            OpenGLTexture2D(const RZTextureDesc& desc);
-            OpenGLTexture2D(const std::string& filePath, const RZTextureDesc& desc);
+            OpenGLTexture(const RZTextureDesc& desc);
+            OpenGLTexture(const RZTextureDesc& desc, const std::string& filePath);
 
             void Bind(u32 slot) override;
             void Unbind(u32 slot) override;
 
-            void Release(bool deleteImage) override {}
+            void Destroy() override {}
 
             void* GetAPIHandlePtr() const override { return (void*) (sz) m_Handle; }
             void  SetData(const void* pixels) override;
+
+            int32_t ReadPixels(u32 x, u32 y) override;
 
         private:
             u32 m_Handle; /* Handle to the OpenGL Texture */

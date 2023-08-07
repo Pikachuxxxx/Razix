@@ -21,9 +21,9 @@ namespace Razix {
             void  OnResize(u32 width, u32 height) override {}
             void* GetAPIHandle() { return m_Swapchain.Get(); }
 
-            RZTexture*       GetImage(u32 index) override;
-            RZTexture*       GetCurrentImage() override;
-            sz           GetSwapchainImageCount() override;
+            RZTextureHandle GetImage(u32 index) override;
+            RZTextureHandle GetCurrentImage() override;
+            sz              GetSwapchainImageCount() override;
 
             inline Microsoft::WRL::ComPtr<IDXGISwapChain>&         getSwapchain() { return m_Swapchain; }
             inline Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& getRenderTarget() { return m_Target; }

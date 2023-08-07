@@ -12,7 +12,7 @@
 namespace Razix {
     namespace Graphics {
 
-        class RZTexture2D;
+        class RZTexture;
 
         class RZResourceManager : public RZSingleton<RZResourceManager>
         {
@@ -22,6 +22,7 @@ namespace Razix {
             /* Shuts down the Resource System */
             void ShutDown();
 
+            // TODO: Maybe make these private and use them via friend class?
             template<class T>
             RZResourcePoolTyped<T>& getPool()
             {
@@ -35,8 +36,8 @@ namespace Razix {
 
             /* GPU Resource Allocation functions */
             RZTextureHandle createTexture(const RZTextureDesc& desc);
-            RZTextureHandle createTextureFromFile(const char* filePath, const RZTextureDesc& desc);
-            void            releaseTexture(RZTextureHandle handle);
+            RZTextureHandle createTextureFromFile(const RZTextureDesc& desc, const std::string& filePath);
+            void            releaseTexture(RZTextureHandle& handle);
 
             RZVertexBufferHandle createVertexBuffer(RZVertexBufferDesc& desc);
             RZIndexBufferHandle  createIndexBuffer(RZIndexBufferDesc& desc);

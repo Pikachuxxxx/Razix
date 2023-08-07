@@ -18,7 +18,7 @@ namespace Razix {
         class RZIndexBuffer;
         class RZPipeline;
         class RZShader;
-        class RZTexture2D;
+        class RZTexture;
         class RZDescriptorSet;
 
         /**
@@ -64,7 +64,7 @@ namespace Razix {
             ~RZImGuiRenderer() {}
 
         private:
-            RZTexture2D*     m_FontAtlasTexture;
+            RZTextureHandle  m_FontAtlasTexture;
             RZDescriptorSet* m_FontAtlasDescriptorSet;
 
             RZVertexBuffer* m_ImGuiVBO = nullptr;

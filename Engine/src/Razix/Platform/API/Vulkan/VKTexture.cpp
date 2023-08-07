@@ -224,6 +224,8 @@ namespace Razix {
 
         VKTexture::VKTexture(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
+            m_Desc = desc;
+
             // Build a render target texture here if the data is nullptr
             if (desc.data == nullptr) {
                 m_TotalMipLevels = 1;
@@ -284,6 +286,14 @@ namespace Razix {
             // Build a render target texture here if the data is nullptr
             bool loadResult = load(desc RZ_DEBUG_E_ARG_NAME);
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", desc.name);
+            updateDescriptor();
+        }
+
+        VKTexture::VKTexture(VkImage image, VkImageView imageView)
+            : m_Image(image), m_ImageSampler(VK_NULL_HANDLE), m_ImageMemory(VK_NULL_HANDLE)
+        {
+            m_ImageViews.push_back(imageView);
+
             updateDescriptor();
         }
 
@@ -403,6 +413,67 @@ namespace Razix {
             delete stagingBuffer;
 
             return true;
+        }
+
+        void VKTexture::Destroy()
+        {
+            if (m_ImageSampler != VK_NULL_HANDLE)
+                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
+
+            for (u32 i = 0; i < m_ImageViews.size(); i++)
+                if (m_ImageViews[i] != VK_NULL_HANDLE)
+                    vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageViews[i], nullptr);
+
+            if (m_Image != VK_NULL_HANDLE)
+                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
+
+            if (m_ImageMemory != VK_NULL_HANDLE)
+                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+        }
+
+        int32_t VKTexture::ReadPixels(u32 x, u32 y)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Works only on Texture2D type for now!
+
+            VKBuffer m_TransferBuffer;
+            m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+            m_TransferBuffer.setSize(m_Desc.width * m_Desc.height * 4);
+            m_TransferBuffer.init(NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
+
+            // Change the image layout from shader read only optimal to transfer source
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+            {
+                // 1.1 Copy from staging buffer to Image
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+
+                // TODO: Support layers and depth
+                VkBufferImageCopy region               = {};
+                region.bufferOffset                    = 0;
+                region.bufferRowLength                 = m_Desc.width;
+                region.bufferImageHeight               = m_Desc.width;
+                region.imageSubresource.aspectMask     = m_AspectBit;
+                region.imageSubresource.mipLevel       = m_CurrentMipRenderingLevel;
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount     = 1;
+                region.imageOffset                     = {0, 0, 0};
+                region.imageExtent                     = {m_Desc.width, m_Desc.height, 1};
+
+                vkCmdCopyImageToBuffer(commandBuffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_TransferBuffer.getBuffer(), 1, &region);
+
+                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+            }
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+            void* data = new char[m_Desc.width * m_Desc.height * 4];
+            m_TransferBuffer.map();
+            data = m_TransferBuffer.getMappedRegion();
+            // Read and return the pixel value
+            int32_t pixel_value = ((int32_t*) data)[(x) + (m_Desc.width * y)];
+            m_TransferBuffer.unMap();
+
+            return pixel_value;
         }
 
         //-----------------------------------------------------------------------------------
@@ -987,10 +1058,10 @@ namespace Razix {
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            m_Desc.type = RZTextureProperties::Type::Texture_RenderTarget;
+            m_Desc.type = RZTextureProperties::Type::Texture_2D;
 
             // Asset the Texture Type
-            RAZIX_ASSERT(desc.type == RZTextureProperties::Type::Texture_RenderTarget, "[VULKAN] Incorrect texture type,  should be RZTextureProperties::Type::Texture_RenderTarget")
+            RAZIX_ASSERT(desc.type == RZTextureProperties::Type::Texture_2D, "[VULKAN] Incorrect texture type,  should be RZTextureProperties::Type::Texture_2D")
 
             init(RZ_DEBUG_S_ARG_NAME);
         }
@@ -1002,7 +1073,7 @@ namespace Razix {
             m_VirtualPath = "";
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            m_Desc.type = RZTextureProperties::Type::Texture_RenderTarget;
+            m_Desc.type = RZTextureProperties::Type::Texture_2D;
 
             updateDescriptor();
         }

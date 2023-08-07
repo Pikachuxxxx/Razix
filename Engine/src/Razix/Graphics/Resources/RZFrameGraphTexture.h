@@ -19,11 +19,10 @@ namespace Razix {
 
                 static std::string toString(const Desc& desc);
 
-                Graphics::RZTexture* getHandle() { return m_Texture; }
+                Graphics::RZTextureHandle getHandle() { return m_TextureHandle; }
 
             public:
-                // TODO: Replace it with a RZTextureHandle
-                Graphics::RZTexture* m_Texture;
+                Graphics::RZTextureHandle m_TextureHandle;
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

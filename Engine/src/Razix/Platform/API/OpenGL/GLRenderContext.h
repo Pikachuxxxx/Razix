@@ -6,6 +6,8 @@
 namespace Razix {
     namespace Graphics {
 
+        // TODO: FIX THIS!!!
+
         class GLRenderContext : public RHI
         {
         public:

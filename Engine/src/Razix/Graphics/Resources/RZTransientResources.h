@@ -22,8 +22,8 @@ namespace Razix {
 
                 void destroyResources();
 
-                RZTexture *acquireTexture(const RZFrameGraphTexture::Desc &desc);
-                void       releaseTexture(const RZFrameGraphTexture::Desc &desc, RZTexture *texture);
+                //RZTexture *acquireTexture(const RZFrameGraphTexture::Desc &desc);
+                //void       releaseTexture(const RZFrameGraphTexture::Desc &desc, RZTexture *texture);
 
                 RZSemaphore *acquireSemaphore(const RZFrameGraphSemaphore::Desc &desc);
                 void         releaseSemaphore(const RZFrameGraphSemaphore::Desc &desc, RZSemaphore *semaphore);
@@ -43,11 +43,11 @@ namespace Razix {
                     f32 life;
                 };
                 template<typename T>
-                using ResourcePool = std::vector<ResourceEntry<T>>;
+                using TransientResourcePool = std::vector<ResourceEntry<T>>;
 
-                std::unordered_map<std::size_t, ResourcePool<RZTexture *>>       m_TexturePools;
-                std::unordered_map<std::size_t, ResourcePool<RZSemaphore *>>     m_SemaphorePools;
-                std::unordered_map<std::size_t, ResourcePool<RZUniformBuffer *>> m_BufferPools;
+                std::unordered_map<std::size_t, TransientResourcePool<RZTexture *>>       m_TexturePools;
+                std::unordered_map<std::size_t, TransientResourcePool<RZSemaphore *>>     m_SemaphorePools;
+                std::unordered_map<std::size_t, TransientResourcePool<RZUniformBuffer *>> m_BufferPools;
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

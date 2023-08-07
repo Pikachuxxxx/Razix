@@ -53,10 +53,10 @@ namespace Razix {
 
             void RZTransientResources::destroyResources()
             {
-                for (auto &texture: m_Textures) {
-                    if (*texture.get())
-                        (*texture.get())->Release(true);
-                }
+                //for (auto &texture: m_Textures) {
+                //    if (*texture.get())
+                //        (*texture.get())->Release(true);
+                //}
 
                 for (auto &buffer: m_Buffers) {
                     (*buffer.get())->Destroy();
@@ -66,6 +66,7 @@ namespace Razix {
                     (*semaphore.get())->Destroy();
             }
 
+#if 0
             Razix::Graphics::RZTexture *RZTransientResources::acquireTexture(const RZFrameGraphTexture::Desc &desc)
             {
                 const auto hash = std::hash<RZFrameGraphTexture::Desc>()(desc);
@@ -97,7 +98,7 @@ namespace Razix {
                             } else
                                 texture = Graphics::RZDepthTexture::Create(desc);
                             break;
-                        case RZTextureProperties::Type::Texture_RenderTarget:
+                        case RZTextureProperties::Type::Texture_2D:
                             if (desc.layers == 1)
                                 texture = Graphics::RZRenderTexture::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(desc.name) desc);
                             else
@@ -124,6 +125,7 @@ namespace Razix {
                 const auto h = std::hash<RZFrameGraphTexture::Desc>{}(desc);
                 m_TexturePools[h].push_back({texture, 0.0f});
             }
+#endif
 
             Razix::Graphics::RZSemaphore *RZTransientResources::acquireSemaphore(const RZFrameGraphSemaphore::Desc &desc)
             {
