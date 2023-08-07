@@ -7,6 +7,8 @@ namespace Razix {
 
         class RZMesh;
 
+        // FIZME: The dot artifact is due to Filtering Mode make, verify them and they will go away
+
         class RZPBRLightingPass : public IRZPass
         {
         public:

@@ -24,6 +24,7 @@ namespace Razix {
             RAZIX_CORE_INFO("[Resource Manager] Shutting Down Resource Manager");
 
             // Destroy all the Pools
+            m_TexturePool.printResources();
             m_TexturePool.destroy();
             //m_VertexBufferPool.destroy();
             //m_IndexBufferPool.destroy();
@@ -36,6 +37,7 @@ namespace Razix {
             void*               where = m_TexturePool.obtain(handle);
             RZTexture::Create(where, desc RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
             IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+            resource->setName(desc.name);
             resource->setHandle(handle);
             return handle;
         }
@@ -46,6 +48,7 @@ namespace Razix {
             void*               where = m_TexturePool.obtain(handle);
             RZTexture::CreateFromFile(where, desc, filePath RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
             IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+            resource->setName(desc.name);
             resource->setHandle(handle);
             return handle;
         }

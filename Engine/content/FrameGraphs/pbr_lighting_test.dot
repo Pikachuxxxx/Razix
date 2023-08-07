@@ -15,7 +15,7 @@ R0_1 [label=<{ {<B>BRDF lut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Ref
 R1_1 [label=<{ {<B>Noise Texture</B><BR/>(128, 128) - RGBA8 [2D]} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
 R2_1 [label=<{ {<B>Environment Map</B><BR/>(512, 512) - RGBA32F [CubeMap]} | {Index: 2<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
 R3_1 [label=<{ {<B>Diffuse Irradiance</B><BR/>(32, 32) - RGBA32F [CubeMap]} | {Index: 3<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
-R4_1 [label=<{ {<B>Specular PreFiltered</B><BR/>(256, 256) - RGBA32F [CubeMap]} | {Index: 4<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
+R4_1 [label=<{ {<B>Specular PreFiltered</B><BR/>(128, 128) - RGBA32F [CubeMap]} | {Index: 4<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
 R5_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 5<BR/>Refs : 3} }> style=filled, fillcolor=skyblue]
 R6_1 [label=<{ {<B>Scene Lights Data</B><BR/>size : 10256 bytes} | {Index: 6<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R7_1 [label=<{ {<B>Shadow map</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 7<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]

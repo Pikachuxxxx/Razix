@@ -63,6 +63,8 @@ namespace Razix {
 
             virtual int32_t ReadPixels(u32 x, u32 y) = 0;
 
+            virtual void GenerateMips(){}
+
             const RZTextureDesc& getDescription() const { return m_Desc; }
 
             /* Returns the name of the texture resource */

@@ -429,9 +429,10 @@ namespace Razix {
                 VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels);
 
             // Create the Image view for the Vulkan image (uses color bit)
-            if (desc.format == RZTextureProperties::Format::DEPTH32F || desc.format == RZTextureProperties::Format::DEPTH16_UNORM || m_Desc.format == RZTextureProperties::Format::DEPTH_STENCIL)
-                m_AspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
-            else
+            if (desc.format == RZTextureProperties::Format::DEPTH32F || desc.format == RZTextureProperties::Format::DEPTH16_UNORM || m_Desc.format == RZTextureProperties::Format::DEPTH_STENCIL) {
+                m_Desc.filtering = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
+                m_AspectBit      = VK_IMAGE_ASPECT_DEPTH_BIT;
+            } else
                 m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
 
             // Create the Image view for the Vulkan image (uses color bit)
@@ -533,6 +534,14 @@ namespace Razix {
             m_TransferBuffer.unMap();
 
             return pixel_value;
+        }
+
+        void VKTexture::GenerateMips()
+        {
+            m_Desc.enableMips = true;
+            m_TotalMipLevels  = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
+
+            VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels);
         }
 
         //-----------------------------------------------------------------------------------

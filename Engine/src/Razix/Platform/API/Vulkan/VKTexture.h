@@ -97,6 +97,8 @@ namespace Razix {
             /* Reads the pixels from the Image (supports only 2D as of now!) in a particular mip */
             int32_t ReadPixels(u32 x, u32 y) override;
 
+            virtual void GenerateMips() override;
+
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
             RAZIX_INLINE void updateDescriptor();
             /* Gets the layout of the image ex. depth or optimal etc. */

@@ -29,7 +29,7 @@ namespace Razix {
             const void* accessResource(u32 index) const;
             void        releaseResource(u32 index);
 
-        private:
+        protected:
             u8*  m_MemoryChunk     = nullptr;
             u32* m_FreeIndices     = nullptr;
             u32  m_PoolSize        = 0;
@@ -39,10 +39,12 @@ namespace Razix {
         };
 
         template<typename T>
-        struct RZResourcePoolTyped : public RZResourcePool
+        struct RZResourcePoolTyped final : public RZResourcePool
         {
             void init(u32 pool_size, u32 resource_size);
             void shutdown();
+
+            void printResources();
 
             T*   obtain(RZHandle<T>& handle);
             void release(RZHandle<T>& handle);
@@ -56,6 +58,16 @@ namespace Razix {
 
             void initResource(void* resource, u32 index, u32 genIdx);
         };
+
+        template<typename T>
+        void RZResourcePoolTyped<T>::printResources()
+        {
+            if (m_FreeIndicesHead != 0) {
+                for (u32 i = 0; i < m_FreeIndicesHead; ++i) {
+                    RAZIX_CORE_TRACE("\tResource id={0}, name={1}\n", m_FreeIndices[i], ((IRZResource<T>*) accessResource(i))->getName().c_str());
+                }
+            }
+        }
 
         template<typename T>
         inline void RZResourcePoolTyped<T>::init(u32 pool_size, u32 resource_size)
@@ -101,7 +113,7 @@ namespace Razix {
         template<typename T>
         inline T* RZResourcePoolTyped<T>::get(RZHandle<T> handle) const
         {
-            return (/*const */T*) RZResourcePool::accessResource(handle.getIndex());
+            return (/*const */ T*) RZResourcePool::accessResource(handle.getIndex());
         }
     }    // namespace Graphics
 }    // namespace Razix

@@ -80,6 +80,7 @@ namespace Razix {
 
                     textureDesc.name       = "Scene Depth";
                     textureDesc.format     = RZTextureProperties::Format::DEPTH32F;
+                    textureDesc.filtering  = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
                     textureDesc.type       = RZTextureProperties::Type::Texture_Depth;
                     textureDesc.enableMips = false;
 

@@ -71,6 +71,7 @@ namespace Razix {
                 new (where) VKTexture(images[i], imageView[i]);
                 IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
                 resource->setHandle(handle);
+                resource->setName("Swapchain Image");
 
                 m_SwapchainImageTextures.push_back(handle);
             }
@@ -373,6 +374,7 @@ namespace Razix {
                             new (where) VKTexture(images[i], imageView[i]);
                             IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
                             resource->setHandle(handle);
+                            resource->setName("Swapchain Image");
 
                             m_SwapchainImageTextures.push_back(handle);
                         }
