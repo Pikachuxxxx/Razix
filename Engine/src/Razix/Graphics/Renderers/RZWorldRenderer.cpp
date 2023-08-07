@@ -36,13 +36,15 @@ namespace Razix {
         {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTexture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("BRDF LUT") "//RazixContent/Textures/brdf_lut.png", {"BRDF LUT"});
+            m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTextureFromFile({.name = "BRDF LUT", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
 
-            m_NoiseTexture = Graphics::RZTexture2D::CreateFromFile(RZ_DEBUG_NAME_TAG_STR_F_ARG("Noise Texture") "//RazixContent/Textures/volumetric_clouds_noise.png", {.name = "Noise Texture", .wrapping = RZTextureProperties::Wrapping::REPEAT});
+            m_NoiseTextureHandle = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = RZTextureProperties::Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
 
-            m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", {.name = "BRDF lut", .width = m_BRDFfLUTTexture->getWidth(), .height = m_BRDFfLUTTexture->getHeight(), .type = RZTextureProperties::Type::Texture_2D, .format = m_BRDFfLUTTexture->getFormat()}, {m_BRDFfLUTTexture});
+            const auto& BRDFfLUTTextureDesc  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
+            m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("BRDF lut", CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
 
-            m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Noise Texture", {.name = "BRDF lut", .width = m_NoiseTexture->getWidth(), .height = m_NoiseTexture->getHeight(), .type = RZTextureProperties::Type::Texture_2D, .format = m_NoiseTexture->getFormat()}, {m_NoiseTexture});
+            const auto& NoiseTextureDesc                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
+            m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Noise Texture", CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
@@ -136,7 +138,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::RZTextureProperties::Type::Texture_RenderTarget, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::RZTextureProperties::Type::Texture_2D, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
 
@@ -390,6 +392,20 @@ namespace Razix {
                 // Execute the Frame Graph passes
                 m_FrameGraph.execute(nullptr, &m_TransientResources);
 
+#if 0
+                RenderingInfo info{};
+                info.colorAttachments = {
+                    {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
+                };
+                info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                info.resize = true;
+
+                RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
+
+                RHI::EndRendering(RHI::GetCurrentCommandBuffer());
+#endif
+
                 // End Frame Marker
                 RAZIX_MARK_END();
 
@@ -407,13 +423,13 @@ namespace Razix {
         void RZWorldRenderer::destroy()
         {
             // Destroy Imported Resources
-            m_BRDFfLUTTexture->Release(true);
-            m_NoiseTexture->Release(true);
+            //m_BRDFfLUTTextureHandle->Release(true);
+            //m_NoiseTextureHandle->Release(true);
 
 #if 1
-            m_GlobalLightProbes.skybox->Release(true);
-            m_GlobalLightProbes.diffuse->Release(true);
-            m_GlobalLightProbes.specular->Release(true);
+            //m_GlobalLightProbes.skybox->Release(true);
+            //m_GlobalLightProbes.diffuse->Release(true);
+            //m_GlobalLightProbes.specular->Release(true);
 
 #endif
             // Destroy Renderers
@@ -438,11 +454,15 @@ namespace Razix {
         {
             auto& globalLightProbeData = m_Blackboard.add<GlobalLightProbeData>();
 
-            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {.name = "Environment Map", .width = globalLightProbe.skybox->getWidth(), .height = globalLightProbe.skybox->getHeight(), .type = RZTextureProperties::Type::Texture_CubeMap, .format = globalLightProbe.skybox->getFormat()}, {globalLightProbe.skybox});
+            const auto& SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
+            const auto& DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
+            const auto& SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
 
-            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {.name = "Diffuse Irradiance", .width = globalLightProbe.diffuse->getWidth(), .height = globalLightProbe.diffuse->getHeight(), .type = RZTextureProperties::Type::Texture_CubeMap, .format = globalLightProbe.diffuse->getFormat()}, {globalLightProbe.diffuse});
+            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {.name = "Environment Map", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
 
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {.name = "Specular PreFiltered", .width = globalLightProbe.specular->getWidth(), .height = globalLightProbe.specular->getHeight(), .type = RZTextureProperties::Type::Texture_CubeMap, .format = globalLightProbe.specular->getFormat()}, {globalLightProbe.specular});
+            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {.name = "Diffuse Irradiance", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
+
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {.name = "Specular PreFiltered", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
         }
 
         //--------------------------------------------------------------------------

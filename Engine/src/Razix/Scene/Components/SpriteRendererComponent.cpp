@@ -7,7 +7,7 @@
 
 namespace Razix {
 
-    SpriteRendererComponent::SpriteRendererComponent(Graphics::RZTexture2D* texture)
+    SpriteRendererComponent::SpriteRendererComponent(Graphics::RZTextureHandle texture)
     {
         Sprite = new Graphics::RZSprite(texture);
     }

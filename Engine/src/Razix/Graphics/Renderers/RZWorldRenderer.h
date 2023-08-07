@@ -123,9 +123,9 @@ namespace Razix {
             FrameGraph::RZBlackboard         m_Blackboard;
             FrameGraph::RZTransientResources m_TransientResources;
             // Frame Graph Import Data
-            RZTexture2D* m_BRDFfLUTTexture = nullptr;
-            RZTexture2D* m_NoiseTexture    = nullptr;
-            LightProbe   m_GlobalLightProbes{};
+            RZTextureHandle m_BRDFfLUTTextureHandle;
+            RZTextureHandle m_NoiseTextureHandle;
+            LightProbe      m_GlobalLightProbes{};
             // List of all passes, renderers and data in the frame graph
             RZCascadedShadowsRenderer m_CascadedShadowsRenderer;
             RZShadowRenderer          m_ShadowRenderer;

@@ -12,8 +12,7 @@ namespace Razix {
                 Texture_2D,
                 Texture_2DArray,
                 Texture_3D,
-                Texture_RenderTarget,
-                Texture_DepthTarget,
+                Texture_Depth,
                 Texture_CubeMap,
                 Texture_CubeMapArray,
                 Texture_SwapchainImage
@@ -64,8 +63,8 @@ namespace Razix {
                     LINEAR,
                     NEAREST
                 };
-                FilterMode minFilter = FilterMode::LINEAR;
-                FilterMode magFilter = FilterMode::LINEAR;
+                FilterMode minFilter = FilterMode::NEAREST;
+                FilterMode magFilter = FilterMode::NEAREST;
 
                 Filtering() {}
                 Filtering(FilterMode min, FilterMode max)

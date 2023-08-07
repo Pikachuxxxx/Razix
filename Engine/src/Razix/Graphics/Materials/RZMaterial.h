@@ -18,8 +18,8 @@ namespace Razix {
             /* Creates a 1x1 default pink 2D texture */
             static void InitDefaultTexture();
             /* Destroys the default texture created */
-            static void         ReleaseDefaultTexture();
-            static RZTexture2D* GetDefaultTexture() { return s_DefaultTexture; }
+            static void              ReleaseDefaultTexture();
+            static RZTextureHandle GetDefaultTexture() { return s_DefaultTexture; }
             /* Static Getter and setter for the material workflow */
             WorkFlow          getWorkflow() { return m_Workflow; }
             RAZIX_INLINE void setWorkflow(WorkFlow workflow) { m_Workflow = workflow; }
@@ -52,15 +52,15 @@ namespace Razix {
         private:
             //RZPipeline*                   m_Pipeline; // Diffifult to be own as Material can't have knowledge of the RTs in a pass and RZPipeline needs that before hand along with shader
 
-            static RZTexture2D* s_DefaultTexture;
-            MaterialData        m_MaterialData;
-            MaterialTextures    m_MaterialTextures;
-            std::string         m_Name                  = "PBR material";
-            RZShader*           m_Shader                = nullptr;
-            RZDescriptorSet*    m_DescriptorSet         = nullptr;
-            RZUniformBuffer*    m_MaterialPropertiesUBO = nullptr;
-            bool                m_TexturesUpdated       = false;
-            WorkFlow            m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+            static RZTextureHandle s_DefaultTexture;
+            MaterialData             m_MaterialData;
+            MaterialTextures         m_MaterialTextures;
+            std::string              m_Name                  = "PBR material";
+            RZShader*                m_Shader                = nullptr;
+            RZDescriptorSet*         m_DescriptorSet         = nullptr;
+            RZUniformBuffer*         m_MaterialPropertiesUBO = nullptr;
+            bool                     m_TexturesUpdated       = false;
+            WorkFlow                 m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
         };
 
         static RZMaterial* DefaultMaterial = nullptr;

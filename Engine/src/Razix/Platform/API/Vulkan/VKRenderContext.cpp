@@ -87,7 +87,7 @@ namespace Razix {
             }
 
             // Cache the reference to the Vulkan context to avoid frequent calling
-            m_Context              = VKContext::Get();
+            m_Context = VKContext::Get();
         }
 
         void VKRenderContext::AcquireImageAPIImpl(RZSemaphore* signalSemaphore)
@@ -212,20 +212,22 @@ namespace Razix {
             std::vector<VkRenderingAttachmentInfo> colorAttachments;
 
             for (auto& attachment: renderingInfo.colorAttachments) {
+                RZTexture* colorAttachment = RZResourceManager::Get().getPool<RZTexture>().get(attachment.first);
+
                 // Resize attachments when resized
                 if (renderingInfo.resize) {
-                    if (m_Width != attachment.first->getWidth() || m_Height != attachment.first->getHeight())
-                        attachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(attachment.first->getName()));
+                    if (m_Width != colorAttachment->getWidth() || m_Height != colorAttachment->getHeight())
+                        colorAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y);
                 }
 
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
                 attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(attachment.first->GetHandle());
+                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(colorAttachment->GetAPIHandlePtr());
                 attachInfo.imageView = apiHandle->imageView;
 
-                if (attachment.first->getFormat() == RZTextureProperties::Format::SCREEN) {
-                    auto vkImage = static_cast<VKTexture2D*>(attachment.first);
+                if (colorAttachment->getFormat() == RZTextureProperties::Format::SCREEN) {
+                    auto vkImage = static_cast<VKTexture*>(colorAttachment);
                     if (vkImage->getLayout() != VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL) {
                         VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
                         vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
@@ -238,18 +240,12 @@ namespace Razix {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
                 } else {
-                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was nted previously
+                    attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was rendered previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                if (attachment.first->getType() == RZTextureProperties::Type::Texture_2D || attachment.first->getType() == RZTextureProperties::Type::Texture_3D || attachment.first->getType() == RZTextureProperties::Type::Texture_RenderTarget || attachment.first->getType() == RZTextureProperties::Type::Texture_CubeMap) {
-                    auto& clearColor = attachment.second.clearColor;
-                    memcpy(attachInfo.clearValue.color.float32, &clearColor[0], sizeof(glm::vec4));
-                    colorAttachments.push_back(attachInfo);
-                } else if (attachment.first->getType() == RZTextureProperties::Type::Texture_DepthTarget) {
-                    attachInfo.clearValue.depthStencil = VkClearDepthStencilValue{1.0f, 0};
-                    renderingInfoKHR.pDepthAttachment  = &attachInfo;
-                }
+                memcpy(attachInfo.clearValue.color.float32, &attachment.second.clearColor[0], sizeof(glm::vec4));
+                colorAttachments.push_back(attachInfo);
             }
 
             renderingInfoKHR.colorAttachmentCount = static_cast<u32>(colorAttachments.size());
@@ -257,16 +253,17 @@ namespace Razix {
 
             // Depth Attachment
             VkRenderingAttachmentInfoKHR attachInfo{};
-            if (renderingInfo.depthAttachment.first) {
+            if (renderingInfo.depthAttachment.first.isValid()) {
+                RZTexture* depthAttachment = RZResourceManager::Get().getPool<RZTexture>().get(renderingInfo.depthAttachment.first);
                 // Depth attachment resize
                 if (renderingInfo.resize) {
-                    if (m_Width != renderingInfo.depthAttachment.first->getWidth() || m_Height != renderingInfo.depthAttachment.first->getHeight())
-                        renderingInfo.depthAttachment.first->Resize(renderingInfo.extent.x, renderingInfo.extent.y RZ_DEBUG_NAME_TAG_STR_E_ARG(renderingInfo.depthAttachment.first->getName()));
+                    if (m_Width != depthAttachment->getWidth() || m_Height != depthAttachment->getHeight())
+                        depthAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y);
                 }
 
                 // Fill the color attachments first
                 attachInfo.sType                 = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (renderingInfo.depthAttachment.first->GetHandle());
+                VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (depthAttachment->GetAPIHandlePtr());
                 attachInfo.imageView             = apiHandle->imageView;
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;

@@ -12,7 +12,7 @@ namespace Razix {
     namespace Graphics {
 
         RZSprite::RZSprite(const glm::vec4& color /*= glm::vec4(1.0f)*/)
-            : m_Color(color), m_Texture(nullptr)
+            : m_Color(color)
         {
             m_UVs = GetDefaultUVs();
 
@@ -25,9 +25,11 @@ namespace Razix {
             updateDescriptorSets();
         }
 
-        RZSprite::RZSprite(RZTexture2D* texture)
-            : m_Color(glm::vec4(1.0f)), m_Texture(texture)
+        RZSprite::RZSprite(RZTextureHandle texture)
+            : m_Color(glm::vec4(1.0f))
         {
+            m_Texture = texture;
+
             m_IsTextured           = true;
             m_UVs                  = GetDefaultUVs();
             m_TexturedSpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite_textured.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("sprite_textured.rzsf"));
@@ -39,7 +41,7 @@ namespace Razix {
         }
 
         RZSprite::RZSprite()
-            : m_Color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)), m_Texture(nullptr)
+            : m_Color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f))
         {
             m_UVs = GetDefaultUVs();
 
@@ -57,8 +59,8 @@ namespace Razix {
             // Destroy all the sets
             m_VBO->Destroy();
             m_IBO->Destroy();
-            if (m_Texture != nullptr)
-                m_Texture->Release(true);
+
+            RZResourceManager::Get().getPool<RZTexture>().release(m_Texture);
 
             if (m_IsTextured)
                 m_TexturedSpriteShader->Destroy();
@@ -101,12 +103,13 @@ namespace Razix {
 
         void RZSprite::setSpriteSheet(const glm::vec2& cellIndex, const glm::vec2& sheetDimension)
         {
-            m_IsAnimated = true;
+            #if 0
+m_IsAnimated = true;
             //glm::vec2 min = { (index.x * cellSize.x) / m_Texture->getWidth(), (index.y * cellSize.y) / m_Texture->getHeight() };
             //glm::vec2 max = { ((index.x + spriteSize.x) * cellSize.x) / m_Texture->getWidth(), ((index.y + spriteSize.y) * cellSize.y) / m_Texture->getHeight() };
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            f32 x           = static_cast<f32>( (int) (cellIndex.x - 1) % (int) sheetDimension.x);
+            f32 x           = static_cast<f32>((int) (cellIndex.x - 1) % (int) sheetDimension.x);
             f32 y           = -(cellIndex.y - 1) / (int) sheetDimension.x;
             f32 frameWidth  = m_Texture->getWidth() / sheetDimension.x;
             f32 frameHeight = m_Texture->getHeight() / sheetDimension.y;
@@ -139,6 +142,7 @@ namespace Razix {
                 vertices[3].UV = glm::vec2((x * frameWidth) / m_Texture->getWidth(), ((y + 1) * frameHeight) / m_Texture->getHeight());
             }
             m_VBO->SetData(sizeof(RZVeretx2D) * 4, vertices.data());
+#endif
         }
 
         RZShader* RZSprite::getShader()

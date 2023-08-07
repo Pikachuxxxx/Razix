@@ -21,13 +21,13 @@ namespace Razix {
 
             void init(u32 poolSize, u32 resourceSize);
             void destroy();
+            void freePool();
 
+        protected:
             u32 allocateResource();
 
-            const void* accessResource(u32 index);
+            const void* accessResource(u32 index) const;
             void        releaseResource(u32 index);
-
-            void freePool();
 
         private:
             u8*  m_MemoryChunk     = nullptr;
@@ -44,13 +44,16 @@ namespace Razix {
             void init(u32 pool_size, u32 resource_size);
             void shutdown();
 
-            T*   obtain(u32& index);
-            void release(u32 index);
+            T*   obtain(RZHandle<T>& handle);
+            void release(RZHandle<T>& handle);
 
-            T*       get(u32 index);
-            const T* get(u32 index) const;
+            // TODO: Make this return a rzstl::SharedRef
+            // TODO: Figure out how to offer both version and make it safe
+            T* get(RZHandle<T> handle) const;
 
         private:
+            T* getInternal(RZHandle<T>& handle);
+
             void initResource(void* resource, u32 index, u32 genIdx);
         };
 
@@ -67,12 +70,13 @@ namespace Razix {
         }
 
         template<typename T>
-        inline T* RZResourcePoolTyped<T>::obtain(u32& index)
+        inline T* RZResourcePoolTyped<T>::obtain(RZHandle<T>& handle)
         {
-            index = RZResourcePool::allocateResource();
+            u32 index = RZResourcePool::allocateResource();
+            handle.setIndex(index);
+            handle.setGeneration(++index);
             if (index != u32_max) {
-                T* resource = get(index);
-                //initResource(resource, resource_index, resource_index);
+                T* resource = getInternal(handle);
                 return resource;
             }
 
@@ -80,23 +84,24 @@ namespace Razix {
         }
 
         template<typename T>
-        inline void RZResourcePoolTyped<T>::release(u32 index)
+        inline void RZResourcePoolTyped<T>::release(RZHandle<T>& handle)
         {
-            T* resource = get(index);
-            //(IRZResource*) (resource)->getHandle().setGeneration(0);
-            RZResourcePool::releaseResource(index);
+            T* resource = getInternal(handle);
+            resource->Destroy();
+            handle.setGeneration(0);
+            RZResourcePool::releaseResource(handle.getIndex());
         }
 
         template<typename T>
-        inline T* RZResourcePoolTyped<T>::get(u32 index)
+        inline T* RZResourcePoolTyped<T>::getInternal(RZHandle<T>& handle)
         {
-            return (T*) RZResourcePool::accessResource(index);
+            return (T*) RZResourcePool::accessResource(handle.getIndex());
         }
 
         template<typename T>
-        inline const T* RZResourcePoolTyped<T>::get(u32 index) const
+        inline T* RZResourcePoolTyped<T>::get(RZHandle<T> handle) const
         {
-            return (const T*) RZResourcePool::accessResource(index);
+            return (/*const */T*) RZResourcePool::accessResource(handle.getIndex());
         }
     }    // namespace Graphics
 }    // namespace Razix

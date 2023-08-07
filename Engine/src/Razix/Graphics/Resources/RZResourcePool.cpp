@@ -65,7 +65,7 @@ namespace Razix {
             --m_UsedIndices;
         }
 
-        const void* RZResourcePool::accessResource(u32 index)
+        const void* RZResourcePool::accessResource(u32 index) const
         {
             if (index != k_invalid_index) {
                 auto resource = &m_MemoryChunk[index * m_ResourceSize];

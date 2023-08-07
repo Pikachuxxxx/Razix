@@ -17,9 +17,9 @@ namespace Razix {
 
             // TODO: set CubeMap width and height
 
-            static RZCubeMap* convertEquirectangularToCubemap(const std::string& hdrFilePath);
-            static RZCubeMap* generateIrradianceMap(RZCubeMap* cubeMap);
-            static RZCubeMap* generatePreFilteredMap(RZCubeMap* cubeMap);
+            static RZTextureHandle convertEquirectangularToCubemap(const std::string& hdrFilePath);
+            static RZTextureHandle generateIrradianceMap(RZTextureHandle cubeMap);
+            static RZTextureHandle generatePreFilteredMap(RZTextureHandle cubeMap);
         };
     }    // namespace Graphics
 }    // namespace Razix

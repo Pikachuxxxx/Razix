@@ -20,16 +20,16 @@ namespace Razix {
             void  OnResize(u32 width, u32 height) override {}
             void* GetAPIHandle() override { return nullptr; }
 
-            RZTexture*       GetCurrentImage() override { return nullptr; }
-            RZTexture*       GetImage(u32 index) override { return nullptr; }
-            sz           GetSwapchainImageCount() override { return 1; }
+            RZTextureHandle GetCurrentImage() override { return {}; }
+            RZTextureHandle GetImage(u32 index) override { return {}; }
+            sz              GetSwapchainImageCount() override { return 1; }
 
             u32 getCurrentImageIndex() override { return 0; }
 
         private:
-            u32 m_Width;
-            u32 m_Height;
-            u32 m_CurrentImageIndex = 0;
+            u32                  m_Width;
+            u32                  m_Height;
+            u32                  m_CurrentImageIndex = 0;
             OpenGLCommandBuffer* m_DummyCmdBuffer;
         };
     }    // namespace Graphics

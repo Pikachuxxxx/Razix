@@ -127,7 +127,7 @@ namespace Razix {
                         .name   = "Scene HDR Color",
                         .width  = static_cast<u32>(extent.x),
                         .height = static_cast<u32>(extent.y),
-                        .type   = RZTextureProperties::Type::Texture_RenderTarget,
+                        .type   = RZTextureProperties::Type::Texture_2D,
                         .format = RZTextureProperties::Format::RGBA32F};
 
                     data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", CAST_TO_FG_TEX_DESC sceneHDRDesc);

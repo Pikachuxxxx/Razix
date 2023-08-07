@@ -32,7 +32,7 @@ namespace Razix {
                 vkDestroySemaphore(VKDevice::Get().getDevice(), m_Handles[i], nullptr);
         }
 
-        void* VKSemaphore::getHandle(u32 idx)
+        void* VKSemaphore::getAPIHandlePtr(u32 idx)
         {
             return &m_Handles[idx];
         }

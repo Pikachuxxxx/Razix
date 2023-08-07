@@ -44,7 +44,7 @@ namespace Razix {
              * @param rotation The rotation of the sprite
              * @param scale The dimensions of the sprite
              */
-            RZSprite(RZTexture2D* texture);
+            RZSprite(RZTextureHandle texture);
 
             virtual ~RZSprite() = default;
 
@@ -57,8 +57,8 @@ namespace Razix {
 
             void setSpriteSheet(const glm::vec2& cellIndex, const glm::vec2& sheetDimension);
 
-            RZTexture2D*      getTexture() const { return m_Texture; }
-            RAZIX_INLINE void setTexture(RZTexture2D* texture) { m_Texture = texture; }
+            RZTextureHandle   getTexture() const { return m_Texture; }
+            RAZIX_INLINE void setTexture(RZTextureHandle texture) { m_Texture = texture; }
 
             const glm::vec4&  getColour() const { return m_Color; }
             RAZIX_INLINE void setColour(const glm::vec4& color)
@@ -78,7 +78,7 @@ namespace Razix {
 
         private:
             glm::vec4                     m_Color;
-            RZTexture2D*                  m_Texture;
+            RZTextureHandle               m_Texture;
             std::array<glm::vec2, 4>      m_UVs;
             bool                          m_IsAnimated = false;
             bool                          m_IsTextured = false;

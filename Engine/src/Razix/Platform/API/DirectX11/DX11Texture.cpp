@@ -13,7 +13,12 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void DX11Texture::Release(bool deleteImage /*= true*/)
+        int32_t DX11Texture::ReadPixels(u32 x, u32 y)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        void DX11Texture::Destroy()
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
@@ -28,7 +33,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void* DX11Texture::GetHandle() const
+        void* DX11Texture::GetAPIHandlePtr() const
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

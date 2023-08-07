@@ -10,7 +10,7 @@ namespace Razix {
     namespace Graphics {
         // Forward declaration
         class RZShader;
-        class RZTexture2D;
+        class RZTexture;
         class RZUniformBuffer;
         class RZDescriptorSet;
 
@@ -49,13 +49,13 @@ namespace Razix {
         /* lighting model textures */
         struct MaterialTextures
         {
-            RZTexture2D* albedo    = nullptr;
-            RZTexture2D* normal    = nullptr;
-            RZTexture2D* metallic  = nullptr;
-            RZTexture2D* roughness = nullptr;
-            RZTexture2D* specular  = nullptr;
-            RZTexture2D* emissive  = nullptr;
-            RZTexture2D* ao        = nullptr;
+            RZTextureHandle albedo;
+            RZTextureHandle normal;
+            RZTextureHandle metallic;
+            RZTextureHandle roughness;
+            RZTextureHandle specular;
+            RZTextureHandle emissive;
+            RZTextureHandle ao;
 
             void Destroy();
         };
@@ -74,9 +74,9 @@ namespace Razix {
 #if 1
         struct MaterialData
         {
-            char                 m_Name[250]          = {};
-            MaterialProperties   m_MaterialProperties = {};
-            MaterialTexturePaths m_MaterialTexturePaths   = {};
+            char                 m_Name[250]            = {};
+            MaterialProperties   m_MaterialProperties   = {};
+            MaterialTexturePaths m_MaterialTexturePaths = {};
 
             // NOTE: This probably won't be used, we will use binary files instead
             template<typename Archive>

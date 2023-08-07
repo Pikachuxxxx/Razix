@@ -14,7 +14,7 @@ namespace Razix {
 
             // TODO: Use static methods on resource to calculate the actual size of the underlying API class implementations
             // Initialize all the Pools
-            m_Texture2DPool.init(128, RZTexture2D::GetInstanceSize());
+            m_TexturePool.init(128, RZTexture::GetInstanceSize());
             //m_VertexBufferPool.init(128);
             //m_IndexBufferPool.init(128);
         }
@@ -24,15 +24,39 @@ namespace Razix {
             RAZIX_CORE_INFO("[Resource Manager] Shutting Down Resource Manager");
 
             // Destroy all the Pools
-            m_Texture2DPool.destroy();
+            m_TexturePool.destroy();
             //m_VertexBufferPool.destroy();
             //m_IndexBufferPool.destroy();
         }
 
-        RZTexture2DHandle RZResourceManager::createTexture2D(RZTextureDesc& desc)
+        RZTextureHandle RZResourceManager::createTexture(const RZTextureDesc& desc)
         {
             // Use the Pool
-            return RZTexture2DHandle();
+            RZHandle<RZTexture> handle;
+            void*               where = m_TexturePool.obtain(handle);
+            RZTexture::Create(where, desc RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+            IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+            resource->setHandle(handle);
+            return handle;
+        }
+
+        RZTextureHandle RZResourceManager::createTextureFromFile(const RZTextureDesc& desc, const std::string& filePath)
+        {
+            RZHandle<RZTexture> handle;
+            void*               where = m_TexturePool.obtain(handle);
+            RZTexture::CreateFromFile(where, desc, filePath RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+            IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+            resource->setHandle(handle);
+            return handle;
+        }
+
+        void RZResourceManager::releaseTexture(RZTextureHandle& handle)
+        {
+            // Delete only if it's a valid handle, else skip it and report it
+            if (handle.isValid())
+                m_TexturePool.release(handle);
+            else
+                RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a resource with Invalid handle!");
         }
 
         RZVertexBufferHandle RZResourceManager::createVertexBuffer(RZVertexBufferDesc& desc)

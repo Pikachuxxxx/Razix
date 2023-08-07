@@ -7,13 +7,12 @@
 #include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 
-
 #include "Razix/Utilities/TRZSingleton.h"
 
 namespace Razix {
     namespace Graphics {
 
-        class RZTexture2D;
+        class RZTexture;
 
         class RZResourceManager : public RZSingleton<RZResourceManager>
         {
@@ -23,20 +22,28 @@ namespace Razix {
             /* Shuts down the Resource System */
             void ShutDown();
 
+            // TODO: Maybe make these private and use them via friend class?
             template<class T>
             RZResourcePoolTyped<T>& getPool()
             {
-                if (typeid(T) == typeid(RZTexture2D))
-                    return m_Texture2DPool;
+            }
+
+            template<>
+            RZResourcePoolTyped<RZTexture>& getPool()
+            {
+                return m_TexturePool;
             }
 
             /* GPU Resource Allocation functions */
-            RZTexture2DHandle    createTexture2D(RZTextureDesc& desc);
+            RZTextureHandle createTexture(const RZTextureDesc& desc);
+            RZTextureHandle createTextureFromFile(const RZTextureDesc& desc, const std::string& filePath);
+            void            releaseTexture(RZTextureHandle& handle);
+
             RZVertexBufferHandle createVertexBuffer(RZVertexBufferDesc& desc);
             RZIndexBufferHandle  createIndexBuffer(RZIndexBufferDesc& desc);
 
         private:
-            RZResourcePoolTyped<RZTexture2D>    m_Texture2DPool;
+            RZResourcePoolTyped<RZTexture>      m_TexturePool;
             RZResourcePoolTyped<RZVertexBuffer> m_VertexBufferPool;
             RZResourcePoolTyped<RZIndexBuffer>  m_IndexBufferPool;
         };

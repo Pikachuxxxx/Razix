@@ -9,7 +9,7 @@
 
 #include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
 
-#define GET_INSTANCE_SIZE static u32 GetInstanceSize();
+#define GET_INSTANCE_SIZE static u32 GetInstanceSize()
 
 namespace Razix {
     namespace Graphics {
@@ -21,15 +21,23 @@ namespace Razix {
          * A class that manages Textures/Image resources for the Engine
          * @brief It manages creation and conversion of Image resources, also stores in a custom Engine Format depending on how it's being used
          */
+        // TODO!!!: All will be under RZTexture and will use the RZTextureProperties::Type struct to identify the type of the Texture
+        // We will use a common set of functions under RZTexture to create various textures and of course the API ones can still be split
+        // into different classes derived from RZTexture
         // TODO: Calculate size properly for manually set texture data
         // TODO: Add support and Utility functions for sRGB textures
-        class RAZIX_API RZTexture
+        // TODO: Hide CreateXXX Functions and Replace all pointers with Handles!!!
+        class RAZIX_API RZTexture : public IRZResource<RZTexture>
         {
         public:
             /* Default constructor, texture resource is done on demand */
-            RZTexture() = default;
+            RZTexture() {}
             /* Virtual destructor enables the API implementation to delete it's resources */
             virtual ~RZTexture() {}
+
+            RAZIX_NONCOPYABLE_CLASS(RZTexture)
+
+            GET_INSTANCE_SIZE;
 
             /**
              * Calculates the Mip Map count based on the Width and Height of the texture
@@ -40,11 +48,22 @@ namespace Razix {
             static u32                         calculateMipMapCount(u32 width, u32 height);
             static RZTextureProperties::Format bitsToTextureFormat(u32 bits);
 
-            // TODO: Move this to the RXBaseAsset class in later designs
-            /* Releases the texture data and it's underlying resources */
-            virtual void Release(bool deleteImage = true) = 0;
+            /* Binds the Texture resource to the Pipeline */
+            virtual void Bind(u32 slot) = 0;
+            /* Unbinds the Texture resource from the pipeline */
+            virtual void Unbind(u32 slot) = 0;
 
-            RZTextureDesc getDescription() { return m_Desc; }
+            /* Resize the texture */
+            virtual void Resize(u32 width, u32 height) {}
+
+            /* Gets the handle to the underlying API texture instance */
+            virtual void* GetAPIHandlePtr() const = 0;
+
+            virtual void SetData(const void* pixels) {}
+
+            virtual int32_t ReadPixels(u32 x, u32 y) = 0;
+
+            const RZTextureDesc& getDescription() const { return m_Desc; }
 
             /* Returns the name of the texture resource */
             std::string getName() const { return m_Desc.name; }
@@ -64,34 +83,37 @@ namespace Razix {
             RZTextureProperties::Filtering getFilterMode() { return m_Desc.filtering; }
             RZTextureProperties::Wrapping  getWrapMode() { return m_Desc.wrapping; }
 
-            /* Binds the Texture resource to the Pipeline */
-            virtual void Bind(u32 slot) = 0;
-            /* Unbinds the Texture resource from the pipeline */
-            virtual void Unbind(u32 slot) = 0;
-
-            /* Resize the texture */
-            virtual void Resize(u32 width, u32 height RZ_DEBUG_NAME_TAG_E_ARG) {}
-
-            /* Gets the handle to the underlying API texture instance */
-            virtual void* GetHandle() const = 0;
-
             /* Generates the descriptor set for the texture */
             void             generateDescriptorSet();
             RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
 
+            void setMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
+
+            RAZIX_INLINE bool isRT() const { return m_IsRenderTexture; }
+
         protected:
-            std::string      m_VirtualPath;   /* The virtual path of the texture          */
-            uint64_t         m_Size;          /* The size of the texture resource         */
-            RZDescriptorSet* m_DescriptorSet; /* Descriptor set for the image             */
-            RZTextureDesc    m_Desc;          /* Texture properties and create desc       */
+            std::string      m_VirtualPath;                      /* The virtual path of the texture                             */
+            uint64_t         m_Size;                             /* The size of the texture resource                            */
+            RZDescriptorSet* m_DescriptorSet;                    /* Descriptor set for the image                                */
+            RZTextureDesc    m_Desc;                             /* Texture properties and create desc                          */
+            u32              m_TotalMipLevels           = 1;     /* Total Mips, Calculated by a formula except for RZCubeMap    */
+            u32              m_CurrentMipRenderingLevel = 0;     /* Current mip level to which we are rendering to (as RT)      */
+            bool             m_IsRenderTexture          = true;  /* Any texture not imported from file and created is a RT      */
+
+        private:
+            static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            static void CreateFromFile(void* where, const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
+
+            friend class RZResourceManager;
         };
 
-        //-----------------------------------------------------------------------------------
+#if 0
+//-----------------------------------------------------------------------------------
         // Texture 2D
         //-----------------------------------------------------------------------------------
 
         /* 2D Texture interface */
-        class RAZIX_API RZTexture2D : public RZTexture//, public IRZResource<RZTexture2D>
+        class RAZIX_API RZTexture2D : public RZTexture, public IRZResource<RZTexture2D>
         {
         public:
             /**
@@ -140,7 +162,7 @@ namespace Razix {
         // Texture 3D
         //-----------------------------------------------------------------------------------
         /* 3D Texture interface */
-        class RAZIX_API RZTexture3D : public RZTexture
+        class RAZIX_API RZTexture3D : public RZTexture, public IRZResource<RZTexture3D>
         {
         public:
             /**
@@ -163,24 +185,19 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
         // Cube Map Texture
         //-----------------------------------------------------------------------------------
-        class RAZIX_API RZCubeMap : public RZTexture
+        class RAZIX_API RZCubeMap : public RZTexture, public IRZResource<RZCubeMap>
         {
         public:
             static RZCubeMap* Create(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
 
-            void setMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
-
         protected:
-            u32  m_TotalMipLevels           = 5;
-            u32  m_CurrentMipRenderingLevel = 0;
-            bool m_GenerateMips             = false;
         };
 
         //-----------------------------------------------------------------------------------
         // Depth Texture
         //-----------------------------------------------------------------------------------
 
-        class RAZIX_API RZDepthTexture : public RZTexture
+        class RAZIX_API RZDepthTexture : public RZTexture, public IRZResource<RZDepthTexture>
         {
         public:
             static RZDepthTexture* Create(const RZTextureDesc& desc);
@@ -192,12 +209,11 @@ namespace Razix {
 
         // TODO: Remove this and add method in RZTexture to bind any texture as a Render Target, currently this class creates a 2D render target only
 
-        class RAZIX_API RZRenderTexture : public RZTexture
+        class RAZIX_API RZRenderTexture : public RZTexture, public IRZResource<RZRenderTexture>
         {
         public:
             static RZRenderTexture* Create(RZ_DEBUG_NAME_TAG_F_ARG const RZTextureDesc& desc);
-
-            virtual int32_t ReadPixels(u32 x, u32 y) = 0;
         };
+#endif
     }    // namespace Graphics
 }    // namespace Razix

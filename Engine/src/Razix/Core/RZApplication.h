@@ -36,7 +36,7 @@ namespace ImGuizmo {
 }    // namespace ImGuizmo
 
 namespace Razix::Graphics {
-    class RZTexture2D;
+    class RZTexture;
 }    // namespace Razix::Graphics
 
 namespace Razix {

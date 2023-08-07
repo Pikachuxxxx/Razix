@@ -4,7 +4,7 @@
 
 namespace Razix {
     namespace Graphics {
-        
+
         /* Forward declaring types to reduce include file complexity */
         class RZTexture;
         class RZUniformBuffer;
@@ -93,7 +93,7 @@ namespace Razix {
             std::string                           typeName = "Fuck you";
             std::string                           name;
             RZUniformBuffer*                      uniformBuffer = nullptr;
-            RZTexture*                   texture       = nullptr;
+            RZTextureHandle                       texture;
             std::vector<RZShaderBufferMemberInfo> uboMembers;
             u32                                   size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
             u32                                   offset = 0;    //? I don't think this is needed

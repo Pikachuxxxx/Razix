@@ -10,16 +10,19 @@
 namespace Razix {
     namespace Graphics {
 
-        class DX11Texture : public RZTexture2D
+        class DX11Texture : public RZTexture
         {
         public:
             void SetData(const void* pixels) override;
-            void Release(bool deleteImage = true) override;
+
+            int32_t ReadPixels(u32 x, u32 y) override;
+
+            void Destroy() override;
 
         protected:
             void  Bind(u32 slot) override;
             void  Unbind(u32 slot) override;
-            void* GetHandle() const override;
+            void* GetAPIHandlePtr() const override;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -55,7 +55,7 @@
         void GLRenderContext::SubmitImpl(RZCommandBuffer* cmdBuffer)
         {
         }
-
+         
         void GLRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
         {
         }
@@ -98,7 +98,7 @@
                         GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         // Bind the texture
-                        descriptor.texture->Bind(descriptor.bindingInfo.binding);
+                        //descriptor.texture->Bind(descriptor.bindingInfo.binding);
                     }
                 }
             }
@@ -126,7 +126,7 @@
                         // First enable the right slot
                         glActiveTexture(GL_TEXTURE0 + descriptor.bindingInfo.binding);
                         // Bind the texture
-                        descriptor.texture->Bind(descriptor.bindingInfo.binding);
+                        //descriptor.texture->Bind(descriptor.bindingInfo.binding);
                     }
                 }
             }

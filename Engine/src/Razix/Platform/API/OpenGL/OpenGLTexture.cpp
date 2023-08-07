@@ -13,7 +13,7 @@ namespace Razix {
         // Texture2D
         //-----------------------------------------------------------------------------------
 
-        OpenGLTexture2D::OpenGLTexture2D(const RZTextureDesc& desc)
+        OpenGLTexture::OpenGLTexture(const RZTextureDesc& desc)
         {
             //? Find out why these variables cannot be allocated in the initializers list
             m_Desc        = desc;
@@ -22,7 +22,7 @@ namespace Razix {
             m_Handle = load(desc.data);
         }
 
-        OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, const RZTextureDesc& desc)
+        OpenGLTexture::OpenGLTexture(const RZTextureDesc& desc, const std::string& filePath)
         {
             m_Desc = desc;
 
@@ -31,26 +31,31 @@ namespace Razix {
             m_Handle = load(nullptr);
         }
 
-        void OpenGLTexture2D::Bind(u32 slot)
+        void OpenGLTexture::Bind(u32 slot)
         {
             GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Handle));
         }
 
-        void OpenGLTexture2D::Unbind(u32 slot)
+        void OpenGLTexture::Unbind(u32 slot)
         {
             GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         }
 
-        void OpenGLTexture2D::SetData(const void* pixels)
+        void OpenGLTexture::SetData(const void* pixels)
         {
             GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Handle));
             GL_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Desc.width, m_Desc.height, Graphics::OpenGLUtilities::TextureFormatToGL(m_Desc.format, true), GL_UNSIGNED_BYTE, pixels));
             GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
         }
 
-        u32 OpenGLTexture2D::load(void* data)
+        int32_t OpenGLTexture::ReadPixels(u32 x, u32 y)
+        {
+            return 0;
+        }
+
+        u32 OpenGLTexture::load(void* data)
         {
             u8* pixels = nullptr;
 

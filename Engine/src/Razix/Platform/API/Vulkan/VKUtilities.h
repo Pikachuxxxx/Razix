@@ -136,6 +136,22 @@ namespace Razix {
             VkSamplerAddressMode TextureWrapToVK(const RZTextureProperties::Wrapping wrap);
 
             /**
+             * Engine Type to Vulkan Type conversion
+             * 
+             * @param type The type of the texture
+             * @returns Vulkan image type
+             */
+            VkImageType TextureTypeToVK(const RZTextureProperties::Type type);
+
+            /**
+             * Engine Type to Vulkan image view type
+             * 
+             * @param type The type of the texture
+             * @returns Vulkan image view type
+             */
+            VkImageViewType TextureTypeToVKViewType(const RZTextureProperties::Type type);
+
+            /**
              * Converts from Engine filtering mode to Vulkan filter
              * 
              * @param filter The min/mag filter mode to convert to

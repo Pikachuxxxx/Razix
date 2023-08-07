@@ -5,6 +5,8 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -37,9 +39,9 @@ namespace Razix {
             virtual void OnResize(u32 width, u32 height) = 0;
 
             /* Gets the swapchain image at the given index */
-            virtual RZTexture* GetImage(u32 index) = 0;
+            virtual RZTextureHandle GetImage(u32 index) = 0;
             /* Gets the current image that is ready for rendering */
-            virtual RZTexture* GetCurrentImage() = 0;
+            virtual RZTextureHandle GetCurrentImage() = 0;
             /* Gets the count of total number of images in the swapchain */
             virtual sz GetSwapchainImageCount() = 0;
             /* Gets the index of the current image that is ready for rendering */
@@ -53,9 +55,9 @@ namespace Razix {
             virtual void* GetAPIHandle() = 0;
 
         protected:
-            u32         m_Width;                 /* The width of the swapchain extent */
-            u32         m_Height;                /* The height of the swapchain extent */
-            u32         m_CurrentImageIndex = 0; /* The current image that is ready for rendering  */
+            u32 m_Width;                 /* The width of the swapchain extent */
+            u32 m_Height;                /* The height of the swapchain extent */
+            u32 m_CurrentImageIndex = 0; /* The current image that is ready for rendering  */
         };
 
     }    // namespace Graphics
