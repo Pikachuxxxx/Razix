@@ -56,7 +56,7 @@ namespace Razix {
             inline RZHandle<T>& getHandle() { return m_Handle; }
             inline void         setHandle(const RZHandle<T>& handle) { m_Handle = handle; }
 
-            inline RZUUID& getUUID() { return m_UUID; }
+            inline RZUUID&     getUUID() { return m_UUID; }
 
         protected:
             rzstl::ReferenceCounter m_AtomicRefCounter;

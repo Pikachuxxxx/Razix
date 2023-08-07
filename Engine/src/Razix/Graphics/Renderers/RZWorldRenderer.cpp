@@ -234,7 +234,7 @@ namespace Razix {
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
-#if 0
+#if 1
             m_FrameGraph.addCallbackPass(
                 "Debug Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto& data) {
@@ -335,22 +335,22 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
-                    //m_ImGuiRenderer.Begin(scene);
+                    m_ImGuiRenderer.Begin(scene);
 
-                    //auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
-                    //auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
-                    //RenderingInfo info{
-                    //    .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                    //    .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
-                    //    .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
-                    //    .resize           = true};
+                    RenderingInfo info{
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
+                        .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
+                        .resize           = true};
 
-                    //RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
-                    //m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
+                    m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
-                    //m_ImGuiRenderer.End();
+                    m_ImGuiRenderer.End();
                 });
 
             //-------------------------------
