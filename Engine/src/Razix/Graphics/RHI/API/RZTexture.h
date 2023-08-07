@@ -102,8 +102,8 @@ namespace Razix {
             bool             m_IsRenderTexture          = true;  /* Any texture not imported from file and created is a RT      */
 
         private:
-            static RZTextureHandle Create(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            static RZTextureHandle CreateFromFile(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
+            static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            static void CreateFromFile(void* where, const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
 
             friend class RZResourceManager;
         };

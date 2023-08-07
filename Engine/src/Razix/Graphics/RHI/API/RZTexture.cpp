@@ -41,34 +41,32 @@ namespace Razix {
         // Texture
         //-----------------------------------------------------------------------------------
 
-        RZTextureHandle RZTexture::Create(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+        void RZTexture::Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return (new OpenGLTexture(desc))->getHandle(); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture(desc RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::OPENGL: new (where) OpenGLTexture(desc); break;
+                case Razix::Graphics::RenderAPI::VULKAN: new (where) VKTexture(desc RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
-                default: return RZTextureHandle(); break;
+                default: break;
             }
-            return RZTextureHandle();
         }
 
-        RZTextureHandle RZTexture::CreateFromFile(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
+        void RZTexture::CreateFromFile(void* where, const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
         {
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return (new OpenGLTexture(desc, filePath))->getHandle(); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return (new VKTexture(desc, filePath RZ_DEBUG_E_ARG_NAME))->getHandle(); break;
+                case Razix::Graphics::RenderAPI::OPENGL: new (where) OpenGLTexture(desc, filePath); break;
+                case Razix::Graphics::RenderAPI::VULKAN: new (where) VKTexture(desc, filePath RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
-                default: return RZTextureHandle(); break;
+                default: break;
             }
-            return RZTextureHandle();
         }
 
         u32 RZTexture::calculateMipMapCount(u32 width, u32 height)

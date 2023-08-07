@@ -34,12 +34,15 @@ namespace Razix {
 
             // This is the Magic right here, these will make sure new will allocate the memory from their respective ResourcePools, no need to use placement new and make things looks messy
             // Note: Operators are STATIC FUNCTIONS!
-            void* operator new(size_t size);
-            void* operator new[](size_t size);
+            //void* operator new(size_t size);
+            void* operator new(size_t size, void* where);
+            //void* operator new[](size_t size);
             void* operator new[](size_t size, void* where);
 
-            void operator delete(void* pointer);
-            void operator delete[](void* pointer);
+            //void operator delete(void* pointer);
+            void operator delete(void* pointer, void* where);
+            //void operator delete[](void* pointer);
+            void operator delete[](void* pointer, void* where);
 
             inline const std::string& getName() { return m_ResourceName; }
             inline void               setName(const std::string& name) { m_ResourceName = name; }
@@ -65,38 +68,59 @@ namespace Razix {
             //friend RZResourcePoolTyped<U>;
         };
 
-        template<typename T>
+#if 0
+template<typename T>
         void* IRZResource<T>::operator new(size_t size)
         {
+            RAZIX_ASSERT(false, "[Resource] new cannot be used to allocate memory! Please use T::Create(where, ...) or RZResourceManager::CreateXXX(TDesc&)");
+
             // Return the pre allocated memory from it's respective Resource Memory Pool
             RZHandle<T> handle;
-            void*       ptr      = RZResourceManager::Get().getPool<T>().obtain(handle);
-            auto        resource = (IRZResource*) ptr;
+            void*       ptr = RZResourceManager::Get().getPool<T>().obtain(handle);
+            ///////////////////////////////////////////
+            // THIS INFO IS BEING LOST!
+            IRZResource* resource = (IRZResource*) ptr;
             resource->setHandle(handle);
+            ///////////////////////////////////////////
             return ptr;
         }
+#endif
 
         template<typename T>
+        void* IRZResource<T>::operator new(size_t size, void* where)
+        {
+            // Placement new DOES nothing at this point, throw and error if we allocate memory from pool this way
+            //RAZIX_ASSERT(false, "[Resource] placement new cannot be used to allocate memory! Please use T::Create(where, ...) or RZResourceManager::CreateXXX(TDesc&)");
+            (void) size;
+            return (where);
+        }
+
+#if 0
+ template<typename T>
         void* IRZResource<T>::operator new[](size_t size)
         {
+            RAZIX_ASSERT(false, "[Resource] new cannot be used to allocate memory! Please use T::Create(where, ...) or RZResourceManager::CreateXXX(TDesc&)");
+
             // Return the pre allocated memory from it's respective Resource Memory Pool
-            RZHandle<T> handle;
-            void*       ptr      = RZResourceManager::Get().getPool<T>().obtain(handle);
-            auto        resource = (IRZResource*) ptr;
+            RZHandle<T>  handle;
+            void*        ptr      = RZResourceManager::Get().getPool<T>().obtain(handle);
+            IRZResource* resource = (IRZResource*) ptr;
             resource->setHandle(handle);
             return ptr;
         }
+#endif
 
         template<typename T>
         void* IRZResource<T>::operator new[](size_t size, void* where)
         {
             // Placement new DOES nothing at this point, throw and error if we allocate memory from pool this way
-            RAZIX_ASSERT(false, "[Resource] Placement new cannot be used to allocate memory! Please use T::Create or RZResourceManager::CreateXXX(TDesc&)");
+            //RAZIX_ASSERT(false, "[Resource] Placement new cannot be used to allocate memory! Please use T::Create or RZResourceManager::CreateXXX(TDesc&)");
             (void) size;
             return (where);
         }
 
-        template<typename T>
+#if 0
+ template<typename T>
         void IRZResource<T>::operator delete(void* pointer)
         {
             // Memory is deallocated manually using pool allocator indices and we will never use free
@@ -107,8 +131,17 @@ namespace Razix {
             res->setGenerationIndex(0);
             RZResourceManager::Get().getPool<T>().release(res->getHandle());
         }
+#endif
 
         template<typename T>
+        void IRZResource<T>::operator delete(void* pointer, void* where)
+        {
+            (void*) pointer;
+            (void*) where;
+        }
+
+#if 0
+template<typename T>
         void IRZResource<T>::operator delete[](void* pointer)
         {
             // Memory is deallocated manually using pool allocator indices and we will never use free
@@ -118,6 +151,14 @@ namespace Razix {
             auto res = (IRZResource*) (pointer);
             res->setGenerationIndex(0);
             RZResourceManager::Get().getPool<T>().release(res->getHandle());
+        }
+#endif
+
+        template<typename T>
+        void IRZResource<T>::operator delete[](void* pointer, void* where)
+        {
+            (void*) pointer;
+            (void*) where;
         }
     }    // namespace Graphics
 }    // namespace Razix

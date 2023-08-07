@@ -65,8 +65,14 @@ namespace Razix {
             m_SwapchainImageTextures.clear();
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-                VKTexture* swapImageTexture = new VKTexture(images[i], imageView[i]);
-                m_SwapchainImageTextures.push_back(swapImageTexture->getHandle());
+
+                RZHandle<RZTexture> handle;
+                void*               where = RZResourceManager::Get().getPool<RZTexture>().obtain(handle);
+                new (where) VKTexture(images[i], imageView[i]);
+                IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+                resource->setHandle(handle);
+
+                m_SwapchainImageTextures.push_back(handle);
             }
 
             // Create the sync primitives for each frame
@@ -361,8 +367,14 @@ namespace Razix {
                         m_SwapchainImageTextures.clear();
                         for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                             VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-                            VKTexture* swapImageTexture = new VKTexture(images[i], imageView[i]);
-                            m_SwapchainImageTextures.push_back(swapImageTexture->getHandle());
+
+                            RZHandle<RZTexture> handle;
+                            void*               where = RZResourceManager::Get().getPool<RZTexture>().obtain(handle);
+                            new (where) VKTexture(images[i], imageView[i]);
+                            IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+                            resource->setHandle(handle);
+
+                            m_SwapchainImageTextures.push_back(handle);
                         }
 
                         result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);

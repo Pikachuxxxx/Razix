@@ -253,19 +253,19 @@ namespace Razix {
 
         void MaterialTextures::Destroy()
         {
-            if (albedo != RZMaterial::GetDefaultTexture())
+            if (albedo.isValid() && albedo != RZMaterial::GetDefaultTexture())
                 RZResourceManager::Get().releaseTexture(albedo);
-            if (normal != RZMaterial::GetDefaultTexture())
+            if (normal.isValid() && normal != RZMaterial::GetDefaultTexture())
                 RZResourceManager::Get().releaseTexture(normal);
-            if (metallic != RZMaterial::GetDefaultTexture())
+            if (metallic.isValid() && metallic != RZMaterial::GetDefaultTexture())
                 RZResourceManager::Get().releaseTexture(metallic);
-            if (roughness != RZMaterial::GetDefaultTexture())
+            if (roughness.isValid() && roughness != RZMaterial::GetDefaultTexture())
                 RZResourceManager::Get().releaseTexture(roughness);
-            if (specular != RZMaterial::GetDefaultTexture())
+            if (specular.isValid() && specular != RZMaterial::GetDefaultTexture())
                 RZResourceManager::Get().releaseTexture(specular);
-            if (emissive != RZMaterial::GetDefaultTexture())
+            if (emissive.isValid() && emissive != RZMaterial::GetDefaultTexture())
                 RZResourceManager::Get().releaseTexture(emissive);
-            if (ao != RZMaterial::GetDefaultTexture())
+            if (ao.isValid() && ao != RZMaterial::GetDefaultTexture())
                 RZResourceManager::Get().releaseTexture(ao);
         }
 

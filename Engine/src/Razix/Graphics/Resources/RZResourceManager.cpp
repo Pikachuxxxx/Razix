@@ -32,12 +32,22 @@ namespace Razix {
         RZTextureHandle RZResourceManager::createTexture(const RZTextureDesc& desc)
         {
             // Use the Pool
-            return RZTexture::Create(desc RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+            RZHandle<RZTexture> handle;
+            void*               where = m_TexturePool.obtain(handle);
+            RZTexture::Create(where, desc RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+            IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+            resource->setHandle(handle);
+            return handle;
         }
 
         RZTextureHandle RZResourceManager::createTextureFromFile(const RZTextureDesc& desc, const std::string& filePath)
         {
-            return RZTexture::CreateFromFile(desc, filePath RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+            RZHandle<RZTexture> handle;
+            void*               where = m_TexturePool.obtain(handle);
+            RZTexture::CreateFromFile(where, desc, filePath RZ_DEBUG_NAME_TAG_STR_E_ARG(desc.name));
+            IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+            resource->setHandle(handle);
+            return handle;
         }
 
         void RZResourceManager::releaseTexture(RZTextureHandle& handle)
