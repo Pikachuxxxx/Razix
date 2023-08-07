@@ -392,20 +392,6 @@ namespace Razix {
                 // Execute the Frame Graph passes
                 m_FrameGraph.execute(nullptr, &m_TransientResources);
 
-#if 0
-                RenderingInfo info{};
-                info.colorAttachments = {
-                    {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
-                };
-                info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                info.resize = true;
-
-                RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
-
-                RHI::EndRendering(RHI::GetCurrentCommandBuffer());
-#endif
-
                 // End Frame Marker
                 RAZIX_MARK_END();
 

@@ -63,8 +63,8 @@ namespace Razix {
                     LINEAR,
                     NEAREST
                 };
-                FilterMode minFilter = FilterMode::NEAREST;
-                FilterMode magFilter = FilterMode::NEAREST;
+                FilterMode minFilter = FilterMode::LINEAR;
+                FilterMode magFilter = FilterMode::LINEAR;
 
                 Filtering() {}
                 Filtering(FilterMode min, FilterMode max)

@@ -139,6 +139,7 @@ namespace Razix {
 
                     textureDesc.name   = "RSM/Depth";
                     textureDesc.format = RZTextureProperties::Format::DEPTH32F;
+                    textureDesc.filtering = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
                     textureDesc.type   = RZTextureProperties::Type::Texture_Depth;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);

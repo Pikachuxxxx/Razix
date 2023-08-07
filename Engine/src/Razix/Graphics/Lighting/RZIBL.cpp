@@ -91,6 +91,8 @@ namespace Razix {
                 }
             }
 
+            u32 dim = 1024;
+
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
@@ -104,12 +106,13 @@ namespace Razix {
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
             RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Env Map",
-                .width                                                                    = 512,
-                .height                                                                   = 512,
+                .width                                                                    = dim,
+                .height                                                                   = dim,
                 .layers                                                                   = 6,
                 .type                                                                     = RZTextureProperties::Type::Texture_CubeMap,
                 .format                                                                   = RZTextureProperties::Format::RGBA32F,
-                .enableMips                                                               = false});
+                .filtering                                                                = {RZTextureProperties::Filtering::FilterMode::LINEAR, RZTextureProperties::Filtering::FilterMode::LINEAR},
+                .enableMips = false});
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
@@ -122,12 +125,12 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Cubemap", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
 
-                cmdBuffer->UpdateViewport(512, 512);
+                cmdBuffer->UpdateViewport(dim, dim);
 
                 RenderingInfo info{};
                 info.colorAttachments = {
                     {cubeMapHandle, {true, glm::vec4(0.0f)}}};
-                info.extent = {512, 512};
+                info.extent = {dim, dim};
                 //------------------------------------------------
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
@@ -162,9 +165,11 @@ namespace Razix {
 
         RZTextureHandle RZIBL::generateIrradianceMap(RZTextureHandle cubeMap)
         {
+            u32 dim = 32;
+
             RZTextureHandle irradianceMapHandle = RZResourceManager::Get().createTexture({.name = "Irradiance Map",
-                .width                                                                          = 32,
-                .height                                                                         = 32,
+                .width                                                                          = dim,
+                .height                                                                         = dim,
                 .layers                                                                         = 6,
                 .type                                                                           = RZTextureProperties::Type::Texture_CubeMap,
                 .format                                                                         = RZTextureProperties::Format::RGBA32F,
@@ -232,12 +237,12 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Irradiance cubemap Convolution", glm::vec4(0.8f, 0.4f, 0.3f, 1.0f))
 
-                cmdBuffer->UpdateViewport(32, 32);
+                cmdBuffer->UpdateViewport(dim, dim);
 
                 RenderingInfo info{};
                 info.colorAttachments = {
                     {irradianceMapHandle, {true, glm::vec4(0.0f)}}};
-                info.extent = {32, 32};
+                info.extent = {dim, dim};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
                 RHI::BeginRendering(cmdBuffer, info);
@@ -270,8 +275,7 @@ namespace Razix {
 
         RZTextureHandle RZIBL::generatePreFilteredMap(RZTextureHandle cubeMap)
         {
-            u32 dim = 256;
-            //RZCubeMap* preFilteredMap = RZCubeMap::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Pre Filtered Map"){.name = "Pre Filtered Map", .width = dim, .height = dim, .layers = 6, .enableMips = true});
+            u32 dim = 128;
 
             RZTextureHandle preFilteredMapHandle = RZResourceManager::Get().createTexture({.name = "Pre Filtered Map",
                 .width                                                                           = dim,

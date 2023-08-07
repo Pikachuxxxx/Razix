@@ -70,6 +70,7 @@ namespace Razix {
                         .height     = RZApplication::Get().getWindow()->getHeight(),
                         .type       = RZTextureProperties::Type::Texture_Depth,
                         .format     = RZTextureProperties::Format::DEPTH32F,
+                        .filtering  = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
                         .enableMips = false};
 
                     data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);

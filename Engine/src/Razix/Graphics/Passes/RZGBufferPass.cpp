@@ -87,9 +87,10 @@ namespace Razix {
 
                     data.MetRougAOAlpha = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOAlpha", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name   = "Depth";
-                    gbufferTexturesDesc.format = RZTextureProperties::Format::DEPTH32F;
-                    gbufferTexturesDesc.type   = RZTextureProperties::Type::Texture_Depth;
+                    gbufferTexturesDesc.name      = "Depth";
+                    gbufferTexturesDesc.format    = RZTextureProperties::Format::DEPTH32F;
+                    gbufferTexturesDesc.filtering = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
+                    gbufferTexturesDesc.type      = RZTextureProperties::Type::Texture_Depth;
 
                     data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
