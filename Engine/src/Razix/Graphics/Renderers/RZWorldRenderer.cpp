@@ -234,7 +234,7 @@ namespace Razix {
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
-#if 1
+#if 0
             m_FrameGraph.addCallbackPass(
                 "Debug Pass",
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto& data) {

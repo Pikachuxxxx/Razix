@@ -91,7 +91,7 @@ namespace Razix {
                 }
             }
 
-            u32 dim = 1024;
+            u32 dim = 512;
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
@@ -112,7 +112,7 @@ namespace Razix {
                 .type                                                                     = RZTextureProperties::Type::Texture_CubeMap,
                 .format                                                                   = RZTextureProperties::Format::RGBA32F,
                 .filtering                                                                = {RZTextureProperties::Filtering::FilterMode::LINEAR, RZTextureProperties::Filtering::FilterMode::LINEAR},
-                .enableMips = false});
+                .enableMips                                                               = false});
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
@@ -152,6 +152,10 @@ namespace Razix {
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
             RZResourceManager::Get().releaseTexture(equirectangularMapHandle);
+
+            // Generate mip maps from first mip face
+            //RZTexture* envCubeMap = RZResourceManager::Get().getPool<RZTexture>().get(cubeMapHandle);
+            //envCubeMap->GenerateMips();
 
             for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();
@@ -283,7 +287,8 @@ namespace Razix {
                 .layers                                                                          = 6,
                 .type                                                                            = RZTextureProperties::Type::Texture_CubeMap,
                 .format                                                                          = RZTextureProperties::Format::RGBA32F,
-                .enableMips                                                                      = true});
+                //.filtering                                                                       = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
+                .enableMips = true});
 
             RZTexture* preFilteredMap = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
 
@@ -343,7 +348,7 @@ namespace Razix {
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
 
             u32 layerCount   = 6;
-            u32 maxMipLevels = 5;
+            u32 maxMipLevels = RZTexture::calculateMipMapCount(dim, dim);
 
             // Begin rendering
             auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
@@ -379,8 +384,8 @@ namespace Razix {
                         float roughness = (float) mip / (float) (maxMipLevels - 1);
                         struct PCData
                         {
-                            float roughness;
-                        } data;
+                            float roughness = 0.0f;
+                        } data{};
                         data.roughness = roughness;
                         RZPushConstant pc;
                         pc.shaderStage = ShaderStage::PIXEL;
