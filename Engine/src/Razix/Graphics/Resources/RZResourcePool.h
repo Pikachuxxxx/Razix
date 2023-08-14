@@ -99,7 +99,7 @@ namespace Razix {
         inline void RZResourcePoolTyped<T>::release(RZHandle<T>& handle)
         {
             T* resource = getInternal(handle);
-            resource->Destroy();
+            resource->DestroyResource();
             handle.setGeneration(0);
             RZResourcePool::releaseResource(handle.getIndex());
         }

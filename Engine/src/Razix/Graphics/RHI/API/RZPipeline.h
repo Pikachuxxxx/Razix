@@ -1,10 +1,5 @@
 #pragma once
 
-#include "Razix/Core/RZDebugConfig.h"
-#include "Razix/Core/RZSmartPointers.h"
-
-#include "Razix/Graphics/RHI/API/RZTexture.h"
-
 namespace Razix {
     namespace Graphics {
 

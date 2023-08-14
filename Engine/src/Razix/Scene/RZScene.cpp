@@ -20,6 +20,8 @@
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
 
+#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+
 namespace Razix {
 
     RZScene::RZScene()
@@ -100,16 +102,37 @@ namespace Razix {
         }
     }
 
-    void RZScene::drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets, void* overridePCData, bool disableMaterials)
+    void RZScene::drawScene(Graphics::RZPipeline* pipeline, SceneDrawParams sceneDrawParams)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
 
+        //-----------------------------
+        // Frame Data
+        if (!sceneDrawParams.disableFrameData)
+            Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+        //-----------------------------
+        // Bindless Textures (Can be used for any texture, not just mats, even RTs used a bindables hence this is always bound)
+        if (!sceneDrawParams.disableBindlessTextures)
+            Graphics::RHI::EnableBindlessTextures(pipeline, cmdBuffer);
+        //-----------------------------
+        // Scene Lighting Data
+        if (!sceneDrawParams.disableLights)
+            Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getSceneLightsDataSet(), BindingTable_System::SET_IDX_LIGHTING_DATA);
+        //-----------------------------
+        // User Sets
+        if (sceneDrawParams.userSets.size() > 0)
+            Graphics::RHI::BindUserDescriptorSets(pipeline, cmdBuffer, sceneDrawParams.userSets);
+        //-----------------------------
+
         auto mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
         for (auto entity: mesh_group) {
             // Draw the mesh renderer components
             const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+
+            if (!mrc.Mesh)
+                continue;
 
             // Bind push constants, VBO, IBO and draw
             glm::mat4 transform = mesh_trans.GetGlobalTransform();
@@ -124,36 +147,29 @@ namespace Razix {
             } pcData{};
             pcData.mat         = transform;
             modelMatrixPC.data = &pcData;
-            if (overridePCData != nullptr)
-                modelMatrixPC.data = overridePCData;
+            if (sceneDrawParams.overridePushConstantData != nullptr)
+                modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
             modelMatrixPC.size = sizeof(PCD);
 
-            // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
             Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
             //-----------------------------
+            Graphics::RZMaterial* mat = nullptr;
 
-            mrc.Mesh->getMaterial()->Bind();
+            if (!sceneDrawParams.disableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
+                mat = mrc.Mesh->getMaterial();
+                if (!mat)
+                    continue;
+                mat->Bind(pipeline, cmdBuffer);
+            }
 
             mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
             mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
-            // Combine System Desc sets with material sets and Bind them
-            std::vector<Graphics::RZDescriptorSet*> setsToBindInOrder;
-
-            if (frameDataSet)    // @ 0
-                setsToBindInOrder.push_back(frameDataSet);
-
-            if (!disableMaterials)    // @ 1
-                setsToBindInOrder.push_back(mrc.Mesh->getMaterial()->getDescriptorSet());
-
-            if (sceneLightsSet)    // @ 2
-                setsToBindInOrder.push_back(sceneLightsSet);
-
-            if (!userSets.empty())
-                setsToBindInOrder.insert(setsToBindInOrder.end(), userSets.begin(), userSets.end());
-
-            if (setsToBindInOrder.size() > 0)
-                Graphics::RHI::BindDescriptorSets(pipeline, cmdBuffer, setsToBindInOrder);
+            //-----------------------------
+            // Material Data
+            if (!sceneDrawParams.disableMaterials)
+                Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+            //-----------------------------
 
             Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
         }

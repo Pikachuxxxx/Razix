@@ -298,7 +298,7 @@ namespace Razix {
 #endif
 
                     // Bind the descriptor sets
-                    Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
+                    Graphics::RHI::BindUserDescriptorSets(m_Pipeline, cmdBuf, m_DescriptorSets);
 
                     // Draw the Mesh
                     m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuf);

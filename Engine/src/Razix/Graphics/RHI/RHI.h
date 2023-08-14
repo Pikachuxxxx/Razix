@@ -94,15 +94,20 @@ namespace Razix {
                 RAZIX_PROFILE_GPU_SCOPE("Present Swapchain");
                 s_APIInstance->PresentAPIImpl(waitSemaphore);
             }
-            RAZIX_FORCE_INLINE static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
+            RAZIX_FORCE_INLINE static void BindDescriptorSet(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
             {
-                RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
-                s_APIInstance->BindDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets);
+                RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Set at Idx");
+                s_APIInstance->BindDescriptorSetAPImpl(pipeline, cmdBuffer, descriptorSet, setIdx);
             }
-            RAZIX_FORCE_INLINE static void BindDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, u32 totalSets)
+            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
-                s_APIInstance->BindDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets, totalSets);
+                s_APIInstance->BindUserDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets);
+            }
+            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
+                s_APIInstance->BindUserDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets, totalSets);
             }
             RAZIX_FORCE_INLINE static void BindPushConstant(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
             {
@@ -136,8 +141,16 @@ namespace Razix {
                 RAZIX_PROFILE_GPU_SCOPE("End Rendering");
                 s_APIInstance->EndRenderingImpl(cmdBuffer);
             }
+            RAZIX_FORCE_INLINE static void EnableBindlessTextures(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("Enable Bindless Textures");
+                s_APIInstance->EnableBindlessTexturesImpl(pipeline, cmdBuffer);
+            }
 
-            RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer) { return s_APIInstance->SetDepthBiasImpl(cmdBuffer); }
+            RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer)
+            {
+                return s_APIInstance->SetDepthBiasImpl(cmdBuffer);
+            }
             RAZIX_FORCE_INLINE static void SetScissorRect(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height) { return s_APIInstance->SetScissorRectImpl(cmdBuffer, x, y, width, height); }
 
             RAZIX_FORCE_INLINE static RZSwapchain*     GetSwapchain() { return s_APIInstance->GetSwapchainImpl(); }
@@ -153,6 +166,12 @@ namespace Razix {
                 s_APIInstance->SetCmdCheckpointImpl(cmdbuffer, markerData);
             }
 
+            const RZDescriptorSet* getFrameDataSet() const { return m_FrameDataSet; }
+            void                   setFrameDataSet(RZDescriptorSet* set) { m_FrameDataSet = set; }
+
+            const RZDescriptorSet* getSceneLightsDataSet() const { return m_SceneLightsDataSet; }
+            void                   setSceneLightsDataSet(RZDescriptorSet* set) { m_SceneLightsDataSet = set; }
+
         protected:
             virtual void InitAPIImpl()                                                                                                                                              = 0;
             virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                          = 0;
@@ -160,8 +179,9 @@ namespace Razix {
             virtual void SubmitImpl(RZCommandBuffer* cmdBuffer)                                                                                                                     = 0;
             virtual void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                       = 0;
             virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                 = 0;
-            virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)                                  = 0;
-            virtual void BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, u32 totalSets)                                = 0;
+            virtual void BindDescriptorSetAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                = 0;
+            virtual void BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)                            = 0;
+            virtual void BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)                          = 0;
             virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                    = 0;
             virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                            = 0;
             virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0) = 0;
@@ -169,6 +189,7 @@ namespace Razix {
             virtual void OnResizeAPIImpl(u32 width, u32 height)                                                                                                                     = 0;
             virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                               = 0;
             virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                = 0;
+            virtual void EnableBindlessTexturesImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)                                                                               = 0;
 
             virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo) = 0;
             virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                       = 0;
@@ -188,6 +209,8 @@ namespace Razix {
             CommandQueue                  m_CommandQueue; /* The queue of recorded commands that needs execution */
             RZCommandBuffer*              m_CurrentCommandBuffer = nullptr;
             std::vector<RZCommandBuffer*> m_DrawCommandBuffers;
+            RZDescriptorSet*              m_FrameDataSet       = nullptr;
+            RZDescriptorSet*              m_SceneLightsDataSet = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

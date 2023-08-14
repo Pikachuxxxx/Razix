@@ -68,8 +68,6 @@ namespace Razix {
              */
             virtual void Destroy() = 0;
 
-            virtual void SetFrameDataHeap(RZDescriptorSet* frameDataSet) {}
-
         protected:
             RZSceneCamera* m_Camera;
             RZScene*       m_CurrentScene;

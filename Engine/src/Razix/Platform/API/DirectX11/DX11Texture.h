@@ -17,7 +17,7 @@ namespace Razix {
 
             int32_t ReadPixels(u32 x, u32 y) override;
 
-            void Destroy() override;
+            void DestroyResource() override;
 
         protected:
             void  Bind(u32 slot) override;

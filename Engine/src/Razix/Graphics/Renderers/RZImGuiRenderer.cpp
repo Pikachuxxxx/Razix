@@ -249,7 +249,7 @@ namespace Razix {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
                     RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
-                    RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, &set, 1);
+                    RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, set, 0);
                     // TODO: Fix this for Vulkan
                     VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
 

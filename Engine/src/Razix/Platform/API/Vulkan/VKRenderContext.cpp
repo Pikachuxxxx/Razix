@@ -48,27 +48,6 @@ namespace Razix {
             m_Height        = height;
             m_PrevWidth     = width;
             m_PrevHeight    = height;
-
-            // Create any extra descriptor pools here such as for ImGui and other needs
-            std::array<VkDescriptorPoolSize, 5> pool_sizes = {
-                VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_SAMPLER, 100},
-                VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 100},
-                VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 100},
-                VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 100},
-                VkDescriptorPoolSize{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 100}};
-
-            VkDescriptorPoolCreateInfo poolCreateInfo = {};
-            poolCreateInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            poolCreateInfo.flags                      = 0;
-            poolCreateInfo.poolSizeCount              = static_cast<u32>(pool_sizes.size());
-            poolCreateInfo.pPoolSizes                 = pool_sizes.data();
-            poolCreateInfo.maxSets                    = MAX_DESCRIPTOR_SET_COUNT;
-
-            // allocate the all-in-on pool
-            if (VK_CHECK_RESULT(vkCreateDescriptorPool(VKDevice::Get().getDevice(), &poolCreateInfo, nullptr, &m_DescriptorPool)))
-                RAZIX_CORE_ERROR("[Vulkan] Cannot allocate descriptor pool by VKRenderer!");
-            else
-                RAZIX_CORE_TRACE("[Vulkan] Successfully creates descriptor pool to allocate sets!");
         }
 
         VKRenderContext::~VKRenderContext()
@@ -153,11 +132,18 @@ namespace Razix {
             m_CommandQueue.clear();
         }
 
-        void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
+        void VKRenderContext::BindDescriptorSetAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            u32 numDynamicDescriptorSets = 0;
+            const auto vkDescSet = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
+        }
+
+        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             u32 numDesciptorSets         = 0;
 
             for (auto descriptorSet: descriptorSets) {
@@ -167,25 +153,24 @@ namespace Razix {
                     numDesciptorSets++;
                 }
             }
-            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), BindingTable_System::SET_IDX_USER_DATA_SLOT_0, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
         }
 
-        void VKRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, u32 totalSets)
+        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            u32 numDynamicDescriptorSets = 0;
             u32 numDesciptorSets         = 0;
 
             for (u32 i = 0; i < totalSets; i++) {
                 auto set = descriptorSets[i];
                 if (set) {
-                    auto vkDescSet                        = static_cast<VKDescriptorSet*>(set);
+                    const auto vkDescSet                  = static_cast<const VKDescriptorSet*>(set);
                     m_DescriptorSetPool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
             }
-            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, numDesciptorSets, m_DescriptorSetPool, numDynamicDescriptorSets, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), BindingTable_System::SET_IDX_USER_DATA_SLOT_0, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
         }
 
         void VKRenderContext::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
@@ -199,6 +184,15 @@ namespace Razix {
             scissorRect.extent.height = height;
 
             vkCmdSetScissor(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &scissorRect);
+        }
+
+        void VKRenderContext::EnableBindlessTexturesImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)
+        {
+            // Bind the Bindless Descriptor Set
+            if (VKDevice::Get().isBindlessSupported()) {
+                const auto set = VKDevice::Get().getBindlessDescriptorSet();
+                vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);
+            }
         }
 
         void VKRenderContext::BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)
@@ -321,9 +315,6 @@ namespace Razix {
         void VKRenderContext::DestroyAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            // Destroy the descriptor pool
-            vkDestroyDescriptorPool(VKDevice::Get().getDevice(), m_DescriptorPool, nullptr);
         }
 
         void VKRenderContext::OnResizeAPIImpl(u32 width, u32 height)

@@ -32,9 +32,9 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZMesh*                                 m_ScreenQuadMesh = nullptr;
-            std::vector<Graphics::RZDescriptorSet*> m_DescriptorSets;
-            RZPipeline*                             m_Pipeline;
+            RZMesh*                    m_ScreenQuadMesh = nullptr;
+            Graphics::RZDescriptorSet* m_DescriptorSet;
+            RZPipeline*                m_Pipeline;
 
         private:
             void init();

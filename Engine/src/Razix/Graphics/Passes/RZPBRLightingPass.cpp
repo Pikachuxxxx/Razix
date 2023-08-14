@@ -121,30 +121,6 @@ namespace Razix {
                     // Set the Descriptor Set once rendering starts
                     static bool updatedSets = false;
                     if (!updatedSets) {
-                        auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
-
-                        RZDescriptor frame_descriptor{};
-                        frame_descriptor.offset              = 0;
-                        frame_descriptor.size                = sizeof(GPUFrameData);
-                        frame_descriptor.bindingInfo.binding = 0;
-                        frame_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                        frame_descriptor.uniformBuffer       = frameDataBuffer;
-
-                        m_FrameDataDescriptorSet = RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set - PBR"));
-
-                        auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(sceneLightsDataBlock.lightsDataBuffer).getHandle();
-
-                        RZDescriptor lightsData_descriptor{};
-                        lightsData_descriptor.offset              = 0;
-                        lightsData_descriptor.size                = sizeof(GPULightsData);
-                        lightsData_descriptor.bindingInfo.binding = 0;
-                        lightsData_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        lightsData_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        lightsData_descriptor.uniformBuffer       = lightsDataBuffer;
-
-                        m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set - PBR"));
-
                         auto shadowMap = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
                         RZDescriptor csm_descriptor{};
@@ -160,6 +136,8 @@ namespace Razix {
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
+                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow pass Bindings"));
+
 #if 1
                         auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
                         auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
@@ -167,25 +145,25 @@ namespace Razix {
 
                         // TODO: Enable this only if we use a skybox
                         RZDescriptor irradianceMap_descriptor{};
-                        irradianceMap_descriptor.bindingInfo.binding = 2;
+                        irradianceMap_descriptor.bindingInfo.binding = 0;
                         irradianceMap_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         irradianceMap_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         irradianceMap_descriptor.texture             = irradianceMap;
 
                         RZDescriptor prefiltered_descriptor{};
-                        prefiltered_descriptor.bindingInfo.binding = 3;
+                        prefiltered_descriptor.bindingInfo.binding = 1;
                         prefiltered_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         prefiltered_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         prefiltered_descriptor.texture             = prefilteredMap;
 
                         RZDescriptor brdflut_descriptor{};
-                        brdflut_descriptor.bindingInfo.binding = 4;
+                        brdflut_descriptor.bindingInfo.binding = 2;
                         brdflut_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         brdflut_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         brdflut_descriptor.texture             = brdfLUT;
 #endif
 
-                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor, irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR pass Bindings"));
+                        m_PBRDataSet = RZDescriptorSet::Create({irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings"));
 
 #if 0
 RZDescriptor gbuffer0_descriptor{};
@@ -220,25 +198,7 @@ RZDescriptor gbuffer0_descriptor{};
 
                     m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
 
-                    // Bind the descriptor sets
-                    //std::vector<RZDescriptorSet*> sets = {m_FrameDataDescriptorSet, m_SceneLightsDataDescriptorSet, m_ShadowDataSet};
-                    //Graphics::RHI::BindDescriptorSets(m_Pipeline, RHI::GetCurrentCommandBuffer(), sets);
-                    //Graphics::RZPushConstant modelMatrixPC;
-                    //modelMatrixPC.shaderStage = Graphics::ShaderStage::PIXEL;
-                    //modelMatrixPC.offset      = 0;
-                    //struct PCD
-                    //{
-                    //    glm::vec3 viewPos;
-                    //} pcData{};
-                    //pcData.viewPos     = scene->getSceneCamera().getPosition();
-                    //modelMatrixPC.data = &pcData;
-                    //modelMatrixPC.size = sizeof(PCD);
-                    // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
-                    //Graphics::RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), modelMatrixPC);
-                    // Bind the pipeline
-                    //m_ScreenQuadMesh->Draw(RHI::GetCurrentCommandBuffer());
-
-                    scene->drawScene(m_Pipeline, m_FrameDataDescriptorSet, m_SceneLightsDataDescriptorSet, {m_ShadowDataSet});
+                    scene->drawScene(m_Pipeline, {.userSets = {m_ShadowDataSet, m_PBRDataSet}});
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
@@ -248,8 +208,6 @@ RZDescriptor gbuffer0_descriptor{};
         void RZPBRLightingPass::destroy()
         {
             m_Pipeline->Destroy();
-            m_FrameDataDescriptorSet->Destroy();
-            m_SceneLightsDataDescriptorSet->Destroy();
             m_ShadowDataSet->Destroy();
         }
 

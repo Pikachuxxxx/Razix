@@ -3,6 +3,8 @@
 // clang-format on
 #include "VKTexture.h"
 
+#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -243,7 +245,6 @@ namespace Razix {
             // Build a render target texture here if the data is nullptr
             bool loadResult = load(desc RZ_DEBUG_E_ARG_NAME);
             RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", desc.name);
-            updateDescriptor();
         }
 
         VKTexture::VKTexture(VkImage image, VkImageView imageView)
@@ -257,6 +258,30 @@ namespace Razix {
             updateDescriptor();
         }
 
+        void VKTexture::UploadToBindlessSet()
+        {
+            // Now if Bindless is available Bind to it
+            if (VKDevice::Get().isBindlessSupported()) {
+                auto& descriptor = m_Descriptors[0];
+
+                VkDescriptorImageInfo imageInfo{};
+                imageInfo.imageLayout = descriptor.imageLayout;
+                imageInfo.imageView   = descriptor.imageView;
+                imageInfo.sampler     = descriptor.sampler;
+
+                VkWriteDescriptorSet writeDescriptorSet{};
+                writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                writeDescriptorSet.dstSet          = VKDevice::Get().getBindlessDescriptorSet();
+                writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;    // for R/W write texture this will be STORAGE_IMAGE with different binding idx
+                writeDescriptorSet.dstBinding      = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
+                writeDescriptorSet.dstArrayElement = getHandle().getIndex();    // RZTexturePool index is allocated to this as the binding index in the global_texture_xxxyyy_array
+                writeDescriptorSet.pImageInfo      = &imageInfo;
+                writeDescriptorSet.descriptorCount = 1;    // Single Texture array
+
+                vkUpdateDescriptorSets(VKDevice::Get().getDevice(), 1, &writeDescriptorSet, 0, nullptr);
+            }
+        }
+
         RAZIX_INLINE void VKTexture::updateDescriptor()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -267,15 +292,15 @@ namespace Razix {
             m_Descriptors[0].imageView   = m_ImageViews[0];
             m_Descriptors[0].imageLayout = m_ImageLayout;
 
-            if (!m_Desc.enableMips)
-                return;
-
-            for (u32 i = 1; i < m_TotalMipLevels; i++) {
-                VkDescriptorImageInfo descriptor;
-                descriptor.sampler     = m_ImageSampler;
-                descriptor.imageView   = m_ImageViews[i];
-                descriptor.imageLayout = m_ImageLayout;
-                m_Descriptors.push_back(descriptor);
+            if (m_Desc.enableMips) {
+                // Not useful while binding (textureLod), only useful when rendering to desired mip level
+                for (u32 i = 1; i < m_TotalMipLevels; i++) {
+                    VkDescriptorImageInfo descriptor;
+                    descriptor.sampler     = m_ImageSampler;
+                    descriptor.imageView   = m_ImageViews[i];
+                    descriptor.imageLayout = m_ImageLayout;
+                    m_Descriptors.push_back(descriptor);
+                }
             }
         }
 
@@ -455,7 +480,7 @@ namespace Razix {
             updateDescriptor();
         }
 
-        void VKTexture::Destroy()
+        void VKTexture::DestroyResource()
         {
             if (m_Desc.type == RZTextureProperties::Type::Texture_SwapchainImage)
                 return;
@@ -483,7 +508,7 @@ namespace Razix {
             m_Desc.width  = width;
             m_Desc.height = height;
 
-            Destroy();
+            DestroyResource();
             //m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
             //m_TransferBuffer.setSize(width * height * 4);
             //m_TransferBuffer.init(NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));

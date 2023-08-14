@@ -16,6 +16,8 @@
 
 #include "Razix/Graphics/RHI/RHI.h"
 
+#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
@@ -81,7 +83,9 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
 
-                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+
+                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{};
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, glm::vec4(0.0f)}}};
@@ -89,23 +93,11 @@ namespace Razix {
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
-                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(cmdBuffer, info);
 
                     // Set the Descriptor Set once rendering starts
                     static bool updatedSets = false;
                     if (!updatedSets) {
-                        auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
-
-                        RZDescriptor frame_descriptor{};
-                        frame_descriptor.offset              = 0;
-                        frame_descriptor.size                = sizeof(GPUFrameData);
-                        frame_descriptor.bindingInfo.binding = 0;
-                        frame_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                        frame_descriptor.uniformBuffer       = frameDataBuffer;
-
-                        m_FrameDataDescriptorSet = RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set - Skybox"));
-
                         auto envMap = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle();
 
                         RZDescriptor lightProbes_descriptor{};
@@ -130,17 +122,17 @@ namespace Razix {
                     }
 
                     if (!m_UseProceduralSkybox)
-                        m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
+                        m_Pipeline->Bind(cmdBuffer);
                     else
-                        m_ProceduralPipeline->Bind(RHI::GetCurrentCommandBuffer());
+                        m_ProceduralPipeline->Bind(cmdBuffer);
 
-                    m_SkyboxCube->getIndexBuffer()->Bind(RHI::GetCurrentCommandBuffer());
-                    m_SkyboxCube->getVertexBuffer()->Bind(RHI::GetCurrentCommandBuffer());
+                    m_SkyboxCube->getIndexBuffer()->Bind(cmdBuffer);
+                    m_SkyboxCube->getVertexBuffer()->Bind(cmdBuffer);
 
-                    std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataDescriptorSet};
+                    RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_SYSTEM_START);
+
                     if (!m_UseProceduralSkybox) {
-                        setsToBindInOrder.push_back(m_LightProbesDescriptorSet);
-                        RHI::BindDescriptorSets(m_Pipeline, RHI::GetCurrentCommandBuffer(), setsToBindInOrder);
+                        RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LightProbesDescriptorSet, 1);
                     } else {
                         // Since no skybox, we update the directional light direction
                         auto lights = scene->GetComponentsOfType<LightComponent>();
@@ -163,14 +155,13 @@ namespace Razix {
                         pc.size        = sizeof(PCData);
                         pc.shaderStage = ShaderStage::PIXEL;
 
-                        RHI::BindPushConstant(m_ProceduralPipeline, RHI::GetCurrentCommandBuffer(), pc);
-                        setsToBindInOrder.push_back(m_VolumetricDescriptorSet);
-                        RHI::BindDescriptorSets(m_ProceduralPipeline, RHI::GetCurrentCommandBuffer(), setsToBindInOrder);
+                        RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
+                        RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_VolumetricDescriptorSet, BindingTable_System::SET_IDX_SYSTEM_START);
                     }
 
-                    RHI::DrawIndexed(RHI::GetCurrentCommandBuffer(), m_SkyboxCube->getIndexBuffer()->getCount());
+                    RHI::DrawIndexed(cmdBuffer, m_SkyboxCube->getIndexBuffer()->getCount());
 
-                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
+                    RHI::EndRendering(cmdBuffer);
                     RAZIX_MARK_END();
                 });
         }
@@ -179,7 +170,6 @@ namespace Razix {
         {
             m_Pipeline->Destroy();
             m_ProceduralPipeline->Destroy();
-            m_FrameDataDescriptorSet->Destroy();
             m_LightProbesDescriptorSet->Destroy();
             m_VolumetricDescriptorSet->Destroy();
             m_SkyboxCube->Destroy();

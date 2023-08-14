@@ -28,7 +28,7 @@ namespace Razix {
             //-------------------------------------------------------------------
             // Renderer related shaders
             //loadShader("//RazixContent/Shaders/Razix/grid.rzsf");
-            loadShader("//RazixContent/Shaders/Razix/forward_renderer.rzsf");
+            loadShader("//RazixContent/Shaders/Razix/pbr_ibl_lighting.rzsf");
             loadShader("//RazixContent/Shaders/Razix/imgui.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/sprite.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/sprite_textured.rzsf");

@@ -9,6 +9,8 @@
 
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
+    #include "Razix/Graphics/Renderers/RZSystemBinding.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -257,22 +259,22 @@ namespace Razix {
             //------------------------------------------------------------------------------------------------
             // Create the Global Descriptor Pool, used for normal descriptor sets
             VkDescriptorPoolSize pool_sizes[] = {
-                {VK_DESCRIPTOR_TYPE_SAMPLER, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, k_global_pool_elements},
-                {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, k_global_pool_elements}};
+                {VK_DESCRIPTOR_TYPE_SAMPLER, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, kGLOBAL_MAX_SETS},
+                {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, kGLOBAL_MAX_SETS}};
             VkDescriptorPoolCreateInfo pool_info = {};
             pool_info.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             pool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
             u32 size                             = (sizeof(pool_sizes) / sizeof(pool_sizes[0]));
-            pool_info.maxSets                    = k_global_pool_elements * size;
+            pool_info.maxSets                    = kGLOBAL_MAX_SETS * size;
             pool_info.poolSizeCount              = (u32) size;
             pool_info.pPoolSizes                 = pool_sizes;
             VK_CHECK_RESULT(vkCreateDescriptorPool(m_Device, &pool_info, nullptr, &m_GlobalDescriptorPool));
@@ -283,15 +285,15 @@ namespace Razix {
             if (m_IsBindlessSupported) {
                 VkDescriptorPoolSize pool_sizes_bindless[] = {
                     // We use bindless for Images, Storage images and Uniform Buffers for now
-                    {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, k_max_bindless_resources},
-                    {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, k_max_bindless_resources},
-                    //{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, k_max_bindless_resources}
+                    {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, kMAX_BINDLESS_RESOURCES},
+                    //{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, kMAX_BINDLESS_RESOURCES},
+                    //{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, kMAX_BINDLESS_RESOURCES}
                 };
 
                 u32 bindless_pool_count = (sizeof(pool_sizes_bindless) / sizeof(pool_sizes_bindless[0]));
                 // Update after bind is needed here, for each binding and in the descriptor set layout creation.
                 pool_info.flags         = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT;    // BINDLESS MAGIC!
-                pool_info.maxSets       = k_max_bindless_resources * bindless_pool_count;
+                pool_info.maxSets       = kMAX_BINDLESS_RESOURCES * bindless_pool_count;
                 pool_info.poolSizeCount = (u32) bindless_pool_count;
                 pool_info.pPoolSizes    = pool_sizes_bindless;
                 VK_CHECK_RESULT(vkCreateDescriptorPool(m_Device, &pool_info, nullptr, &m_BindlessDescriptorPool));
@@ -303,25 +305,25 @@ namespace Razix {
                 // Images
                 VkDescriptorSetLayoutBinding& image_sampler_binding = vk_binding[0];
                 image_sampler_binding.descriptorType                = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                image_sampler_binding.descriptorCount               = k_max_bindless_resources;
-                image_sampler_binding.binding                       = k_bindless_texture_binding;
-                image_sampler_binding.stageFlags                    = VK_SHADER_STAGE_ALL;
+                image_sampler_binding.descriptorCount               = kMAX_BINDLESS_RESOURCES;
+                image_sampler_binding.binding                       = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
+                image_sampler_binding.stageFlags                    = /*VK_SHADER_STAGE_ALL*/ VK_SHADER_STAGE_FRAGMENT_BIT;
                 image_sampler_binding.pImmutableSamplers            = nullptr;
 
-                // Storage Images
+    #if 0
+                // Storage Images 
                 VkDescriptorSetLayoutBinding& storage_image_binding = vk_binding[1];
                 storage_image_binding.descriptorType                = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-                storage_image_binding.descriptorCount               = k_max_bindless_resources;
-                storage_image_binding.binding                       = k_bindless_texture_binding + 1;
+                storage_image_binding.descriptorCount               = kMAX_BINDLESS_RESOURCES;
+                storage_image_binding.binding                       = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START + 1;
                 storage_image_binding.stageFlags                    = VK_SHADER_STAGE_ALL;
                 storage_image_binding.pImmutableSamplers            = nullptr;
 
                 // Uniform Buffers
-    #if 0
                 VkDescriptorSetLayoutBinding& storage_image_binding = vk_binding[2];
                 storage_image_binding.descriptorType                = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                storage_image_binding.descriptorCount               = k_max_bindless_resources;
-                storage_image_binding.binding                       = k_bindless_texture_binding + 2;
+                storage_image_binding.descriptorCount               = kMAX_BINDLESS_RESOURCES;
+                storage_image_binding.binding                       = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START + 2;
                 storage_image_binding.stageFlags                    = VK_SHADER_STAGE_ALL;
                 storage_image_binding.pImmutableSamplers            = nullptr;
     #endif
@@ -347,6 +349,7 @@ namespace Razix {
                 layout_info.pNext = &extended_info;
 
                 VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device, &layout_info, nullptr, &m_BindlessSetLayout));
+                VK_TAG_OBJECT("Bindless Set Layout", VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) m_BindlessSetLayout)
                 //------------------------------------------------------------------------------------------------
                 // Bindless Descriptor Set
                 VkDescriptorSetAllocateInfo alloc_info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
@@ -355,12 +358,13 @@ namespace Razix {
                 alloc_info.pSetLayouts        = &m_BindlessSetLayout;
 
                 VkDescriptorSetVariableDescriptorCountAllocateInfoEXT count_info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT};
-                u32                                                   max_binding = k_max_bindless_resources - 1;
+                u32                                                   max_binding = kMAX_BINDLESS_RESOURCES - 1;
                 count_info.descriptorSetCount                                     = 1;
                 // This number is the max allocatable count
                 count_info.pDescriptorCounts = &max_binding;
 
                 VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device, &alloc_info, &m_BindlessDescriptorSet));
+                VK_TAG_OBJECT("Bindless Set", VK_OBJECT_TYPE_DESCRIPTOR_SET, (uint64_t) m_BindlessDescriptorSet)
             }
             return true;
         }
@@ -380,5 +384,4 @@ namespace Razix {
         }
     }    // namespace Graphics
 }    // namespace Razix
-
 #endif

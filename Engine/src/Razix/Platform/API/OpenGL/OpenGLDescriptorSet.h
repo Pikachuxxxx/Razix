@@ -14,7 +14,7 @@ namespace Razix {
             void UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition = true) override;
             void Destroy() override;
 
-            RAZIX_INLINE std::vector<RZDescriptor> getDescriptors() { return m_Descriptors; }
+            RAZIX_INLINE const std::vector<RZDescriptor>& getDescriptors() const { return m_Descriptors; }
 
         private:
             std::vector<RZDescriptor> m_Descriptors;

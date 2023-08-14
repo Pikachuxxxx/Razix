@@ -190,7 +190,7 @@ namespace Razix {
                     if (!setUpdated) {
                         auto setInfos = shader->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
-                            if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
+                            if (setInfo.first == BindingTable_System::SET_IDX_SYSTEM_START) {
                                 for (auto& descriptor: setInfo.second) {
                                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                                         descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameblockData.frameData).getHandle();
@@ -233,7 +233,7 @@ namespace Razix {
                         // Combine System Desc sets with material sets and Bind them
                         std::vector<RZDescriptorSet*> SystemMat = {m_MVPDescriptorSet, mrc.Mesh->getMaterial()->getDescriptorSet()};
 
-                        Graphics::RHI::BindDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
+                        Graphics::RHI::BindUserDescriptorSets(m_RSMPipeline, cmdBuffer, SystemMat);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
@@ -388,7 +388,8 @@ namespace Razix {
                     m_RIPipeline->Bind(cmdBuffer);
 
                     // Bind the desc sets
-                    RHI::BindDescriptorSets(m_RIPipeline, cmdBuffer, &m_RIDescriptorSet, 1);
+                    //RHI::BindUserDescriptorSets(m_RIPipeline, cmdBuffer, &m_RIDescriptorSet, 1);
+                    RHI::BindDescriptorSet(m_RIPipeline, cmdBuffer, m_RIDescriptorSet, 0);
 
                     RHI::Draw(cmdBuffer, kNumVPL);
 
@@ -517,7 +518,8 @@ namespace Razix {
                     m_RPropagationPipeline->Bind(cmdBuffer);
 
                     // Bind the desc sets
-                    RHI::BindDescriptorSets(m_RPropagationPipeline, cmdBuffer, &m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet, 1);
+                    //RHI::BindUserDescriptorSets(m_RPropagationPipeline, cmdBuffer, &m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet, 1);
+                    RHI::BindDescriptorSet(m_RPropagationPipeline, cmdBuffer, m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet, 0);
 
                     RHI::Draw(cmdBuffer, kNumVPL);
 

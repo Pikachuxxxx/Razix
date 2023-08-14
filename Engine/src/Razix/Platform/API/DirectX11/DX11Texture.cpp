@@ -18,7 +18,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void DX11Texture::Destroy()
+        void DX11Texture::DestroyResource()
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

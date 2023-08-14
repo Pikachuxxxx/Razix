@@ -22,7 +22,6 @@ namespace Razix {
         private:
             RZPipeline*                   m_Pipeline;
             RZPipeline*                   m_ProceduralPipeline;
-            RZDescriptorSet*              m_FrameDataDescriptorSet;
             RZDescriptorSet*              m_LightProbesDescriptorSet;
             RZDescriptorSet*              m_VolumetricDescriptorSet;
             RZMesh*                       m_SkyboxCube;

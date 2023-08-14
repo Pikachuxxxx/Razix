@@ -55,7 +55,7 @@
         void GLRenderContext::SubmitImpl(RZCommandBuffer* cmdBuffer)
         {
         }
-         
+
         void GLRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
         {
         }
@@ -69,7 +69,7 @@
             //glfwSwapBuffers(m_Context->getGLFWWindow());
         }
 
-        void GLRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, std::vector<RZDescriptorSet*>& descriptorSets)
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -104,7 +104,7 @@
             }
         }
 
-        void GLRenderContext::BindDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZDescriptorSet** descriptorSets, u32 totalSets)
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -114,8 +114,10 @@
             shader->Bind();
 
             for (u32 i = 0; i < totalSets; i++) {
-                auto& set = descriptorSets[i];
-                for (auto& descriptor: static_cast<OpenGLDescriptorSet*>(set)->getDescriptors()) {
+                const RZDescriptorSet*     set         = descriptorSets[i];
+                const OpenGLDescriptorSet* glSet       = static_cast<const OpenGLDescriptorSet*>(set);
+                auto                       descriptors = glSet->getDescriptors();
+                for (const auto descriptor: descriptors) {
                     // Let's bind all the uniform buffers first
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                         descriptor.uniformBuffer->Bind();
@@ -145,6 +147,16 @@
         }
 
         void GLRenderContext::EndRenderingImpl(RZCommandBuffer* cmdBuffer)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        void GLRenderContext::EnableBindlessTexturesImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+        void GLRenderContext::BindDescriptorSetAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

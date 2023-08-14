@@ -14,10 +14,10 @@ namespace Razix {
             void Bind(RZCommandBuffer* commandBuffer) override;
             void Destroy() override;
 
-            RAZIX_INLINE RZShader* getShader() { return m_Shader; } 
+            RAZIX_INLINE RZShader* getShader() { return m_Shader; }
 
         private:
-            RZShader*           m_Shader;       /* Store a reference to the shader used by the pipeline */
+            RZShader*             m_Shader;       /* Store a reference to the shader used by the pipeline */
             const RZPipelineDesc& m_PipelineInfo; /* Since unlike Vulkan we don't pre-bake pipeline objects we store this until draw time to forever */
         };
     }    // namespace Graphics

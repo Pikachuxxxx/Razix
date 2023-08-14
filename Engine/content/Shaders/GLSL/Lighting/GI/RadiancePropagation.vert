@@ -10,7 +10,7 @@
  #extension GL_ARB_draw_instanced : enable
 
 //------------------------------------------------------------------------------
-#include <Common/ShaderInclude.Math.glsl>
+#include <Common/ShaderInclude.Builtin.Math.glsl>
 //------------------------------------------------------------------------------
 // Bindings
 layout(set = 0, binding = 0) uniform RadiancePropagationUBO
