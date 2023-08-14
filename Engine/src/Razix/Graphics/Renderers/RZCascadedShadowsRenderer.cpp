@@ -342,7 +342,7 @@ namespace Razix {
                     cascadeGPUResources[cascadeIdx].CascadePassPipeline->Bind(cmdBuf);
 
                     // Bind Sets
-                    RHI::BindDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
+                    RHI::BindUserDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
 
                     // Draw calls
                     // Get the meshes and the models from the Scene and render them

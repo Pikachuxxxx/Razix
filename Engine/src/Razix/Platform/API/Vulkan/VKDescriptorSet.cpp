@@ -54,7 +54,7 @@ namespace Razix {
 
             VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
             descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            descriptorSetAllocateInfo.descriptorPool     = VKRenderContext::GetVKRenderer()->getDescriptorPool();
+            descriptorSetAllocateInfo.descriptorPool     = VKDevice::Get().getGlobalDescriptorPool();
             descriptorSetAllocateInfo.descriptorSetCount = 1;
             descriptorSetAllocateInfo.pSetLayouts        = &setLayout;
 
@@ -65,6 +65,7 @@ namespace Razix {
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_DESCRIPTOR_SET, (uint64_t) m_DescriptorSet);
 
+            // TODO: No point in having these pools for DescriptorXXXInfo we can have a temporary one in the loop
             m_BufferInfoPool         = new VkDescriptorBufferInfo[MAX_BUFFER_INFOS];
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_IMAGE_INFOS];
             m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCTIPTORS];
@@ -114,10 +115,10 @@ namespace Razix {
                     } else {
                         // TODO: Don't use buffer members use a single one for the entire uniform buffer
                         //for (sz i = 0; i < descriptor.uboMembers.size(); i++) {
-                        auto buffer                    = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer)->getBuffer();
-                        m_BufferInfoPool[index].buffer = buffer;
+                        auto buffer                    = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer);
+                        m_BufferInfoPool[index].buffer = buffer->getBuffer();
                         m_BufferInfoPool[index].offset = descriptor.offset;
-                        m_BufferInfoPool[index].range  = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer)->getSize();
+                        m_BufferInfoPool[index].range  = buffer->getSize();
                         //}
 
                         VkWriteDescriptorSet writeDescriptorSet{};

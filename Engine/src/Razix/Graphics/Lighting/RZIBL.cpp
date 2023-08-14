@@ -15,6 +15,8 @@
 
 #include "Razix/Graphics/RHI/RHI.h"
 
+#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
@@ -143,7 +145,8 @@ namespace Razix {
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
                 for (u32 i = 0; i < layerCount; i++) {
-                    RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
+                    RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
+
                     RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
 
@@ -257,7 +260,7 @@ namespace Razix {
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
                 for (u32 i = 0; i < layerCount; i++) {
-                    RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
+                    RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
                     RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
 
@@ -379,7 +382,7 @@ namespace Razix {
                     cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
                     for (u32 i = 0; i < layerCount; i++) {
-                        RHI::BindDescriptorSets(envMapPipeline, cmdBuffer, &envMapSets[i], 1);
+                        RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
 
                         float roughness = (float) mip / (float) (maxMipLevels - 1);
                         struct PCData

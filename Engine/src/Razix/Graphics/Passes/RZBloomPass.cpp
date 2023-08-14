@@ -170,7 +170,7 @@ namespace Razix {
                     m_UpsamplePipeline->Bind(cmdBuf);
 
                     // Bind the descriptor sets
-                    Graphics::RHI::BindDescriptorSets(m_UpsamplePipeline, cmdBuf, upsamplebBloomGpuResources[mipindex].bloomDescSet);
+                    Graphics::RHI::BindUserDescriptorSets(m_UpsamplePipeline, cmdBuf, upsamplebBloomGpuResources[mipindex].bloomDescSet);
 
                     //-----------------------------
                     // Get the shader from the Mesh Material later
@@ -292,7 +292,7 @@ namespace Razix {
                     m_DownsamplePipeline->Bind(cmdBuf);
 
                     // Bind the descriptor sets
-                    Graphics::RHI::BindDescriptorSets(m_DownsamplePipeline, cmdBuf, downsamplebBloomGpuResources[mipindex].bloomDescSet);
+                    Graphics::RHI::BindUserDescriptorSets(m_DownsamplePipeline, cmdBuf, downsamplebBloomGpuResources[mipindex].bloomDescSet);
 
                     //-----------------------------
                     // Get the shader from the Mesh Material later
@@ -412,7 +412,7 @@ namespace Razix {
                     m_HDRBloomMixPipeline->Bind(cmdBuf);
 
                     // Bind the descriptor sets
-                    Graphics::RHI::BindDescriptorSets(m_HDRBloomMixPipeline, cmdBuf, bloomSceneMixGpuResources.bloomDescSet);
+                    Graphics::RHI::BindUserDescriptorSets(m_HDRBloomMixPipeline, cmdBuf, bloomSceneMixGpuResources.bloomDescSet);
 
                     //-----------------------------
                     // Get the shader from the Mesh Material later

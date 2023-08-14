@@ -15,9 +15,11 @@
 #include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
 
@@ -117,8 +119,7 @@ namespace Razix {
                         for (auto& descriptor: setInfo.second) {
                             descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
                         }
-                        auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"), true);
-                        m_DescriptorSets.push_back(descSet);
+                        m_DescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"), true);
                     }
                 },
                 [=](const CompositeData& data, FrameGraph::RZFrameGraphPassResources& resources, void*) {
@@ -128,7 +129,9 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
-                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+
+                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
@@ -139,7 +142,7 @@ namespace Razix {
                                 // change the layout to be in Shader Read Only Optimal
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle();
                             }
-                            m_DescriptorSets[0]->UpdateSet(setInfo.second);
+                            m_DescriptorSet->UpdateSet(setInfo.second);
                         }
                         //updatedRT = true;
                     }
@@ -152,18 +155,25 @@ namespace Razix {
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
-                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(cmdBuffer, info);
 
                     // Bind pipeline and stuff
-                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
+                    m_Pipeline->Bind(cmdBuffer);
 
                     // Bind the descriptor sets
-                    Graphics::RHI::BindDescriptorSets(m_Pipeline, RHI::GetCurrentCommandBuffer(), m_DescriptorSets);
+                    Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_DescriptorSet, BindingTable_System::SET_IDX_SYSTEM_START);
 
                     // Bind the pipeline
-                    m_ScreenQuadMesh->Draw(RHI::GetCurrentCommandBuffer());
+                    //m_ScreenQuadMesh->Draw(RHI::GetCurrentCommandBuffer());
 
-                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
+                    m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuffer);
+                    m_ScreenQuadMesh->getIndexBuffer()->Bind(cmdBuffer);
+
+                    // No need to bind the mesh material
+
+                    RHI::DrawIndexed(cmdBuffer, m_ScreenQuadMesh->getIndexCount(), 1, 0, 0, 0);
+
+                    RHI::EndRendering(cmdBuffer);
 
                     RAZIX_MARK_END();
                 });
@@ -177,9 +187,7 @@ namespace Razix {
         void RZFinalCompositionPass::destroy()
         {
             m_Pipeline->Destroy();
-            for (auto& set: m_DescriptorSets)
-                set->Destroy();
-
+            m_DescriptorSet->Destroy();
             m_ScreenQuadMesh->Destroy();
         }
     }    // namespace Graphics

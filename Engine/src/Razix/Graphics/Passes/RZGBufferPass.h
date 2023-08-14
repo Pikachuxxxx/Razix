@@ -23,7 +23,6 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZDescriptorSet* m_FrameDataSet = nullptr;
             RZPipeline*      m_Pipeline;
         };
     }    // namespace Graphics

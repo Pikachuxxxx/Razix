@@ -23,9 +23,9 @@ layout(location = 0) in VSOutput
 }fs_in;
 //------------------------------------------------------------------------------ 
 // Output from Fragment Shader or Output to Framebuffer attachments
-layout(location = 0) out vec4 GBuffer0; // .rgb = Normal .a = Position.x
-layout(location = 1) out vec4 GBuffer1; // .rgb = Albedo .a = Position.y
-layout(location = 2) out vec4 GBuffer2; // .rgb = Position .a = Position.z
+layout(location = 0) out vec4 GBuffer0; // .rgb = Normal .a = EMPTY
+layout(location = 1) out vec4 GBuffer1; // .rgb = Albedo .a = EMPTY
+layout(location = 2) out vec4 GBuffer2; // .rgb = Position .a = EMPTY
 layout(location = 3) out vec4 GBuffer3; // .r = Metallic .g = roughness .b = AO .a = alpha/opacity
 //------------------------------------------------------------------------------
 void main()
@@ -36,7 +36,7 @@ void main()
     GBuffer1 = vec4(texture(albedoMap, fs_in.fragUV).rgb, 1.0f);
     GBuffer2 = vec4(vec3(fs_in.fragPos), 1.0f);
 
-    // Since the current GLTTF modedls have a MetallicgRoughNesAO maps we hard code this shit ( GLTF texutes .r = empty (mostly) .g = roughness .b = metallic .a = AO)
+    // Since the current GLTF models have a MetallicgRoughNesAO maps we hard code this shit ( GLTF texutes .r = empty (mostly) .g = roughness .b = metallic .a = AO)
     vec4 MetallicRoughnessAO = texture(metallicMap, fs_in.fragUV);
 
     // GBuffer3 :: .r = Metallic .g = roughness .b = AO .a = specular

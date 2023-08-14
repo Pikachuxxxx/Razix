@@ -34,7 +34,7 @@ namespace Razix {
                 case Razix::Graphics::RenderAPI::VULKAN: s_APIInstance = new VKRenderContext(width, height); break;
                 case Razix::Graphics::RenderAPI::D3D12:    // to be implemented soon
                 default: s_APIInstance = nullptr; break;    
-            }
+            } 
         }
 
         void RHI::Release()

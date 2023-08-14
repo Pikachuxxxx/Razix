@@ -58,8 +58,7 @@ namespace Razix {
             VkDebugUtilsMessengerEXT           m_DebugCallbackHandle;            /* Debug callback handle to manage the Vulkan debug     */
             VkDebugUtilsMessengerCreateInfoEXT m_DebugCI;                        /* Debug callback handle creation struct                */
             VkSurfaceKHR                       m_Surface;                        /* The WSI Surface to which Vulkan presents to          */
-            //rzstl::UniqueRef<VKDevice>                 m_Device;                           /* The handle to the Vulkan Device and Physical device  */
-            rzstl::Ref<VKSwapchain> m_Swapchain; /* Handle to the Razix-Vulkan swapchain abstraction     */
+            rzstl::Ref<VKSwapchain>            m_Swapchain;                      /* Handle to the Razix-Vulkan swapchain abstraction     */
         private:
             /* Creates a VkInstance to interface with the Vulkan library */
             void createInstance();

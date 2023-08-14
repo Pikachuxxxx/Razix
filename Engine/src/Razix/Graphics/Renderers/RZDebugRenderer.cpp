@@ -198,7 +198,7 @@ namespace Razix {
             {
                 m_Pipeline->Bind(cmdBuffer);
 
-                Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, &m_FrameDataSet, 1);
+                Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_SYSTEM_START);
 
                 m_PointVBO->Bind(cmdBuffer);
                 m_PointIBO->Bind(cmdBuffer);
@@ -210,7 +210,7 @@ namespace Razix {
             {
                 m_LinePipeline->Bind(cmdBuffer);
 
-                Graphics::RHI::BindDescriptorSets(m_LinePipeline, cmdBuffer, &m_FrameDataSet, 1);
+                Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_SYSTEM_START);
 
                 m_LineVBO->Bind(cmdBuffer);
                 m_LineIBO->Bind(cmdBuffer);
@@ -238,19 +238,12 @@ namespace Razix {
 
         void RZDebugRenderer::Destroy()
         {
-            if (m_FrameDataSet)
-                m_FrameDataSet->Destroy();
             m_Pipeline->Destroy();
             m_LinePipeline->Destroy();
             m_PointIBO->Destroy();
             m_PointVBO->Destroy();
             m_LineIBO->Destroy();
             m_LineVBO->Destroy();
-        }
-
-        void RZDebugRenderer::SetFrameDataHeap(RZDescriptorSet* frameDataSet)
-        {
-            m_FrameDataSet = frameDataSet;
         }
 
         //---------------------------------------------------------------------------------------------------------------

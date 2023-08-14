@@ -24,19 +24,20 @@ namespace Razix {
 
         // TODO: Make this work with bool
         /* Material properties (16-byte aligned as per optimal GPU requirements) */
-        struct MaterialProperties
+        struct alignas(16) MaterialProperties
         {
             glm::vec3 albedoColor = glm::vec3(1.0f, 1.0f, 1.0f);
             bool      _padding[4] = {};
             glm::vec3 normal      = glm::vec3(0.0f, 1.0f, 0.0f);
             //bool      _padding_[4]        = {1, 0, 1, 0};
-            f32 emissiveIntensity   = 1.0f;
-            f32 metallicColor       = 1.0f;
-            f32 roughnessColor      = 0.025f;
-            f32 specularColor       = 1.0f;
-            f32 opacity             = 1.0f;
-            f32 ambientOcclusion    = 1.0f;
-            u32 visible             = true;
+            f32 emissiveIntensity = 1.0f;
+            f32 metallicColor     = 1.0f;
+            f32 roughnessColor    = 0.025f;
+            f32 specularColor     = 1.0f;
+            f32 opacity           = 1.0f;
+            f32 ambientOcclusion  = 1.0f;
+            u32 visible           = true;
+            // TODO: Use these as bindless array indices
             u32 isUsingAlbedoMap    = false;
             u32 isUsingNormalMap    = false;
             u32 isUsingMetallicMap  = false;
@@ -44,6 +45,15 @@ namespace Razix {
             u32 isUsingSpecular     = false;
             u32 isUsingEmissiveMap  = false;
             u32 isUsingAOMap        = false;
+            //------------------------------
+            // RUNTIME STUFF
+            u32 AlbedoMapIdx    = u16_max;
+            u32 NormalMapIdx    = u16_max;
+            u32 MetallicMapIdx  = u16_max;
+            u32 RoughnessMapIdx = u16_max;
+            u32 SpecularIdx     = u16_max;
+            u32 EmissiveMapIdx  = u16_max;
+            u32 AOMapIdx        = u16_max;
         };
 
         /* lighting model textures */

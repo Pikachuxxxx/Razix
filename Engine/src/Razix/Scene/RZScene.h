@@ -17,6 +17,18 @@ namespace Razix {
         class RZDescriptorSet;
     }    // namespace Graphics
 
+    using RZDescriptorSets = std::vector<Graphics::RZDescriptorSet*>;
+
+    struct SceneDrawParams
+    {
+        bool             disableFrameData         = false;
+        bool             disableBindlessTextures  = false;
+        bool             disableLights            = false;
+        bool             disableMaterials         = false;
+        RZDescriptorSets userSets                 = {};
+        void*            overridePushConstantData = nullptr;
+    };
+
     /**
      * Scene contains entities that will be used by the engine for rendering and other runtime systems
      */
@@ -31,7 +43,7 @@ namespace Razix {
         void update();
         void updateTransform(entt::entity entity);
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
-        void drawScene(Graphics::RZPipeline* pipeline, Graphics::RZDescriptorSet* frameDataSet, Graphics::RZDescriptorSet* sceneLightsSet, std::vector<Graphics::RZDescriptorSet*> userSets = {}, void* overridePCData = nullptr, bool disableMaterials = false);
+        void drawScene(Graphics::RZPipeline* pipeline, SceneDrawParams sceneDrawParams = {});
 
         void Destroy();
 

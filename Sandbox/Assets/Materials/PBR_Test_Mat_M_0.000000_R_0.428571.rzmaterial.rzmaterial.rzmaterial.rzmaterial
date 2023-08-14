@@ -15,7 +15,7 @@
         "roughnessColor": 0.4285714328289032,
         "metallicColor": 0.0,
         "emissiveColor": 1.0,
-        "isUsingAlbedoMap": 0,
+        "isUsingAlbedoMap": 1,
         "isUsingMetallicMap": 0,
         "isUsingRoughnessMap": 0,
         "isUsingNormalMap": 0,

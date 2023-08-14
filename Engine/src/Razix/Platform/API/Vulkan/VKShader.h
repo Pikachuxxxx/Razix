@@ -31,12 +31,13 @@ namespace Razix {
             std::vector<VkPipelineShaderStageCreateInfo> getShaderStages();
 
         private:
-            std::vector<VkVertexInputAttributeDescription>                m_VertexInputAttributeDescriptions; /* Vulkan handle for vertex input attribute description that is used by IA/VS for understating vertex data  */
+            std::vector<VkVertexInputAttributeDescription>           m_VertexInputAttributeDescriptions; /* Vulkan handle for vertex input attribute description that is used by IA/VS for understating vertex data  */
             std::map<u32, std::vector<VkDescriptorSetLayoutBinding>> m_VKSetBindingLayouts;              /* Vulkan handle for descriptor layout binding information per descriptor set location                      */
             std::map<u32, VkDescriptorSetLayout>                     m_PerSetLayouts;                    /* Descriptor set layouts and their corresponding set IDs                                                   */
-            std::map<ShaderStage, VkPipelineShaderStageCreateInfo>        m_ShaderCreateInfos;                /* Shader module abstractions that will be used while creating the pipeline to bind the shaders             */
-            std::vector<VkPushConstantRange>                              m_VKPushConstants;                  /* Encapsulates the push constants in the shaders                                                           */
-            VkPipelineLayout                                              m_PipelineLayout;                   /* Pipeline layout encapsulates the descriptor sets and push constants info for creating graphics pipeline  */
+            std::map<ShaderStage, VkPipelineShaderStageCreateInfo>   m_ShaderCreateInfos;                /* Shader module abstractions that will be used while creating the pipeline to bind the shaders             */
+            std::vector<VkPushConstantRange>                         m_VKPushConstants;                  /* Encapsulates the push constants in the shaders                                                           */
+            VkPipelineLayout                                         m_PipelineLayout;                   /* Pipeline layout encapsulates the descriptor sets and push constants info for creating graphics pipeline  */
+
         private:
             void reflectShader();
             void createShaderModules();

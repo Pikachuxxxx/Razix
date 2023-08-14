@@ -44,8 +44,6 @@ namespace Razix {
 
             void Destroy() override;
 
-            void SetFrameDataHeap(RZDescriptorSet* frameDataSet) override;
-
             //-------------------------------------------------------------
             // IRZPass
 
@@ -55,7 +53,6 @@ namespace Razix {
 
         private:
             RZUniformBuffer* m_LightViewProjUBO;
-            RZDescriptorSet* m_FrameDataSet;
             RZDescriptorSet* m_LVPSet;
         };
     }    // namespace Graphics

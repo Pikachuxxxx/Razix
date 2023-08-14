@@ -85,7 +85,7 @@ namespace Razix {
             void Unbind(u32 slot) override {}
 
             /* Releases the vulkan texture resources */
-            void Destroy() override;
+            void DestroyResource() override;
 
             /* Resize the texture mostly useful for RTs and DRTs */
             void Resize(u32 width, u32 height) override;
@@ -99,6 +99,8 @@ namespace Razix {
 
             virtual void GenerateMips() override;
 
+            /* Updates into the global bindless pool */
+            void UploadToBindlessSet() override;
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
             RAZIX_INLINE void updateDescriptor();
             /* Gets the layout of the image ex. depth or optimal etc. */
@@ -108,6 +110,7 @@ namespace Razix {
             {
                 m_ImageLayout = layout;
                 updateDescriptor();
+                // TODO: Update the Bindless descriptor set
             }
             /* Gets the descriptor info about the Vulkan Texture object in a particular mip level */
             RAZIX_INLINE VkDescriptorImageInfo getDescriptor() { return m_Descriptors[m_CurrentMipRenderingLevel]; }

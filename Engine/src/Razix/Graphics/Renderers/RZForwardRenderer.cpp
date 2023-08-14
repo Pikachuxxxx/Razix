@@ -45,7 +45,7 @@ namespace Razix {
             // This is a override shader that won't be used
             // Giving the shader to the renderer is not something I can think will be useful I think material will decide that
             // So what does the renderer do then? it's job is to enforce some rules on the shader (on the UBO data and samplers) and it handles how it updates the data in a way that is appropriate for that renderer to operate
-            m_OverrideGlobalRHIShader = Graphics::RZShaderLibrary::Get().getShader("forward_renderer.rzsf");
+            m_OverrideGlobalRHIShader = Graphics::RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
 
             // FrameBlock Descriptor Set
 
@@ -58,10 +58,10 @@ namespace Razix {
             for (auto& setInfo: setInfos) {
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
-                        if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_VIEW_PROJECTION) {
+                        if (setInfo.first == BindingTable_System::SET_IDX_SYSTEM_START) {
                             //descriptor.uniformBuffer = m_SystemMVPUBO;
                             //m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_VIEW_PROJECTION"));
-                        } else if (setInfo.first == BindingTable_System::BINDING_SET_SYSTEM_LIGHTING_DATA) {
+                        } else if (setInfo.first == BindingTable_System::SET_IDX_LIGHTING_DATA) {
                             descriptor.uniformBuffer = m_ForwardLightsUBO;
                             m_GPULightsDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_LIGHTING_DATA"));
                         }
@@ -154,7 +154,7 @@ namespace Razix {
 
                 // Combine System Desc sets with material sets and Bind them
                 std::vector<RZDescriptorSet*> setsToBindInOrder = {m_FrameDataSet, mrc.Mesh->getMaterial()->getDescriptorSet(), m_GPULightsDescriptorSet /*, m_CSMSet*/};
-                Graphics::RHI::BindDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
+                Graphics::RHI::BindUserDescriptorSets(m_Pipeline, cmdBuffer, setsToBindInOrder);
 
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                 mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);

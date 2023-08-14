@@ -293,22 +293,6 @@ namespace Razix {
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-                    static bool updatedSets = false;
-                    if (!updatedSets) {
-                        auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
-
-                        RZDescriptor frame_descriptor{};
-                        frame_descriptor.offset              = 0;
-                        frame_descriptor.size                = sizeof(GPUFrameData);
-                        frame_descriptor.bindingInfo.binding = 0;
-                        frame_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                        frame_descriptor.uniformBuffer       = frameDataBuffer;
-
-                        RZDebugRenderer::Get()->SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer Debug")));
-                        updatedSets = true;
-                    }
-
                     RZDebugRenderer::Get()->Draw(RHI::GetCurrentCommandBuffer());
 
                     RHI::EndRendering(Graphics::RHI::GetCurrentCommandBuffer());
@@ -493,7 +477,20 @@ namespace Razix {
                     gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
 
                     // update and upload the UBO
-                    resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle()->SetData(sizeof(GPUFrameData), &gpuData);
+                    auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
+                    frameDataBuffer->SetData(sizeof(GPUFrameData), &gpuData);
+
+                    if (!Graphics::RHI::Get().getFrameDataSet()) {
+                        RZDescriptor descriptor{};
+                        descriptor.offset              = 0;
+                        descriptor.size                = sizeof(GPUFrameData);
+                        descriptor.bindingInfo.binding = 0;
+                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
+                        descriptor.uniformBuffer       = frameDataBuffer;
+                        auto m_FrameDataSet            = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
+                        Graphics::RHI::Get().setFrameDataSet(m_FrameDataSet);
+                    }
                 });
         }
 
@@ -527,7 +524,21 @@ namespace Razix {
                         gpuLightsData.numLights++;
                     }
                     // update and upload the UBO
-                    resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle()->SetData(sizeof(GPUFrameData), &gpuLightsData);
+                    auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
+                    lightsDataBuffer->SetData(sizeof(GPULightsData), &gpuLightsData);
+
+                    if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
+                        RZDescriptor lightsData_descriptor{};
+                        lightsData_descriptor.offset              = 0;
+                        lightsData_descriptor.size                = sizeof(GPULightsData);
+                        lightsData_descriptor.bindingInfo.binding = 0;
+                        lightsData_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        lightsData_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        lightsData_descriptor.uniformBuffer       = lightsDataBuffer;
+
+                        auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));
+                        Graphics::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataDescriptorSet);
+                    }
                 });
         }
     }    // namespace Graphics

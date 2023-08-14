@@ -8,6 +8,9 @@
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
 //------------------------------------------------------------------------------
+// Bindless Textures
+#define ENABLE_BINDLESS 1
+//-------------------------------
 // Material Data
 #include <Material/Material.glsl>
 //-------------------------------
@@ -31,17 +34,17 @@ layout(location = 0) in VSOutput
 }fs_in;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-DECLARE_LIGHT_BUFFER(2, 0, sceneLights)
+DECLARE_LIGHT_BUFFER(3, 0, sceneLights)
 //--------------------------------------------------------
-layout(set = 3, binding = 0) uniform sampler2D shadowMap;
-layout(set = 3, binding = 1) uniform ShadowMapData {
+layout(set = 4, binding = 0) uniform sampler2D shadowMap;
+layout(set = 4, binding = 1) uniform ShadowMapData {
     mat4 lightSpaceMatrix;
 }shadowMapData;
 //--------------------------------------------------------
 // IBL maps
-layout(set = 3, binding = 2) uniform samplerCube irradianceMap;
-layout(set = 3, binding = 3) uniform samplerCube prefilteredMap;
-layout(set = 3, binding = 4) uniform sampler2D brdfLUT;
+layout(set = 5, binding = 0) uniform samplerCube irradianceMap;
+layout(set = 5, binding = 1) uniform samplerCube prefilteredMap;
+layout(set = 5, binding = 2) uniform sampler2D brdfLUT;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;

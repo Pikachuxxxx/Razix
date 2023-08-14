@@ -16,7 +16,7 @@ namespace Razix {
             void Bind(u32 slot) override;
             void Unbind(u32 slot) override;
 
-            void Destroy() override {}
+            void DestroyResource() override {}
 
             void* GetAPIHandlePtr() const override { return (void*) (sz) m_Handle; }
             void  SetData(const void* pixels) override;

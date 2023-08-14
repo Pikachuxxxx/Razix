@@ -39,6 +39,5 @@ namespace Razix {
         void OpenGLPipeline::Destroy()
         {
         }
-
     }    // namespace Graphics
 }    // namespace Razix

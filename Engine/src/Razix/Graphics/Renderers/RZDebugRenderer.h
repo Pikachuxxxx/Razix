@@ -112,8 +112,6 @@ namespace Razix {
 
             void Destroy() override;
 
-            void SetFrameDataHeap(RZDescriptorSet* frameDataSet) override;
-
             //-------------------------------------------------------------
 
             //Note: Functions appended with 'FG' (no depth testing) will always be rendered in the foreground. This can be useful for debugging things inside objects.
@@ -179,7 +177,6 @@ namespace Razix {
             DebugDrawList m_DrawList;
             DebugDrawList m_DrawListNDT;
 
-            RZDescriptorSet* m_FrameDataSet = nullptr;
             RZPipeline*      m_LinePipeline = nullptr;
 
             // VBs and IBs

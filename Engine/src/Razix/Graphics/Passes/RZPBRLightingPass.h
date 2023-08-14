@@ -21,9 +21,8 @@ namespace Razix {
 
         private:
             RZPipeline*      m_Pipeline;
-            RZDescriptorSet* m_FrameDataDescriptorSet;
-            RZDescriptorSet* m_SceneLightsDataDescriptorSet;
             RZDescriptorSet* m_ShadowDataSet;
+            RZDescriptorSet* m_PBRDataSet;
             RZDescriptorSet* m_GBufferDataSet;
             RZMesh*          m_ScreenQuadMesh = nullptr;
         };

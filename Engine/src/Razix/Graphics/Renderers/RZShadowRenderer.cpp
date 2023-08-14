@@ -64,14 +64,7 @@ namespace Razix {
         {
             m_LightViewProjUBO->Destroy();
             m_Pipeline->Destroy();
-            if (m_FrameDataSet)
-                m_FrameDataSet->Destroy();
             m_LVPSet->Destroy();
-        }
-
-        void RZShadowRenderer::SetFrameDataHeap(RZDescriptorSet* frameDataSet)
-        {
-            m_FrameDataSet = frameDataSet;
         }
 
         //-------------------------------------------------------------
@@ -119,8 +112,10 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Shadow Pass", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
 
+                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+
                     // Update Viewport and Scissor Rect
-                    RHI::GetCurrentCommandBuffer()->UpdateViewport(kShadowMapSize, kShadowMapSize);
+                    cmdBuffer->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
                     LightVPUBOData light_data{};
                     // Get the Light direction
@@ -148,21 +143,20 @@ namespace Razix {
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
                     info.resize          = false;
-                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
+                    RHI::BeginRendering(cmdBuffer, info);
 
-                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
+                    m_Pipeline->Bind(cmdBuffer);
 
                     m_LightViewProjUBO->SetData(sizeof(LightVPUBOData), &light_data);
 
-                    //RHI::BindDescriptorSets(m_Pipeline, cmdBuf, &m_LVPSet, 1);
+                    RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LVPSet, BindingTable_System::SET_IDX_SYSTEM_START);
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
-
-                    scene->drawScene(m_Pipeline, nullptr, nullptr, {m_LVPSet}, nullptr, true);
+                    scene->drawScene(m_Pipeline, {.disableFrameData = true, .disableBindlessTextures = true, .disableLights = true, .disableMaterials = true});
 
                     // End Rendering
-                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
+                    RHI::EndRendering(cmdBuffer);
                     RAZIX_MARK_END();
                 });
         }

@@ -31,7 +31,7 @@ namespace Razix {
                 }
             }
 
-            virtual void Destroy() = 0;
+            virtual void DestroyResource() = 0;
 
             // This is the Magic right here, these will make sure new will allocate the memory from their respective ResourcePools, no need to use placement new and make things looks messy
             // Note: Operators are STATIC FUNCTIONS!
@@ -56,7 +56,7 @@ namespace Razix {
             inline RZHandle<T>& getHandle() { return m_Handle; }
             inline void         setHandle(const RZHandle<T>& handle) { m_Handle = handle; }
 
-            inline RZUUID&     getUUID() { return m_UUID; }
+            inline RZUUID& getUUID() { return m_UUID; }
 
         protected:
             rzstl::ReferenceCounter m_AtomicRefCounter;

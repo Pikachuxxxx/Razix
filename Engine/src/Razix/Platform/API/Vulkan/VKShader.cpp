@@ -185,6 +185,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            bool potentiallyBindless = false;
+
             // Reflect the SPIR-V shader to extract all the necessary information
             for (const auto& spvSource: m_ParsedRZSF) {
                 std::string outPath, virtualPath;
@@ -295,7 +297,7 @@ namespace Razix {
                     // Which means each descriptor set (i.e. for a given set ID) it stores a list of binding layouts in a map
                     VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
                     setLayoutBindingInfo.binding                      = descriptor.binding;
-                    setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
+                    setLayoutBindingInfo.descriptorCount              = descriptor.count;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                     setLayoutBindingInfo.descriptorType               = (VkDescriptorType) descriptor.descriptor_type;
                     setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(spvSource.first);
 
@@ -305,9 +307,12 @@ namespace Razix {
                     // -->Also store all this data for the engine as well.
                     RZDescriptorLayoutBinding bindingInfo{};
                     bindingInfo.binding = descriptor.binding;
-                    bindingInfo.count   = 1;
+                    bindingInfo.count   = descriptor.count;
                     bindingInfo.type    = VKToEngineDescriptorType(descriptor.descriptor_type);
                     bindingInfo.stage   = spvSource.first;
+
+                    if (descriptor.count == 1024)
+                        potentiallyBindless = true;
 
                     rzDescriptor->bindingInfo = bindingInfo;
                     rzDescriptor->name        = descriptor.name;
@@ -412,14 +417,35 @@ namespace Razix {
             pipelineLayoutCreateInfo.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             pipelineLayoutCreateInfo.setLayoutCount             = static_cast<u32>(descriptorLayouts.size());
             pipelineLayoutCreateInfo.pSetLayouts                = descriptorLayouts.data();
-
-            pipelineLayoutCreateInfo.pushConstantRangeCount = u32(m_VKPushConstants.size());
-            pipelineLayoutCreateInfo.pPushConstantRanges    = m_VKPushConstants.data();
+            pipelineLayoutCreateInfo.pushConstantRangeCount     = u32(m_VKPushConstants.size());
+            pipelineLayoutCreateInfo.pPushConstantRanges        = m_VKPushConstants.data();
 
             if (VK_CHECK_RESULT(vkCreatePipelineLayout(VKDevice::Get().getDevice(), &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &m_PipelineLayout)))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create pipeline layout!");
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
+
+            // Replace the Set a index BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START with the bindless set layout
+            if (potentiallyBindless) {
+                m_PerSetLayouts[1] = VKDevice::Get().getBindlessSetLayout();
+
+                std::vector<VkDescriptorSetLayout> descriptorLayoutsBindless;
+                for (std::map<u32, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {
+                    descriptorLayoutsBindless.push_back(it->second);
+                }
+
+                pipelineLayoutCreateInfo                        = {};
+                pipelineLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+                pipelineLayoutCreateInfo.setLayoutCount         = static_cast<u32>(descriptorLayoutsBindless.size());
+                pipelineLayoutCreateInfo.pSetLayouts            = descriptorLayoutsBindless.data();
+                pipelineLayoutCreateInfo.pushConstantRangeCount = u32(m_VKPushConstants.size());
+                pipelineLayoutCreateInfo.pPushConstantRanges    = m_VKPushConstants.data();
+
+                if (VK_CHECK_RESULT(vkCreatePipelineLayout(VKDevice::Get().getDevice(), &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &m_PipelineLayout)))
+                    RAZIX_CORE_ERROR("[Vulkan] Failed to create bindless pipeline layout!");
+                else
+                    RAZIX_CORE_TRACE("[Vulkan] Successfully created bindless pipeline layout!");
+            }
 
             for (sz i = 0; i < descriptorLayouts.size(); i++)
                 vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), descriptorLayouts[i], nullptr);

@@ -129,20 +129,11 @@ namespace Razix {
                     auto        frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
                     static bool updatedSets     = false;
                     if (!updatedSets) {
-                        RZDescriptor descriptor{};
-                        descriptor.offset              = 0;
-                        descriptor.size                = sizeof(GPUFrameData);
-                        descriptor.bindingInfo.binding = 0;
-                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                        descriptor.uniformBuffer       = frameDataBuffer;
-                        m_FrameDataSet                 = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("FrameDataSet GBuffer"));
-
                         updatedSets = true;
                     }
 
                     // Use scene to draw geometry
-                    scene->drawScene(m_Pipeline, m_FrameDataSet, nullptr);
+                    scene->drawScene(m_Pipeline);
 
                     RAZIX_MARK_END();
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
