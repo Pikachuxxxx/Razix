@@ -9,6 +9,27 @@ namespace Razix {
 
         class RZShader;
 
+        enum class ShaderBuiltin : u32
+        {
+            Default,
+            Skybox,
+            ProceduralSkybox,
+            PBR,
+            PBRIBL,
+            PBRDeferredLighting,
+            GBuffer,
+            Composition,
+            ShadowMapping,
+            CSM,
+            ImGui,
+            EnvToCubemap,
+            GenerateIrradianceMap,
+            GeneratePreFilteredMap,
+            DebugPoint,
+            DebugLine,
+            BUILTIN_SHADERS_COUNT
+        };
+
         /**
          * Manages the shaders instances and loads them nicely and gives their references all over the engine
          */
@@ -23,13 +44,12 @@ namespace Razix {
             /* Shuts down the Shader Library releases all the shaders held by it */
             void ShutDown();
 
-            void      loadShader(std::string shaderPath);
-            RZShader* getShader(std::string shaderName);
+            void loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath);
+            // TODO:Return a ShaderHandle instead
+            RZShader* getBuiltInShader(ShaderBuiltin builtInShaderName);
 
         public:
-            // TODO: well... to be more robust use the UUID to find the RZShader as a RZAsset, this is a discussion for another day
-            // TODO: Use a packed dynamic memory pool similar to Sentinel Engine
-            std::vector<RZShader*> m_Shaders;
+            std::unordered_map<ShaderBuiltin, RZShader*> m_Shaders;
         };
     }    // namespace Graphics
 }    // namespace Razix

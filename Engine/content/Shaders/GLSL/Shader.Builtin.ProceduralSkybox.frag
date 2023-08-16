@@ -9,8 +9,11 @@
  #extension GL_ARB_shading_language_420pack : enable
  //------------------------------------------------------------------------------
  // Includes
- #include <Lighting/ShaderInclude.Builtin.VolumetricClouds.glsl>
- //------------------------------------------------------------------------------
+ // Bindless Textures
+#define ENABLE_BINDLESS 1
+#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+#include <Lighting/ShaderInclude.Builtin.VolumetricClouds.glsl>
+//------------------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Shader Toy Source : https://www.shadertoy.com/view/tltGDM
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +85,7 @@ layout(location = 0) in VSOutput
 //------------------------------------------------------------------------------
 layout (push_constant) uniform PushConstantData{
     vec3 WorldSpaceLightPos;
+    uint noiseTexIdx;
 }pc_data;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
@@ -182,6 +186,9 @@ vec4 ProceduralSkybox(vec3 ro, vec3 rd)
 //------------------------------------------------------------------------------
 void main()
 {
+    // Load the noise texture
+    NoiseTexIdx = pc_data.noiseTexIdx;
+
     vec3 ro = vec3 (0.,0.,0.);
 	vec3 rd = normalize(fs_in.fragLocalPos);
     vec4 proceduralSkyBoxColor = ProceduralSkybox(ro, rd);

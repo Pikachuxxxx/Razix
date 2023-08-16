@@ -10,8 +10,9 @@
 #define GLOBAL_BINDLESS_STORAGE_TEXTURES_BINDING_IDX        (BINDLESS_RESOURCES_START_IDX + 1)
 #define GLOBAL_BINDLESS_UNIFORM_BUFFERS_BINDING_IDX         (BINDLESS_RESOURCES_START_IDX + 2)
 
+#ifndef SET_IDX_BINDLESS_RESOURCES_START
 #define SET_IDX_BINDLESS_RESOURCES_START                    1
-
+#endif
 
 //------------------------------------------------------------------------------
 // Alias textures to use the same binding point, as bindless texture is shared
@@ -28,6 +29,6 @@ layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_TEXTU
 // Bindless support
 // Enable non uniform qualifier extension
 #extension GL_EXT_nonuniform_qualifier : enable
-// Usage : global_textures[nonuniformEXT(idx)]
+// Usage : global_textures_xx[nonuniformEXT(idx)]
 
 #endif

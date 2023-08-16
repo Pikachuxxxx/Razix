@@ -10,7 +10,7 @@
 
 //------------------------------------------------------------------------------
 // Include Files
-#include <Material/Material.glsl>
+#include <Material/ShaderInclude.Builtin.Material.glsl>
 //------------------------------------------------------------------------------
 // Vertex Input
 layout(location = 0) in VSOutput

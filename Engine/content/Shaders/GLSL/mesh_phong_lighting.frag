@@ -8,8 +8,8 @@
  // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
  #extension GL_ARB_shading_language_420pack : enable
 
-#include <Material/Material.glsl>
-#include <Lighting/Light.glsl>
+#include <Material/ShaderInclude.Builtin.Material.glsl>
+#include <Lighting/ShaderInclude.Builtin.Light.glsl>
 #include <FX/tonemapping.glsl>
 
  #define SHADOW_MAP_CASCADE_COUNT 4

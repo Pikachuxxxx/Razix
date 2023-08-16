@@ -87,7 +87,7 @@ namespace Razix {
 
         ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
         {
-            auto shader = RZShaderLibrary::Get().getShader("RSM.rzsf");
+            auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
             // Create the command buffers
             m_RSMCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
@@ -137,10 +137,10 @@ namespace Razix {
 
                     data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", CAST_TO_FG_TEX_DESC textureDesc);
 
-                    textureDesc.name   = "RSM/Depth";
-                    textureDesc.format = RZTextureProperties::Format::DEPTH32F;
+                    textureDesc.name      = "RSM/Depth";
+                    textureDesc.format    = RZTextureProperties::Format::DEPTH32F;
                     textureDesc.filtering = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
-                    textureDesc.type   = RZTextureProperties::Type::Texture_Depth;
+                    textureDesc.type      = RZTextureProperties::Type::Texture_Depth;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);
 
@@ -258,7 +258,7 @@ namespace Razix {
             // FIXME!!!: invert the RT as vulkan need inverted Y
 
             // Load the shader properly
-            auto shader = RZShaderLibrary::Get().getShader("lpv_radiance_injection.rzsf");
+            auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
             // Get the setinfo ==> allocate UBOs and Textures and bind them to the descriptor sets
             m_RadianceInjectionUBO = RZUniformBuffer::Create(sizeof(RadianceInjectionUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("RI UBO"));
@@ -406,7 +406,7 @@ namespace Razix {
         LightPropagationVolumesData RZGIPass::addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, u32 propagationIdx)
         {
             // First order of business get the shader
-            auto shader = RZShaderLibrary::Get().getShader("lpv_radiance_propagation.rzsf");
+            auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
             // Get the setinfo ==> allocate UBOs and Textures and bind them to the descriptor sets
             m_RadiancePropagationUBO = RZUniformBuffer::Create(sizeof(RadiancePropagationUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("RPropagation UBO"));
 

@@ -13,7 +13,9 @@
 namespace Razix {
     namespace Graphics {
 
-        // TODO: Add bind method to RZUniformBuffer
+        class RZDescriptorSet;
+
+        // TODO: TEST - Add bind method to RZUniformBuffer with ownership of RZDescriptorSet which will be bound
         /* Uniform Buffer that contains various kinds of data such as animation, lighting etc and can be passed to the shader stages */
         class RAZIX_API RZUniformBuffer : public RZRoot
         {
@@ -33,7 +35,7 @@ namespace Razix {
             /* Initializes the uniform buffer */
             virtual void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
             /* Binds the buffer to the pipeline (relevant for DX and GL) */
-            virtual void Bind() = 0;
+            virtual void Bind(/*RZPipeline* pipeline, RZCommandBuffer& cmdBuffer*/) = 0;
             /**
              * Sets the data contents of the uniform buffer
              * 
@@ -43,6 +45,11 @@ namespace Razix {
             virtual void SetData(u32 size, const void* data) = 0;
             /* Destroys the uniform buffer and frees the buffer and other resources it's holds such as memory etc. */
             virtual void Destroy() = 0;
+
+            // virtual void GenerateDescriptorSet() = 0;
+
+        protected:
+            RZDescriptorSet* m_DescriptorSet = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

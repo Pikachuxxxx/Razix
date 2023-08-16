@@ -40,8 +40,8 @@ namespace Razix {
             auto& bloomMipData = blackboard.add<BloomPassData>();
 
             // Create GPU resources
-            auto upsamplingShader   = RZShaderLibrary::Get().getShader("bloom_upsample.rzsf");
-            auto downsamplingShader = RZShaderLibrary::Get().getShader("bloom_downsample.rzsf");
+            auto upsamplingShader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
+            auto downsamplingShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
             RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
@@ -98,7 +98,7 @@ namespace Razix {
                 upsamplebBloomGpuResources[mipindex].cmdBuffers.push_back(cmdBuffer);
             }
 
-            auto upsamplingShader = RZShaderLibrary::Get().getShader("bloom_upsample.rzsf");
+            auto upsamplingShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
             auto setInfos         = upsamplingShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -148,7 +148,7 @@ namespace Razix {
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
                     if (!updatedRT) {
-                        auto setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_upsample.rzsf")->getSetsCreateInfos();
+                        auto setInfos = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
@@ -175,7 +175,7 @@ namespace Razix {
                     //-----------------------------
                     // Get the shader from the Mesh Material later
                     // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                    auto& upsampleData = Graphics::RZShaderLibrary::Get().getShader("bloom_upsample.rzsf")->getPushConstants()[0];
+                    auto& upsampleData = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default)->getPushConstants()[0];
 
                     struct PCD
                     {
@@ -220,7 +220,7 @@ namespace Razix {
                 downsamplebBloomGpuResources[mipindex].cmdBuffers.push_back(cmdBuffer);
             }
 
-            auto downsamplingShader = RZShaderLibrary::Get().getShader("bloom_downsample.rzsf");
+            auto downsamplingShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
             auto setInfos           = downsamplingShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -270,7 +270,7 @@ namespace Razix {
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
                     if (!updatedRT) {
-                        auto setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_downsample.rzsf")->getSetsCreateInfos();
+                        auto setInfos = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
@@ -297,7 +297,7 @@ namespace Razix {
                     //-----------------------------
                     // Get the shader from the Mesh Material later
                     // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                    auto& downsampleData = Graphics::RZShaderLibrary::Get().getShader("bloom_downsample.rzsf")->getPushConstants()[0];
+                    auto& downsampleData = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default)->getPushConstants()[0];
 
                     struct PCD
                     {
@@ -333,7 +333,7 @@ namespace Razix {
                 bloomSceneMixGpuResources.cmdBuffers.push_back(cmdBuffer);
             }
 
-            auto downsamplingShader = RZShaderLibrary::Get().getShader("bloom_mix.rzsf");
+            auto downsamplingShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
             auto setInfos           = downsamplingShader->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -344,7 +344,7 @@ namespace Razix {
                 bloomSceneMixGpuResources.bloomDescSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom mix Set")));
             }
 
-            auto bloomMixShader = RZShaderLibrary::Get().getShader("bloom_mix.rzsf");
+            auto bloomMixShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
             RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
@@ -389,7 +389,7 @@ namespace Razix {
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
                     if (!updatedRT) {
-                        auto setInfos = Graphics::RZShaderLibrary::Get().getShader("bloom_mix.rzsf")->getSetsCreateInfos();
+                        auto setInfos = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.binding == 0)
@@ -417,7 +417,7 @@ namespace Razix {
                     //-----------------------------
                     // Get the shader from the Mesh Material later
                     // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                    auto& bloomData = Graphics::RZShaderLibrary::Get().getShader("bloom_mix.rzsf")->getPushConstants()[0];
+                    auto& bloomData = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default)->getPushConstants()[0];
 
                     struct PCD
                     {

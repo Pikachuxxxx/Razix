@@ -74,7 +74,7 @@ namespace Razix {
             // Lights UBO
             m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
 
-            auto shader   = RZShaderLibrary::Get().getShader("DeferredTiledLighting.rzsf");
+            auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
             auto setInfos = shader->getSetsCreateInfos();
 
             RZPipelineDesc info{};
@@ -100,10 +100,10 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     // Reads
-                    builder.read(gBuffer.Normal_PosX);
+                    /*      builder.read(gBuffer.Normal_PosX);
                     builder.read(gBuffer.Albedo_PosY);
                     builder.read(gBuffer.Emissive_PosZ);
-                    builder.read(gBuffer.MetRougAOAlpha);
+                    builder.read(gBuffer.MetRougAOAlpha);*/
                     builder.read(gBuffer.Depth);
 
                     builder.read(brdf.lut);
@@ -170,6 +170,7 @@ namespace Razix {
                     m_LightDataUBO->SetData(sizeof(GPULightsData), &m_GPULightData);
 
                     // Update the Sets only once on first frame to get runtime framegraph resources
+#if 0
                     static bool setsUpdated   = false;
                     static bool didCreateOnce = false;
                     if (!setsUpdated) {
@@ -244,7 +245,6 @@ namespace Razix {
                         setsUpdated = true;
                     }
 
-#if 0
                     // Update the second set
                     for (auto set: setInfos) {
                         if (set.first == 1) {

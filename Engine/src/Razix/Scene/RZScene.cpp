@@ -146,11 +146,12 @@ namespace Razix {
                 glm::mat4 mat;
             } pcData{};
             pcData.mat         = transform;
-            modelMatrixPC.data = &pcData;
-            if (sceneDrawParams.overridePushConstantData != nullptr)
-                modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
             modelMatrixPC.size = sizeof(PCD);
-
+            modelMatrixPC.data = &pcData;
+            if (sceneDrawParams.overridePushConstantData != nullptr) {
+                modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
+                modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
+            }
             Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
             //-----------------------------
             Graphics::RZMaterial* mat = nullptr;

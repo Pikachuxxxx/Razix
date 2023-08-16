@@ -33,11 +33,7 @@ namespace Razix {
 
         private:
             RZMesh*                    m_ScreenQuadMesh = nullptr;
-            Graphics::RZDescriptorSet* m_DescriptorSet;
             RZPipeline*                m_Pipeline;
-
-        private:
-            void init();
         };
     }    // namespace Graphics
 }    // namespace Razix

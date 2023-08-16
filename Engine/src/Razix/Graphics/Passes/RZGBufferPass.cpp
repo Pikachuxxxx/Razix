@@ -39,7 +39,7 @@ namespace Razix {
         void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // First order of business get the shader
-            auto shader = RZShaderLibrary::Get().getShader("gbuffer_pass.rzsf");
+            auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
@@ -51,7 +51,6 @@ namespace Razix {
             pipelineInfo.depthTestEnabled    = true;
             // Using 32 bit f32ing point formats to support HDR colors
             pipelineInfo.colorAttachmentFormats = {
-                Graphics::RZTextureProperties::Format::RGBA32F,
                 Graphics::RZTextureProperties::Format::RGBA32F,
                 Graphics::RZTextureProperties::Format::RGBA32F,
                 Graphics::RZTextureProperties::Format::RGBA32F};
@@ -67,25 +66,21 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc gbufferTexturesDesc{
-                        .name   = "Normal_PosX",
+                        .name   = "Normal_Metallic",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
                         .type   = RZTextureProperties::Type::Texture_2D,
                         .format = RZTextureProperties::Format::RGBA32F};
 
-                    data.Normal_PosX = builder.create<FrameGraph::RZFrameGraphTexture>("Normal_PosX", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.Normal_Metallic = builder.create<FrameGraph::RZFrameGraphTexture>("Normal_Metallic", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name = "Albedo_PosY";
+                    gbufferTexturesDesc.name = "Albedo_Roughness";
 
-                    data.Albedo_PosY = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo_PosY", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.Albedo_Roughness = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo_Roughness", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name = "Emissive_PosZ";
+                    gbufferTexturesDesc.name = "Position_AO";
 
-                    data.Emissive_PosZ = builder.create<FrameGraph::RZFrameGraphTexture>("Emissive_PosZ", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
-
-                    gbufferTexturesDesc.name = "MetRougAOAlpha";
-
-                    data.MetRougAOAlpha = builder.create<FrameGraph::RZFrameGraphTexture>("MetRougAOAlpha", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.Position_AO = builder.create<FrameGraph::RZFrameGraphTexture>("Position_AO", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name      = "Depth";
                     gbufferTexturesDesc.format    = RZTextureProperties::Format::DEPTH32F;
@@ -94,11 +89,10 @@ namespace Razix {
 
                     data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.Normal_PosX    = builder.write(data.Normal_PosX);
-                    data.Albedo_PosY    = builder.write(data.Albedo_PosY);
-                    data.Emissive_PosZ  = builder.write(data.Emissive_PosZ);
-                    data.MetRougAOAlpha = builder.write(data.MetRougAOAlpha);
-                    data.Depth          = builder.write(data.Depth);
+                    data.Normal_Metallic  = builder.write(data.Normal_Metallic);
+                    data.Albedo_Roughness = builder.write(data.Albedo_Roughness);
+                    data.Position_AO      = builder.write(data.Position_AO);
+                    data.Depth            = builder.write(data.Depth);
 
                     builder.read(frameDataBlock.frameData);
                 },
@@ -112,11 +106,9 @@ namespace Razix {
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_PosX).getHandle(), {true, glm::vec4(0.0f)}},       // location = 0
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_PosY).getHandle(), {true, glm::vec4(0.0f)}},       // location = 1
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Emissive_PosZ).getHandle(), {true, glm::vec4(0.0f)}},     // location = 2
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.MetRougAOAlpha).getHandle(), {true, glm::vec4(0.0f)}},    // location = 3
-
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_Metallic).getHandle(), {true, glm::vec4(0.0f)}},     // location = 0
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_Roughness).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Position_AO).getHandle(), {true, glm::vec4(0.0f)}},         // location = 2
                         },
                         .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}},
                         .resize          = false};
@@ -125,15 +117,8 @@ namespace Razix {
 
                     m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
 
-                    // Set the Descriptor Set once rendering starts
-                    auto        frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameDataBlock.frameData).getHandle();
-                    static bool updatedSets     = false;
-                    if (!updatedSets) {
-                        updatedSets = true;
-                    }
-
                     // Use scene to draw geometry
-                    scene->drawScene(m_Pipeline);
+                    scene->drawScene(m_Pipeline, {.disableLights = true});
 
                     RAZIX_MARK_END();
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());

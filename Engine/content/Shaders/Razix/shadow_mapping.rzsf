@@ -1,17 +1,17 @@
 /*
- * Razix Shader File 
- * shadow_mapping.rzsf : Generate Shadow Depth Map
+ * Razix Shader File (Builtin Shader)
+ * Shader.Builtin.ShadowMapping.rzsf : Generate Shadow Depth Map
  * Copyright Razix Engine 2023 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/depth_pass.vert.spv
+        #include Compiled/SPIRV/Shader.Builtin.DepthPass.vert.spv
     #endif
 #end
 
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/depth_pass.frag.spv
+        #include Compiled/SPIRV/Shader.Builtin.DepthPass.frag.spv
     #endif
 #end

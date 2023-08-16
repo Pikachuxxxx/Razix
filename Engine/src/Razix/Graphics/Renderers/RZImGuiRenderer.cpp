@@ -52,7 +52,7 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Load the ImGui shaders
-            m_OverrideGlobalRHIShader = RZShaderLibrary::Get().getShader("imgui.rzsf");
+            m_OverrideGlobalRHIShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ImGui);
 
             // Configure ImGui
             // Setup Dear ImGui context

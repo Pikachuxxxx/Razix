@@ -21,12 +21,14 @@ namespace Razix {
 
     struct SceneDrawParams
     {
-        bool             disableFrameData         = false;
-        bool             disableBindlessTextures  = false;
-        bool             disableLights            = false;
-        bool             disableMaterials         = false;
-        RZDescriptorSets userSets                 = {};
-        void*            overridePushConstantData = nullptr;
+        bool             disableFrameData             = false;
+        bool             disableBindlessTextures      = false;
+        bool             disableLights                = false;
+        bool             disableMaterials             = false;
+        RZDescriptorSets userSets                     = {};
+        void*            overridePushConstantData     = nullptr;
+        u32              overridePushConstantDataSize = 0;
+        // TODO: Add support for Pixel PC data
     };
 
     /**

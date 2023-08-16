@@ -14,6 +14,7 @@
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
 #include "Razix/Graphics/Passes/RZPBRLightingPass.h"
+#include "Razix/Graphics/Passes/RZShadowPass.h"
 #include "Razix/Graphics/Passes/RZSkyboxPass.h"
 
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
@@ -22,7 +23,6 @@
 #include "Razix/Graphics/Renderers/RZCascadedShadowsRenderer.h"
 #include "Razix/Graphics/Renderers/RZForwardRenderer.h"
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
-#include "Razix/Graphics/Renderers/RZShadowRenderer.h"
 
 #include "Razix/Maths/RZGrid.h"
 
@@ -128,7 +128,7 @@ namespace Razix {
             LightProbe      m_GlobalLightProbes{};
             // List of all passes, renderers and data in the frame graph
             RZCascadedShadowsRenderer m_CascadedShadowsRenderer;
-            RZShadowRenderer          m_ShadowRenderer;
+            RZShadowPass              m_ShadowPass;
             RZGIPass                  m_GIPass;
             RZGBufferPass             m_GBufferPass;
             RZDeferredLightingPass    m_DeferredPass;

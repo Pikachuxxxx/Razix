@@ -54,7 +54,7 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRenderer::Init()
         {
-            auto PointShader = Graphics::RZShaderLibrary::Get().getShader("DebugPoint.rzsf");
+            auto PointShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
 
             Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::NONE;
@@ -71,7 +71,7 @@ namespace Razix {
             m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Renderer:: Points pipeline (DT)"));
 
             // Change the polygon mode for drawing lines
-            auto LineShader          = Graphics::RZShaderLibrary::Get().getShader("DebugLine.rzsf");
+            auto LineShader          = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugLine);
             pipelineInfo.shader      = LineShader;
             pipelineInfo.cullMode    = CullMode::NONE;
             pipelineInfo.polygonMode = PolygonMode::FILL;
@@ -121,13 +121,15 @@ namespace Razix {
 
             RAZIX_MARK_BEGIN("Debug Renderer Pass", glm::vec4(0.0f, 0.85f, 0.0f, 1.0f));
 
+            auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+
             // Update the viewport
-            RHI::GetCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
+            cmdBuffer->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // POINTS
             {
                 // Prepare the points VBO and IBO and update them
-                m_PointVBO->Bind(RHI::GetCurrentCommandBuffer());
+                m_PointVBO->Bind(cmdBuffer);
 
                 // Map the VBO
                 m_PointVBO->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
@@ -170,7 +172,7 @@ namespace Razix {
 
             // LINES
             {
-                m_LineVBO->Bind(RHI::GetCurrentCommandBuffer());
+                m_LineVBO->Bind(cmdBuffer);
 
                 m_LineVBO->Map(RENDERER_LINE_SIZE * static_cast<u32>(m_DrawList.m_DebugLines.size()));
                 LineVertexData* lineVtxData = (LineVertexData*) m_LineVBO->GetMappedBuffer();
@@ -198,7 +200,7 @@ namespace Razix {
             {
                 m_Pipeline->Bind(cmdBuffer);
 
-                Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_SYSTEM_START);
+                Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
                 m_PointVBO->Bind(cmdBuffer);
                 m_PointIBO->Bind(cmdBuffer);
@@ -210,7 +212,7 @@ namespace Razix {
             {
                 m_LinePipeline->Bind(cmdBuffer);
 
-                Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_SYSTEM_START);
+                Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
                 m_LineVBO->Bind(cmdBuffer);
                 m_LineIBO->Bind(cmdBuffer);
