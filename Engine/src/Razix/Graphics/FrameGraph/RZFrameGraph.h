@@ -10,7 +10,8 @@ namespace Razix {
 
             /**
              * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
-             * Adapted from EA's Frostbite engine : https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
+             * [Source]: https://github.com/skaarj1989/FrameGraph
+             * Inspired from EA's Frostbite engine : https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
              */
             class RAZIX_API RZFrameGraph
             {

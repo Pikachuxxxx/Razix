@@ -5,21 +5,23 @@
 
 #define MAX_DESCRIPTORS 1024
 
-#define BINDLESS_RESOURCES_START_IDX                        0
-#define GLOBAL_BINDLESS_TEXTURES_BINDING_IDX                BINDLESS_RESOURCES_START_IDX
-#define GLOBAL_BINDLESS_STORAGE_TEXTURES_BINDING_IDX        (BINDLESS_RESOURCES_START_IDX + 1)
-#define GLOBAL_BINDLESS_UNIFORM_BUFFERS_BINDING_IDX         (BINDLESS_RESOURCES_START_IDX + 2)
+#define BINDLESS_RESOURCES_START_IDX                            1
+#define GLOBAL_BINDLESS_TEXTURES_2D_BINDING_IDX                 BINDLESS_RESOURCES_START_IDX
+#define GLOBAL_BINDLESS_TEXTURES_3D_BINDING_IDX                 BINDLESS_RESOURCES_START_IDX + 1
+#define GLOBAL_BINDLESS_TEXTURES_CUBEMAP_BINDING_IDX            BINDLESS_RESOURCES_START_IDX + 2
+//#define GLOBAL_BINDLESS_STORAGE_TEXTURES_BINDING_IDX            BINDLESS_RESOURCES_START_IDX + 3
+#define GLOBAL_BINDLESS_MATERIAL_STORAGE_BUFFERS_BINDING_IDX    BINDLESS_RESOURCES_START_IDX + 3
+#define GLOBAL_BINDLESS_OBJECTDATA_STORAGE_BUFFERS_BINDING_IDX  BINDLESS_RESOURCES_START_IDX + 4
 
 #ifndef SET_IDX_BINDLESS_RESOURCES_START
-#define SET_IDX_BINDLESS_RESOURCES_START                    1
+#define SET_IDX_BINDLESS_RESOURCES_START                        1
 #endif
 
 //------------------------------------------------------------------------------
-// Alias textures to use the same binding point, as bindless texture is shared
-// between all kind of textures: 1d, 2d, 3d and cubeMap
-layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_TEXTURES_BINDING_IDX ) uniform sampler2D global_textures_2d[MAX_DESCRIPTORS];
-layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_TEXTURES_BINDING_IDX ) uniform sampler3D global_textures_3d[MAX_DESCRIPTORS];
-layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_TEXTURES_BINDING_IDX ) uniform samplerCube global_textures_cubemap[MAX_DESCRIPTORS];
+// Texture Pools
+layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_TEXTURES_2D_BINDING_IDX ) uniform sampler2D global_textures_2d[MAX_DESCRIPTORS];
+layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_TEXTURES_3D_BINDING_IDX ) uniform sampler3D global_textures_3d[MAX_DESCRIPTORS];
+layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_TEXTURES_CUBEMAP_BINDING_IDX ) uniform samplerCube global_textures_cubemap[MAX_DESCRIPTORS];
 //------------------------------------------------------------------------------
 //layout ( set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_STORAGE_TEXTURES_BINDING_IDX ) uniform readonly image2D global_storage_textures[MAX_DESCRIPTORS];
 //------------------------------------------------------------------------------

@@ -46,6 +46,8 @@ namespace Razix {
 
             void BindDescriptorSetAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx) override;
 
+            void BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors) override;
+
         private:
             OpenGLContext* m_Context; /* Reference to the opengl context, we store it to avoid multiple calls */
         };

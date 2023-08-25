@@ -18,6 +18,7 @@ static std::vector<cstr> deviceExtensions = {
     "VK_KHR_depth_stencil_resolve",
     "VK_KHR_create_renderpass2",
     VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
+    "VK_KHR_push_descriptor" // On the fly Push Descriptors similar to PushConstants
     //"VK_NV_device_diagnostic_checkpoints"
 };
 

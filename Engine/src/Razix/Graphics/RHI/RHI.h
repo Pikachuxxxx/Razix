@@ -146,6 +146,11 @@ namespace Razix {
                 RAZIX_PROFILE_GPU_SCOPE("Enable Bindless Textures");
                 s_APIInstance->EnableBindlessTexturesImpl(pipeline, cmdBuffer);
             }
+            RAZIX_FORCE_INLINE static void BindPushDescriptors(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("Bind Push Descriptors");
+                s_APIInstance->BindPushDescriptorsImpl(pipeline, cmdBuffer, descriptors);
+            }
 
             RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer)
             {
@@ -180,8 +185,8 @@ namespace Razix {
             virtual void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                       = 0;
             virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                 = 0;
             virtual void BindDescriptorSetAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                = 0;
-            virtual void BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)                            = 0;
-            virtual void BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)                          = 0;
+            virtual void BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)                        = 0;
+            virtual void BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)                      = 0;
             virtual void BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                    = 0;
             virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                            = 0;
             virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0) = 0;
@@ -190,9 +195,9 @@ namespace Razix {
             virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                               = 0;
             virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                = 0;
             virtual void EnableBindlessTexturesImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)                                                                               = 0;
-
-            virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo) = 0;
-            virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                       = 0;
+            virtual void BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                    = 0;
+            virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)                                                                         = 0;
+            virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                                                                                               = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
 

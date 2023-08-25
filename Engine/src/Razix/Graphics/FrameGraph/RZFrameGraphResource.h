@@ -1,6 +1,6 @@
 #pragma once
 
-#pragma once
+// [Source] : https://github.com/skaarj1989/FrameGraph
 
 #include <cstdint>
 

@@ -161,6 +161,11 @@
             throw std::logic_error("The method or operation is not implemented.");
         }
 
+        void GLRenderContext::BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
         void GLRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

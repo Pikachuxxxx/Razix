@@ -7,7 +7,8 @@
 // .r = empty .g = Roughness .b  = Metalness .a = AO
 //----------------------------------------------------------------------------
 // Material Data and maps
-layout(set = 2, binding = 0) uniform Material
+//layout(set = 2, binding = 0) uniform
+struct Material
 {
     vec3  baseColor;
     vec3  normal;
@@ -46,6 +47,12 @@ layout(set = 2, binding = 5) uniform sampler2D specularMap;
 layout(set = 2, binding = 6) uniform sampler2D emissiveMap;
 layout(set = 2, binding = 7) uniform sampler2D aoMap;
 #endif
+//------------------------------------------------------------------------------
+// Material Data [Bindless]
+layout (std140, set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_MATERIAL_STORAGE_BUFFERS_BINDING_IDX ) readonly buffer MaterialBuffer
+{
+    Material materials[];
+}matBuffer;
 //----------------------------------------------------------------------------
 // Helper Functions
 vec3 Mat_getAlbedoColor(vec2 uv)
