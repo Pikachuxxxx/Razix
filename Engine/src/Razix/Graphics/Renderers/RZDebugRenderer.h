@@ -1,6 +1,6 @@
 #pragma once
 
-// Source: https://github.com/jmorton06/Lumos/blob/main/Lumos/Source/Lumos/Graphics/Renderers/DebugRenderer.cpp
+// Modified from Source: https://github.com/jmorton06/Lumos/blob/main/Lumos/Source/Lumos/Graphics/Renderers/DebugRenderer.cpp
 
 #include "Razix/Core/RZSmartPointers.h"
 
@@ -43,22 +43,6 @@ namespace Razix {
                 p1   = pos1;
                 size = s;
                 col  = colour;
-            }
-        };
-
-        struct Triangle
-        {
-            glm::vec3 p1;
-            glm::vec3 p2;
-            glm::vec3 p3;
-            glm::vec4 col;
-
-            Triangle(const glm::vec3& pos1, const glm::vec3& pos2, const glm::vec3& pos3, const glm::vec4& colour)
-            {
-                p1  = pos1;
-                p2  = pos2;
-                p3  = pos3;
-                col = colour;
             }
         };
 
@@ -110,7 +94,7 @@ namespace Razix {
 
             void End() override;
 
-            void Resize(u32 width, u32 height) override;
+            void Resize(u32 width, u32 height) override {}
 
             void Destroy() override;
 
@@ -136,14 +120,6 @@ namespace Razix {
             static void DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour);
             static void DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-#if 0
-            //Draw Matrix (x,y,z axis at pos)
-            static void DrawMatrix(const glm::mat4& transform_mtx);
-            static void DrawMatrix(const glm::mat3& rotation_mtx, const glm::vec3& position);
-            static void DrawMatrixNDT(const glm::mat4& transform_mtx);
-            static void DrawMatrixNDT(const glm::mat3& rotation_mtx, const glm::vec3& position);
-#endif
-
             static void DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
             static void DrawGrid(u32 dimension, const glm::vec4& colour);
 
@@ -163,23 +139,21 @@ namespace Razix {
             static void GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
             static void GenDrawThickLine(bool dt, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour);
             static void GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
-            static void GenDrawTriangle(bool dt, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec4& colour);
 
         private:
             static RZDebugRenderer* s_Instance;
 
             struct DebugDrawList
             {
-                std::vector<Triangle> m_DebugTriangles;
-                std::vector<Line>     m_DebugLines;
-                std::vector<Point>    m_DebugPoints;
-                std::vector<Line>     m_DebugThickLines;
+                std::vector<Line>  m_DebugLines;
+                std::vector<Point> m_DebugPoints;
+                std::vector<Line>  m_DebugThickLines;
             };
 
             DebugDrawList m_DrawList;
             DebugDrawList m_DrawListNDT;
 
-            RZPipeline*      m_LinePipeline = nullptr;
+            RZPipeline* m_LinePipeline = nullptr;
 
             // VBs and IBs
             RZIndexBuffer*  m_PointIBO        = nullptr;
