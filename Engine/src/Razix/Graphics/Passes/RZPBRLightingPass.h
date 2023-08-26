@@ -7,7 +7,7 @@ namespace Razix {
 
         class RZMesh;
 
-        // FIZME: The dot artifact is due to Filtering Mode make, verify them and they will go away
+        // FIXME: The dot artifact is due to Filtering Mode stuff, mips gen + accessing in pre-filterring stage, specular IBL stuff needs to be fixed properly!
 
         class RZPBRLightingPass : public IRZPass
         {
@@ -21,9 +21,8 @@ namespace Razix {
 
         private:
             RZPipeline*      m_Pipeline;
-            RZDescriptorSet* m_ShadowDataSet;
-            RZDescriptorSet* m_PBRDataSet;
-            RZDescriptorSet* m_GBufferDataSet;
+            RZUniformBuffer* m_PBRPassBindingUBO;
+            RZDescriptorSet* m_PBRBindingSet;
             RZMesh*          m_ScreenQuadMesh = nullptr;
         };
     }    // namespace Graphics

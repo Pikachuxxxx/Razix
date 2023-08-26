@@ -144,7 +144,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            u32 numDesciptorSets         = 0;
+            u32 numDesciptorSets = 0;
 
             for (auto descriptorSet: descriptorSets) {
                 if (descriptorSet) {
@@ -160,7 +160,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            u32 numDesciptorSets         = 0;
+            u32 numDesciptorSets = 0;
 
             for (u32 i = 0; i < totalSets; i++) {
                 auto set = descriptorSets[i];
@@ -292,6 +292,20 @@ namespace Razix {
             if (func != nullptr)
                 func(static_cast<VKCommandBuffer*>(cmdbuffer)->getBuffer(), markerData);
 #endif
+        }
+
+        void VKRenderContext::BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD
+
+            std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+
+            for (auto& desc: descriptors) {
+                VkWriteDescriptorSet writeSet{};
+
+                writeDescriptorSets.push_back(writeSet);
+            }
+            vkCmdPushDescriptorSetKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
         void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)

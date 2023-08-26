@@ -1,0 +1,17 @@
+/*
+ * Razix Shader File 
+ * Shader.Builtin.DebugPoint.rzsf : Debug shader to draw lines in the scene
+ * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/Shader.Builtin.DebugLine.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/Shader.Builtin.DebugLine.frag.spv
+    #endif
+#end

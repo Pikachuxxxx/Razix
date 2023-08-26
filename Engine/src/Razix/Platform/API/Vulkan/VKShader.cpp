@@ -9,6 +9,8 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
+#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+
 #include "Razix/Utilities/RZStringUtilities.h"
 
 #include <SPIRVReflect/common/output_stream.h>
@@ -427,7 +429,7 @@ namespace Razix {
 
             // Replace the Set a index BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START with the bindless set layout
             if (potentiallyBindless) {
-                m_PerSetLayouts[1] = VKDevice::Get().getBindlessSetLayout();
+                m_PerSetLayouts[BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START] = VKDevice::Get().getBindlessSetLayout();
 
                 std::vector<VkDescriptorSetLayout> descriptorLayoutsBindless;
                 for (std::map<u32, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {

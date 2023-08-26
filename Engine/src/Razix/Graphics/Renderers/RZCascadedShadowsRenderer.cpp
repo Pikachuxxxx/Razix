@@ -266,7 +266,7 @@ namespace Razix {
             }
 
             // Load the shader
-            auto shader   = RZShaderLibrary::Get().getShader("cascaded_shadow_maps.rzsf");
+            auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::CSM);
             auto setInfos = shader->getSetsCreateInfos();
 
             cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ModelViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));

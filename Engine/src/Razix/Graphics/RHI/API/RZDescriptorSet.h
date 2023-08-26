@@ -95,9 +95,11 @@ namespace Razix {
             RZUniformBuffer*                      uniformBuffer = nullptr;
             RZTextureHandle                       texture;
             std::vector<RZShaderBufferMemberInfo> uboMembers;
-            u32                                   size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
-            u32                                   offset = 0;    //? I don't think this is needed
             RZDescriptorLayoutBinding             bindingInfo;
+            ///////////////////////////////////////////////////
+            // NOT USED, ONLY FOR REFLECTION VERIFICATION WITH THE BINDING RESOURCE
+            u32 size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
+            u32 offset = 0;    //? I don't think this is needed
         };
 
         struct RAZIX_MEM_ALIGN RZPushConstant : public RZRoot

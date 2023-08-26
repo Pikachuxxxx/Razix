@@ -19,7 +19,7 @@
 #include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Graphics/Lighting/RZIBL.h"
+#include "Razix/Graphics/Lighting/RZImageBasedLightingProbesManager.h"
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
@@ -48,9 +48,9 @@ namespace Razix {
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
-            m_GlobalLightProbes.skybox   = RZIBL::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
-            m_GlobalLightProbes.diffuse  = RZIBL::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular = RZIBL::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
+            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
             importGlobalLightProbes(m_GlobalLightProbes);
 
@@ -104,13 +104,12 @@ namespace Razix {
             //-------------------------------
             // GBuffer Pass
             //-------------------------------
-            //m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [Test] Simple Shadow map Pass
             //-------------------------------
-            m_ShadowRenderer.Init();
-            m_ShadowRenderer.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            m_ShadowPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
 #if 0
             //-------------------------------
@@ -129,8 +128,7 @@ namespace Razix {
             // [Test] Forward Lighting Pass
             //-------------------------------
             auto& frameDataBlock = m_Blackboard.get<FrameData>();
-            //const ShadowMapData& cascades       = m_Blackboard.get<ShadowMapData>(); // Cascaded Shadow Map Data
-            auto& shadowData = m_Blackboard.get<SimpleShadowPassData>();
+            auto& shadowData     = m_Blackboard.get<SimpleShadowPassData>();
 
 #if 0
             m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
@@ -291,11 +289,13 @@ namespace Razix {
                         .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
                         .resize           = true};
 
-                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
+                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    RZDebugRenderer::Get()->Draw(RHI::GetCurrentCommandBuffer());
+                    RHI::BeginRendering(cmdBuffer, info);
 
-                    RHI::EndRendering(Graphics::RHI::GetCurrentCommandBuffer());
+                    RZDebugRenderer::Get()->Draw(cmdBuffer);
+
+                    RHI::EndRendering(cmdBuffer);
 
                     RZDebugRenderer::Get()->End();
                 });
@@ -319,6 +319,7 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+#if 0
                     m_ImGuiRenderer.Begin(scene);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
@@ -335,6 +336,7 @@ namespace Razix {
                     m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
+#endif
                 });
 
             //-------------------------------
@@ -405,7 +407,6 @@ namespace Razix {
             // Destroy Renderers
             //m_ForwardRenderer.Destroy();
             //m_CascadedShadowsRenderer.Destroy();
-            m_ShadowRenderer.Destroy();
             m_ImGuiRenderer.Destroy();
             RZDebugRenderer::Get()->Destroy();
 
@@ -413,6 +414,7 @@ namespace Razix {
             m_PBRLightingPass.destroy();
             m_SkyboxPass.destroy();
             m_CompositePass.destroy();
+            m_ShadowPass.destroy();
             //m_GIPass.destroy();
             //m_GBufferPass.destroy();
 
@@ -482,8 +484,6 @@ namespace Razix {
 
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
-                        descriptor.offset              = 0;
-                        descriptor.size                = sizeof(GPUFrameData);
                         descriptor.bindingInfo.binding = 0;
                         descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
@@ -529,8 +529,6 @@ namespace Razix {
 
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};
-                        lightsData_descriptor.offset              = 0;
-                        lightsData_descriptor.size                = sizeof(GPULightsData);
                         lightsData_descriptor.bindingInfo.binding = 0;
                         lightsData_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         lightsData_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;

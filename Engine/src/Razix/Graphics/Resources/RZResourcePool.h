@@ -4,6 +4,8 @@
 
 #include "Internal/RazixMemory/include/Allocators/RZHeapAllocator.h"
 
+// [Source] : https://github.com/PacktPublishing/Mastering-Graphics-Programming-with-Vulkan/blob/2ad4e94a0e003d37dd3dbef46cc033a483f133d6/source/raptor/foundation/data_structures.hpp
+
 namespace Razix {
     namespace Graphics {
 

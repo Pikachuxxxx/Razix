@@ -45,7 +45,7 @@ namespace Razix {
             // This is a override shader that won't be used
             // Giving the shader to the renderer is not something I can think will be useful I think material will decide that
             // So what does the renderer do then? it's job is to enforce some rules on the shader (on the UBO data and samplers) and it handles how it updates the data in a way that is appropriate for that renderer to operate
-            m_OverrideGlobalRHIShader = Graphics::RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
+            m_OverrideGlobalRHIShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
 
             // FrameBlock Descriptor Set
 

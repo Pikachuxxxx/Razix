@@ -141,7 +141,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
 
-                auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
+                auto        shader                  = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -274,7 +274,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
 
-                auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
+                auto        shader                  = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -349,7 +349,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(vb, ib, static_cast<u32>(data.size()), static_cast<u32>(indices.size()));
 
-                auto        shader                  = Graphics::RZShaderLibrary::Get().getShader("pbr_ibl_lighting.rzsf");
+                auto        shader                  = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
@@ -385,7 +385,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
                 // Set the material
-                auto shader = Graphics::RZShaderLibrary::Get().getShader("composite_pass.rzsf");
+                auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition);
 
                 RZMaterial* compositePassMaterial = new RZMaterial(shader);
                 compositePassMaterial->createDescriptorSet();

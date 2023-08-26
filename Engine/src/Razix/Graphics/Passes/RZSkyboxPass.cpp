@@ -37,8 +37,8 @@ namespace Razix {
 
         void RZSkyboxPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
-            auto skyboxShader           = RZShaderLibrary::Get().getShader("Shader.Builtin.Skybox.rzsf");
-            auto proceduralSkyboxShader = RZShaderLibrary::Get().getShader("Shader.Builtin.ProceduralSkybox.rzsf");
+            auto skyboxShader           = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Skybox);
+            auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ProceduralSkybox);
 
             Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
@@ -95,44 +95,26 @@ namespace Razix {
 
                     RHI::BeginRendering(cmdBuffer, info);
 
-                    // Set the Descriptor Set once rendering starts
-                    static bool updatedSets = false;
-                    if (!updatedSets) {
-                        auto envMap = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle();
-
-                        RZDescriptor lightProbes_descriptor{};
-                        lightProbes_descriptor.bindingInfo.binding = 0;
-                        lightProbes_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        lightProbes_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        lightProbes_descriptor.texture             = envMap;
-
-                        m_LightProbesDescriptorSet = RZDescriptorSet::Create({lightProbes_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Env Map - Skybox"));
-
-                        auto noiseTexture = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle();
-
-                        RZDescriptor volumetric_descriptor{};
-                        volumetric_descriptor.bindingInfo.binding = 0;
-                        volumetric_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        volumetric_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        volumetric_descriptor.texture             = noiseTexture;
-
-                        m_VolumetricDescriptorSet = RZDescriptorSet::Create({volumetric_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Volumetric"));
-
-                        updatedSets = true;
-                    }
-
-                    if (!m_UseProceduralSkybox)
+                    if (!m_UseProceduralSkybox) {
                         m_Pipeline->Bind(cmdBuffer);
-                    else
-                        m_ProceduralPipeline->Bind(cmdBuffer);
+                        Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+                        RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
+                    } else {
+                        Graphics::RHI::BindDescriptorSet(m_ProceduralPipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+                        RHI::EnableBindlessTextures(m_ProceduralPipeline, cmdBuffer);
+                    }
 
                     m_SkyboxCube->getIndexBuffer()->Bind(cmdBuffer);
                     m_SkyboxCube->getVertexBuffer()->Bind(cmdBuffer);
 
-                    RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_SYSTEM_START);
-
                     if (!m_UseProceduralSkybox) {
-                        RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LightProbesDescriptorSet, 1);
+                        u32            envMapIdx = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle().getIndex();
+                        RZPushConstant pc;
+                        pc.data        = &envMapIdx;
+                        pc.size        = sizeof(u32);
+                        pc.shaderStage = ShaderStage::PIXEL;
+
+                        RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
                     } else {
                         // Since no skybox, we update the directional light direction
                         auto lights = scene->GetComponentsOfType<LightComponent>();
@@ -147,16 +129,17 @@ namespace Razix {
                         struct PCData
                         {
                             glm::vec3 worldSpaceLightPos;
-                        } data;
+                            u32       noiseTextureIdx;
+                        } data{};
                         // FIXME: Use direction
                         data.worldSpaceLightPos = dirLight.getPosition();
+                        data.noiseTextureIdx    = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle().getIndex();
                         RZPushConstant pc;
                         pc.data        = &data;
                         pc.size        = sizeof(PCData);
                         pc.shaderStage = ShaderStage::PIXEL;
 
                         RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
-                        RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_VolumetricDescriptorSet, BindingTable_System::SET_IDX_SYSTEM_START);
                     }
 
                     RHI::DrawIndexed(cmdBuffer, m_SkyboxCube->getIndexBuffer()->getCount());
@@ -170,8 +153,6 @@ namespace Razix {
         {
             m_Pipeline->Destroy();
             m_ProceduralPipeline->Destroy();
-            m_LightProbesDescriptorSet->Destroy();
-            m_VolumetricDescriptorSet->Destroy();
             m_SkyboxCube->Destroy();
         }
     }    // namespace Graphics

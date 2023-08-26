@@ -5,7 +5,7 @@
 namespace Razix {
 
     /**
-     *  Implementation from : Copyright (c) 2018 Xavier "Crashoz" Launey [https://github.com/crashoz/uuid_v4] MIT license.
+     * Implementation from : Copyright (c) 2018 Xavier "Crashoz" Launey [https://github.com/crashoz/uuid_v4] MIT license.
      * 
      * "Razix Universally Unique Identifier" or RZUUID. Creates a random V4 style RZUUID as per the format (RFC-4122) described here : https://datatracker.ietf.org/doc/html/rfc4122
      *
@@ -46,12 +46,12 @@ namespace Razix {
         /* Defining the format type of RZUUID (we will use a union with bytes for easier calculation) */
         typedef struct
         {
-            u32 time_low;
-            u16 time_mid;
-            u16 time_hi_and_version;
-            u8  clock_seq_hi_and_reserved;
-            u8  clock_seq_low;
-            char     node[6];
+            u32  time_low;
+            u16  time_mid;
+            u16  time_hi_and_version;
+            u8   clock_seq_hi_and_reserved;
+            u8   clock_seq_low;
+            char node[6];
         } uuidv4;
 
     public:
