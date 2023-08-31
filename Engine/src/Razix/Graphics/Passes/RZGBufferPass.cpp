@@ -96,7 +96,7 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
                 },
-                [=](const GBufferData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const GBufferData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));

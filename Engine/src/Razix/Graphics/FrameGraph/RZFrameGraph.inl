@@ -19,7 +19,7 @@ inline const PassData &RZFrameGraph::addCallbackPass(const std::string_view name
 {
     static_assert(std::is_invocable<SetupFunc, RZBuilder &, PassData &>::value,
         "Invalid setup callback");
-    static_assert(std::is_invocable<ExecuteFunc, const PassData &, RZFrameGraphPassResources &, void *>::value,
+    static_assert(std::is_invocable<ExecuteFunc, const PassData &, RZFrameGraphPassResourcesDirectory &, void *>::value,
         "Invalid exec callback");
     static_assert(sizeof(ExecuteFunc) < 1024, "Execute captures too much");
 
@@ -62,14 +62,14 @@ ENFORCE_CONCEPT_IMPL inline RZFrameGraphResource RZFrameGraph::createResource(co
 // RZFrameGraphPassResources Class
 //-----------------------------------------------------------------------------------
 
-ENFORCE_CONCEPT_IMPL inline T &RZFrameGraphPassResources::get(RZFrameGraphResource id)
+ENFORCE_CONCEPT_IMPL inline T &RZFrameGraphPassResourcesDirectory::get(RZFrameGraphResource id)
 {
     assert(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) ||
            m_PassNode.canWriteResouce(id));
     return m_FrameGraph.getResourceEntry(id).get<T>();
 }
 
-ENFORCE_CONCEPT_IMPL inline const T::Desc &RZFrameGraphPassResources::getDescriptor(RZFrameGraphResource id) const
+ENFORCE_CONCEPT_IMPL inline const T::Desc &RZFrameGraphPassResourcesDirectory::getDescriptor(RZFrameGraphResource id) const
 {
     assert(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) ||
            m_PassNode.canWriteResouce(id));

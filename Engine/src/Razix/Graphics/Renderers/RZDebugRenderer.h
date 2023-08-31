@@ -1,6 +1,6 @@
 #pragma once
 
-// Modified from Source: https://github.com/jmorton06/Lumos/blob/main/Lumos/Source/Lumos/Graphics/Renderers/DebugRenderer.cpp
+// Modified from Source: https://github.com/jmorton06/Lumos/blob/main/Lumos/Source/Lumos/Graphics/Renderers/DebugRenderer.cpp // MIT License
 
 #include "Razix/Core/RZSmartPointers.h"
 

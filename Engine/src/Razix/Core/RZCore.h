@@ -122,10 +122,25 @@
         RAZIX_CORE_ERROR("Manchidi...!!! Unimplemented : {0} : {1} : {2}", __func__, __FILE__, __LINE__); \
     }
 
+#define RAZIX_DELETE_PUBLIC_CONSTRUCTOR(type_identifier) \
+public:                                                  \
+    type_identifier() = delete;
+
+#define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
+    ~type_identifier() = default;
+
 // Make the Class/Struct Object Non-Copyable/Assignable
 #define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
     type_identifier(const type_identifier&)            = delete; \
     type_identifier& operator=(const type_identifier&) = delete;
+
+#define RAZIX_NONMOVABLE_CLASS(type_identifier)                      \
+    type_identifier(type_identifier&&) noexcept            = delete; \
+    type_identifier& operator=(type_identifier&&) noexcept = delete;
+
+#define RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(type_identifier) \
+    RAZIX_NONCOPYABLE_CLASS(type_identifier)                \
+    RAZIX_NONMOVABLE_CLASS(type_identifier)
 
 // Deprecation error macros
 #ifdef _MSC_VER
@@ -144,6 +159,9 @@
 
 // Mark something (type, identifier, etc) as deprecated
 #define RAZIX_DEPRECATED_TYPE(identifier) __pragma(deprecated(identifier))
+
+// NO discard values for functions
+#define RAZIX_NO_DISCARD [[nodiscard]]
 
 // Functions Calling Conventions for Razix Engine depending on the OS and compiler configuration
 // On Windows we use __cdecl by default however __stdcall might be necessary for interop API with Razix Engine and C#

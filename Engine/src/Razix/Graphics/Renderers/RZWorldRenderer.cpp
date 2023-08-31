@@ -244,7 +244,7 @@ namespace Razix {
                     builder.read(sceneData.depth);
                     builder.read(frameDataBlock.frameData);
                 },
-                [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const auto& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     // Origin point
                     RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
 
@@ -318,7 +318,7 @@ namespace Razix {
 
                     m_ImGuiRenderer.Init();
                 },
-                [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const RTOnlyPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
 #if 0
                     m_ImGuiRenderer.Begin(scene);
 
@@ -450,7 +450,7 @@ namespace Razix {
 
                     data.frameData = builder.write(data.frameData);
                 },
-                [=](const FrameData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const FrameData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     GPUFrameData gpuData{};
                     gpuData.time += gpuData.deltaTime;
                     gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
@@ -506,7 +506,7 @@ namespace Razix {
                     data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("Scene Lights Data", {"Scene Lights Data", sizeof(GPULightsData)});
                     data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
                 },
-                [=](const SceneLightsData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const SceneLightsData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     GPULightsData gpuLightsData{};
 
                     auto& registry = scene->getRegistry();

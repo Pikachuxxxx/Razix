@@ -128,7 +128,7 @@ namespace Razix {
                     builder.read(bloomSourceMip.mip);
                     data.bloomMip = builder.write(data.bloomMip);
                 },
-                [=](const BloomSubPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const BloomSubPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**
@@ -250,7 +250,7 @@ namespace Razix {
                     builder.read(bloomSourceMip.mip);
                     data.bloomMip = builder.write(data.bloomMip);
                 },
-                [=](const BloomSubPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const BloomSubPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**
@@ -375,7 +375,7 @@ namespace Razix {
 
                     //data.ldrOutput = builder.write(data.ldrOutput);
                 },
-                [=](const TonemapData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const TonemapData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuf = bloomSceneMixGpuResources.cmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
