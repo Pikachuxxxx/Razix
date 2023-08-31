@@ -95,7 +95,7 @@ namespace Razix {
                 [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto&) {
                     shadowMapData.viewProjMatrices = builder.write(shadowMapData.viewProjMatrices);
                 },
-                [=](const auto&, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const auto&, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     CasdacesUBOData data{};
                     for (u32 i{0}; i < m_Cascades.size(); ++i) {
                         data.splitDepth[i]       = m_Cascades[i].splitDepth;
@@ -298,7 +298,7 @@ namespace Razix {
                         cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap Array", {  .name = "CascadedShadowMapsArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = RZTextureProperties::Type::Texture_Depth,.format =  RZTextureProperties::Format::DEPTH32F});
                     }
                     data.cascadeOuput = builder.write(cascadeShadowMap); },
-                [=](const CascadeSubPassData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const CascadeSubPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**

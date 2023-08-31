@@ -78,7 +78,7 @@ namespace Razix {
 
                     builder.write(sceneData.outputHDR);
                 },
-                [=](const auto& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const auto& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));

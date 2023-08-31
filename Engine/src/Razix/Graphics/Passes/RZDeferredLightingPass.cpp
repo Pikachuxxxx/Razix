@@ -134,7 +134,7 @@ namespace Razix {
 
                     data.HDR = builder.write(data.HDR);
                 },
-                [=](const SceneColorData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const SceneColorData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuf = m_CmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];

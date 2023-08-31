@@ -11,26 +11,30 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
             /**
-             * A node in the frame graph
+             * A node in the graph(frame graph) is nothing but a vertex in the graph DS
+             * A node can be 2 types either a pass that executed some code by binding resources or the resource itself
+             * Input/output resources are represented in the graph as nodes in addition to the pass nodes
              */
             class RZGraphNode
             {
             public:
-                RZGraphNode(RZGraphNode &&) noexcept = default;
-                virtual ~RZGraphNode()               = default;
+                // We don't want anyone except the frame graph to create graph nodes
+                RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZGraphNode)
 
-                RZGraphNode()                                   = delete;
-                RZGraphNode(const RZGraphNode &)                = delete;
-                RZGraphNode &operator=(const RZGraphNode &)     = delete;
-                RZGraphNode &operator=(RZGraphNode &&) noexcept = delete;
+                RAZIX_VIRTUAL_DESCTURCTOR(RZGraphNode)
+
+                RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZGraphNode)
 
             protected:
+                /**
+                 * Creates a node of type (Pass or Resource) using a name and unique ID 
+                 */
                 RZGraphNode(const std::string_view name, u32 id);
 
             protected:
-                const std::string m_Name;        /* Name of the Node                                */
-                const u32         m_ID;          /* Unique id, matches an array index in FrameGraph */
-                int32_t           m_RefCount{0}; /* References to this node in the graph            */
+                const std::string m_Name;        /* Name of the Node                                                */
+                const u32         m_ID;          /* Unique ID, matches an array index in FrameGraphResourcesDict    */
+                i32               m_RefCount{0}; /* References count to this node in the graph                      */
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

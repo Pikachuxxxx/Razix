@@ -11,20 +11,17 @@ namespace Razix {
         namespace FrameGraph {
 
             // Forward Decelerations
-            class RZFrameGraphPassResources;    // List of all Frame Graph Resources
+            class RZFrameGraphPassResourcesDirectory;    // List of all Frame Graph Resources
 
+            // TODO: WHY ??? REMOVE THIS!
             struct RZFrameGraphPassConcept
             {
-                RZFrameGraphPassConcept()          = default;
-                virtual ~RZFrameGraphPassConcept() = default;
+                RZFrameGraphPassConcept() {}
+                virtual ~RZFrameGraphPassConcept() {}
 
-                virtual void operator()(RZFrameGraphPassResources &, void *) = 0;
+                virtual void operator()(RZFrameGraphPassResourcesDirectory &, void *) = 0;
 
-                // delete these functions
-                RZFrameGraphPassConcept(const RZFrameGraphPassConcept &)                = delete;
-                RZFrameGraphPassConcept(RZFrameGraphPassConcept &&) noexcept            = delete;
-                RZFrameGraphPassConcept &operator=(const RZFrameGraphPassConcept &)     = delete;
-                RZFrameGraphPassConcept &operator=(RZFrameGraphPassConcept &&) noexcept = delete;
+                RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZFrameGraphPassConcept)
             };
 
             template<typename Data, typename ExecuteFunc>
@@ -33,7 +30,7 @@ namespace Razix {
                 explicit RZFrameGraphPass(ExecuteFunc &&exec)
                     : execFunction{std::forward<ExecuteFunc>(exec)} {}
 
-                void operator()(RZFrameGraphPassResources &resources, void *context) override
+                void operator()(RZFrameGraphPassResourcesDirectory &resources, void *context) override
                 {
                     execFunction(data, resources, context);
                 }
@@ -42,6 +39,5 @@ namespace Razix {
                 Data        data{};
             };
         }    // namespace FrameGraph
-
     }    // namespace Graphics
 }    // namespace Razix

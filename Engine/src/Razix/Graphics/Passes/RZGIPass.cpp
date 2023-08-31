@@ -151,7 +151,7 @@ namespace Razix {
 
                     builder.read(frameblockData.frameData);
                 },
-                [=](const ReflectiveShadowMapData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const ReflectiveShadowMapData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RSMCmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
@@ -319,7 +319,7 @@ namespace Razix {
                     data.g = builder.write(data.g);
                     data.b = builder.write(data.b);
                 },
-                [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
 #if 1
@@ -457,7 +457,7 @@ namespace Razix {
                     data.g = builder.write(data.g);
                     data.b = builder.write(data.b);
                 },
-                [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RadiancePropagationCmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];

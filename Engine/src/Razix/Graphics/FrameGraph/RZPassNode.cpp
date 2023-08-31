@@ -7,7 +7,7 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            [[nodiscard]] bool hasId(const std::vector<RZFrameGraphResource> &v, RZFrameGraphResource id)
+            static RAZIX_NO_DISCARD bool hasId(const std::vector<RZFrameGraphResource> &v, RZFrameGraphResource id)
             {
 #if __cpp_lib_ranges
                 return std::ranges::find(v, id) != v.cend();
@@ -15,6 +15,24 @@ namespace Razix {
                 return std::find(v.cbegin(), v.cend(), id) != v.cend();
 #endif
             }
+
+            static RAZIX_NO_DISCARD bool hasId(const std::vector<RZFrameGraphResourceAcessView> &v, RZFrameGraphResource id)
+            {
+                const auto match = [id](const auto &e) { return e.id == id; };
+
+#if __cpp_lib_ranges
+                return std::ranges::find_if(v, match) != v.cend();
+#else
+                return std::find_if(v.cbegin(), v.cend(), match) != v.cend();
+#endif
+            }
+
+            // TODO: Add a function check to check not just the ID but also the complete pair ID and flags
+            // because when we want to mark a resource as read/write onto a pass it can have multiple access
+            // views with different read/write properties, so check for the complete pair just in case
+            // hasId is not as safe as contains but it's a lil faster so we only use it for existing resources
+
+            //---------------------------------------------------------------------------
 
             bool RZPassNode::canCreateResouce(RZFrameGraphResource resourceID) const
             {
@@ -44,18 +62,21 @@ namespace Razix {
             RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<RZFrameGraphPassConcept> &&exec)
                 : RZGraphNode{name, id}, m_Exec{std::move(exec)}
             {
+                //m_Creates.reserve(10);
+                //m_Reads.reserve(10);
+                //m_Writes.reserve(10);
             }
 
-            Razix::Graphics::FrameGraph::RZFrameGraphResource RZPassNode::read(RZFrameGraphResource id)
+            RZFrameGraphResource RZPassNode::registerResourceForRead(RZFrameGraphResource id, u32 flags)
             {
                 RAZIX_CORE_ASSERT((!canCreateResouce(id) && !canWriteResouce(id)), "No Create and Write resources for the pass");
-                return canReadResouce(id) ? id : m_Reads.emplace_back(id);
+                return canReadResouce(id) ? id : m_Reads.emplace_back(id, flags).id;
             }
 
-            Razix::Graphics::FrameGraph::RZFrameGraphResource RZPassNode::write(RZFrameGraphResource id)
+            RZFrameGraphResource RZPassNode::registerResourceForWrite(RZFrameGraphResource id, u32 flags)
             {
-                return canReadResouce(id) ? id : m_Writes.emplace_back(id);
+                return canReadResouce(id) ? id : m_Writes.emplace_back(id, flags).id;
             }
         }    // namespace FrameGraph
-    }    // namespace Graphics
+    }        // namespace Graphics
 }    // namespace Razix

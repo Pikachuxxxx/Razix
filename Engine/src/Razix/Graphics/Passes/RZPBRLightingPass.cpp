@@ -113,7 +113,7 @@ namespace Razix {
                     //builder.read(gbufferData.MetRougAOAlpha);
                     //builder.read(gbufferData.Depth);
                 },
-                [=](const SceneData& data, FrameGraph::RZFrameGraphPassResources& resources, void* rendercontext) {
+                [=](const SceneData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("PBR pass", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));

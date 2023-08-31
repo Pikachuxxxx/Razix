@@ -110,7 +110,7 @@ namespace Razix {
                     // Init the mesh
                     m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
                 },
-                [=](const CompositeData& data, FrameGraph::RZFrameGraphPassResources& resources, void*) {
+                [=](const CompositeData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void*) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();
