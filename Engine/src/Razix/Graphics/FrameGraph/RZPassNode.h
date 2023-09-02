@@ -22,8 +22,11 @@ namespace Razix {
                 // can create nodes we keep that promise by making FrameGraph a friend
                 friend class RZFrameGraph;
 
+                /* Only FG creates nodes */
+                RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZPassNode)
+
             public:
-                /* Not sure why this is needed ??? */
+                /* To check whether or no this node has a copy of the resource already created or not */
                 bool canCreateResouce(RZFrameGraphResource resourceID) const;
                 /* Used to check whether the given resource ID is allowed to be read by the node or not */
                 bool canReadResouce(RZFrameGraphResource resourceID) const;
@@ -34,7 +37,7 @@ namespace Razix {
                 /** 
                  * To check whether or not to be culled
                  * if either the node has refcount > 0 or is stand alone it shouldn't be culled and allowed to be executed 
-                 */
+                 */\
                 bool canExecute() const;
 
             private:
@@ -43,13 +46,10 @@ namespace Razix {
                 //std::unique_ptr<RZFrameGraphPassConcept> m_Update; /* The update lambda function to be called for the pass */
                 //std::unique_ptr<RZFrameGraphPassConcept> m_Update; /* The resize lambda function to be called for the pass */
 
-                std::vector<RZFrameGraphResource>          m_Creates;    // WHY???
-
-
-                std::vector<RZFrameGraphResourceAcessView> m_Reads;      /* List of all the resource views that are read by this node */
-                std::vector<RZFrameGraphResourceAcessView> m_Writes;     /* List of all the resources view that are written by this node */
-
-                bool m_IsStandAlone{false};
+                std::vector<RZFrameGraphResource>          m_Creates; /* List of all the resources created on this node                 */
+                std::vector<RZFrameGraphResourceAcessView> m_Reads;   /* List of all the resource views that are read by this node      */
+                std::vector<RZFrameGraphResourceAcessView> m_Writes;  /* List of all the resources view that are written by this node   */
+                bool                                       m_IsStandAlone = false;
 
             private:
                 RZPassNode(const std::string_view name, u32 id, std::unique_ptr<RZFrameGraphPassConcept> &&);

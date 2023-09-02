@@ -23,24 +23,33 @@ namespace Razix {
             public:
                 // TODO: Separate the builder into it's own file
 
+                //-----------------------------------------------------------------------------------
                 /**
-                 * Frame Graph Passes Builder Class, used for creating/importing FrameGraph resources and marking them as read/write
+                 * Frame Graph Passes Builder Class, used for creating FrameGraph resources and marking them as read/write for a pass node
                  */
                 class RZBuilder final
                 {
                     friend class RZFrameGraph;
 
                 public:
-                    /* Deleting public empty constructor as the members variables are references and we don't want to have dangling framegraph and also not let the user, but instead the pass&fg creates it */
-                    RZBuilder() = delete;
+                    /* Deleting public empty constructor as the members variables are references and we don't want to have dangling framegraph and also not let the user, but instead the fg creates it */
+                    RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZBuilder)
 
                     /* Since FrameGraph is RAZIX_NONCOPYABLE_NONMOVABLE_CLASS, and we hold references to it, it's better we do the same */
                     RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZBuilder)
 
                     /**
                      * Used to declare for creating the resource using the resource description
+                     * 
+                     * Using SFINANE this template function rejects overload sets for types that don't conform to concept rules
+                     * Only the types that enforce resource entry concept rules can be created, others are rejected under SFINAE
+                     * Restricts failure of creating types used by concept which might call non existent stuff 
                      */
-                    ENFORCE_CONCEPT RZFrameGraphResource create(const std::string_view name, typename T::Desc &&);
+                    ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE inline RZFrameGraphResource create(const std::string_view name, typename T::Desc &&)
+                    {
+                        const auto id = m_FrameGraph.createResource<T>(name, std::move(desc));
+                        return m_PassNode.m_Creates.emplace_back(id);
+                    }
 
                     /**
                      * Marks the resource as a readable resources for the current pass node
@@ -65,51 +74,55 @@ namespace Razix {
                     RZPassNode   &m_PassNode;   /* Current Pass node that this builder is building resources for    */
 
                 private:
-                    RZBuilder(RZFrameGraph &, RZPassNode &);
+                    RZBuilder(RZFrameGraph &frameGraph, RZPassNode &passNode);
                 };
+                //-----------------------------------------------------------------------------------
 
             public:
-                RZFrameGraph() {}
-                ~RZFrameGraph() {}
-
                 /* We don't want dangling frame graph resources and nodes */
                 RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZFrameGraph)
 
-                // TODO: Add OnUpdate and OnResize to the frame graph callback functions and rename ExecuteFunc to RenderFunc
+                // TODO: Add OnUpdate and OnResize to the frame graph callback functions
 
                 /**
                  * Callbacks to create the Frame Graph passes and execution using lambdas
                  */
                 template<typename PassData, typename SetupFunc, typename ExecuteFunc>
-                const PassData &addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc);
+                const PassData &addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
+                {
+                }
 
                 /**
                  * Callback to crate a standalone pass without and pass data
                  */
                 template<typename SetupFunc, typename ExecuteFunc>
-                void addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc);
+                void addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
+                {
+                }
+
+                /* Imports a external resource into the frame graph */
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RZFrameGraphResource import(const std::string_view name, typename T::Desc &&, T &&)
+                {
+                }
+
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE typename const T::Desc &getDescriptor(RZFrameGraphResource id)
+                {
+                }
 
                 /* Compiles the Frame Graph passes and culls any unused passes/resources */
                 void compile();
                 /* Executes the Frame Graph passes */
                 void execute(void *renderContext = nullptr, void *allocator = nullptr);
-
+                /* Exports it GraphViz format */
                 void exportToGraphViz(std::ostream &) const;
 
-                /* Imports a external resource into the frame graph */
-                ENFORCE_CONCEPT RZFrameGraphResource import(const std::string_view name, typename T::Desc &&, T &&);
-
                 /* Tell whether or no the current resource is valid to read/write */
-                bool isValid(RZFrameGraphResource id);
-
-                ENFORCE_CONCEPT typename const T::Desc &getDescriptor(RZFrameGraphResource id);
-
+                bool                  isValid(RZFrameGraphResource id);
                 const RZResourceNode &getResourceNode(RZFrameGraphResource id) const;
                 RZResourceEntry      &getResourceEntry(RZFrameGraphResource id);
 
                 // Export function to dot format for GraphViz
-                friend std::ostream &
-                operator<<(std::ostream &, const RZFrameGraph &);
+                friend std::ostream &operator<<(std::ostream &, const RZFrameGraph &);
 
             private:
                 std::vector<RZPassNode>      m_PassNodes;
@@ -117,16 +130,18 @@ namespace Razix {
                 std::vector<RZResourceEntry> m_ResourceRegistry;
 
             private:
-                RZPassNode     &createPassNode(const std::string_view name, std::unique_ptr<RZFrameGraphPassConcept> &&);
-                RZResourceNode &createResourceNode(const std::string_view name, u32 resourceID);
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RZFrameGraphResource createResource(const std::string_view name, typename T::Desc &&)
+                {
+                }
 
-                ENFORCE_CONCEPT RZFrameGraphResource createResource(const std::string_view name, typename T::Desc &&);
-
+                RZPassNode          &createPassNode(const std::string_view name, std::unique_ptr<RZFrameGraphPassConcept> &&);
+                RZResourceNode      &createResourceNode(const std::string_view name, u32 resourceID);
                 RZFrameGraphResource cloneResource(RZFrameGraphResource id);
             };
 
+            // WHAT"S THE POINT OF THIS?
             //-----------------------------------------------------------------------------------
-            // RZFrameGraphPassResources Class
+            // RZFrameGraphPassResourcesDirectory Class
             //-----------------------------------------------------------------------------------
 
             /**
@@ -137,22 +152,18 @@ namespace Razix {
                 friend class RZFrameGraph;
 
             public:
-                RZFrameGraphPassResourcesDirectory()  = delete;
-                ~RZFrameGraphPassResourcesDirectory() = default;
+                RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZFrameGraphPassResourcesDirectory);
 
-                ENFORCE_CONCEPT T &get(RZFrameGraphResource id);
-
-                ENFORCE_CONCEPT typename const T::Desc &getDescriptor(RZFrameGraphResource id) const;
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE T                      &get(RZFrameGraphResource id);
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE typename const T::Desc &getDescriptor(RZFrameGraphResource id) const;
 
             private:
                 RZFrameGraph &m_FrameGraph;
                 RZPassNode   &m_PassNode;
 
             private:
-                RZFrameGraphPassResourcesDirectory(RZFrameGraph &, RZPassNode &);
+                RZFrameGraphPassResourcesDirectory(RZFrameGraph &frameGraph, RZPassNode &passNode);
             };
-
-#include "RZFrameGraph.inl"
 
         }    // namespace FrameGraph
     }        // namespace Graphics

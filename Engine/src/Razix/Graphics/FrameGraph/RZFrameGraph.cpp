@@ -17,7 +17,7 @@ namespace Razix {
 
             RZFrameGraphResource RZFrameGraph::RZBuilder::read(RZFrameGraphResource id, u32 flags)
             {
-                return m_PassNode.registerResourceForRead(id);
+                return m_PassNode.registerResourceForRead(id, flags);
             }
 
             RZFrameGraphResource RZFrameGraph::RZBuilder::write(RZFrameGraphResource id, u32 flags)
@@ -26,7 +26,7 @@ namespace Razix {
                     setAsStandAlonePass();
 
                 if (m_PassNode.canCreateResouce(id)) {
-                    return m_PassNode.registerResourceForWrite(id);
+                    return m_PassNode.registerResourceForWrite(id, flags);
                 } else {
                     // Writing to a texture produces a renamed handle.
                     // This allows us to catch errors when resources are modified in
@@ -108,14 +108,14 @@ namespace Razix {
                     if (!pass.canExecute()) continue;
 
                     for (auto id: pass.m_Creates)
-                        getResourceEntry(id).create(allocator);
+                        getResourceEntry(id).getConcept()->create();
 
                     RZFrameGraphPassResourcesDirectory resources{*this, pass};
                     std::invoke(*pass.m_Exec, resources, renderContext);
 
                     for (auto &entry: m_ResourceRegistry)
                         if (entry.m_Last == &pass && entry.isTransient())
-                            entry.destroy(allocator);
+                            entry.getConcept()->destroy();
                 }
             }
 

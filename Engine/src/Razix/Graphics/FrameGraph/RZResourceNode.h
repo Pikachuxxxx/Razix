@@ -23,10 +23,10 @@ namespace Razix {
                 RZResourceNode(const std::string_view name, u32 id, u32 resourceID, u32 version);
 
             private:
-                const u32   m_ResourceID;    // Index to virtual resource (m_resourceRegistry in FrameGraph) // Can we call it RZFrameGraphResource instead?
-                const u32   m_Version;       // Same resource can be read/written multiple time, in that case we maintain version no for each clone
-                RZPassNode* m_Producer = nullptr;
-                RZPassNode* m_Last     = nullptr;
+                const u32   m_ResourceID = 0;       /* Index to virtual resource (m_resourceRegistry in FrameGraph) // Can we call it RZFrameGraphResource instead?   */
+                const u32   m_Version    = 0;       /* Same resource can be read/written multiple time, in that case we maintain version no for each clone            */
+                RZPassNode* m_Producer   = nullptr; /*  */
+                RZPassNode* m_Last       = nullptr; /*  */
             };
         }    // namespace FrameGraph
     }        // namespace Graphics
