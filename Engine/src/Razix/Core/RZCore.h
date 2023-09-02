@@ -181,21 +181,90 @@ public:                                                  \
 #define RAZIX_INLINE       inline
 #define RAZIX_FORCE_INLINE __forceinline
 
-// Release for API convention consistency
-//#define RAZIX_RELEASE(x)            \
-//    {                               \
-//        if (x) { (x)->Release(); }; \
-//    }
-//#define RAZIX_SAFE_RELEASE(x)       \
-//    {                               \
-//        if (x) { (x)->Release(); }; \
-//        x = nullptr;                \
-//    }
+/**
+ * As discussed above we need ways to emulate pure virtual function verification
+ * We use SFINAE idiom and type traits as the base concept to do this 
+ * 
+ * Core Concept : SFINAE failure trigger redirection
+ * 
+ * SFINAE also does Struct/Type verification in addition to functions exist checks
+ * 
+ * SFINAE using safe substitution failure we manually trigger based on condition to choose the test we want
+ * 
+ * Note: These check don't consider the function signature
+ * 
+ * Note: We can do return type checks specialization inside the functions instead 
+ * of just returning{}
+ */
+
+// TODO: Add signature check when doing CHECK_TYPE_HAS_FUNCTION
+
+/**
+ * RAZIX_CHECK_TYPE_HAS_FUNCTION
+ * 
+ * Working: Given a function name, it will check whether it has that function in it or not
+ * If it's successful it will select the first specialization and return a true_type 
+ * if not the first one will fail due to SFINAE and select the second type and return false_type
+ */
+
+#define RAZIX_CHECK_TYPE_HAS_FUNCTION(T, funcName)                       \
+    template<typename T>                                                 \
+    class has_##funcName                                                 \
+    {                                                                    \
+    private:                                                             \
+        template<typename C>                                             \
+        static constexpr ::std::true_type test(decltype(&C::##funcName)) \
+        {                                                                \
+            return {};                                                   \
+        }                                                                \
+                                                                         \
+        template<typename C>                                             \
+        static constexpr ::std::false_type test(...)                     \
+        {                                                                \
+            return {};                                                   \
+        }                                                                \
+                                                                         \
+    public:                                                              \
+        static constexpr bool value = test<T>(0);                        \
+    };                                                                   \
+    template<typename T>                                                 \
+    inline constexpr bool has_##funcName##_v = has_##funcName<T>::value;
+
+#define RAZIX_TYPE_HAS_FUNCTION_V(T, funcName) \
+    has_##funcName##_v<T>
+
+/**
+ * RAZIX_CHECK_TYPE_HAS_SUBTYPE
+ * 
+ * Working: Given a type and subtype, if the type has the subtype it will choose the second specialization
+ * if not it will choose the first one as default and return false_type
+ * 
+ */
+
+#define RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, U)                               \
+    template<typename T, typename = void>                                \
+    struct has_##U : ::std::false_type                                   \
+    {                                                                    \
+    };                                                                   \
+    template<typename T>                                                 \
+    struct has_##U<T, ::std::void_t<typename T::##U>> : ::std::true_type \
+    {                                                                    \
+    };                                                                   \
+    template<typename T>                                                 \
+    inline constexpr bool has_##U##_v = has_##U<T>::value
+
+#define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
+    has_##U##_v<T>
+
+/**
+ * SFINAE_TYPE_ERASURE_CONCEPT_CHECK
+ */
 
 // Warning push/pop as per compiler convention
-#define RAZIX_WARNING_PUSH() __pragma(warning(push))
-#define RAZIX_WARNING_POP()  __pragma(warning(pop))
-//#define RAZIX_WARNING_DISABLE( x )  #pragma warning( disable : x)
+#define RAZIX_WARNING_PUSH()     __pragma(warning(push))
+#define RAZIX_WARNING_POP()      __pragma(warning(pop))
+#define RAZIX_WARNING_DISABLE(x) __pragma warning(disable \
+                                                  : x)
 
 // TODO: Add Safe memory delete and unloading macros
 /****************************************************************************************************

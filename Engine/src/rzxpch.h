@@ -14,6 +14,7 @@
 #include <memory>
 #include <random>
 #include <sstream>
+#include <type_traits>
 #include <utility>
 
 //-----Data Structures-----//

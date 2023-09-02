@@ -62,20 +62,20 @@ namespace Razix {
             RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<RZFrameGraphPassConcept> &&exec)
                 : RZGraphNode{name, id}, m_Exec{std::move(exec)}
             {
-                //m_Creates.reserve(10);
-                //m_Reads.reserve(10);
-                //m_Writes.reserve(10);
+                m_Creates.reserve(10);
+                m_Reads.reserve(10);
+                m_Writes.reserve(10);
             }
 
             RZFrameGraphResource RZPassNode::registerResourceForRead(RZFrameGraphResource id, u32 flags)
             {
-                RAZIX_CORE_ASSERT((!canCreateResouce(id) && !canWriteResouce(id)), "No Create and Write resources for the pass");
+                RAZIX_CORE_ASSERT((!canCreateResouce(id) && !canWriteResouce(id)), "Cannot read a resource that this node creates or write to!");
                 return canReadResouce(id) ? id : m_Reads.emplace_back(id, flags).id;
             }
 
             RZFrameGraphResource RZPassNode::registerResourceForWrite(RZFrameGraphResource id, u32 flags)
             {
-                return canReadResouce(id) ? id : m_Writes.emplace_back(id, flags).id;
+                return canWriteResouce(id) ? id : m_Writes.emplace_back(id, flags).id;
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

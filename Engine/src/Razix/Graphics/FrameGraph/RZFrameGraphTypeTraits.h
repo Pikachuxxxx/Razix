@@ -8,93 +8,67 @@
 */
 
 #include <string_view>
+#include <type_traits>
 
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            // https://www.bfilipek.com/2016/02/notes-on-c-sfinae.html
-            // https://en.cppreference.com/w/cpp/types/enable_if
-            // https://levelup.gitconnected.com/c-detection-idiom-explained-5cc7207a0067
+            // [SFINAE] Source 1 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
+            // [SFINAE] Source 2 :  https://jguegant.github.io/blogs/tech/sfinae-introduction.html
 
-            template<typename T, typename = void>
-            struct has_CreateDesc : std::false_type
-            {
-            };
-            template<typename T>
-            struct has_CreateDesc<T, std::void_t<typename T::Desc>> : std::true_type
-            {
-            };
-            template<typename T>
-            inline constexpr bool has_CreateDesc_v = has_CreateDesc<T>::value;
+            // This is basically same implementation effect as what Dawid Kurek, GitHub : skaarj1989 wrote, I just renamed stuff and made them more readable
+            // Also the implementation is very much same as Dawid Kurek's and has minor changes from what I understood from reading the blogs online
 
-            template<typename T>
-            struct has_create
-            {
-                template<typename U>
-                static constexpr std::false_type test(...)
-                {
-                    return {};
-                }
-                template<typename U>
-                static constexpr auto test(U *u) ->
-                    typename std::is_same<void,
-                        decltype(u->create(typename T::Desc{},
-                            std::declval<void *>()))>::type
-                {
-                    return {};
-                }
+            // Checks for Functions - Create, Destroy, toString
 
-                static constexpr bool value{test<T>(nullptr)};
-            };
-            template<typename T>
-            inline constexpr bool has_create_v = has_create<T>::value;
+            /**
+             * Note: T is still undefined and is specified by frame graph users to define custom types for wrapping Graphics API handles,
+             * But, Hey! we at least know what to check for! but just not on what so we'll at least specify that
+             */
 
-            template<typename T>
-            struct has_destroy
-            {
-                template<typename U>
-                static constexpr std::false_type test(...)
-                {
-                    return {};
-                }
-                template<typename U>
-                static constexpr auto test(U *u) ->
-                    typename std::is_same<void,
-                        decltype(u->destroy(typename T::Desc{},
-                            std::declval<void *>()))>::type
-                {
-                    return {};
-                }
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, create);
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, destroy);
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, toString);
 
-                static constexpr bool value{test<T>(nullptr)};
-            };
-            template<typename T>
-            inline constexpr bool has_destroy_v = has_destroy<T>::value;
+            // Checks for Sub types - Desc
 
+            RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, Desc);
+
+            /**
+             * How to know if it's a valid resource (the one that is being passes as universal reference to the concept class)
+             * 
+             * These are the conditions it must satisfy, if not it will fail and we will not generate overload sets!
+             * 
+             * Ofc we can also throw compile time errors for that type and not wait until instantiation time
+             */
             template<typename T>
-            constexpr bool is_resource()
+            constexpr bool is_acceptible_frame_graph_resource()
             {
                 return std::is_default_constructible_v<T> &&
-                       std::is_move_constructible_v<T> && has_CreateDesc_v<T> && has_create_v<T> &&
-                       has_destroy_v<T>;
+                       std::is_move_constructible_v<T> && RAZIX_TYPE_HAS_SUB_TYPE_V(T, Desc) && RAZIX_TYPE_HAS_FUNCTION_V(T, create) &&
+                       RAZIX_TYPE_HAS_FUNCTION_V(T, destroy());
             }
 
-#define ENFORCE_CONCEPT \
-    template<typename T, std::enable_if_t<is_resource<T>(), bool> = true>
-#define ENFORCE_CONCEPT_IMPL \
-    template<typename T, std::enable_if_t<is_resource<T>(), bool>>
+            /**
+             * Okay using type erasure we will register wrapper frame graph resource types using template Type T
+             * now on this T we can use the above checks to report any missing functions - Solution for fake pure virtual func checks
+             * 
+             * Now when we call methods like create/destroy etc. on T, it's done from the FrameGraph class, and what we do is using SFINAE 
+             * we reject overload sets that is not a resource, we enforce the Concept on it like pure virtual and generate only those template 
+             * specializations that we want!, we use the failure to our advantage to reject the overload sets that don't conform the concept 
+             * 
+             */
 
-            template<typename T, typename = void>
-            struct has_toString : std::false_type
-            {
-            };
-            template<class T>
-            struct has_toString<T, std::void_t<decltype(T::toString)>>
-                : std::is_convertible<decltype(T::toString(typename T::Desc{})),
-                      std::string_view>
-            {
-            };
+            /**
+             * overload sets will be generated if T when evaluated by is_resource is true
+             * using SFINAE for conditionally removing functions from the candidate set 
+             * 
+             * if it fails we can use SFINAE to trigger errors on why it happened or use that failure 
+             * path to rectify the stuff and dispatch to alternate path
+             */
+#define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
+
         }    // namespace FrameGraph
     }        // namespace Graphics
 }    // namespace Razix
