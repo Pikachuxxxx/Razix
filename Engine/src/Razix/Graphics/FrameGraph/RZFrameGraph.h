@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/FrameGraph/RZFrameGraphTypeTraits.h"
+#include "Razix/Graphics/FrameGraph/RZFrameGraphResourceTypeChecks.h"
 #include "Razix/Graphics/FrameGraph/RZResourceEntry.h"
 #include "Razix/Graphics/FrameGraph/RZResourceNode.h"
 
@@ -43,7 +43,8 @@ namespace Razix {
                      * 
                      * Using SFINANE this template function rejects overload sets for types that don't conform to concept rules
                      * Only the types that enforce resource entry concept rules can be created, others are rejected under SFINAE
-                     * Restricts failure of creating types used by concept which might call non existent stuff 
+                     * 
+                     * Restricts failure of creating types which will be used by concept which might call non existent stuff 
                      */
                     ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE inline RZFrameGraphResource create(const std::string_view name, typename T::Desc &&)
                     {
@@ -134,12 +135,12 @@ namespace Razix {
                 {
                 }
 
-                RZPassNode          &createPassNode(const std::string_view name, std::unique_ptr<RZFrameGraphPassConcept> &&);
+                RZPassNode          &createPassNode(const std::string_view name, std::unique_ptr<IRZFrameGraphPass> &&);
                 RZResourceNode      &createResourceNode(const std::string_view name, u32 resourceID);
                 RZFrameGraphResource cloneResource(RZFrameGraphResource id);
             };
 
-            // WHAT"S THE POINT OF THIS?
+            // WHAT'S THE POINT OF THIS?
             //-----------------------------------------------------------------------------------
             // RZFrameGraphPassResourcesDirectory Class
             //-----------------------------------------------------------------------------------

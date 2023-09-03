@@ -8,7 +8,7 @@ namespace Razix {
         namespace FrameGraph {
 
             RZResourceNode::RZResourceNode(const std::string_view name, u32 id, u32 resourceID, u32 version)
-                : RZGraphNode{name, id}, m_ResourceID(resourceID), m_Version(version)
+                : RZGraphNode(name, id), m_ResourceEntryID(resourceID), m_Version(version)
             {
             }
         }    // namespace FrameGraph

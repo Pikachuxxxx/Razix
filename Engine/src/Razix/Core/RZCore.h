@@ -182,7 +182,7 @@ public:                                                  \
 #define RAZIX_FORCE_INLINE __forceinline
 
 /**
- * As discussed above we need ways to emulate pure virtual function verification
+ * We need ways to emulate pure virtual function verification
  * We use SFINAE idiom and type traits as the base concept to do this 
  * 
  * Core Concept : SFINAE failure trigger redirection

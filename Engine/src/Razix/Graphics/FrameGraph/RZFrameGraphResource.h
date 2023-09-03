@@ -16,15 +16,18 @@ namespace Razix {
             using RZFrameGraphResource = int32_t;
 
             /**
-             * skaarj1989 named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
-             * but I feel having a name like Frame Graph Resource Access View makes it more easily readable
+             * Dawid Kurek (skaarj1989) named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
+             * but I feel having a name like Frame Graph Resource Access View makes it more readable
              */
             struct RZFrameGraphResourceAcessView
             {
-                RZFrameGraphResource id;
-                u32                  flags;
+                RZFrameGraphResource id;    /* Unique ID of the resource                            */
+                u32                  flags; /* Flags on how to view the resource from rendering POV */
 
-                bool operator==(const RZFrameGraphResourceAcessView &) const = default;
+                bool operator==(const RZFrameGraphResourceAcessView& view) const
+                {
+                    return id == view.id;
+                }
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

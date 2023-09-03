@@ -15,6 +15,11 @@ namespace Razix {
             // Builder Class
             //-----------------------------------------------------------------------------------
 
+            RZFrameGraph::RZBuilder::RZBuilder(RZFrameGraph &fg, RZPassNode &pass)
+                : m_FrameGraph(fg), m_PassNode(pass)
+            {
+            }
+
             RZFrameGraphResource RZFrameGraph::RZBuilder::read(RZFrameGraphResource id, u32 flags)
             {
                 return m_PassNode.registerResourceForRead(id, flags);
@@ -42,11 +47,6 @@ namespace Razix {
             {
                 m_PassNode.m_IsStandAlone = true;
                 return *this;
-            }
-
-            RZFrameGraph::RZBuilder::RZBuilder(RZFrameGraph &fg, RZPassNode &pass)
-                : m_FrameGraph(fg), m_PassNode(pass)
-            {
             }
 
             //-----------------------------------------------------------------------------------
