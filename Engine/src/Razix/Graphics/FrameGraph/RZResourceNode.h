@@ -1,3 +1,4 @@
+
 #pragma once
 
 /**
@@ -27,10 +28,10 @@ namespace Razix {
                 RZResourceNode(const std::string_view name, u32 id, u32 resourceID, u32 version);
 
             private:
-                const u32   m_ResourceEntryID = 0;       /* Index to resource entry point (m_resourceRegistry in FrameGraph)                                    */
-                const u32   m_Version         = 0;       /* Same resource can be read/written multiple time, in that case we maintain version no for each clone */
-                RZPassNode* m_Producer        = nullptr; /* Pass Node who writes to this resources, used to create edges in graph                               */
-                RZPassNode* m_Last            = nullptr; /* Next Pass Node that will read this resource, used to create edges in graph                          */
+                const u32   m_ResourceEntryID = 0;                       /* Index to resource entry point (m_resourceRegistry in FrameGraph)                                    */
+                const u32   m_Version         = kResourceInitialVersion; /* Same resource can be read/written multiple time, in that case we maintain version no for each clone */
+                RZPassNode* m_Producer        = nullptr;                 /* Pass Node who writes to this resources, used to create edges in graph                               */
+                RZPassNode* m_Last            = nullptr;                 /* Next Pass Node that will read this resource, used to create edges in graph                          */
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

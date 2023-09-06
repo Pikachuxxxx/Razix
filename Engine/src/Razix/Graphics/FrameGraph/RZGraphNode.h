@@ -20,11 +20,12 @@ namespace Razix {
             public:
                 // We don't want anyone except the frame graph to create graph nodes
                 RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZGraphNode)
-
                 RAZIX_VIRTUAL_DESCTURCTOR(RZGraphNode)
 
-                // Refcount management is only done by FG so we do this
-                RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZGraphNode)
+                // Refcount management so we do this
+                RAZIX_NONCOPYABLE_CLASS(RZGraphNode)
+
+                RAZIX_DEFAULT_MOVABLE_CLASS(RZGraphNode)
 
             protected:
                 /**

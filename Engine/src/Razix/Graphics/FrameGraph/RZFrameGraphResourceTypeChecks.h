@@ -70,8 +70,10 @@ namespace Razix {
                        std::is_move_constructible_v<T> &&
                        RAZIX_TYPE_HAS_SUB_TYPE_V(T, Desc) &&
                        RAZIX_TYPE_HAS_FUNCTION_V(T, create) &&
-                       RAZIX_TYPE_HAS_FUNCTION_V(T, destroy());
+                       RAZIX_TYPE_HAS_FUNCTION_V(T, destroy);
             }
+
+#define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
 
             /**
              * Okay using type erasure we will register wrapper frame graph resource types using template Type T

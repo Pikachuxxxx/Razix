@@ -28,6 +28,10 @@ namespace Razix {
         Graphics::RZMesh*       Mesh;
         Graphics::MeshPrimitive primitive;
 
+        // TODO: Enable these
+        bool enableBoundingBoxes;
+        bool receiveShadows;
+
         MeshRendererComponent();
         MeshRendererComponent(const std::string& filePath);
         MeshRendererComponent(Graphics::MeshPrimitive primitive);

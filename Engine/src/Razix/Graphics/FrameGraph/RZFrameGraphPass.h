@@ -11,7 +11,7 @@ namespace Razix {
         namespace FrameGraph {
 
             // Forward Decelerations
-            class RZFrameGraphPassResourcesDirectory;    // List of all Resources in the current pass node
+            class RZPassResourceDirectory;    // List of all Resources in the current pass node
 
             /**
              * This is type erasure all over again, the PassNode needs to store a lambda function to execute and some data to pass to the lambda
@@ -24,7 +24,6 @@ namespace Razix {
              * we can store a interface (aka Concept) class in the PassNode that will encapsulate this Func and Data 
              * 
              * Dawid Kurek names it concept as it's some form of Type Erasure but for me I like to see it as a simple interface
-             * 
              */
 
             /**
@@ -32,17 +31,17 @@ namespace Razix {
              */
             struct IRZFrameGraphPass
             {
-                virtual void operator()(RZFrameGraphPassResourcesDirectory &, void *) = 0;
+                virtual void operator()(RZPassResourceDirectory &, void *) = 0;
             };
 
-            /* Encapsulation the pass lambda and its data, the best way to store lambdas as members is using templates */
-            template<typename Data, typename ExecuteFunc>    // done in FG so redundant here, typename = std::enable_if_t<is_valid_exec_function<ExecuteFunc>()>> // Checks for the signature of the exec function
+            /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */
+            template<typename Data, typename ExecuteFunc>    // done in FG so redundant here, typename = std::enable_if_t<is_valid_pass_exec_function<ExecuteFunc>()>> // Checks for the signature of the exec function
             struct RZFrameGraphPass final : IRZFrameGraphPass
             {
                 explicit RZFrameGraphPass(ExecuteFunc &&exec)
                     : execFunction{std::forward<ExecuteFunc>(exec)} {}
 
-                void operator()(RZFrameGraphPassResourcesDirectory &resources, void *context) override
+                void operator()(RZPassResourceDirectory &resources, void *context) override
                 {
                     execFunction(data, resources, context);
                 }
