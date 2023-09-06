@@ -142,6 +142,19 @@ public:                                                  \
     RAZIX_NONCOPYABLE_CLASS(type_identifier)                \
     RAZIX_NONMOVABLE_CLASS(type_identifier)
 
+// Make the Class/Struct Object Copyable/Assignable Explicit default declaration
+#define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+    type_identifier(const type_identifier&)            = default; \
+    type_identifier& operator=(const type_identifier&) = default;
+
+#define RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)                  \
+    type_identifier(type_identifier&&) noexcept            = default; \
+    type_identifier& operator=(type_identifier&&) noexcept = default;
+
+#define RAZIX_DEFAULT_COPYABLE_MOVABLE_CLASS(type_identifier) \
+    RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+    RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
+
 // Deprecation error macros
 #ifdef _MSC_VER
     #define RAZIX_DEPRECATED(msg_str) __declspec(deprecated("This symbol is deprecated by Razix Engine. Details: " msg_str))
@@ -182,7 +195,7 @@ public:                                                  \
 #define RAZIX_FORCE_INLINE __forceinline
 
 /**
- * As discussed above we need ways to emulate pure virtual function verification
+ * We need ways to emulate pure virtual function verification
  * We use SFINAE idiom and type traits as the base concept to do this 
  * 
  * Core Concept : SFINAE failure trigger redirection
@@ -236,8 +249,9 @@ public:                                                  \
 /**
  * RAZIX_CHECK_TYPE_HAS_SUBTYPE
  * 
- * Working: Given a type and subtype, if the type has the subtype it will choose the second specialization
- * if not it will choose the first one as default and return false_type
+ * Working: Given a type and subtype, if the type has the subtype it will choose the second 
+ * specialization and return true_type if not it will choose the first one as default and 
+ * return false_type
  * 
  */
 

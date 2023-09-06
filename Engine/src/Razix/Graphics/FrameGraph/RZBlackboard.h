@@ -24,27 +24,45 @@ namespace Razix {
                 ~RZBlackboard() = default;
 
                 template<typename T, typename... Args>
-                T& add(Args&&... args);
+                T& add(Args&&... args)
+                {
+                    assert(!has<T>());
+                    return m_storage[typeid(T)].emplace<T>(T{std::forward<Args>(args)...});
+                }
 
                 template<typename T>
-                const T& get() const;
+                RAZIX_NO_DISCARD const T& get() const
+                {
+                    assert(has<T>());
+                    return std::any_cast<const T&>(m_storage.at(typeid(T)));
+                }
                 template<typename T>
-                const T* try_get() const;
+                RAZIX_NO_DISCARD const T* try_get() const
+                {
+                    auto it = m_storage.find(typeid(T));
+                    return it != m_storage.cend() ? std::any_cast<const T>(&it->second) : nullptr;
+                }
 
                 template<typename T>
-                const T& get();
+                T& get()
+                {
+                    return const_cast<T&>(const_cast<const RZBlackboard*>(this)->get<T>());
+                }
                 template<typename T>
-                const T* try_get();
+                T* try_get()
+                {
+                    return const_cast<T*>(const_cast<const RZBlackboard*>(this)->try_get<T>());
+                }
 
                 template<typename T>
-                bool has() const;
+                bool has() const
+                {
+                    return m_storage.find(typeid(T)) != m_storage.cend();
+                }
 
             private:
                 std::unordered_map<std::type_index, std::any> m_Storage;
             };
-
-#include "RZBlackboard.inl"
-
         }    // namespace FrameGraph
     }        // namespace Graphics
 }    // namespace Razix

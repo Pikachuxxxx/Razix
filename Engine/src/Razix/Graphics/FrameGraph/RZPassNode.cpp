@@ -34,6 +34,14 @@ namespace Razix {
 
             //---------------------------------------------------------------------------
 
+            RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass> &&exec)
+                : RZGraphNode{name, id}, m_Exec{std::move(exec)}
+            {
+                m_Creates.reserve(10);
+                m_Reads.reserve(10);
+                m_Writes.reserve(10);
+            }
+
             bool RZPassNode::canCreateResouce(RZFrameGraphResource resourceID) const
             {
                 return hasId(m_Creates, resourceID);
@@ -57,14 +65,6 @@ namespace Razix {
             bool RZPassNode::canExecute() const
             {
                 return m_RefCount > 0 || isStandAlone();
-            }
-
-            RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<RZFrameGraphPassConcept> &&exec)
-                : RZGraphNode{name, id}, m_Exec{std::move(exec)}
-            {
-                m_Creates.reserve(10);
-                m_Reads.reserve(10);
-                m_Writes.reserve(10);
             }
 
             RZFrameGraphResource RZPassNode::registerResourceForRead(RZFrameGraphResource id, u32 flags)

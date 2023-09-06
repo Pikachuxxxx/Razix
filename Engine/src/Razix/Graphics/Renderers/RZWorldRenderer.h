@@ -57,15 +57,6 @@ namespace Razix {
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };
 
-        enum RendererDebugFlag : u32
-        {
-            RendererDebugFlag_None          = 0,
-            RendererDebugFlag_Wireframe     = 1 << 0,
-            RendererDebugFlag_CascadeSplits = 1 << 1,
-            RendererDebugFlag_VPL           = 1 << 2,
-            RendererDebugFlag_RadianceOnly  = 1 << 3,
-        };
-
         enum TonemapMode : u32
         {
             ACES,

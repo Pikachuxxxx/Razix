@@ -13,6 +13,9 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preRead)
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preWrite)
+
             // [Type Erasure] Source 1 : https://madptr.com/posts/2023-06-24-typeerasureintro/
             // [Type Erasure] Source 2 : https://davekilian.com/cpp-type-erasure.html
             // [SFINAE] Source 1 : https://en.cppreference.com/w/cpp/language/sfinae
@@ -50,6 +53,7 @@ namespace Razix {
                     virtual void create()  = 0;
                     virtual void destroy() = 0;
 
+                    // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
                     virtual void preRead(uint32_t flags)  = 0;
                     virtual void preWrite(uint32_t flags) = 0;
 
@@ -60,7 +64,7 @@ namespace Razix {
                  * Implementation for concept
                  */
                 template<typename T>
-                struct Model : Concept
+                struct Model final : Concept
                 {
                     /**
                      * constructor for type, usually a pointer is stored but here we are taking a universal reference + a data member which we enforce rules on it to have
@@ -105,12 +109,14 @@ namespace Razix {
 
                     void preRead(uint32_t flags)
                     {
-                        resource.preRead(descriptor, flags);
+                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preRead))
+                            resource.preRead(descriptor, flags);
                     }
 
                     void preWrite(uint32_t flags)
                     {
-                        resource.preWrite(descriptor, flags);
+                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
+                            resource.preWrite(descriptor, flags);
                     }
 
                     std::string toString() const final
@@ -151,8 +157,8 @@ namespace Razix {
                 const u32   m_ID;                 /* Index of the resource, usually same as FreamGraphResource to identify it   */
                 const bool  m_Imported = false;   /* Whether or not the resource has been imported                              */
                 u32         m_Version;            /* Version of the cloned resource                                             */
-                RZPassNode *m_Producer = nullptr; /*  */
-                RZPassNode *m_Last     = nullptr; /*  */
+                RZPassNode *m_Producer = nullptr; /* Pass Node who writes to this resources */
+                RZPassNode *m_Last     = nullptr; /* Next Pass Node that will read this resource  */
 
             private:
                 template<typename T>
@@ -168,7 +174,7 @@ namespace Razix {
                     return model;
                 }
 
-                RAZIX_NO_DISCARD Concept *getConcept()
+                RAZIX_NO_DISCARD Concept *getConcept() const
                 {
                     return m_Concept.get();
                 }

@@ -22,12 +22,19 @@ namespace Razix {
                 // can create nodes we keep that promise by making FrameGraph a friend
                 friend class RZFrameGraph;
 
-                /* Only FG creates nodes */
-                RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZPassNode)
+                // Pass to look into PassNodes uses 2 classes so we allow them to be friends
+                friend class RZPassResourceBuilder;
+                friend class RZPassResourceDirectory;
+
+                /**
+                 * Creates a pass node using a name, id and a lambda execution function
+                 */
+                RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec);
 
             public:
                 /* To check whether or no this node has a copy of the resource already created or not */
-                bool canCreateResouce(RZFrameGraphResource resourceID) const;
+                bool
+                canCreateResouce(RZFrameGraphResource resourceID) const;
                 /* Used to check whether the given resource ID is allowed to be read by the node or not */
                 bool canReadResouce(RZFrameGraphResource resourceID) const;
                 /* Used to check whether the given resource ID is allowed to write by the node or not */
@@ -37,23 +44,26 @@ namespace Razix {
                 /** 
                  * To check whether or not to be culled
                  * if either the node has refcount > 0 or is stand alone it shouldn't be culled and allowed to be executed 
-                 */\
+                 */
                 bool canExecute() const;
 
             private:
-                std::unique_ptr<RZFrameGraphPassConcept> m_Exec; /* The execution lambda function to be called for the pass */
+                std::unique_ptr<IRZFrameGraphPass> m_Exec; /* The execution lambda function to be called for the pass */
                 // TODO: Implement this
                 //std::unique_ptr<RZFrameGraphPassConcept> m_Update; /* The update lambda function to be called for the pass */
-                //std::unique_ptr<RZFrameGraphPassConcept> m_Update; /* The resize lambda function to be called for the pass */
+                //std::unique_ptr<RZFrameGraphPassConcept> m_Resize; /* The resize lambda function to be called for the pass */
 
-                std::vector<RZFrameGraphResource>          m_Creates; /* List of all the resources created on this node                 */
-                std::vector<RZFrameGraphResourceAcessView> m_Reads;   /* List of all the resource views that are read by this node      */
-                std::vector<RZFrameGraphResourceAcessView> m_Writes;  /* List of all the resources view that are written by this node   */
-                bool                                       m_IsStandAlone = false;
+                /**
+                 * m_Creates is used to lazily call create, storing them in the framegraph requires us to create at the start of each frame
+                 * but storing them in the PassNode will only allocate memory when needed by pass, this helps with memory aliasing and deferred creation
+                 */
+
+                std::vector<RZFrameGraphResource>          m_Creates;              /* List of all the resources created on this node                */
+                std::vector<RZFrameGraphResourceAcessView> m_Reads;                /* List of all the resource views that are read by this node     */
+                std::vector<RZFrameGraphResourceAcessView> m_Writes;               /* List of all the resources view that are written by this node  */
+                bool                                       m_IsStandAlone = false; /* Whether or no the pass is stand alone                         */
 
             private:
-                RZPassNode(const std::string_view name, u32 id, std::unique_ptr<RZFrameGraphPassConcept> &&);
-
                 /**
                  * Marks a resource as read for the current pass node
                  * Store it's flags to create an access view
