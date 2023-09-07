@@ -17,10 +17,10 @@ namespace Razix {
             RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preWrite)
 
             // [Type Erasure] Source 1 : https://madptr.com/posts/2023-06-24-typeerasureintro/
-            // [Type Erasure] Source 2 : https://davekilian.com/cpp-type-erasure.html
             // [SFINAE] Source 1 : https://en.cppreference.com/w/cpp/language/sfinae
             // [SFINAE] Source 2 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
             // [SFINAE] Source 3 :  https://jguegant.github.io/blogs/tech/sfinae-introduction.html
+
             /**
              * Type Erasure class to hold different types of Graphics API resources using a wrapped class under one umbrella
              * 
@@ -109,12 +109,14 @@ namespace Razix {
 
                     void preRead(uint32_t flags)
                     {
+                        // Since these functions are optional for a resource to have and not enforce we check here before calling them
                         if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preRead))
                             resource.preRead(descriptor, flags);
                     }
 
                     void preWrite(uint32_t flags)
                     {
+                        // Since these functions are optional for a resource to have and not enforce we check here before calling them
                         if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
                             resource.preWrite(descriptor, flags);
                     }
@@ -152,7 +154,7 @@ namespace Razix {
 
             private:
                 //---------------------------------
-                std::unique_ptr<Concept> m_Concept; /* Type erased implementation class */
+                std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
                 //---------------------------------
                 const u32   m_ID;                 /* Index of the resource, usually same as FreamGraphResource to identify it   */
                 const bool  m_Imported = false;   /* Whether or not the resource has been imported                              */

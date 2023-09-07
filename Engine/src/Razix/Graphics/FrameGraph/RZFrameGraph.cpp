@@ -49,6 +49,7 @@ namespace Razix {
                 }
 
                 // Calculate resources lifetime:
+                // TODO: Improve this!
 
                 for (auto &pass: m_PassNodes) {
                     if (pass.m_RefCount == 0) continue;
