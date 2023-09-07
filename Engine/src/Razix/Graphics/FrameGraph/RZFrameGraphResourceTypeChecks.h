@@ -14,8 +14,8 @@ namespace Razix {
             // [SFINAE] Source 1 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
             // [SFINAE] Source 2 :  https://jguegant.github.io/blogs/tech/sfinae-introduction.html
 
-            // This basically has same implementation effect as what Dawid Kurek, GitHub : skaarj1989 wrote, I just renamed stuff and made them more readable
-            // Also the implementation is very much same as Dawid Kurek's and has minor changes from what I understood from reading the blogs online
+            // This basically has same implementation effect as what Dawid Kurek, (GitHub : skaarj1989) wrote, I just renamed stuff and made them more readable
+            // Also the implementation is very much same as Dawid Kurek's and has minor changes from what I understood by reading the blogs online
 
             /**
              * We need ways to emulate pure virtual function verification

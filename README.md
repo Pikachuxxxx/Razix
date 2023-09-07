@@ -8,14 +8,16 @@ Razix is a High Performance Research Engine for production pipeline with emphasi
 | --- |
 
 # About
-Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan DirectX 11, GXM, GCM, GNM and GNMX). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
+Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan, DirectX 12, GXM & GCM). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
 
-View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
+(PSVita and PS3 will be supported sometime far in future).
+
+View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
-- Support for Windows, Linux, macOS, PSVita and PS3 systems.
-- Support for OpenGL, Vulkan DirectX 11, GXM, GCM.
-- Framegraph based on EA's frostbite engine (based on [Skaarj1898's Framegraph implementation](https://github.com/skaarj1989/FrameGraph)) (currently code-driven) **WIP custom [Node Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
+- Support for Windows, Linux, macOS.
+- Support for OpenGL, Vulkan & DirectX 12.
+- Framegraph based on EA's frostbite engine (based on [skaarj1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph)) (currently code-driven) **WIP custom [Node Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
 
 | Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_WIP.png" width="200"> |  
 | ------------- | ------------- |
@@ -68,8 +70,11 @@ Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 **ex. Lua Scriping API cheatsheet** ![Lua Scriping API cheatsheet](./Docs/RazixLuaScriptingAPICheatSheet.png)
 
-**For individual module architecture and documentation check the Docs folder or check the individual folders for a detailed description
-ex. Core Systems ![Core Systems](./Docs/Architecture/RazixEngine-CoreSystems.png)**
+**Check the Docs folder or [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing) for a detailed architecture description**
+
+| Core Systems | Frame Graph |
+| ----------- | ---------- |
+| <img src="./Docs/Architecture/RazixEngine-CoreSystems.png" width="300">  |  <img src="./Docs/Architecture/Razix Engine-FrameGraph.png" width="300"> |
 
 # Changelog and Release Notes
 
