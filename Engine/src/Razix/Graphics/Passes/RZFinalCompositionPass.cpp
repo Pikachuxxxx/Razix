@@ -12,6 +12,8 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
+#include "Razix/Graphics/Passes/Data/GlobalData.h"
+
 #include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -31,10 +33,6 @@ namespace Razix {
 
         void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZScene* scene, RZRendererSettings& settings)
         {
-            RTOnlyPassData imguiPassData;
-            if (settings.renderFeatures & RendererFeature_ImGui)
-                imguiPassData = blackboard.get<RTOnlyPassData>();
-
             DescriptorSetsCreateInfos setInfos;
 
             RZPipelineDesc pipelineInfo{
@@ -47,7 +45,7 @@ namespace Razix {
                 .depthBiasEnabled       = false};
 
             // Get the final Scene Color HDR RT
-            //SceneColorData sceneColor = blackboard.get<SceneColorData>();
+            SceneData sceneData = blackboard.get<SceneData>();
 
 #if 1
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
@@ -76,17 +74,13 @@ namespace Razix {
 
                     data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", (FrameGraph::RZFrameGraphTexture::Desc) depthImageDesc);
 
-                    data.presentationDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("Present Semaphore", {"Composite Present Semaphore"});
-                    data.imageReadySemaphore       = builder.create<FrameGraph::RZFrameGraphSemaphore>("Image Ready Semaphore", {"Composite Image Acquire Semaphore"});
                     // Writes from this pass
-                    data.presentationTarget        = builder.write(data.presentationTarget);
-                    data.depthTexture              = builder.write(data.depthTexture);
-                    data.presentationDoneSemaphore = builder.write(data.presentationDoneSemaphore);
-                    data.imageReadySemaphore       = builder.write(data.imageReadySemaphore);
+                    data.presentationTarget = builder.write(data.presentationTarget);
+                    data.depthTexture       = builder.write(data.depthTexture);
 
                     if (settings.renderFeatures & RendererFeature_ImGui) {
-                        builder.read(imguiPassData.passDoneSemaphore);
-                        builder.read(imguiPassData.outputRT);
+                        builder.read(sceneData.outputHDR);
+                        builder.read(sceneData.depth);
                     }
 
                     /**
@@ -113,8 +107,6 @@ namespace Razix {
                 [=](const CompositeData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();
-
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
@@ -140,7 +132,7 @@ namespace Razix {
                     m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuffer);
                     m_ScreenQuadMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                    u32            idx = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle().getIndex();
+                    u32            idx = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle().getIndex();
                     RZPushConstant pc;
                     pc.size        = sizeof(u32);
                     pc.data        = &idx;

@@ -77,6 +77,7 @@ namespace Razix {
                     builder.read(volumetricData.noiseTexture);
 
                     sceneData.outputHDR = builder.write(sceneData.outputHDR);
+                    sceneData.depth     = builder.write(sceneData.depth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

@@ -16,6 +16,7 @@
  layout(location = 0) in VSOutput
  {
      vec3 fragLocalPos;
+     float time;
  }fs_in;
  //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms

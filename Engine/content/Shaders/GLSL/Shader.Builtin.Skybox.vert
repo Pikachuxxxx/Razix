@@ -38,6 +38,6 @@ void main()
     mat4 rotView = mat4(mat3(u_Frame.camera.view)); // remove translation from the view matrix
     vec4 clipPos = u_Frame.camera.projection * rotView * vec4(vs_out.fragLocalPos, 1.0);
 
-    gl_Position = clipPos.xyww;
+    gl_Position = clipPos.xyww; // Z = 1 must happen when we do perspective division in clipping phase
 }
 //------------------------------------------------------------------------------

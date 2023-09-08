@@ -4,69 +4,61 @@ node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
 
 P0 [label=<{ {<B>Frame Data Upload</B>} | {&#x2605; Refs: 1<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
 P1 [label=<{ {<B>Scene Lights Data Upload</B>} | {&#x2605; Refs: 1<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
-P2 [label=<{ {<B>GBuffer</B>} | {&#x2605; Refs: 4<BR/> Index: 2} }> style="rounded,filled", fillcolor=orange]
-P3 [label=<{ {<B>Simple Shadow map pass</B>} | {&#x2605; Refs: 2<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
-P4 [label=<{ {<B>PBR Lighting Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
-P5 [label=<{ {<B>Skybox Pass</B>} | {&#x2605; Refs: 1<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
-P6 [label=<{ {<B>Debug Pass</B>} | {&#x2605; Refs: 0<BR/> Index: 6} }> style="rounded,filled", fillcolor=orange]
-P7 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 7} }> style="rounded,filled", fillcolor=orange]
-P8 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 4<BR/> Index: 8} }> style="rounded,filled", fillcolor=orange]
+P2 [label=<{ {<B>Simple Shadow map pass</B>} | {&#x2605; Refs: 2<BR/> Index: 2} }> style="rounded,filled", fillcolor=orange]
+P3 [label=<{ {<B>PBR Lighting Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
+P4 [label=<{ {<B>Skybox Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
+P5 [label=<{ {<B>Debug Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
+P6 [label=<{ {<B>ImGui Pass</B>} | {&#x2605; Refs: 2<BR/> Index: 6} }> style="rounded,filled", fillcolor=orange]
+P7 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 2<BR/> Index: 7} }> style="rounded,filled", fillcolor=orange]
 
 R0_1 [label=<{ {<B>BRDF LUT</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
 R1_1 [label=<{ {<B>Noise Texture</B><BR/>(128, 128) - RGBA8 [2D]} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
 R2_1 [label=<{ {<B>Environment Map</B><BR/>(512, 512) - RGBA32F [CubeMap]} | {Index: 2<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
 R3_1 [label=<{ {<B>Diffuse Irradiance</B><BR/>(32, 32) - RGBA32F [CubeMap]} | {Index: 3<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
 R4_1 [label=<{ {<B>Specular PreFiltered</B><BR/>(128, 128) - RGBA32F [CubeMap]} | {Index: 4<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
-R5_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 5<BR/>Refs : 4} }> style=filled, fillcolor=skyblue]
+R5_1 [label=<{ {<B>Frame Data</B><BR/>size : 304 bytes} | {Index: 5<BR/>Refs : 3} }> style=filled, fillcolor=skyblue]
 R6_1 [label=<{ {<B>Scene Lights Data</B><BR/>size : 10256 bytes} | {Index: 6<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R7_1 [label=<{ {<B>Normal_Metallic</B><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R8_1 [label=<{ {<B>Albedo_Roughness</B><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R9_1 [label=<{ {<B>Position_AO</B><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 9<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R10_1 [label=<{ {<B>Depth</B><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R11_1 [label=<{ {<B>Shadow map</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>LightSpaceMatrix</B><BR/>size : 64 bytes} | {Index: 12<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R13_1 [label=<{ {<B>Scene HDR RT</B><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 13<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R14_1 [label=<{ {<B>Scene Depth</B><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 14<BR/>Refs : 3} }> style=filled, fillcolor=skyblue]
-R13_2 [label=<{ {<B>Scene HDR RT</B>   <FONT>v2</FONT><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 13<BR/>Refs : 2} }> style=filled, fillcolor=skyblue]
-R15_1 [label=<{ {<B>ImGui Pass Signal Semaphore</B><BR/>Semaphore} | {Index: 15<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R13_3 [label=<{ {<B>Scene HDR RT</B>   <FONT>v3</FONT><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 13<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R16_1 [label=<{ {<B>Present Image</B><BR/>(1318, 744) - BGRA8_UNORM [2D]} | {Index: 16<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R17_1 [label=<{ {<B>Depth Texture</B><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 17<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R18_1 [label=<{ {<B>Present Semaphore</B><BR/>Semaphore} | {Index: 18<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R19_1 [label=<{ {<B>Image Ready Semaphore</B><BR/>Semaphore} | {Index: 19<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R7_1 [label=<{ {<B>Shadow map</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 7<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R8_1 [label=<{ {<B>LightSpaceMatrix</B><BR/>size : 64 bytes} | {Index: 8<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R9_1 [label=<{ {<B>Scene HDR RT</B><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R10_1 [label=<{ {<B>Scene Depth</B><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R9_2 [label=<{ {<B>Scene HDR RT</B>   <FONT>v2</FONT><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R10_2 [label=<{ {<B>Scene Depth</B>   <FONT>v2</FONT><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R9_3 [label=<{ {<B>Scene HDR RT</B>   <FONT>v3</FONT><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R10_3 [label=<{ {<B>Scene Depth</B>   <FONT>v3</FONT><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R9_4 [label=<{ {<B>Scene HDR RT</B>   <FONT>v4</FONT><BR/>(1318, 744) - RGBA32F [2D]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R10_4 [label=<{ {<B>Scene Depth</B>   <FONT>v4</FONT><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R11_1 [label=<{ {<B>Present Image</B><BR/>(1318, 744) - BGRA8_UNORM [2D]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Depth Texture</B><BR/>(1318, 744) - BGRA8_UNORM [Depth]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R5_1 } [color=orangered]
 P1 -> { R6_1 } [color=orangered]
-P2 -> { R7_1 R8_1 R9_1 R10_1 } [color=orangered]
-P3 -> { R11_1 R12_1 } [color=orangered]
-P4 -> { R13_1 R14_1 } [color=orangered]
-P5 -> { R13_2 } [color=orangered]
-P6 -> { } [color=orangered]
-P7 -> { R13_3 R15_1 } [color=orangered]
-P8 -> { R16_1 R17_1 R18_1 R19_1 } [color=orangered]
+P2 -> { R7_1 R8_1 } [color=orangered]
+P3 -> { R9_1 R10_1 } [color=orangered]
+P4 -> { R9_2 R10_2 } [color=orangered]
+P5 -> { R9_3 R10_3 } [color=orangered]
+P6 -> { R9_4 R10_4 } [color=orangered]
+P7 -> { R11_1 R12_1 } [color=orangered]
 
-R0_1 -> { P4 } [color=olivedrab3]
-R1_1 -> { P5 } [color=olivedrab3]
-R2_1 -> { P4 P5 } [color=olivedrab3]
-R3_1 -> { P4 P5 } [color=olivedrab3]
-R4_1 -> { P4 P5 } [color=olivedrab3]
-R5_1 -> { P2 P4 P5 P6 } [color=olivedrab3]
-R6_1 -> { P4 } [color=olivedrab3]
-R7_1 -> { } [color=olivedrab3]
-R8_1 -> { } [color=olivedrab3]
-R9_1 -> { } [color=olivedrab3]
-R10_1 -> { } [color=olivedrab3]
-R11_1 -> { P4 } [color=olivedrab3]
-R12_1 -> { P4 } [color=olivedrab3]
-R13_1 -> { P5 } [color=olivedrab3]
-R14_1 -> { P5 P6 P7 } [color=olivedrab3]
-R13_2 -> { P6 P7 } [color=olivedrab3]
-R15_1 -> { P8 } [color=olivedrab3]
-R13_3 -> { P8 } [color=olivedrab3]
-R16_1 -> { } [color=olivedrab3]
-R17_1 -> { } [color=olivedrab3]
-R18_1 -> { } [color=olivedrab3]
-R19_1 -> { } [color=olivedrab3]
+R0_1 -> { P3 } [color=olivedrab3]
+R1_1 -> { P4 } [color=olivedrab3]
+R2_1 -> { P3 P4 } [color=olivedrab3]
+R3_1 -> { P3 P4 } [color=olivedrab3]
+R4_1 -> { P3 P4 } [color=olivedrab3]
+R5_1 -> { P3 P4 P5 } [color=olivedrab3]
+R6_1 -> { P3 } [color=olivedrab3]
+R7_1 -> { P3 } [color=olivedrab3]
+R8_1 -> { P3 } [color=olivedrab3]
+R9_1 -> { P4 } [color=olivedrab3]
+R10_1 -> { P4 } [color=olivedrab3]
+R9_2 -> { P5 } [color=olivedrab3]
+R10_2 -> { P5 } [color=olivedrab3]
+R9_3 -> { P6 } [color=olivedrab3]
+R10_3 -> { P6 } [color=olivedrab3]
+R9_4 -> { P7 } [color=olivedrab3]
+R10_4 -> { P7 } [color=olivedrab3]
+R11_1 -> { } [color=olivedrab3]
+R12_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
 P0 R5_1 
@@ -75,13 +67,13 @@ subgraph cluster_1 {
 P1 R6_1 
 }
 subgraph cluster_2 {
-P2 R7_1 R8_1 R9_1 R10_1 
+P2 R7_1 R8_1 
 }
 subgraph cluster_3 {
-P3 R11_1 R12_1 
+P3 R9_1 R10_1 
 }
 subgraph cluster_4 {
-P4 R13_1 R14_1 
+P4 
 }
 subgraph cluster_5 {
 P5 
@@ -90,10 +82,7 @@ subgraph cluster_6 {
 P6 
 }
 subgraph cluster_7 {
-P7 R15_1 
-}
-subgraph cluster_8 {
-P8 R16_1 R17_1 R18_1 R19_1 
+P7 R11_1 R12_1 
 }
 
 subgraph cluster_imported_resources {

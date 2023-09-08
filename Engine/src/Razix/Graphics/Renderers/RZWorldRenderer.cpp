@@ -102,7 +102,7 @@ namespace Razix {
             //-------------------------------
             // GBuffer Pass
             //-------------------------------
-            m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+            //m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
             //-------------------------------
             // [Test] Simple Shadow map Pass
@@ -244,6 +244,7 @@ namespace Razix {
                     builder.read(frameDataBlock.frameData);
 
                     sceneData.outputHDR = builder.write(sceneData.outputHDR);
+                    sceneData.depth     = builder.write(sceneData.depth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     // Origin point
@@ -305,28 +306,24 @@ namespace Razix {
             // ImGui Pass
             //-------------------------------
             sceneData = m_Blackboard.get<SceneData>();
-
-            m_Blackboard.add<RTOnlyPassData>() = m_FrameGraph.addCallbackPass<RTOnlyPassData>(
+            m_FrameGraph.addCallbackPass(
                 "ImGui Pass",
-                [&](RTOnlyPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.passDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("ImGui Pass Signal Semaphore", {"ImGui Pass Semaphore"});
-
                     builder.read(sceneData.outputHDR);
-
-                    data.outputRT          = builder.write(sceneData.outputHDR);
-                    data.passDoneSemaphore = builder.write(data.passDoneSemaphore);
-
                     builder.read(sceneData.depth);
+
+                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
+                    sceneData.depth     = builder.write(sceneData.depth);
 
                     m_ImGuiRenderer.Init();
                 },
-                [=](const RTOnlyPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
-#if 1
+                [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+#if 0
                     m_ImGuiRenderer.Begin(scene);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputRT).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
@@ -522,7 +519,8 @@ namespace Razix {
 
                         // Set the Position of the light using this transform component
                         lightComponent.light.getLightData().position = transformComponent.Translation;
-                        lightComponent.light.setDirection(glm::vec3(glm::degrees(transformComponent.Rotation.x), glm::degrees(transformComponent.Rotation.y), glm::degrees(transformComponent.Rotation.z)));
+                        //lightComponent.light.setDirection(glm::vec3(glm::degrees(transformComponent.Rotation.x), glm::degrees(transformComponent.Rotation.y), glm::degrees(transformComponent.Rotation.z)));
+                        lightComponent.light.setDirection(lightComponent.light.getLightData().position);
                         gpuLightsData.lightData[gpuLightsData.numLights] = lightComponent.light.getLightData();
 
                         gpuLightsData.numLights++;

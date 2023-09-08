@@ -93,9 +93,9 @@ namespace Razix {
 
             auto& frameDataBlock = blackboard.get<FrameData>();
 
-            blackboard.add<SceneColorData>() = framegraph.addCallbackPass<SceneColorData>(
+            blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Deferred PBR Lighting Pass",
-                [&](SceneColorData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     // TEMP:
                     builder.setAsStandAlonePass();
 
@@ -130,11 +130,11 @@ namespace Razix {
                         .type   = RZTextureProperties::Type::Texture_2D,
                         .format = RZTextureProperties::Format::RGBA32F};
 
-                    data.HDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", CAST_TO_FG_TEX_DESC sceneHDRDesc);
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", CAST_TO_FG_TEX_DESC sceneHDRDesc);
 
-                    data.HDR = builder.write(data.HDR);
+                    data.outputHDR = builder.write(data.outputHDR);
                 },
-                [=](const SceneColorData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuf = m_CmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
@@ -147,7 +147,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.HDR).getHandle(), {true, glm::vec4(0.0f)}}};
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, glm::vec4(0.0f)}}};
                     info.extent = resolution;
                     info.resize = true;
 
@@ -169,7 +169,7 @@ namespace Razix {
 
                     m_LightDataUBO->SetData(sizeof(GPULightsData), &m_GPULightData);
 
-                    // Update the Sets only once on first frame to get runtime framegraph resources
+                // Update the Sets only once on first frame to get runtime framegraph resources
 #if 0
                     static bool setsUpdated   = false;
                     static bool didCreateOnce = false;

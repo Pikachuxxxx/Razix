@@ -145,18 +145,6 @@ namespace Razix {
 
                         m_PBRBindingSet = RZDescriptorSet::Create({descriptor, texdescriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings Set"));
 
-                        auto shadowMap      = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
-                        auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
-                        auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
-                        auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
-
-                        PBRPassBindingData bindingData{};
-                        bindingData.shadowIdx  = shadowMap.getIndex();
-                        bindingData.irradIdx   = irradianceMap.getIndex();
-                        bindingData.prefiltIdx = prefilteredMap.getIndex();
-                        bindingData.brdfIdx    = brdfLUT.getIndex();
-
-                        m_PBRPassBindingUBO->SetData(sizeof(PBRPassBindingData), &bindingData);
 #if 0
 
                         RZDescriptor csm_descriptor{};
@@ -228,6 +216,19 @@ namespace Razix {
 #endif
                         updatedSets = true;
                     }
+
+                    auto shadowMap      = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
+                    auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
+                    auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
+                    auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
+
+                    PBRPassBindingData bindingData{};
+                    bindingData.shadowIdx  = shadowMap.getIndex();
+                    bindingData.irradIdx   = irradianceMap.getIndex();
+                    bindingData.prefiltIdx = prefilteredMap.getIndex();
+                    bindingData.brdfIdx    = brdfLUT.getIndex();
+
+                    m_PBRPassBindingUBO->SetData(sizeof(PBRPassBindingData), &bindingData);
 
                     m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
 

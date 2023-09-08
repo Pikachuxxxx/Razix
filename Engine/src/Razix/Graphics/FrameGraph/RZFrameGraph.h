@@ -105,7 +105,7 @@ namespace Razix {
                 {
                     // same as createResource but we pass an actual resource instead of empty constructor to ResourceEntry
                     const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
-                    m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), T{}, kResourceInitialVersion, true});
+                    m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kResourceInitialVersion, true});    // Non-empty T constructor
                     // Create the node for this resource in the graph
                     RZFrameGraphResource id = createResourceNode(name, resourceId).m_ID;
                     return id;
