@@ -116,7 +116,7 @@ namespace Razix {
 
             auto& data = framegraph.addCallbackPass<ReflectiveShadowMapData>(
                 "Reflective Shadow Map",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, ReflectiveShadowMapData& data) {
+                [&](ReflectiveShadowMapData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc textureDesc{
@@ -151,7 +151,7 @@ namespace Razix {
 
                     builder.read(frameblockData.frameData);
                 },
-                [=](const ReflectiveShadowMapData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const ReflectiveShadowMapData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RSMCmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
@@ -293,7 +293,7 @@ namespace Razix {
 
             const LightPropagationVolumesData data = framegraph.addCallbackPass<LightPropagationVolumesData>(
                 "Radiance Injection",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, LightPropagationVolumesData& data) {
+                [&](LightPropagationVolumesData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(RSM.position);
@@ -319,7 +319,7 @@ namespace Razix {
                     data.g = builder.write(data.g);
                     data.b = builder.write(data.b);
                 },
-                [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const LightPropagationVolumesData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
 #if 1
@@ -431,7 +431,7 @@ namespace Razix {
 
             const auto& data = framegraph.addCallbackPass<LightPropagationVolumesData>(
                 "Radiance Propagation #" + std::to_string(propagationIdx),
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, LightPropagationVolumesData& data) {
+                [&](LightPropagationVolumesData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(LPV.r);
@@ -457,7 +457,7 @@ namespace Razix {
                     data.g = builder.write(data.g);
                     data.b = builder.write(data.b);
                 },
-                [=](const LightPropagationVolumesData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const LightPropagationVolumesData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RadiancePropagationCmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];

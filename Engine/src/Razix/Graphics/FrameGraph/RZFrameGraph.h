@@ -48,9 +48,7 @@ namespace Razix {
                 friend class RZPassResourceDirectory;
 
             public:
-                // TODO: Separate the builder into it's own file
-
-            public:
+                RZFrameGraph() {}
                 /* We don't want dangling frame graph resources and nodes */
                 RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZFrameGraph)
 
@@ -66,13 +64,13 @@ namespace Razix {
                 const PassData &addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
                 {
                     // Compile time checks to make sure that the lambda functions are valid and have the right signature to be called by the pass
-                    static_assert(std::is_invocable_v<SetupFunc, RZPassResourceBuilder &, PassData &>, "Invalid setup callback, check the signature again");
-                    static_assert(std::is_invocable_v<ExecuteFunc, const PassData &, RZPassResourceDirectory &, void *>, "Invalid exec callback, check the signature again");
+                    static_assert(std::is_invocable_v<SetupFunc, PassData &, RZPassResourceBuilder &>, "Invalid setup callback, check the signature again");
+                    static_assert(std::is_invocable_v<ExecuteFunc, const PassData &, RZPassResourceDirectory &>, "Invalid exec callback, check the signature again");
                     // Also make sure the ExecuteFunc isn't too big
                     static_assert(sizeof(ExecuteFunc) < 1024, "Execute functions captures too much");
 
                     // Now that the checks are done, let's create the pass and PassNode
-                    RZFrameGraphPass *pass = new RZFrameGraphPass<PassData, ExecuteFunc>(std::forward<ExecuteFunc>(executeFunc));
+                    auto *pass = new RZFrameGraphPass<PassData, ExecuteFunc>(std::forward<ExecuteFunc>(executeFunc));
                     // Create the PassNode in the graph
                     RZPassNode &passNode = createPassNode(name, std::unique_ptr<RZFrameGraphPass<PassData, ExecuteFunc>>(pass));
 
@@ -80,8 +78,12 @@ namespace Razix {
                     // SetupFunc gets PassNode via RZPassResourceBuilder and ExecFunc gets PassNode via RZPassResourceDirectory
                     RZPassResourceBuilder builder(*this, passNode);
 
+                    /**
+                     * SetupFunc is captured by reference because we immediately execute where as ExecuteFunc execution is deferred so it's captured by value
+                     */
+
                     // Call the setup function for the pass
-                    std::invoke(setupFunc, builder, pass->data);
+                    std::invoke(setupFunc, pass->data, builder);
 
                     // Return the data instance
                     return pass->data;
@@ -128,7 +130,7 @@ namespace Razix {
                 /* Compiles the Frame Graph passes and culls any unused passes/resources */
                 void compile();
                 /* Executes the Frame Graph passes */
-                void execute(void *renderContext = nullptr, void *allocator = nullptr);
+                void execute(void *transientAllocator);
                 /* Exports it GraphViz format */
                 void exportToGraphViz(std::ostream &) const;
 

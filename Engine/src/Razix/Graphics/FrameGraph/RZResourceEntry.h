@@ -50,8 +50,8 @@ namespace Razix {
                  */
                 struct Concept
                 {
-                    virtual void create()  = 0;
-                    virtual void destroy() = 0;
+                    virtual void create(void *transientAllocator)  = 0;
+                    virtual void destroy(void *transientAllocator) = 0;
 
                     // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
                     virtual void preRead(uint32_t flags)  = 0;
@@ -93,14 +93,14 @@ namespace Razix {
                      * FrameGraph common create calls this create and some args from the first method are passed here later
                      */
 
-                    void create() final
+                    void create(void *transientAllocator) final
                     {
-                        resource.create(descriptor);
+                        resource.create(descriptor, transientAllocator);
                     }
 
-                    void destroy() final
+                    void destroy(void *transientAllocator) final
                     {
-                        resource.destroy(descriptor);
+                        resource.destroy(descriptor, transientAllocator);
                     }
 
                     /**
@@ -123,7 +123,10 @@ namespace Razix {
 
                     std::string toString() const final
                     {
-                        resource.to_string(descriptor);
+                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, toString))
+                            return resource.toString(descriptor);
+                        else
+                            return "XXXX";
                     }
 
                     T                      resource;   /* Resource handle              */
@@ -135,17 +138,21 @@ namespace Razix {
                 RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZResourceEntry)
 
                 RAZIX_NONCOPYABLE_CLASS(RZResourceEntry)
+                // Same reason as RZGraphicsNode
+                RAZIX_DEFAULT_MOVABLE_CLASS(RZResourceEntry)
+
+                /* Type checks ignored here because we do it before create them */
 
                 template<typename T>
                 RAZIX_NO_DISCARD T &get()
                 {
-                    getModel<T>()->resource;
+                    return getModel<T>()->resource;
                 }
 
                 template<typename T>
                 typename const T::Desc &getDescriptor() const
                 {
-                    getModel<T>()->descriptor;
+                    return getModel<T>()->descriptor;
                 }
 
                 RAZIX_NO_DISCARD u32  getVersion() const { return m_Version; }
@@ -159,8 +166,8 @@ namespace Razix {
                 const u32   m_ID;                 /* Index of the resource, usually same as FreamGraphResource to identify it   */
                 const bool  m_Imported = false;   /* Whether or not the resource has been imported                              */
                 u32         m_Version;            /* Version of the cloned resource                                             */
-                RZPassNode *m_Producer = nullptr; /* Pass Node who writes to this resources */
-                RZPassNode *m_Last     = nullptr; /* Next Pass Node that will read this resource  */
+                RZPassNode *m_Producer = nullptr; /* Pass Node who writes to this resources                                     */
+                RZPassNode *m_Last     = nullptr; /* Next Pass Node that will read this resource                                */
 
             private:
                 template<typename T>

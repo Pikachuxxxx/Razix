@@ -95,7 +95,7 @@ namespace Razix {
 
             blackboard.add<SceneColorData>() = framegraph.addCallbackPass<SceneColorData>(
                 "Deferred PBR Lighting Pass",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneColorData& data) {
+                [&](SceneColorData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     // TEMP:
                     builder.setAsStandAlonePass();
 
@@ -134,7 +134,7 @@ namespace Razix {
 
                     data.HDR = builder.write(data.HDR);
                 },
-                [=](const SceneColorData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const SceneColorData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuf = m_CmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];

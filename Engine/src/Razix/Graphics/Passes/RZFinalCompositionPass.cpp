@@ -52,7 +52,7 @@ namespace Razix {
 #if 1
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Final Composition",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CompositeData& data) {
+                [&](CompositeData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
@@ -110,7 +110,7 @@ namespace Razix {
                     // Init the mesh
                     m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
                 },
-                [=](const CompositeData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void*) {
+                [=](const CompositeData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();

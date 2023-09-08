@@ -14,10 +14,13 @@ namespace Razix {
             public:
                 typedef RZTextureDesc Desc;
 
-                void create(const Desc& desc, void* allocator);
-                void destroy(const Desc& desc, void* allocator);
+                void create(const Desc& desc, void* transientAllocator);
+                void destroy(const Desc& desc, void* transientAllocator);
 
                 static std::string toString(const Desc& desc);
+
+                void preRead(const Desc& desc, uint32_t flags);
+                void preWrite(const Desc& desc, uint32_t flags);
 
                 Graphics::RZTextureHandle getHandle() { return m_TextureHandle; }
 

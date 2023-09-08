@@ -32,6 +32,8 @@ layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 // FXAA: https://www.shadertoy.com/view/4tf3D8
 
+// TODO: use this FXAA instead : https://www.shadertoy.com/view/WtsfDH 
+
 float LinearizeDepth(float depth)
 {
   float n = 0.1; // camera z near

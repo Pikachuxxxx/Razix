@@ -14,6 +14,7 @@ namespace Razix {
             Razix::RZSplashScreen::Get().setLogString("Starting Sound Engine...");
 
             RAZIX_CORE_INFO("[Sound Engine] Backend: OpenAL");
+            Razix::RZSplashScreen::Get().setLogString("[Sound Engine] Backend: OpenAL");
         }
 
         void RZSoundEngine::ShutDown()
@@ -24,6 +25,5 @@ namespace Razix {
         void RZSoundEngine::renderAudio()
         {
         }
-
     }    // namespace Audio
 }    // namespace Razix

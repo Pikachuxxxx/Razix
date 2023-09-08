@@ -65,7 +65,7 @@ namespace Razix {
 
             framegraph.addCallbackPass(
                 "Skybox Pass",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto& data) {
+                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(frameDataBlock.frameData);
@@ -76,9 +76,9 @@ namespace Razix {
                     builder.read(sceneData.depth);
                     builder.read(volumetricData.noiseTexture);
 
-                    builder.write(sceneData.outputHDR);
+                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
                 },
-                [=](const auto& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));

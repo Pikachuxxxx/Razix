@@ -92,10 +92,10 @@ namespace Razix {
             // Since the above texture passes are cascaded we do an extra pass to constantly update the data into a buffer after all the cascade calculations are done whilst filling the TextureArray2D
             framegraph.addCallbackPass(
                 "Upload Cascade Matrices (post CSM calculation)",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto&) {
+                [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
                     shadowMapData.viewProjMatrices = builder.write(shadowMapData.viewProjMatrices);
                 },
-                [=](const auto&, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
                     CasdacesUBOData data{};
                     for (u32 i{0}; i < m_Cascades.size(); ++i) {
                         data.splitDepth[i]       = m_Cascades[i].splitDepth;
@@ -292,13 +292,13 @@ namespace Razix {
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
                 name,
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CascadeSubPassData& data) { 
+                [&](CascadeSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) { 
                         builder.setAsStandAlonePass();
                     if (cascadeIdx == 0) {
                         cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap Array", {  .name = "CascadedShadowMapsArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = RZTextureProperties::Type::Texture_Depth,.format =  RZTextureProperties::Format::DEPTH32F});
                     }
                     data.cascadeOuput = builder.write(cascadeShadowMap); },
-                [=](const CascadeSubPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**

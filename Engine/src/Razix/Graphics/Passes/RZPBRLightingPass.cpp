@@ -76,7 +76,7 @@ namespace Razix {
 
             blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "PBR Lighting Pass",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SceneData& data) {
+                [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc textureDesc{
@@ -113,7 +113,7 @@ namespace Razix {
                     //builder.read(gbufferData.MetRougAOAlpha);
                     //builder.read(gbufferData.Depth);
                 },
-                [=](const SceneData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("PBR pass", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
