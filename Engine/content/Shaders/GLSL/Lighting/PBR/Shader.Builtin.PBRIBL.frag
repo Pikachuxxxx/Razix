@@ -9,7 +9,7 @@
 #extension GL_ARB_shading_language_420pack : enable
 //------------------------------------------------------------------------------
 // Bindless Textures
-#define ENABLE_BINDLESS 1
+//#define ENABLE_BINDLESS 1
 //-------------------------------
 // Material Data
 #include <Material/ShaderInclude.Builtin.Material.glsl>
@@ -34,25 +34,25 @@ layout(location = 0) in VSOutput
 }fs_in;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-DECLARE_LIGHT_BUFFER(3, 0, sceneLights)
+DECLARE_LIGHT_BUFFER(2, 0, sceneLights)
 //--------------------------------------------------------
-//layout(set = 4, binding = 0) uniform sampler2D shadowMap;
-layout(set = 4, binding = 0) uniform ShadowMapData {
+layout(set = 3, binding = 0) uniform sampler2D shadowMap;
+layout(set = 3, binding = 1) uniform ShadowMapData {
     mat4 lightSpaceMatrix;
 }shadowMapData;
 //--------------------------------------------------------
 // IBL maps
-//layout(set = 5, binding = 0) uniform samplerCube irradianceMap;
-//layout(set = 5, binding = 1) uniform samplerCube prefilteredMap;
-//layout(set = 5, binding = 2) uniform sampler2D brdfLUT;
-//--------------------------------------------------------
-layout (set = 4, binding = 1) uniform PBRPassTextures
-{
-    uint shadowMapIdx;
-    uint irradianceMapIdx;
-    uint prefilteredMapIdx;
-    uint brdfLUTIdx;
-}texs;
+layout(set = 4, binding = 0) uniform samplerCube irradianceMap;
+layout(set = 4, binding = 1) uniform samplerCube prefilteredMap;
+layout(set = 4, binding = 2) uniform sampler2D brdfLUT;
+//------------------------------------------------------------------------------
+//layout (set = SET_IDX_USER_DATA_SLOT_0, binding = 1) uniform PBRPassTextures
+//{
+//    uint shadowMapIdx;
+//    uint irradianceMapIdx;
+//    uint prefilteredMapIdx;
+//    uint brdfLUTIdx;
+//}texs;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
@@ -123,12 +123,20 @@ void main()
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
-    vec3 irradiance = texture(global_textures_cubemap[nonuniformEXT(texs.irradianceMapIdx)], N).rgb;
+    //vec3 irradiance = texture(global_textures_cubemap[nonuniformEXT(texs.irradianceMapIdx)], N).rgb;
+    //vec3 diffuse = irradiance * albedo;
+    //
+    //const float MAX_REFLECTION_LOD = 4.0;
+    //vec3 prefilteredColor = textureLod(global_textures_cubemap[nonuniformEXT(texs.prefilteredMapIdx)], R,  roughness * MAX_REFLECTION_LOD).rgb;   
+    //vec2 envBRDF  = texture(global_textures_2d[nonuniformEXT(texs.brdfLUTIdx)], vec2(max(dot(N, V), 0.0), roughness)).rg;
+    //vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
+    vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
 
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(global_textures_cubemap[nonuniformEXT(texs.prefilteredMapIdx)], R,  roughness * MAX_REFLECTION_LOD).rgb;   
-    vec2 envBRDF  = texture(global_textures_2d[nonuniformEXT(texs.brdfLUTIdx)], vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 prefilteredColor = textureLod(prefilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;   
+    vec2 envBRDF  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
     vec3 ambient = (kD * diffuse + specular ) * ao; 
@@ -141,7 +149,8 @@ void main()
     float shadow = 1.0f;
     // FIXME: We assume the first light is the Directional Light and only use that
     if(sceneLights.data[0].type == LightType_Directional)
-        shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.shadowMapIdx)], FragPosLightSpace, N, sceneLights.data[0].position);
+        //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.shadowMapIdx)], FragPosLightSpace, N, sceneLights.data[0].position);
+        shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
 
     //result *= shadow;
     //-----------------------------------------------

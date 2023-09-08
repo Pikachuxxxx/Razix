@@ -161,9 +161,8 @@ namespace Razix {
                         if (descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER) {
                             descriptor.uniformBuffer = m_MaterialPropertiesUBO;
                         }
-    #if 0 
-                        else if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
-                        {
+    #if 1
+                        else if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
                             // Choose the mat textures based on the workflow & preset
                             switch (descriptor.bindingInfo.binding) {
                                 case TextureBindingTable::BINDING_IDX_TEX_ALBEDO:
@@ -205,7 +204,7 @@ namespace Razix {
                                     descriptor.texture = s_DefaultTexture;
                                     break;
                             }
-                    }
+                        }
     #endif
                     }
                     m_DescriptorSet = RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_MAT_PROPS"));

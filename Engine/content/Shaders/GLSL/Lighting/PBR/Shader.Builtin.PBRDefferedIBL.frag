@@ -31,23 +31,23 @@ layout (push_constant) uniform PushConstantData{
 }pc_data;
 //--------------------------------------------------------
 // GBuffer Data @ set = 0
-layout (set = 0, binding = 0) uniform sampler2D gBuffer0; // .rgb = Normal .a = Position.x
-layout (set = 0, binding = 1) uniform sampler2D gBuffer1; // .rgb = Albedo .a = Position.y
-layout (set = 0, binding = 2) uniform sampler2D gBuffer2; // .rgb = Emissive .a = Position.z
-layout (set = 0, binding = 3) uniform sampler2D gBuffer3; // .r = Metallic .g = roughness .b = AO .a = alpha/opacity
+layout (set = 1, binding = 0) uniform sampler2D gBuffer0; // .rgb = Normal .a = Position.x
+layout (set = 1, binding = 1) uniform sampler2D gBuffer1; // .rgb = Albedo .a = Position.y
+layout (set = 1, binding = 2) uniform sampler2D gBuffer2; // .rgb = Emissive .a = Position.z
+layout (set = 1, binding = 3) uniform sampler2D gBuffer3; // .r = Metallic .g = roughness .b = AO .a = alpha/opacity
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-DECLARE_LIGHT_BUFFER(1, 0, sceneLights)
+DECLARE_LIGHT_BUFFER(2, 0, sceneLights)
 //--------------------------------------------------------
-layout(set = 2, binding = 0) uniform sampler2D shadowMap;
-layout(set = 2, binding = 1) uniform ShadowMapData {
+layout(set = 3, binding = 0) uniform sampler2D shadowMap;
+layout(set = 3, binding = 1) uniform ShadowMapData {
     mat4 lightSpaceMatrix;
 }shadowMapData;
 //--------------------------------------------------------
 // IBL maps @ set = 2
-layout(set = 2, binding = 2) uniform samplerCube irradianceMap;
-layout(set = 2, binding = 3) uniform samplerCube prefilteredMap;
-layout(set = 2, binding = 4) uniform sampler2D brdfLUT;
+layout(set = 3, binding = 2) uniform samplerCube irradianceMap;
+layout(set = 3, binding = 3) uniform samplerCube prefilteredMap;
+layout(set = 3, binding = 4) uniform sampler2D brdfLUT;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;

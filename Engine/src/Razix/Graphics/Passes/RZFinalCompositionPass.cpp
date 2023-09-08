@@ -103,6 +103,14 @@ namespace Razix {
 
                     // Init the mesh
                     m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
+
+                    setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                    for (auto& setInfo: setInfos) {
+                        for (auto& descriptor: setInfo.second) {
+                            descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
+                        }
+                        m_DescriptorSets = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"), true);
+                    }
                 },
                 [=](const CompositeData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -112,6 +120,20 @@ namespace Razix {
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
                     cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+
+                    // Update the Descriptor Set with the new texture once
+                    static bool updatedRT = false;
+                    if (!updatedRT) {
+                        auto setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                        for (auto& setInfo: setInfos) {
+                            for (auto& descriptor: setInfo.second) {
+                                // change the layout to be in Shader Read Only Optimal
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                            }
+                            m_DescriptorSets->UpdateSet(setInfo.second);
+                        }
+                        //updatedRT = true;
+                    }
 
                     RenderingInfo info{};
                     info.colorAttachments = {
@@ -126,18 +148,19 @@ namespace Razix {
                     // Bind pipeline and stuff
                     m_Pipeline->Bind(cmdBuffer);
 
-                    Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
-                    RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
+                    //Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+                    Graphics::RHI::BindDescriptorSet(m_Pipeline, RHI::GetCurrentCommandBuffer(), m_DescriptorSets, BindingTable_System::SET_IDX_FRAME_DATA);
+                    //RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
 
                     m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuffer);
                     m_ScreenQuadMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                    u32            idx = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle().getIndex();
-                    RZPushConstant pc;
-                    pc.size        = sizeof(u32);
-                    pc.data        = &idx;
-                    pc.shaderStage = ShaderStage::PIXEL;
-                    RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
+                    //u32            idx = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle().getIndex();
+                    //RZPushConstant pc;
+                    //pc.size        = sizeof(u32);
+                    //pc.data        = &idx;
+                    //pc.shaderStage = ShaderStage::PIXEL;
+                    //RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
 
                     // No need to bind the mesh material
 

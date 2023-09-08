@@ -8,8 +8,8 @@
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
  //------------------------------------------------------------------------------
- #define ENABLE_BINDLESS 1
- #include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+ //#define ENABLE_BINDLESS 1
+ //#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
  //------------------------------------------------------------------------------
 // Constants
 const float PI = 3.14159265359;
@@ -23,10 +23,12 @@ const float PI = 3.14159265359;
     int layer;
  }vs_in;
  //------------------------------------------------------------------------------
- layout (push_constant) uniform CubeMapIdx
-{
-    uint idx;
-}tex;
+//layout (push_constant) uniform CubeMapIdx
+//{
+//    uint idx;
+//}tex;
+// Fragment Shader Stage Uniforms
+layout (set = 0, binding = 1) uniform samplerCube envMap;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments 
 layout(location = 0) out vec4 outFragColor;
@@ -52,7 +54,8 @@ void main()
            vec3 tangentSample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
            // tangent space to world
            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
-           irradiance += textureLod(global_textures_cubemap[nonuniformEXT(tex.idx)], sampleVec, 0).rgb * cos(theta) * sin(theta);
+           //irradiance += textureLod(global_textures_cubemap[nonuniformEXT(tex.idx)], sampleVec, 0).rgb * cos(theta) * sin(theta);
+           irradiance += texture(envMap, sampleVec).rgb * cos(theta) * sin(theta);
            nrSamples++;
        }
     }

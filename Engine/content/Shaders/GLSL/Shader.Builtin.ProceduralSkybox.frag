@@ -10,8 +10,8 @@
  //------------------------------------------------------------------------------
  // Includes
  // Bindless Textures
-#define ENABLE_BINDLESS 1
-#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+//#define ENABLE_BINDLESS 1
+//#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
 #include <Lighting/ShaderInclude.Builtin.VolumetricClouds.glsl>
 //------------------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,8 @@ Original code was translated and adapted for ShaderToy by P.Z.
 
 const vec4 _LightColor0 = vec4(0.9,0.9,0.9,1.0);
 const  float _Exposure = 1.0;
-const vec3 _GroundColor = vec3(.369, .349, .341);
+//const vec3 _GroundColor = vec3(.369, .349, .341); // Unity Ground color (94, 88, 87)
+const vec3 _GroundColor = vec3(.369, .52, .741);
 const float _SunSize = 0.04;
 const float _SunSizeConvergence = 5.0;
 const vec3 _SkyTint = vec3(.5, .5, .5);
@@ -85,7 +86,7 @@ layout(location = 0) in VSOutput
 //------------------------------------------------------------------------------
 layout (push_constant) uniform PushConstantData{
     vec3 WorldSpaceLightPos;
-    uint noiseTexIdx;
+    //uint noiseTexIdx;
 }pc_data;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
@@ -187,7 +188,7 @@ vec4 ProceduralSkybox(vec3 ro, vec3 rd)
 void main()
 {
     // Load the noise texture
-    NoiseTexIdx = pc_data.noiseTexIdx;
+    //NoiseTexIdx = pc_data.noiseTexIdx;
 
     vec3 ro = vec3 (0.,0.,0.);
 	vec3 rd = normalize(fs_in.fragLocalPos);

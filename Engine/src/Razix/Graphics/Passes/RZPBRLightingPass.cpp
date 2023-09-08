@@ -72,7 +72,7 @@ namespace Razix {
                 u32 brdfIdx;
             };
 
-            m_PBRPassBindingUBO = RZUniformBuffer::Create(sizeof(PBRPassBindingData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("PBRPassTextures UBO"));
+            //m_PBRPassBindingUBO = RZUniformBuffer::Create(sizeof(PBRPassBindingData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("PBRPassTextures UBO"));
 
             blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "PBR Lighting Pass",
@@ -131,25 +131,25 @@ namespace Razix {
                     // Set the Descriptor Set once rendering starts
                     static bool updatedSets = false;
                     if (!updatedSets) {
-                        RZDescriptor descriptor{};
-                        descriptor.bindingInfo.binding = 0;
-                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+                        //RZDescriptor descriptor{};
+                        //descriptor.bindingInfo.binding = 0;
+                        //descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        //descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        //descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
-                        RZDescriptor texdescriptor{};
-                        texdescriptor.bindingInfo.binding = 1;
-                        texdescriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        texdescriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        texdescriptor.uniformBuffer       = m_PBRPassBindingUBO;
+                        //RZDescriptor texdescriptor{};
+                        //texdescriptor.bindingInfo.binding = 1;
+                        //texdescriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        //texdescriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        //texdescriptor.uniformBuffer       = m_PBRPassBindingUBO;
 
-                        m_PBRBindingSet = RZDescriptorSet::Create({descriptor, texdescriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings Set"));
+                        //m_PBRBindingSet = RZDescriptorSet::Create({descriptor, texdescriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings Set"));
 
-#if 0
+                        auto shadowMap = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
                         RZDescriptor csm_descriptor{};
                         csm_descriptor.bindingInfo.binding = 0;
-                        csm_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                        csm_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         csm_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         csm_descriptor.texture             = shadowMap;
 
@@ -186,6 +186,7 @@ namespace Razix {
                         brdflut_descriptor.texture             = brdfLUT;
 
                         m_PBRDataSet = RZDescriptorSet::Create({irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings"));
+#if 0
 
                         RZDescriptor gbuffer0_descriptor{};
                         gbuffer0_descriptor.bindingInfo.binding = 0;
@@ -222,17 +223,17 @@ namespace Razix {
                     auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
                     auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
 
-                    PBRPassBindingData bindingData{};
-                    bindingData.shadowIdx  = shadowMap.getIndex();
-                    bindingData.irradIdx   = irradianceMap.getIndex();
-                    bindingData.prefiltIdx = prefilteredMap.getIndex();
-                    bindingData.brdfIdx    = brdfLUT.getIndex();
+                    //PBRPassBindingData bindingData{};
+                    //bindingData.shadowIdx  = shadowMap.getIndex();
+                    //bindingData.irradIdx   = irradianceMap.getIndex();
+                    //bindingData.prefiltIdx = prefilteredMap.getIndex();
+                    //bindingData.brdfIdx    = brdfLUT.getIndex();
 
-                    m_PBRPassBindingUBO->SetData(sizeof(PBRPassBindingData), &bindingData);
+                    //m_PBRPassBindingUBO->SetData(sizeof(PBRPassBindingData), &bindingData);
 
                     m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
 
-                    scene->drawScene(m_Pipeline, {.userSets = {m_PBRBindingSet}});
+                    scene->drawScene(m_Pipeline, {.userSets = {m_ShadowDataSet, m_PBRDataSet}});
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
@@ -243,7 +244,7 @@ namespace Razix {
         {
             m_Pipeline->Destroy();
             m_PBRBindingSet->Destroy();
-            m_PBRPassBindingUBO->Destroy();
+            //m_PBRPassBindingUBO->Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix

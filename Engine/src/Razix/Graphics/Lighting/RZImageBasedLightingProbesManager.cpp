@@ -80,21 +80,17 @@ namespace Razix {
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
                 UBOs.push_back(viewProjLayerUBO);
 
-                //for (auto& setInfo: setInfos) {
-                //    // Fill the descriptors with buffers and textures
-                //    for (auto& descriptor: setInfo.second) {
-                //        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
-                //            descriptor.uniformBuffer = viewProjLayerUBO;
-                //    }
-                RZDescriptor descriptor{};
-                descriptor.bindingInfo.binding = 0;
-                descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                descriptor.uniformBuffer       = viewProjLayerUBO;
-
-                auto set = Graphics::RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)), false);
-                envMapSets.push_back(set);
-                //}
+                for (auto& setInfo: setInfos) {
+                    // Fill the descriptors with buffers and textures
+                    for (auto& descriptor: setInfo.second) {
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                            descriptor.texture = equirectangularMapHandle;
+                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                            descriptor.uniformBuffer = viewProjLayerUBO;
+                    }
+                    auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)), false);
+                    envMapSets.push_back(set);
+                }
             }
 
             u32 dim = 512;
@@ -156,12 +152,11 @@ namespace Razix {
                 pc.shaderStage = ShaderStage::PIXEL;
                 pc.data        = &idx;
 
-                RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
+                //RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
                 for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
-                    RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-
+                    //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
                     RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
 
@@ -225,22 +220,17 @@ namespace Razix {
                 RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
                 UBOs.push_back(viewProjLayerUBO);
 
-                //for (auto& setInfo: setInfos) {
-                //    // Fill the descriptors with buffers and textures
-                //    for (auto& descriptor: setInfo.second) {
-                //        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
-                //            descriptor.uniformBuffer = viewProjLayerUBO;
-                //    }
-
-                RZDescriptor descriptor{};
-                descriptor.bindingInfo.binding = 0;
-                descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                descriptor.uniformBuffer       = viewProjLayerUBO;
-
-                auto set = Graphics::RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance map conversion set : #" + std::to_string(i)), false);
-                envMapSets.push_back(set);
-                //}
+                for (auto& setInfo: setInfos) {
+                    // Fill the descriptors with buffers and textures
+                    for (auto& descriptor: setInfo.second) {
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                            descriptor.texture = cubeMap;
+                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                            descriptor.uniformBuffer = viewProjLayerUBO;
+                    }
+                    auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance map conversion set : #" + std::to_string(i)), false);
+                    envMapSets.push_back(set);
+                }
             }
 
             // Create the Pipeline
@@ -279,17 +269,17 @@ namespace Razix {
                 cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                u32            idx = cubeMap.getIndex();
-                RZPushConstant pc;
-                pc.size        = sizeof(u32);
-                pc.shaderStage = ShaderStage::PIXEL;
-                pc.data        = &idx;
+                //u32            idx = cubeMap.getIndex();
+                //RZPushConstant pc;
+                //pc.size        = sizeof(u32);
+                //pc.shaderStage = ShaderStage::PIXEL;
+                //pc.data        = &idx;
 
-                RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
+                //RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
                 for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
-                    RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
+                    //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
                     RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
                 }
 
@@ -362,14 +352,17 @@ namespace Razix {
                 //    envMapSets.push_back(set);
                 //}
 
-                RZDescriptor descriptor{};
-                descriptor.bindingInfo.binding = 0;
-                descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                descriptor.uniformBuffer       = viewProjLayerUBO;
-
-                auto set = Graphics::RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Prefiltered map conversion set : #" + std::to_string(i)), false);
-                envMapSets.push_back(set);
+                for (auto& setInfo: setInfos) {
+                    // Fill the descriptors with buffers and textures
+                    for (auto& descriptor: setInfo.second) {
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                            descriptor.texture = cubeMap;
+                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                            descriptor.uniformBuffer = viewProjLayerUBO;
+                    }
+                    auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map conversion set : #" + std::to_string(i)), false);
+                    envMapSets.push_back(set);
+                }
             }
 
             // Create the Pipeline
@@ -419,16 +412,14 @@ namespace Razix {
 
                     for (u32 i = 0; i < layerCount; i++) {
                         RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
-                        RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
+                        //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
 
                         float roughness = (float) mip / (float) (maxMipLevels - 1);
                         struct PCData
                         {
-                            u32   idx       = 0;
                             float roughness = 0.0f;
                         } data{};
                         data.roughness = roughness;
-                        data.idx       = cubeMap.getIndex();
                         RZPushConstant pc;
                         pc.shaderStage = ShaderStage::PIXEL;
                         pc.data        = &data;

@@ -9,8 +9,8 @@
  #extension GL_ARB_shading_language_420pack : enable
 //------------------------------------------------------------------------------
 // Bindless Textures
-#define ENABLE_BINDLESS 1
-#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+//#define ENABLE_BINDLESS 1
+//#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
 //------------------------------------------------------------------------------
 // VersampleColor Input
 layout(location = 0) in VSOutput
@@ -20,12 +20,12 @@ layout(location = 0) in VSOutput
 
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-//layout(set = 0, binding = 0) uniform sampler2D renderTarget;
+layout(set = 0, binding = 0) uniform sampler2D renderTarget;
 
-layout (push_constant) uniform FinalRT
-{
-    uint idx;
-}tex;
+//layout (push_constant) uniform FinalRT
+//{
+//    uint idx;
+//}tex;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
@@ -44,7 +44,8 @@ float LinearizeDepth(float depth)
 
 vec3 sampleColor(vec2 p)
 {
-    vec3 col = texture(global_textures_2d[nonuniformEXT(tex.idx)], p).rgb;
+    //vec3 col = texture(global_textures_2d[nonuniformEXT(tex.idx)], p).rgb;
+    vec3 col = texture(renderTarget, p).rgb;
     return col;
 }
 

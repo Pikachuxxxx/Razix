@@ -286,6 +286,8 @@ namespace Razix {
                 VkDescriptorPoolSize pool_sizes_bindless[] = {
                     // We use bindless for Images, Storage images and Uniform Buffers for now
                     {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, kMAX_BINDLESS_RESOURCES},
+                    {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, kMAX_BINDLESS_RESOURCES},
+                    {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, kMAX_BINDLESS_RESOURCES},
                     //{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, kMAX_BINDLESS_RESOURCES},
                     //{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, kMAX_BINDLESS_RESOURCES}
                 };
@@ -303,13 +305,26 @@ namespace Razix {
 
                 // Actual descriptor set layout
                 // Images
-                VkDescriptorSetLayoutBinding& image_sampler_binding = vk_binding[0];
-                image_sampler_binding.descriptorType                = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                image_sampler_binding.descriptorCount               = kMAX_BINDLESS_RESOURCES;
-                image_sampler_binding.binding                       = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
-                image_sampler_binding.stageFlags                    = /*VK_SHADER_STAGE_ALL*/ VK_SHADER_STAGE_FRAGMENT_BIT;
-                image_sampler_binding.pImmutableSamplers            = nullptr;
+                VkDescriptorSetLayoutBinding& image_2d_sampler_binding = vk_binding[0];
+                image_2d_sampler_binding.descriptorType                = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                image_2d_sampler_binding.descriptorCount               = kMAX_BINDLESS_RESOURCES;
+                image_2d_sampler_binding.binding                       = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_2D_BINDING_IDX;
+                image_2d_sampler_binding.stageFlags                    = /*VK_SHADER_STAGE_ALL*/ VK_SHADER_STAGE_FRAGMENT_BIT;
+                image_2d_sampler_binding.pImmutableSamplers            = nullptr;
 
+                VkDescriptorSetLayoutBinding& image_3d_sampler_binding = vk_binding[1];
+                image_3d_sampler_binding.descriptorType                = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                image_3d_sampler_binding.descriptorCount               = kMAX_BINDLESS_RESOURCES;
+                image_3d_sampler_binding.binding                       = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_3D_BINDING_IDX;
+                image_3d_sampler_binding.stageFlags                    = /*VK_SHADER_STAGE_ALL*/ VK_SHADER_STAGE_FRAGMENT_BIT;
+                image_3d_sampler_binding.pImmutableSamplers            = nullptr;
+
+                VkDescriptorSetLayoutBinding& image_cubemap_sampler_binding = vk_binding[2];
+                image_cubemap_sampler_binding.descriptorType                = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                image_cubemap_sampler_binding.descriptorCount               = kMAX_BINDLESS_RESOURCES;
+                image_cubemap_sampler_binding.binding                       = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_CUBEMAP_BINDING_IDX;
+                image_cubemap_sampler_binding.stageFlags                    = /*VK_SHADER_STAGE_ALL*/ VK_SHADER_STAGE_FRAGMENT_BIT;
+                image_cubemap_sampler_binding.pImmutableSamplers            = nullptr;
     #if 0
                 // Storage Images 
                 VkDescriptorSetLayoutBinding& storage_image_binding = vk_binding[1];
