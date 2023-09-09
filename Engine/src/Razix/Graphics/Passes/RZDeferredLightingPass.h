@@ -5,7 +5,6 @@
 #include "Razix/Graphics/Passes/IRZPass.h"
 
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
-#include "Razix/Graphics/Passes/Data/SceneColorData.h"
 #include "Razix/Graphics/Passes/Data/TileData.h"
 
 #include "Razix/Graphics/Renderers/RZSystemBinding.h"

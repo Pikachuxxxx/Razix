@@ -39,7 +39,7 @@ namespace Razix {
             IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
             resource->setName(desc.name);
             resource->setHandle(handle);
-            ((RZTexture*) where)->UploadToBindlessSet();
+            //((RZTexture*) where)->UploadToBindlessSet();
             return handle;
         }
 
@@ -51,7 +51,7 @@ namespace Razix {
             IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
             resource->setName(desc.name);
             resource->setHandle(handle);
-            ((RZTexture*) where)->UploadToBindlessSet();
+            //((RZTexture*) where)->UploadToBindlessSet();
             return handle;
         }
 

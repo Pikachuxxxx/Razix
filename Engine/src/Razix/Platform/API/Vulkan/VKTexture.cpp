@@ -269,11 +269,28 @@ namespace Razix {
                 imageInfo.imageView   = descriptor.imageView;
                 imageInfo.sampler     = descriptor.sampler;
 
+                u32 bindingIdx = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
+
+                switch (m_Desc.type) {
+                    case RZTextureProperties::Type::Texture_2D:
+                    case RZTextureProperties::Type::Texture_2DArray:
+                        bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_2D_BINDING_IDX;
+                        break;
+                    case RZTextureProperties::Type::Texture_3D:
+                        bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_3D_BINDING_IDX;
+                        break;
+                    case RZTextureProperties::Type::Texture_CubeMap:
+                    case RZTextureProperties::Type::Texture_CubeMapArray:
+                        bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_CUBEMAP_BINDING_IDX;
+                        break;
+                }
+
                 VkWriteDescriptorSet writeDescriptorSet{};
                 writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 writeDescriptorSet.dstSet          = VKDevice::Get().getBindlessDescriptorSet();
                 writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;    // for R/W write texture this will be STORAGE_IMAGE with different binding idx
-                writeDescriptorSet.dstBinding      = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
+                writeDescriptorSet.dstBinding      = bindingIdx;
+                //BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
                 writeDescriptorSet.dstArrayElement = getHandle().getIndex();    // RZTexturePool index is allocated to this as the binding index in the global_texture_xxxyyy_array
                 writeDescriptorSet.pImageInfo      = &imageInfo;
                 writeDescriptorSet.descriptorCount = 1;    // Single Texture array

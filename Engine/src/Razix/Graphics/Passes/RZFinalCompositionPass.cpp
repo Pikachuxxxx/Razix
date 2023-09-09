@@ -12,6 +12,8 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
+#include "Razix/Graphics/Passes/Data/GlobalData.h"
+
 #include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -31,10 +33,6 @@ namespace Razix {
 
         void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZScene* scene, RZRendererSettings& settings)
         {
-            RTOnlyPassData imguiPassData;
-            if (settings.renderFeatures & RendererFeature_ImGui)
-                imguiPassData = blackboard.get<RTOnlyPassData>();
-
             DescriptorSetsCreateInfos setInfos;
 
             RZPipelineDesc pipelineInfo{
@@ -47,12 +45,12 @@ namespace Razix {
                 .depthBiasEnabled       = false};
 
             // Get the final Scene Color HDR RT
-            //SceneColorData sceneColor = blackboard.get<SceneColorData>();
+            SceneData sceneData = blackboard.get<SceneData>();
 
 #if 1
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Final Composition",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, CompositeData& data) {
+                [&](CompositeData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
@@ -76,17 +74,13 @@ namespace Razix {
 
                     data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", (FrameGraph::RZFrameGraphTexture::Desc) depthImageDesc);
 
-                    data.presentationDoneSemaphore = builder.create<FrameGraph::RZFrameGraphSemaphore>("Present Semaphore", {"Composite Present Semaphore"});
-                    data.imageReadySemaphore       = builder.create<FrameGraph::RZFrameGraphSemaphore>("Image Ready Semaphore", {"Composite Image Acquire Semaphore"});
                     // Writes from this pass
-                    data.presentationTarget        = builder.write(data.presentationTarget);
-                    data.depthTexture              = builder.write(data.depthTexture);
-                    data.presentationDoneSemaphore = builder.write(data.presentationDoneSemaphore);
-                    data.imageReadySemaphore       = builder.write(data.imageReadySemaphore);
+                    data.presentationTarget = builder.write(data.presentationTarget);
+                    data.depthTexture       = builder.write(data.depthTexture);
 
                     if (settings.renderFeatures & RendererFeature_ImGui) {
-                        builder.read(imguiPassData.passDoneSemaphore);
-                        builder.read(imguiPassData.outputRT);
+                        builder.read(sceneData.outputHDR);
+                        builder.read(sceneData.depth);
                     }
 
                     /**
@@ -109,17 +103,37 @@ namespace Razix {
 
                     // Init the mesh
                     m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
-                },
-                [=](const CompositeData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void*) {
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto imageReadySemaphore = resources.get<FrameGraph::RZFrameGraphSemaphore>(data.imageReadySemaphore).getHandle();
+                    setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                    for (auto& setInfo: setInfos) {
+                        for (auto& descriptor: setInfo.second) {
+                            descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
+                        }
+                        m_DescriptorSets = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Set"), true);
+                    }
+                },
+                [=](const CompositeData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
                     cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+
+                    // Update the Descriptor Set with the new texture once
+                    static bool updatedRT = false;
+                    if (!updatedRT) {
+                        auto setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                        for (auto& setInfo: setInfos) {
+                            for (auto& descriptor: setInfo.second) {
+                                // change the layout to be in Shader Read Only Optimal
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                            }
+                            m_DescriptorSets->UpdateSet(setInfo.second);
+                        }
+                        //updatedRT = true;
+                    }
 
                     RenderingInfo info{};
                     info.colorAttachments = {
@@ -134,18 +148,19 @@ namespace Razix {
                     // Bind pipeline and stuff
                     m_Pipeline->Bind(cmdBuffer);
 
-                    Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
-                    RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
+                    //Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+                    Graphics::RHI::BindDescriptorSet(m_Pipeline, RHI::GetCurrentCommandBuffer(), m_DescriptorSets, BindingTable_System::SET_IDX_FRAME_DATA);
+                    //RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
 
                     m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuffer);
                     m_ScreenQuadMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                    u32            idx = resources.get<FrameGraph::RZFrameGraphTexture>(imguiPassData.outputRT).getHandle().getIndex();
-                    RZPushConstant pc;
-                    pc.size        = sizeof(u32);
-                    pc.data        = &idx;
-                    pc.shaderStage = ShaderStage::PIXEL;
-                    RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
+                    //u32            idx = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle().getIndex();
+                    //RZPushConstant pc;
+                    //pc.size        = sizeof(u32);
+                    //pc.data        = &idx;
+                    //pc.shaderStage = ShaderStage::PIXEL;
+                    //RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
 
                     // No need to bind the mesh material
 

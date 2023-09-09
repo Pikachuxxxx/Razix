@@ -8,8 +8,8 @@
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
  //------------------------------------------------------------------------------
- #define ENABLE_BINDLESS 1
- #include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+ //#define ENABLE_BINDLESS 1
+ //#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
 //------------------------------------------------------------------------------
 // Constants
 const float PI = 3.14159265359;
@@ -24,8 +24,10 @@ const float PI = 3.14159265359;
  }vs_in;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
+layout (set = 0, binding = 1) uniform samplerCube envMap;
+
 layout (push_constant) uniform PushConstantData{
-    uint texIdx;
+    //uint texIdx;
     float roughness;
 }pc_data;
 //------------------------------------------------------------------------------
@@ -139,7 +141,8 @@ void main()
 
             float mipLevel = pc_data.roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
 
-            prefilteredColor += textureLod(global_textures_cubemap[nonuniformEXT(pc_data.texIdx)], L, mipLevel).rgb * NdotL;
+            //prefilteredColor += textureLod(global_textures_cubemap[nonuniformEXT(pc_data.texIdx)], L, mipLevel).rgb * NdotL;
+            prefilteredColor += textureLod(envMap, L, mipLevel).rgb * NdotL;
             totalWeight      += NdotL;
         }
     }

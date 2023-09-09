@@ -114,8 +114,8 @@ namespace Razix {
             Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
         //-----------------------------
         // Bindless Textures (Can be used for any texture, not just mats, even RTs used a bindables hence this is always bound)
-        if (!sceneDrawParams.disableBindlessTextures)
-            Graphics::RHI::EnableBindlessTextures(pipeline, cmdBuffer);
+        //if (!sceneDrawParams.disableBindlessTextures)
+        //    Graphics::RHI::EnableBindlessTextures(pipeline, cmdBuffer);
         //-----------------------------
         // Scene Lighting Data
         if (!sceneDrawParams.disableLights)

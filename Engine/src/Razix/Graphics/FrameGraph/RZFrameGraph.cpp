@@ -63,7 +63,7 @@ namespace Razix {
                 }
             }
 
-            void RZFrameGraph::execute(void *renderContext /*= nullptr*/, void *allocator /*= nullptr*/)
+            void RZFrameGraph::execute(void *transientAllocator)
             {
                 // Iterate though all passes and call their ExecuteFunc
                 for (auto &pass: m_PassNodes) {
@@ -72,7 +72,7 @@ namespace Razix {
 
                     // Call create for all the resources created by this node : Lazy Allocation --> helps with memory aliasing (pass transient resources)
                     for (const auto &id: pass.m_Creates)
-                        getResourceEntry(id).getConcept()->create();
+                        getResourceEntry(id).getConcept()->create(transientAllocator);
 
                     // Call pre read and pre write functions on the resource before the execute function
                     // Safety of existence is taken care in the ResourceEntry class
@@ -86,7 +86,7 @@ namespace Razix {
 
                     // call the ExecuteFunc
                     RZPassResourceDirectory resources{*this, pass};
-                    std::invoke(*pass.m_Exec, resources, renderContext);
+                    std::invoke(*pass.m_Exec, resources);
 
                     /**
                      * Current nodes resources can still be used by other nodes so we check
@@ -96,7 +96,7 @@ namespace Razix {
                      */
                     for (auto &entry: m_ResourceRegistry)
                         if (entry.m_Last == &pass && entry.isTransient())
-                            entry.getConcept()->destroy();
+                            entry.getConcept()->destroy(transientAllocator);
                 }
             }
 

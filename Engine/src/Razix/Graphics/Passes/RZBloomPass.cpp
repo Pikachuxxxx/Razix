@@ -111,7 +111,7 @@ namespace Razix {
 
             auto& pass = framegraph.addCallbackPass<BloomSubPassData>(
                 name.c_str(),
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, BloomSubPassData& data) {
+                [&](BloomSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc bloomMipDesc{
@@ -128,7 +128,7 @@ namespace Razix {
                     builder.read(bloomSourceMip.mip);
                     data.bloomMip = builder.write(data.bloomMip);
                 },
-                [=](const BloomSubPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const BloomSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**
@@ -233,7 +233,7 @@ namespace Razix {
 
             auto& pass = framegraph.addCallbackPass<BloomSubPassData>(
                 name.c_str(),
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, BloomSubPassData& data) {
+                [&](BloomSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc bloomMipDesc{
@@ -250,7 +250,7 @@ namespace Razix {
                     builder.read(bloomSourceMip.mip);
                     data.bloomMip = builder.write(data.bloomMip);
                 },
-                [=](const BloomSubPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const BloomSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**
@@ -366,7 +366,7 @@ namespace Razix {
 
             framegraph.addCallbackPass<TonemapData>(
                 "Bloom Mix Tonemapping pass",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, TonemapData& data) {
+                [&](TonemapData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(bloomData.bloomTexture);
@@ -375,7 +375,7 @@ namespace Razix {
 
                     //data.ldrOutput = builder.write(data.ldrOutput);
                 },
-                [=](const TonemapData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const TonemapData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuf = bloomSceneMixGpuResources.cmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];

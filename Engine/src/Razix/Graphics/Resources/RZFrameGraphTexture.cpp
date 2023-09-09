@@ -13,13 +13,13 @@ namespace Razix {
 
             // TODO: Use a TransientResourcePool to allocate transient resources
 
-            void RZFrameGraphTexture::create(const Desc& desc, void* allocator)
+            void RZFrameGraphTexture::create(const Desc& desc, void* transientAllocator)
             {
                 if (!m_TextureHandle.isValid())
                     m_TextureHandle = RZResourceManager::Get().createTexture(desc);    //static_cast<FrameGraph::RZTransientResources*>(allocator)->acquireTexture(desc);
             }
 
-            void RZFrameGraphTexture::destroy(const Desc& desc, void* allocator)
+            void RZFrameGraphTexture::destroy(const Desc& desc, void* transientAllocator)
             {
                 //static_cast<FrameGraph::RZTransientResources*>(allocator)->releaseTexture(desc, m_Texture);
                 //RZResourceManager::Get().releaseTexture(m_TextureHandle);
@@ -32,6 +32,14 @@ namespace Razix {
                     return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ", " + std::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
                 else
                     return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            }
+
+            void RZFrameGraphTexture::preRead(const Desc& desc, uint32_t flags)
+            {
+            }
+
+            void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)
+            {
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

@@ -67,7 +67,7 @@ namespace Razix {
 
             blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
                 "Simple Shadow map pass",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, SimpleShadowPassData& data) {
+                [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = RZTextureProperties::Type::Texture_Depth, .format = RZTextureProperties::Format::DEPTH32F, .enableMips = false});
@@ -77,7 +77,7 @@ namespace Razix {
                     data.shadowMap = builder.write(data.shadowMap);
                     data.lightVP   = builder.write(data.lightVP);
                 },
-                [=](const SimpleShadowPassData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("Shadow Pass", glm::vec4(0.65, 0.73, 0.22f, 1.0f));

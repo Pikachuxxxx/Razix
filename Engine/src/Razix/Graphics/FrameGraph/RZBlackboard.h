@@ -27,20 +27,20 @@ namespace Razix {
                 T& add(Args&&... args)
                 {
                     assert(!has<T>());
-                    return m_storage[typeid(T)].emplace<T>(T{std::forward<Args>(args)...});
+                    return m_Storage[typeid(T)].emplace<T>(T{std::forward<Args>(args)...});
                 }
 
                 template<typename T>
                 RAZIX_NO_DISCARD const T& get() const
                 {
                     assert(has<T>());
-                    return std::any_cast<const T&>(m_storage.at(typeid(T)));
+                    return std::any_cast<const T&>(m_Storage.at(typeid(T)));
                 }
                 template<typename T>
                 RAZIX_NO_DISCARD const T* try_get() const
                 {
-                    auto it = m_storage.find(typeid(T));
-                    return it != m_storage.cend() ? std::any_cast<const T>(&it->second) : nullptr;
+                    auto it = m_Storage.find(typeid(T));
+                    return it != m_Storage.cend() ? std::any_cast<const T>(&it->second) : nullptr;
                 }
 
                 template<typename T>
@@ -57,7 +57,7 @@ namespace Razix {
                 template<typename T>
                 bool has() const
                 {
-                    return m_storage.find(typeid(T)) != m_storage.cend();
+                    return m_Storage.find(typeid(T)) != m_Storage.cend();
                 }
 
             private:

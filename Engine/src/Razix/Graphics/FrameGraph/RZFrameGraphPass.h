@@ -31,7 +31,12 @@ namespace Razix {
              */
             struct IRZFrameGraphPass
             {
-                virtual void operator()(RZPassResourceDirectory &, void *) = 0;
+                IRZFrameGraphPass() {}
+                RAZIX_VIRTUAL_DESCTURCTOR(IRZFrameGraphPass)
+
+                RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(IRZFrameGraphPass)
+
+                virtual void operator()(RZPassResourceDirectory &resources) = 0;
             };
 
             /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */
@@ -41,9 +46,9 @@ namespace Razix {
                 explicit RZFrameGraphPass(ExecuteFunc &&exec)
                     : execFunction{std::forward<ExecuteFunc>(exec)} {}
 
-                void operator()(RZPassResourceDirectory &resources, void *context) override
+                void operator()(RZPassResourceDirectory &resources) override
                 {
-                    execFunction(data, resources, context);
+                    execFunction(data, resources);
                 }
 
                 ExecuteFunc execFunction; /* Pass Execution function                                 */

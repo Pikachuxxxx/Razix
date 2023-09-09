@@ -10,8 +10,8 @@
 // This extension is for #include support in glsl, this extension is usually not supported to force enable it perhaps?
 #extension GL_ARB_shader_viewport_layer_array : enable
  //------------------------------------------------------------------------------
- #define ENABLE_BINDLESS 1
- #include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+ //#define ENABLE_BINDLESS 1
+ //#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
  //------------------------------------------------------------------------------
  // Vertex Input
  layout(location = 0) in VSOutput
@@ -23,10 +23,12 @@
  }fs_in;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-layout (push_constant) uniform EquirectnagularMapIdx
-{
-    uint idx;
-}tex;
+//layout (push_constant) uniform EquirectnagularMapIdx
+//{
+//    uint idx;
+//}tex;
+ layout (set = 0, binding = 1) uniform sampler2D equirectangularMap;
+ 
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments 
 layout(location = 0) out vec4 outFragColor;
@@ -44,7 +46,8 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(fs_in.localPos));
-    vec3 color = texture(global_textures_2d[nonuniformEXT(tex.idx)], uv).rgb;
+    //vec3 color = texture(global_textures_2d[nonuniformEXT(tex.idx)], uv).rgb;
+    vec3 color = texture(equirectangularMap, uv).rgb;
 
     outFragColor = vec4(color, 1.0f);
 }

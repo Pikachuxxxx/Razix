@@ -9,21 +9,22 @@
  #extension GL_ARB_shading_language_420pack : enable
  //------------------------------------------------------------------------------
  // Bindless Textures
-#define ENABLE_BINDLESS 1
-#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+//#define ENABLE_BINDLESS 1
+//#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
  //------------------------------------------------------------------------------
  // Vertex Input
  layout(location = 0) in VSOutput
  {
      vec3 fragLocalPos;
+     float time;
  }fs_in;
  //------------------------------------------------------------------------------
  // Fragment Shader Stage Uniforms
-//layout(set = 1, binding = 0) uniform samplerCube environmentMap;
-layout (push_constant) uniform EnvMap
-{
-    uint idx;
-}tex;
+layout(set = 1, binding = 0) uniform samplerCube environmentMap;
+//layout (push_constant) uniform EnvMap
+//{
+//    uint idx;
+//}tex;
 
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
@@ -59,7 +60,8 @@ vec3 lottes(vec3 x) {
 //------------------------------------------------------------------------------
 void main()
 {
-    vec3 envColor = texture(global_textures_cubemap[nonuniformEXT(tex.idx)], fs_in.fragLocalPos).rgb;  
+    //vec3 envColor = texture(global_textures_cubemap[nonuniformEXT(tex.idx)], fs_in.fragLocalPos).rgb;  
+    vec3 envColor = texture(environmentMap, fs_in.fragLocalPos).rgb;  
     envColor = lottes(envColor);
      // gamma correct
     envColor = pow(envColor, vec3(1.0/2.2)); 

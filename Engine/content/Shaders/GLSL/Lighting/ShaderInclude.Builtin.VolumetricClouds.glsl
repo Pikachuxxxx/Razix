@@ -41,8 +41,8 @@ const float sunBrightness = 3.0;
 #define earthRadius 6371000.0
 
 //////////////////////////////////////////////////////////////////
-//layout(set = 1, binding = 0) uniform sampler2D NoiseTexture;
-uint NoiseTexIdx;
+layout(set = 1, binding = 0) uniform sampler2D NoiseTexture;
+//uint NoiseTexIdx;
 //------------------------------------------------------------------------------
 
 float bayer2(vec2 a){
@@ -226,8 +226,9 @@ float Get3DNoise(vec3 pos)
     
     vec2 coord = pos.xy * invNoiseRes + (p * zStretch);
     
-    vec2 noise = vec2(texture(global_textures_2d[nonuniformEXT(NoiseTexIdx)], coord).x, texture(global_textures_2d[nonuniformEXT(NoiseTexIdx)], coord + zStretch).x);
-    
+    //vec2 noise = vec2(texture(global_textures_2d[nonuniformEXT(NoiseTexIdx)], coord).x, texture(global_textures_2d[nonuniformEXT(NoiseTexIdx)], coord + zStretch).x);
+    vec2 noise = vec2(texture(NoiseTexture, coord).x, texture(NoiseTexture, coord + zStretch).x);
+
     return mix(noise.x, noise.y, f);
 }
 

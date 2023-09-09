@@ -65,7 +65,7 @@ namespace Razix {
 
             framegraph.addCallbackPass(
                 "Skybox Pass",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, auto& data) {
+                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(frameDataBlock.frameData);
@@ -76,9 +76,10 @@ namespace Razix {
                     builder.read(sceneData.depth);
                     builder.read(volumetricData.noiseTexture);
 
-                    builder.write(sceneData.outputHDR);
+                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
+                    sceneData.depth     = builder.write(sceneData.depth);
                 },
-                [=](const auto& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
@@ -95,13 +96,42 @@ namespace Razix {
 
                     RHI::BeginRendering(cmdBuffer, info);
 
+                    // Set the Descriptor Set once rendering starts
+                    static bool updatedSets = false;
+                    if (!updatedSets) {
+
+                        auto envMap = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle();
+
+                        RZDescriptor lightProbes_descriptor{};
+                        lightProbes_descriptor.bindingInfo.binding = 0;
+                        lightProbes_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        lightProbes_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        lightProbes_descriptor.texture             = envMap;
+
+                        m_LightProbesDescriptorSet = RZDescriptorSet::Create({lightProbes_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Env Map - Skybox"));
+
+                        auto noiseTexture = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle();
+
+                        RZDescriptor volumetric_descriptor{};
+                        volumetric_descriptor.bindingInfo.binding = 0;
+                        volumetric_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+                        volumetric_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
+                        volumetric_descriptor.texture             = noiseTexture;
+
+                        m_VolumetricDescriptorSet = RZDescriptorSet::Create({volumetric_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Volumetric"));
+
+                        updatedSets = true;
+                    }
+
                     if (!m_UseProceduralSkybox) {
                         m_Pipeline->Bind(cmdBuffer);
                         Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
-                        RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
+                        Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LightProbesDescriptorSet, BindingTable_System::SET_IDX_MATERIAL_DATA);
+                        //RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
                     } else {
                         Graphics::RHI::BindDescriptorSet(m_ProceduralPipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
-                        RHI::EnableBindlessTextures(m_ProceduralPipeline, cmdBuffer);
+                        Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_VolumetricDescriptorSet, BindingTable_System::SET_IDX_MATERIAL_DATA);
+                        //RHI::EnableBindlessTextures(m_ProceduralPipeline, cmdBuffer);
                     }
 
                     m_SkyboxCube->getIndexBuffer()->Bind(cmdBuffer);
@@ -129,11 +159,11 @@ namespace Razix {
                         struct PCData
                         {
                             glm::vec3 worldSpaceLightPos;
-                            u32       noiseTextureIdx;
+                            //u32       noiseTextureIdx;
                         } data{};
                         // FIXME: Use direction
                         data.worldSpaceLightPos = dirLight.getPosition();
-                        data.noiseTextureIdx    = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle().getIndex();
+                        //data.noiseTextureIdx    = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle().getIndex();
                         RZPushConstant pc;
                         pc.data        = &data;
                         pc.size        = sizeof(PCData);

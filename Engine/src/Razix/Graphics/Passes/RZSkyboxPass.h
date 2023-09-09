@@ -24,6 +24,8 @@ namespace Razix {
             RZPipeline*                   m_ProceduralPipeline;
             RZMesh*                       m_SkyboxCube;
             bool                          m_UseProceduralSkybox = true;
+            RZDescriptorSet*              m_LightProbesDescriptorSet;
+            RZDescriptorSet*              m_VolumetricDescriptorSet;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -62,7 +62,7 @@ namespace Razix {
 
             blackboard.add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
                 "GBuffer",
-                [&](FrameGraph::RZFrameGraph::RZBuilder& builder, GBufferData& data) {
+                [&](GBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc gbufferTexturesDesc{
@@ -96,7 +96,7 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
                 },
-                [=](const GBufferData& data, FrameGraph::RZFrameGraphPassResourcesDirectory& resources, void* rendercontext) {
+                [=](const GBufferData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
