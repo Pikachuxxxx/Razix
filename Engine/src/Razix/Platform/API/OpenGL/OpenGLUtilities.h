@@ -46,49 +46,49 @@ namespace Razix {
             }
 
             //TODO: USe macros to generate this code automatically
-            static uint32_t TextureFormatToGL(const RZTextureProperties::Format format, bool srgb)
+            static uint32_t TextureFormatToGL(const TextureFormat format, bool srgb)
             {
                 switch (format) {
-                    case RZTextureProperties::Format::R8:
+                    case TextureFormat::R8:
                         return GL_R8;
                         break;
-                    case RZTextureProperties::Format::R32_UINT:
+                    case TextureFormat::R32_UINT:
                         return GL_R32UI;
                         break;
-                    case RZTextureProperties::Format::R32_INT:
+                    case TextureFormat::R32_INT:
                         return GL_R32I;
                         break;
-                    case RZTextureProperties::Format::R32F:
+                    case TextureFormat::R32F:
                         return GL_RG32F;
                         break;
-                    case RZTextureProperties::Format::RG8:
+                    case TextureFormat::RG8:
                         return GL_RG8;
                         break;
-                    case RZTextureProperties::Format::RGB8:
+                    case TextureFormat::RGB8:
                         return srgb ? GL_SRGB8 : GL_RGB8;
                         break;
-                    case RZTextureProperties::Format::RGB16:
+                    case TextureFormat::RGB16:
                         return GL_RGB16;
                         break;
-                    case RZTextureProperties::Format::RGB32:
+                    case TextureFormat::RGB32:
                         return GL_RGB;
                         break;
-                    case RZTextureProperties::Format::RGBA8:
+                    case TextureFormat::RGBA8:
                         return srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
                         break;
-                    case RZTextureProperties::Format::RGBA16:
+                    case TextureFormat::RGBA16:
                         return GL_RGBA16;
                         break;
-                    case RZTextureProperties::Format::RGBA32:
+                    case TextureFormat::RGBA32:
                         return GL_RGBA;
                         break;
-                    case RZTextureProperties::Format::RGBA32F:
+                    case TextureFormat::RGBA32F:
                         return GL_RGBA32F;
                         break;
-                    case RZTextureProperties::Format::RGB:
+                    case TextureFormat::RGB:
                         return srgb ? GL_SRGB : GL_RGB;
                         break;
-                    case RZTextureProperties::Format::RGBA:
+                    case TextureFormat::RGBA:
                         return srgb ? GL_SRGB_ALPHA : GL_RGBA;
                         break;
                     default:

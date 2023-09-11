@@ -54,7 +54,7 @@ namespace Razix {
             u32  width, height, bpp;
             f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = RZTextureProperties::Format::RGBA32F, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE, .dataSize = sizeof(float)});
+            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = TextureFormat::RGBA32F, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE, .dataSize = sizeof(float)});
 
             std::vector<RZDescriptorSet*> envMapSets;
             std::vector<RZUniformBuffer*> UBOs;
@@ -102,7 +102,7 @@ namespace Razix {
             pipelineInfo.shader                 = shader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
             RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Envmap Pipeline"));
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
@@ -111,8 +111,8 @@ namespace Razix {
                 .width                                                                    = dim,
                 .height                                                                   = dim,
                 .layers                                                                   = 6,
-                .type                                                                     = RZTextureProperties::Type::Texture_CubeMap,
-                .format                                                                   = RZTextureProperties::Format::RGBA32F,
+                .type                                                                     = TextureType::Texture_CubeMap,
+                .format                                                                   = TextureFormat::RGBA32F,
                 .filtering                                                                = {RZTextureProperties::Filtering::FilterMode::LINEAR, RZTextureProperties::Filtering::FilterMode::LINEAR},
                 .enableMips                                                               = false});
 
@@ -188,8 +188,8 @@ namespace Razix {
                 .width                                                                          = dim,
                 .height                                                                         = dim,
                 .layers                                                                         = 6,
-                .type                                                                           = RZTextureProperties::Type::Texture_CubeMap,
-                .format                                                                         = RZTextureProperties::Format::RGBA32F,
+                .type                                                                           = TextureType::Texture_CubeMap,
+                .format                                                                         = TextureFormat::RGBA32F,
                 .enableMips                                                                     = false});
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
@@ -240,7 +240,7 @@ namespace Razix {
             pipelineInfo.shader                 = cubemapConvolutionShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
             RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance Pipeline"));
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
@@ -307,8 +307,8 @@ namespace Razix {
                 .width                                                                           = dim,
                 .height                                                                          = dim,
                 .layers                                                                          = 6,
-                .type                                                                            = RZTextureProperties::Type::Texture_CubeMap,
-                .format                                                                          = RZTextureProperties::Format::RGBA32F,
+                .type                                                                            = TextureType::Texture_CubeMap,
+                .format                                                                          = TextureFormat::RGBA32F,
                 //.filtering                                                                       = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
                 .enableMips = true});
 
@@ -372,7 +372,7 @@ namespace Razix {
             pipelineInfo.shader                 = cubemapConvolutionShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
             RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map Pipeline"));
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
@@ -402,7 +402,7 @@ namespace Razix {
                     // NOTE: This is very important for layers to work
                     info.layerCount = 6;
 
-                    preFilteredMap->setMipLevel(mip);
+                    preFilteredMap->setCurrentMipLevel(mip);
                     RHI::BeginRendering(cmdBuffer, info);
 
                     envMapPipeline->Bind(cmdBuffer);
@@ -435,7 +435,7 @@ namespace Razix {
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
-            preFilteredMap->setMipLevel(0);
+            preFilteredMap->setCurrentMipLevel(0);
 
             for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();

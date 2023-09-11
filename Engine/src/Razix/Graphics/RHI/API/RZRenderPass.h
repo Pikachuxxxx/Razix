@@ -12,8 +12,8 @@ namespace Razix {
         /* Gives information about the type of texture that is attached to the framebuffer render pass */
         struct RAZIX_MEM_ALIGN RenderPassAttachmentInfo
         {
-            RZTextureProperties::Type   type;         /* The type of the attachment                                                                                               */
-            RZTextureProperties::Format format;       /* The format of the attachment                                                                                             */
+            TextureType   type;         /* The type of the attachment                                                                                               */
+            TextureFormat format;       /* The format of the attachment                                                                                             */
             bool              clear = true; /* Whether or not to clear the particular attachment                                                                        */
             glm::vec4         clearColor;   /* Clear color with which the attachment is cleared, Note: x and y represent the depth clear values if clear is false       */
         };

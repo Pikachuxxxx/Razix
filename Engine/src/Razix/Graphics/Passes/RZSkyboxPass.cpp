@@ -46,8 +46,8 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = skyboxShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::RZTextureProperties::Format::DEPTH32F;
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = false;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;

@@ -115,7 +115,7 @@ namespace Razix {
                     // Some arbitrary remapping if we want
                     //glsl.unset_decoration(resource.id, spv::DecorationBinding);
 
-                    RZDescriptorLayoutBinding bindingLayout = {};
+                    DescriptorBindingInfo bindingLayout = {};
                     bindingLayout.binding                   = binding;
                     bindingLayout.count                     = 1;
                     bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
@@ -152,7 +152,7 @@ namespace Razix {
                     auto bufferSize  = glsl.get_declared_struct_size(bufferType);
                     u32  memberCount = (u32) bufferType.member_types.size();
 
-                    RZDescriptorLayoutBinding bindingLayout = {};
+                    DescriptorBindingInfo bindingLayout = {};
                     bindingLayout.binding                   = binding;
                     bindingLayout.count                     = 1;
                     bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
@@ -225,7 +225,7 @@ namespace Razix {
                     //m_PushConstants.push_back({size, file.first});
                     //m_PushConstants.back().data = new u8[size];
 
-                    RZDescriptorLayoutBinding bindingLayout = {};
+                    DescriptorBindingInfo bindingLayout = {};
                     bindingLayout.binding                   = binding;
                     bindingLayout.count                     = 1;
                     bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);

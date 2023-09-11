@@ -22,6 +22,9 @@ namespace Razix {
         enum class CompareOp;
         enum class ShaderStage;
         enum class DescriptorType : u32;
+        enum class ImageLayout : u32;
+        enum class PipelineStage : u32;
+        enum class MemoryAccessMask : u32;
 
         namespace VKUtilities {
 
@@ -125,7 +128,7 @@ namespace Razix {
              * @param sRGB Whether or not to convert it to sRGB format
              * @returns Vulkan texture format
              */
-            VkFormat TextureFormatToVK(const RZTextureProperties::Format format, bool srgb = false);
+            VkFormat TextureFormatToVK(const TextureFormat format, bool srgb = false);
 
             /**
              * Engine wrap mode to Vulkan conversion
@@ -133,7 +136,7 @@ namespace Razix {
              * @param wrap The Wrapping mode to convert to
              * @returns Vulkan Wrap mode
              */
-            VkSamplerAddressMode TextureWrapToVK(const RZTextureProperties::Wrapping wrap);
+            VkSamplerAddressMode TextureWrapToVK(const Wrapping wrap);
 
             /**
              * Engine Type to Vulkan Type conversion
@@ -141,7 +144,7 @@ namespace Razix {
              * @param type The type of the texture
              * @returns Vulkan image type
              */
-            VkImageType TextureTypeToVK(const RZTextureProperties::Type type);
+            VkImageType TextureTypeToVK(const TextureType type);
 
             /**
              * Engine Type to Vulkan image view type
@@ -149,7 +152,7 @@ namespace Razix {
              * @param type The type of the texture
              * @returns Vulkan image view type
              */
-            VkImageViewType TextureTypeToVKViewType(const RZTextureProperties::Type type);
+            VkImageViewType TextureTypeToVKViewType(const TextureType type);
 
             /**
              * Converts from Engine filtering mode to Vulkan filter
@@ -157,12 +160,27 @@ namespace Razix {
              * @param filter The min/mag filter mode to convert to
              * @returns Vulkan filter mode
              */
-            VkFilter TextureFilterToVK(const RZTextureProperties::Filtering::FilterMode filter);
+            VkFilter TextureFilterToVK(const Filtering::Mode filter);
 
             /**
              * Transitions the image layout from one layout to another for better storage on GPU
              */
             void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels = 1, u32 layerCount = 1);
+
+            /**
+             * 
+             */
+            VkImageLayout EngineImageLayoutToVK(ImageLayout layout);
+
+            /**
+             * 
+             */
+            VkAccessFlagBits EngineMemoryAcsessMaskToVK(MemoryAccessMask mask);
+
+            /**
+             * 
+             */
+            int EnginePipelineStageToVK(PipelineStage ppstage);
 
             //-----------------------------------------------------------------------------------
             // Single Time Command Buffer utility functions

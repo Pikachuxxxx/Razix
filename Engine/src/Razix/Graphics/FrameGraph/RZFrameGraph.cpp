@@ -15,6 +15,8 @@ namespace Razix {
 
             void RZFrameGraph::compile()
             {
+                // TODO: Build the descriptors set tables using the flags during compilation phase
+
                 // Set the read and write passes
                 for (auto &pass: m_PassNodes) {
                     pass.m_RefCount = static_cast<int32_t>(pass.m_Writes.size());

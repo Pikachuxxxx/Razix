@@ -4,8 +4,8 @@
         "Engine Version": "0.42.0",
         "Project ID": "9bd6e126-d5a1-4ad0-a4d3-ce178594d0dd",
         "Render API": 1,
-        "Width": 1318,
-        "Height": 744,
+        "Width": 1688,
+        "Height": 1003,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox//",
         "Scenes": [
             "//Scenes/PBR_Textures_Test_Scene.rzscn"

@@ -49,7 +49,7 @@ namespace Razix {
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.depthTestEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
 
             pipelineInfo.shader = upsamplingShader;
             m_UpsamplePipeline  = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Upsample Pipeline"));
@@ -118,8 +118,8 @@ namespace Razix {
                         .name   = "Bloom Mip",
                         .width  = static_cast<u32>(bloomSourceMip.size.x),
                         .height = static_cast<u32>(bloomSourceMip.size.y),
-                        .type   = RZTextureProperties::Type::Texture_2D,
-                        .format = RZTextureProperties::Format::RGBA32F,
+                        .type   = TextureType::Texture_2D,
+                        .format = TextureFormat::RGBA32F,
                     };
 
                     data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
@@ -240,8 +240,8 @@ namespace Razix {
                         .name   = "Bloom Mip",
                         .width  = static_cast<u32>(bloomSourceMip.size.x),
                         .height = static_cast<u32>(bloomSourceMip.size.y),
-                        .type   = RZTextureProperties::Type::Texture_2D,
-                        .format = RZTextureProperties::Format::RGBA32F,
+                        .type   = TextureType::Texture_2D,
+                        .format = TextureFormat::RGBA32F,
                     };
 
                     data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
@@ -352,7 +352,7 @@ namespace Razix {
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.depthTestEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA8};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA8};
             pipelineInfo.shader                 = bloomMixShader;
             m_HDRBloomMixPipeline               = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Mix Tonemapper Pipeline"));
 

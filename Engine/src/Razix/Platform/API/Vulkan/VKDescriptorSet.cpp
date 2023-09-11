@@ -27,7 +27,7 @@ namespace Razix {
 
             for (auto descriptor: descriptors) {
                 VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
-                setLayoutBindingInfo.binding                      = descriptor.bindingInfo.binding;
+                setLayoutBindingInfo.binding                      = descriptor.bindingInfo.location.binding;
                 setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                 setLayoutBindingInfo.descriptorType               = VKUtilities::DescriptorTypeToVK(descriptor.bindingInfo.type);
                 setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(descriptor.bindingInfo.stage);
@@ -89,7 +89,7 @@ namespace Razix {
                         VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
 
 #if 0
-                        if (descriptor.texture->getType() == RZTextureProperties::Type::Texture_2D) {
+                        if (descriptor.texture->getType() == TextureType::Texture_2D) {
                             auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
                             if (layoutTransition) {
                                 VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -105,7 +105,7 @@ namespace Razix {
                         writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                         writeDescriptorSet.dstSet          = m_DescriptorSet;
                         writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                        writeDescriptorSet.dstBinding      = descriptor.bindingInfo.binding;
+                        writeDescriptorSet.dstBinding      = descriptor.bindingInfo.location.binding;
                         writeDescriptorSet.pImageInfo      = &m_ImageInfoPool[imageIndex];
                         writeDescriptorSet.descriptorCount = 1;
 
@@ -125,7 +125,7 @@ namespace Razix {
                         writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                         writeDescriptorSet.dstSet          = m_DescriptorSet;
                         writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                        writeDescriptorSet.dstBinding      = descriptor.bindingInfo.binding;
+                        writeDescriptorSet.dstBinding      = descriptor.bindingInfo.location.binding;
                         writeDescriptorSet.pBufferInfo     = &m_BufferInfoPool[index];
                         writeDescriptorSet.descriptorCount = 1;
 

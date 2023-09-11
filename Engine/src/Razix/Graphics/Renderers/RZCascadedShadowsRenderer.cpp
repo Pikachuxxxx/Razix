@@ -287,7 +287,7 @@ namespace Razix {
             pipelineInfo.shader                                 = shader;
             pipelineInfo.transparencyEnabled                    = false;
             pipelineInfo.depthBiasEnabled                       = false;
-            pipelineInfo.depthFormat                            = {Graphics::RZTextureProperties::Format::DEPTH32F};
+            pipelineInfo.depthFormat                            = {Graphics::TextureFormat::DEPTH32F};
             cascadeGPUResources[cascadeIdx].CascadePassPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascade Pass Pipeline"));
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
@@ -295,7 +295,7 @@ namespace Razix {
                 [&](CascadeSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) { 
                         builder.setAsStandAlonePass();
                     if (cascadeIdx == 0) {
-                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap Array", {  .name = "CascadedShadowMapsArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = RZTextureProperties::Type::Texture_Depth,.format =  RZTextureProperties::Format::DEPTH32F});
+                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap Array", {  .name = "CascadedShadowMapsArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_Depth,.format =  TextureFormat::DEPTH32F});
                     }
                     data.cascadeOuput = builder.write(cascadeShadowMap); },
                 [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {

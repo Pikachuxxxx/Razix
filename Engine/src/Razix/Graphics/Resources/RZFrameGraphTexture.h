@@ -9,6 +9,17 @@ namespace Razix {
 
         namespace FrameGraph {
 
+            /**
+             * When an extra wrapper of RZTexture and RZTextureHandle?
+             * 
+             * It's messy to enforce the Type Erasure concepts on the Graphics API directly,
+             * by using an external class it decouples FG and Graphics API
+             * 
+             * uses TypeErasure to wrap different API handles under a common interface
+             * 
+             * This is a fake typeless interface for various types of resources used by the FG
+             */
+
             class RZFrameGraphTexture
             {
             public:

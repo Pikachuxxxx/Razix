@@ -1,4 +1,3 @@
-
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -134,9 +133,9 @@ namespace Razix {
                 [&](FrameGraph::RZPassResourceBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::RZTextureProperties::Type::Texture_2D, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_2D, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, TextureFormat::RGBA32F});
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, TextureFormat::DEPTH16_UNORM});
 
                     data.outputHDR = builder.write(data.outputHDR);
                     data.depth     = builder.write(data.depth);
@@ -431,11 +430,11 @@ namespace Razix {
             const auto& DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
             const auto& SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
 
-            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {.name = "Environment Map", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
+            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {.name = "Environment Map", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = TextureType::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
 
-            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {.name = "Diffuse Irradiance", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
+            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {.name = "Diffuse Irradiance", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = TextureType::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
 
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {.name = "Specular PreFiltered", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {.name = "Specular PreFiltered", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = TextureType::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
         }
 
         //--------------------------------------------------------------------------

@@ -49,8 +49,8 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = pbrShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::RZTextureProperties::Format::DEPTH32F;
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
             m_Pipeline                          = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR Pipeline"));
@@ -83,15 +83,15 @@ namespace Razix {
                         .name   = "Scene HDR",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = RZTextureProperties::Type::Texture_2D,
-                        .format = RZTextureProperties::Format::RGBA32F};
+                        .type   = TextureType::Texture_2D,
+                        .format = TextureFormat::RGBA32F};
 
                     data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR RT", CAST_TO_FG_TEX_DESC textureDesc);
 
                     textureDesc.name       = "Scene Depth";
-                    textureDesc.format     = RZTextureProperties::Format::DEPTH32F;
-                    textureDesc.filtering  = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
-                    textureDesc.type       = RZTextureProperties::Type::Texture_Depth;
+                    textureDesc.format     = TextureFormat::DEPTH32F;
+                    textureDesc.filtering  = {RZTextureProperties::Filtering::Mode::NEAREST, RZTextureProperties::Filtering::Mode::NEAREST},
+                    textureDesc.type       = TextureType::Texture_Depth;
                     textureDesc.enableMips = false;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", CAST_TO_FG_TEX_DESC textureDesc);
@@ -243,7 +243,7 @@ namespace Razix {
         void RZPBRLightingPass::destroy()
         {
             m_Pipeline->Destroy();
-            m_PBRBindingSet->Destroy();
+            //m_PBRBindingSet->Destroy();
             //m_PBRPassBindingUBO->Destroy();
         }
     }    // namespace Graphics

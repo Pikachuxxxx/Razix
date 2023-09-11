@@ -79,7 +79,7 @@ namespace Razix {
 
             RZPipelineDesc info{};
             info.shader                 = shader;
-            info.colorAttachmentFormats = {RZTextureProperties::Format::RGBA32F};
+            info.colorAttachmentFormats = {TextureFormat::RGBA32F};
 
             m_Pipeline = RZPipeline::Create(info RZ_DEBUG_NAME_TAG_STR_E_ARG("Deferred Lighting Pipeline"));
 
@@ -127,8 +127,8 @@ namespace Razix {
                         .name   = "Scene HDR Color",
                         .width  = static_cast<u32>(extent.x),
                         .height = static_cast<u32>(extent.y),
-                        .type   = RZTextureProperties::Type::Texture_2D,
-                        .format = RZTextureProperties::Format::RGBA32F};
+                        .type   = TextureType::Texture_2D,
+                        .format = TextureFormat::RGBA32F};
 
                     data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", CAST_TO_FG_TEX_DESC sceneHDRDesc);
 

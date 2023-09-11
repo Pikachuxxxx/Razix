@@ -20,63 +20,63 @@ namespace Razix {
             // Texture Utility Functions
             //-----------------------------------------------------------------------------------
 
-            VkFormat TextureFormatToVK(const RZTextureProperties::Format format, bool srgb /*= false*/)
+            VkFormat TextureFormatToVK(const TextureFormat format, bool srgb /*= false*/)
             {
                 if (srgb) {
                     switch (format) {
-                        case RZTextureProperties::Format::R8:
+                        case TextureFormat::R8:
                             return VK_FORMAT_R8_SRGB;
                             break;
-                        case RZTextureProperties::Format::R32_UINT:
+                        case TextureFormat::R32_UINT:
                             return VK_FORMAT_R32_UINT;
                             break;
-                        case RZTextureProperties::Format::R32_INT:
+                        case TextureFormat::R32_INT:
                             return VK_FORMAT_R32_SINT;
                             break;
-                        case RZTextureProperties::Format::R32F:
+                        case TextureFormat::R32F:
                             return VK_FORMAT_R32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGB8:
+                        case TextureFormat::RGB8:
                             return VK_FORMAT_R8G8B8_SRGB;
                             break;
-                        case RZTextureProperties::Format::RGBA8:
+                        case TextureFormat::RGBA8:
                             return VK_FORMAT_R8G8B8A8_SRGB;
                             break;
-                        case RZTextureProperties::Format::RGB16:
+                        case TextureFormat::RGB16:
                             return VK_FORMAT_R16G16B16_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGBA16:
+                        case TextureFormat::RGBA16:
                             return VK_FORMAT_R16G16B16A16_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGB32:
+                        case TextureFormat::RGB32:
                             return VK_FORMAT_R32G32B32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGBA32:
+                        case TextureFormat::RGBA32:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGBA32F:
+                        case TextureFormat::RGBA32F:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGB:
+                        case TextureFormat::RGB:
                             return VK_FORMAT_R8G8B8_SRGB;
                             break;
-                        case RZTextureProperties::Format::RGBA:
+                        case TextureFormat::RGBA:
                             return VK_FORMAT_R8G8B8A8_SRGB;
                             break;
-                        case RZTextureProperties::Format::BGRA8_UNORM:
-                        case RZTextureProperties::Format::SCREEN:
+                        case TextureFormat::BGRA8_UNORM:
+                        case TextureFormat::SCREEN:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case RZTextureProperties::Format::DEPTH16_UNORM:
+                        case TextureFormat::DEPTH16_UNORM:
                             return VK_FORMAT_D16_UNORM;
                             break;
-                        case RZTextureProperties::Format::DEPTH_STENCIL:
+                        case TextureFormat::DEPTH_STENCIL:
                             return VK_FORMAT_D32_SFLOAT_S8_UINT;
                             break;
-                        case RZTextureProperties::Format::DEPTH32F:
+                        case TextureFormat::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::NONE:
+                        case TextureFormat::NONE:
                             return VK_FORMAT_UNDEFINED;
                             break;
                         default:
@@ -86,61 +86,61 @@ namespace Razix {
                     }
                 } else {
                     switch (format) {
-                        case RZTextureProperties::Format::R8:
+                        case TextureFormat::R8:
                             return VK_FORMAT_R8_UNORM;
                             break;
-                        case RZTextureProperties::Format::R32_UINT:
+                        case TextureFormat::R32_UINT:
                             return VK_FORMAT_R32_UINT;
                             break;
-                        case RZTextureProperties::Format::R32_INT:
+                        case TextureFormat::R32_INT:
                             return VK_FORMAT_R32_SINT;
                             break;
-                        case RZTextureProperties::Format::R32F:
+                        case TextureFormat::R32F:
                             return VK_FORMAT_R32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RG8:
+                        case TextureFormat::RG8:
                             return VK_FORMAT_R8G8_UNORM;
                             break;
-                        case RZTextureProperties::Format::RGB8:
+                        case TextureFormat::RGB8:
                             return VK_FORMAT_R8G8B8_UNORM;
                             break;
-                        case RZTextureProperties::Format::RGBA8:
+                        case TextureFormat::RGBA8:
                             return VK_FORMAT_R8G8B8A8_UNORM;
                             break;
-                        case RZTextureProperties::Format::RGB16:
+                        case TextureFormat::RGB16:
                             return VK_FORMAT_R16G16B16_UNORM;
                             break;
-                        case RZTextureProperties::Format::RGBA16:
+                        case TextureFormat::RGBA16:
                             return VK_FORMAT_R16G16B16A16_UNORM;
                             break;
-                        case RZTextureProperties::Format::RGB32:
+                        case TextureFormat::RGB32:
                             return VK_FORMAT_R32G32B32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGBA32:
+                        case TextureFormat::RGBA32:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGBA32F:
+                        case TextureFormat::RGBA32F:
                             return VK_FORMAT_R32G32B32A32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::RGB:
+                        case TextureFormat::RGB:
                             return VK_FORMAT_R8G8B8_UNORM;
                             break;
-                        case RZTextureProperties::Format::RGBA:
+                        case TextureFormat::RGBA:
                             return VK_FORMAT_R8G8B8A8_UNORM;
                             break;
-                        case RZTextureProperties::Format::BGRA8_UNORM:
+                        case TextureFormat::BGRA8_UNORM:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case RZTextureProperties::Format::DEPTH16_UNORM:
+                        case TextureFormat::DEPTH16_UNORM:
                             return VK_FORMAT_D16_UNORM;
                             break;
-                        case RZTextureProperties::Format::DEPTH_STENCIL:
+                        case TextureFormat::DEPTH_STENCIL:
                             return VK_FORMAT_D32_SFLOAT_S8_UINT;
                             break;
-                        case RZTextureProperties::Format::DEPTH32F:
+                        case TextureFormat::DEPTH32F:
                             return VK_FORMAT_D32_SFLOAT;
                             break;
-                        case RZTextureProperties::Format::NONE:
+                        case TextureFormat::NONE:
                             return VK_FORMAT_UNDEFINED;
                             break;
                         default:
@@ -151,19 +151,19 @@ namespace Razix {
                 }
             }
 
-            VkSamplerAddressMode TextureWrapToVK(const RZTextureProperties::Wrapping wrap)
+            VkSamplerAddressMode TextureWrapToVK(const Wrapping wrap)
             {
                 switch (wrap) {
-                    case RZTextureProperties::Wrapping::REPEAT:
+                    case Wrapping::REPEAT:
                         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
                         break;
-                    case RZTextureProperties::Wrapping::MIRRORED_REPEAT:
+                    case Wrapping::MIRRORED_REPEAT:
                         return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
                         break;
-                    case RZTextureProperties::Wrapping::CLAMP_TO_EDGE:
+                    case Wrapping::CLAMP_TO_EDGE:
                         return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
                         break;
-                    case RZTextureProperties::Wrapping::CLAMP_TO_BORDER:
+                    case Wrapping::CLAMP_TO_BORDER:
                         return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
                         break;
                     default:
@@ -173,19 +173,19 @@ namespace Razix {
                 }
             }
 
-            VkImageType TextureTypeToVK(const RZTextureProperties::Type type)
+            VkImageType TextureTypeToVK(const TextureType type)
             {
                 switch (type) {
-                    case RZTextureProperties::Type::Texture_1D:
+                    case TextureType::Texture_1D:
                         return VK_IMAGE_TYPE_1D;
-                    case RZTextureProperties::Type::Texture_2D:
-                    case RZTextureProperties::Type::Texture_2DArray:
-                    case RZTextureProperties::Type::Texture_Depth:
-                    case RZTextureProperties::Type::Texture_CubeMap:
-                    case RZTextureProperties::Type::Texture_CubeMapArray:
-                    case RZTextureProperties::Type::Texture_SwapchainImage:
+                    case TextureType::Texture_2D:
+                    case TextureType::Texture_2DArray:
+                    case TextureType::Texture_Depth:
+                    case TextureType::Texture_CubeMap:
+                    case TextureType::Texture_CubeMapArray:
+                    case TextureType::Texture_SwapchainImage:
                         return VK_IMAGE_TYPE_2D;
-                    case RZTextureProperties::Type::Texture_3D:
+                    case TextureType::Texture_3D:
                         return VK_IMAGE_TYPE_3D;
                     default:
                         RAZIX_CORE_WARN("[Texture] Unsupported Texture Type");
@@ -194,24 +194,24 @@ namespace Razix {
                 }
             }
 
-            VkImageViewType TextureTypeToVKViewType(const RZTextureProperties::Type type)
+            VkImageViewType TextureTypeToVKViewType(const TextureType type)
             {
                 switch (type) {
-                    case RZTextureProperties::Type::Texture_1D:
+                    case TextureType::Texture_1D:
                         return VK_IMAGE_VIEW_TYPE_1D;
-                    case RZTextureProperties::Type::Texture_2D:
+                    case TextureType::Texture_2D:
                         return VK_IMAGE_VIEW_TYPE_2D;
-                    case RZTextureProperties::Type::Texture_2DArray:
+                    case TextureType::Texture_2DArray:
                         return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-                    case RZTextureProperties::Type::Texture_Depth:
+                    case TextureType::Texture_Depth:
                         return VK_IMAGE_VIEW_TYPE_2D;
-                    case RZTextureProperties::Type::Texture_CubeMap:
+                    case TextureType::Texture_CubeMap:
                         return VK_IMAGE_VIEW_TYPE_CUBE;
-                    case RZTextureProperties::Type::Texture_CubeMapArray:
+                    case TextureType::Texture_CubeMapArray:
                         return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-                    case RZTextureProperties::Type::Texture_SwapchainImage:
+                    case TextureType::Texture_SwapchainImage:
                         return VK_IMAGE_VIEW_TYPE_2D;
-                    case RZTextureProperties::Type::Texture_3D:
+                    case TextureType::Texture_3D:
                         return VK_IMAGE_VIEW_TYPE_3D;
                     default:
                         RAZIX_CORE_WARN("[Texture] Unsupported Texture View Type");
@@ -220,13 +220,13 @@ namespace Razix {
                 }
             }
 
-            VkFilter TextureFilterToVK(const RZTextureProperties::Filtering::FilterMode filter)
+            VkFilter TextureFilterToVK(const Filtering::Mode filter)
             {
                 switch (filter) {
-                    case RZTextureProperties::Filtering::FilterMode::LINEAR:
+                    case Filtering::Mode::LINEAR:
                         return VK_FILTER_LINEAR;
                         break;
-                    case RZTextureProperties::Filtering::FilterMode::NEAREST:
+                    case Filtering::Mode::NEAREST:
                         return VK_FILTER_NEAREST;
                         break;
                     default:
@@ -332,6 +332,165 @@ namespace Razix {
 
                 // End the buffer
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+            }
+
+            VkImageLayout EngineImageLayoutToVK(ImageLayout layout)
+            {
+                switch (layout) {
+                    case Razix::Graphics::ImageLayout::kUndefined:
+                        return VK_IMAGE_LAYOUT_UNDEFINED;
+                        break;
+                    case Razix::Graphics::ImageLayout::kGeneral:
+                        return VK_IMAGE_LAYOUT_GENERAL;
+                        break;
+                    case Razix::Graphics::ImageLayout::kColorAttachmentOptimal:
+                        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                        break;
+                    case Razix::Graphics::ImageLayout::kDepthStencilAttachmentOptimal:
+                        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+                        break;
+                    case Razix::Graphics::ImageLayout::kDepthStencilReadOnlyOptimal:
+                        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+                        break;
+                    case Razix::Graphics::ImageLayout::kShaderReadOnlyOptimal:
+                        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                        break;
+                    case Razix::Graphics::ImageLayout::kTransferSrcOptimal:
+                        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                        break;
+                    case Razix::Graphics::ImageLayout::kTransferDstOptimal:
+                        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                        break;
+                    case Razix::Graphics::ImageLayout::kPresentationEngine:
+                        return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                        break;
+                    default:
+                        return VK_IMAGE_LAYOUT_UNDEFINED;
+                        break;
+                }
+            }
+
+            VkAccessFlagBits EngineMemoryAcsessMaskToVK(MemoryAccessMask mask)
+            {
+                switch (mask) {
+                    case Razix::Graphics::MemoryAccessMask::kIndirectCommandReadBit:
+                        return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kIndexBufferDataReadBit:
+                        return VK_ACCESS_INDEX_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kVertexAttributeReadBit:
+                        return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kUniformReadBit:
+                        return VK_ACCESS_UNIFORM_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kInputAttachmentReadBit:
+                        return VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kShaderReadBit:
+                        return VK_ACCESS_SHADER_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kShaderWriteBit:
+                        return VK_ACCESS_SHADER_WRITE_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kColorAttachmentReadBit:
+                        return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kColorAttachmentWriteBit:
+                        return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kDepthStencilAttachmentReadBit:
+                        return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kDepthStencilAttachmentWriteBit:
+                        return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kTransferReadBit:
+                        return VK_ACCESS_TRANSFER_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kTransferWriteBit:
+                        return VK_ACCESS_TRANSFER_WRITE_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kHostReadBit:
+                        return VK_ACCESS_HOST_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kHostWriteBit:
+                        return VK_ACCESS_HOST_WRITE_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kMemoryReadBit:
+                        return VK_ACCESS_MEMORY_READ_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kMemoryWriteBit:
+                        return VK_ACCESS_MEMORY_WRITE_BIT;
+                        break;
+                    default:
+                        return VK_ACCESS_NONE;
+                        break;
+                }
+            }
+
+            int EnginePipelineStageToVK(PipelineStage ppstage)
+            {
+                switch (ppstage) {
+                    case Razix::Graphics::PipelineStage::kTopOfPipe:
+                        return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kDrawIndirect:
+                        return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kDraw:
+                        return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kVertexInput:
+                        return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kVertexShader:
+                        return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kTessellationControlShader:
+                        return VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kTessellationEvaluationShader:
+                        return VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kGeometryShader:
+                        return VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kFragmentShader:
+                        return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kEarlyFragmentTests:
+                        return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kLateFragmentTests:
+                        return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kEarlyOrLateTests:
+                        return (VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT);
+                        break;
+                    case Razix::Graphics::PipelineStage::kColorAttachmentOutput:
+                        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kComputeShader:
+                        return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kTransfer:
+                        return VK_PIPELINE_STAGE_TRANSFER_BIT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kMeshShader:
+                        return VK_PIPELINE_STAGE_MESH_SHADER_BIT_EXT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kTaskShader:
+                        return VK_PIPELINE_STAGE_TASK_SHADER_BIT_EXT;
+                        break;
+                    case Razix::Graphics::PipelineStage::kBottomOfPipe:
+                        return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+                        break;
+                    default:
+                        return VK_PIPELINE_STAGE_NONE;
+                        break;
+                }
             }
 
             //-----------------------------------------------------------------------------------
@@ -686,7 +845,6 @@ namespace Razix {
                 else
                     return VK_ERROR_EXTENSION_NOT_PRESENT;
             }
-
         }    // namespace VKUtilities
     }        // namespace Graphics
 }    // namespace Razix
