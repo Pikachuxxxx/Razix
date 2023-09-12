@@ -1,4 +1,3 @@
-
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -40,7 +39,7 @@ namespace Razix {
             const auto& BRDFfLUTTextureDesc  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
 
-            m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = RZTextureProperties::Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
+            m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
             const auto& NoiseTextureDesc                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
             m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
 
@@ -134,9 +133,9 @@ namespace Razix {
                 [&](FrameGraph::RZPassResourceBuilder& builder, SceneData& data) {
                     builder.setAsStandAlonePass();
 
-                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::RZTextureProperties::Type::Texture_2D, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::RGBA32F});
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR color", {FrameGraph::TextureType::Texture_2D, "Scene HDR color", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, TextureFormat::RGBA32F});
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::RZTextureProperties::Type::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, RZTextureProperties::Format::DEPTH16_UNORM});
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", {FrameGraph::TextureType::Texture_Depth, "Scene Depth", {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()}, TextureFormat::DEPTH16_UNORM});
 
                     data.outputHDR = builder.write(data.outputHDR);
                     data.depth     = builder.write(data.depth);
@@ -170,7 +169,7 @@ namespace Razix {
                         RZDescriptor frame_descriptor{};
                         frame_descriptor.offset              = 0;
                         frame_descriptor.size                = sizeof(GPUFrameData);
-                        frame_descriptor.bindingInfo.binding = 0;
+                        frame_descriptor.bindingInfo.location.binding = 0;
                         frame_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         frame_descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
                         frame_descriptor.uniformBuffer       = frameDataBuffer;
@@ -181,14 +180,14 @@ namespace Razix {
                         auto csmTextures = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
                         RZDescriptor csm_descriptor{};
-                        csm_descriptor.bindingInfo.binding = 0;
+                        csm_descriptor.bindingInfo.location.binding = 0;
                         csm_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         csm_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         csm_descriptor.texture             = csmTextures;
 
                         RZDescriptor shadow_data_descriptor{};
                         shadow_data_descriptor.size                = sizeof(ShadowMapData);
-                        shadow_data_descriptor.bindingInfo.binding = 1;
+                        shadow_data_descriptor.bindingInfo.location.binding = 1;
                         shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
@@ -285,10 +284,11 @@ namespace Razix {
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{rt, {false, scene->getSceneCamera().getBgColor()}}},
-                        .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
-                        .resize           = true};
+                        .resolution = Resolution::k1440p,
+                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
+                        .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
+                        .resize           = false};
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -327,10 +327,10 @@ namespace Razix {
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
+                        info.resolution = Resolution::k1440p;
+                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},                        .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
                         .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
-                        .resize           = true};
+                        .resize           = false};
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
@@ -431,11 +431,11 @@ namespace Razix {
             const auto& DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
             const auto& SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
 
-            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {.name = "Environment Map", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
+            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {.name = "Environment Map", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = TextureType::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
 
-            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {.name = "Diffuse Irradiance", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
+            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {.name = "Diffuse Irradiance", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = TextureType::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
 
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {.name = "Specular PreFiltered", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = RZTextureProperties::Type::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {.name = "Specular PreFiltered", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = TextureType::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
         }
 
         //--------------------------------------------------------------------------
@@ -485,11 +485,11 @@ namespace Razix {
 
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
-                        descriptor.bindingInfo.binding = 0;
-                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                        descriptor.uniformBuffer       = frameDataBuffer;
-                        auto m_FrameDataSet            = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
+                        descriptor.bindingInfo.location.binding = 0;
+                        descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
+                        descriptor.bindingInfo.stage            = ShaderStage::VERTEX;
+                        descriptor.uniformBuffer                = frameDataBuffer;
+                        auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Graphics::RHI::Get().setFrameDataSet(m_FrameDataSet);
                     }
                 });
@@ -531,10 +531,10 @@ namespace Razix {
 
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};
-                        lightsData_descriptor.bindingInfo.binding = 0;
-                        lightsData_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        lightsData_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        lightsData_descriptor.uniformBuffer       = lightsDataBuffer;
+                        lightsData_descriptor.bindingInfo.location.binding = 0;
+                        lightsData_descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
+                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
 
                         auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));
                         Graphics::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataDescriptorSet);

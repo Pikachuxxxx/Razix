@@ -7,6 +7,8 @@
 
 #include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
 
+#include "Razix/Graphics/RHI/API/RZBindingInfoAccessViews.h"
+
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
@@ -36,10 +38,30 @@ namespace Razix {
 
             void RZFrameGraphTexture::preRead(const Desc& desc, uint32_t flags)
             {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                // Get the Biding info from the flags
+                DescriptorBindingInfo info = Graphics::DecodeDescriptorBindingInfo(flags);
+
+                // TODO: Layout transition and memory barrier to use the texture as render target
+
+                // 1.
             }
 
             void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)
             {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                /**
+                 * We use RenderingInfo struct to build the render targets + attach info and we don't have to build them
+                 * in the preWrite cause RHI doesn't have functions like RHI::SetDepthRenderTarget or RHI::SetRenderTarget(handle, slotIdx)
+                 * 
+                 * Instead we use the rendering info struct and pass it to RHI::BeginRendering, now this is done inside the exectue function
+                 * but I think we can have the frame graph execute function handle this struct and call the RHI internally
+                 * 
+                 */
+
+                // TODO: Layout transition and memory barrier to use the texture as render target
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

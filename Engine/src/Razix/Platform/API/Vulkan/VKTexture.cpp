@@ -253,7 +253,7 @@ namespace Razix {
             m_ImageViews.push_back(imageView);
 
             // This way of creating usually means one this, it's a SWAPCHAIN IMAGE
-            m_Desc.type = RZTextureProperties::Type::Texture_SwapchainImage;
+            m_Desc.type = TextureType::Texture_SwapchainImage;
 
             updateDescriptor();
         }
@@ -272,15 +272,15 @@ namespace Razix {
                 u32 bindingIdx = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
 
                 switch (m_Desc.type) {
-                    case RZTextureProperties::Type::Texture_2D:
-                    case RZTextureProperties::Type::Texture_2DArray:
+                    case TextureType::Texture_2D:
+                    case TextureType::Texture_2DArray:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_2D_BINDING_IDX;
                         break;
-                    case RZTextureProperties::Type::Texture_3D:
+                    case TextureType::Texture_3D:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_3D_BINDING_IDX;
                         break;
-                    case RZTextureProperties::Type::Texture_CubeMap:
-                    case RZTextureProperties::Type::Texture_CubeMapArray:
+                    case TextureType::Texture_CubeMap:
+                    case TextureType::Texture_CubeMapArray:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_CUBEMAP_BINDING_IDX;
                         break;
                 }
@@ -358,15 +358,15 @@ namespace Razix {
                 m_TotalMipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
 
             VkImageUsageFlagBits usageBit{};
-            if (desc.format == RZTextureProperties::Format::DEPTH32F || desc.format == RZTextureProperties::Format::DEPTH16_UNORM || desc.format == RZTextureProperties::Format::DEPTH_STENCIL)
+            if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || desc.format == TextureFormat::DEPTH_STENCIL)
                 usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             else
                 usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
             VkImageCreateFlags flags{0};
-            if (desc.type == RZTextureProperties::Type::Texture_CubeMap || desc.type == RZTextureProperties::Type::Texture_CubeMapArray)
+            if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
                 flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            else if (desc.type == RZTextureProperties::Type::Texture_2DArray)
+            else if (desc.type == TextureType::Texture_2DArray)
                 flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 
             // Create the Vulkan Image and it's memory and Bind them together
@@ -408,7 +408,7 @@ namespace Razix {
             if (m_Desc.enableMips)
                 GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
 
-            if (desc.format == RZTextureProperties::Format::DEPTH32F || desc.format == RZTextureProperties::Format::DEPTH16_UNORM || desc.format == RZTextureProperties::Format::DEPTH_STENCIL)
+            if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || desc.format == TextureFormat::DEPTH_STENCIL)
                 m_AspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
             else
                 m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -450,15 +450,15 @@ namespace Razix {
                 m_TotalMipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
 
             VkImageUsageFlagBits usageBit{};
-            if (m_Desc.format == RZTextureProperties::Format::DEPTH32F || m_Desc.format == RZTextureProperties::Format::DEPTH16_UNORM || m_Desc.format == RZTextureProperties::Format::DEPTH_STENCIL)
+            if (m_Desc.format == TextureFormat::DEPTH32F || m_Desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL)
                 usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             else
                 usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
             VkImageCreateFlags flags{0};
-            if (desc.type == RZTextureProperties::Type::Texture_CubeMap || desc.type == RZTextureProperties::Type::Texture_CubeMapArray)
+            if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
                 flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            else if (desc.type == RZTextureProperties::Type::Texture_2DArray)
+            else if (desc.type == TextureType::Texture_2DArray)
                 flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 
             // Create the Vulkan Image and it's memory and Bind them together
@@ -471,8 +471,8 @@ namespace Razix {
                 VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels);
 
             // Create the Image view for the Vulkan image (uses color bit)
-            if (desc.format == RZTextureProperties::Format::DEPTH32F || desc.format == RZTextureProperties::Format::DEPTH16_UNORM || m_Desc.format == RZTextureProperties::Format::DEPTH_STENCIL) {
-                m_Desc.filtering = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
+            if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL) {
+                m_Desc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                 m_AspectBit      = VK_IMAGE_ASPECT_DEPTH_BIT;
             } else
                 m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -499,7 +499,7 @@ namespace Razix {
 
         void VKTexture::DestroyResource()
         {
-            if (m_Desc.type == RZTextureProperties::Type::Texture_SwapchainImage)
+            if (m_Desc.type == TextureType::Texture_SwapchainImage)
                 return;
 
             if (m_ImageSampler != VK_NULL_HANDLE)

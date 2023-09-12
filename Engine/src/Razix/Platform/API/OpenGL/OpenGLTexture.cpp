@@ -78,8 +78,8 @@ namespace Razix {
             u32 handle;
             GL_CALL(glGenTextures(1, &handle));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, handle));
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_Desc.filtering.minFilter == RZTextureProperties::Filtering::FilterMode::LINEAR ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_Desc.filtering.magFilter == RZTextureProperties::Filtering::FilterMode::LINEAR ? GL_LINEAR : GL_NEAREST));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_Desc.filtering.minFilter == Filtering::Mode::LINEAR ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_Desc.filtering.magFilter == Filtering::Mode::LINEAR ? GL_LINEAR : GL_NEAREST));
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, Graphics::OpenGLUtilities::TextureWrapToGL(m_Desc.wrapping)));
             GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Graphics::OpenGLUtilities::TextureWrapToGL(m_Desc.wrapping)));
 

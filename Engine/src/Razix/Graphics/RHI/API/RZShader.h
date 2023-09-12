@@ -7,23 +7,24 @@ namespace Razix {
     namespace Graphics {
 
         /* The stage which the shader corresponds to in the graphics pipeline */
-        enum class ShaderStage 
+        enum class ShaderStage
         {
             NONE = -1,
             VERTEX,
             PIXEL,
+            COMPUTE,
             GEOMETRY,
             TCS,
             TES,
-            COMPUTE
+            COUNT
         };
 
         /* Used the engine to find the right shader cache based on shader file name, forward declaring future API feature */
         enum class ShaderSourceType
         {
-            NONE,
+            NONE = -1,
             GLSL,
-            SPIRV,
+            SPIRV, 
             HLSL,
             PSSL,
             CG
@@ -64,7 +65,7 @@ namespace Razix {
             inline const std::string& getName() { return m_Name; }
             /* Gets the stage of the pipeline that shader is bound/being used with */
             inline const ShaderStage&           getStage() { return m_ShaderStage; }
-            inline const u32&              getInputStride() const { return m_VertexInputStride; }
+            inline const u32&                   getInputStride() const { return m_VertexInputStride; }
             inline DescriptorSetsCreateInfos    getSetsCreateInfos() { return m_DescriptorSetsCreateInfos; }
             inline std::vector<RZPushConstant>& getPushConstants() { return m_PushConstants; }
 
@@ -77,7 +78,7 @@ namespace Razix {
             RZVertexBufferLayout               m_BufferLayout;                          /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
             DescriptorSetsCreateInfos          m_DescriptorSetsCreateInfos;             /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
             std::vector<RZPushConstant>        m_PushConstants;                         /* The list of the the push constants                                                                       */
-            u32                           m_VertexInputStride = 0;                 /* The stride of the vertex data that is extracted from the information                                     */
+            u32                                m_VertexInputStride = 0;                 /* The stride of the vertex data that is extracted from the information                                     */
         };
     }    // namespace Graphics
 }    // namespace Razix

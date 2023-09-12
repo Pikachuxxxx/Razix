@@ -21,7 +21,7 @@ namespace Razix {
          * A class that manages Textures/Image resources for the Engine
          * @brief It manages creation and conversion of Image resources, also stores in a custom Engine Format depending on how it's being used
          */
-        // TODO!!!: All will be under RZTexture and will use the RZTextureProperties::Type struct to identify the type of the Texture
+        // TODO!!!: All will be under RZTexture and will use the TextureType struct to identify the type of the Texture
         // We will use a common set of functions under RZTexture to create various textures and of course the API ones can still be split
         // into different classes derived from RZTexture
         // TODO: Calculate size properly for manually set texture data
@@ -45,8 +45,8 @@ namespace Razix {
              * @param width     The width of the Texture
              * @param height    The height of the texture
              */
-            static u32                         calculateMipMapCount(u32 width, u32 height);
-            static RZTextureProperties::Format bitsToTextureFormat(u32 bits);
+            static u32           calculateMipMapCount(u32 width, u32 height);
+            static TextureFormat bitsToTextureFormat(u32 bits);
 
             /* Binds the Texture resource to the Pipeline */
             virtual void Bind(u32 slot) = 0;
@@ -78,20 +78,28 @@ namespace Razix {
             /* Gets the size of the texture resource */
             uint64_t getSize() const { return m_Size; }
             /* Returns the type of the texture */
-            RZTextureProperties::Type getType() const { return m_Desc.type; }
-            void                      setType(RZTextureProperties::Type type) { m_Desc.type = type; }
+            TextureType getType() const { return m_Desc.type; }
+            void        setType(TextureType type) { m_Desc.type = type; }
             /* Returns the internal format of the texture */
-            RZTextureProperties::Format getFormat() const { return m_Desc.format; }
+            TextureFormat getFormat() const { return m_Desc.format; }
             /* Returns the virtual path of the texture resource */
-            std::string                    getPath() const { return m_VirtualPath; }
-            RZTextureProperties::Filtering getFilterMode() { return m_Desc.filtering; }
-            RZTextureProperties::Wrapping  getWrapMode() { return m_Desc.wrapping; }
+            std::string getPath() const { return m_VirtualPath; }
+            Filtering   getFilterMode() { return m_Desc.filtering; }
+            Wrapping    getWrapMode() { return m_Desc.wrapping; }
 
             /* Generates the descriptor set for the texture */
             void             generateDescriptorSet();
             RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
 
-            void setMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
+            u32  getCurrentMipLevel() { return m_CurrentMipRenderingLevel; }
+            void setCurrentMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
+
+            u32  getCurrentArrayLayer() { return m_BaseArrayLayer; }
+            void setCurrentArrayLayer(u32 idx) { m_BaseArrayLayer = idx; }
+
+            u32 getLayersCount() { return m_Desc.layers; }
+            u32 getMipsCount() { return m_TotalMipLevels; }
+            // TODO: Add function to SetCurrentArrayAccessIdx kinda thing
 
             RAZIX_INLINE bool isRT() const { return m_IsRenderTexture; }
 
@@ -102,6 +110,7 @@ namespace Razix {
             RZTextureDesc    m_Desc;                            /* Texture properties and create desc                          */
             u32              m_TotalMipLevels           = 1;    /* Total Mips, Calculated by a formula except for RZCubeMap    */
             u32              m_CurrentMipRenderingLevel = 0;    /* Current mip level to which we are rendering to (as RT)      */
+            u32              m_BaseArrayLayer           = 0;    /* Current face/array layer being accesses                     */
             bool             m_IsRenderTexture          = true; /* Any texture not imported from file and created is a RT      */
 
         private:

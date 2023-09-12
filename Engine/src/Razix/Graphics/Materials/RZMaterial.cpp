@@ -48,7 +48,7 @@ namespace Razix {
             u32* pinkTextureDataRaw = new u32;    // A8B8G8R8
             pinkTextureDataRaw[0]   = {0xffff00ff};
             //memcpy(pinkTextureDataRaw, &pinkTextureData, sizeof(u32));
-            s_DefaultTexture = RZResourceManager::Get().createTexture({.name = "Default Texture", .width = 1, .height = 1, .data = pinkTextureDataRaw, .format = RZTextureProperties::Format::RGBA8});
+            s_DefaultTexture = RZResourceManager::Get().createTexture({.name = "Default Texture", .width = 1, .height = 1, .data = pinkTextureDataRaw, .format = TextureFormat::RGBA8});
             //delete[] pinkTextureDataRaw;
         }
 
@@ -164,7 +164,7 @@ namespace Razix {
     #if 1
                         else if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
                             // Choose the mat textures based on the workflow & preset
-                            switch (descriptor.bindingInfo.binding) {
+                            switch (descriptor.bindingInfo.location.binding) {
                                 case TextureBindingTable::BINDING_IDX_TEX_ALBEDO:
                                     descriptor.texture = m_MaterialTextures.albedo.isValid() ? m_MaterialTextures.albedo : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)

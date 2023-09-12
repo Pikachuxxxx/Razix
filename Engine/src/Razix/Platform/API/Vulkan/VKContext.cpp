@@ -118,7 +118,7 @@ namespace Razix {
             // To track if there is any issue with instance creation we supply the pNext with the `VkDebugUtilsMessengerCreateInfoEXT`
             m_DebugCI                 = {};
             m_DebugCI.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            m_DebugCI.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+            m_DebugCI.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
             m_DebugCI.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             m_DebugCI.pfnUserCallback = debugCallback;
 
@@ -194,6 +194,7 @@ namespace Razix {
             std::vector<cstr> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
             extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
             extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+            extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
             // Add any custom extension from the list of supported extensions that you need and are not included by GLFW
             if (m_EnabledValidationLayer)
                 extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -237,7 +238,7 @@ namespace Razix {
         }
 
         VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
-        {            
+        {
     #ifndef RAZIX_DISTRIBUTION
             // Select prefix depending on flags passed to the callback
             // Note that multiple flags may be set for a single validation message
@@ -245,8 +246,8 @@ namespace Razix {
             // TODO: Add option to choose minimum severity level and use <=> to select levels
             // TODO: Formate the message id and stuff for colors etc
 
-            if (!message_severity)
-                return VK_FALSE;
+            //if (!message_severity)
+            //    return VK_FALSE;
 
             for (sz i = 0; i < callback_data->objectCount; i++) {
                 if (callback_data->pObjects[i].pObjectName)
@@ -270,14 +271,13 @@ namespace Razix {
                 std::cout << "\033[1;32m[VULKAN] \033[1;36m - Validation INFO : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
                 std::cout << "\033[1;36m ***************************************************************** \033[0m" << std::endl;
             }
-                // Diagnostic info from the Vulkan loader and layers
-                // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
-                // if(message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-                // {
-                //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
-                //     std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage  << std::endl;
-                //     std::cout << "\033[1;35m*****************************************************************" << std::endl;
-                // }
+            // Diagnostic info from the Vulkan loader and layers
+            // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
+            if (message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+                std::cout << "\033[1;35m*****************************************************************" << std::endl;
+                std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
+                std::cout << "\033[1;35m*****************************************************************" << std::endl;
+            }
     #endif
             return VK_FALSE;
         }

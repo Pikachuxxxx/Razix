@@ -5,64 +5,64 @@
 
 namespace Razix {
     namespace Graphics {
-        std::string RZTextureDesc::FormatToString(const Graphics::RZTextureProperties::Format format)
+        std::string RZTextureDesc::FormatToString(const Graphics::TextureFormat format)
         {
             switch (format) {
-                case Razix::Graphics::RZTextureProperties::Format::R8:
+                case Razix::Graphics::TextureFormat::R8:
                     return "R8";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::R32_INT:
+                case Razix::Graphics::TextureFormat::R32_INT:
                     return "R32_INT";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::R32_UINT:
+                case Razix::Graphics::TextureFormat::R32_UINT:
                     return "R32_UINT";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::R32F:
+                case Razix::Graphics::TextureFormat::R32F:
                     return "R32F";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RG8:
+                case Razix::Graphics::TextureFormat::RG8:
                     return "RG8";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGB8:
+                case Razix::Graphics::TextureFormat::RGB8:
                     return "RGB8";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGBA8:
+                case Razix::Graphics::TextureFormat::RGBA8:
                     return "RGBA8";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGB16:
+                case Razix::Graphics::TextureFormat::RGB16:
                     return "RGB16";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGBA16:
+                case Razix::Graphics::TextureFormat::RGBA16:
                     return "RGBA16";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGB32:
+                case Razix::Graphics::TextureFormat::RGB32:
                     return "RGB32";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGBA32:
+                case Razix::Graphics::TextureFormat::RGBA32:
                     return "RGBA32";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGBA32F:
+                case Razix::Graphics::TextureFormat::RGBA32F:
                     return "RGBA32F";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGB:
+                case Razix::Graphics::TextureFormat::RGB:
                     return "RGB";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::RGBA:
+                case Razix::Graphics::TextureFormat::RGBA:
                     return "RGBA";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::DEPTH16_UNORM:
+                case Razix::Graphics::TextureFormat::DEPTH16_UNORM:
                     return "DEPTH";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::STENCIL:
+                case Razix::Graphics::TextureFormat::STENCIL:
                     return "STENCIL";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::DEPTH_STENCIL:
+                case Razix::Graphics::TextureFormat::DEPTH_STENCIL:
                     return "DEPTH_STENCIL";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::SCREEN:
+                case Razix::Graphics::TextureFormat::SCREEN:
                     return "Presentation";
                     break;
-                case Razix::Graphics::RZTextureProperties::Format::BGRA8_UNORM:
+                case Razix::Graphics::TextureFormat::BGRA8_UNORM:
                     return "BGRA8_UNORM";
                     break;
                 default:
@@ -73,31 +73,31 @@ namespace Razix {
             return "BGRA8_UNORM";
         }
 
-        std::string RZTextureDesc::TypeToString(RZTextureProperties::Type type)
+        std::string RZTextureDesc::TypeToString(TextureType type)
         {
             switch (type) {
-                case Razix::Graphics::RZTextureProperties::Type::Texture_2D:
+                case Razix::Graphics::TextureType::Texture_2D:
                     return "2D";
                     break;
-                case Razix::Graphics::RZTextureProperties::Type::Texture_3D:
+                case Razix::Graphics::TextureType::Texture_3D:
                     return "3D";
                     break;
-                case Razix::Graphics::RZTextureProperties::Type::Texture_CubeMap:
+                case Razix::Graphics::TextureType::Texture_CubeMap:
                     return "CubeMap";
                     break;
-                case Razix::Graphics::RZTextureProperties::Type::Texture_Depth:
+                case Razix::Graphics::TextureType::Texture_Depth:
                     return "Depth";
                     break;
-                case Razix::Graphics::RZTextureProperties::Type::Texture_SwapchainImage:
+                case Razix::Graphics::TextureType::Texture_SwapchainImage:
                     return "Swapchain Image";
                     break;
-                case RZTextureProperties::Type::Texture_1D:
+                case TextureType::Texture_1D:
                     return "1D";
                     break;
-                case RZTextureProperties::Type::Texture_2DArray:
+                case TextureType::Texture_2DArray:
                     return "2D Array";
                     break;
-                case RZTextureProperties::Type::Texture_CubeMapArray:
+                case TextureType::Texture_CubeMapArray:
                     return "CubeMap Array";
                     break;
                 default:

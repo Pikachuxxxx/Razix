@@ -38,7 +38,7 @@ namespace Razix {
             RZPipelineDesc pipelineInfo{
                 // Build the pipeline here for this pass
                 .shader                 = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition),
-                .colorAttachmentFormats = {RZTextureProperties::Format::BGRA8_UNORM},
+                .colorAttachmentFormats = {TextureFormat::BGRA8_UNORM},
                 .cullMode               = Graphics::CullMode::NONE,
                 .drawType               = Graphics::DrawType::TRIANGLE,
                 .transparencyEnabled    = true,
@@ -58,16 +58,16 @@ namespace Razix {
                         .name   = "Present Image",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = RZTextureProperties::Type::Texture_2D,
-                        .format = RZTextureProperties::Format::BGRA8_UNORM};
+                        .type   = TextureType::Texture_2D,
+                        .format = TextureFormat::BGRA8_UNORM};
 
                     RZTextureDesc depthImageDesc{
                         .name       = "Depth Image",
                         .width      = RZApplication::Get().getWindow()->getWidth(),
                         .height     = RZApplication::Get().getWindow()->getHeight(),
-                        .type       = RZTextureProperties::Type::Texture_Depth,
-                        .format     = RZTextureProperties::Format::DEPTH32F,
-                        .filtering  = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
+                        .type       = TextureType::Texture_Depth,
+                        .format     = TextureFormat::DEPTH32F,
+                        .filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                         .enableMips = false};
 
                     data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
@@ -119,8 +119,6 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
-
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
                     if (!updatedRT) {
@@ -132,15 +130,16 @@ namespace Razix {
                             }
                             m_DescriptorSets->UpdateSet(setInfo.second);
                         }
-                        //updatedRT = true;
+                        updatedRT = true;
                     }
 
                     RenderingInfo info{};
+                    info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
-                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
+                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::TransparentBlack}} /*,
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
                     };
-                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    //info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);

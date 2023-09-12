@@ -62,8 +62,8 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
             pipelineInfo.shader                 = PointShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::RZTextureProperties::Format::DEPTH32F;
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
@@ -124,9 +124,6 @@ namespace Razix {
             RAZIX_MARK_BEGIN("Debug Renderer Pass", glm::vec4(0.0f, 0.85f, 0.0f, 1.0f));
 
             auto cmdBuffer = RHI::GetCurrentCommandBuffer();
-
-            // Update the viewport
-            cmdBuffer->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             // POINTS
             {

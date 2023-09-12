@@ -105,10 +105,10 @@ namespace Razix {
             pipelineInfo.depthBiasEnabled    = false;
             // worldPos, normal, flux, Depth
             pipelineInfo.colorAttachmentFormats = {
-                Graphics::RZTextureProperties::Format::RGBA32F,
-                Graphics::RZTextureProperties::Format::RGBA32F,
-                Graphics::RZTextureProperties::Format::RGBA32F};
-            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH32F;
+                Graphics::TextureFormat::RGBA32F,
+                Graphics::TextureFormat::RGBA32F,
+                Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.depthFormat = Graphics::TextureFormat::DEPTH32F;
 
             m_RSMPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("RSM pipeline"));
 
@@ -123,8 +123,8 @@ namespace Razix {
                         .name   = "RSM/Position",
                         .width  = kRSMResolution,
                         .height = kRSMResolution,
-                        .type   = RZTextureProperties::Type::Texture_2D,
-                        .format = RZTextureProperties::Format::RGBA32F};
+                        .type   = TextureType::Texture_2D,
+                        .format = TextureFormat::RGBA32F};
 
                     // Create the output RTs
                     data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", CAST_TO_FG_TEX_DESC textureDesc);
@@ -138,9 +138,9 @@ namespace Razix {
                     data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", CAST_TO_FG_TEX_DESC textureDesc);
 
                     textureDesc.name      = "RSM/Depth";
-                    textureDesc.format    = RZTextureProperties::Format::DEPTH32F;
-                    textureDesc.filtering = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
-                    textureDesc.type      = RZTextureProperties::Type::Texture_Depth;
+                    textureDesc.format    = TextureFormat::DEPTH32F;
+                    textureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
+                    textureDesc.type      = TextureType::Texture_Depth;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);
 
@@ -166,13 +166,11 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("ReflectiveShadowMap", glm::vec4(.23f, .45f, .76f, 1.0f))
 
-                    cmdBuffer->UpdateViewport(kRSMResolution, kRSMResolution);
-
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.position).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.normal).getHandle(), {true, glm::vec4(0.0f)}},      // location = 1
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.flux).getHandle(), {true, glm::vec4(0.0f)}},        // location = 2
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.position).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.normal).getHandle(), {true, ClearColorPresets::TransparentBlack}},      // location = 1
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.flux).getHandle(), {true, ClearColorPresets::TransparentBlack}},        // location = 2
 
                     };
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true}};
@@ -285,7 +283,7 @@ namespace Razix {
             pipelineInfo.alphaSrc = BlendFactor::One;
             pipelineInfo.alphaDst = BlendFactor::One;
             // Depth, worldPos, normal, flux
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F};
 
             m_RIPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Injection pipeline"));
 
@@ -305,8 +303,8 @@ namespace Razix {
                         .width  = grid.size.x,
                         .height = grid.size.y,
                         .layers = grid.size.z,
-                        .type   = RZTextureProperties::Type::Texture_3D,
-                        .format = RZTextureProperties::Format::RGBA32F};
+                        .type   = TextureType::Texture_3D,
+                        .format = TextureFormat::RGBA32F};
 
                     // Create the resource for this pass
                     data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
@@ -335,8 +333,6 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 
-                    cmdBuffer->UpdateViewport(grid.size.x, grid.size.y);
-
     #if 1
                     static bool setsCreated = false;
                     if (!setsCreated) {
@@ -346,7 +342,7 @@ namespace Razix {
                                 if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                                     descriptor.uniformBuffer = m_RadianceInjectionUBO;
                                 } else {
-                                    switch (descriptor.bindingInfo.binding) {
+                                    switch (descriptor.bindingInfo.location.binding) {
                                         case 1:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(RSM.position).getHandle();
                                             break;
@@ -369,9 +365,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, glm::vec4(0.0f)}},    // location = 2 // SH_B
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -425,7 +421,7 @@ namespace Razix {
             pipelineInfo.alphaSrc = BlendFactor::One;
             pipelineInfo.alphaDst = BlendFactor::One;
             // Depth, worldPos, normal, flux
-            pipelineInfo.colorAttachmentFormats = {Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F, Graphics::RZTextureProperties::Format::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F};
 
             m_RPropagationPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Propagation pipeline"));
 
@@ -443,8 +439,8 @@ namespace Razix {
                         .width  = grid.size.x,
                         .height = grid.size.y,
                         .layers = grid.size.z,
-                        .type   = RZTextureProperties::Type::Texture_3D,
-                        .format = RZTextureProperties::Format::RGBA32F};
+                        .type   = TextureType::Texture_3D,
+                        .format = TextureFormat::RGBA32F};
 
                     // Create the resource for this pass
                     data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
@@ -472,8 +468,6 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
 
-                    cmdBuffer->UpdateViewport(grid.size.x, grid.size.y);
-
                     if (!m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet) {
                         auto setInfos = shader->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
@@ -481,7 +475,7 @@ namespace Razix {
                                 if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                                     descriptor.uniformBuffer = m_RadiancePropagationUBO;
                                 } else {
-                                    switch (descriptor.bindingInfo.binding) {
+                                    switch (descriptor.bindingInfo.location.binding) {
                                         case 1:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.r).getHandle();
                                             break;
@@ -502,9 +496,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, glm::vec4(0.0f)}},    // location = 2 // SH_B
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);

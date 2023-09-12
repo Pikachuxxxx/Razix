@@ -298,7 +298,7 @@ namespace Razix {
                     // First create the descriptor layout bindings, these describe where and what kind of resources are being bound to the shader per descriptor set
                     // Which means each descriptor set (i.e. for a given set ID) it stores a list of binding layouts in a map
                     VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
-                    setLayoutBindingInfo.binding                      = descriptor.binding;
+                    setLayoutBindingInfo.binding             = descriptor.binding;
                     setLayoutBindingInfo.descriptorCount              = descriptor.count;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                     setLayoutBindingInfo.descriptorType               = (VkDescriptorType) descriptor.descriptor_type;
                     setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(spvSource.first);
@@ -307,13 +307,14 @@ namespace Razix {
                     layou_bindings_in_set.push_back(std::move(setLayoutBindingInfo));
 
                     // -->Also store all this data for the engine as well.
-                    RZDescriptorLayoutBinding bindingInfo{};
-                    bindingInfo.binding = descriptor.binding;
-                    bindingInfo.count   = descriptor.count;
-                    bindingInfo.type    = VKToEngineDescriptorType(descriptor.descriptor_type);
-                    bindingInfo.stage   = spvSource.first;
+                    DescriptorBindingInfo bindingInfo{};
+                    bindingInfo.location.binding = descriptor.binding;
+                    bindingInfo.location.set     = descriptor.set;
+                    bindingInfo.count            = descriptor.count;
+                    bindingInfo.type             = VKToEngineDescriptorType(descriptor.descriptor_type);
+                    bindingInfo.stage            = spvSource.first;
 
-                    if (descriptor.count == 1024)
+                    if (descriptor.count >= 1024)
                         potentiallyBindless = true;
 
                     rzDescriptor->bindingInfo = bindingInfo;
@@ -357,15 +358,16 @@ namespace Razix {
                     //RAZIX_CORE_TRACE("Push contant name : {0}", pushConstant->name);
 
                     RZPushConstant pc{};
-                    pc.name                = pushConstant->name;
-                    pc.shaderStage         = spvSource.first;
-                    pc.data                = nullptr;
-                    pc.size                = pushConstant->size;
-                    pc.offset              = pushConstant->offset;
-                    pc.bindingInfo.binding = 0;
-                    pc.bindingInfo.stage   = spvSource.first;
-                    pc.bindingInfo.count   = 1;
-                    pc.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
+                    pc.name                         = pushConstant->name;
+                    pc.shaderStage                  = spvSource.first;
+                    pc.data                         = nullptr;
+                    pc.size                         = pushConstant->size;
+                    pc.offset                       = pushConstant->offset;
+                    pc.bindingInfo.location.binding = 0;    // Doesn't make sense for PushConstants
+                    pc.bindingInfo.location.set     = 0;    // Doesn't make sense for PushConstants
+                    pc.bindingInfo.stage            = spvSource.first;
+                    pc.bindingInfo.count            = 1;
+                    pc.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
                     for (sz i = 0; i < pushConstant->member_count; i++) {
                         auto                     member = pushConstant->members[i];
                         RZShaderBufferMemberInfo mem{};

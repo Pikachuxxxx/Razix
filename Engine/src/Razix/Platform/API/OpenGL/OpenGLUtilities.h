@@ -46,49 +46,49 @@ namespace Razix {
             }
 
             //TODO: USe macros to generate this code automatically
-            static uint32_t TextureFormatToGL(const RZTextureProperties::Format format, bool srgb)
+            static uint32_t TextureFormatToGL(const TextureFormat format, bool srgb)
             {
                 switch (format) {
-                    case RZTextureProperties::Format::R8:
+                    case TextureFormat::R8:
                         return GL_R8;
                         break;
-                    case RZTextureProperties::Format::R32_UINT:
+                    case TextureFormat::R32_UINT:
                         return GL_R32UI;
                         break;
-                    case RZTextureProperties::Format::R32_INT:
+                    case TextureFormat::R32_INT:
                         return GL_R32I;
                         break;
-                    case RZTextureProperties::Format::R32F:
+                    case TextureFormat::R32F:
                         return GL_RG32F;
                         break;
-                    case RZTextureProperties::Format::RG8:
+                    case TextureFormat::RG8:
                         return GL_RG8;
                         break;
-                    case RZTextureProperties::Format::RGB8:
+                    case TextureFormat::RGB8:
                         return srgb ? GL_SRGB8 : GL_RGB8;
                         break;
-                    case RZTextureProperties::Format::RGB16:
+                    case TextureFormat::RGB16:
                         return GL_RGB16;
                         break;
-                    case RZTextureProperties::Format::RGB32:
+                    case TextureFormat::RGB32:
                         return GL_RGB;
                         break;
-                    case RZTextureProperties::Format::RGBA8:
+                    case TextureFormat::RGBA8:
                         return srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
                         break;
-                    case RZTextureProperties::Format::RGBA16:
+                    case TextureFormat::RGBA16:
                         return GL_RGBA16;
                         break;
-                    case RZTextureProperties::Format::RGBA32:
+                    case TextureFormat::RGBA32:
                         return GL_RGBA;
                         break;
-                    case RZTextureProperties::Format::RGBA32F:
+                    case TextureFormat::RGBA32F:
                         return GL_RGBA32F;
                         break;
-                    case RZTextureProperties::Format::RGB:
+                    case TextureFormat::RGB:
                         return srgb ? GL_SRGB : GL_RGB;
                         break;
-                    case RZTextureProperties::Format::RGBA:
+                    case TextureFormat::RGBA:
                         return srgb ? GL_SRGB_ALPHA : GL_RGBA;
                         break;
                     default:
@@ -98,19 +98,19 @@ namespace Razix {
                 }
             }
 
-            static uint32_t TextureWrapToGL(const RZTextureProperties::Wrapping wrap)
+            static uint32_t TextureWrapToGL(const Wrapping wrap)
             {
                 switch (wrap) {
-                    case RZTextureProperties::Wrapping::REPEAT:
+                    case Wrapping::REPEAT:
                         return GL_REPEAT;
                         break;
-                    case RZTextureProperties::Wrapping::MIRRORED_REPEAT:
+                    case Wrapping::MIRRORED_REPEAT:
                         return GL_MIRRORED_REPEAT;
                         break;
-                    case RZTextureProperties::Wrapping::CLAMP_TO_EDGE:
+                    case Wrapping::CLAMP_TO_EDGE:
                         return GL_CLAMP_TO_EDGE;
                         break;
-                    case RZTextureProperties::Wrapping::CLAMP_TO_BORDER:
+                    case Wrapping::CLAMP_TO_BORDER:
                         return GL_CLAMP_TO_BORDER;
                         break;
 

@@ -148,7 +148,7 @@ namespace Razix
             m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_cubemapMipLevels] = m_PSSystemUniformBufferOffsets[PSSystemUniformIndex_RenderMode] + sizeof(int);
 
             AttachmentInfo textureTypes[2] = {
-                { RZTextureProperties::Type::COLOUR, TextureFormat::RGBA8 }
+                { TextureType::COLOUR, TextureFormat::RGBA8 }
             };
             Graphics::RenderPassInfo renderpassCI {};
             renderpassCI.attachmentCount = 1;
@@ -514,8 +514,8 @@ namespace Razix
 
         void RZDeferredRenderer::CreateFramebuffers()
         {
-            RZTextureProperties::Type attachmentTypes[2];
-            attachmentTypes[0] = RZTextureProperties::Type::COLOUR;
+            TextureType attachmentTypes[2];
+            attachmentTypes[0] = TextureType::COLOUR;
 
             Texture* attachments[1];
             FramebufferInfo bufferInfo {};
@@ -629,14 +629,14 @@ namespace Razix
             imageInfo6.texture = { m_EnvironmentMap };
             imageInfo6.binding = 5;
             imageInfo5.type = DescriptorType::IMAGE_SAMPLER;
-            imageInfo6.textureType = RZTextureProperties::Type::CUBE;
+            imageInfo6.textureType = TextureType::CUBE;
             imageInfo6.name = "uEnvironmentMap";
 
             Graphics::Descriptor imageInfo7 = {};
             imageInfo7.texture = { m_IrradianceMap };
             imageInfo7.binding = 6;
             imageInfo5.type = DescriptorType::IMAGE_SAMPLER;
-            imageInfo7.textureType = RZTextureProperties::Type::CUBE;
+            imageInfo7.textureType = TextureType::CUBE;
             imageInfo7.name = "uIrradianceMap";
 
             Graphics::Descriptor imageInfo8 = {};
@@ -646,7 +646,7 @@ namespace Razix
                 imageInfo8.texture = { reinterpret_cast<Texture*>(shadowRenderer->GetTexture()) };
                 imageInfo8.binding = 7;
                 imageInfo5.type = DescriptorType::IMAGE_SAMPLER;
-                imageInfo8.textureType = RZTextureProperties::Type::DEPTHARRAY;
+                imageInfo8.textureType = TextureType::DEPTHARRAY;
                 imageInfo8.name = "uShadowMap";
             }
 
@@ -654,7 +654,7 @@ namespace Razix
             imageInfo9.texture = { Application::Get().GetRenderGraph()->GetGBuffer()->GetDepthTexture() };
             imageInfo9.binding = 8;
             imageInfo5.type = DescriptorType::IMAGE_SAMPLER;
-            imageInfo9.textureType = RZTextureProperties::Type::DEPTH;
+            imageInfo9.textureType = TextureType::DEPTH;
             imageInfo9.name = "uDepthSampler";
 
             bufferInfos.push_back(imageInfo);

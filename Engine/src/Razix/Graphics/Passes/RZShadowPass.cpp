@@ -62,7 +62,7 @@ namespace Razix {
             pipelineInfo.shader              = shader;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.depthFormat         = {Graphics::RZTextureProperties::Format::DEPTH32F};
+            pipelineInfo.depthFormat         = {Graphics::TextureFormat::DEPTH32F};
             m_Pipeline                       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Pass Pipeline"));
 
             blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
@@ -70,7 +70,7 @@ namespace Razix {
                 [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = RZTextureProperties::Type::Texture_Depth, .format = RZTextureProperties::Format::DEPTH32F, .enableMips = false});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .enableMips = false});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 
@@ -84,8 +84,6 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    // Update Viewport and Scissor Rect
-                    cmdBuffer->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
                     LightVPUBOData light_data{};
                     // Get the Light direction
@@ -109,7 +107,8 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)}};
+                    info.resolution = Resolution::kCustom;
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
                     info.resize          = false;

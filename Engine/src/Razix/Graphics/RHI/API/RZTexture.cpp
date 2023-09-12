@@ -81,26 +81,26 @@ namespace Razix {
             return levels;
         }
 
-        RZTextureProperties::Format RZTexture::bitsToTextureFormat(u32 bits)
+        TextureFormat RZTexture::bitsToTextureFormat(u32 bits)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch ((bits * 8)) {
                 case 8:
-                    return RZTextureProperties::Format::R8;
+                    return TextureFormat::R8;
                 case 16:
-                    return RZTextureProperties::Format::RG8;
+                    return TextureFormat::RG8;
                 case 24:
-                    return RZTextureProperties::Format::RGB8;
+                    return TextureFormat::RGB8;
                 case 32:
-                    return RZTextureProperties::Format::RGBA8;
+                    return TextureFormat::RGBA8;
                 case 48:
-                    return RZTextureProperties::Format::RGB16;
+                    return TextureFormat::RGB16;
                 case 64:
-                    return RZTextureProperties::Format::RGBA16;
+                    return TextureFormat::RGBA16;
                 default:
                     RAZIX_CORE_ASSERT(false, "[Texture] Unsupported image bit-depth! ({0})", bits);
-                    return RZTextureProperties::Format::RGB8;
+                    return TextureFormat::RGB8;
             }
         }
 
@@ -110,7 +110,7 @@ namespace Razix {
 
             RZDescriptor descriptor{};
             descriptor.name                = m_Desc.name;
-            descriptor.bindingInfo.binding = 0;
+            descriptor.bindingInfo.location.binding = 0;
             descriptor.bindingInfo.count   = 1;
             descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
             descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;

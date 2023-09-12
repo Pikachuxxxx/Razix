@@ -51,10 +51,10 @@ namespace Razix {
             pipelineInfo.depthTestEnabled    = true;
             // Using 32 bit f32ing point formats to support HDR colors
             pipelineInfo.colorAttachmentFormats = {
-                Graphics::RZTextureProperties::Format::RGBA32F,
-                Graphics::RZTextureProperties::Format::RGBA32F,
-                Graphics::RZTextureProperties::Format::RGBA32F};
-            pipelineInfo.depthFormat = Graphics::RZTextureProperties::Format::DEPTH32F;
+                Graphics::TextureFormat::RGBA32F,
+                Graphics::TextureFormat::RGBA32F,
+                Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.depthFormat = Graphics::TextureFormat::DEPTH32F;
 
             m_Pipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer pipeline"));
 
@@ -69,8 +69,8 @@ namespace Razix {
                         .name   = "Normal_Metallic",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = RZTextureProperties::Type::Texture_2D,
-                        .format = RZTextureProperties::Format::RGBA32F};
+                        .type   = TextureType::Texture_2D,
+                        .format = TextureFormat::RGBA32F};
 
                     data.Normal_Metallic = builder.create<FrameGraph::RZFrameGraphTexture>("Normal_Metallic", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
@@ -83,9 +83,9 @@ namespace Razix {
                     data.Position_AO = builder.create<FrameGraph::RZFrameGraphTexture>("Position_AO", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name      = "Depth";
-                    gbufferTexturesDesc.format    = RZTextureProperties::Format::DEPTH32F;
-                    gbufferTexturesDesc.filtering = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
-                    gbufferTexturesDesc.type      = RZTextureProperties::Type::Texture_Depth;
+                    gbufferTexturesDesc.format    = TextureFormat::DEPTH32F;
+                    gbufferTexturesDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
+                    gbufferTexturesDesc.type      = TextureType::Texture_Depth;
 
                     data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
@@ -101,14 +101,12 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
 
-                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
-
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_Metallic).getHandle(), {true, glm::vec4(0.0f)}},     // location = 0
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_Roughness).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Position_AO).getHandle(), {true, glm::vec4(0.0f)}},         // location = 2
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_Metallic).getHandle(), {true, ClearColorPresets::TransparentBlack}},     // location = 0
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_Roughness).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Position_AO).getHandle(), {true, ClearColorPresets::TransparentBlack}},         // location = 2
                         },
                         .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}},
                         .resize          = false};

@@ -3,8 +3,8 @@
 // clang-format on
 #include "OpenGLShader.h"
 
-#include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
 
@@ -66,8 +66,8 @@ namespace Razix {
             u32 vertex_shader, pixel_shader;
             // TODO: Add support for geometry, tessellation and compute shaders
             //, geom_shader, compute_shader;
-            GLint    success;
-            GLchar   infoLog[512];
+            GLint  success;
+            GLchar infoLog[512];
 
             for (auto& source: m_ParsedRZSF) {
                 // Read SPIR-V from disk or similar and store it into a 32-bit byte code
@@ -115,11 +115,11 @@ namespace Razix {
                     // Some arbitrary remapping if we want
                     //glsl.unset_decoration(resource.id, spv::DecorationBinding);
 
-                    RZDescriptorLayoutBinding bindingLayout = {};
-                    bindingLayout.binding                   = binding;
-                    bindingLayout.count                     = 1;
-                    bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
-                    bindingLayout.type                      = DescriptorType::IMAGE_SAMPLER;
+                    DescriptorBindingInfo bindingLayout = {};
+                    bindingLayout.location.binding      = binding;
+                    bindingLayout.count                 = 1;
+                    bindingLayout.stage                 = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
+                    bindingLayout.type                  = DescriptorType::IMAGE_SAMPLER;
 
                     RZDescriptor rzDescriptor;
                     rzDescriptor.bindingInfo = bindingLayout;
@@ -146,17 +146,17 @@ namespace Razix {
                     auto set{glsl.get_decoration(uniform_buffer.id, spv::Decoration::DecorationDescriptorSet)};
                     glsl.set_decoration(uniform_buffer.id, spv::Decoration::DecorationDescriptorSet, DESCRIPTOR_TABLE_INITIAL_SPACE + 2 * set);
 
-                    u32 binding    = glsl.get_decoration(uniform_buffer.id, spv::DecorationBinding);
-                    auto&    bufferType = glsl.get_type(uniform_buffer.type_id);
+                    u32   binding    = glsl.get_decoration(uniform_buffer.id, spv::DecorationBinding);
+                    auto& bufferType = glsl.get_type(uniform_buffer.type_id);
 
                     auto bufferSize  = glsl.get_declared_struct_size(bufferType);
                     u32  memberCount = (u32) bufferType.member_types.size();
 
-                    RZDescriptorLayoutBinding bindingLayout = {};
-                    bindingLayout.binding                   = binding;
-                    bindingLayout.count                     = 1;
-                    bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
-                    bindingLayout.type                      = DescriptorType::UNIFORM_BUFFER;
+                    DescriptorBindingInfo bindingLayout = {};
+                    bindingLayout.location.binding               = binding;
+                    bindingLayout.count                 = 1;
+                    bindingLayout.stage                 = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
+                    bindingLayout.type                  = DescriptorType::UNIFORM_BUFFER;
 
                     RAZIX_CORE_WARN("id : {0}, type_id {1}, base_type_id : {2}, name : {3}", glsl.get_name(uniform_buffer.id), glsl.get_name(uniform_buffer.type_id), glsl.get_name(uniform_buffer.base_type_id), uniform_buffer.name);
 
@@ -225,11 +225,11 @@ namespace Razix {
                     //m_PushConstants.push_back({size, file.first});
                     //m_PushConstants.back().data = new u8[size];
 
-                    RZDescriptorLayoutBinding bindingLayout = {};
-                    bindingLayout.binding                   = binding;
-                    bindingLayout.count                     = 1;
-                    bindingLayout.stage                     = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
-                    bindingLayout.type                      = DescriptorType::UNIFORM_BUFFER;
+                    DescriptorBindingInfo bindingLayout = {};
+                    bindingLayout.location.binding               = binding;
+                    bindingLayout.count                 = 1;
+                    bindingLayout.stage                 = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
+                    bindingLayout.type                  = DescriptorType::UNIFORM_BUFFER;
 
                     RAZIX_CORE_WARN("id : {0}, type_id {1}, base_type_id : {2}, name : {3}", glsl.get_name(push_constant.id), glsl.get_name(push_constant.type_id), glsl.get_name(push_constant.base_type_id), push_constant.name);
 
@@ -241,11 +241,11 @@ namespace Razix {
                     //rzDescriptor.size        = bufferSize;
 
                     RZPushConstant pc{};
-                    pc.typeName = glsl.get_name(push_constant.base_type_id);
+                    pc.typeName    = glsl.get_name(push_constant.base_type_id);
                     pc.name        = glsl.get_name(push_constant.id);
                     pc.shaderStage = bindingLayout.stage;
                     pc.data        = nullptr;
-                    pc.size        =  static_cast<u32>(bufferSize);
+                    pc.size        = static_cast<u32>(bufferSize);
                     pc.offset      = 0;    // TODO: Research on how to extract this info, although 0 should work for most cases
                     pc.bindingInfo = bindingLayout;
 
@@ -262,7 +262,7 @@ namespace Razix {
                         memberInfo.size   = (u32) size;
                         memberInfo.offset = offset;
                         // TODO: Add utility function for conversion
-                        //memberInfo.type     = spirvtype(type); 
+                        //memberInfo.type     = spirvtype(type);
                         memberInfo.fullName = uniformName;
                         memberInfo.name     = memberName;
 
