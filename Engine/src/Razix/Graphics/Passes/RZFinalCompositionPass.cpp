@@ -119,8 +119,6 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
-
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
                     if (!updatedRT) {
@@ -132,15 +130,16 @@ namespace Razix {
                             }
                             m_DescriptorSets->UpdateSet(setInfo.second);
                         }
-                        //updatedRT = true;
+                        updatedRT = true;
                     }
 
                     RenderingInfo info{};
+                    info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
                         {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::TransparentBlack}} /*,
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
                     };
-                    info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    //info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);

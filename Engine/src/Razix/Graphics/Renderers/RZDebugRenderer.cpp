@@ -125,9 +125,6 @@ namespace Razix {
 
             auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-            // Update the viewport
-            cmdBuffer->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
-
             // POINTS
             {
                 // Prepare the points VBO and IBO and update them

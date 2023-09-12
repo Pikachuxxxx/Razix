@@ -42,7 +42,7 @@ namespace Razix {
             m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
             const auto& NoiseTextureDesc                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
             m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
-             
+
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
             m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
@@ -284,10 +284,11 @@ namespace Razix {
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .resolution = Resolution::k1440p,
+                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
                         .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
-                        .resize           = true};
+                        .resize           = false};
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -326,10 +327,10 @@ namespace Razix {
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
+                        info.resolution = Resolution::k1440p;
+                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},                        .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
                         .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
-                        .resize           = true};
+                        .resize           = false};
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
@@ -485,10 +486,10 @@ namespace Razix {
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
-                        descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        descriptor.bindingInfo.stage   = ShaderStage::VERTEX;
-                        descriptor.uniformBuffer       = frameDataBuffer;
-                        auto m_FrameDataSet            = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
+                        descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
+                        descriptor.bindingInfo.stage            = ShaderStage::VERTEX;
+                        descriptor.uniformBuffer                = frameDataBuffer;
+                        auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Graphics::RHI::Get().setFrameDataSet(m_FrameDataSet);
                     }
                 });
@@ -531,9 +532,9 @@ namespace Razix {
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};
                         lightsData_descriptor.bindingInfo.location.binding = 0;
-                        lightsData_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        lightsData_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        lightsData_descriptor.uniformBuffer       = lightsDataBuffer;
+                        lightsData_descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
+                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
 
                         auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));
                         Graphics::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataDescriptorSet);

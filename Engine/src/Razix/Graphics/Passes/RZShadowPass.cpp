@@ -84,8 +84,6 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    // Update Viewport and Scissor Rect
-                    cmdBuffer->UpdateViewport(kShadowMapSize, kShadowMapSize);
 
                     LightVPUBOData light_data{};
                     // Get the Light direction
@@ -109,6 +107,7 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
+                    info.resolution = Resolution::kCustom;
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;

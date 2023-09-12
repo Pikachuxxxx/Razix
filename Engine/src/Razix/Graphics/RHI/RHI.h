@@ -38,11 +38,11 @@ namespace Razix {
             kCustom      /* Custom resolution for rendering                                     */
         };
 
-        static std::unordered_map<u32, glm::vec2> ResolutionToExtentsMap = {
-            {(u32) Resolution::k1080p, glm::vec2(1920, 1080)},
-            {(u32) Resolution::k1440p, glm::vec2(2560, 1440)},
-            {(u32) Resolution::k4KUpscaled, glm::vec2(3840, 2160)},
-            {(u32) Resolution::k4KNative, glm::vec2(3840, 2160)}};
+        static std::unordered_map<Resolution, glm::uvec2> ResolutionToExtentsMap = {
+            {Resolution::k1080p, glm::uvec2(1920, 1080)},
+            {Resolution::k1440p, glm::uvec2(2560, 1440)},
+            {Resolution::k4KUpscaled, glm::uvec2(3840, 2160)},
+            {Resolution::k4KNative, glm::uvec2(3840, 2160)}};
 
         /* Final target FPS */
         enum class TargetFPS
@@ -53,11 +53,12 @@ namespace Razix {
 
         struct RenderingInfo
         {
-            glm::uvec2                                              extent;             /* Viewport extents                                         */
-            std::vector<std::pair<RZTextureHandle, AttachmentInfo>> colorAttachments;   /* List of attachments, texture and it's attachment info    */
-            std::pair<RZTextureHandle, AttachmentInfo>              depthAttachment;    /* The depth attachment and it's info                       */
-            int                                                     layerCount = 1;     /* Total layers to render onto, needed for gl_Layer to work */
-            bool                                                    resize     = false; /* Whether or not to enable resizing                        */
+            Resolution                                              resolution       = Resolution::k1440p; /* Resolution preset at which the scene will be rendered at         */
+            glm::uvec2                                              extent           = {0, 0};             /* Viewport extents (used only when Resolution is set to custom)    */
+            std::vector<std::pair<RZTextureHandle, AttachmentInfo>> colorAttachments = {};                 /* List of attachments, texture and it's attachment info            */
+            std::pair<RZTextureHandle, AttachmentInfo>              depthAttachment  = {};                 /* The depth attachment and it's info                               */
+            int                                                     layerCount       = 1;                  /* Total layers to render onto, needed for gl_Layer to work         */
+            bool                                                    resize           = false;              /* Whether or not to enable resizing                                */
         };
 
         /* Command Queue is a collection of command buffers that will be submitted for execution at once */

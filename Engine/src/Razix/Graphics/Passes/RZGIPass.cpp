@@ -166,8 +166,6 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("ReflectiveShadowMap", glm::vec4(.23f, .45f, .76f, 1.0f))
 
-                    cmdBuffer->UpdateViewport(kRSMResolution, kRSMResolution);
-
                     RenderingInfo info{};
                     info.colorAttachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.position).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0
@@ -335,8 +333,6 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 
-                    cmdBuffer->UpdateViewport(grid.size.x, grid.size.y);
-
     #if 1
                     static bool setsCreated = false;
                     if (!setsCreated) {
@@ -471,8 +467,6 @@ namespace Razix {
                     RHI::SetCmdCheckpoint(cmdBuffer, &checkpointData);
 
                     RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
-
-                    cmdBuffer->UpdateViewport(grid.size.x, grid.size.y);
 
                     if (!m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet) {
                         auto setInfos = shader->getSetsCreateInfos();

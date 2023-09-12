@@ -81,8 +81,8 @@ namespace Razix {
 
                     RZTextureDesc textureDesc{
                         .name   = "Scene HDR",
-                        .width  = RZApplication::Get().getWindow()->getWidth(),
-                        .height = RZApplication::Get().getWindow()->getHeight(),
+                        .width  = ResolutionToExtentsMap[Resolution::k1440p].x,
+                        .height = ResolutionToExtentsMap[Resolution::k1440p].y,
                         .type   = TextureType::Texture_2D,
                         .format = TextureFormat::RGBA32F};
 
@@ -118,13 +118,13 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("PBR pass", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 
-                    RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{};
+                    info.resolution       = Resolution::k1440p;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
+                    //info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize           = false;
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
@@ -149,16 +149,16 @@ namespace Razix {
 
                         RZDescriptor csm_descriptor{};
                         csm_descriptor.bindingInfo.location.binding = 0;
-                        csm_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        csm_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        csm_descriptor.texture             = shadowMap;
+                        csm_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
+                        csm_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        csm_descriptor.texture                      = shadowMap;
 
                         RZDescriptor shadow_data_descriptor{};
-                        shadow_data_descriptor.size                = sizeof(SimpleShadowPassData);
+                        shadow_data_descriptor.size                         = sizeof(SimpleShadowPassData);
                         shadow_data_descriptor.bindingInfo.location.binding = 1;
-                        shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+                        shadow_data_descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
+                        shadow_data_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        shadow_data_descriptor.uniformBuffer                = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
                         m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow pass Bindings"));
 
@@ -169,21 +169,21 @@ namespace Razix {
                         // TODO: Enable this only if we use a skybox
                         RZDescriptor irradianceMap_descriptor{};
                         irradianceMap_descriptor.bindingInfo.location.binding = 0;
-                        irradianceMap_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        irradianceMap_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        irradianceMap_descriptor.texture             = irradianceMap;
+                        irradianceMap_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
+                        irradianceMap_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        irradianceMap_descriptor.texture                      = irradianceMap;
 
                         RZDescriptor prefiltered_descriptor{};
                         prefiltered_descriptor.bindingInfo.location.binding = 1;
-                        prefiltered_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        prefiltered_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        prefiltered_descriptor.texture             = prefilteredMap;
+                        prefiltered_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
+                        prefiltered_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        prefiltered_descriptor.texture                      = prefilteredMap;
 
                         RZDescriptor brdflut_descriptor{};
                         brdflut_descriptor.bindingInfo.location.binding = 2;
-                        brdflut_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        brdflut_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        brdflut_descriptor.texture             = brdfLUT;
+                        brdflut_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
+                        brdflut_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        brdflut_descriptor.texture                      = brdfLUT;
 
                         m_PBRDataSet = RZDescriptorSet::Create({irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings"));
 #if 0

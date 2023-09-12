@@ -146,13 +146,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
-            m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
-
             RAZIX_MARK_BEGIN("ImGui Pass", glm::vec4(1.0f, 7.0f, 0.0f, 1.0f));
-
-            // Update the viewport
-            Graphics::RHI::GetCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
 
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;

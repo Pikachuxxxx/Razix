@@ -86,27 +86,26 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{};
+                    info.resolution       = Resolution::k1440p;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
+                    //info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize = false;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
                     // Set the Descriptor Set once rendering starts
                     static bool updatedSets = false;
                     if (!updatedSets) {
-
                         auto envMap = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle();
 
                         RZDescriptor lightProbes_descriptor{};
                         lightProbes_descriptor.bindingInfo.location.binding = 0;
-                        lightProbes_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        lightProbes_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        lightProbes_descriptor.texture             = envMap;
+                        lightProbes_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
+                        lightProbes_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        lightProbes_descriptor.texture                      = envMap;
 
                         m_LightProbesDescriptorSet = RZDescriptorSet::Create({lightProbes_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Env Map - Skybox"));
 
@@ -114,9 +113,9 @@ namespace Razix {
 
                         RZDescriptor volumetric_descriptor{};
                         volumetric_descriptor.bindingInfo.location.binding = 0;
-                        volumetric_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        volumetric_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        volumetric_descriptor.texture             = noiseTexture;
+                        volumetric_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
+                        volumetric_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        volumetric_descriptor.texture                      = noiseTexture;
 
                         m_VolumetricDescriptorSet = RZDescriptorSet::Create({volumetric_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Volumetric"));
 

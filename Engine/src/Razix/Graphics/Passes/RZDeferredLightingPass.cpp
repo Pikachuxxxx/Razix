@@ -143,8 +143,6 @@ namespace Razix {
 
                     glm::vec2 resolution = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
 
-                    cmdBuf->UpdateViewport(static_cast<u32>(resolution.x), static_cast<u32>(resolution.y));
-
                     RenderingInfo info{};
                     info.colorAttachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};

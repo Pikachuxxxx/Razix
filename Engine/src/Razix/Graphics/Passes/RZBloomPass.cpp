@@ -141,9 +141,6 @@ namespace Razix {
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Bloom Upsample Pass" + std::to_string(mipindex), glm::vec4(0.25, 0.23, 0.86f, 1.0f));
 
-                    // Update Viewport and Scissor Rect
-                    cmdBuf->UpdateViewport(static_cast<u32>(bloomSourceMip.size.x), static_cast<u32>(bloomSourceMip.size.y));
-
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
@@ -263,9 +260,6 @@ namespace Razix {
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Bloom Downsample Pass" + std::to_string(mipindex), glm::vec4(0.85, 0.23, 0.56f, 1.0f));
 
-                    // Update Viewport and Scissor Rect
-                    cmdBuf->UpdateViewport(static_cast<u32>(bloomSourceMip.size.x), static_cast<u32>(bloomSourceMip.size.y));
-
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
@@ -382,9 +376,6 @@ namespace Razix {
 
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Bloom Mix Tonemap", glm::vec4(0.05, 0.83, 0.66f, 1.0f));
-
-                    // Update Viewport and Scissor Rect
-                    cmdBuf->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;

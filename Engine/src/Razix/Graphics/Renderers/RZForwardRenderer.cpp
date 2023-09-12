@@ -92,9 +92,6 @@ namespace Razix {
 
             RAZIX_MARK_BEGIN("Forward Lighting Pass", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
-            // Update the viewport
-            Graphics::RHI::GetCurrentCommandBuffer()->UpdateViewport(m_ScreenBufferWidth, m_ScreenBufferHeight);
-
             auto& registry = scene->getRegistry();
 
             // Upload the lights data

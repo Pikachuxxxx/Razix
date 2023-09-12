@@ -311,9 +311,6 @@ namespace Razix {
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("CSM Pass" + std::to_string(cascadeIdx), glm::vec4(0.45, 0.23, 0.56f, 1.0f));
 
-                    // Update Viewport and Scissor Rect
-                    cmdBuf->UpdateViewport(kShadowMapSize, kShadowMapSize);
-
                     // Update the desc sets data
                     constexpr f32             kFarPlane{1.0f};
                     ModelViewProjLayerUBOData uboData;

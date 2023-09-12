@@ -5,6 +5,7 @@
 
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Platform/API/Vulkan/VKBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDescriptorSet.h"
@@ -13,7 +14,6 @@
 #include "Razix/Platform/API/Vulkan/VKSemaphore.h"
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUniformBuffer.h"
-#include "Razix/Platform/API/Vulkan/VKBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -208,8 +208,20 @@ namespace Razix {
             VkRenderingInfoKHR renderingInfoKHR{};
             renderingInfoKHR.sType             = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
             renderingInfoKHR.renderArea.offset = {0, 0};
-            renderingInfoKHR.renderArea.extent = {renderingInfo.extent.x, renderingInfo.extent.y};
-            renderingInfoKHR.layerCount        = renderingInfo.layerCount;
+
+            if (renderingInfo.resolution == Resolution::kCustom)
+                renderingInfoKHR.renderArea.extent = {renderingInfo.extent.x, renderingInfo.extent.y};
+            else if (renderingInfo.resolution == Resolution::kWindow)
+                renderingInfoKHR.renderArea.extent = {m_Width, m_Height};
+            else {
+                auto& res                          = ResolutionToExtentsMap[renderingInfo.resolution];
+                renderingInfoKHR.renderArea.extent = {res.x, res.y};
+            }
+
+            // Update the command buffer viewport here
+            cmdBuffer->UpdateViewport(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
+
+            renderingInfoKHR.layerCount = renderingInfo.layerCount;
 
             std::vector<VkRenderingAttachmentInfo> colorAttachments;
 
@@ -219,7 +231,7 @@ namespace Razix {
                 // Resize attachments when resized
                 if (renderingInfo.resize) {
                     if (m_Width != colorAttachment->getWidth() || m_Height != colorAttachment->getHeight())
-                        colorAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y);
+                        colorAttachment->Resize(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
                 }
 
                 // Fill the color attachments first
@@ -264,7 +276,7 @@ namespace Razix {
                 // Depth attachment resize
                 if (renderingInfo.resize) {
                     if (m_Width != depthAttachment->getWidth() || m_Height != depthAttachment->getHeight())
-                        depthAttachment->Resize(renderingInfo.extent.x, renderingInfo.extent.y);
+                        depthAttachment->Resize(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
                 }
 
                 // Fill the color attachments first

@@ -127,9 +127,9 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Cubemap", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
 
-                cmdBuffer->UpdateViewport(dim, dim);
 
                 RenderingInfo info{};
+                info.resolution = Resolution::kCustom;
                 info.colorAttachments = {
                     {cubeMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                 info.extent = {dim, dim};
@@ -254,9 +254,8 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Irradiance cubemap Convolution", glm::vec4(0.8f, 0.4f, 0.3f, 1.0f))
 
-                cmdBuffer->UpdateViewport(dim, dim);
-
                 RenderingInfo info{};
+                info.resolution       = Resolution::kCustom;
                 info.colorAttachments = {
                     {irradianceMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                 info.extent = {dim, dim};
@@ -393,9 +392,8 @@ namespace Razix {
                     u32 mipWidth  = static_cast<u32>(dim * std::pow(0.5, mip));
                     u32 mipHeight = static_cast<u32>(dim * std::pow(0.5, mip));
 
-                    cmdBuffer->UpdateViewport(mipWidth, mipHeight);
-
                     RenderingInfo info{};
+                    info.resolution = Resolution::kCustom;
                     info.colorAttachments = {
                         {preFilteredMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                     info.extent = {mipWidth, mipHeight};
