@@ -237,6 +237,8 @@ namespace Razix {
 
             void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels /*= 1*/, u32 layerCount /*= 1*/)
             {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
 

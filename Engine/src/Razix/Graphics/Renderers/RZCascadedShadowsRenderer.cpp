@@ -322,7 +322,7 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {!cascadeIdx ? true : false, glm::vec4(kFarPlane)}};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOuput).getHandle(), {!cascadeIdx ? true : false, ClearColorPresets::DepthOneToZero}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!

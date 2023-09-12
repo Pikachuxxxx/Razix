@@ -84,7 +84,7 @@ namespace Razix {
 
                     gbufferTexturesDesc.name      = "Depth";
                     gbufferTexturesDesc.format    = TextureFormat::DEPTH32F;
-                    gbufferTexturesDesc.filtering = {RZTextureProperties::Filtering::Mode::NEAREST, RZTextureProperties::Filtering::Mode::NEAREST},
+                    gbufferTexturesDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     gbufferTexturesDesc.type      = TextureType::Texture_Depth;
 
                     data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
@@ -106,9 +106,9 @@ namespace Razix {
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_Metallic).getHandle(), {true, glm::vec4(0.0f)}},     // location = 0
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_Roughness).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Position_AO).getHandle(), {true, glm::vec4(0.0f)}},         // location = 2
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_Metallic).getHandle(), {true, ClearColorPresets::TransparentBlack}},     // location = 0
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_Roughness).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Position_AO).getHandle(), {true, ClearColorPresets::TransparentBlack}},         // location = 2
                         },
                         .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}},
                         .resize          = false};

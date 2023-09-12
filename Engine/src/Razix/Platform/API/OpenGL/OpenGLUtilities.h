@@ -98,19 +98,19 @@ namespace Razix {
                 }
             }
 
-            static uint32_t TextureWrapToGL(const RZTextureProperties::Wrapping wrap)
+            static uint32_t TextureWrapToGL(const Wrapping wrap)
             {
                 switch (wrap) {
-                    case RZTextureProperties::Wrapping::REPEAT:
+                    case Wrapping::REPEAT:
                         return GL_REPEAT;
                         break;
-                    case RZTextureProperties::Wrapping::MIRRORED_REPEAT:
+                    case Wrapping::MIRRORED_REPEAT:
                         return GL_MIRRORED_REPEAT;
                         break;
-                    case RZTextureProperties::Wrapping::CLAMP_TO_EDGE:
+                    case Wrapping::CLAMP_TO_EDGE:
                         return GL_CLAMP_TO_EDGE;
                         break;
-                    case RZTextureProperties::Wrapping::CLAMP_TO_BORDER:
+                    case Wrapping::CLAMP_TO_BORDER:
                         return GL_CLAMP_TO_BORDER;
                         break;
 

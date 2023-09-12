@@ -298,7 +298,7 @@ namespace Razix {
                     // First create the descriptor layout bindings, these describe where and what kind of resources are being bound to the shader per descriptor set
                     // Which means each descriptor set (i.e. for a given set ID) it stores a list of binding layouts in a map
                     VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
-                    setLayoutBindingInfo.binding                      = descriptor.binding;
+                    setLayoutBindingInfo.binding             = descriptor.binding;
                     setLayoutBindingInfo.descriptorCount              = descriptor.count;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                     setLayoutBindingInfo.descriptorType               = (VkDescriptorType) descriptor.descriptor_type;
                     setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(spvSource.first);

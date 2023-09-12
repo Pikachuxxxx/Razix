@@ -109,7 +109,7 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)}};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
                     info.resize          = false;

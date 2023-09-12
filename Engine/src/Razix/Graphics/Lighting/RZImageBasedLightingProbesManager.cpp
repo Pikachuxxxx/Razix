@@ -54,7 +54,7 @@ namespace Razix {
             u32  width, height, bpp;
             f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = TextureFormat::RGBA32F, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE, .dataSize = sizeof(float)});
+            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = TextureFormat::RGBA32F, .wrapping = Wrapping::CLAMP_TO_EDGE, .dataSize = sizeof(float)});
 
             std::vector<RZDescriptorSet*> envMapSets;
             std::vector<RZUniformBuffer*> UBOs;
@@ -113,7 +113,7 @@ namespace Razix {
                 .layers                                                                   = 6,
                 .type                                                                     = TextureType::Texture_CubeMap,
                 .format                                                                   = TextureFormat::RGBA32F,
-                .filtering                                                                = {RZTextureProperties::Filtering::FilterMode::LINEAR, RZTextureProperties::Filtering::FilterMode::LINEAR},
+                .filtering                                                                = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR},
                 .enableMips                                                               = false});
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
@@ -131,7 +131,7 @@ namespace Razix {
 
                 RenderingInfo info{};
                 info.colorAttachments = {
-                    {cubeMapHandle, {true, glm::vec4(0.0f)}}};
+                    {cubeMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                 info.extent = {dim, dim};
                 //------------------------------------------------
                 // NOTE: This is very important for layers to work
@@ -258,7 +258,7 @@ namespace Razix {
 
                 RenderingInfo info{};
                 info.colorAttachments = {
-                    {irradianceMapHandle, {true, glm::vec4(0.0f)}}};
+                    {irradianceMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                 info.extent = {dim, dim};
                 // NOTE: This is very important for layers to work
                 info.layerCount = 6;
@@ -309,7 +309,7 @@ namespace Razix {
                 .layers                                                                          = 6,
                 .type                                                                            = TextureType::Texture_CubeMap,
                 .format                                                                          = TextureFormat::RGBA32F,
-                //.filtering                                                                       = {RZTextureProperties::Filtering::FilterMode::NEAREST, RZTextureProperties::Filtering::FilterMode::NEAREST},
+                //.filtering                                                                       = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                 .enableMips = true});
 
             RZTexture* preFilteredMap = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
@@ -397,7 +397,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {preFilteredMapHandle, {true, glm::vec4(0.0f)}}};
+                        {preFilteredMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                     info.extent = {mipWidth, mipHeight};
                     // NOTE: This is very important for layers to work
                     info.layerCount = 6;

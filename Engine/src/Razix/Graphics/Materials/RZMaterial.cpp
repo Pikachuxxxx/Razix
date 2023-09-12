@@ -164,7 +164,7 @@ namespace Razix {
     #if 1
                         else if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
                             // Choose the mat textures based on the workflow & preset
-                            switch (descriptor.bindingInfo.binding) {
+                            switch (descriptor.bindingInfo.location.binding) {
                                 case TextureBindingTable::BINDING_IDX_TEX_ALBEDO:
                                     descriptor.texture = m_MaterialTextures.albedo.isValid() ? m_MaterialTextures.albedo : s_DefaultTexture;
                                     if (descriptor.texture != s_DefaultTexture)

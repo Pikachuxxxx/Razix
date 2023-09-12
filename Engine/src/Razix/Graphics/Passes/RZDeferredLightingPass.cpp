@@ -147,7 +147,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, glm::vec4(0.0f)}}};
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent = resolution;
                     info.resize = true;
 
@@ -184,7 +184,7 @@ namespace Razix {
                             else if (set.first == 1) {
                                 for (auto& descriptor: set.second) {
                                     // This needs to be updated only once when the framegraph resources are available in the execute lambda
-                                    switch (descriptor.bindingInfo.binding) {
+                                    switch (descriptor.bindingInfo.location.binding) {
                                         case 0:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal_PosX).getHandle();
                                             break;
@@ -230,7 +230,7 @@ namespace Razix {
                             // [SET:2]
                             else if (set.first == 2) {
                                 for (auto& descriptor: set.second) {
-                                    switch (descriptor.bindingInfo.binding) {
+                                    switch (descriptor.bindingInfo.location.binding) {
                                         case 0:
                                             descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(cascades.viewProjMatrices).getHandle();
                                             break;
@@ -250,7 +250,7 @@ namespace Razix {
                         if (set.first == 1) {
                             for (auto& descriptor: set.second) {
                                 // This needs to be updated only once when the framegraph resources are available in the execute lambda
-                                switch (descriptor.bindingInfo.binding) {
+                                switch (descriptor.bindingInfo.location.binding) {
                                     case 0:
                                         descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(gBuffer.Normal).getHandle();
                                         break;

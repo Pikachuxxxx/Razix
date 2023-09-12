@@ -27,7 +27,7 @@ namespace Razix {
 
             for (auto descriptor: descriptors) {
                 VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
-                setLayoutBindingInfo.binding                      = descriptor.bindingInfo.location.binding;
+                setLayoutBindingInfo.binding             = descriptor.bindingInfo.location.binding;
                 setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                 setLayoutBindingInfo.descriptorType               = VKUtilities::DescriptorTypeToVK(descriptor.bindingInfo.type);
                 setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(descriptor.bindingInfo.stage);

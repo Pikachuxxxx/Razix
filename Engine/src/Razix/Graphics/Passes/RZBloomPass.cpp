@@ -162,7 +162,7 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)}}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {bloomSourceMip.size.x, bloomSourceMip.size.y};
                     info.resize           = false;
                     RHI::BeginRendering(cmdBuf, info);
@@ -284,7 +284,7 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)}}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {bloomSourceMip.size.x, bloomSourceMip.size.y};
                     info.resize           = false;
                     RHI::BeginRendering(cmdBuf, info);
@@ -392,9 +392,9 @@ namespace Razix {
                         auto setInfos = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
-                                if (descriptor.bindingInfo.binding == 0)
+                                if (descriptor.bindingInfo.location.binding == 0)
                                     descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputHDR).getHandle();
-                                else if (descriptor.bindingInfo.binding == 1)
+                                else if (descriptor.bindingInfo.location.binding == 1)
                                     descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomData.bloomTexture).getHandle();
                             }
                             bloomSceneMixGpuResources.bloomDescSet[0]->UpdateSet(setInfo.second);
@@ -405,7 +405,7 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputLDR).getHandle(), {true, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)}}},
+                        .colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputLDR).getHandle(), {true, ClearColorPresets::OpaqueBlack}}},
                         .resize           = true};
                     RHI::BeginRendering(cmdBuf, info);
 

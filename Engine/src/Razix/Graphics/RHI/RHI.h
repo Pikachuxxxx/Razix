@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tracy/Tracy.hpp>
+
 #include "Razix/Core/RZProfiling.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"

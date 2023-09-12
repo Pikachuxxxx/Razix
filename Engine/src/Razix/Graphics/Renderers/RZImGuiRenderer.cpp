@@ -109,7 +109,7 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             //sz uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZResourceManager::Get().createTexture({.name = "Awesome Font Icon Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .type = TextureType::Texture_2D, .format = TextureFormat::RGBA8, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE});
+            m_FontAtlasTexture = RZResourceManager::Get().createTexture({.name = "Awesome Font Icon Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .type = TextureType::Texture_2D, .format = TextureFormat::RGBA8, .wrapping = Wrapping::CLAMP_TO_EDGE});
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -343,7 +343,7 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             //sz uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZResourceManager::Get().createTexture({.name = "Awesome Font Icon Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .type = TextureType::Texture_2D, .format = TextureFormat::RGBA8, .wrapping = RZTextureProperties::Wrapping::CLAMP_TO_EDGE});
+            m_FontAtlasTexture = RZResourceManager::Get().createTexture({.name = "Awesome Font Icon Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .type = TextureType::Texture_2D, .format = TextureFormat::RGBA8, .wrapping = Wrapping::CLAMP_TO_EDGE});
         }
     }    // namespace Graphics
 }    // namespace Razix

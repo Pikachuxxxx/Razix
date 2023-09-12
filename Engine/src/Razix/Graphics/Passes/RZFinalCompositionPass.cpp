@@ -67,7 +67,7 @@ namespace Razix {
                         .height     = RZApplication::Get().getWindow()->getHeight(),
                         .type       = TextureType::Texture_Depth,
                         .format     = TextureFormat::DEPTH32F,
-                        .filtering  = {RZTextureProperties::Filtering::Mode::NEAREST, RZTextureProperties::Filtering::Mode::NEAREST},
+                        .filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                         .enableMips = false};
 
                     data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
@@ -137,7 +137,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, glm::vec4(0.2f)}} /*,
+                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::TransparentBlack}} /*,
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
                     };
                     info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};

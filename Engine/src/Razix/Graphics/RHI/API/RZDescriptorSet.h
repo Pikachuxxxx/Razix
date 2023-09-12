@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Razix/Core/RZDebugConfig.h"
 #include "Razix/Graphics/RHI/API/RZBindingInfoAccessViews.h"
 
 namespace Razix {

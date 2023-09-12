@@ -139,7 +139,7 @@ namespace Razix {
 
                     textureDesc.name      = "RSM/Depth";
                     textureDesc.format    = TextureFormat::DEPTH32F;
-                    textureDesc.filtering = {RZTextureProperties::Filtering::Mode::NEAREST, RZTextureProperties::Filtering::Mode::NEAREST},
+                    textureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     textureDesc.type      = TextureType::Texture_Depth;
 
                     data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);
@@ -170,9 +170,9 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.position).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.normal).getHandle(), {true, glm::vec4(0.0f)}},      // location = 1
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.flux).getHandle(), {true, glm::vec4(0.0f)}},        // location = 2
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.position).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.normal).getHandle(), {true, ClearColorPresets::TransparentBlack}},      // location = 1
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.flux).getHandle(), {true, ClearColorPresets::TransparentBlack}},        // location = 2
 
                     };
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true}};
@@ -346,7 +346,7 @@ namespace Razix {
                                 if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                                     descriptor.uniformBuffer = m_RadianceInjectionUBO;
                                 } else {
-                                    switch (descriptor.bindingInfo.binding) {
+                                    switch (descriptor.bindingInfo.location.binding) {
                                         case 1:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(RSM.position).getHandle();
                                             break;
@@ -369,9 +369,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, glm::vec4(0.0f)}},    // location = 2 // SH_B
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -481,7 +481,7 @@ namespace Razix {
                                 if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
                                     descriptor.uniformBuffer = m_RadiancePropagationUBO;
                                 } else {
-                                    switch (descriptor.bindingInfo.binding) {
+                                    switch (descriptor.bindingInfo.location.binding) {
                                         case 1:
                                             descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.r).getHandle();
                                             break;
@@ -502,9 +502,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, glm::vec4(0.0f)}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, glm::vec4(0.0f)}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, glm::vec4(0.0f)}},    // location = 2 // SH_B
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);

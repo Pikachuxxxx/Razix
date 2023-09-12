@@ -90,7 +90,7 @@ namespace Razix {
 
                     textureDesc.name       = "Scene Depth";
                     textureDesc.format     = TextureFormat::DEPTH32F;
-                    textureDesc.filtering  = {RZTextureProperties::Filtering::Mode::NEAREST, RZTextureProperties::Filtering::Mode::NEAREST},
+                    textureDesc.filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     textureDesc.type       = TextureType::Texture_Depth;
                     textureDesc.enableMips = false;
 
@@ -121,8 +121,8 @@ namespace Razix {
                     RHI::GetCurrentCommandBuffer()->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, scene->getSceneCamera().getBgColor()}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -132,13 +132,13 @@ namespace Razix {
                     static bool updatedSets = false;
                     if (!updatedSets) {
                         //RZDescriptor descriptor{};
-                        //descriptor.bindingInfo.binding = 0;
+                        //descriptor.bindingInfo.location.binding = 0;
                         //descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         //descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         //descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
                         //RZDescriptor texdescriptor{};
-                        //texdescriptor.bindingInfo.binding = 1;
+                        //texdescriptor.bindingInfo.location.binding = 1;
                         //texdescriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         //texdescriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         //texdescriptor.uniformBuffer       = m_PBRPassBindingUBO;
@@ -148,14 +148,14 @@ namespace Razix {
                         auto shadowMap = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
                         RZDescriptor csm_descriptor{};
-                        csm_descriptor.bindingInfo.binding = 0;
+                        csm_descriptor.bindingInfo.location.binding = 0;
                         csm_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         csm_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         csm_descriptor.texture             = shadowMap;
 
                         RZDescriptor shadow_data_descriptor{};
                         shadow_data_descriptor.size                = sizeof(SimpleShadowPassData);
-                        shadow_data_descriptor.bindingInfo.binding = 1;
+                        shadow_data_descriptor.bindingInfo.location.binding = 1;
                         shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
@@ -168,19 +168,19 @@ namespace Razix {
 
                         // TODO: Enable this only if we use a skybox
                         RZDescriptor irradianceMap_descriptor{};
-                        irradianceMap_descriptor.bindingInfo.binding = 0;
+                        irradianceMap_descriptor.bindingInfo.location.binding = 0;
                         irradianceMap_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         irradianceMap_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         irradianceMap_descriptor.texture             = irradianceMap;
 
                         RZDescriptor prefiltered_descriptor{};
-                        prefiltered_descriptor.bindingInfo.binding = 1;
+                        prefiltered_descriptor.bindingInfo.location.binding = 1;
                         prefiltered_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         prefiltered_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         prefiltered_descriptor.texture             = prefilteredMap;
 
                         RZDescriptor brdflut_descriptor{};
-                        brdflut_descriptor.bindingInfo.binding = 2;
+                        brdflut_descriptor.bindingInfo.location.binding = 2;
                         brdflut_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         brdflut_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         brdflut_descriptor.texture             = brdfLUT;
@@ -189,25 +189,25 @@ namespace Razix {
 #if 0
 
                         RZDescriptor gbuffer0_descriptor{};
-                        gbuffer0_descriptor.bindingInfo.binding = 0;
+                        gbuffer0_descriptor.bindingInfo.location.binding = 0;
                         gbuffer0_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         gbuffer0_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         gbuffer0_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Normal_PosX).getHandle();
 
                         RZDescriptor gbuffer1_descriptor{};
-                        gbuffer1_descriptor.bindingInfo.binding = 1;
+                        gbuffer1_descriptor.bindingInfo.location.binding = 1;
                         gbuffer1_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         gbuffer1_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         gbuffer1_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Albedo_PosY).getHandle();
 
                         RZDescriptor gbuffer2_descriptor{};
-                        gbuffer2_descriptor.bindingInfo.binding = 2;
+                        gbuffer2_descriptor.bindingInfo.location.binding = 2;
                         gbuffer2_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         gbuffer2_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         gbuffer2_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Emissive_PosZ).getHandle();
 
                         RZDescriptor gbuffer3_descriptor{};
-                        gbuffer3_descriptor.bindingInfo.binding = 3;
+                        gbuffer3_descriptor.bindingInfo.location.binding = 3;
                         gbuffer3_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         gbuffer3_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         gbuffer3_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.MetRougAOAlpha).getHandle();

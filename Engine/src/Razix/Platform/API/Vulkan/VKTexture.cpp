@@ -472,7 +472,7 @@ namespace Razix {
 
             // Create the Image view for the Vulkan image (uses color bit)
             if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL) {
-                m_Desc.filtering = {RZTextureProperties::Filtering::Mode::NEAREST, RZTextureProperties::Filtering::Mode::NEAREST},
+                m_Desc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                 m_AspectBit      = VK_IMAGE_ASPECT_DEPTH_BIT;
             } else
                 m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;

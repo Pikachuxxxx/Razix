@@ -88,17 +88,17 @@
                         // Bind the shader to uniform buffer block index
                         // TODO: USe type name instead of the actual variable name, where the fuck do I store that as (type_id)
                         unsigned int BindingIndex = glGetUniformBlockIndex(glShader->getProgramID(), descriptor.typeName.c_str());
-                        glUniformBlockBinding(glShader->getProgramID(), BindingIndex, descriptor.bindingInfo.binding);
+                        glUniformBlockBinding(glShader->getProgramID(), BindingIndex, descriptor.bindingInfo.location.binding);
 
                         // Bind the buffer itself
                         descriptor.uniformBuffer->Bind();
 
                         // Assuming it's updated from the renderer side
                         // Time to perform slot binding
-                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
+                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         // Bind the texture
-                        //descriptor.texture->Bind(descriptor.bindingInfo.binding);
+                        //descriptor.texture->Bind(descriptor.bindingInfo.location.binding);
                     }
                 }
             }
@@ -123,12 +123,12 @@
                         descriptor.uniformBuffer->Bind();
                         // Assuming it's updated from the renderer side
                         // Time to perform slot binding
-                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
+                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         // First enable the right slot
-                        glActiveTexture(GL_TEXTURE0 + descriptor.bindingInfo.binding);
+                        glActiveTexture(GL_TEXTURE0 + descriptor.bindingInfo.location.binding);
                         // Bind the texture
-                        //descriptor.texture->Bind(descriptor.bindingInfo.binding);
+                        //descriptor.texture->Bind(descriptor.bindingInfo.location.binding);
                     }
                 }
             }
@@ -162,6 +162,16 @@
         }
 
         void GLRenderContext::BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+void GLRenderContext::InsertImageMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
+void GLRenderContext::InsertBufferMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZUniformBuffer* buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
@@ -215,7 +225,7 @@
             ubo.Bind();
             ubo.SetData(pushConstant.size, pushConstant.data);
 
-            GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, pushConstant.bindingInfo.binding, ubo.getHandle(), pushConstant.offset, pushConstant.size));
+            GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, pushConstant.bindingInfo.location.binding, ubo.getHandle(), pushConstant.offset, pushConstant.size));
 
             ubo.Destroy();
         }

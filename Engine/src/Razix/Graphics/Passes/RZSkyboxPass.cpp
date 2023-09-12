@@ -89,8 +89,8 @@ namespace Razix {
                     cmdBuffer->UpdateViewport(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
 
                     RenderingInfo info{};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, glm::vec4(0.0f)}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle(), {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -103,7 +103,7 @@ namespace Razix {
                         auto envMap = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle();
 
                         RZDescriptor lightProbes_descriptor{};
-                        lightProbes_descriptor.bindingInfo.binding = 0;
+                        lightProbes_descriptor.bindingInfo.location.binding = 0;
                         lightProbes_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         lightProbes_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         lightProbes_descriptor.texture             = envMap;
@@ -113,7 +113,7 @@ namespace Razix {
                         auto noiseTexture = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle();
 
                         RZDescriptor volumetric_descriptor{};
-                        volumetric_descriptor.bindingInfo.binding = 0;
+                        volumetric_descriptor.bindingInfo.location.binding = 0;
                         volumetric_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
                         volumetric_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         volumetric_descriptor.texture             = noiseTexture;

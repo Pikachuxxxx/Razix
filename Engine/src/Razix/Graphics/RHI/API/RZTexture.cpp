@@ -110,7 +110,7 @@ namespace Razix {
 
             RZDescriptor descriptor{};
             descriptor.name                = m_Desc.name;
-            descriptor.bindingInfo.binding = 0;
+            descriptor.bindingInfo.location.binding = 0;
             descriptor.bindingInfo.count   = 1;
             descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
             descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
