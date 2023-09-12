@@ -81,7 +81,7 @@ namespace Razix {
         {
             ZeroToOne,
             OneToZero
-        };
+        }; 
 
         /* Gives information for the attachment Info */
         struct RAZIX_MEM_ALIGN AttachmentInfo

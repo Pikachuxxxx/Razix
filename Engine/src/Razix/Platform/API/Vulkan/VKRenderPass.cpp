@@ -32,8 +32,6 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            commandBuffer->UpdateViewport(width, height);
-
             // TODO: choose the union type based on format type for vulkan SINT/UINT/Sf32 and update only that properly
 
             if (!m_DepthOnly) {

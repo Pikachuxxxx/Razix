@@ -7,6 +7,8 @@
 #include "Razix/Core/RZMarkers.h"
 #include "razix/Core/RZApplication.h"
 
+#include "Razix/Core/RZCPUMemoryManager.h"
+
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -138,8 +140,8 @@ namespace Razix {
                 return;
             }
 
-            m_ImGuiVBO = RZVertexBuffer::Create(Mib(128), nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
-            m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, Mib(128));
+            m_ImGuiVBO = RZVertexBuffer::Create(Mib(4), nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
+            m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, Mib(4) * 6);
         }
 
         void RZImGuiRenderer::Begin(RZScene* scene)
@@ -164,9 +166,9 @@ namespace Razix {
                 return;
 
             /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
-            m_ImGuiVBO->Destroy();
-            delete m_ImGuiVBO;
-            m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
+            //m_ImGuiVBO->Destroy();
+            //delete m_ImGuiVBO;
+            //m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
             //vertexCount = imDrawData->TotalVtxCount;
             //m_ImGuiVBO->UnMap();
             m_ImGuiVBO->Map();
@@ -174,9 +176,9 @@ namespace Razix {
             //}
 
             //if ((dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->getBuffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
-            m_ImGuiIBO->Destroy();
-            delete m_ImGuiIBO;
-            m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, imDrawData->TotalIdxCount, BufferUsage::DYNAMIC);
+            //m_ImGuiIBO->Destroy();
+            //delete m_ImGuiIBO;
+            //m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, imDrawData->TotalIdxCount, BufferUsage::DYNAMIC);
             //indexCount = imDrawData->TotalIdxCount;
             //m_ImGuiIBO->UnMap();
             m_ImGuiIBO->Map();
@@ -222,8 +224,11 @@ namespace Razix {
             m_Pipeline->Bind(cmdBuffer);
 
             // Update the push constants
-            pushConstBlock.scale     = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+            pushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+            //pushConstBlock.scale     = glm::vec2(2.0f / ResolutionToExtentsMap[Resolution::k1440p].x, 2.0f / ResolutionToExtentsMap[Resolution::k1440p].y);
             pushConstBlock.translate = glm::vec2(-1.0f);
+
+            RHI::SetViewport(cmdBuffer, 0, 0, (u32) io.DisplaySize.x, (u32) io.DisplaySize.y);
 
             RZPushConstant& model = m_OverrideGlobalRHIShader->getPushConstants()[0];
 

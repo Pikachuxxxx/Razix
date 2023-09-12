@@ -320,16 +320,17 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
-#if 0
+#if 1
                     m_ImGuiRenderer.Begin(scene);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
-                        info.resolution = Resolution::k1440p;
-                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},                        .colorAttachments = {{rt, {false, glm::vec4(0.0f)}}},
-                        .depthAttachment  = {dt, {false, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)}},
+                        .resolution = Resolution::k1440p,
+                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
+                        .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
                         .resize           = false};
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);

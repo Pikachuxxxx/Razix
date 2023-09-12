@@ -49,7 +49,7 @@ namespace Razix {
             RZShader* getBuiltInShader(ShaderBuiltin builtInShaderName);
 
         public:
-            std::unordered_map<ShaderBuiltin, RZShader*> m_Shaders;
+            std::unordered_map<ShaderBuiltin, RZShader*> m_BuiltinShaders;
         };
     }    // namespace Graphics
 }    // namespace Razix

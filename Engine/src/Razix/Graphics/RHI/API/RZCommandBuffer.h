@@ -42,9 +42,6 @@ namespace Razix {
             /* Resets the command buffer of all the recordings */
             virtual void Reset() = 0;
 
-            /* Updates the viewport dynamically with the given width and height */
-            virtual void UpdateViewport(u32 width, u32 height) = 0;
-
             virtual void*      getAPIBuffer() { return nullptr; }
             CommandBufferState getState() { return m_State; }
 

@@ -112,26 +112,6 @@ namespace Razix {
             vkFreeCommandBuffers(VKDevice::Get().getDevice(), m_CommandPool, 1, &m_CommandBuffer);
         }
 
-        void VKCommandBuffer::UpdateViewport(u32 width, u32 height)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-            VkViewport viewport = {};
-            viewport.x          = 0.0f;
-            viewport.y          = 0.0f;
-            viewport.width      = static_cast<f32>(width);
-            viewport.height     = static_cast<f32>(height);
-            viewport.minDepth   = 0.0f;
-            viewport.maxDepth   = 1.0f;
-
-            VkRect2D scissor = {};
-            scissor.offset   = {0, 0};
-            scissor.extent   = {width, height};
-
-            vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
-            vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
-        }
-
         /*
         void VKCommandBuffer::Draw(u32 verticexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance)
         {

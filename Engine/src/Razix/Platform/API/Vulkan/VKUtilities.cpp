@@ -336,7 +336,7 @@ namespace Razix {
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
             }
 
-            VkImageLayout EngineImageLayoutToVK(ImageLayout layout)
+            u32 EngineImageLayoutToVK(ImageLayout layout)
             {
                 switch (layout) {
                     case Razix::Graphics::ImageLayout::kUndefined:
@@ -372,9 +372,12 @@ namespace Razix {
                 }
             }
 
-            VkAccessFlagBits EngineMemoryAcsessMaskToVK(MemoryAccessMask mask)
+            u32 EngineMemoryAcsessMaskToVK(MemoryAccessMask mask)
             {
                 switch (mask) {
+                    case Razix::Graphics::MemoryAccessMask::kNone:
+                        return VK_ACCESS_NONE;
+                        break;
                     case Razix::Graphics::MemoryAccessMask::kIndirectCommandReadBit:
                         return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
                         break;
@@ -401,6 +404,9 @@ namespace Razix {
                         break;
                     case Razix::Graphics::MemoryAccessMask::kColorAttachmentWriteBit:
                         return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                        break;
+                    case Razix::Graphics::MemoryAccessMask::kColorAttachmentReadWriteBit:
+                        return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                         break;
                     case Razix::Graphics::MemoryAccessMask::kDepthStencilAttachmentReadBit:
                         return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
@@ -432,7 +438,7 @@ namespace Razix {
                 }
             }
 
-            int EnginePipelineStageToVK(PipelineStage ppstage)
+            u32 EnginePipelineStageToVK(PipelineStage ppstage)
             {
                 switch (ppstage) {
                     case Razix::Graphics::PipelineStage::kTopOfPipe:

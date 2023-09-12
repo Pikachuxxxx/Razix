@@ -9,6 +9,8 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
+#include "Razix/Graphics/RZShaderLibrary.h"
+
 #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
@@ -243,7 +245,9 @@ namespace Razix {
                         //delete inputVar;
                     }
 
-                    if (spvSource.second == "Compiled/SPIRV/imgui.vert.spv") {
+                    // FIXME: Make this intuitive and don't hard code it
+                    // Specializing vertex format for ImGui shaders
+                    if (spvSource.second == "Compiled/SPIRV/Shader.Builtin.ImGui.vert.spv" || m_ShaderLibraryID == ShaderBuiltin::ImGui) {
                         struct ImDrawVert
                         {
                             ImVec2 pos;
@@ -298,7 +302,7 @@ namespace Razix {
                     // First create the descriptor layout bindings, these describe where and what kind of resources are being bound to the shader per descriptor set
                     // Which means each descriptor set (i.e. for a given set ID) it stores a list of binding layouts in a map
                     VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
-                    setLayoutBindingInfo.binding             = descriptor.binding;
+                    setLayoutBindingInfo.binding                      = descriptor.binding;
                     setLayoutBindingInfo.descriptorCount              = descriptor.count;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                     setLayoutBindingInfo.descriptorType               = (VkDescriptorType) descriptor.descriptor_type;
                     setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(spvSource.first);

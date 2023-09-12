@@ -116,8 +116,6 @@ namespace Razix {
                 .filtering                                                                = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR},
                 .enableMips                                                               = false});
 
-            vkDeviceWaitIdle(VKDevice::Get().getDevice());
-
             u32 layerCount = 6;
 
             // Begin rendering
@@ -127,9 +125,8 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Cubemap", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
 
-
                 RenderingInfo info{};
-                info.resolution = Resolution::kCustom;
+                info.resolution       = Resolution::kCustom;
                 info.colorAttachments = {
                     {cubeMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                 info.extent = {dim, dim};
@@ -376,8 +373,6 @@ namespace Razix {
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
-            vkDeviceWaitIdle(VKDevice::Get().getDevice());
-
             u32 layerCount   = 6;
             u32 maxMipLevels = RZTexture::calculateMipMapCount(dim, dim);
 
@@ -393,7 +388,7 @@ namespace Razix {
                     u32 mipHeight = static_cast<u32>(dim * std::pow(0.5, mip));
 
                     RenderingInfo info{};
-                    info.resolution = Resolution::kCustom;
+                    info.resolution       = Resolution::kCustom;
                     info.colorAttachments = {
                         {preFilteredMapHandle, {true, ClearColorPresets::TransparentBlack}}};
                     info.extent = {mipWidth, mipHeight};

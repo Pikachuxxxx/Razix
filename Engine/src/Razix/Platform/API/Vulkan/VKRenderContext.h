@@ -54,6 +54,9 @@ namespace Razix {
             void InsertImageMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo) override;
             void InsertBufferMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZUniformBuffer* buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) override;
 
+
+ void SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height) override;
+
         private:
             VKContext*      m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
             VkDescriptorSet m_DescriptorSetPool[kMAX_DESCRIPTORS_BINDABLE_PER_FRAME];

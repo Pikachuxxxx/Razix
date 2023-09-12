@@ -181,6 +181,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            RAZIX_ASSERT(width != 0 || height != 0, "Scissor Rect Width or Height cannot be zero!")
+
             VkRect2D scissorRect{};
             scissorRect.offset.x      = x;
             scissorRect.offset.y      = y;
@@ -219,7 +221,8 @@ namespace Razix {
             }
 
             // Update the command buffer viewport here
-            cmdBuffer->UpdateViewport(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
+            SetViewport(cmdBuffer, 0, 0, renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
+            SetScissorRect(cmdBuffer, 0, 0, renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
 
             renderingInfoKHR.layerCount = renderingInfo.layerCount;
 
@@ -403,10 +406,13 @@ namespace Razix {
             RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(texture);
             VKTexture* vkTexture       = static_cast<VKTexture*>(textureResource);
 
+            // Update with the new layout
+            vkTexture->setImageLayout((VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout));
+
             VkImageMemoryBarrier barrier = {};
             barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            barrier.oldLayout            = VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.srcLayout);
-            barrier.newLayout            = VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout);
+            barrier.oldLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.srcLayout);
+            barrier.newLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout);
             barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
             barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
             barrier.image                = vkTexture->getImage();
@@ -444,6 +450,23 @@ namespace Razix {
             barrier.size                  = vkBuffer->getSize();
 
             vkCmdPipelineBarrier(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 1, &barrier, 0, nullptr);
+        }
+
+        void VKRenderContext::SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
+            RAZIX_ASSERT(width != 0 || height != 0, "Viewport Width or Height cannot be zero!")
+
+            VkViewport viewport = {};
+            viewport.x          = static_cast<f32>(x);
+            viewport.y          = static_cast<f32>(y);
+            viewport.width      = static_cast<f32>(width);
+            viewport.height     = static_cast<f32>(height);
+            viewport.minDepth   = 0.0f;
+            viewport.maxDepth   = 1.0f;
+
+            vkCmdSetViewport(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &viewport);
         }
     }    // namespace Graphics
 }    // namespace Razix
