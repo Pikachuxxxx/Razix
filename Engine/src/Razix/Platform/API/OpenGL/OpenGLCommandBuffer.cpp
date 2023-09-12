@@ -11,23 +11,32 @@ namespace Razix {
     namespace Graphics {
 
         // TODO: Add GLCall guards for all opengl function calls
-        OpenGLCommandBuffer::OpenGLCommandBuffer() {}
-
-        OpenGLCommandBuffer::~OpenGLCommandBuffer() {}
-
-        void OpenGLCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG) {}
-
-        void OpenGLCommandBuffer::BeginRecording() {}
-
-        void OpenGLCommandBuffer::EndRecording() {}
-
-        void OpenGLCommandBuffer::Execute() {}
-
-        void OpenGLCommandBuffer::Reset() {}
-
-        void OpenGLCommandBuffer::UpdateViewport(u32 width, u32 height)
+        OpenGLCommandBuffer::OpenGLCommandBuffer()
         {
-            glViewport(0, 0, width, height);
+        }
+
+        OpenGLCommandBuffer::~OpenGLCommandBuffer()
+        {
+        }
+
+        void OpenGLCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
+        {
+        }
+
+        void OpenGLCommandBuffer::BeginRecording()
+        {
+        }
+
+        void OpenGLCommandBuffer::EndRecording()
+        {
+        }
+
+        void OpenGLCommandBuffer::Execute()
+        {
+        }
+
+        void OpenGLCommandBuffer::Reset()
+        {
         }
     }    // namespace Graphics
 }    // namespace Razix

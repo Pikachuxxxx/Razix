@@ -170,17 +170,17 @@ namespace Razix {
             /**
              * 
              */
-            VkImageLayout EngineImageLayoutToVK(ImageLayout layout);
+            u32 EngineImageLayoutToVK(ImageLayout layout);
 
             /**
              * 
              */
-            VkAccessFlagBits EngineMemoryAcsessMaskToVK(MemoryAccessMask mask);
+            u32 EngineMemoryAcsessMaskToVK(MemoryAccessMask mask);
 
             /**
              * 
              */
-            int EnginePipelineStageToVK(PipelineStage ppstage);
+            u32 EnginePipelineStageToVK(PipelineStage ppstage);
 
             //-----------------------------------------------------------------------------------
             // Single Time Command Buffer utility functions

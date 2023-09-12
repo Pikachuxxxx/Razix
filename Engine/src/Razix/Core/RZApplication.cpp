@@ -183,13 +183,14 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        auto ctx = ImGui::GetCurrentContext();
-        if (ctx) {
-            // Resize ImGui
-            ImGuiIO& io                = ImGui::GetIO();
-            io.DisplaySize             = ImVec2(static_cast<f32>(e.GetWidth()), static_cast<f32>(e.GetHeight()));
-            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-        }
+        //auto ctx = ImGui::GetCurrentContext();
+        //if (ctx) {
+        //    // Resize ImGui
+        //    ImGuiIO& io                = ImGui::GetIO();
+        //    //io.DisplaySize             = ImVec2(static_cast<f32>(e.GetWidth()), static_cast<f32>(e.GetHeight()));
+        //    io.DisplaySize             = ImVec2(static_cast<f32>(2560), static_cast<f32>(1440));
+        //    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+        //}
 
         //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
 
@@ -464,7 +465,9 @@ namespace Razix {
             // Update ImGui
             ImGuiIO& io = ImGui::GetIO();
             (void) io;
-            io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
+            // TODO: get the resolution from RHI before updating this
+            io.DisplaySize             = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
+            io.DisplayFramebufferScale = ImVec2(static_cast<f32>(io.DisplaySize.x / 2560.0f), static_cast<f32>(io.DisplaySize.y / 1440.0f));
         }
 
         // Update the Runtime Systems only on Game Application type
@@ -513,6 +516,13 @@ namespace Razix {
         if (!ctx)
             return;
 
+        // Update ImGui
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+        io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
+        // TODO: get the resolution from RHI before updating this
+        io.DisplayFramebufferScale = ImVec2(static_cast<f32>(2560.0f / io.DisplaySize.x), static_cast<f32>(1440.0f / io.DisplaySize.y));
+
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 
@@ -522,7 +532,7 @@ namespace Razix {
 
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
-        ImGuiIO& io = ImGui::GetIO();
+
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
         if (RZEngine::Get().getSceneManager().getCurrentScene())

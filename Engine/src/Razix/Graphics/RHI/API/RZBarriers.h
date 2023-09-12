@@ -13,6 +13,8 @@ namespace Razix {
          * Pipeline Barriers
          */
 
+        // TODO: Support OR and AND operations for enum values
+
         enum class PipelineStage : u32
         {
             kTopOfPipe = 0,
@@ -50,7 +52,8 @@ namespace Razix {
 
         enum class MemoryAccessMask : u32
         {
-            kIndirectCommandReadBit = 0,
+            kNone = 0,
+            kIndirectCommandReadBit,
             kIndexBufferDataReadBit,
             kVertexAttributeReadBit,
             kUniformReadBit,
@@ -59,6 +62,7 @@ namespace Razix {
             kShaderWriteBit,
             kColorAttachmentReadBit,
             kColorAttachmentWriteBit,
+            kColorAttachmentReadWriteBit,
             kDepthStencilAttachmentReadBit,
             kDepthStencilAttachmentWriteBit,
             kTransferReadBit,

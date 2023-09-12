@@ -6,6 +6,9 @@
 namespace Razix {
     namespace Graphics {
 
+        class RZShaderLibrary;
+        enum class ShaderBuiltin : u32;
+
         /* The stage which the shader corresponds to in the graphics pipeline */
         enum class ShaderStage
         {
@@ -24,7 +27,7 @@ namespace Razix {
         {
             NONE = -1,
             GLSL,
-            SPIRV, 
+            SPIRV,
             HLSL,
             PSSL,
             CG
@@ -44,6 +47,8 @@ namespace Razix {
          */
         class RAZIX_API RZShader : public RZRoot
         {
+            friend class RZShaderLibrary;
+
         public:
             RZShader() {}
             virtual ~RZShader() {}
@@ -70,6 +75,7 @@ namespace Razix {
             inline std::vector<RZPushConstant>& getPushConstants() { return m_PushConstants; }
 
         protected:
+            ShaderBuiltin                      m_ShaderLibraryID;
             ShaderStage                        m_ShaderStage = ShaderStage::NONE;       /* The shader stage to which the shader will be bound to                                                    */
             ShaderSourceType                   m_SourceType  = ShaderSourceType::SPIRV; /* The source type of the shader                                                                            */
             std::string                        m_ShaderFilePath;                        /* Virtual file location of the shader file                                                                 */

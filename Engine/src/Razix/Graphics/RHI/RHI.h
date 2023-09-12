@@ -241,6 +241,15 @@ namespace Razix {
 
                 return s_APIInstance->SetDepthBiasImpl(cmdBuffer);
             }
+
+            RAZIX_FORCE_INLINE static void SetViewport(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("SetViewport");
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                return s_APIInstance->SetViewportImpl(cmdBuffer, x, y, width, height);
+            }
+
             RAZIX_FORCE_INLINE static void SetScissorRect(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
             {
                 RAZIX_PROFILE_GPU_SCOPE("SetScissorRect");
@@ -297,6 +306,7 @@ namespace Razix {
             virtual void OnResizeAPIImpl(u32 width, u32 height)                                                                                                                              = 0;
             virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                                        = 0;
             virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                         = 0;
+            virtual void SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                            = 0;
             virtual void EnableBindlessTexturesImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)                                                                                        = 0;
             virtual void BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                             = 0;
             virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)                                                                                  = 0;

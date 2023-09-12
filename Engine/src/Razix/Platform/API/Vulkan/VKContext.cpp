@@ -76,7 +76,7 @@ namespace Razix {
 
         void VKContext::Wait()
         {
-            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+            //vkDeviceWaitIdle(VKDevice::Get().getDevice());
         }
 
         void VKContext::SetupDeviceAndSC()
@@ -245,6 +245,8 @@ namespace Razix {
             // Error that may result in undefined behavior
             // TODO: Add option to choose minimum severity level and use <=> to select levels
             // TODO: Formate the message id and stuff for colors etc
+
+            return VK_FALSE;
 
             //if (!message_severity)
             //    return VK_FALSE;

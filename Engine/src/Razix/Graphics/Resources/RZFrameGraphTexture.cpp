@@ -9,6 +9,8 @@
 
 #include "Razix/Graphics/RHI/API/RZBindingInfoAccessViews.h"
 
+#include "Razix/Graphics/RHI/RHI.h"
+
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
@@ -43,9 +45,7 @@ namespace Razix {
                 // Get the Biding info from the flags
                 DescriptorBindingInfo info = Graphics::DecodeDescriptorBindingInfo(flags);
 
-                // TODO: Layout transition and memory barrier to use the texture as render target
-
-                // 1.
+                //Graphics::RHI::InsertImageMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_TextureHandle, {.startExecutionStage = PipelineStage::kColorAttachmentOutput, .endExecutionStage = PipelineStage::kFragmentShader}, {.srcAccess = MemoryAccessMask::kColorAttachmentReadWriteBit, .dstAccess = MemoryAccessMask::kShaderReadBit, .srcLayout = ImageLayout::kColorAttachmentOptimal, .dstLayout = ImageLayout::kShaderReadOnlyOptimal});
             }
 
             void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)
@@ -61,7 +61,7 @@ namespace Razix {
                  * 
                  */
 
-                // TODO: Layout transition and memory barrier to use the texture as render target
+                //Graphics::RHI::InsertImageMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_TextureHandle, {.startExecutionStage = PipelineStage::kTopOfPipe, .endExecutionStage = PipelineStage::kColorAttachmentOutput}, {.srcAccess = MemoryAccessMask::kNone, .dstAccess = MemoryAccessMask::kColorAttachmentReadWriteBit, .srcLayout = ImageLayout::kUndefined, .dstLayout = ImageLayout::kColorAttachmentOptimal});
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

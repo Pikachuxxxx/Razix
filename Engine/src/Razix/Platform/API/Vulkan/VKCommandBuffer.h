@@ -22,7 +22,6 @@ namespace Razix {
             void EndRecording() override;
             void Execute() override;
             void Reset() override;
-            void UpdateViewport(u32 width, u32 height) override;
 
             void* getAPIBuffer() override { return (void*) &m_CommandBuffer; }
 
@@ -33,8 +32,8 @@ namespace Razix {
             VkCommandBuffer getBuffer() const { return m_CommandBuffer; }
 
         private:
-            VkCommandBuffer    m_CommandBuffer; /* Handle to the Vulkan command buffer that will be executed by the GPu     */
-            VkCommandPool      m_CommandPool;   /* The command pool from which the command buffer will be allocated from    */
+            VkCommandBuffer m_CommandBuffer; /* Handle to the Vulkan command buffer that will be executed by the GPu     */
+            VkCommandPool   m_CommandPool;   /* The command pool from which the command buffer will be allocated from    */
         };
     }    // namespace Graphics
 }    // namespace Razix
