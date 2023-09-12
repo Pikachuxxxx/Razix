@@ -223,6 +223,8 @@ namespace Razix {
             // Bind the pipeline and descriptor sets
             m_Pipeline->Bind(cmdBuffer);
 
+            // FIXME: https://github.com/ocornut/imgui/issues/6064
+
             // Update the push constants
             pushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
             //pushConstBlock.scale     = glm::vec2(2.0f / ResolutionToExtentsMap[Resolution::k1440p].x, 2.0f / ResolutionToExtentsMap[Resolution::k1440p].y);

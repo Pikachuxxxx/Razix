@@ -14,7 +14,7 @@ namespace Razix {
 
         class RZTexture;
 
-        class RZResourceManager : public RZSingleton<RZResourceManager>
+        class RAZIX_API RZResourceManager : public RZSingleton<RZResourceManager>
         {
         public:
             /* Initializes the Resource System */

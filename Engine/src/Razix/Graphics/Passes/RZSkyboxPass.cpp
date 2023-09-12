@@ -86,7 +86,6 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-
                     RenderingInfo info{};
                     info.resolution       = Resolution::k1440p;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
@@ -128,8 +127,9 @@ namespace Razix {
                         Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LightProbesDescriptorSet, BindingTable_System::SET_IDX_MATERIAL_DATA);
                         //RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
                     } else {
+                        m_ProceduralPipeline->Bind(cmdBuffer);
                         Graphics::RHI::BindDescriptorSet(m_ProceduralPipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
-                        Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_VolumetricDescriptorSet, BindingTable_System::SET_IDX_MATERIAL_DATA);
+                        Graphics::RHI::BindDescriptorSet(m_ProceduralPipeline, cmdBuffer, m_VolumetricDescriptorSet, BindingTable_System::SET_IDX_MATERIAL_DATA);
                         //RHI::EnableBindlessTextures(m_ProceduralPipeline, cmdBuffer);
                     }
 
@@ -143,7 +143,7 @@ namespace Razix {
                         pc.size        = sizeof(u32);
                         pc.shaderStage = ShaderStage::PIXEL;
 
-                        RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
+                        RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
                     } else {
                         // Since no skybox, we update the directional light direction
                         auto lights = scene->GetComponentsOfType<LightComponent>();

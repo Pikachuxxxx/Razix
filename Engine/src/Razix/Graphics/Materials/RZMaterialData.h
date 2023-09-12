@@ -3,6 +3,8 @@
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Utilities/RZVendorOverrides.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 #include <cereal/cereal.hpp>
 #include <glm/glm.hpp>
 

@@ -516,6 +516,13 @@ namespace Razix {
         if (!ctx)
             return;
 
+        // Update ImGui
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+        io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
+        // TODO: get the resolution from RHI before updating this
+        io.DisplayFramebufferScale = ImVec2(static_cast<f32>(2560.0f / io.DisplaySize.x), static_cast<f32>(1440.0f / io.DisplaySize.y));
+
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 
@@ -525,12 +532,6 @@ namespace Razix {
 
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
-        // Update ImGui
-        ImGuiIO& io = ImGui::GetIO();
-        (void) io;
-        io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
-        // TODO: get the resolution from RHI before updating this
-        io.DisplayFramebufferScale = ImVec2(static_cast<f32>(2560.0f / io.DisplaySize.x), static_cast<f32>(1440.0f / io.DisplaySize.y));
 
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
