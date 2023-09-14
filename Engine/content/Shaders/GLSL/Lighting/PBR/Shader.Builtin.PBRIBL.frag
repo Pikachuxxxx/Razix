@@ -152,7 +152,7 @@ void main()
         //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.shadowMapIdx)], FragPosLightSpace, N, sceneLights.data[0].position);
         shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
 
-    //result *= shadow;
+    result *= shadow;
     //-----------------------------------------------
 
     // gamma correct

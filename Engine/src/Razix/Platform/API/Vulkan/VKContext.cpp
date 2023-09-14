@@ -246,7 +246,7 @@ namespace Razix {
             // TODO: Add option to choose minimum severity level and use <=> to select levels
             // TODO: Formate the message id and stuff for colors etc
 
-            //return VK_FALSE;
+            return VK_FALSE;
 
             //if (!message_severity)
             //    return VK_FALSE;

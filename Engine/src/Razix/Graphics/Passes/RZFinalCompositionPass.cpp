@@ -172,6 +172,14 @@ namespace Razix {
                 },
                 [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {
                     updatedRT = false;
+                    //auto setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                    //for (auto& setInfo: setInfos) {
+                    //    for (auto& descriptor: setInfo.second) {
+                    //        // change the layout to be in Shader Read Only Optimal
+                    //        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                    //    }
+                    //    m_DescriptorSets->UpdateSet(setInfo.second);
+                    //}
                     RZGraphicsContext::GetContext()->Wait();
                 });
 #endif

@@ -175,8 +175,7 @@ namespace Razix {
 
                     RHI::EndRendering(cmdBuffer);
                     RAZIX_MARK_END();
-                },
-                [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {});
+                });
         }
 
         void RZSkyboxPass::destroy()

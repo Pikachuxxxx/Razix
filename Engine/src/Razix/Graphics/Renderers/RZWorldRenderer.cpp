@@ -299,8 +299,7 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
 
                     RZDebugRenderer::Get()->End();
-                },
-                [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {});
+                });
 #endif
 
             //-------------------------------
@@ -340,8 +339,7 @@ namespace Razix {
 
                     m_ImGuiRenderer.End();
 #endif
-                },
-                [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {});
+                });
 
             //-------------------------------
             // Final Image Presentation
