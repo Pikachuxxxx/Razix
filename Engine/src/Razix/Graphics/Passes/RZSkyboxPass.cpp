@@ -87,11 +87,11 @@ namespace Razix {
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
                     RenderingInfo info{};
-                    info.resolution       = Resolution::k1440p;
+                    info.resolution       = Resolution::kCustom;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
-                    //info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize = false;
+                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
@@ -137,13 +137,13 @@ namespace Razix {
                     m_SkyboxCube->getVertexBuffer()->Bind(cmdBuffer);
 
                     if (!m_UseProceduralSkybox) {
-                        u32            envMapIdx = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle().getIndex();
-                        RZPushConstant pc;
-                        pc.data        = &envMapIdx;
-                        pc.size        = sizeof(u32);
-                        pc.shaderStage = ShaderStage::PIXEL;
-
-                        RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
+                        //u32            envMapIdx = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle().getIndex();
+                        //RZPushConstant pc;
+                        //pc.data        = &envMapIdx;
+                        //pc.size        = sizeof(u32);
+                        //pc.shaderStage = ShaderStage::PIXEL;
+                        //
+                        //RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
                     } else {
                         // Since no skybox, we update the directional light direction
                         auto lights = scene->GetComponentsOfType<LightComponent>();

@@ -118,13 +118,12 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("PBR pass", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 
-
                     RenderingInfo info{};
-                    info.resolution       = Resolution::k1440p;
+                    info.resolution       = Resolution::kCustom;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-                    //info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = false;
+                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize           = true;
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 

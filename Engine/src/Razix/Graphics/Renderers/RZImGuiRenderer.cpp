@@ -223,19 +223,18 @@ namespace Razix {
             // Bind the pipeline and descriptor sets
             m_Pipeline->Bind(cmdBuffer);
 
-            // FIXME: https://github.com/ocornut/imgui/issues/6064
-
             // Update the push constants
             pushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
             //pushConstBlock.scale     = glm::vec2(2.0f / ResolutionToExtentsMap[Resolution::k1440p].x, 2.0f / ResolutionToExtentsMap[Resolution::k1440p].y);
             pushConstBlock.translate = glm::vec2(-1.0f);
 
             RHI::SetViewport(cmdBuffer, 0, 0, (u32) io.DisplaySize.x, (u32) io.DisplaySize.y);
+            //RHI::SetViewport(cmdBuffer, 0, 0, (u32) ResolutionToExtentsMap[Resolution::k1440p].x, (u32) ResolutionToExtentsMap[Resolution::k1440p].y);
 
             RZPushConstant& model = m_OverrideGlobalRHIShader->getPushConstants()[0];
-
-            model.size = sizeof(PushConstBlock);
-            model.data = &pushConstBlock;
+            model.shaderStage     = ShaderStage::VERTEX;
+            model.size            = sizeof(PushConstBlock);
+            model.data            = &pushConstBlock;
 
             RHI::BindPushConstant(m_Pipeline, cmdBuffer, model);
 

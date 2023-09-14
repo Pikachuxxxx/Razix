@@ -108,6 +108,7 @@ namespace Razix {
             void destroy();
 
             // Getters/Setters
+            FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
         private:
             FrameGraph::RZFrameGraph         m_FrameGraph;

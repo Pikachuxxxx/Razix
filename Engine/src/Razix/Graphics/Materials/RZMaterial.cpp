@@ -249,6 +249,17 @@ namespace Razix {
 
                 createDescriptorSet();
                 setTexturesUpdated(false);
+
+                m_MaterialData.m_MaterialProperties.AlbedoMapIdx    = m_MaterialTextures.albedo.isValid() ? m_MaterialTextures.albedo.getIndex() : s_DefaultTexture.getIndex();
+                m_MaterialData.m_MaterialProperties.NormalMapIdx    = m_MaterialTextures.normal.isValid() ? m_MaterialTextures.normal.getIndex() : s_DefaultTexture.getIndex();
+                m_MaterialData.m_MaterialProperties.MetallicMapIdx  = m_MaterialTextures.metallic.isValid() ? m_MaterialTextures.metallic.getIndex() : s_DefaultTexture.getIndex();
+                m_MaterialData.m_MaterialProperties.RoughnessMapIdx = m_MaterialTextures.roughness.isValid() ? m_MaterialTextures.roughness.getIndex() : s_DefaultTexture.getIndex();
+                m_MaterialData.m_MaterialProperties.SpecularIdx     = m_MaterialTextures.specular.isValid() ? m_MaterialTextures.specular.getIndex() : s_DefaultTexture.getIndex();
+                m_MaterialData.m_MaterialProperties.EmissiveMapIdx  = m_MaterialTextures.emissive.isValid() ? m_MaterialTextures.emissive.getIndex() : s_DefaultTexture.getIndex();
+                m_MaterialData.m_MaterialProperties.AOMapIdx        = m_MaterialTextures.ao.isValid() ? m_MaterialTextures.ao.getIndex() : s_DefaultTexture.getIndex();
+
+                // Since the mat props have been updated regarding isTextureAvailable or not we need to update the UBO data again
+                setProperties(m_MaterialData.m_MaterialProperties);
             }
             // Since we need to bind all the sets at once IDK about using bind, how does the mat get the Render System Descriptors to bind???
             // This possible if do something like Unity does, have a Renderer Component for every renderable entity in the scene ==> this makes
@@ -271,17 +282,6 @@ namespace Razix {
             //    int                dummy     = u16_max;
             //    int                dummy2    = u16_max;
             //} data{};
-
-            m_MaterialData.m_MaterialProperties.AlbedoMapIdx    = m_MaterialTextures.albedo.isValid() ? m_MaterialTextures.albedo.getIndex() : s_DefaultTexture.getIndex();
-            m_MaterialData.m_MaterialProperties.NormalMapIdx    = m_MaterialTextures.normal.isValid() ? m_MaterialTextures.normal.getIndex() : s_DefaultTexture.getIndex();
-            m_MaterialData.m_MaterialProperties.MetallicMapIdx  = m_MaterialTextures.metallic.isValid() ? m_MaterialTextures.metallic.getIndex() : s_DefaultTexture.getIndex();
-            m_MaterialData.m_MaterialProperties.RoughnessMapIdx = m_MaterialTextures.roughness.isValid() ? m_MaterialTextures.roughness.getIndex() : s_DefaultTexture.getIndex();
-            m_MaterialData.m_MaterialProperties.SpecularIdx     = m_MaterialTextures.specular.isValid() ? m_MaterialTextures.specular.getIndex() : s_DefaultTexture.getIndex();
-            m_MaterialData.m_MaterialProperties.EmissiveMapIdx  = m_MaterialTextures.emissive.isValid() ? m_MaterialTextures.emissive.getIndex() : s_DefaultTexture.getIndex();
-            m_MaterialData.m_MaterialProperties.AOMapIdx        = m_MaterialTextures.ao.isValid() ? m_MaterialTextures.ao.getIndex() : s_DefaultTexture.getIndex();
-
-            // Since the mat props have been updated regarding isTextureAvailable or not we need to update the UBO data again
-            setProperties(m_MaterialData.m_MaterialProperties);
             //RZPushConstant pc;
             //pc.shaderStage = ShaderStage::PIXEL;
             //pc.offset      = 0;

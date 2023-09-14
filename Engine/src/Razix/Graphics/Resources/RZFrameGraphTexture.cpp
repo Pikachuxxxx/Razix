@@ -45,6 +45,8 @@ namespace Razix {
                 // Get the Biding info from the flags
                 DescriptorBindingInfo info = Graphics::DecodeDescriptorBindingInfo(flags);
 
+                // Note: Disabled cause validation layers are not complaining
+
                 //Graphics::RHI::InsertImageMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_TextureHandle, {.startExecutionStage = PipelineStage::kColorAttachmentOutput, .endExecutionStage = PipelineStage::kFragmentShader}, {.srcAccess = MemoryAccessMask::kColorAttachmentReadWriteBit, .dstAccess = MemoryAccessMask::kShaderReadBit, .srcLayout = ImageLayout::kColorAttachmentOptimal, .dstLayout = ImageLayout::kShaderReadOnlyOptimal});
             }
 
@@ -60,6 +62,8 @@ namespace Razix {
                  * but I think we can have the frame graph execute function handle this struct and call the RHI internally
                  * 
                  */
+
+                // Note: Disabled cause validation layers are not complaining
 
                 //Graphics::RHI::InsertImageMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_TextureHandle, {.startExecutionStage = PipelineStage::kTopOfPipe, .endExecutionStage = PipelineStage::kColorAttachmentOutput}, {.srcAccess = MemoryAccessMask::kNone, .dstAccess = MemoryAccessMask::kColorAttachmentReadWriteBit, .srcLayout = ImageLayout::kUndefined, .dstLayout = ImageLayout::kColorAttachmentOptimal});
             }

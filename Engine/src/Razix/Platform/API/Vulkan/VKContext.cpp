@@ -76,7 +76,7 @@ namespace Razix {
 
         void VKContext::Wait()
         {
-            //vkDeviceWaitIdle(VKDevice::Get().getDevice());
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
         }
 
         void VKContext::SetupDeviceAndSC()

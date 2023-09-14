@@ -279,7 +279,6 @@ namespace Razix {
             matTextures.ao    = Graphics::RZResourceManager::Get().createTextureFromFile({.name = fileName.toStdString()}, fileName.toStdString());
             m_Material->setTextures(matTextures);
         }
-
         //---------------------------------------------------------------------------
     }    // namespace Editor
 }    // namespace Razix

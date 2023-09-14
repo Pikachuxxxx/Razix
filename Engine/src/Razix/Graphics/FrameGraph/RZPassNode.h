@@ -48,10 +48,9 @@ namespace Razix {
                 bool canExecute() const;
 
             private:
-                std::unique_ptr<IRZFrameGraphPass> m_Exec; /* The execution lambda function to be called for the pass */
+                std::unique_ptr<IRZFrameGraphPass> m_Exec;   /* The execution lambda function to be called for the pass */
                 // TODO: Implement this
                 //std::unique_ptr<RZFrameGraphPassConcept> m_Update; /* The update lambda function to be called for the pass */
-                //std::unique_ptr<RZFrameGraphPassConcept> m_Resize; /* The resize lambda function to be called for the pass */
 
                 /**
                  * m_Creates is used to lazily call create, storing them in the framegraph requires us to create at the start of each frame

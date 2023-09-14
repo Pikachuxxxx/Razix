@@ -33,6 +33,7 @@ namespace Razix {
             RZMesh*                    m_ScreenQuadMesh = nullptr;
             RZPipeline*                m_Pipeline;
             Graphics::RZDescriptorSet* m_DescriptorSets;
+            bool                       updatedRT = false;
         };
     }    // namespace Graphics
 }    // namespace Razix

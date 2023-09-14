@@ -37,22 +37,29 @@ namespace Razix {
                 RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(IRZFrameGraphPass)
 
                 virtual void operator()(RZPassResourceDirectory &resources) = 0;
+                virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;
             };
 
             /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */
-            template<typename Data, typename ExecuteFunc>    // done in FG so redundant here, typename = std::enable_if_t<is_valid_pass_exec_function<ExecuteFunc>()>> // Checks for the signature of the exec function
+            template<typename Data, typename ExecuteFunc, typename ResizeFunc>    // done in FG so redundant here, typename = std::enable_if_t<is_valid_pass_exec_function<ExecuteFunc>()>> // Checks for the signature of the exec function
             struct RZFrameGraphPass final : IRZFrameGraphPass
             {
-                explicit RZFrameGraphPass(ExecuteFunc &&exec)
-                    : execFunction{std::forward<ExecuteFunc>(exec)} {}
+                explicit RZFrameGraphPass(ExecuteFunc &&exec, ResizeFunc &&resize)
+                    : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
 
                 void operator()(RZPassResourceDirectory &resources) override
                 {
                     execFunction(data, resources);
                 }
 
-                ExecuteFunc execFunction; /* Pass Execution function                                 */
-                Data        data{};       /* Pass data that contains the list of FrameGraphResources */
+                void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override
+                {
+                    resizeFunction(resources, width, height);
+                }
+
+                ExecuteFunc execFunction;   /* Pass Execution function                                  */
+                ResizeFunc  resizeFunction; /* Pass Resize function                                     */
+                Data        data{};         /* Pass data that contains the list of FrameGraphResources  */
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

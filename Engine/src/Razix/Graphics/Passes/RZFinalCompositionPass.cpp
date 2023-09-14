@@ -17,6 +17,7 @@
 #include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
@@ -120,7 +121,7 @@ namespace Razix {
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
                     // Update the Descriptor Set with the new texture once
-                    static bool updatedRT = false;
+
                     if (!updatedRT) {
                         auto setInfos = pipelineInfo.shader->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
@@ -168,6 +169,18 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
 
                     RAZIX_MARK_END();
+                },
+                [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {
+                    updatedRT = false;
+                    //auto setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                    //for (auto& setInfo: setInfos) {
+                    //    for (auto& descriptor: setInfo.second) {
+                    //        // change the layout to be in Shader Read Only Optimal
+                    //        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                    //    }
+                    //    m_DescriptorSets->UpdateSet(setInfo.second);
+                    //}
+                    RZGraphicsContext::GetContext()->Wait();
                 });
 #endif
         }

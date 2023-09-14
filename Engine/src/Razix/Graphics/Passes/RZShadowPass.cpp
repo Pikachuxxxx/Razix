@@ -84,7 +84,6 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-
                     LightVPUBOData light_data{};
                     // Get the Light direction
                     auto lights = scene->GetComponentsOfType<LightComponent>();
@@ -107,7 +106,7 @@ namespace Razix {
 
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
-                    info.resolution = Resolution::kCustom;
+                    info.resolution      = Resolution::kCustom;
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
