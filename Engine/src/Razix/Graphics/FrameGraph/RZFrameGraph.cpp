@@ -103,6 +103,19 @@ namespace Razix {
                 }
             }
 
+            void RZFrameGraph::resize(u32 width, u32 height)
+            {
+                // Iterate though all passes and call their ExecuteFunc
+                for (auto &pass: m_PassNodes) {
+                    // Only it it's executable and not culled
+                    if (!pass.canExecute()) continue;
+
+                    // call the ResizeFunc
+                    RZPassResourceDirectory resources{*this, pass};
+                    pass.m_Exec->resize(resources, width, height);
+                }
+            }
+
             struct StyleSheet
             {
                 bool        useClusters{true};

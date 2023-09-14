@@ -27,6 +27,7 @@ namespace Razix {
             UNSIGNED_BYTE
         };
 
+        // TODO: Move this to RZApplication and cache it per application
         /* Rendering Resolution of the render targets */
         enum class Resolution : u32
         {
@@ -53,12 +54,12 @@ namespace Razix {
 
         struct RenderingInfo
         {
-            Resolution                                              resolution       = Resolution::k1440p; /* Resolution preset at which the scene will be rendered at         */
-            glm::uvec2                                              extent           = {0, 0};             /* Viewport extents (used only when Resolution is set to custom)    */
-            std::vector<std::pair<RZTextureHandle, AttachmentInfo>> colorAttachments = {};                 /* List of attachments, texture and it's attachment info            */
-            std::pair<RZTextureHandle, AttachmentInfo>              depthAttachment  = {};                 /* The depth attachment and it's info                               */
-            int                                                     layerCount       = 1;                  /* Total layers to render onto, needed for gl_Layer to work         */
-            bool                                                    resize           = false;              /* Whether or not to enable resizing                                */
+            Resolution                                              resolution       = Resolution::kCustom; /* Resolution preset at which the scene will be rendered at         */
+            glm::uvec2                                              extent           = {0, 0};              /* Viewport extents (used only when Resolution is set to custom)    */
+            std::vector<std::pair<RZTextureHandle, AttachmentInfo>> colorAttachments = {};                  /* List of attachments, texture and it's attachment info            */
+            std::pair<RZTextureHandle, AttachmentInfo>              depthAttachment  = {};                  /* The depth attachment and it's info                               */
+            int                                                     layerCount       = 1;                   /* Total layers to render onto, needed for gl_Layer to work         */
+            bool                                                    resize           = false;               /* Whether or not to enable resizing                                */
         };
 
         /* Command Queue is a collection of command buffers that will be submitted for execution at once */

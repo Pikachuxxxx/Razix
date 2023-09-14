@@ -183,19 +183,21 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        //auto ctx = ImGui::GetCurrentContext();
-        //if (ctx) {
-        //    // Resize ImGui
-        //    ImGuiIO& io                = ImGui::GetIO();
-        //    //io.DisplaySize             = ImVec2(static_cast<f32>(e.GetWidth()), static_cast<f32>(e.GetHeight()));
-        //    io.DisplaySize             = ImVec2(static_cast<f32>(2560), static_cast<f32>(1440));
-        //    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-        //}
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            // Resize ImGui
+            ImGuiIO& io    = ImGui::GetIO();
+            io.DisplaySize = ImVec2(static_cast<f32>(e.GetWidth()), static_cast<f32>(e.GetHeight()));
+            //io.DisplaySize             = ImVec2(static_cast<f32>(2560), static_cast<f32>(1440));
+            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+        }
 
-        //RZEngine::Get().getRenderStack().OnResize(e.GetWidth(), e.GetHeight());
-
-        if (Graphics::RHI::GetPointer() != nullptr)
+        if (Graphics::RHI::GetPointer() != nullptr) {
             Graphics::RHI::OnResize(e.GetWidth(), e.GetHeight());
+
+            // Resize the frame graph resource before resizing the RHI
+            Razix::RZEngine::Get().getWorldRenderer().getFrameGraph().resize(e.GetWidth(), e.GetHeight());
+        }
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -467,7 +469,8 @@ namespace Razix {
             (void) io;
             // TODO: get the resolution from RHI before updating this
             io.DisplaySize             = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
-            io.DisplayFramebufferScale = ImVec2(static_cast<f32>(io.DisplaySize.x / 2560.0f), static_cast<f32>(io.DisplaySize.y / 1440.0f));
+            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+            //io.DisplayFramebufferScale = ImVec2(static_cast<f32>(io.DisplaySize.x / 2560.0f), static_cast<f32>(io.DisplaySize.y / 1440.0f));
         }
 
         // Update the Runtime Systems only on Game Application type
@@ -516,19 +519,23 @@ namespace Razix {
         if (!ctx)
             return;
 
-        // Update ImGui
-        ImGuiIO& io = ImGui::GetIO();
-        (void) io;
-        io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
-        // TODO: get the resolution from RHI before updating this
-        io.DisplayFramebufferScale = ImVec2(static_cast<f32>(2560.0f / io.DisplaySize.x), static_cast<f32>(1440.0f / io.DisplaySize.y));
-
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 
         // TODO: Well GLFW needs to be removed at some point and we need to use native functions
         if (RZApplication::Get().getAppType() == AppType::GAME)
             ImGui_ImplGlfw_NewFrame();
+
+        // FIXME: https://github.com/ocornut/imgui/issues/6064
+
+        // Update ImGui
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+#if 0
+        io.DisplaySize = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
+        // TODO: get the resolution from RHI before updating this
+        io.DisplayFramebufferScale = ImVec2(static_cast<f32>(io.DisplaySize.x / 2560.0f), static_cast<f32>(io.DisplaySize.y / 1440.0f));
+#endif
 
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
@@ -584,7 +591,7 @@ namespace Razix {
 
         // TODO: As for Icons of the components or any other entities we will get them using the entt
         // Get their position in the worldspace and check it against the camera frustum and
-        // convert it to world space and render a non-clickable ImGui::Button with the FontIcon as image
+        // convert it to screen space and render a non-clickable ImGui::Button with the FontIcon as image
 
         // Icons for Components
         //{
@@ -627,20 +634,23 @@ namespace Razix {
                 auto& stats = RZEngine::Get().GetStatistics();
                 ImGui::Text("Engine Stats");
                 ImGui::Indent();
-                // TODO: Add Average timings (CPU + GPU) and avg FPS
-                ImGui::Text("FPS                    : %.5d", stats.FramesPerSecond);
-                ImGui::Text("CPU time               : %2.2f ms", stats.DeltaTime);
+                {
+                    // TODO: Add Average timings (CPU + GPU) and avg FPS
+                    ImGui::Text("FPS                    : %.5d", stats.FramesPerSecond);
+                    ImGui::Text("CPU time               : %2.2f ms", stats.DeltaTime);
 
-                ImGui::Separator();
-                ImGui::Text("API calls");
+                    ImGui::Separator();
+                    ImGui::Text("API calls");
 
-                ImGui::Text("Total Draw calls           : %d", stats.NumDrawCalls);
-                ImGui::Indent();
-                ImGui::BulletText("Draws                : %d", stats.Draws);
-                ImGui::BulletText("Indexed Draws        : %d", stats.IndexedDraws);
-                ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
-
-                ImGui::Unindent();
+                    ImGui::Text("Total Draw calls           : %d", stats.NumDrawCalls);
+                    ImGui::Indent();
+                    {
+                        ImGui::BulletText("Draws                : %d", stats.Draws);
+                        ImGui::BulletText("Indexed Draws        : %d", stats.IndexedDraws);
+                        ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
+                    }
+                    ImGui::Unindent();
+                }
                 ImGui::Unindent();
 
                 ImGui::Separator();
@@ -658,8 +668,6 @@ namespace Razix {
 
     void RZApplication::Quit()
     {
-        //Razix::RZEngine::Get().getRenderStack().Destroy();
-
         Razix::RZEngine::Get().getWorldRenderer().destroy();
 
         // Client side quit customization

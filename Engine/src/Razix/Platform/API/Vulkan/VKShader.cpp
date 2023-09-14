@@ -433,6 +433,8 @@ namespace Razix {
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
 
+            VK_TAG_OBJECT(m_Name, VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t) m_PipelineLayout)
+
             // Replace the Set a index BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START with the bindless set layout
             if (potentiallyBindless) {
                 m_PerSetLayouts[BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START] = VKDevice::Get().getBindlessSetLayout();

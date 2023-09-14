@@ -41,6 +41,15 @@ namespace Razix {
                 RAZIX_CORE_ERROR("CmdEndRenderingKHR Function not found");
         }
 
+        static void CmdPushDescriptorSetKHR(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t set, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
+        {
+            auto func = (PFN_vkCmdPushDescriptorSetKHR) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdPushDescriptorSetKHR");
+            if (func != nullptr)
+                func(commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
+            else
+                RAZIX_CORE_ERROR("vkCmdPushDescriptorSetKHR Function not found");
+        }
+
         VKRenderContext::VKRenderContext(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -325,17 +334,63 @@ namespace Razix {
 
         void VKRenderContext::BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
-
             std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+
+            int descriptorWritesCount = 0;
+            int imageIndex            = 0;
+            int index                 = 0;
+
+            // Source : https://github.com/SaschaWillems/Vulkan/blob/master/examples/pushdescriptors/pushdescriptors.cpp
+            // Instead of preparing the descriptor sets up-front, using push descriptors we can set (push) them inside of a command buffer
+            // This allows a more dynamic approach without the need to create descriptor sets for each model
+            // Note: dstSet for each descriptor set write is left at zero as this is ignored when using push descriptors
 
             for (auto& desc: descriptors) {
                 VkWriteDescriptorSet writeSet{};
 
+                for (auto& descriptor: descriptors) {
+                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
+                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+
+                        VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+
+                        VkDescriptorImageInfo imageInfo{};
+                        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                        imageInfo.imageView   = des.imageView;
+                        imageInfo.sampler     = des.sampler;
+
+                        writeSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                        writeSet.dstSet          = 0;
+                        writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                        writeSet.dstBinding      = descriptor.bindingInfo.location.binding;
+                        writeSet.pImageInfo      = &imageInfo;
+                        writeSet.descriptorCount = 1;
+
+                        imageIndex++;
+                        descriptorWritesCount++;
+                    } else {
+                        VkDescriptorBufferInfo bufferInfo{};
+
+                        auto buffer       = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer);
+                        bufferInfo.buffer = buffer->getBuffer();
+                        bufferInfo.offset = descriptor.offset;
+                        bufferInfo.range  = buffer->getSize();
+
+                        writeSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                        writeSet.dstSet          = 0;
+                        writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                        writeSet.dstBinding      = descriptor.bindingInfo.location.binding;
+                        writeSet.pBufferInfo     = &bufferInfo;
+                        writeSet.descriptorCount = 1;
+
+                        index++;
+                        descriptorWritesCount++;
+                    }
+                }
+
                 writeDescriptorSets.push_back(writeSet);
             }
-            // TODO: Load this dynamically
-            //vkCmdPushDescriptorSetKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
+            CmdPushDescriptorSetKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
         void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)

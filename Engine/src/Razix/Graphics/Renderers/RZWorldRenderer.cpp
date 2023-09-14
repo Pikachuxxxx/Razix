@@ -284,11 +284,11 @@ namespace Razix {
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
-                        .resolution = Resolution::k1440p,
-                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .resolution       = Resolution::kCustom,
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
                         .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
-                        .resize           = false};
+                        .resize           = true};
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -299,7 +299,8 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
 
                     RZDebugRenderer::Get()->End();
-                });
+                },
+                [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {});
 #endif
 
             //-------------------------------
@@ -327,11 +328,11 @@ namespace Razix {
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
 
                     RenderingInfo info{
-                        .resolution = Resolution::k1440p,
-                        //.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .resolution       = Resolution::kCustom,
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
                         .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
-                        .resize           = false};
+                        .resize           = true};
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
@@ -339,7 +340,8 @@ namespace Razix {
 
                     m_ImGuiRenderer.End();
 #endif
-                });
+                },
+                [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {});
 
             //-------------------------------
             // Final Image Presentation

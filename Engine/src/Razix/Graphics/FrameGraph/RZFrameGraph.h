@@ -60,19 +60,21 @@ namespace Razix {
                  * SetupFunc is captured by reference as we execute it immediately
                  * ExecuteFunc is captured by value because we defer it's execution
                  */
-                template<typename PassData, typename SetupFunc, typename ExecuteFunc>
-                const PassData &addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
+                template<typename PassData, typename SetupFunc, typename ExecuteFunc, typename ResizeFunc>
+                const PassData &addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc, ResizeFunc &&resizeFunc)
                 {
                     // Compile time checks to make sure that the lambda functions are valid and have the right signature to be called by the pass
                     static_assert(std::is_invocable_v<SetupFunc, PassData &, RZPassResourceBuilder &>, "Invalid setup callback, check the signature again");
                     static_assert(std::is_invocable_v<ExecuteFunc, const PassData &, RZPassResourceDirectory &>, "Invalid exec callback, check the signature again");
+                    static_assert(std::is_invocable_v<ResizeFunc, RZPassResourceDirectory &, u32, u32>, "Invalid resize callback, check the signature again");
                     // Also make sure the ExecuteFunc isn't too big
-                    static_assert(sizeof(ExecuteFunc) < 1024, "Execute functions captures too much");
+                    static_assert(sizeof(ExecuteFunc) < 1024, "Execute function captures too much");
+                    static_assert(sizeof(ResizeFunc) < 1024, "Resize function captures too much");
 
                     // Now that the checks are done, let's create the pass and PassNode
-                    auto *pass = new RZFrameGraphPass<PassData, ExecuteFunc>(std::forward<ExecuteFunc>(executeFunc));
+                    auto *pass = new RZFrameGraphPass<PassData, ExecuteFunc, ResizeFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc));
                     // Create the PassNode in the graph
-                    RZPassNode &passNode = createPassNode(name, std::unique_ptr<RZFrameGraphPass<PassData, ExecuteFunc>>(pass));
+                    RZPassNode &passNode = createPassNode(name, std::unique_ptr<RZFrameGraphPass<PassData, ExecuteFunc, ResizeFunc>>(pass));
 
                     // Create a builder for this PassNode
                     // SetupFunc gets PassNode via RZPassResourceBuilder and ExecFunc gets PassNode via RZPassResourceDirectory
@@ -89,15 +91,34 @@ namespace Razix {
                     return pass->data;
                 }
 
+                template<typename PassData, typename SetupFunc, typename ExecuteFunc>
+                const PassData &addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
+                {
+                    auto emptyLambda = [=](RZPassResourceDirectory &, u32, u32) {};
+
+                    return addCallbackPass<PassData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), emptyLambda);
+                }
+
                 /**
                  * Callback to crate a standalone pass without any pass data
                  */
+                template<typename SetupFunc, typename ExecuteFunc, typename ResizeFunc>
+                void addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc, ResizeFunc &&resizeFunc)
+                {
+                    struct NoData
+                    {};
+                    addCallbackPass<NoData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc));
+                }
+
                 template<typename SetupFunc, typename ExecuteFunc>
                 void addCallbackPass(const std::string_view name, SetupFunc &&setupFunc, ExecuteFunc &&executeFunc)
                 {
                     struct NoData
                     {};
-                    addCallbackPass<NoData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc));
+
+                    auto emptyLambda = [=](RZPassResourceDirectory &, u32, u32) {};
+
+                    addCallbackPass<NoData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), emptyLambda);
                 }
 
                 /* Imports a external resource into the frame graph, for valid resources types only */
@@ -131,6 +152,8 @@ namespace Razix {
                 void compile();
                 /* Executes the Frame Graph passes */
                 void execute(void *transientAllocator);
+                /* Resize the frame graph */
+                void resize(u32 width, u32 height);
                 /* Exports it GraphViz format */
                 void exportToGraphViz(std::ostream &) const;
 
