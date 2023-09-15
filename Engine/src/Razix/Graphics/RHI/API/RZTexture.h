@@ -7,7 +7,7 @@
 #include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 
-#include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 
 #define GET_INSTANCE_SIZE static u32 GetInstanceSize()
 

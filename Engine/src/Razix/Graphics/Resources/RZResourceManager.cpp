@@ -21,7 +21,7 @@ namespace Razix {
 
         void RZResourceManager::ShutDown()
         {
-            RAZIX_CORE_INFO("[Resource Manager] Shutting Down Resource Manager");
+            RAZIX_CORE_ERROR("[Resource Manager] Shutting Down Resource Manager");
 
             // Destroy all the Pools
             m_TexturePool.printResources();

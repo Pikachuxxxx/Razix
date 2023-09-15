@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZAPICreateStructs.h"
+#include "RZAPIDesc.h"
 
 namespace Razix {
     namespace Graphics {
@@ -105,6 +105,26 @@ namespace Razix {
                     break;
             }
             return "NONE";
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        static std::map<std::string, Razix::Graphics::CompareOp> CompareOpStringMap = {
+            {"Never", Razix::Graphics::CompareOp::Never},
+            {"Less", Razix::Graphics::CompareOp::Less},
+            {"Equal", Razix::Graphics::CompareOp::Equal},
+            {"LessOrEqual", Razix::Graphics::CompareOp::LessOrEqual},
+            {"Greater", Razix::Graphics::CompareOp::Greater},
+            {"NotEqual", Razix::Graphics::CompareOp::NotEqual},
+            {"GreaterOrEqual", Razix::Graphics::CompareOp::GreaterOrEqual},
+            {"Always", Razix::Graphics::CompareOp::Always}};
+
+        // FIXME: compile time checks for map<=>enum size check
+        //static_assert(sizeof(CompareOpStringMap) == (int) CompareOp::COUNT - 1, "CompareOpStringMap size is not correct, missing values from enum");
+
+        Razix::Graphics::CompareOp StringToCompareOp(const std::string& str)
+        {
+            return CompareOpStringMap[str];
         }
     }    // namespace Graphics
 }    // namespace Razix

@@ -46,10 +46,12 @@ namespace Razix {
 
             void loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath);
             // TODO:Return a ShaderHandle instead
-            RZShader* getBuiltInShader(ShaderBuiltin builtInShaderName);
+            RZShader*     getBuiltInShader(ShaderBuiltin builtInShaderName);
+            ShaderBuiltin getBuiltInShaderID(std::string shaderName);
 
         public:
-            std::unordered_map<ShaderBuiltin, RZShader*> m_BuiltinShaders;
+            std::unordered_map<ShaderBuiltin, RZShader*>   m_BuiltinShaders;
+            std::unordered_map<std::string, ShaderBuiltin> m_BuiltinShadersReverseNameMap;
         };
     }    // namespace Graphics
 }    // namespace Razix

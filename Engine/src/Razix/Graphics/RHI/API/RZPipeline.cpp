@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZPipeline.h"
 
-#include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN

@@ -79,5 +79,20 @@ namespace Razix {
             BlendOp                    alphaOp                = BlendOp::Add;                  /* blend operation when mixing alpha of the 2 colors in pixel shader stage     */
             CompareOp                  depthOp                = CompareOp::Less;               /* depth operation comparison function                                         */
         };
+
+        //-----------------------------------------------------------------------------------
+        /* utility functions for frame graph parsing to convert string to enums */
+        CompareOp     StringToCompareOp(const std::string& str);
+        BlendOp       StringToBlendOp(const std::string& str);
+        BlendFactor   StringToBlendFactor(const std::string& str);
+        DrawType      StringToDrawType(const std::string& str);
+        PolygonMode   StringToPolygonMode(const std::string& str);
+        CullMode      StringToCullMode(const std::string& str);
+        TextureFormat StringToTextureFormat(const std::string& str);
+        TextureType   StringToTextureType(const std::string& str);
+        Wrapping      StringToWrapping(const std::string& str);
+        Filtering     StringToFiltering(const std::string& str);
+        BufferUsage   StringToBufferUsage(const std::string& str);
+
     }    // namespace Graphics
 }    // namespace Razix

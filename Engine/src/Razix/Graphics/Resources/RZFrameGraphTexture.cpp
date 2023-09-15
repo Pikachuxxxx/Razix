@@ -5,7 +5,7 @@
 
 #include "Razix/Graphics/Resources/RZTransientResources.h"
 
-#include "Razix/Graphics/RHI/API/RZAPICreateStructs.h"
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 
 #include "Razix/Graphics/RHI/API/RZBindingInfoAccessViews.h"
 
