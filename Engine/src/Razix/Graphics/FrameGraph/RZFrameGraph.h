@@ -147,7 +147,8 @@ namespace Razix {
                     return getResourceEntry(id).get<T>();
                 }
 #endif
-
+                /* parse the frame graph from a given JSON file */
+                void parse(const std::string &path);
                 /* Compiles the Frame Graph passes and culls any unused passes/resources */
                 void compile();
                 /* Executes the Frame Graph passes */
