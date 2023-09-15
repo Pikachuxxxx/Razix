@@ -3,7 +3,8 @@
 // clang-format on
 #include "RZFrameGraph.h"
 
-#include <stack>
+#include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 namespace Razix {
     namespace Graphics {
@@ -12,6 +13,15 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             // Frame Graph Class
             //-----------------------------------------------------------------------------------
+
+            void RZFrameGraph::parse(const std::string &path)
+            {
+                std::string physicalPath;
+                if (!RZVirtualFileSystem::Get().resolvePhysicalPath(path, physicalPath))
+                    return;
+
+                auto jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
+            }
 
             void RZFrameGraph::compile()
             {

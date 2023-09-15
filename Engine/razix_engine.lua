@@ -32,7 +32,7 @@ group "Engine/content"
         -- TODO Add as rules, every shader file type will have it's own rule
         -- Don't build the shaders, they are compiled by the engine once and cached
        filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
-            flags { "ExcludeFromBuild"}
+            flags { "ExcludeFromBuild" }
 
         -- Build GLSL files based on their extension
         filter {"files:**.vert or **.frag or **.geom"}
@@ -41,6 +41,25 @@ group "Engine/content"
             buildcommands 'glslc.exe -I "%{wks.location}/../Engine/content/Shaders/GLSL" "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
             buildoutputs "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"
 group""
+
+-- Frame Graph resources data for editing in VS
+group "Engine/content"
+    project "FrameGraphs"
+        kind "Utility"
+
+        files
+        {
+            -- Graph files
+            "content/FrameGraphs/Graphs/**.json",
+            -- Pass files
+            "content/FrameGraphs/Passes/**.json",
+        }
+
+        filter { "files:**.json"}
+            flags { "ExcludeFromBuild" }
+
+group""
+
 
 group "Engine"
 -- Razix project

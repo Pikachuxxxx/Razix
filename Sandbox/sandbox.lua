@@ -21,8 +21,11 @@ project "Sandbox"
     {
         "src/**.h",
         "src/**.cpp",
-        -- Scripting files for test
-        "Assets/Scripts/**.lua"
+        -- Assets files for editing in VS
+        "Assets/Scripts/**.lua",
+        "*.razixproject",
+        "*Assets/Scences/**.rzscn"
+
     }
 
     -- Macos include paths
@@ -80,7 +83,7 @@ project "Sandbox"
        --"SPDLOG_COMPILED_LIB"
    }
 
-   filter { "files:**.lua"}
+   filter { "files:**.lua or *.razixproject or **.rzscn"}
         flags { "ExcludeFromBuild"}
 
 
