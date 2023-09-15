@@ -132,6 +132,7 @@ project "Razix"
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
         "%{IncludeDir.Jolt}",
+        "%{IncludeDir.json}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related

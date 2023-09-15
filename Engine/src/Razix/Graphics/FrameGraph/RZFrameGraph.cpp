@@ -6,6 +6,9 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
@@ -21,6 +24,19 @@ namespace Razix {
                     return;
 
                 auto jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
+
+                json data = json::parse(jsonStrData);
+            }
+
+            void RZFrameGraph::parsePass(const std::string &passPath)
+            {
+                std::string physicalPath;
+                if (!RZVirtualFileSystem::Get().resolvePhysicalPath(passPath, physicalPath))
+                    return;
+
+                auto jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
+
+                json data = json::parse(jsonStrData);
             }
 
             void RZFrameGraph::compile()

@@ -149,6 +149,8 @@ namespace Razix {
 #endif
                 /* parse the frame graph from a given JSON file */
                 void parse(const std::string &path);
+                /* Parses a Built in/User defined pass from a file */
+                void parsePass(const std::string &passPath);
                 /* Compiles the Frame Graph passes and culls any unused passes/resources */
                 void compile();
                 /* Executes the Frame Graph passes */

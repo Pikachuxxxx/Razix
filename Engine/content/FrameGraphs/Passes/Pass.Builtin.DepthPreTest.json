@@ -15,7 +15,7 @@
             "write": true,
             "test": true,
             "op": "Less",
-            "bias": false
+            "bias": false 
         },
         "cull_mode": "Back",
         "polygon_mode": "Fill",

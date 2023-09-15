@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>res/critical.png</file>
+    <file>res/error.png</file>
+    <file>res/warn.png</file>
+    <file>res/info.png</file>
+    <file>res/debug.png</file>
+    <file>res/trace.png</file>
+</qresource>
+</RCC>

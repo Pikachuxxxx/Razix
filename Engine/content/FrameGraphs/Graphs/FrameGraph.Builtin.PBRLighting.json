@@ -1,1 +1,27 @@
-{}
+{
+    "name": "PBRLighting",
+    "passes": [
+        {
+            "name": "Pass.Builtin.DepthPreTest",
+            "inputs": [
+                {
+                    "type": "attachment",
+                    "name": "depth"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "attachment",
+                    "name": "gbuffer_color",
+                    "format": "BGRA8_UNORM",
+                    "resolution": [ 1280, 800 ],
+                    "clear": true,
+                    "clear_color": "TransparentBlack",
+                    "binding_idx": 0,
+                    "mip": 0,
+                    "layer": 0
+                }
+            ]
+        }
+    ]
+}
