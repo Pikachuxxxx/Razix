@@ -28,8 +28,8 @@ R9_3 [label=<{ {<B>Scene HDR RT</B>   <FONT>v3</FONT><BR/>(2560, 1440) - RGBA32F
 R10_3 [label=<{ {<B>Scene Depth</B>   <FONT>v3</FONT><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R9_4 [label=<{ {<B>Scene HDR RT</B>   <FONT>v4</FONT><BR/>(2560, 1440) - RGBA32F [2D]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R10_4 [label=<{ {<B>Scene Depth</B>   <FONT>v4</FONT><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R11_1 [label=<{ {<B>Present Image</B><BR/>(2560, 1369) - BGRA8_UNORM [2D]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Depth Texture</B><BR/>(2560, 1369) - BGRA8_UNORM [Depth]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R11_1 [label=<{ {<B>Present Image</B><BR/>(80, 10) - BGRA8_UNORM [2D]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Depth Texture</B><BR/>(80, 10) - BGRA8_UNORM [Depth]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R5_1 } [color=orangered]
 P1 -> { R6_1 } [color=orangered]

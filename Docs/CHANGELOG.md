@@ -1,5 +1,12 @@
 # Razix Engine Changelog
 
+#### Version - 0.43.0 [Development] - 16/09/2023
+    - Graphics API uses handles and resource manager/pools
+    - improved frame graph; data-driven frame graph wip;
+    - gained even more performance
+    - fixed PBR lighting model
+    - Editor minor improvements
+
 #### Version - 0.42.0 [Development] - 02/07/2023
     - Single command buffer per frame
     - Improved synchronization and command buffer management 
