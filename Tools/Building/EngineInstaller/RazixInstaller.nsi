@@ -10,7 +10,7 @@
 
     ;Name and file
     Name "Razix Engine"
-    OutFile "RazixEngineInstaller-V.0.42.0.Dev.exe"
+    OutFile "RazixEngineInstaller-V.0.43.0.Dev.exe"
     Unicode True
     ShowInstDetails show
 
