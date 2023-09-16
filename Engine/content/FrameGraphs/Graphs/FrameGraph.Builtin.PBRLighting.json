@@ -1,1 +1,38 @@
-{}
+{
+    "name": "PBRLighting",
+    "passes": [
+        {
+            "name": "Pass.Builtin.DepthPreTest",
+            "inputs": [
+                {
+                    "type": "attachment",
+                    "name": "depth"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "attachment",
+                    "name": "SceneHDR",
+                    "format": "BGRA8_UNORM",
+                    "resolution": [ 1280, 800 ],
+                    "clear": true,
+                    "clear_color": "TransparentBlack",
+                    "binding_idx": 0,
+                    "mip": 0,
+                    "layer": 0
+                },
+                {
+                    "type": "reference",
+                    "name": "SceneDepth",
+                    "format": "Depth32F",
+                    "resolution": [ 2560, 1440 ],
+                    "clear": true,
+                    "clear_color": "TransparentBlack",
+                    "binding_idx": 0,
+                    "mip": 0,
+                    "layer": 0
+                }
+            ]
+        }
+    ]
+}

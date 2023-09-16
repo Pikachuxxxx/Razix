@@ -14,6 +14,7 @@ IncludeDir["tracy"]             = "%{wks.location}/../Engine/" .. "vendor/tracy"
 IncludeDir["optick"]            = "%{wks.location}/../Engine/" .. "vendor/optick/src"
 IncludeDir["simde"]             = "%{wks.location}/../Engine/" .. "vendor/simde"
 IncludeDir["Jolt"]              = "%{wks.location}/../Engine/" .. "vendor/Jolt"
+IncludeDir["json"]              = "%{wks.location}/../Engine/" .. "vendor/json/single_include"
 
 IncludeDir["Razix"]             = "%{wks.location}/../Engine/" .. "src"
 IncludeDir["vendor"]            = "%{wks.location}/../Engine/" .. "vendor/"

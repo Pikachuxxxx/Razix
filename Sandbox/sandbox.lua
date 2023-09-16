@@ -24,8 +24,7 @@ project "Sandbox"
         -- Assets files for editing in VS
         "Assets/Scripts/**.lua",
         "*.razixproject",
-        "*Assets/Scences/**.rzscn"
-
+        "*Assets/Scenes/**.rzscn"
     }
 
     -- Macos include paths
@@ -47,6 +46,7 @@ project "Sandbox"
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
         "%{IncludeDir.Jolt}",
+        "%{IncludeDir.json}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Internal libraries

@@ -56,6 +56,9 @@ public:
             heapAlloc.deallocate(alloc_3);
 
             heapAlloc.shutdown();
+
+            // Testing Frame graph parsing capabilities
+            RZEngine::Get().getWorldRenderer().getFrameGraph().parsePass("//RazixFG/Passes/Pass.Builtin.DepthPreTest.json");
         }
 
         // Testing the RingAllocator

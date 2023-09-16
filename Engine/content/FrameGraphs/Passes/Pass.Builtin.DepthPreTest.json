@@ -1,5 +1,5 @@
 {
-    "name": "DepthPreTest",
+    "name": "Pass.Builtin.DepthPreTest",
     "shaders": [
         {
             "stage": "Vertex",
@@ -21,7 +21,7 @@
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
         "depth_format": "DEPTH32F",
-        //"color_formats": [ "RGBA32F", "RGBA32F" ],
+        "color_formats": [ "RGBA32F", "RGBA32F" ],
         "color_blend": {
             "src": "SrcAlpha",
             "dst": "OneMinusSrcAlpha",
@@ -33,5 +33,10 @@
             "op": "Add"
         },
         "transparency": true
+    },
+    "scene_params": {
+        "geometry": "scene",
+        "enable_materials": false,
+        "enable_lights": true
     }
 }

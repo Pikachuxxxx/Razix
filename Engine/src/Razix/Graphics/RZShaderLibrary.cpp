@@ -8,6 +8,8 @@
 
 #include "Razix/Graphics/RHI/API/RZShader.h"
 
+#include "Razix/Utilities/RZStringUtilities.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -80,6 +82,8 @@ namespace Razix {
             RZShader* shader           = RZShader::Create(shaderPath RZ_DEBUG_NAME_TAG_STR_E_ARG(shaderPath));
             shader->m_ShaderLibraryID  = shaderID;
             m_BuiltinShaders[shaderID] = shader;
+
+            m_BuiltinShadersReverseNameMap[Utilities::RemoveFilePathExtension(shaderPath)] = shaderID;
         }
 
         RZShader* RZShaderLibrary::getBuiltInShader(ShaderBuiltin builtInShaderName)

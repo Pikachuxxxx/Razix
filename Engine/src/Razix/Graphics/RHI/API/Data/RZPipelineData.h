@@ -9,15 +9,17 @@ namespace Razix {
             BACK,    // default
             FRONT,
             FRONTANDBACK,
-            NONE
+            NONE,
+            COUNT
         };
 
         /* Polygon mode describes how the geometry will be drawn, not the primitive used to draw */
         enum class PolygonMode
         {
-            FILL, /* The geometry will be filled with pixels                                                  */
-            LINE, /* Only the outline of the geometry primitives will be drawn based on the line width set    */
-            POINT /* Only the vertices will be drawn with square shaped points based on point size            */
+            FILL,  /* The geometry will be filled with pixels                                                  */
+            LINE,  /* Only the outline of the geometry primitives will be drawn based on the line width set    */
+            POINT, /* Only the vertices will be drawn with square shaped points based on point size            */
+            COUNT
         };
 
         /* Draw type describes what primitive will be used to draw the vertex data */
@@ -25,7 +27,8 @@ namespace Razix {
         {
             POINT,
             TRIANGLE,
-            LINES
+            LINES,
+            COUNT
         };
 
         /* Render Targets color blending function */
@@ -36,6 +39,7 @@ namespace Razix {
             ReverseSubtract,
             Min,
             Max,
+            COUNT
         };
 
         /* Blend Function factor */
@@ -56,6 +60,7 @@ namespace Razix {
             ConstantAlpha,
             OneMinusConstantAlpha,
             SrcAlphaSaturate,
+            COUNT
         };
 
         /* Compare Operation Function for Depth and Stencil tests */
@@ -69,6 +74,7 @@ namespace Razix {
             NotEqual,
             GreaterOrEqual,
             Always,
+            COUNT
         };
     }    // namespace Graphics
 }    // namespace Razix
