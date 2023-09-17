@@ -7,26 +7,46 @@
 
 namespace Razix {
     namespace Editor {
-        RZELuaScriptComponentUI::RZELuaScriptComponentUI(QWidget *parent)
+        RZELuaScriptComponentUI::RZELuaScriptComponentUI(QWidget* parent)
             : QWidget(parent)
         {
             ui.setupUi(this);
 
             // Connect the browse buttons
             connect(ui.Browse, SIGNAL(pressed()), this, SLOT(on_browse_pressed()));
+            connect(ui.Reload, SIGNAL(pressed()), this, SLOT(on_reload_pressed()));
         }
 
         RZELuaScriptComponentUI::~RZELuaScriptComponentUI()
         {
         }
 
-        void RZELuaScriptComponentUI::on_browse_pressed()
+        void RZELuaScriptComponentUI::setEditingEntity(RZEntity entity)
         {
-            auto fileName    = QFileDialog::getOpenFileName(this, "Select Lua script", "", tr("Lua File (*.lua)"));
-            ui.ScriptFileLineEdit->setText(fileName);
+            m_Entity = entity;
+            auto& lc = m_Entity.GetComponent<LuaScriptComponent>();
+            m_LC     = lc;
 
-            // Create a component and attach it to the Entity? or Update the script file address and reload/re-compile it
+            ui.ScriptFileLineEdit->setText(m_LC.getScriptFilePath().c_str());
         }
 
+        void RZELuaScriptComponentUI::on_browse_pressed()
+        {
+            auto fileName = QFileDialog::getOpenFileName(this, "Select Lua script", "", tr("Lua File (*.lua)"));
+            ui.ScriptFileLineEdit->setText(fileName);
+
+            m_LC.loadScript(fileName.toStdString());
+
+            auto& lc = m_Entity.GetComponent<LuaScriptComponent>();
+            lc       = m_LC;
+        }
+
+        void RZELuaScriptComponentUI::on_reload_pressed()
+        {
+            m_LC.loadScript(ui.ScriptFileLineEdit->text().toStdString());
+
+            auto& lc = m_Entity.GetComponent<LuaScriptComponent>();
+            lc       = m_LC;
+        }
     }    // namespace Editor
 }    // namespace Razix

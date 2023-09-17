@@ -88,7 +88,7 @@ namespace Razix {
             ui.diffuseTexture->setIcon(ButtonIcon);
             ui.diffuseTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material || fileName.isEmpty())
+            if (!m_Material && fileName.isEmpty())
                 return;
 
             auto matTexturePaths = m_Material->getTexturePaths();
@@ -99,7 +99,7 @@ namespace Razix {
             //matTextures.albedo->Release();
             matTextures.albedo = Graphics::RZResourceManager::Get().createTextureFromFile({.name = fileName.toStdString()}, fileName.toStdString());
 
-                m_Material->setTextures(matTextures);
+            m_Material->setTextures(matTextures);
         }
 
         void RZEMaterialEditor::onDiffuseTextureUseCheckbox()
@@ -136,7 +136,7 @@ namespace Razix {
             ui.specTexture->setIcon(ButtonIcon);
             ui.specTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material || fileName.isEmpty())
+            if (!m_Material && fileName.isEmpty())
                 return;
 
             auto matTexturePaths = m_Material->getTexturePaths();
@@ -164,7 +164,7 @@ namespace Razix {
             ui.normalTexture->setIcon(ButtonIcon);
             ui.normalTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material || fileName.isEmpty())
+            if (!m_Material && fileName.isEmpty())
                 return;
 
             auto matTexturePaths = m_Material->getTexturePaths();
@@ -195,7 +195,7 @@ namespace Razix {
             ui.metallicTexture->setIcon(ButtonIcon);
             ui.metallicTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material || fileName.isEmpty())
+            if (!m_Material && fileName.isEmpty())
                 return;
 
             auto matTexturePaths = m_Material->getTexturePaths();
@@ -226,7 +226,7 @@ namespace Razix {
             ui.roughnessTexture->setIcon(ButtonIcon);
             ui.roughnessTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material || fileName.isEmpty())
+            if (!m_Material && fileName.isEmpty())
                 return;
 
             auto matTexturePaths = m_Material->getTexturePaths();
@@ -268,7 +268,7 @@ namespace Razix {
             ui.aoTexture->setIcon(ButtonIcon);
             ui.aoTexture->setIconSize(QSize(40, 40));
 
-            if (!m_Material || fileName.isEmpty())
+            if (!m_Material && fileName.isEmpty())
                 return;
 
             auto matTexturePaths = m_Material->getTexturePaths();

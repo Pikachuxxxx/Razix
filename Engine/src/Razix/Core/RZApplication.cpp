@@ -474,14 +474,14 @@ namespace Razix {
         }
 
         // Update the Runtime Systems only on Game Application type
-        if (m_appType == AppType::GAME) {
-            // Run the OnUpdate for all the scripts
-            if (RZEngine::Get().getSceneManager().getCurrentScene())
-                RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+        //if (m_appType == AppType::GAME) {
+        // Run the OnUpdate for all the scripts
+        if (RZEngine::Get().getSceneManager().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
 
-            // TODO: Update the Physics Engine here
-            /*RZEngine::Get().getPhysicsEngine().update(dt); */
-        }
+        // TODO: Update the Physics Engine here
+        /*RZEngine::Get().getPhysicsEngine().update(dt); */
+        //}
 
         // Client App Update
         OnUpdate(dt);
