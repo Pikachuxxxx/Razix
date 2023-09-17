@@ -21,6 +21,5 @@ namespace Razix {
 
             log.set_function("Error", [&](sol::this_state s, std::string_view message) { RAZIX_ERROR(message); });
         }
-
     }    // namespace Scripting
 }    // namespace Razix

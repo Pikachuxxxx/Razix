@@ -70,7 +70,7 @@ namespace Razix {
                         pipelineDesc.depthWriteEnabled = depthWrite.get<bool>();
                         pipelineDesc.depthBiasEnabled  = depthBias.get<bool>();
 
-                        pipelineDesc.depthOp = depthoperation;
+                        //pipelineDesc.depthOp = depthoperation;
                     }
                     auto &cullMode = pipelineInfo["cull_mode"];
                     RAZIX_CORE_TRACE("cullMode : {0}", cullMode);
