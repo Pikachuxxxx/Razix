@@ -57,9 +57,9 @@ namespace Razix {
             auto PointShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+            pipelineInfo.cullMode               = Graphics::CullMode::kNone;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = PointShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
@@ -73,9 +73,9 @@ namespace Razix {
             // Change the polygon mode for drawing lines
             auto LineShader          = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugLine);
             pipelineInfo.shader      = LineShader;
-            pipelineInfo.cullMode    = CullMode::NONE;
-            pipelineInfo.polygonMode = PolygonMode::FILL;
-            pipelineInfo.drawType    = DrawType::LINES;
+            pipelineInfo.cullMode    = CullMode::None;
+            pipelineInfo.polygonMode = PolygonMode::Fill;
+            pipelineInfo.drawType    = DrawType::Lines;
             m_LinePipeline           = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Renderer:: Lines pipeline (DT)"));
 
             // Create the VBOs and IBOs

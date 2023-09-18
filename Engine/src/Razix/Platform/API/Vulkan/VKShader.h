@@ -14,6 +14,9 @@ namespace Razix {
             VKShader(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKShader();
 
+            /* Releases the vulkan texture resources */
+            void DestroyResource() override;
+
             void Bind() const override;
             void Unbind() const override;
             void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;

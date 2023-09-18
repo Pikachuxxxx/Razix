@@ -20,18 +20,20 @@
 namespace Razix {
     namespace Graphics {
 
-        RZShader* RZShader::Create(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
+        GET_INSTANCE_SIZE_IMPL(Shader)
+
+        void RZShader::Create(void* where, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLShader(filePath); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKShader(filePath RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::OPENGL: new (where) OpenGLShader(filePath); break;
+                case Razix::Graphics::RenderAPI::VULKAN: new (where) VKShader(filePath RZ_DEBUG_E_ARG_NAME); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
-                default: return nullptr; break;
+                default: break;
             }
         }
 
@@ -61,8 +63,7 @@ namespace Razix {
                         stage                                           = ShaderStage::GEOMETRY;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
-                    }
-                    else if (Razix::Utilities::StringContains(str, "fragment")) {
+                    } else if (Razix::Utilities::StringContains(str, "fragment")) {
                         stage                                           = ShaderStage::PIXEL;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));

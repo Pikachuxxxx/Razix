@@ -45,20 +45,18 @@ namespace Razix {
          * can compile and cache and do all the fookin possible cases on it's own in the most efficient cache-friendly
          * and also serialize reflection data for faster loading
          */
-        class RAZIX_API RZShader : public RZRoot
+        class RAZIX_API RZShader : public IRZResource<RZShader>
         {
             friend class RZShaderLibrary;
 
         public:
             RZShader() {}
-            virtual ~RZShader() {}
+            /* Virtual destructor enables the API implementation to delete it's resources */
+            RAZIX_VIRTUAL_DESCTURCTOR(RZShader)
 
-            /**
-             * Creates a shader resource from the given file
-             * 
-             * @param filePath The Virtual/absolute path to the compiled binary shader file
-             */
-            static RZShader* Create(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
+            RAZIX_NONCOPYABLE_CLASS(RZShader)
+
+            GET_INSTANCE_SIZE;
 
             virtual void Bind() const                                                                                     = 0;
             virtual void Unbind() const                                                                                   = 0;
@@ -85,6 +83,16 @@ namespace Razix {
             DescriptorSetsCreateInfos          m_DescriptorSetsCreateInfos;             /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
             std::vector<RZPushConstant>        m_PushConstants;                         /* The list of the the push constants                                                                       */
             u32                                m_VertexInputStride = 0;                 /* The stride of the vertex data that is extracted from the information                                     */
+
+        private:
+            /**
+             * Creates a shader resource from the given file
+             * 
+             * @param filePath The Virtual/absolute path to the compiled binary shader file
+             */
+            static void Create(void* where, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
+
+            friend class RZResourceManager;
         };
     }    // namespace Graphics
 }    // namespace Razix

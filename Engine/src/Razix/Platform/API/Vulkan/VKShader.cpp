@@ -140,6 +140,11 @@ namespace Razix {
         {
         }
 
+        void VKShader::DestroyResource()
+        {
+            Destroy();
+        }
+
         void VKShader::Bind() const
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

@@ -580,13 +580,13 @@ namespace Razix {
             VkPrimitiveTopology DrawTypeToVK(Razix::Graphics::DrawType type)
             {
                 switch (type) {
-                    case Razix::Graphics::DrawType::POINT:
+                    case Razix::Graphics::DrawType::Point:
                         return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
                         break;
-                    case Razix::Graphics::DrawType::TRIANGLE:
+                    case Razix::Graphics::DrawType::Triangle:
                         return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
                         break;
-                    case Razix::Graphics::DrawType::LINES:
+                    case Razix::Graphics::DrawType::Line:
                         return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
                         break;
                     default:
@@ -599,16 +599,16 @@ namespace Razix {
             VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode)
             {
                 switch (cullMode) {
-                    case Razix::Graphics::CullMode::FRONT:
+                    case Razix::Graphics::CullMode::Front:
                         return VK_CULL_MODE_FRONT_BIT;
                         break;
-                    case Razix::Graphics::CullMode::BACK:
+                    case Razix::Graphics::CullMode::Back:
                         return VK_CULL_MODE_BACK_BIT;
                         break;
-                    case Razix::Graphics::CullMode::FRONTANDBACK:
+                    case Razix::Graphics::CullMode::FrontBack:
                         return VK_CULL_MODE_FRONT_AND_BACK;
                         break;
-                    case Razix::Graphics::CullMode::NONE:
+                    case Razix::Graphics::CullMode::None:
                         return VK_CULL_MODE_NONE;
                         break;
                     default:
@@ -621,13 +621,13 @@ namespace Razix {
             VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode)
             {
                 switch (polygonMode) {
-                    case Razix::Graphics::PolygonMode::FILL:
+                    case Razix::Graphics::PolygonMode::Fill:
                         return VK_POLYGON_MODE_FILL;
                         break;
-                    case Razix::Graphics::PolygonMode::LINE:
+                    case Razix::Graphics::PolygonMode::Line:
                         return VK_POLYGON_MODE_LINE;
                         break;
-                    case Razix::Graphics::PolygonMode::POINT:
+                    case Razix::Graphics::PolygonMode::Point:
                         return VK_POLYGON_MODE_POINT;
                         break;
                     default:

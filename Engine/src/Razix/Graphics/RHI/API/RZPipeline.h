@@ -27,6 +27,9 @@ namespace Razix {
 
             virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
             virtual void Destroy()                            = 0;
+
+        protected:
+            RZPipelineDesc m_Desc;
         };
     }    // namespace Graphics
 }    // namespace Razix

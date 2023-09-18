@@ -6,6 +6,10 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/Graphics/RZShaderLibrary.h"
+
+#include "Razix/Scene/RZScene.h"
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -43,14 +47,23 @@ namespace Razix {
                 RAZIX_CORE_TRACE("pass name : {0}", passName);
 
                 // parse the shaders
-                auto &shaders = data["shaders"];
-                for (auto &shader: shaders) {
-                    auto &stage      = shader["stage"];
-                    auto &shaderfile = shader["shader"];
-                    RAZIX_CORE_TRACE("shader stage : {0}, shader file : {1}", stage, shaderfile);
-                }
+                //auto &shaders = data["shaders"];
+                //for (auto &shader: shaders) {
+                //    auto &stage      = shader["stage"];
+                //    auto &shaderfile = shader["shader"];
+                //    RAZIX_CORE_TRACE("shader stage : {0}, shader file : {1}", stage, shaderfile);
+                //}
+
+                // parse the shader and load into/from Shader Library
+                // TODO: Support loading user land shaders and re-verification of Builtin.Shaders
+                // Since as of now we only deal with Built-in passes and shaders we can go ahead as usual
+                auto &shaderFileName = data["shader"];
+                auto  shader         = Graphics::RZShaderLibrary::Get().getBuiltInShader(shaderFileName + ".rzsf");
 
                 RZPipelineDesc pipelineDesc{};
+
+                // Set the shaders to the pipeline
+                pipelineDesc.shader = shader;
 
                 // parse the pipeline info
                 auto &pipelineInfo = data["pipeline_info"];
@@ -70,19 +83,28 @@ namespace Razix {
                         pipelineDesc.depthWriteEnabled = depthWrite.get<bool>();
                         pipelineDesc.depthBiasEnabled  = depthBias.get<bool>();
 
-                        //pipelineDesc.depthOp = depthoperation;
+                        pipelineDesc.depthOp = StringToCompareOp(depthoperation);
                     }
                     auto &cullMode = pipelineInfo["cull_mode"];
                     RAZIX_CORE_TRACE("cullMode : {0}", cullMode);
+                    pipelineDesc.cullMode = StringToCullMode(cullMode);
+
                     auto &polygonMode = pipelineInfo["polygon_mode"];
                     RAZIX_CORE_TRACE("polygonMode : {0}", polygonMode);
+                    pipelineDesc.polygonMode = StringToPolygonMode(polygonMode);
+
                     auto &drawType = pipelineInfo["draw_type"];
                     RAZIX_CORE_TRACE("drawType : {0}", drawType);
+                    pipelineDesc.drawType = StringToDrawType(drawType);
+
                     auto &depthFormat = pipelineInfo["depth_format"];
                     RAZIX_CORE_TRACE("depthFormat : {0}", depthFormat);
+                    pipelineDesc.depthFormat = StringToTextureFormat(depthFormat);
+
                     auto &colorFormats = pipelineInfo["color_formats"];
                     for (auto &format: colorFormats) {
                         RAZIX_CORE_TRACE("Format : {0}", format);
+                        pipelineDesc.colorAttachmentFormats.push_back(StringToTextureFormat(format));
                     }
 
                     auto &colorBlendInfo = pipelineInfo["color_blend"];
@@ -109,15 +131,26 @@ namespace Razix {
                     RAZIX_CORE_TRACE("transparency : {0}", transparency.get<bool>());
                 }
 
+                // Create the pipeline object
+                //RZPipelineHandle pipeline = RZResourceManager::Get().createPipeline(pipelineDesc);
+
+                // TODO: support parsing enableFrameData and enableBindless from JSON file
+
+                SceneDrawParams sceneDrawParams{};
                 // parse the scene params
                 auto &scenceParams = data["scene_params"];
                 {
-                    auto &geometry = scenceParams["geometry"];
-                    RAZIX_CORE_TRACE("geometry : {0}", geometry);
+                    auto &geometry = scenceParams["geometry_mode"];
+                    RAZIX_CORE_TRACE("geometry_mode : {0}", geometry);
+                    sceneDrawParams.geometryMode = SceneGeometryModeStringMap[geometry];
+
                     auto &enableMaterials = scenceParams["enable_materials"];
                     RAZIX_CORE_TRACE("enableMaterials : {0}", enableMaterials.get<bool>());
+                    sceneDrawParams.enableMaterials = enableMaterials.get<bool>();
+
                     auto &enableLights = scenceParams["enable_lights"];
                     RAZIX_CORE_TRACE("enableLights : {0}", enableLights.get<bool>());
+                    sceneDrawParams.enableLights = enableLights.get<bool>();
                 }
             }
 

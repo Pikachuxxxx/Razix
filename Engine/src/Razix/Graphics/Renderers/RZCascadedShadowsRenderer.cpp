@@ -282,8 +282,8 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode                               = Graphics::CullMode::NONE;
-            pipelineInfo.drawType                               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.cullMode                               = Graphics::CullMode::kNone;
+            pipelineInfo.drawType                               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                                 = shader;
             pipelineInfo.transparencyEnabled                    = false;
             pipelineInfo.depthBiasEnabled                       = false;

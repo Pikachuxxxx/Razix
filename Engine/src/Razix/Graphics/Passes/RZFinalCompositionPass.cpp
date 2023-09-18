@@ -40,8 +40,8 @@ namespace Razix {
                 // Build the pipeline here for this pass
                 .shader                 = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition),
                 .colorAttachmentFormats = {TextureFormat::BGRA8_UNORM},
-                .cullMode               = Graphics::CullMode::NONE,
-                .drawType               = Graphics::DrawType::TRIANGLE,
+                .cullMode               = Graphics::CullMode::kNone,
+                .drawType               = Graphics::DrawType::Triangle,
                 .transparencyEnabled    = true,
                 .depthBiasEnabled       = false};
 

@@ -14,6 +14,7 @@ namespace Razix {
 
         VKPipeline::VKPipeline(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
+            m_Desc = pipelineInfo;
             m_Shader         = pipelineInfo.shader;
             m_PipelineLayout = static_cast<VKShader*>(m_Shader)->getPipelineLayout();
 

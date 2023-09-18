@@ -4,6 +4,8 @@
 #include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
 #include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -61,12 +63,12 @@ namespace Razix {
         /* Information necessary to create the pipeline */
         struct RZPipelineDesc
         {
-            RZShader*                  shader                 = nullptr;                       /* Shader used by the Pipeline                                                 */
+            RZShaderHandle             shader                 = {};                            /* Shader used by the Pipeline                                                 */
             std::vector<TextureFormat> colorAttachmentFormats = {};                            /* color attachments used by this pipeline, that we write to                   */
             TextureFormat              depthFormat            = TextureFormat::DEPTH32F;       /* depth attachment format for this pipeline                                   */
-            CullMode                   cullMode               = CullMode::BACK;                /* geometry cull mode                                                          */
-            PolygonMode                polygonMode            = PolygonMode::FILL;             /* polygons fill mode                                                          */
-            DrawType                   drawType               = DrawType::TRIANGLE;            /* draw primitive used to draw the geometry                                    */
+            CullMode                   cullMode               = CullMode::Back;                /* geometry cull mode                                                          */
+            PolygonMode                polygonMode            = PolygonMode::Fill;             /* polygons fill mode                                                          */
+            DrawType                   drawType               = DrawType::Triangle;            /* draw primitive used to draw the geometry                                    */
             bool                       transparencyEnabled    = true;                          /* whether or not to enable transparency while blending colors                 */
             bool                       depthBiasEnabled       = false;                         /* whether or not to enable depth bias when writing to depth texture           */
             bool                       depthTestEnabled       = true;                          /* whether or not to enable depth testing                                      */
@@ -93,6 +95,5 @@ namespace Razix {
         Wrapping      StringToWrapping(const std::string& str);
         Filtering     StringToFiltering(const std::string& str);
         BufferUsage   StringToBufferUsage(const std::string& str);
-
     }    // namespace Graphics
 }    // namespace Razix

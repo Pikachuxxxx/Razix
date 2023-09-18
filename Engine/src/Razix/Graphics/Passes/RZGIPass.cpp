@@ -98,9 +98,9 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.cullMode            = Graphics::CullMode::kNone;
             pipelineInfo.shader              = shader;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.drawType            = Graphics::DrawType::Triangle;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
             // worldPos, normal, flux, Depth
@@ -270,9 +270,9 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.cullMode            = Graphics::CullMode::None;
             pipelineInfo.shader              = shader;
-            pipelineInfo.drawType            = Graphics::DrawType::POINT;
+            pipelineInfo.drawType            = Graphics::DrawType::Point;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthTestEnabled    = false;
@@ -408,9 +408,9 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.cullMode            = Graphics::CullMode::None;
             pipelineInfo.shader              = shader;
-            pipelineInfo.drawType            = Graphics::DrawType::POINT;
+            pipelineInfo.drawType            = Graphics::DrawType::Point;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthTestEnabled    = false;

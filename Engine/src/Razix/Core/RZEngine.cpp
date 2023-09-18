@@ -105,8 +105,6 @@ namespace Razix {
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager
         RZSceneManager::Get().ShutDown();
-        // Shutdown the Sound Engine
-        RZSceneManager::Get().ShutDown();
         // Shutdown memory systems and free all the memory
         //Graphics::RZGPUMemoryManager::Get().ShutDown();
         // Shutdown the VFS last

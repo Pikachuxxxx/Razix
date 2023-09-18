@@ -19,15 +19,34 @@ namespace Razix {
 
     using RZDescriptorSets = std::vector<Graphics::RZDescriptorSet*>;
 
+    enum class SceneDrawGeometryMode
+    {
+        SceneGeometry, /* Draws the scene geometry using the scene graph       */
+        Cubemap,       /* Draws a single cube for cubemap projection           */
+        ScreenQuad,    /* Draws a full screen quad for Post processing etc.    */
+        Quad,          /* Draws a quad for GS manipulation                     */
+        UI,            /* Draws UI elements                                    */
+        Custom,        /* Issues custom draw calls instead                     */
+    };
+
+    static std::map<std::string, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
+        {"SceneGeometry", SceneGeometry},
+        {"Cubemap", Cubemap},
+        {"ScreenQuad", ScreenQuad},
+        {"Quad", Quad},
+        {"UI", UI},
+        {"Custom", Custom}};
+
     struct SceneDrawParams
     {
-        bool             disableFrameData             = false;
-        bool             disableBindlessTextures      = false;
-        bool             disableLights                = false;
-        bool             disableMaterials             = false;
-        RZDescriptorSets userSets                     = {};
-        void*            overridePushConstantData     = nullptr;
-        u32              overridePushConstantDataSize = 0;
+        SceneDrawGeometryMode geometryMode                 = SceneDrawGeometryMode::SceneGeometry;
+        bool                  enableMaterials              = true;
+        bool                  enableLights                 = true;
+        bool                  enableFrameData              = true;
+        bool                  enableBindlessTextures       = false;
+        RZDescriptorSets      userSets                     = {};
+        void*                 overridePushConstantData     = nullptr;
+        u32                   overridePushConstantDataSize = 0;
         // TODO: Add support for Pixel PC data
     };
 

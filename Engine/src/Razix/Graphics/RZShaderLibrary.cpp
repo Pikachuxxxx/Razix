@@ -72,23 +72,28 @@ namespace Razix {
             // FIXME: This shut down is called after Graphics is done so...do whatever the fuck is necessary
             // Destroy all the shaders
             for (auto& shader: m_BuiltinShaders)
-                shader.second->Destroy();
+                RZResourceManager::Get().destroyShader(shader.second);
 
             RAZIX_CORE_ERROR("[Shader Library] Shutting Down Shader Library");
         }
 
         void RZShaderLibrary::loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath)
         {
-            RZShader* shader           = RZShader::Create(shaderPath RZ_DEBUG_NAME_TAG_STR_E_ARG(shaderPath));
-            shader->m_ShaderLibraryID  = shaderID;
+            RZShaderHandle shader      = RZResourceManager::Get().createShaderFromFile(shaderID, shaderPath);
             m_BuiltinShaders[shaderID] = shader;
 
-            m_BuiltinShadersReverseNameMap[Utilities::RemoveFilePathExtension(shaderPath)] = shaderID;
+            m_BuiltinShadersReverseNameMap[Utilities::RemoveFilePathExtension(Utilities::GetFileName(shaderPath))] = shaderID;
         }
 
-        RZShader* RZShaderLibrary::getBuiltInShader(ShaderBuiltin builtInShaderName)
+        RZShaderHandle RZShaderLibrary::getBuiltInShader(ShaderBuiltin builtInShaderName)
         {
             return m_BuiltinShaders[builtInShaderName];
         }
+
+        RZShaderHandle RZShaderLibrary::getBuiltInShader(std::string shaderName)
+        {
+            return m_BuiltinShaders[m_BuiltinShadersReverseNameMap[shaderName]];
+        }
+
     }    // namespace Graphics
 }    // namespace Razix

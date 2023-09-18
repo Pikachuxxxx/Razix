@@ -3,7 +3,10 @@
 // clang-format on
 #include "RZResourceManager.h"
 
+#include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
+
+#include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix {
     namespace Graphics {
@@ -51,7 +54,9 @@ namespace Razix {
             IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
             resource->setName(desc.name);
             resource->setHandle(handle);
-            //((RZTexture*) where)->UploadToBindlessSet();
+#ifdef ENABLE_BINDLESS
+            ((RZTexture*) where)->UploadToBindlessSet();
+#endif
             return handle;
         }
 
@@ -61,7 +66,28 @@ namespace Razix {
             if (handle.isValid())
                 m_TexturePool.release(handle);
             else
-                RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a resource with Invalid handle!");
+                RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a Texture resource with Invalid handle!");
+        }
+
+        Razix::Graphics::RZShaderHandle RZResourceManager::createShaderFromFile(ShaderBuiltin shaderID, std::string shaderPath)
+        {
+            RZHandle<RZShader> handle;
+            void*              where = m_ShaderPool.obtain(handle);
+            RZShader::Create(where, shaderPath RZ_DEBUG_NAME_TAG_STR_E_ARG(shaderPath));
+            ((RZShader*) where)->m_ShaderLibraryID = shaderID;
+            IRZResource<RZShader>* resource        = (IRZResource<RZShader>*) where;
+            resource->setName(Utilities::GetFileName(shaderPath));
+            resource->setHandle(handle);
+            return handle;
+        }
+
+        void RZResourceManager::destroyShader(RZShaderHandle& handle)
+        {
+            // Delete only if it's a valid handle, else skip it and report it
+            if (handle.isValid())
+                m_ShaderPool.release(handle);
+            else
+                RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a Shader resource with Invalid handle!");
         }
 
         RZVertexBufferHandle RZResourceManager::createVertexBuffer(RZVertexBufferDesc& desc)
