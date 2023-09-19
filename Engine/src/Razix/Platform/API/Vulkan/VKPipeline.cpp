@@ -14,9 +14,9 @@ namespace Razix {
 
         VKPipeline::VKPipeline(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
-            m_Desc = pipelineInfo;
-            m_Shader         = pipelineInfo.shader;
-            m_PipelineLayout = static_cast<VKShader*>(m_Shader)->getPipelineLayout();
+            m_Desc           = pipelineInfo;
+            auto shader      = RZResourceManager::Get().getPool<RZShader>().get(m_Desc.shader);
+            m_PipelineLayout = static_cast<VKShader*>(shader)->getPipelineLayout();
 
             init(pipelineInfo RZ_DEBUG_E_ARG_NAME);
         }
@@ -28,16 +28,11 @@ namespace Razix {
             vkCmdBindPipeline(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
         }
 
-        void VKPipeline::Destroy()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
-        }
-
         void VKPipeline::init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            auto shader = RZResourceManager::Get().getPool<RZShader>().get(m_Desc.shader);
 
             //----------------------------
             // Vertex Input Layout Stage
@@ -45,10 +40,10 @@ namespace Razix {
             VkVertexInputBindingDescription vertexBindingDescription{};
             vertexBindingDescription.binding   = 0;
             vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-            vertexBindingDescription.stride    = m_Shader->getInputStride();
+            vertexBindingDescription.stride    = shader->getInputStride();
 
             // Get the input description information from the shader reflection
-            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*>(m_Shader)->getVertexAttribDescriptions();
+            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*>(shader)->getVertexAttribDescriptions();
 
             VkPipelineVertexInputStateCreateInfo vertexInputSCI{};
             vertexInputSCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -221,7 +216,7 @@ namespace Razix {
             graphicsPipelineCI.pDynamicState                          = &dynamicStateCI;
             graphicsPipelineCI.pViewportState                         = &viewportSCI;
             graphicsPipelineCI.pDepthStencilState                     = &depthStencilSCI;
-            std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(m_Shader)->getShaderStages();
+            std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(shader)->getShaderStages();
             graphicsPipelineCI.pStages                                = shaderStages.data();
             graphicsPipelineCI.stageCount                             = static_cast<u32>(shaderStages.size());
             graphicsPipelineCI.renderPass                             = VK_NULL_HANDLE;    //static_cast<VKRenderPass*>(pipelineInfo.renderpass)->getVKRenderPass();
@@ -233,6 +228,13 @@ namespace Razix {
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created graphics pipeline!");
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
+        }
+
+        void VKPipeline::DestroyResource()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
         }
     }    // namespace Graphics
 }    // namespace Razix

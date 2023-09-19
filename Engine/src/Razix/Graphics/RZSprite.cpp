@@ -5,6 +5,8 @@
 
 #include "razix/Core/RZApplication.h"
 
+#include "Razix/Graphics/RZShaderLibrary.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
@@ -17,7 +19,7 @@ namespace Razix {
             m_UVs = GetDefaultUVs();
 
             // Load the shaders before hand
-            m_SpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite.rzsf"));
+            m_SpriteShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Sprite);    // Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite.rzsf"));
 
             // Create the vertex buffer and index buffer
             createBuffers();
@@ -32,7 +34,7 @@ namespace Razix {
 
             m_IsTextured           = true;
             m_UVs                  = GetDefaultUVs();
-            m_TexturedSpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite_textured.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("sprite_textured.rzsf"));
+            m_TexturedSpriteShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::SpriteTextured);
 
             // Create the vertex buffer and index buffer
             createBuffers();
@@ -46,7 +48,7 @@ namespace Razix {
             m_UVs = GetDefaultUVs();
 
             // Load the shaders before hand
-            m_SpriteShader = Graphics::RZShader::Create("//RazixContent/Shaders/Razix/sprite.rzsf" RZ_DEBUG_NAME_TAG_STR_E_ARG("sprite.rzsf"));
+            m_SpriteShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Sprite);
 
             // Create the vertex buffer and index buffer
             createBuffers();
@@ -63,9 +65,9 @@ namespace Razix {
             RZResourceManager::Get().getPool<RZTexture>().release(m_Texture);
 
             if (m_IsTextured)
-                m_TexturedSpriteShader->Destroy();
+                RZResourceManager::Get().destroyShader(m_TexturedSpriteShader);
             else
-                m_SpriteShader->Destroy();
+                RZResourceManager::Get().destroyShader(m_SpriteShader);
 
             if (m_TexturedSpriteDescriptorSets.size() > 0 && m_IsTextured) {
                 for (sz i = 0; i < 3; i++) {
@@ -103,7 +105,7 @@ namespace Razix {
 
         void RZSprite::setSpriteSheet(const glm::vec2& cellIndex, const glm::vec2& sheetDimension)
         {
-            #if 0
+#if 0
 m_IsAnimated = true;
             //glm::vec2 min = { (index.x * cellSize.x) / m_Texture->getWidth(), (index.y * cellSize.y) / m_Texture->getHeight() };
             //glm::vec2 max = { ((index.x + spriteSize.x) * cellSize.x) / m_Texture->getWidth(), ((index.y + spriteSize.y) * cellSize.y) / m_Texture->getHeight() };
@@ -145,7 +147,7 @@ m_IsAnimated = true;
 #endif
         }
 
-        RZShader* RZSprite::getShader()
+        RZShaderHandle RZSprite::getShader()
         {
             if (m_IsTextured)
                 return m_TexturedSpriteShader;
@@ -193,7 +195,7 @@ m_IsAnimated = true;
                 0, 1, 2, 2, 3, 0};
 
             // Create the vertex buffer
-            m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite"));
+            m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::Dynamic RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite"));
             RZVertexBufferLayout layout;
             layout.push<glm::vec4>("Position");
             layout.push<glm::vec4>("Color");
@@ -201,7 +203,7 @@ m_IsAnimated = true;
             m_VBO->AddBufferLayout(layout);
 
             // Create the index buffer
-            m_IBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sprite") indices, 6, BufferUsage::STATIC);
+            m_IBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sprite") indices, 6, BufferUsage::Static);
         }
 
         void RZSprite::updateVertexData()
@@ -250,7 +252,7 @@ m_IsAnimated = true;
 
             // Create the descriptor sets for normal sprite
             if (m_IsTextured) {
-                auto setInfos = m_TexturedSpriteShader->getSetsCreateInfos();
+                auto setInfos = RZResourceManager::Get().getShaderResource(m_TexturedSpriteShader)->getSetsCreateInfos();
 
                 for (sz i = 0; i < 3; i++) {
                     for (auto& setInfo: setInfos) {

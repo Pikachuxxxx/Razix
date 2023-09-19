@@ -24,7 +24,7 @@ namespace Razix {
 
         RZTextureHandle RZMaterial::s_DefaultTexture;
 
-        RZMaterial::RZMaterial(RZShader* shader)
+        RZMaterial::RZMaterial(RZShaderHandle shader)
         {
             m_Shader = shader;
 
@@ -54,7 +54,7 @@ namespace Razix {
 
         void RZMaterial::ReleaseDefaultTexture()
         {
-            RZResourceManager::Get().releaseTexture(s_DefaultTexture);
+            RZResourceManager::Get().destroyTexture(s_DefaultTexture);
         }
 
         void RZMaterial::loadFromFile(const std::string& path)
@@ -153,7 +153,7 @@ namespace Razix {
 #if 1
             // Create the descriptor set for material properties data and it's textures
             // How about renderer data for forward lights info + system vars???? How to associate and update?
-            auto setInfos = m_Shader->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(m_Shader)->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 if (setInfo.first == BindingTable_System::SET_IDX_MATERIAL_DATA) {
                     for (auto& descriptor: setInfo.second) {
@@ -294,19 +294,19 @@ namespace Razix {
         void MaterialTextures::Destroy()
         {
             if (albedo.isValid() && albedo != RZMaterial::GetDefaultTexture())
-                RZResourceManager::Get().releaseTexture(albedo);
+                RZResourceManager::Get().destroyTexture(albedo);
             if (normal.isValid() && normal != RZMaterial::GetDefaultTexture())
-                RZResourceManager::Get().releaseTexture(normal);
+                RZResourceManager::Get().destroyTexture(normal);
             if (metallic.isValid() && metallic != RZMaterial::GetDefaultTexture())
-                RZResourceManager::Get().releaseTexture(metallic);
+                RZResourceManager::Get().destroyTexture(metallic);
             if (roughness.isValid() && roughness != RZMaterial::GetDefaultTexture())
-                RZResourceManager::Get().releaseTexture(roughness);
+                RZResourceManager::Get().destroyTexture(roughness);
             if (specular.isValid() && specular != RZMaterial::GetDefaultTexture())
-                RZResourceManager::Get().releaseTexture(specular);
+                RZResourceManager::Get().destroyTexture(specular);
             if (emissive.isValid() && emissive != RZMaterial::GetDefaultTexture())
-                RZResourceManager::Get().releaseTexture(emissive);
+                RZResourceManager::Get().destroyTexture(emissive);
             if (ao.isValid() && ao != RZMaterial::GetDefaultTexture())
-                RZResourceManager::Get().releaseTexture(ao);
+                RZResourceManager::Get().destroyTexture(ao);
         }
 
         RZMaterial* GetDefaultMaterial()

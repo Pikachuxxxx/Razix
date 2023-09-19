@@ -124,7 +124,7 @@ namespace Razix {
                 data[3].UV = glm::vec2(1.0f, 0.0f);
                 data[3].Normal    = normal;
 
-                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Plane"));
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Plane"));
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec3>("Position");
                 layout.push<glm::vec4>("Color");
@@ -265,7 +265,7 @@ namespace Razix {
                     data[i * 4 + 3].UV = glm::vec2(0.0f, 1.0f);
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Cube"));
+                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Cube"));
                 delete[] data;
 
                 u32 indices[36]{
@@ -319,7 +319,7 @@ namespace Razix {
                     }
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Sphere"));
+                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Sphere"));
 
                 std::vector<u32> indices;
                 u16              k1, k2;
@@ -372,7 +372,7 @@ namespace Razix {
                 data[3].Position  = glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f);
                 data[3].TexCoords = glm::vec2(0.0f, 1.0f);
 
-                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZSimpleVertex), data, BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Screen Quad VB"));
+                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZSimpleVertex), data, BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Screen Quad VB"));
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec4>("Position");
                 layout.push<glm::vec2>("TexCoords");

@@ -63,6 +63,7 @@ namespace Razix {
         /* Information necessary to create the pipeline */
         struct RZPipelineDesc
         {
+            std::string                name                   = "$UNNAMED_PIPELINE_RESOURCE";  /* Name of the texture                                                         */
             RZShaderHandle             shader                 = {};                            /* Shader used by the Pipeline                                                 */
             std::vector<TextureFormat> colorAttachmentFormats = {};                            /* color attachments used by this pipeline, that we write to                   */
             TextureFormat              depthFormat            = TextureFormat::DEPTH32F;       /* depth attachment format for this pipeline                                   */
@@ -85,15 +86,15 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
         /* utility functions for frame graph parsing to convert string to enums */
         CompareOp     StringToCompareOp(const std::string& str);
-        BlendOp       StringToBlendOp(const std::string& str);
-        BlendFactor   StringToBlendFactor(const std::string& str);
         DrawType      StringToDrawType(const std::string& str);
         PolygonMode   StringToPolygonMode(const std::string& str);
         CullMode      StringToCullMode(const std::string& str);
+        BlendOp       StringToBlendOp(const std::string& str);
         TextureFormat StringToTextureFormat(const std::string& str);
         TextureType   StringToTextureType(const std::string& str);
         Wrapping      StringToWrapping(const std::string& str);
         Filtering     StringToFiltering(const std::string& str);
+        BlendFactor   StringToBlendFactor(const std::string& str);
         BufferUsage   StringToBufferUsage(const std::string& str);
     }    // namespace Graphics
 }    // namespace Razix

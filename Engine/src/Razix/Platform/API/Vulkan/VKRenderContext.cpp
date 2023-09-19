@@ -145,19 +145,30 @@ namespace Razix {
             m_CommandQueue.clear();
         }
 
-        void VKRenderContext::BindDescriptorSetAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+        void VKRenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)
+        {
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            pp->Bind(cmdBuffer);
+        }
+
+        void VKRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            //static_cast<VKPipeline*>(pp)->getPipelineLayout();
+
             const auto vkDescSet = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
-            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
         }
 
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
+        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             u32 numDesciptorSets = 0;
+
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
 
             for (auto descriptorSet: descriptorSets) {
                 if (descriptorSet) {
@@ -166,14 +177,16 @@ namespace Razix {
                     numDesciptorSets++;
                 }
             }
-            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), BindingTable_System::SET_IDX_USER_DATA_SLOT_0, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_USER_DATA_SLOT_0, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
         }
 
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
+        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             u32 numDesciptorSets = 0;
+
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
 
             for (u32 i = 0; i < totalSets; i++) {
                 auto set = descriptorSets[i];
@@ -183,7 +196,7 @@ namespace Razix {
                     numDesciptorSets++;
                 }
             }
-            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), BindingTable_System::SET_IDX_USER_DATA_SLOT_0, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_USER_DATA_SLOT_0, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
         }
 
         void VKRenderContext::SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
@@ -201,14 +214,16 @@ namespace Razix {
             vkCmdSetScissor(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &scissorRect);
         }
 
-        void VKRenderContext::EnableBindlessTexturesImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)
+        void VKRenderContext::EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
 
             // Bind the Bindless Descriptor Set
             if (VKDevice::Get().isBindlessSupported()) {
                 const auto set = VKDevice::Get().getBindlessDescriptorSet();
-                vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);
+                vkCmdBindDescriptorSets(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);
             }
         }
 
@@ -332,9 +347,11 @@ namespace Razix {
 #endif
         }
 
-        void VKRenderContext::BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+        void VKRenderContext::BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
         {
             std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
 
             int descriptorWritesCount = 0;
             int imageIndex            = 0;
@@ -390,7 +407,7 @@ namespace Razix {
 
                 writeDescriptorSets.push_back(writeSet);
             }
-            CmdPushDescriptorSetKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
+            CmdPushDescriptorSetKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
         void VKRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
@@ -434,12 +451,14 @@ namespace Razix {
             return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get());
         }
 
-        void VKRenderContext::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
+        void VKRenderContext::BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+
             //for (auto& pushConstant: pushConstants) {
-            vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pipeline)->getPipelineLayout(), VKUtilities::ShaderStageToVK(pushConstant.shaderStage), pushConstant.offset, pushConstant.size, pushConstant.data);
+            vkCmdPushConstants(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), static_cast<VKPipeline*>(pp)->getPipelineLayout(), VKUtilities::ShaderStageToVK(pushConstant.shaderStage), pushConstant.offset, pushConstant.size, pushConstant.data);
             //}
         }
 

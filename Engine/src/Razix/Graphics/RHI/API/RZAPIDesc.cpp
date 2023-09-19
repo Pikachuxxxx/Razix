@@ -5,6 +5,9 @@
 
 namespace Razix {
     namespace Graphics {
+
+        // TODO: Make VS tool for Enum->String and String->Enum code generator
+
         std::string RZTextureDesc::FormatToString(const Graphics::TextureFormat format)
         {
             switch (format) {
@@ -208,6 +211,42 @@ namespace Razix {
         TextureFormat StringToTextureFormat(const std::string& str)
         {
             return TextureFormatStringMap[str];
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        static std::map<std::string, Razix::Graphics::BlendFactor> BlendFactorStringMap = {
+            {"Zero", Razix::Graphics::BlendFactor::Zero},
+            {"One", Razix::Graphics::BlendFactor::One},
+            {"SrcColor", Razix::Graphics::BlendFactor::SrcColor},
+            {"OneMinusSrcColor", Razix::Graphics::BlendFactor::OneMinusSrcColor},
+            {"DstColor", Razix::Graphics::BlendFactor::DstColor},
+            {"OneMinusDstColor", Razix::Graphics::BlendFactor::OneMinusDstColor},
+            {"SrcAlpha", Razix::Graphics::BlendFactor::SrcAlpha},
+            {"OneMinusSrcAlpha", Razix::Graphics::BlendFactor::OneMinusSrcAlpha},
+            {"DstAlpha", Razix::Graphics::BlendFactor::DstAlpha},
+            {"OneMinusDstAlpha", Razix::Graphics::BlendFactor::OneMinusDstAlpha},
+            {"ConstantColor", Razix::Graphics::BlendFactor::ConstantColor},
+            {"OneMinusConstantColor", Razix::Graphics::BlendFactor::OneMinusConstantColor},
+            {"ConstantAlpha", Razix::Graphics::BlendFactor::ConstantAlpha},
+            {"OneMinusConstantAlpha", Razix::Graphics::BlendFactor::OneMinusConstantAlpha},
+            {"SrcAlphaSaturate", Razix::Graphics::BlendFactor::SrcAlphaSaturate}};
+
+        Razix::Graphics::BlendFactor StringToBlendFactor(const std::string& str)
+        {
+            return BlendFactorStringMap[str];
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        static std::map<std::string, Razix::Graphics::BufferUsage> BufferUsageStringMap = {
+            {"Static", Razix::Graphics::BufferUsage::Static},
+            {"Dynamic", Razix::Graphics::BufferUsage::Dynamic},
+            {"Stream", Razix::Graphics::BufferUsage::Stream}};
+
+        Razix::Graphics::BufferUsage StringToBufferUsage(const std::string& str)
+        {
+            return BufferUsageStringMap[str];
         }
     }    // namespace Graphics
 }    // namespace Razix

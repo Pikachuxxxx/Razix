@@ -41,7 +41,7 @@ namespace Razix {
             // Lighting
             loadBuiltInShader(ShaderBuiltin::GBuffer, "//RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
-            loadBuiltInShader(ShaderBuiltin::ShadowMapping, "//RazixContent/Shaders/Razix/Shader.Builtin.ShadowMapping.rzsf");
+            loadBuiltInShader(ShaderBuiltin::DepthPreTest, "//RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/RSM.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/lpv_radiance_injection.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
@@ -65,6 +65,10 @@ namespace Razix {
             // Debug Shaders
             loadBuiltInShader(ShaderBuiltin::DebugPoint, "//RazixContent/Shaders/Razix/Shader.Builtin.DebugPoint.rzsf");
             loadBuiltInShader(ShaderBuiltin::DebugLine, "//RazixContent/Shaders/Razix/Shader.Builtin.DebugLine.rzsf");
+            //-------------------------------------------------------------------
+            loadBuiltInShader(ShaderBuiltin::Sprite, "//RazixContent/Shaders/Razix/Shader.Builtin.Sprite.rzsf");
+            loadBuiltInShader(ShaderBuiltin::SpriteTextured, "//RazixContent/Shaders/Razix/Shader.Builtin.SpriteTextured.rzsf");
+            //-------------------------------------------------------------------
         }
 
         void RZShaderLibrary::ShutDown()

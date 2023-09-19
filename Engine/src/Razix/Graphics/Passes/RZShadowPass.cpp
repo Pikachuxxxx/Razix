@@ -41,8 +41,8 @@ namespace Razix {
         void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Load the shader
-            auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ShadowMapping);
-            auto setInfos = shader->getSetsCreateInfos();
+            auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
+            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
 
             m_LightViewProjUBO = RZUniformBuffer::Create(sizeof(LightVPUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("LightViewProj"));
 
@@ -57,13 +57,14 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::kBack;
+            pipelineInfo.name                = "Shadow Pass Pipeline";
+            pipelineInfo.cullMode            = Graphics::CullMode::Back;
             pipelineInfo.drawType            = Graphics::DrawType::Triangle;
             pipelineInfo.shader              = shader;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthFormat         = {Graphics::TextureFormat::DEPTH32F};
-            m_Pipeline                       = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Pass Pipeline"));
+            m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
                 "Simple Shadow map pass",
@@ -113,7 +114,7 @@ namespace Razix {
                     info.resize          = false;
                     RHI::BeginRendering(cmdBuffer, info);
 
-                    m_Pipeline->Bind(cmdBuffer);
+                    RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     m_LightViewProjUBO->SetData(sizeof(LightVPUBOData), &light_data);
 
@@ -121,7 +122,7 @@ namespace Razix {
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
-                    scene->drawScene(m_Pipeline, {.disableFrameData = true, .disableBindlessTextures = true, .disableLights = true, .disableMaterials = true});
+                    scene->drawScene(m_Pipeline, {.enableMaterials = false, .enableLights = false, .enableFrameData = false});
 
                     // End Rendering
                     RHI::EndRendering(cmdBuffer);
@@ -132,7 +133,7 @@ namespace Razix {
         void RZShadowPass::destroy()
         {
             m_LightViewProjUBO->Destroy();
-            m_Pipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
             m_LVPSet->Destroy();
         }
     }    // namespace Graphics

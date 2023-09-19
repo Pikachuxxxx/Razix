@@ -69,14 +69,21 @@
             //glfwSwapBuffers(m_Context->getGLFWWindow());
         }
 
-        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
+        void GLRenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)
+        {
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            pp->Bind(cmdBuffer);
+        }
+
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Bind all the uniform, storage and samplers to the right binding slots here using the information from the descriptors
 
             // First bind the shader
-            auto shader = static_cast<OpenGLPipeline*>(pipeline)->getShader();
+            auto pp     = RZResourceManager::Get().getPipelineResource(pipeline);
+            auto shader = RZResourceManager::Get().getPool<RZShader>().get(pp->getDesc().shader);
             shader->Bind();
 
             auto glShader = static_cast<OpenGLShader*>(shader);
@@ -104,13 +111,14 @@
             }
         }
 
-        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Bind all the uniform, storage and samplers to the right binding slots here using the information from the descriptors
             // First bind the shader
-            auto shader = static_cast<OpenGLPipeline*>(pipeline)->getShader();
+            auto pp     = RZResourceManager::Get().getPipelineResource(pipeline);
+            auto shader = RZResourceManager::Get().getPool<RZShader>().get(pp->getDesc().shader);
             shader->Bind();
 
             for (u32 i = 0; i < totalSets; i++) {
@@ -151,17 +159,17 @@
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::EnableBindlessTexturesImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer)
+        void GLRenderContext::EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::BindDescriptorSetAPImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+        void GLRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::BindPushDescriptorsImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+        void GLRenderContext::BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
@@ -217,12 +225,13 @@
             return static_cast<RZSwapchain*>(OpenGLContext::Get()->getSwapchain());
         }
 
-        void GLRenderContext::BindPushConstantsAPIImpl(RZPipeline* pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
+        void GLRenderContext::BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Find the uniform in the set and tag that with this
-            auto shader = static_cast<OpenGLPipeline*>(pipeline)->getShader();
+            auto pp     = RZResourceManager::Get().getPipelineResource(pipeline);
+            auto shader = RZResourceManager::Get().getPool<RZShader>().get(pp->getDesc().shader);
             shader->Bind();
 
             // now use the push constant to create uniform buffer and bind it

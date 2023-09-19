@@ -73,7 +73,7 @@ namespace Razix {
             RZVertexBuffer* getVertexBuffer() { return m_VBO; }
             RZIndexBuffer*  getIndexBuffer() { return m_IBO; }
 
-            RZShader*        getShader();
+            RZShaderHandle   getShader();
             RZDescriptorSet* getDescriptorSet(u32 index);
 
         private:
@@ -82,8 +82,8 @@ namespace Razix {
             std::array<glm::vec2, 4>      m_UVs;
             bool                          m_IsAnimated = false;
             bool                          m_IsTextured = false;
-            RZShader*                     m_SpriteShader;
-            RZShader*                     m_TexturedSpriteShader;
+            RZShaderHandle                m_SpriteShader;
+            RZShaderHandle                m_TexturedSpriteShader;
             RZVertexBuffer*               m_VBO;
             RZIndexBuffer*                m_IBO;
             std::vector<RZDescriptorSet*> m_TexturedSpriteDescriptorSets;

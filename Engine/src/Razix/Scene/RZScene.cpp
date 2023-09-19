@@ -102,7 +102,7 @@ namespace Razix {
         }
     }
 
-    void RZScene::drawScene(Graphics::RZPipeline* pipeline, SceneDrawParams sceneDrawParams)
+    void RZScene::drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawParams sceneDrawParams)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
@@ -110,7 +110,7 @@ namespace Razix {
 
         //-----------------------------
         // Frame Data
-        if (!sceneDrawParams.enableFrameData)
+        if (sceneDrawParams.enableFrameData)
             Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
         //-----------------------------
         // Bindless Textures (Can be used for any texture, not just mats, even RTs used a bindables hence this is always bound)
@@ -118,7 +118,7 @@ namespace Razix {
         //    Graphics::RHI::EnableBindlessTextures(pipeline, cmdBuffer);
         //-----------------------------
         // Scene Lighting Data
-        if (!sceneDrawParams.enableLights)
+        if (sceneDrawParams.enableLights)
             Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getSceneLightsDataSet(), BindingTable_System::SET_IDX_LIGHTING_DATA);
         //-----------------------------
         // User Sets
@@ -156,21 +156,22 @@ namespace Razix {
             //-----------------------------
             Graphics::RZMaterial* mat = nullptr;
 
-            if (!sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
+            if (sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
                 mat = mrc.Mesh->getMaterial();
                 if (!mat)
                     continue;
-                mat->Bind(pipeline, cmdBuffer);
+                mat->Bind();
+                Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
             }
 
             mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
             mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
-            //-----------------------------
-            // Material Data
-            if (!sceneDrawParams.enableMaterials)
-                Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
-            //-----------------------------
+            ////-----------------------------
+            //// Material Data
+            //if (sceneDrawParams.enableMaterials)
+            //    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+            ////-----------------------------
 
             Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
         }

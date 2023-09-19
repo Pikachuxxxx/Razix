@@ -130,7 +130,7 @@ project "Sandbox"
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
         }
 
-        disablewarnings { 4307, 4267 }
+        disablewarnings { 4307, 4267, 4275, 4554 }
 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }

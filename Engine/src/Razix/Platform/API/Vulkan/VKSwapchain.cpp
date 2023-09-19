@@ -95,7 +95,7 @@ namespace Razix {
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                 //tex->Release(false);
-                RZResourceManager::Get().releaseTexture(m_SwapchainImageTextures[i]);
+                RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
             }
             m_SwapchainImageTextures.clear();
             vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
@@ -126,7 +126,7 @@ namespace Razix {
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                 //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                 //tex->Release(false);
-                RZResourceManager::Get().releaseTexture(m_SwapchainImageTextures[i]);
+                RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
             }
             m_SwapchainImageTextures.clear();
 
@@ -350,7 +350,7 @@ namespace Razix {
                         for (u32 i = 0; i < m_SwapchainImageCount; i++) {
                             //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
                             //tex->Release(false);
-                            RZResourceManager::Get().releaseTexture(m_SwapchainImageTextures[i]);
+                            RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
                         }
                         m_SwapchainImageTextures.clear();
                         vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);

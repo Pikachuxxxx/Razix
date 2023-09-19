@@ -6,9 +6,9 @@ namespace Razix {
         /* Defines how the buffer is used */
         enum class BufferUsage
         {
-            STATIC,
-            DYNAMIC,
-            STREAM
+            Static,
+            Dynamic,
+            Stream
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -4,6 +4,8 @@
 
 #include "Razix/Core/RZSmartPointers.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -19,7 +21,7 @@ namespace Razix {
             PBRDeferredLighting,
             GBuffer,
             Composition,
-            ShadowMapping,
+            DepthPreTest,
             CSM,
             ImGui,
             EnvToCubemap,
@@ -27,6 +29,8 @@ namespace Razix {
             GeneratePreFilteredMap,
             DebugPoint,
             DebugLine,
+            Sprite,
+            SpriteTextured,
             BUILTIN_SHADERS_COUNT
         };
 

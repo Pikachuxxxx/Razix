@@ -20,7 +20,6 @@ namespace Razix {
             void Bind() const override;
             void Unbind() const override;
             void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
-            void Destroy() override;
 
             /* Gets the buffer layout information in engine internal format, this is how the shader expects the vertex buffer data to be packed while uploading to the GPU */
             inline const RZVertexBufferLayout& getBufferLayout() const { return m_BufferLayout; }

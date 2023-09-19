@@ -38,9 +38,10 @@ namespace Razix {
 
             RZPipelineDesc pipelineInfo{
                 // Build the pipeline here for this pass
+                .name                   = "Composition Pipeline",
                 .shader                 = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition),
                 .colorAttachmentFormats = {TextureFormat::BGRA8_UNORM},
-                .cullMode               = Graphics::CullMode::kNone,
+                .cullMode               = Graphics::CullMode::None,
                 .drawType               = Graphics::DrawType::Triangle,
                 .transparencyEnabled    = true,
                 .depthBiasEnabled       = false};
@@ -100,12 +101,12 @@ namespace Razix {
                      * It can set it for the current shader that the pass uses
                      */
 
-                    m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Composite Pass Pipeline"));
+                    m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
                     // Init the mesh
                     m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
 
-                    setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                    setInfos = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getSetsCreateInfos();
                     for (auto& setInfo: setInfos) {
                         for (auto& descriptor: setInfo.second) {
                             descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
@@ -123,7 +124,7 @@ namespace Razix {
                     // Update the Descriptor Set with the new texture once
 
                     if (!updatedRT) {
-                        auto setInfos = pipelineInfo.shader->getSetsCreateInfos();
+                        auto setInfos      = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
@@ -146,7 +147,7 @@ namespace Razix {
                     RHI::BeginRendering(cmdBuffer, info);
 
                     // Bind pipeline and stuff
-                    m_Pipeline->Bind(cmdBuffer);
+                    RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     //Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
                     Graphics::RHI::BindDescriptorSet(m_Pipeline, RHI::GetCurrentCommandBuffer(), m_DescriptorSets, BindingTable_System::SET_IDX_FRAME_DATA);
@@ -187,7 +188,7 @@ namespace Razix {
 
         void RZFinalCompositionPass::destroy()
         {
-            m_Pipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
             m_ScreenQuadMesh->Destroy();
         }
     }    // namespace Graphics

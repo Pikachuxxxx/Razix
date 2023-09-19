@@ -142,7 +142,14 @@ namespace Razix {
 
         void VKShader::DestroyResource()
         {
-            Destroy();
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Destroy the pipeline layout
+            vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
+
+            // Destroy the shader modules
+            for (const auto& spvSource: m_ParsedRZSF)
+                vkDestroyShaderModule(VKDevice::Get().getDevice(), m_ShaderCreateInfos[spvSource.first].module, nullptr);
         }
 
         void VKShader::Bind() const
@@ -165,18 +172,6 @@ namespace Razix {
 
             if (srcType != ShaderSourceType::SPIRV)
                 return;
-        }
-
-        void VKShader::Destroy()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            // Destroy the pipeline layout
-            vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
-
-            // Destroy the shader modules
-            for (const auto& spvSource: m_ParsedRZSF)
-                vkDestroyShaderModule(VKDevice::Get().getDevice(), m_ShaderCreateInfos[spvSource.first].module, nullptr);
         }
 
         std::vector<VkPipelineShaderStageCreateInfo> VKShader::getShaderStages()

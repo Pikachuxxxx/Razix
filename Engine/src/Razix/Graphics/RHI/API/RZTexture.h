@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZLog.h"
 
+#include "Razix/Graphics/Resources/IRZResource.h"
+
 #include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 

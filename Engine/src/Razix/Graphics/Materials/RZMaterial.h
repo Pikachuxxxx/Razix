@@ -10,7 +10,7 @@ namespace Razix {
         {
         public:
             /* Crates the material with the given shader and it's properties */
-            RZMaterial(RZShader* shader);
+            RZMaterial(RZShaderHandle shader);
             virtual ~RZMaterial() {}
 
             void Destroy();
@@ -56,7 +56,7 @@ namespace Razix {
             MaterialData           m_MaterialData;
             MaterialTextures       m_MaterialTextures;
             std::string            m_Name                  = "PBR material";
-            RZShader*              m_Shader                = nullptr;
+            RZShaderHandle         m_Shader                = {};
             RZDescriptorSet*       m_DescriptorSet         = nullptr;
             RZUniformBuffer*       m_MaterialPropertiesUBO = nullptr;
             bool                   m_TexturesUpdated       = false;

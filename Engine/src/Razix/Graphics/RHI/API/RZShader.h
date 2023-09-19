@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/Resources/IRZResource.h"
+
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 #include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
 
@@ -61,7 +63,6 @@ namespace Razix {
             virtual void Bind() const                                                                                     = 0;
             virtual void Unbind() const                                                                                   = 0;
             virtual void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) = 0;
-            virtual void Destroy()                                                                                        = 0;
 
             static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
 

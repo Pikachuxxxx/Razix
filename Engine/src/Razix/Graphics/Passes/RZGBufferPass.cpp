@@ -43,7 +43,8 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::kNone;
+            pipelineInfo.name                = "GBuffer Pipeline";
+            pipelineInfo.cullMode            = Graphics::CullMode::None;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::Triangle;
             pipelineInfo.transparencyEnabled = true;
@@ -56,7 +57,7 @@ namespace Razix {
                 Graphics::TextureFormat::RGBA32F};
             pipelineInfo.depthFormat = Graphics::TextureFormat::DEPTH32F;
 
-            m_Pipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer pipeline"));
+            m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& frameDataBlock = blackboard.get<FrameData>();
 
@@ -113,10 +114,10 @@ namespace Razix {
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
+                    RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
                     // Use scene to draw geometry
-                    scene->drawScene(m_Pipeline, {.disableLights = true});
+                    scene->drawScene(m_Pipeline, {.enableLights = true});
 
                     RAZIX_MARK_END();
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
@@ -125,7 +126,7 @@ namespace Razix {
 
         void RZGBufferPass::destroy()
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
     }    // namespace Graphics
 }    // namespace Razix

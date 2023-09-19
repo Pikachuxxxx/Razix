@@ -153,7 +153,7 @@ namespace Razix {
             DebugDrawList m_DrawList;
             DebugDrawList m_DrawListNDT;
 
-            RZPipeline* m_LinePipeline = nullptr;
+            RZPipelineHandle m_LinePipeline = {};
 
             // VBs and IBs
             RZIndexBuffer*  m_PointIBO        = nullptr;

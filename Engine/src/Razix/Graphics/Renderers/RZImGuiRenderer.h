@@ -45,7 +45,7 @@ namespace Razix {
                 glm::vec4 color;
             };
 
-            PushConstBlock pushConstBlock;
+            PushConstBlock pushConstBlock = {};
 
             void Init() override;
 
@@ -64,13 +64,13 @@ namespace Razix {
             ~RZImGuiRenderer() {}
 
         private:
-            RZTextureHandle  m_FontAtlasTexture;
-            RZDescriptorSet* m_FontAtlasDescriptorSet;
+            RZTextureHandle  m_FontAtlasTexture       = {};
+            RZDescriptorSet* m_FontAtlasDescriptorSet = nullptr;
 
             RZVertexBuffer* m_ImGuiVBO = nullptr;
             RZIndexBuffer*  m_ImGuiIBO = nullptr;
 
-            RZShader* m_OverrideGlobalRHIShader;
+            RZShaderHandle m_OverrideGlobalRHIShader;
 
             //int32_t vertexCount = 0;
             //int32_t indexCount  = 0;
@@ -82,7 +82,6 @@ namespace Razix {
             void initDisposableResources();
             void uploadUIFont(const std::string& fontPath);
         };
-
     }    // namespace Graphics
 }    // namespace Razix
 #endif

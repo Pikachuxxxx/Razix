@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/Resources/IRZResource.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -17,19 +19,23 @@ namespace Razix {
         // TODO: Add presets to select blendings like Additive, Subtractive etc as in PhotoShop
 
         /* Pipeline binds all the resources together that are necessary to render geometry such as shaders, buffers, uniforms, descriptors and pipeline info */
-        class RAZIX_API RZPipeline : public RZRoot
+        class RAZIX_API RZPipeline : public IRZResource<RZPipeline>
         {
         public:
             RZPipeline() = default;
             virtual ~RZPipeline() {}
 
-            static RZPipeline* Create(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
-
             virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
-            virtual void Destroy()                            = 0;
+
+            RZPipelineDesc getDesc() { return m_Desc; }
 
         protected:
             RZPipelineDesc m_Desc;
+
+        private:
+            static void Create(void* where, const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
+
+            friend class RZResourceManager;
         };
     }    // namespace Graphics
 }    // namespace Razix

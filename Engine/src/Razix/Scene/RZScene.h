@@ -5,6 +5,8 @@
 
 #include "Razix/Core/RZUUID.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 #include "Razix/Scene/RZSceneCamera.h"
 
 namespace Razix {
@@ -30,12 +32,12 @@ namespace Razix {
     };
 
     static std::map<std::string, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
-        {"SceneGeometry", SceneGeometry},
-        {"Cubemap", Cubemap},
-        {"ScreenQuad", ScreenQuad},
-        {"Quad", Quad},
-        {"UI", UI},
-        {"Custom", Custom}};
+        {"SceneGeometry", Razix::SceneDrawGeometryMode::SceneGeometry},
+        {"Cubemap", Razix::SceneDrawGeometryMode::Cubemap},
+        {"ScreenQuad", Razix::SceneDrawGeometryMode::ScreenQuad},
+        {"Quad", Razix::SceneDrawGeometryMode::Quad},
+        {"UI", Razix::SceneDrawGeometryMode::UI},
+        {"Custom", Razix::SceneDrawGeometryMode::Custom}};
 
     struct SceneDrawParams
     {
@@ -64,7 +66,7 @@ namespace Razix {
         void update();
         void updateTransform(entt::entity entity);
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
-        void drawScene(Graphics::RZPipeline* pipeline, SceneDrawParams sceneDrawParams = {});
+        void drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawParams sceneDrawParams = {});
 
         void Destroy();
 

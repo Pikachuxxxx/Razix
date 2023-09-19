@@ -44,7 +44,7 @@ namespace Razix {
             RZScene*         m_CurrentScene            = nullptr;
             RZDescriptorSet* m_FrameDataSet            = nullptr;
             RZDescriptorSet* m_CSMSet                  = nullptr;
-            RZShader*        m_OverrideGlobalRHIShader = nullptr;
+            RZShaderHandle   m_OverrideGlobalRHIShader = {};
         };
     }    // namespace Graphics
 }    // namespace Razix

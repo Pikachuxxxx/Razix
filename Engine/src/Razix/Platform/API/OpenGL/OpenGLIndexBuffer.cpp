@@ -12,11 +12,11 @@ namespace Razix {
         static u32 BufferUsageToOpenGL(const BufferUsage usage)
         {
             switch (usage) {
-                case BufferUsage::STATIC:
+                case BufferUsage::Static:
                     return GL_STATIC_DRAW;
-                case BufferUsage::DYNAMIC:
+                case BufferUsage::Dynamic:
                     return GL_DYNAMIC_DRAW;
-                case BufferUsage::STREAM:
+                case BufferUsage::Stream:
                     return GL_STREAM_DRAW;
             }
             return 0;
