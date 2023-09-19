@@ -181,7 +181,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": 0.0,
+            "y": -0.0,
             "z": 0.0
         },
         "Scale": {
@@ -439,9 +439,9 @@
     "value86": 7,
     "value87": {
         "Translation": {
-            "x": 0.0,
-            "y": 7.5,
-            "z": 0.0
+            "x": 3.3487422466278078,
+            "y": 3.7129404544830324,
+            "z": 6.0
         },
         "Rotation": {
             "x": 0.0,
@@ -473,9 +473,9 @@
                 "value3": 0.0
             },
             "value3": {
-                "value0": 0.0,
-                "value1": 7.5,
-                "value2": 0.0,
+                "value0": 3.3487422466278078,
+                "value1": 3.7129404544830324,
+                "value2": 6.0,
                 "value3": 1.0
             }
         }
@@ -706,32 +706,32 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": -2.6621038913726808,
-                "y": 6.283164978027344,
-                "z": 37.748451232910159
+                "x": 1.9532941579818726,
+                "y": 19.653913497924806,
+                "z": 41.29037857055664
             },
             "Front": {
-                "x": 0.11517827212810517,
-                "y": -0.1993679255247116,
-                "z": -0.9731322526931763
+                "x": -0.06053311005234718,
+                "y": -0.3786486089229584,
+                "z": -0.9235588908195496
             },
             "Up": {
-                "x": 0.02343328483402729,
-                "y": 0.979924738407135,
-                "z": -0.19798599183559419
+                "x": -0.02476474642753601,
+                "y": 0.925540566444397,
+                "z": -0.3778378963470459
             },
             "Right": {
-                "x": 0.9930683970451355,
-                "y": -0.0,
-                "z": 0.11753788590431214
+                "x": 0.9978589415550232,
+                "y": 0.0,
+                "z": -0.06540297716856003
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -803.25,
-            "Pitch": -11.5,
+            "Yaw": 266.25,
+            "Pitch": -22.25,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -742,7 +742,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.4111469984054566,
+            "AspectRatio": 1.4531502723693848,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
@@ -816,7 +816,7 @@
         "MeshPath": "",
         "MaterialPath": "//Assets/Materials/Decorative Tiles.rzmaterial"
     },
-    "value121": 2,
+    "value121": 3,
     "value122": 1,
     "value123": {
         "FilePath": "//Scripts/hello_razix.lua"
@@ -825,9 +825,13 @@
     "value125": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value126": 1,
-    "value127": 3,
-    "value128": {
+    "value126": 7,
+    "value127": {
+        "FilePath": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Scripts/position_test.lua"
+    },
+    "value128": 1,
+    "value129": 3,
+    "value130": {
         "Light": {
             "type": 0,
             "position": {
@@ -855,5 +859,5 @@
             "outerConeAngle": 60.0
         }
     },
-    "value129": 0
+    "value131": 0
 }

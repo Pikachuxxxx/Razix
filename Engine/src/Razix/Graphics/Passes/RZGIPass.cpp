@@ -98,9 +98,10 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.name                = "RSM pipeline";
+            pipelineInfo.cullMode            = Graphics::CullMode::None;
             pipelineInfo.shader              = shader;
-            pipelineInfo.drawType            = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.drawType            = Graphics::DrawType::Triangle;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
             // worldPos, normal, flux, Depth
@@ -110,7 +111,7 @@ namespace Razix {
                 Graphics::TextureFormat::RGBA32F};
             pipelineInfo.depthFormat = Graphics::TextureFormat::DEPTH32F;
 
-            m_RSMPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("RSM pipeline"));
+            m_RSMPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& frameblockData = blackboard.get<FrameData>();
 
@@ -181,12 +182,12 @@ namespace Razix {
 
 #if 1
                     // Bind the pipeline
-                    m_RSMPipeline->Bind(cmdBuffer);
+                    RHI::BindPipeline(m_RSMPipeline, cmdBuffer);
 
                     // Update the View Projection descriptor set only once
                     static bool setUpdated = false;
                     if (!setUpdated) {
-                        auto setInfos = shader->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             if (setInfo.first == BindingTable_System::SET_IDX_SYSTEM_START) {
                                 for (auto& descriptor: setInfo.second) {
@@ -214,7 +215,7 @@ namespace Razix {
                         //-----------------------------
                         // Get the shader from the Mesh Material later
                         // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                        auto& modelMatrix = shader->getPushConstants()[0];
+                        auto& modelMatrix = RZResourceManager::Get().getShaderResource(shader)->getPushConstants()[0];
 
                         struct PCD
                         {
@@ -270,9 +271,10 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.name                = "Radiance Injection pipeline";
+            pipelineInfo.cullMode            = Graphics::CullMode::None;
             pipelineInfo.shader              = shader;
-            pipelineInfo.drawType            = Graphics::DrawType::POINT;
+            pipelineInfo.drawType            = Graphics::DrawType::Point;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthTestEnabled    = false;
@@ -285,7 +287,7 @@ namespace Razix {
             // Depth, worldPos, normal, flux
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F};
 
-            m_RIPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Injection pipeline"));
+            m_RIPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Frame Graph pass
 
@@ -336,7 +338,7 @@ namespace Razix {
     #if 1
                     static bool setsCreated = false;
                     if (!setsCreated) {
-                        auto setInfos = shader->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
@@ -365,9 +367,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -381,7 +383,7 @@ namespace Razix {
                     m_RadianceInjectionUBO->SetData(sizeof(RadianceInjectionUBOData), &radianceInjectionData);
 
                     // Bind the pipeline
-                    m_RIPipeline->Bind(cmdBuffer);
+                    RHI::BindPipeline(m_RIPipeline, cmdBuffer);
 
                     // Bind the desc sets
                     //RHI::BindUserDescriptorSets(m_RIPipeline, cmdBuffer, &m_RIDescriptorSet, 1);
@@ -408,9 +410,10 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode            = Graphics::CullMode::NONE;
+            pipelineInfo.name                = "Radiance Propagation pipeline";
+            pipelineInfo.cullMode            = Graphics::CullMode::None;
             pipelineInfo.shader              = shader;
-            pipelineInfo.drawType            = Graphics::DrawType::POINT;
+            pipelineInfo.drawType            = Graphics::DrawType::Point;
             pipelineInfo.transparencyEnabled = true;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthTestEnabled    = false;
@@ -423,7 +426,7 @@ namespace Razix {
             // Depth, worldPos, normal, flux
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F};
 
-            m_RPropagationPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Radiance Propagation pipeline"));
+            m_RPropagationPipeline = RZResourceManager::Get().createPipeline((pipelineInfo));
 
             const auto& data = framegraph.addCallbackPass<LightPropagationVolumesData>(
                 "Radiance Propagation #" + std::to_string(propagationIdx),
@@ -469,7 +472,7 @@ namespace Razix {
                     RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
 
                     if (!m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet) {
-                        auto setInfos = shader->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
@@ -496,9 +499,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true,  ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -509,7 +512,7 @@ namespace Razix {
                     m_RadiancePropagationUBO->SetData(sizeof(RadianceInjectionUBOData), &radiancePropagationData);
 
                     // Bind the pipeline
-                    m_RPropagationPipeline->Bind(cmdBuffer);
+                    RHI::BindPipeline(m_RPropagationPipeline, cmdBuffer);
 
                     // Bind the desc sets
                     //RHI::BindUserDescriptorSets(m_RPropagationPipeline, cmdBuffer, &m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet, 1);

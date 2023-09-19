@@ -57,9 +57,10 @@ namespace Razix {
             auto PointShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
+            pipelineInfo.name                   = "Debug Renderer:: Points pipeline (DT)";
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = PointShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
@@ -68,20 +69,23 @@ namespace Razix {
             pipelineInfo.depthWriteEnabled      = true;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
 
-            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Renderer:: Points pipeline (DT)"));
+            // Points Pipeline
+            m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Change the polygon mode for drawing lines
             auto LineShader          = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugLine);
+            pipelineInfo.name        = "Debug Renderer:: Lines pipeline (DT)";
             pipelineInfo.shader      = LineShader;
-            pipelineInfo.cullMode    = CullMode::NONE;
-            pipelineInfo.polygonMode = PolygonMode::FILL;
-            pipelineInfo.drawType    = DrawType::LINES;
-            m_LinePipeline           = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Renderer:: Lines pipeline (DT)"));
+            pipelineInfo.cullMode    = CullMode::None;
+            pipelineInfo.polygonMode = PolygonMode::Fill;
+            pipelineInfo.drawType    = DrawType::Line;
+            // Line Pipeline
+            m_LinePipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Create the VBOs and IBOs
             // Points - Create a large enough to hold a large amount of points
-            m_PointVBO = RZVertexBuffer::Create(RENDERER_POINT_BUFFER_SIZE, nullptr, Graphics::BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Points VBO"));
-            m_LineVBO  = RZVertexBuffer::Create(RENDERER_LINE_BUFFER_SIZE, nullptr, Graphics::BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Lines VBO"));
+            m_PointVBO = RZVertexBuffer::Create(RENDERER_POINT_BUFFER_SIZE, nullptr, Graphics::BufferUsage::Dynamic RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Points VBO"));
+            m_LineVBO  = RZVertexBuffer::Create(RENDERER_LINE_BUFFER_SIZE, nullptr, Graphics::BufferUsage::Dynamic RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Lines VBO"));
 
             u32* indices = new u32[MaxPointIndices];
             u32  offset  = 0;
@@ -199,7 +203,7 @@ namespace Razix {
 
             // Points
             {
-                m_Pipeline->Bind(cmdBuffer);
+                RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                 Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
@@ -211,7 +215,7 @@ namespace Razix {
 
             // Lines
             {
-                m_LinePipeline->Bind(cmdBuffer);
+                RHI::BindPipeline(m_LinePipeline, cmdBuffer);
 
                 Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
@@ -239,8 +243,8 @@ namespace Razix {
 
         void RZDebugRenderer::Destroy()
         {
-            m_Pipeline->Destroy();
-            m_LinePipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_LinePipeline);
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
             m_PointIBO->Destroy();
             m_PointVBO->Destroy();
             m_LineIBO->Destroy();

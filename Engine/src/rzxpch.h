@@ -21,11 +21,11 @@
 #include <map>
 #include <optional>
 #include <set>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <stack>
 
 //-----Engine-----//
 #include "Razix/Core/RZCore.h"
@@ -36,6 +36,9 @@
 #include "Razix/Core/RZRoot.h"
 #include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+#include "Razix/Graphics/Resources/IRZResource.h"
+
+//-----Engine Internal-----//
 #include "internal/RazixMemory/include/RZMemory.h"
 
 //-----3rd Party-----//

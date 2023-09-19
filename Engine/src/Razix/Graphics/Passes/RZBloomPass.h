@@ -31,9 +31,9 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZPipeline* m_UpsamplePipeline;
-            RZPipeline* m_DownsamplePipeline;
-            RZPipeline* m_HDRBloomMixPipeline;
+            RZPipelineHandle m_UpsamplePipeline;
+            RZPipelineHandle m_DownsamplePipeline;
+            RZPipelineHandle m_HDRBloomMixPipeline;
             struct BloomPassGPUResources
             {
                 std::vector<RZCommandBuffer*> cmdBuffers;

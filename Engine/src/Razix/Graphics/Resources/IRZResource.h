@@ -6,6 +6,22 @@
 #include "Razix/Core/RZUUID.h"
 #include "Razix/Graphics/Resources/RZResourceManager.h"
 
+#define GET_INSTANCE_SIZE static u32 GetInstanceSize()
+
+#define GET_INSTANCE_SIZE_IMPL(TYPE)                                                     \
+    u32 RZ##TYPE::GetInstanceSize()                                                      \
+    {                                                                                    \
+        switch (Graphics::RZGraphicsContext::GetRenderAPI()) {                           \
+            case Razix::Graphics::RenderAPI::OPENGL: return sizeof(OpenGL##TYPE); break; \
+            case Razix::Graphics::RenderAPI::VULKAN: return sizeof(VK##TYPE); break;     \
+            case Razix::Graphics::RenderAPI::D3D11:                                      \
+            case Razix::Graphics::RenderAPI::D3D12:                                      \
+            case Razix::Graphics::RenderAPI::GXM:                                        \
+            case Razix::Graphics::RenderAPI::GCM:                                        \
+            default: return sizeof(RZ##TYPE); break;                                     \
+        }                                                                                \
+    }
+
 namespace Razix {
     namespace Graphics {
 

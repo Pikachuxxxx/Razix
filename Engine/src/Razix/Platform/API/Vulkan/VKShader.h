@@ -14,10 +14,12 @@ namespace Razix {
             VKShader(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKShader();
 
+            /* Releases the vulkan texture resources */
+            void DestroyResource() override;
+
             void Bind() const override;
             void Unbind() const override;
             void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
-            void Destroy() override;
 
             /* Gets the buffer layout information in engine internal format, this is how the shader expects the vertex buffer data to be packed while uploading to the GPU */
             inline const RZVertexBufferLayout& getBufferLayout() const { return m_BufferLayout; }

@@ -242,16 +242,16 @@ namespace Razix {
             static GLenum CullModeToGLCullModeEnum(CullMode mode)
             {
                 switch (mode) {
-                    case Razix::Graphics::CullMode::BACK:
+                    case Razix::Graphics::CullMode::Back:
                         return GL_BACK;
                         break;
-                    case Razix::Graphics::CullMode::FRONT:
+                    case Razix::Graphics::CullMode::Front:
                         return GL_FRONT;
                         break;
-                    case Razix::Graphics::CullMode::FRONTANDBACK:
+                    case Razix::Graphics::CullMode::FrontBack:
                         return GL_FRONT_AND_BACK;
                         break;
-                    case Razix::Graphics::CullMode::NONE:
+                    case Razix::Graphics::CullMode::None:
                         return GL_BACK;
                         break;
                     default:
@@ -263,13 +263,13 @@ namespace Razix {
             static GLenum PolygonModeToGLPolygonModeEnum(PolygonMode mode)
             {
                 switch (mode) {
-                    case Razix::Graphics::PolygonMode::FILL:
+                    case Razix::Graphics::PolygonMode::Fill:
                         return GL_FILL;
                         break;
-                    case Razix::Graphics::PolygonMode::LINE:
+                    case Razix::Graphics::PolygonMode::Line:
                         return GL_LINE;
                         break;
-                    case Razix::Graphics::PolygonMode::POINT:
+                    case Razix::Graphics::PolygonMode::Point:
                         return GL_FILL;
                         break;
                     default:

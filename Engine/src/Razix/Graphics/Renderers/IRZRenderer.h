@@ -69,13 +69,13 @@ namespace Razix {
             virtual void Destroy() = 0;
 
         protected:
-            RZSceneCamera* m_Camera;
-            RZScene*       m_CurrentScene;
-            RZPipeline*    m_Pipeline;
-            u32            m_ScreenBufferWidth  = 0;
-            u32            m_ScreenBufferHeight = 0;
-            std::string    m_RendererName;
-            RZTimestep     m_PassTimer;
+            RZSceneCamera*   m_Camera;
+            RZScene*         m_CurrentScene;
+            RZPipelineHandle m_Pipeline;
+            u32              m_ScreenBufferWidth  = 0;
+            u32              m_ScreenBufferHeight = 0;
+            std::string      m_RendererName;
+            RZTimestep       m_PassTimer;
         };
     }    // namespace Graphics
 }    // namespace Razix

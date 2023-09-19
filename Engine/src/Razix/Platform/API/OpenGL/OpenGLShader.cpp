@@ -39,7 +39,6 @@ namespace Razix {
 
         OpenGLShader::~OpenGLShader()
         {
-            GL_CALL(glDeleteProgram(m_ProgramID));
         }
 
         void OpenGLShader::Bind() const
@@ -363,6 +362,11 @@ namespace Razix {
                         break;
                 }
             }
+        }
+
+        void OpenGLShader::DestroyResource()
+        {
+            GL_CALL(glDeleteProgram(m_ProgramID));
         }
     }    // namespace Graphics
 }    // namespace Razix

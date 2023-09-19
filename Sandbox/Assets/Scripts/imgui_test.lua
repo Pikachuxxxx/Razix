@@ -8,7 +8,7 @@ local APIs = {"OpenGL", "Vulkan"}
 local currentAPI = "OpenGL"
 local isSelected = false
 
-function OnStart()
+function OnStart(entity)
     RZLog.Info("ImGui Test!")
     currentAPI = RZGraphicsContext.GetRenderAPIString()
     RZLog.Trace("Rendering API : " .. currentAPI)
@@ -29,7 +29,7 @@ function get_isSelected(val)
     isSelected = val
 end
 
-function OnUpdate(dt)
+function OnUpdate(entity, dt)
 
 end
 

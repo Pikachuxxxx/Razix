@@ -75,13 +75,14 @@ namespace Razix {
             m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
 
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
-            auto setInfos = shader->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
 
             RZPipelineDesc info{};
+            info.name                   = "Deferred Lighting Pipeline";
             info.shader                 = shader;
             info.colorAttachmentFormats = {TextureFormat::RGBA32F};
 
-            m_Pipeline = RZPipeline::Create(info RZ_DEBUG_NAME_TAG_STR_E_ARG("Deferred Lighting Pipeline"));
+            m_Pipeline = RZResourceManager::Get().createPipeline(info);
 
             for (sz i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
                 m_CmdBuffers[i] = RZCommandBuffer::Create();
@@ -152,7 +153,7 @@ namespace Razix {
                     RHI::BeginRendering(cmdBuf, info);
 
                     // Bind pipeline and stuff
-                    m_Pipeline->Bind(cmdBuf);
+                    RHI::BindPipeline(m_Pipeline, cmdBuf);
 
                     //m_FrameBlockUBO->SetData(sizeof(FrameBlock), &m_FrameBlockData);
 

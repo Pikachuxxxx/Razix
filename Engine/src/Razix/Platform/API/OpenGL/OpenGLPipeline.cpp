@@ -9,8 +9,8 @@ namespace Razix {
     namespace Graphics {
 
         OpenGLPipeline::OpenGLPipeline(const RZPipelineDesc& pipelineInfo)
-            : m_Shader(pipelineInfo.shader), m_PipelineInfo(pipelineInfo)
         {
+            m_Desc = pipelineInfo;
         }
 
         void OpenGLPipeline::Bind(RZCommandBuffer* commandBuffer)
@@ -36,7 +36,7 @@ namespace Razix {
             //    glDisable(GL_BLEND);
         }
 
-        void OpenGLPipeline::Destroy()
+        void OpenGLPipeline::DestroyResource()
         {
         }
     }    // namespace Graphics

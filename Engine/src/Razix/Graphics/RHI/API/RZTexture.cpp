@@ -20,26 +20,11 @@
 namespace Razix {
     namespace Graphics {
 
-#define GET_INSTANCE_SIZE_IMPL(TYPE)                                                      \
-    u32 TYPE::GetInstanceSize()                                                           \
-    {                                                                                     \
-        switch (Graphics::RZGraphicsContext::GetRenderAPI()) {                            \
-            case Razix::Graphics::RenderAPI::OPENGL: return sizeof(OpenGLTexture); break; \
-            case Razix::Graphics::RenderAPI::VULKAN: return sizeof(VKTexture); break;     \
-            case Razix::Graphics::RenderAPI::D3D11:                                       \
-            case Razix::Graphics::RenderAPI::D3D12:                                       \
-            case Razix::Graphics::RenderAPI::GXM:                                         \
-            case Razix::Graphics::RenderAPI::GCM:                                         \
-            default: return sizeof(RZTexture); break;                                     \
-        }                                                                                 \
-    }
-        GET_INSTANCE_SIZE_IMPL(RZTexture)
-        //GET_INSTANCE_SIZE_IMPL(RZTexture2D)
-        //GET_INSTANCE_SIZE_IMPL(RZTexture3D)
-
         //-----------------------------------------------------------------------------------
         // Texture
         //-----------------------------------------------------------------------------------
+
+        GET_INSTANCE_SIZE_IMPL(Texture)
 
         void RZTexture::Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -109,11 +94,11 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RZDescriptor descriptor{};
-            descriptor.name                = m_Desc.name;
+            descriptor.name                         = m_Desc.name;
             descriptor.bindingInfo.location.binding = 0;
-            descriptor.bindingInfo.count   = 1;
-            descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-            descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
+            descriptor.bindingInfo.count            = 1;
+            descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+            descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
             //descriptor.texture             = (RZTexture2D*) this;
 
             std::vector<RZDescriptor> descriptors = {descriptor};

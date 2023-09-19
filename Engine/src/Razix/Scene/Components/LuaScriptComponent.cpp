@@ -5,6 +5,8 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/Scene/RZEntity.h"
+
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
 namespace Razix {
@@ -45,12 +47,12 @@ namespace Razix {
             m_OnImGuiFunc.reset();
     }
 
-    void LuaScriptComponent::OnStart()
+    void LuaScriptComponent::OnStart(RZEntity entity)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
         if (m_OnStartFunc) {
-            sol::protected_function_result result = m_OnStartFunc->call();
+            sol::protected_function_result result = m_OnStartFunc->call(entity);
             if (!result.valid()) {
                 sol::error err = result;
                 RAZIX_CORE_ERROR("Failed to Execute Script Lua Init function");
@@ -59,12 +61,12 @@ namespace Razix {
         }
     }
 
-    void LuaScriptComponent::OnUpdate(RZTimestep dt)
+    void LuaScriptComponent::OnUpdate(RZEntity entity, RZTimestep dt)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
         if (m_UpdateFunc) {
-            sol::protected_function_result result = m_UpdateFunc->call(dt.GetTimestepMs());
+            sol::protected_function_result result = m_UpdateFunc->call(entity, dt.GetTimestepMs());
             if (!result.valid()) {
                 sol::error err = result;
                 RAZIX_CORE_ERROR("Failed to Execute Script Lua OnUpdate");

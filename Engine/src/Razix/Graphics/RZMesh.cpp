@@ -71,7 +71,7 @@ namespace Razix {
             GenerateTangents(&m_Vertices[0], m_VertexCount, nullptr, 0);
 
             m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) m_Indices.data(), m_IndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount), m_Vertices.data(), BufferUsage::STATIC RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount), m_Vertices.data(), BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
             // TODO: Add buffer layout by reflecting from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");

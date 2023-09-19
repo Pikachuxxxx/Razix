@@ -1,15 +1,6 @@
 {
     "name": "Pass.Builtin.DepthPreTest",
-    "shaders": [
-        {
-            "stage": "Vertex",
-            "shader": "Shader.Builtin.DepthPass.vert"
-        },
-        {
-            "stage": "Pixel",
-            "shader": "Shader.Builtin.DepthPass.frag"
-        }
-    ],
+    "shader": "Shader.Builtin.DepthPreTest",
     "pipeline_info": {
         "depth": {
             "write": true,
@@ -35,7 +26,7 @@
         "transparency": true
     },
     "scene_params": {
-        "geometry": "scene",
+        "geometry_mode": "scene",
         "enable_materials": false,
         "enable_lights": true
     }

@@ -23,7 +23,7 @@ namespace Razix {
         class RZShadowPass : public IRZPass
         {
         public:
-            RZShadowPass()      = default;
+            RZShadowPass()  = default;
             ~RZShadowPass() = default;
 
             void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings) override;
@@ -33,7 +33,7 @@ namespace Razix {
         private:
             RZUniformBuffer* m_LightViewProjUBO;
             RZDescriptorSet* m_LVPSet;
-            RZPipeline*      m_Pipeline;
+            RZPipelineHandle m_Pipeline;
         };
     }    // namespace Graphics
 }    // namespace Razix

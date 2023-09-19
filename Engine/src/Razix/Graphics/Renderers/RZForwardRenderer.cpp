@@ -54,7 +54,7 @@ namespace Razix {
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
-            auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
@@ -70,9 +70,10 @@ namespace Razix {
             }
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
+            pipelineInfo.name                   = "Forward Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::Front;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA8};
@@ -80,7 +81,7 @@ namespace Razix {
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
 
-            m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Pipeline"));
+            m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
         }
 
         void RZForwardRenderer::Begin(RZScene* scene)
@@ -120,7 +121,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Bind the pipeline
-            m_Pipeline->Bind(cmdBuffer);
+            RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
             auto mesh_group = m_CurrentScene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
             for (auto entity: mesh_group) {
@@ -133,7 +134,7 @@ namespace Razix {
                 //-----------------------------
                 // Get the shader from the Mesh Material later
                 // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                auto& modelMatrix = m_OverrideGlobalRHIShader->getPushConstants()[0];
+                auto& modelMatrix = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getPushConstants()[0];
 
                 struct PCD
                 {
@@ -183,7 +184,7 @@ namespace Razix {
 
             // Destroy the resources first
             m_ForwardLightsUBO->Destroy();
-            m_Pipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
             m_GPULightsDescriptorSet->Destroy();
             m_CSMSet->Destroy();
             m_FrameDataSet->Destroy();

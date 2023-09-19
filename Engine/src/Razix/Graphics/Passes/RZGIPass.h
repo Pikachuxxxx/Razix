@@ -24,9 +24,9 @@ namespace Razix {
 
         private:
             Maths::RZGrid                 m_Grid;
-            RZPipeline*                   m_RIPipeline;
-            RZPipeline*                   m_RSMPipeline;
-            RZPipeline*                   m_RPropagationPipeline;
+            RZPipelineHandle              m_RIPipeline;
+            RZPipelineHandle              m_RSMPipeline;
+            RZPipelineHandle              m_RPropagationPipeline;
             Graphics::RZDescriptorSet*    m_MVPDescriptorSet;
             Graphics::RZDescriptorSet*    m_RIDescriptorSet;
             std::vector<RZCommandBuffer*> m_RSMCmdBuffers;

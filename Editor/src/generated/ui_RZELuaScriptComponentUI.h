@@ -28,12 +28,13 @@ public:
     QHBoxLayout *horizontalLayout;
     QLineEdit *ScriptFileLineEdit;
     QPushButton *Browse;
+    QPushButton *Reload;
 
     void setupUi(QWidget *LuaScriptComponent)
     {
         if (LuaScriptComponent->objectName().isEmpty())
             LuaScriptComponent->setObjectName(QString::fromUtf8("LuaScriptComponent"));
-        LuaScriptComponent->resize(234, 43);
+        LuaScriptComponent->resize(412, 190);
         formLayout = new QFormLayout(LuaScriptComponent);
         formLayout->setSpacing(6);
         formLayout->setContentsMargins(11, 11, 11, 11);
@@ -58,6 +59,11 @@ public:
 
         horizontalLayout->addWidget(Browse);
 
+        Reload = new QPushButton(LuaScriptComponent);
+        Reload->setObjectName(QString::fromUtf8("Reload"));
+
+        horizontalLayout->addWidget(Reload);
+
 
         formLayout->setLayout(0, QFormLayout::FieldRole, horizontalLayout);
 
@@ -73,6 +79,7 @@ public:
         label->setText(QCoreApplication::translate("LuaScriptComponent", "Script", nullptr));
         ScriptFileLineEdit->setPlaceholderText(QCoreApplication::translate("LuaScriptComponent", "Lua Script file ", nullptr));
         Browse->setText(QCoreApplication::translate("LuaScriptComponent", "Browse", nullptr));
+        Reload->setText(QCoreApplication::translate("LuaScriptComponent", "Reload", nullptr));
     } // retranslateUi
 
 };

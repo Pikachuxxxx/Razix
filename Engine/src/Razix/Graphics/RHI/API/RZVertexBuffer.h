@@ -59,7 +59,7 @@ namespace Razix {
             RAZIX_INLINE bool isBufferMaped() const { return m_Mapped; }
 
         protected:
-            BufferUsage m_Usage  = BufferUsage::STATIC;
+            BufferUsage m_Usage  = BufferUsage::Static;
             u32         m_Size   = 0;
             bool        m_Mapped = false;
         };

@@ -75,7 +75,7 @@ namespace Razix {
                 std::vector<RZCommandBuffer*> CmdBuffers;
                 RZUniformBuffer*              ViewProjLayerUBO;
                 std::vector<RZDescriptorSet*> CascadeVPSet;
-                RZPipeline*                   CascadePassPipeline;
+                RZPipelineHandle              CascadePassPipeline;
             } cascadeGPUResources[kNumCascades];
 
             std::vector<Cascade> m_Cascades;

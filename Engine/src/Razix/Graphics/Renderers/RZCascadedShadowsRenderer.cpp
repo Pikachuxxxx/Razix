@@ -67,7 +67,7 @@ namespace Razix {
                 cascadeGPUResources[i].ViewProjLayerUBO->Destroy();
                 for (auto& set: cascadeGPUResources[i].CascadeVPSet)
                     set->Destroy();
-                cascadeGPUResources[i].CascadePassPipeline->Destroy();
+                RZResourceManager::Get().destroyPipeline(cascadeGPUResources[i].CascadePassPipeline);
             }
         }
 
@@ -267,7 +267,7 @@ namespace Razix {
 
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::CSM);
-            auto setInfos = shader->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
 
             cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ModelViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));
 
@@ -282,22 +282,23 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode                               = Graphics::CullMode::NONE;
-            pipelineInfo.drawType                               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.name                                   = "Cascade Pass Pipeline";
+            pipelineInfo.cullMode                               = Graphics::CullMode::None;
+            pipelineInfo.drawType                               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                                 = shader;
             pipelineInfo.transparencyEnabled                    = false;
             pipelineInfo.depthBiasEnabled                       = false;
             pipelineInfo.depthFormat                            = {Graphics::TextureFormat::DEPTH32F};
-            cascadeGPUResources[cascadeIdx].CascadePassPipeline = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascade Pass Pipeline"));
+            cascadeGPUResources[cascadeIdx].CascadePassPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
                 name,
-                [&](CascadeSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) { 
-                        builder.setAsStandAlonePass();
-                    if (cascadeIdx == 0) {
-                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap Array", {  .name = "CascadedShadowMapsArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_Depth,.format =  TextureFormat::DEPTH32F});
-                    }
-                    data.cascadeOuput = builder.write(cascadeShadowMap); },
+                [&](CascadeSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                builder.setAsStandAlonePass();
+                if (cascadeIdx == 0) {
+                    cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMap Array", {.name = "CascadedShadowMapsArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F});
+                }
+                data.cascadeOuput = builder.write(cascadeShadowMap); },
                 [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -336,7 +337,7 @@ namespace Razix {
                     RHI::SetCmdCheckpoint(cmdBuf, &checkpointData);
 
                     // Bind pipeline
-                    cascadeGPUResources[cascadeIdx].CascadePassPipeline->Bind(cmdBuf);
+                    RHI::BindPipeline(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf);
 
                     // Bind Sets
                     RHI::BindUserDescriptorSets(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, cascadeGPUResources[cascadeIdx].CascadeVPSet);
@@ -356,7 +357,7 @@ namespace Razix {
                         //-----------------------------
                         // Get the shader from the Mesh Material later
                         // FIXME: We are using 0 to get the first push constant that is the ....... to be continued coz im lazy
-                        auto& modelMatrix = shader->getPushConstants()[0];
+                        auto& modelMatrix = RZResourceManager::Get().getShaderResource(shader)->getPushConstants()[0];
 
                         struct PCD
                         {

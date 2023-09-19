@@ -44,16 +44,17 @@ namespace Razix {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
+            pipelineInfo.name                   = "PBR Lighting Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::Front;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = pbrShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
             pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
-            m_Pipeline                          = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR Pipeline"));
+            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& frameDataBlock       = blackboard.get<FrameData>();
             auto& sceneLightsDataBlock = blackboard.get<SceneLightsData>();
@@ -230,7 +231,7 @@ namespace Razix {
 
                     //m_PBRPassBindingUBO->SetData(sizeof(PBRPassBindingData), &bindingData);
 
-                    m_Pipeline->Bind(RHI::GetCurrentCommandBuffer());
+                    RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
                     scene->drawScene(m_Pipeline, {.userSets = {m_ShadowDataSet, m_PBRDataSet}});
 
@@ -241,7 +242,7 @@ namespace Razix {
 
         void RZPBRLightingPass::destroy()
         {
-            m_Pipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
             //m_PBRBindingSet->Destroy();
             //m_PBRPassBindingUBO->Destroy();
         }

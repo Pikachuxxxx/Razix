@@ -13,6 +13,9 @@ namespace Razix {
     namespace Graphics {
 
         class RZTexture;
+        enum class ShaderBuiltin : u32;
+
+        // TODO: FIX RESOURCE CLEANUP IMMEDIATELY
 
         class RAZIX_API RZResourceManager : public RZSingleton<RZResourceManager>
         {
@@ -34,18 +37,41 @@ namespace Razix {
                 return m_TexturePool;
             }
 
+            template<>
+            RZResourcePoolTyped<RZShader>& getPool()
+            {
+                return m_ShaderPool;
+            }
+
+            template<>
+            RZResourcePoolTyped<RZPipeline>& getPool()
+            {
+                return m_PipelinePool;
+            }
+
             /* GPU Resource Allocation functions */
+            //-----------------------------------------------------------------------------------
             RZTextureHandle createTexture(const RZTextureDesc& desc);
             RZTextureHandle createTextureFromFile(const RZTextureDesc& desc, const std::string& filePath);
-            void            releaseTexture(RZTextureHandle& handle);
-
+            void            destroyTexture(RZTextureHandle handle);
+            RZTexture*      getTextureResource(RZTextureHandle handle);
+            //-----------------------------------------------------------------------------------
+            RZShaderHandle createShaderFromFile(ShaderBuiltin shaderID, std::string shaderPath);
+            void           destroyShader(RZShaderHandle handle);
+            RZShader*      getShaderResource(RZShaderHandle handle);
+            //-----------------------------------------------------------------------------------
+            RZPipelineHandle createPipeline(const RZPipelineDesc& desc);
+            void             destroyPipeline(RZPipelineHandle handle);
+            RZPipeline*      getPipelineResource(RZPipelineHandle handle);
+            //-----------------------------------------------------------------------------------
             RZVertexBufferHandle createVertexBuffer(RZVertexBufferDesc& desc);
             RZIndexBufferHandle  createIndexBuffer(RZIndexBufferDesc& desc);
+            //-----------------------------------------------------------------------------------
 
         private:
-            RZResourcePoolTyped<RZTexture>      m_TexturePool;
-            RZResourcePoolTyped<RZVertexBuffer> m_VertexBufferPool;
-            RZResourcePoolTyped<RZIndexBuffer>  m_IndexBufferPool;
+            RZResourcePoolTyped<RZTexture>  m_TexturePool;
+            RZResourcePoolTyped<RZShader>   m_ShaderPool;
+            RZResourcePoolTyped<RZPipeline> m_PipelinePool;
         };
     }    // namespace Graphics
 }    // namespace Razix

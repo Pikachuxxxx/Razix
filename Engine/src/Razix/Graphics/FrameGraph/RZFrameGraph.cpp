@@ -6,6 +6,10 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/Graphics/RZShaderLibrary.h"
+
+#include "Razix/Scene/RZScene.h"
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -42,82 +46,96 @@ namespace Razix {
                 auto &passName = data["name"];
                 RAZIX_CORE_TRACE("pass name : {0}", passName);
 
-                // parse the shaders
-                auto &shaders = data["shaders"];
-                for (auto &shader: shaders) {
-                    auto &stage      = shader["stage"];
-                    auto &shaderfile = shader["shader"];
-                    RAZIX_CORE_TRACE("shader stage : {0}, shader file : {1}", stage, shaderfile);
-                }
+                // parse the shader and load into/from Shader Library
+                // TODO: Support loading user land shaders and re-verification of Builtin.Shaders
+                // Since as of now we only deal with Built-in passes and shaders we can go ahead fine
+                auto &shaderFileName = data["shader"];
+                auto  shader         = Graphics::RZShaderLibrary::Get().getBuiltInShader(std::string(shaderFileName) + ".rzsf");
 
                 RZPipelineDesc pipelineDesc{};
+
+                // Set the shader to the pipeline
+                pipelineDesc.shader = shader;
 
                 // parse the pipeline info
                 auto &pipelineInfo = data["pipeline_info"];
                 {
                     auto &depth = pipelineInfo["depth"];
                     {
-                        auto &depthWrite = depth["write"];
-                        RAZIX_CORE_TRACE("depthWrite : {0}", depthWrite.get<bool>());
-                        auto &depthTest = depth["test"];
-                        RAZIX_CORE_TRACE("depthTest : {0}", depthTest.get<bool>());
+                        auto &depthWrite     = depth["write"];
+                        auto &depthTest      = depth["test"];
                         auto &depthoperation = depth["op"];
-                        RAZIX_CORE_TRACE("depthoperation : {0}", depthoperation);
-                        auto &depthBias = depth["bias"];
-                        RAZIX_CORE_TRACE("depthBias : {0}", depthBias.get<bool>());
+                        auto &depthBias      = depth["bias"];
 
                         pipelineDesc.depthTestEnabled  = depthTest.get<bool>();
                         pipelineDesc.depthWriteEnabled = depthWrite.get<bool>();
                         pipelineDesc.depthBiasEnabled  = depthBias.get<bool>();
 
-                        pipelineDesc.depthOp = depthoperation;
+                        pipelineDesc.depthOp = StringToCompareOp(depthoperation);
                     }
-                    auto &cullMode = pipelineInfo["cull_mode"];
-                    RAZIX_CORE_TRACE("cullMode : {0}", cullMode);
-                    auto &polygonMode = pipelineInfo["polygon_mode"];
-                    RAZIX_CORE_TRACE("polygonMode : {0}", polygonMode);
-                    auto &drawType = pipelineInfo["draw_type"];
-                    RAZIX_CORE_TRACE("drawType : {0}", drawType);
-                    auto &depthFormat = pipelineInfo["depth_format"];
-                    RAZIX_CORE_TRACE("depthFormat : {0}", depthFormat);
+                    auto &cullMode        = pipelineInfo["cull_mode"];
+                    pipelineDesc.cullMode = StringToCullMode(cullMode);
+
+                    auto &polygonMode        = pipelineInfo["polygon_mode"];
+                    pipelineDesc.polygonMode = StringToPolygonMode(polygonMode);
+
+                    auto &drawType        = pipelineInfo["draw_type"];
+                    pipelineDesc.drawType = StringToDrawType(drawType);
+
+                    auto &depthFormat        = pipelineInfo["depth_format"];
+                    pipelineDesc.depthFormat = StringToTextureFormat(depthFormat);
+
                     auto &colorFormats = pipelineInfo["color_formats"];
                     for (auto &format: colorFormats) {
-                        RAZIX_CORE_TRACE("Format : {0}", format);
+                        pipelineDesc.colorAttachmentFormats.push_back(StringToTextureFormat(format));
                     }
 
                     auto &colorBlendInfo = pipelineInfo["color_blend"];
                     {
                         auto &src = colorBlendInfo["src"];
-                        RAZIX_CORE_TRACE("src : {0}", src);
                         auto &dst = colorBlendInfo["dst"];
-                        RAZIX_CORE_TRACE("dst : {0}", dst);
-                        auto &op = colorBlendInfo["op"];
-                        RAZIX_CORE_TRACE("op : {0}", op);
+                        auto &op  = colorBlendInfo["op"];
+
+                        pipelineDesc.colorDst = StringToBlendFactor(dst);
+                        pipelineDesc.colorSrc = StringToBlendFactor(src);
+                        pipelineDesc.colorOp  = StringToBlendOp(op);
                     }
 
                     auto &alphaBlendInfo = pipelineInfo["alpha_blend"];
                     {
                         auto &src = alphaBlendInfo["src"];
-                        RAZIX_CORE_TRACE("src : {0}", src);
                         auto &dst = alphaBlendInfo["dst"];
-                        RAZIX_CORE_TRACE("dst : {0}", dst);
-                        auto &op = alphaBlendInfo["op"];
-                        RAZIX_CORE_TRACE("op : {0}", op);
+                        auto &op  = alphaBlendInfo["op"];
+
+                        pipelineDesc.alphaDst = StringToBlendFactor(dst);
+                        pipelineDesc.alphaSrc = StringToBlendFactor(src);
+                        pipelineDesc.alphaOp  = StringToBlendOp(op);
                     }
 
-                    auto &transparency = pipelineInfo["transparency"];
-                    RAZIX_CORE_TRACE("transparency : {0}", transparency.get<bool>());
+                    auto &transparency               = pipelineInfo["transparency"];
+                    pipelineDesc.transparencyEnabled = transparency.get<bool>();
                 }
 
+                // Create the pipeline object
+                RZPipelineHandle pipeline = RZResourceManager::Get().createPipeline(pipelineDesc);
+
+                // TODO: support parsing enableFrameData and enableBindless from JSON file
+
+                SceneDrawParams sceneDrawParams{};
                 // parse the scene params
                 auto &scenceParams = data["scene_params"];
                 {
-                    auto &geometry = scenceParams["geometry"];
-                    RAZIX_CORE_TRACE("geometry : {0}", geometry);
+                    auto &geometry = scenceParams["geometry_mode"];
+                    RAZIX_CORE_TRACE("geometry_mode : {0}", geometry);
+                    sceneDrawParams.geometryMode = SceneGeometryModeStringMap[geometry];
+
                     auto &enableMaterials = scenceParams["enable_materials"];
                     RAZIX_CORE_TRACE("enableMaterials : {0}", enableMaterials.get<bool>());
+                    sceneDrawParams.enableMaterials = enableMaterials.get<bool>();
+
                     auto &enableLights = scenceParams["enable_lights"];
                     RAZIX_CORE_TRACE("enableLights : {0}", enableLights.get<bool>());
+                    sceneDrawParams.enableLights = enableLights.get<bool>();
                 }
             }
 

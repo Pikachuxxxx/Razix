@@ -14,15 +14,15 @@ namespace Razix {
             ~VKPipeline() {}
 
             void Bind(RZCommandBuffer* commandBuffer) override;
-            void Destroy() override;
 
             void init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
 
             inline const VkPipeline&       getPipeline() const { return m_Pipeline; }
             inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
 
+            void DestroyResource() override;
+
         private:
-            RZShader*        m_Shader;
             VkPipelineLayout m_PipelineLayout;
             VkPipeline       m_Pipeline;
         };

@@ -130,6 +130,8 @@ namespace Razix {
                 connect(m_LuaScriptComponentSection, SIGNAL(utilButtonClicked()), this, SLOT(ShowComponentsUtilContextMenu()));
                 this->getBoxLayout().insertWidget(idx, m_LuaScriptComponentSection);
                 m_LuaScriptComponentSection->setVisible(true);
+                // Set the editing entity
+                m_LuaScriptComponentUI->setEditingEntity(entity);
                 idx++;
             }
             if (entity.HasComponent<MeshRendererComponent>()) {

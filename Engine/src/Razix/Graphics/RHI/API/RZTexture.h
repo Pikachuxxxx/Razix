@@ -9,8 +9,6 @@
 
 #include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 
-#define GET_INSTANCE_SIZE static u32 GetInstanceSize()
-
 namespace Razix {
     namespace Graphics {
 
@@ -33,7 +31,7 @@ namespace Razix {
             /* Default constructor, texture resource is done on demand */
             RZTexture() {}
             /* Virtual destructor enables the API implementation to delete it's resources */
-            virtual ~RZTexture() {}
+            RAZIX_VIRTUAL_DESCTURCTOR(RZTexture)
 
             RAZIX_NONCOPYABLE_CLASS(RZTexture)
 

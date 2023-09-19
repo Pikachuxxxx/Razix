@@ -31,7 +31,7 @@ namespace Razix {
 
         private:
             RZMesh*                    m_ScreenQuadMesh = nullptr;
-            RZPipeline*                m_Pipeline;
+            RZPipelineHandle           m_Pipeline;
             Graphics::RZDescriptorSet* m_DescriptorSets;
             bool                       updatedRT = false;
         };

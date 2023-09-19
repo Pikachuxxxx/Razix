@@ -94,7 +94,7 @@ namespace Razix {
             //uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto setInfos = m_OverrideGlobalRHIShader->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getSetsCreateInfos();
 
             // Add icon fonts to ImGui
             // merge in icons from Font Awesome
@@ -140,7 +140,7 @@ namespace Razix {
                 return;
             }
 
-            m_ImGuiVBO = RZVertexBuffer::Create(Mib(4), nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
+            m_ImGuiVBO = RZVertexBuffer::Create(Mib(4), nullptr, BufferUsage::Dynamic RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
             m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, Mib(4) * 6);
         }
 
@@ -221,7 +221,7 @@ namespace Razix {
             ImGuiIO& io = ImGui::GetIO();
 
             // Bind the pipeline and descriptor sets
-            m_Pipeline->Bind(cmdBuffer);
+            RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
             // Update the push constants
             pushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
@@ -231,10 +231,11 @@ namespace Razix {
             RHI::SetViewport(cmdBuffer, 0, 0, (u32) io.DisplaySize.x, (u32) io.DisplaySize.y);
             //RHI::SetViewport(cmdBuffer, 0, 0, (u32) ResolutionToExtentsMap[Resolution::k1440p].x, (u32) ResolutionToExtentsMap[Resolution::k1440p].y);
 
-            RZPushConstant& model = m_OverrideGlobalRHIShader->getPushConstants()[0];
-            model.shaderStage     = ShaderStage::VERTEX;
-            model.size            = sizeof(PushConstBlock);
-            model.data            = &pushConstBlock;
+            RZPushConstant model{};    //RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getPushConstants()[0];
+            model.name        = "ImGui model mat";
+            model.shaderStage = ShaderStage::VERTEX;
+            model.size        = sizeof(PushConstBlock);
+            model.data        = &pushConstBlock;
 
             RHI::BindPushConstant(m_Pipeline, cmdBuffer, model);
 
@@ -291,7 +292,7 @@ namespace Razix {
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
 
-            m_Pipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
 
             Graphics::RHI::OnResize(width, height);
         }
@@ -304,18 +305,19 @@ namespace Razix {
 
             m_FontAtlasDescriptorSet->Destroy();
             //m_FontAtlasTexture->Release(true);
-            RZResourceManager::Get().releaseTexture(m_FontAtlasTexture);
+            RZResourceManager::Get().destroyTexture(m_FontAtlasTexture);
             m_ImGuiVBO->Destroy();
             m_ImGuiIBO->Destroy();
-            m_Pipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
 
         void RZImGuiRenderer::initDisposableResources()
         {
             // Create the graphics pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.name                   = "ImGui Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
@@ -324,9 +326,7 @@ namespace Razix {
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
-
-            if (m_OverrideGlobalRHIShader)
-                m_Pipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Pipeline"));
+            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
         }
 
         void RZImGuiRenderer::uploadUIFont(const std::string& fontPath)

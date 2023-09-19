@@ -20,7 +20,7 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZPipeline*      m_Pipeline;
+            RZPipelineHandle m_Pipeline;
             RZUniformBuffer* m_PBRPassBindingUBO;
             RZDescriptorSet* m_PBRBindingSet;
             RZDescriptorSet* m_ShadowDataSet;

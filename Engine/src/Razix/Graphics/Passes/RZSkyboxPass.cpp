@@ -41,9 +41,10 @@ namespace Razix {
             auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ProceduralSkybox);
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::FRONT;
+            pipelineInfo.name                   = "Skybox Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::Front;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = skyboxShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
@@ -51,10 +52,11 @@ namespace Razix {
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = false;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
-            m_Pipeline                          = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Skybox Pipeline"));
+            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
+            pipelineInfo.name    = "Procedural Skybox Pipeline";
             pipelineInfo.shader  = proceduralSkyboxShader;
-            m_ProceduralPipeline = Graphics::RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Procedural Skybox Pipeline"));
+            m_ProceduralPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             m_SkyboxCube = MeshFactory::CreateCube();
 
@@ -122,12 +124,12 @@ namespace Razix {
                     }
 
                     if (!m_UseProceduralSkybox) {
-                        m_Pipeline->Bind(cmdBuffer);
+                        Graphics::RHI::BindPipeline(m_Pipeline, cmdBuffer);
                         Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
                         Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LightProbesDescriptorSet, BindingTable_System::SET_IDX_MATERIAL_DATA);
                         //RHI::EnableBindlessTextures(m_Pipeline, cmdBuffer);
                     } else {
-                        m_ProceduralPipeline->Bind(cmdBuffer);
+                        Graphics::RHI::BindPipeline(m_ProceduralPipeline, cmdBuffer);
                         Graphics::RHI::BindDescriptorSet(m_ProceduralPipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
                         Graphics::RHI::BindDescriptorSet(m_ProceduralPipeline, cmdBuffer, m_VolumetricDescriptorSet, BindingTable_System::SET_IDX_MATERIAL_DATA);
                         //RHI::EnableBindlessTextures(m_ProceduralPipeline, cmdBuffer);
@@ -180,8 +182,8 @@ namespace Razix {
 
         void RZSkyboxPass::destroy()
         {
-            m_Pipeline->Destroy();
-            m_ProceduralPipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            RZResourceManager::Get().destroyPipeline(m_ProceduralPipeline);
             m_SkyboxCube->Destroy();
         }
     }    // namespace Graphics

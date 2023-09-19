@@ -6,6 +6,8 @@
 
 namespace Razix {
 
+    class RZEntity;
+
     class RAZIX_API LuaScriptComponent
     {
     public:
@@ -20,8 +22,8 @@ namespace Razix {
             */
         void loadScript(const std::string& scriptPath);
 
-        void OnStart();
-        void OnUpdate(RZTimestep dt);
+        void OnStart(RZEntity entity);
+        void OnUpdate(RZEntity entity, RZTimestep dt);
         void OnImGui();
 
         template<typename Archive>
@@ -36,6 +38,8 @@ namespace Razix {
             archive(cereal::make_nvp("FilePath", m_Filepath));
             loadScript(m_Filepath);
         }
+
+        const std::string& getScriptFilePath() { return m_Filepath; }
 
     private:
         std::string m_Filepath;

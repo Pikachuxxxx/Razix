@@ -69,8 +69,9 @@ namespace Razix {
             // FIXME: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown, yet!
 
             // Load the shader
-            auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
-            auto setInfos = shader->getSetsCreateInfos();
+            auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
+            auto shader       = RZResourceManager::Get().getShaderResource(shaderHandle);
+            auto setInfos     = shader->getSetsCreateInfos();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -97,13 +98,14 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader                 = shader;
+            pipelineInfo.name                   = "Env map pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.shader                 = shaderHandle;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
-            RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Envmap Pipeline"));
+            RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
@@ -136,7 +138,7 @@ namespace Razix {
                 //------------------------------------------------
                 RHI::BeginRendering(cmdBuffer, info);
 
-                envMapPipeline->Bind(cmdBuffer);
+                RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
                 cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
@@ -161,7 +163,7 @@ namespace Razix {
                 RAZIX_MARK_END()
                 RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
-            RZResourceManager::Get().releaseTexture(equirectangularMapHandle);
+            RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
 
             // Generate mip maps from first mip face
             //RZTexture* envCubeMap = RZResourceManager::Get().getPool<RZTexture>().get(cubeMapHandle);
@@ -171,7 +173,7 @@ namespace Razix {
                 envMapSets[i]->Destroy();
                 UBOs[i]->Destroy();
             }
-            envMapPipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(envMapPipeline);
             cubeMesh->Destroy();
 
             return cubeMapHandle;
@@ -190,7 +192,8 @@ namespace Razix {
                 .enableMips                                                                     = false});
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
-            RZShader* cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GenerateIrradianceMap);
+            RZShaderHandle cubemapConvolutionShaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GenerateIrradianceMap);
+            auto           shader                         = RZResourceManager::Get().getShaderResource(cubemapConvolutionShaderHandle);
 
             // Create the View Projection buffer
 
@@ -207,7 +210,7 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto setInfos = cubemapConvolutionShader->getSetsCreateInfos();
+            auto setInfos = shader->getSetsCreateInfos();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -232,13 +235,14 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
-            pipelineInfo.shader                 = cubemapConvolutionShader;
+            pipelineInfo.name                   = "Irradiance Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.shader                 = cubemapConvolutionShaderHandle;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
-            RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance Pipeline"));
+            RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
@@ -260,7 +264,7 @@ namespace Razix {
                 info.layerCount = 6;
                 RHI::BeginRendering(cmdBuffer, info);
 
-                envMapPipeline->Bind(cmdBuffer);
+                RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
                 cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
                 cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
@@ -289,7 +293,7 @@ namespace Razix {
                 envMapSets[i]->Destroy();
                 UBOs[i]->Destroy();
             }
-            envMapPipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(envMapPipeline);
             cubeMesh->Destroy();
 
             return irradianceMapHandle;
@@ -311,7 +315,8 @@ namespace Razix {
             RZTexture* preFilteredMap = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
-            RZShader* cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap);
+            RZShaderHandle cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap);
+            auto           shader                   = RZResourceManager::Get().getShaderResource(cubemapConvolutionShader);
 
             // Create the View Projection buffer
 
@@ -328,7 +333,7 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto setInfos = cubemapConvolutionShader->getSetsCreateInfos();
+            auto setInfos = shader->getSetsCreateInfos();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -363,13 +368,14 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.cullMode               = Graphics::CullMode::NONE;
-            pipelineInfo.drawType               = Graphics::DrawType::TRIANGLE;
+            pipelineInfo.name                   = "Pre Filtered Map Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = cubemapConvolutionShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
-            RZPipeline* envMapPipeline          = RZPipeline::Create(pipelineInfo RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map Pipeline"));
+            RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
@@ -398,7 +404,7 @@ namespace Razix {
                     preFilteredMap->setCurrentMipLevel(mip);
                     RHI::BeginRendering(cmdBuffer, info);
 
-                    envMapPipeline->Bind(cmdBuffer);
+                    RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
                     cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
                     cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
@@ -434,7 +440,7 @@ namespace Razix {
                 envMapSets[i]->Destroy();
                 UBOs[i]->Destroy();
             }
-            envMapPipeline->Destroy();
+            RZResourceManager::Get().destroyPipeline(envMapPipeline);
             cubeMesh->Destroy();
 
             return preFilteredMapHandle;

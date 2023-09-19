@@ -5,6 +5,8 @@
 
 #include "Razix/Core/RZUUID.h"
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 #include "Razix/Scene/RZSceneCamera.h"
 
 namespace Razix {
@@ -19,15 +21,34 @@ namespace Razix {
 
     using RZDescriptorSets = std::vector<Graphics::RZDescriptorSet*>;
 
+    enum class SceneDrawGeometryMode
+    {
+        SceneGeometry, /* Draws the scene geometry using the scene graph       */
+        Cubemap,       /* Draws a single cube for cubemap projection           */
+        ScreenQuad,    /* Draws a full screen quad for Post processing etc.    */
+        Quad,          /* Draws a quad for GS manipulation                     */
+        UI,            /* Draws UI elements                                    */
+        Custom,        /* Issues custom draw calls instead                     */
+    };
+
+    static std::map<std::string, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
+        {"SceneGeometry", Razix::SceneDrawGeometryMode::SceneGeometry},
+        {"Cubemap", Razix::SceneDrawGeometryMode::Cubemap},
+        {"ScreenQuad", Razix::SceneDrawGeometryMode::ScreenQuad},
+        {"Quad", Razix::SceneDrawGeometryMode::Quad},
+        {"UI", Razix::SceneDrawGeometryMode::UI},
+        {"Custom", Razix::SceneDrawGeometryMode::Custom}};
+
     struct SceneDrawParams
     {
-        bool             disableFrameData             = false;
-        bool             disableBindlessTextures      = false;
-        bool             disableLights                = false;
-        bool             disableMaterials             = false;
-        RZDescriptorSets userSets                     = {};
-        void*            overridePushConstantData     = nullptr;
-        u32              overridePushConstantDataSize = 0;
+        SceneDrawGeometryMode geometryMode                 = SceneDrawGeometryMode::SceneGeometry;
+        bool                  enableMaterials              = true;
+        bool                  enableLights                 = true;
+        bool                  enableFrameData              = true;
+        bool                  enableBindlessTextures       = false;
+        RZDescriptorSets      userSets                     = {};
+        void*                 overridePushConstantData     = nullptr;
+        u32                   overridePushConstantDataSize = 0;
         // TODO: Add support for Pixel PC data
     };
 
@@ -45,7 +66,7 @@ namespace Razix {
         void update();
         void updateTransform(entt::entity entity);
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
-        void drawScene(Graphics::RZPipeline* pipeline, SceneDrawParams sceneDrawParams = {});
+        void drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawParams sceneDrawParams = {});
 
         void Destroy();
 

@@ -40,6 +40,9 @@ namespace Razix {
             // Binding GLM
             bindglm();
 
+            // Bind the ECS API
+            bindECSAPI();
+
             // TODO: Bind other APIs (engine, gfx, ecs, physics etc.)
         }
 
@@ -61,7 +64,7 @@ namespace Razix {
 
             for (auto entity: view) {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
-                luaScript.OnStart();
+                luaScript.OnStart(RZEntity(entity, scene));
             }
         }
 
@@ -78,8 +81,8 @@ namespace Razix {
 
             for (auto entity: view) {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
-                luaScript.OnUpdate(dt);
-            }
+                luaScript.OnUpdate(RZEntity(entity, scene) , dt);
+            } 
         }
 
         void RZLuaScriptHandler::OnImGui(RZScene* scene)
@@ -106,10 +109,5 @@ namespace Razix {
         void RZLuaScriptHandler::bindInputAPI()
         {
         }
-
-        void RZLuaScriptHandler::bindECSAPI()
-        {
-        }
-
     }    // namespace Scripting
 }    // namespace Razix
