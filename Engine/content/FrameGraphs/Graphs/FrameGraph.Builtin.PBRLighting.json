@@ -2,16 +2,16 @@
     "name": "PBRLighting",
     "passes": [
         {
-            "name": "Pass.Builtin.DepthPreTest",
+            "render_pass": "Pass.Builtin.DepthPreTest",
             "inputs": [
                 {
-                    "type": "attachment",
-                    "name": "depth"
+                    "type": "reference",
+                    "name": "SceneDepth"
                 }
             ],
             "outputs": [
                 {
-                    "type": "attachment",
+                    "type": "texture",
                     "name": "SceneHDR",
                     "format": "BGRA8_UNORM",
                     "resolution": [ 1280, 800 ],

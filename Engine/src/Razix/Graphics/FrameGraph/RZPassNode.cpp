@@ -57,11 +57,6 @@ namespace Razix {
                 return hasId(m_Writes, resourceID);
             }
 
-            bool RZPassNode::isStandAlone() const
-            {
-                return m_IsStandAlone;
-            }
-
             bool RZPassNode::canExecute() const
             {
                 return m_RefCount > 0 || isStandAlone();

@@ -1,4 +1,5 @@
 // clang-format off
+// clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZFrameGraph.h"
@@ -30,13 +31,21 @@ namespace Razix {
                 auto jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
 
                 json data = json::parse(jsonStrData);
+
+                auto &passes = data["passes"];
+                for (auto &pass: passes) {
+                    auto &render_pass = pass["render_pass"];
+                    // Load this render pass from file
+                    RZPassNode passNode = parsePass("//RazixFG/Passes/" + std::string(render_pass));
+
+                    // Load the Input and Output Resources
+                }
             }
 
-            void RZFrameGraph::parsePass(const std::string &passPath)
+            RZPassNode RZFrameGraph::parsePass(const std::string &passPath)
             {
                 std::string physicalPath;
-                if (!RZVirtualFileSystem::Get().resolvePhysicalPath(passPath, physicalPath))
-                    return;
+                RAZIX_ASSERT(RZVirtualFileSystem::Get().resolvePhysicalPath(passPath, physicalPath), "Invalid Pass, please check again!");
 
                 auto jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
 
@@ -125,16 +134,13 @@ namespace Razix {
                 // parse the scene params
                 auto &scenceParams = data["scene_params"];
                 {
-                    auto &geometry = scenceParams["geometry_mode"];
-                    RAZIX_CORE_TRACE("geometry_mode : {0}", geometry);
+                    auto &geometry               = scenceParams["geometry_mode"];
                     sceneDrawParams.geometryMode = SceneGeometryModeStringMap[geometry];
 
-                    auto &enableMaterials = scenceParams["enable_materials"];
-                    RAZIX_CORE_TRACE("enableMaterials : {0}", enableMaterials.get<bool>());
+                    auto &enableMaterials           = scenceParams["enable_materials"];
                     sceneDrawParams.enableMaterials = enableMaterials.get<bool>();
 
-                    auto &enableLights = scenceParams["enable_lights"];
-                    RAZIX_CORE_TRACE("enableLights : {0}", enableLights.get<bool>());
+                    auto &enableLights           = scenceParams["enable_lights"];
                     sceneDrawParams.enableLights = enableLights.get<bool>();
                 }
             }
@@ -199,6 +205,7 @@ namespace Razix {
                     if (!pass.canExecute()) continue;
 
                     // Call create for all the resources created by this node : Lazy Allocation --> helps with memory aliasing (pass transient resources)
+                    // Even for Data Driven passes this works be cause we create the RZFrameGraphTexture/Buffer while parsing the JSON graph and we have a pseudo SetupFunc
                     for (const auto &id: pass.m_Creates)
                         getResourceEntry(id).getConcept()->create(transientAllocator);
 
@@ -213,9 +220,10 @@ namespace Razix {
                             getResourceEntry(id).getConcept()->preWrite(flags);
                     }
 
-                    // call the ExecuteFunc
+                    // call the ExecuteFunc (same for Code and DataDriven passes)
                     RZPassResourceDirectory resources{*this, pass};
-                    std::invoke(*pass.m_Exec, resources);
+                    // https://stackoverflow.com/questions/43680182/what-is-stdinvoke-in-c
+                    std::invoke(*pass.m_Exec, pass, resources);
 
                     /**
                      * Current nodes resources can still be used by other nodes so we check
@@ -225,7 +233,8 @@ namespace Razix {
                      */
                     for (auto &entry: m_ResourceRegistry)
                         if (entry.m_Last == &pass && entry.isTransient())
-                            entry.getConcept()->destroy(transientAllocator);
+                            entry.getConcept()
+                                ->destroy(transientAllocator);
                 }
             }
 

@@ -41,7 +41,7 @@ namespace Razix {
             auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ProceduralSkybox);
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "Skybox Pipeline";
+            pipelineInfo.name                   = "Skybox.Pipeline";
             pipelineInfo.cullMode               = Graphics::CullMode::Front;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
@@ -54,7 +54,7 @@ namespace Razix {
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            pipelineInfo.name    = "Procedural Skybox Pipeline";
+            pipelineInfo.name    = "ProceduralSkybox.Pipeline";
             pipelineInfo.shader  = proceduralSkyboxShader;
             m_ProceduralPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
@@ -66,7 +66,7 @@ namespace Razix {
             auto& volumetricData  = blackboard.get<VolumetricCloudsData>();
 
             framegraph.addCallbackPass(
-                "Skybox Pass",
+                "Pass.Builtin.Skybox",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 

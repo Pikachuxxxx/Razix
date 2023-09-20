@@ -40,15 +40,21 @@ namespace Razix {
                 /* Used to check whether the given resource ID is allowed to write by the node or not */
                 bool canWriteResouce(RZFrameGraphResource resourceID) const;
                 /* Whether or not the pass is stand alone */
-                bool isStandAlone() const;
+                RAZIX_INLINE bool isStandAlone() const { return m_IsStandAlone; }
+                /* Whether or not the pass is data driven */
+                RAZIX_INLINE bool isDataDriven() const { return m_IsDataDriven; }
                 /** 
                  * To check whether or not to be culled
                  * if either the node has refcount > 0 or is stand alone it shouldn't be culled and allowed to be executed 
                  */
                 bool canExecute() const;
 
+                RAZIX_INLINE const std::vector<RZFrameGraphResource>& getCreatResources() { return m_Creates; }
+                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getInputResources() { return m_Reads; }
+                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getOutputResources() { return m_Writes; }
+
             private:
-                std::unique_ptr<IRZFrameGraphPass> m_Exec;   /* The execution lambda function to be called for the pass */
+                std::unique_ptr<IRZFrameGraphPass> m_Exec; /* The execution lambda function to be called for the pass */
                 // TODO: Implement this
                 //std::unique_ptr<RZFrameGraphPassConcept> m_Update; /* The update lambda function to be called for the pass */
 
@@ -61,6 +67,7 @@ namespace Razix {
                 std::vector<RZFrameGraphResourceAcessView> m_Reads;                /* List of all the resource views that are read by this node     */
                 std::vector<RZFrameGraphResourceAcessView> m_Writes;               /* List of all the resources view that are written by this node  */
                 bool                                       m_IsStandAlone = false; /* Whether or no the pass is stand alone                         */
+                bool                                       m_IsDataDriven = false; /* Whether or no the it's data driven                            */
 
             private:
                 /**
