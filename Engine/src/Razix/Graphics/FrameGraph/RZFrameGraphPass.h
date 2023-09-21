@@ -1,5 +1,14 @@
 #pragma once
 
+namespace Razix {
+    struct SceneDrawParams;
+}
+namespace Razix {
+    namespace Graphics {
+        struct RenderingInfo;
+    }
+}    // namespace Razix
+
 /**
 * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
 * Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 
@@ -12,6 +21,7 @@ namespace Razix {
 
             // Forward Decelerations
             class RZPassResourceDirectory;    // List of all Resources in the current pass node
+            class RZPassNode;
 
             /**
              * This is type erasure all over again, the PassNode needs to store a lambda function to execute and some data to pass to the lambda
@@ -36,19 +46,20 @@ namespace Razix {
 
                 RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(IRZFrameGraphPass)
 
-                virtual void operator()(RZPassResourceDirectory &resources) = 0;
+                virtual void operator()(RZPassNode &node, RZPassResourceDirectory &resources)  = 0;
                 virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;
             };
 
             /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */
             template<typename Data, typename ExecuteFunc, typename ResizeFunc>    // done in FG so redundant here, typename = std::enable_if_t<is_valid_pass_exec_function<ExecuteFunc>()>> // Checks for the signature of the exec function
-            struct RZFrameGraphPass final : IRZFrameGraphPass
+            struct RZFrameGraphCodePass final : IRZFrameGraphPass
             {
-                explicit RZFrameGraphPass(ExecuteFunc &&exec, ResizeFunc &&resize)
+                explicit RZFrameGraphCodePass(ExecuteFunc &&exec, ResizeFunc &&resize)
                     : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
 
-                void operator()(RZPassResourceDirectory &resources) override
+                void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override
                 {
+                    // Note: Node isn't is used here it's for the RZFrameGraphDataPass
                     execFunction(data, resources);
                 }
 
@@ -60,6 +71,18 @@ namespace Razix {
                 ExecuteFunc execFunction;   /* Pass Execution function                                  */
                 ResizeFunc  resizeFunction; /* Pass Resize function                                     */
                 Data        data{};         /* Pass data that contains the list of FrameGraphResources  */
+            };
+
+            struct RZFrameGraphDataPass final : IRZFrameGraphPass
+            {
+                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Graphics::RenderingInfo info);
+
+                Graphics::RZShaderHandle   shader;
+                Graphics::RZPipelineHandle pipeline;
+                Razix::SceneDrawParams    &params;
+                Graphics::RenderingInfo   &info;
+
+                void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

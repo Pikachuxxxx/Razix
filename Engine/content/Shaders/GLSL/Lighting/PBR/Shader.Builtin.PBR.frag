@@ -33,10 +33,10 @@ layout(location = 0) in VSOutput
 // Fragment Shader Stage Uniforms
 DECLARE_LIGHT_BUFFER(2, 0, sceneLights)
 //--------------------------------------------------------
-layout(set = 3, binding = 0) uniform sampler2D shadowMap;
-layout(set = 3, binding = 1) uniform ShadowMapData {
-    mat4 lightSpaceMatrix;
-}shadowMapData;
+layout(set = 3, binding = 0) uniform sampler2D ShadowMap;
+layout(set = 3, binding = 1) uniform shadowData{
+    mat4 LightSpaceMatrix;
+}ShadowMapData;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
@@ -85,11 +85,11 @@ void main()
 
     //-----------------------------------------------
     // Shadow map calculation
-    vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
+    vec4 FragPosLightSpace = ShadowMapData.LightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
     float shadow = 1.0f;
     // FIXME: We assume the first light is the Directiona Light and only use that
     if(sceneLights.data[0].type == LightType_Directional)
-        shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
+        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
 
     result *= shadow;
     //-----------------------------------------------

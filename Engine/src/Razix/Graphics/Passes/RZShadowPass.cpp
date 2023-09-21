@@ -67,13 +67,13 @@ namespace Razix {
             m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
-                "Simple Shadow map pass",
+                "Pass.Builtin.Code.RenderShadows",
                 [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("Shadow map", {.name = "Shadow map", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .enableMips = false});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .enableMips = false});
 
-                    data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
+                    data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("ShadowMapData.LightSpaceMatrix", {"ShadowMapData.LightSpaceMatrix", sizeof(LightVPUBOData)});
 
                     data.shadowMap = builder.write(data.shadowMap);
                     data.lightVP   = builder.write(data.lightVP);
@@ -81,7 +81,7 @@ namespace Razix {
                 [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    RAZIX_MARK_BEGIN("Shadow Pass", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 

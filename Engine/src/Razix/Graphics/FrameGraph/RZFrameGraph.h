@@ -72,9 +72,9 @@ namespace Razix {
                     static_assert(sizeof(ResizeFunc) < 1024, "Resize function captures too much");
 
                     // Now that the checks are done, let's create the pass and PassNode
-                    auto *pass = new RZFrameGraphPass<PassData, ExecuteFunc, ResizeFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc));
+                    auto *pass = new RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc));
                     // Create the PassNode in the graph
-                    RZPassNode &passNode = createPassNode(name, std::unique_ptr<RZFrameGraphPass<PassData, ExecuteFunc, ResizeFunc>>(pass));
+                    RZPassNode &passNode = createPassNode(name, std::unique_ptr<RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc>>(pass));
 
                     // Create a builder for this PassNode
                     // SetupFunc gets PassNode via RZPassResourceBuilder and ExecFunc gets PassNode via RZPassResourceDirectory
@@ -150,7 +150,7 @@ namespace Razix {
                 /* parse the frame graph from a given JSON file */
                 void parse(const std::string &path);
                 /* Parses a Built in/User defined pass from a file */
-                void parsePass(const std::string &passPath);
+                RZPassNode parsePass(const std::string &passPath);
                 /* Compiles the Frame Graph passes and culls any unused passes/resources */
                 void compile();
                 /* Executes the Frame Graph passes */

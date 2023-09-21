@@ -42,7 +42,7 @@ namespace Razix {
             m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
             const auto& NoiseTextureDesc                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
             m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
- 
+
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
             m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
@@ -232,7 +232,7 @@ namespace Razix {
             sceneData = m_Blackboard.get<SceneData>();
 #if 1
             m_FrameGraph.addCallbackPass(
-                "Debug Pass",
+                "Pass.Builtin.Code.Debug",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
@@ -307,7 +307,7 @@ namespace Razix {
             //-------------------------------
             sceneData = m_Blackboard.get<SceneData>();
             m_FrameGraph.addCallbackPass(
-                "ImGui Pass",
+                "Pass.Builtin.Code.ImGui",
                 [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
@@ -444,7 +444,7 @@ namespace Razix {
         void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings& settings)
         {
             m_Blackboard.add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
-                "Frame Data Upload",
+                "Pass.Builtin.Code.FrameDataUpload",
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
@@ -501,7 +501,7 @@ namespace Razix {
         void RZWorldRenderer::uploadLightsData(RZScene* scene, RZRendererSettings& settings)
         {
             m_Blackboard.add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
-                "Scene Lights Data Upload",
+                "Pass.Builtin.Code.SceneLightsUpload",
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
