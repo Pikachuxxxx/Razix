@@ -2,37 +2,28 @@
     "name": "PBRLighting",
     "passes": [
         {
-            "render_pass": "Pass.Builtin.DepthPreTest",
-            "inputs": [
-                {
-                    "type": "reference",
-                    "name": "SceneDepth"
-                }
-            ],
+            "render_pass": "Pass.Builtin.RenderShadows",
             "outputs": [
                 {
-                    "type": "texture",
-                    "name": "SceneHDR",
-                    "format": "BGRA8_UNORM",
-                    "resolution": [ 1280, 800 ],
+                    "type": "Texture",
+                    "name": "ShadowMap",
+                    "format": "RGBA32F",
+                    "resolution": [ 4096, 4096 ],
                     "clear": true,
-                    "clear_color": "TransparentBlack",
+                    "clear_color": "OpaqueBlack",
                     "binding_idx": 0,
                     "mip": 0,
                     "layer": 0
                 },
                 {
-                    "type": "reference",
-                    "name": "SceneDepth",
-                    "format": "Depth32F",
-                    "resolution": [ 2560, 1440 ],
-                    "clear": true,
-                    "clear_color": "TransparentBlack",
-                    "binding_idx": 0,
-                    "mip": 0,
-                    "layer": 0
+                    "type": "Buffer",
+                    "name": "ShadowMapData.LightSpaceMatrix",
+                    "size": "64"
                 }
             ]
+        },
+        {
+            "render_pass": "Pass.Builtin.PBR"
         }
     ]
 }

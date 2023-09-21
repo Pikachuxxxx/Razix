@@ -66,7 +66,7 @@ namespace Razix {
             auto& volumetricData  = blackboard.get<VolumetricCloudsData>();
 
             framegraph.addCallbackPass(
-                "Pass.Builtin.Skybox",
+                "Pass.Builtin.Code.Skybox",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 

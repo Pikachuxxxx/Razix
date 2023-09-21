@@ -1,5 +1,5 @@
 {
-    "name": "Pass.Builtin.DepthPreTest",
+    "name": "Pass.Builtin.RenderShadows",
     "shader": "Shader.Builtin.DepthPreTest",
     "pipeline_info": {
         "depth": {
@@ -12,18 +12,7 @@
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
         "depth_format": "DEPTH32F",
-        "color_formats": [ "RGBA32F", "RGBA32F" ],
-        "color_blend": {
-            "src": "SrcAlpha",
-            "dst": "OneMinusSrcAlpha",
-            "op": "Add"
-        },
-        "alpha_blend": {
-            "src": "One",
-            "dst": "One",
-            "op": "Add"
-        },
-        "transparency": true
+        "transparency": false
     },
     "scene_params": {
         "geometry_mode": "scene",
@@ -32,9 +21,9 @@
     },
     "rendering_info" {
         "resolution": "Custom",
-        "extents" {
-            "x": 2048,
-            "y": 2048
+        "extents": {
+            "x": 4096,
+            "y": 4096
         },
         "resize": false
     }

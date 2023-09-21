@@ -3,6 +3,11 @@
 namespace Razix {
     struct SceneDrawParams;
 }
+namespace Razix {
+    namespace Graphics {
+        struct RenderingInfo;
+    }
+}    // namespace Razix
 
 /**
 * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
@@ -70,14 +75,12 @@ namespace Razix {
 
             struct RZFrameGraphDataPass final : IRZFrameGraphPass
             {
-                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams)
-                    : shader(shader), pipeline(pipeline), params(sceneDrawParams)
-                {
-                }
+                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Graphics::RenderingInfo info);
 
                 Graphics::RZShaderHandle   shader;
                 Graphics::RZPipelineHandle pipeline;
-                Razix::SceneDrawParams     params;
+                Razix::SceneDrawParams    &params;
+                Graphics::RenderingInfo   &info;
 
                 void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;
             };

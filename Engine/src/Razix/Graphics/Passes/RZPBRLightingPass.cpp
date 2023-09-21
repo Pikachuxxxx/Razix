@@ -76,26 +76,26 @@ namespace Razix {
             //m_PBRPassBindingUBO = RZUniformBuffer::Create(sizeof(PBRPassBindingData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("PBRPassTextures UBO"));
 
             blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
-                "PBR Lighting Pass",
+                "Pass.Builtin.Code.PBRLighting",
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc textureDesc{
-                        .name   = "Scene HDR",
+                        .name   = "SceneHDR",
                         .width  = ResolutionToExtentsMap[Resolution::k1440p].x,
                         .height = ResolutionToExtentsMap[Resolution::k1440p].y,
                         .type   = TextureType::Texture_2D,
                         .format = TextureFormat::RGBA32F};
 
-                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>("Scene HDR RT", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    textureDesc.name       = "Scene Depth";
+                    textureDesc.name       = "SceneDepth";
                     textureDesc.format     = TextureFormat::DEPTH32F;
                     textureDesc.filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     textureDesc.type       = TextureType::Texture_Depth;
                     textureDesc.enableMips = false;
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("Scene Depth", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.outputHDR = builder.write(data.outputHDR);
                     data.depth     = builder.write(data.depth);
@@ -117,7 +117,7 @@ namespace Razix {
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    RAZIX_MARK_BEGIN("PBR pass", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.PBRLighting", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;

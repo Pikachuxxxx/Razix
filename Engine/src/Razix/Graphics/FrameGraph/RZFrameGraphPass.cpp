@@ -44,6 +44,11 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
+            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Graphics::RenderingInfo info)
+                : shader(shader), pipeline(pipeline), params(sceneDrawParams), info(info)
+            {
+            }
+
             void RZFrameGraphDataPass::operator()(RZPassNode &node, RZPassResourceDirectory &resources)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
