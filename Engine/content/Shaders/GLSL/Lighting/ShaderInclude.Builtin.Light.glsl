@@ -28,11 +28,11 @@ struct LightData {
 //----------------------------------------------------------------------------
 // GPU Light
 // The GPU lights data that will be uploaded to the
-#define DECLARE_LIGHT_BUFFER(st, index, name)               \
-layout(set = st, binding = index) uniform LightBuffer {     \
-    uint numLights;                                         \
-    LightData data[MAX_LIGHTS];                             \
-}                                                           \
+#define DECLARE_LIGHT_BUFFER(st, index, name)                       \
+layout(set = st, binding = index) uniform SceneLightsBuffer {       \
+    uint numLights;                                                 \
+    LightData data[MAX_LIGHTS];                                     \
+}                                                                   \
 name;
 //----------------------------------------------------------------------------
 // Utility DS and Functions

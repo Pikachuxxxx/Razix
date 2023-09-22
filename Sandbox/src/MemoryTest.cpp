@@ -58,7 +58,8 @@ public:
             heapAlloc.shutdown();
 
             // Testing Frame graph parsing capabilities
-            RZEngine::Get().getWorldRenderer().getFrameGraph().parsePass("//RazixFG/Passes/Pass.Builtin.DepthPreTest.json");
+            RZEngine::Get().getWorldRenderer().getFrameGraph().parse("//RazixFG/Passes/FrameGraph.Builtin.PBRLighting.json");
+            //RZEngine::Get().getWorldRenderer().getFrameGraph().parsePass("//RazixFG/Passes/Pass.Builtin.DepthPreTest.json");
         }
 
         // Testing the RingAllocator

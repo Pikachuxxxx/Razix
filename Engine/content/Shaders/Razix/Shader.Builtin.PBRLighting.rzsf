@@ -11,6 +11,6 @@
 
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.PBR.frag.spv
+        #include Compiled/SPIRV/Shader.Builtin.PBRLighting.frag.spv
     #endif
 #end

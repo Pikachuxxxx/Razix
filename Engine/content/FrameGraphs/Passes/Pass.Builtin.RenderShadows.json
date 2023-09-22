@@ -15,9 +15,9 @@
         "transparency": false
     },
     "scene_params": {
-        "geometry_mode": "scene",
+        "geometry_mode": "SceneGeometry",
         "enable_materials": false,
-        "enable_lights": true
+        "enable_lights": false
     },
     "rendering_info" {
         "resolution": "Custom",

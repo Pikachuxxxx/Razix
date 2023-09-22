@@ -43,7 +43,7 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = u_Frame.camera.projection * u_Frame.camera.view * model_pc_data.model * vec4(inPosition, 1.0);
+    gl_Position = FrameData.camera.projection * FrameData.camera.view * model_pc_data.model * vec4(inPosition, 1.0);
 
     // Out from vertex shader
     vs_out.fragPos      = vec3(model_pc_data.model * vec4(inPosition, 1.0));

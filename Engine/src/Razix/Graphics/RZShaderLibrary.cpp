@@ -47,7 +47,7 @@ namespace Razix {
             //loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
-            loadBuiltInShader(ShaderBuiltin::PBR, "//RazixContent/Shaders/Razix/Shader.Builtin.PBR.rzsf");
+            loadBuiltInShader(ShaderBuiltin::PBRLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRLighting.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRIBL, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRIBL.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRDeferredLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRDefferedIBL.rzsf");
             //-------------------------------------------------------------------

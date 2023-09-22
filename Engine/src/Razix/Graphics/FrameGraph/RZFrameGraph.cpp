@@ -7,12 +7,23 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/Graphics/RHI/RHI.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
+
+#include "Razix/Graphics/FrameGraph/RZFrameGraphPass.h"
 
 #include "Razix/Scene/RZScene.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+
+static std::unordered_map<std::string, Razix::Graphics::Resolution> StringToResolutionsMap = {
+    {"1080p", Razix::Graphics::Resolution::k1080p},
+    {"1440p", Razix::Graphics::Resolution::k1440p},
+    {"4KUpscaled", Razix::Graphics::Resolution::k4KUpscaled},
+    {"4KNative", Razix::Graphics::Resolution::k4KNative},
+    {"Window", Razix::Graphics::Resolution::kWindow},
+    {"Custom", Razix::Graphics::Resolution::kCustom}};
 
 namespace Razix {
     namespace Graphics {
@@ -22,11 +33,11 @@ namespace Razix {
             // Frame Graph Class
             //-----------------------------------------------------------------------------------
 
-            void RZFrameGraph::parse(const std::string &path)
+            bool RZFrameGraph::parse(const std::string &path)
             {
                 std::string physicalPath;
                 if (!RZVirtualFileSystem::Get().resolvePhysicalPath(path, physicalPath))
-                    return;
+                    return false;
 
                 auto jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
 
@@ -36,13 +47,25 @@ namespace Razix {
                 for (auto &pass: passes) {
                     auto &render_pass = pass["render_pass"];
                     // Load this render pass from file
-                    RZPassNode passNode = parsePass("//RazixFG/Passes/" + std::string(render_pass));
+                    RZPassNode &passNode = parsePass("//RazixFG/Passes/" + std::string(render_pass) + ".json");
 
-                    // Load the Input and Output Resources
+                    // Load the Input Resources
+                    auto &inputs = pass["inputs"];
+                    for (auto &input: inputs) {
+                    }
+
+                    // Load the Output Resources
+                    auto &outputs = pass["outputs"];
+                    for (auto &output: outputs) {
+                    }
+
+                    // Load imported resources
                 }
+
+                return true;
             }
 
-            RZPassNode RZFrameGraph::parsePass(const std::string &passPath)
+            RZPassNode &RZFrameGraph::parsePass(const std::string &passPath)
             {
                 std::string physicalPath;
                 RAZIX_ASSERT(RZVirtualFileSystem::Get().resolvePhysicalPath(passPath, physicalPath), "Invalid Pass, please check again!");
@@ -143,6 +166,18 @@ namespace Razix {
                     auto &enableLights           = scenceParams["enable_lights"];
                     sceneDrawParams.enableLights = enableLights.get<bool>();
                 }
+
+                auto      &renderInfo = data["rendering_info"];
+                Resolution resolution = StringToResolutionsMap[renderInfo["resolution"]];
+                bool       resize     = renderInfo["resize"].get<bool>();
+
+                // First create the FrameGraphPass (Data) and create a pass node
+                // Now that the checks are done, let's create the pass and PassNode
+                auto *pass = new RZFrameGraphDataPass(shader, pipeline, sceneDrawParams, resolution, resize);
+                // Create the PassNode in the graph
+                RZPassNode &passNode = createPassNode(passName, std::unique_ptr<RZFrameGraphDataPass>(pass));
+
+                return passNode;
             }
 
             void RZFrameGraph::compile()

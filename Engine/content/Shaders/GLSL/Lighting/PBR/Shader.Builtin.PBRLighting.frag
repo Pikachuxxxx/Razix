@@ -31,7 +31,7 @@ layout(location = 0) in VSOutput
 }fs_in;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-DECLARE_LIGHT_BUFFER(2, 0, sceneLights)
+DECLARE_LIGHT_BUFFER(2, 0, SceneLightsData)
 //--------------------------------------------------------
 layout(set = 3, binding = 0) uniform sampler2D ShadowMap;
 layout(set = 3, binding = 1) uniform shadowData{
@@ -59,9 +59,9 @@ void main()
     // reflectance equation
     vec3 Lo = vec3(0.0);
 
-    for(int i = 0; i < sceneLights.numLights; ++i)
+    for(int i = 0; i < SceneLightsData.numLights; ++i)
     {
-        LightData light = sceneLights.data[i];
+        LightData light = SceneLightsData.data[i];
 
         vec3 L = vec3(0.0f);
         float attenuation = 0.0f;
@@ -88,8 +88,8 @@ void main()
     vec4 FragPosLightSpace = ShadowMapData.LightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
     float shadow = 1.0f;
     // FIXME: We assume the first light is the Directiona Light and only use that
-    if(sceneLights.data[0].type == LightType_Directional)
-        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
+    if(SceneLightsData.data[0].type == LightType_Directional)
+        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
 
     result *= shadow;
     //-----------------------------------------------

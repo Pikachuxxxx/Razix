@@ -44,8 +44,8 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Graphics::RenderingInfo info)
-                : shader(shader), pipeline(pipeline), params(sceneDrawParams), info(info)
+            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Resolution res, bool resize)
+                : shader(shader), pipeline(pipeline), params(sceneDrawParams), resolution(resolution), enableResize(resize)
             {
             }
 
@@ -81,6 +81,11 @@ namespace Razix {
 
                 RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                 RAZIX_MARK_END();
+            }
+
+            void RZFrameGraphDataPass::resize(RZPassResourceDirectory &resources, u32 width, u32 height)
+            {
+                // Update the descriptors table
             }
         }    // namespace FrameGraph
     }        // namespace Graphics
