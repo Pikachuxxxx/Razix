@@ -1,25 +1,15 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            enum class BufferType
-            {
-                Buffer_Uniform,
-                Buffer_Storage
-            };
-
             class RZFrameGraphBuffer
             {
             public:
-                struct Desc
-                {
-                    std::string name;
-                    u32         size;
-                };
+                typedef RZBufferDesc Desc;
 
                 void create(const Desc& desc, void* transientAllocator);
                 void destroy(const Desc& desc, void* transientAllocator);
@@ -29,10 +19,10 @@ namespace Razix {
                 void preRead(const Desc& desc, uint32_t flags);
                 void preWrite(const Desc& desc, uint32_t flags);
 
-                Graphics::RZUniformBuffer* getHandle() { return m_Buffer; }
+                Graphics::RZUniformBufferHandle getHandle() { return m_BufferHandle; }
 
             public:
-                Graphics::RZUniformBuffer* m_Buffer;
+                Graphics::RZUniformBufferHandle m_BufferHandle;
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

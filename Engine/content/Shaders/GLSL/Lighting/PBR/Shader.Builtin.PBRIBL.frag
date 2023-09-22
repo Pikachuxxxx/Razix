@@ -34,12 +34,12 @@ layout(location = 0) in VSOutput
 }fs_in;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-DECLARE_LIGHT_BUFFER(2, 0, sceneLights)
+DECLARE_LIGHT_BUFFER(2, 0, SceneLightsData)
 //--------------------------------------------------------
 layout(set = 3, binding = 0) uniform sampler2D shadowMap;
-layout(set = 3, binding = 1) uniform ShadowMapData {
+layout(set = 3, binding = 1) uniform ShadowData {
     mat4 lightSpaceMatrix;
-}shadowMapData;
+}ShadowMapData;
 //--------------------------------------------------------
 // IBL maps
 layout(set = 4, binding = 0) uniform samplerCube irradianceMap;
@@ -97,9 +97,9 @@ void main()
     // reflectance equation
     vec3 Lo = vec3(0.0);
 
-    for(int i = 0; i < sceneLights.numLights; ++i)
+    for(int i = 0; i < SceneLightsData.numLights; ++i)
     {
-        LightData light = sceneLights.data[i];
+        LightData light = SceneLightsData.data[i];
 
         vec3 L = vec3(0.0f);
         float attenuation = 0.0f;
@@ -145,12 +145,12 @@ void main()
 
     //-----------------------------------------------
     // Shadow map calculation
-    vec4 FragPosLightSpace = shadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
+    vec4 FragPosLightSpace = ShadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
     float shadow = 1.0f;
     // FIXME: We assume the first light is the Directional Light and only use that
-    if(sceneLights.data[0].type == LightType_Directional)
-        //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.shadowMapIdx)], FragPosLightSpace, N, sceneLights.data[0].position);
-        shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, sceneLights.data[0].position);
+    if(SceneLightsData.data[0].type == LightType_Directional)
+        //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.shadowMapIdx)], FragPosLightSpace, N, SceneLightsData.data[0].position);
+        shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
 
     result *= shadow;
     //-----------------------------------------------

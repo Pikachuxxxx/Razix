@@ -37,7 +37,7 @@ namespace Razix {
         {
             // Init the resources (API & Frame Graph) needed for Cascaded Shadow Mapping
             // Import the ShadowMapData as a Buffer into the FrameGraph (used to upload to GPU later)
-            m_CascadedMatricesUBO = Graphics::RZUniformBuffer::Create(sizeof(CasdacesUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascades UBO"));
+            m_CascadedMatricesUBO = RZResourceManager::Get().createUniformBuffer({"Cascades UBO", sizeof(CasdacesUBOData), nullptr});
         }
 
         void RZCascadedShadowsRenderer::Begin(RZScene* scene)
@@ -62,9 +62,9 @@ namespace Razix {
 
         void RZCascadedShadowsRenderer::Destroy()
         {
-            m_CascadedMatricesUBO->Destroy();
+            RZResourceManager::Get().destroyUniformBuffer(m_CascadedMatricesUBO);
             for (u32 i = 0; i < kNumCascades; i++) {
-                cascadeGPUResources[i].ViewProjLayerUBO->Destroy();
+                RZResourceManager::Get().destroyUniformBuffer(cascadeGPUResources[i].ViewProjLayerUBO);
                 for (auto& set: cascadeGPUResources[i].CascadeVPSet)
                     set->Destroy();
                 RZResourceManager::Get().destroyPipeline(cascadeGPUResources[i].CascadePassPipeline);
@@ -77,7 +77,10 @@ namespace Razix {
         {
             auto& shadowMapData = blackboard.add<ShadowMapData>();
             // Import the cascades buffer into the FG
-            shadowMapData.viewProjMatrices = framegraph.import <FrameGraph::RZFrameGraphBuffer>("Cascade Matrices", {"Cascades UBO", sizeof(CasdacesUBOData)}, {m_CascadedMatricesUBO});
+            RZBufferDesc desc{};
+            desc.name                      = "Cascades UBO";
+            desc.size                      = sizeof(CasdacesUBOData);
+            shadowMapData.viewProjMatrices = framegraph.import <FrameGraph::RZFrameGraphBuffer>("Cascade Matrices", CAST_TO_FG_BUF_DESC desc, {m_CascadedMatricesUBO});
 
             // Build Cascades
             m_Cascades = buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), kNumCascades, 0.94f, kShadowMapSize);
@@ -101,7 +104,7 @@ namespace Razix {
                         data.splitDepth[i]       = m_Cascades[i].splitDepth;
                         data.viewProjMatrices[i] = m_Cascades[i].viewProjMatrix;
                     }
-                    m_CascadedMatricesUBO->SetData(sizeof(CasdacesUBOData), &data);
+                    //m_CascadedMatricesUBO->SetData(sizeof(CasdacesUBOData), &data);
                 });
         }
 
@@ -269,7 +272,7 @@ namespace Razix {
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::CSM);
             auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
 
-            cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZUniformBuffer::Create(sizeof(ModelViewProjLayerUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass VPLayerUBO"));
+            cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({"Cascaded Depth pass VPLayerUBO", sizeof(ModelViewProjLayerUBOData), nullptr});
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -370,8 +373,8 @@ namespace Razix {
                         // TODO: this needs to be done per mesh with each model transform multiplied by the parent Model transform (Done when we have per mesh entities instead of a model component)
                         Graphics::RHI::BindPushConstant(cascadeGPUResources[cascadeIdx].CascadePassPipeline, cmdBuf, modelMatrix);
                         //-----------------------------
-
-                        cascadeGPUResources[cascadeIdx].ViewProjLayerUBO->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
+                        auto buffer = RZResourceManager::Get().getUniformBufferResource(cascadeGPUResources[cascadeIdx].ViewProjLayerUBO);
+                        buffer->SetData(sizeof(ModelViewProjLayerUBOData), &uboData);
 
                         mrc.Mesh->getVertexBuffer()->Bind(cmdBuf);
                         mrc.Mesh->getIndexBuffer()->Bind(cmdBuf);

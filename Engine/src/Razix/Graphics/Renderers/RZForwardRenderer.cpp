@@ -50,7 +50,7 @@ namespace Razix {
             // FrameBlock Descriptor Set
 
             // 2. Lighting data
-            m_ForwardLightsUBO = Graphics::RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Forward Renderer Light Data"));
+            m_ForwardLightsUBO = RZResourceManager::Get().createUniformBuffer({"Forward Renderer Light Data", sizeof(GPULightsData), nullptr});
 
             // Now create the descriptor sets for this and assign the UBOs for it
             // get the descriptor infos to create the descriptor sets
@@ -108,8 +108,7 @@ namespace Razix {
 
                 gpuLightsData.numLights++;
             }
-
-            m_ForwardLightsUBO->SetData(sizeof(GPULightsData), &gpuLightsData);
+            RZResourceManager::Get().getUniformBufferResource(m_ForwardLightsUBO)->SetData(sizeof(GPULightsData), &gpuLightsData);
 
             gpuLightsData = {};
 
@@ -183,7 +182,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Destroy the resources first
-            m_ForwardLightsUBO->Destroy();
+            RZResourceManager::Get().destroyUniformBuffer(m_ForwardLightsUBO);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
             m_GPULightsDescriptorSet->Destroy();
             m_CSMSet->Destroy();

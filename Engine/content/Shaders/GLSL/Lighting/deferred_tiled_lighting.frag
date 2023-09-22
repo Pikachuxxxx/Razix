@@ -118,7 +118,7 @@ void main()
     //// H = halfway vector (between V and L)
     //
     //const vec3 fragPosViewSpace = viewPositionFromDepth(depth, fs_in.fragUV);
-    //const vec3 fragPosWorldSpace = (u_Frame.camera.inversedView * vec4(fragPosViewSpace, 1.0)).xyz;
+    //const vec3 fragPosWorldSpace = (FrameData.camera.inversedView * vec4(fragPosViewSpace, 1.0)).xyz;
     //
     //vec3 N = normalize(texture(GBuffer0, fs_in.fragUV).rgb);
     //const vec3 V = normalize(getCameraPosition() - fragPosWorldSpace);

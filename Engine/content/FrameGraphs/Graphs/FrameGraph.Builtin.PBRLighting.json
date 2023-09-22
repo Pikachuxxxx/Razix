@@ -8,22 +8,98 @@
                     "type": "Texture",
                     "name": "ShadowMap",
                     "format": "RGBA32F",
-                    "resolution": [ 4096, 4096 ],
-                    "clear": true,
-                    "clear_color": "OpaqueBlack",
-                    "binding_idx": 0,
-                    "mip": 0,
-                    "layer": 0
+                    "resolution": {
+                        "x": 4096,
+                        "y": 4096
+                    },
+                    "attachment_info": {
+                        "clear": true,
+                        "clear_color": "OpaqueBlack",
+                        "binding_idx": 0,
+                        "mip": 0,
+                        "layer": 0
+                    }
                 },
                 {
                     "type": "Buffer",
                     "name": "ShadowMapData.LightSpaceMatrix",
-                    "size": "64"
+                    "size": 64
                 }
             ]
         },
         {
-            "render_pass": "Pass.Builtin.PBR"
+            "render_pass": "Pass.Builtin.PBRLighting",
+            "inputs": [
+                {
+                    "type": "Reference",
+                    "name": "ShadowMap"
+                },
+                {
+                    "type": "Reference",
+                    "name": "ShadowMapData.LightSpaceMatrix"
+                },
+                {
+                    "type": "Reference",
+                    "name": "SceneLightsData"
+                },
+                {
+                    "type": "Reference",
+                    "name": "Imported.BRDFLut"
+                },
+                {
+                    "type": "Reference",
+                    "name": "Imported.EnvironmentMap"
+                },
+                {
+                    "type": "Reference",
+                    "name": "Imported.SpecularPreFiltered"
+                },
+                {
+                    "type": "Reference",
+                    "name": "Imported.DiffuseIrradiance"
+                },
+                {
+                    "type": "Reference",
+                    "name": "Imported.NoiseTexture"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Texture",
+                    "name": "SceneHDR",
+                    "format": "RGBA32F",
+                    "resolution": {
+                        "x": 4096,
+                        "y": 4096
+                    },
+                    "attachment_info": {
+
+                        "clear": true,
+                        "clear_color": "TransparentBlack",
+                        "binding_idx": 0,
+                        "mip": 0,
+                        "layer": 0
+                    }
+                },
+                {
+                    "type": "Texture",
+                    "name": "SceneDepth",
+                    "format": "Depth32F",
+                    "resolution": {
+                        "x": 4096,
+                        "y": 4096
+                    },
+                    "attachment_info": {
+
+                        "clear": true,
+                        "clear_color": "TransparentBlack",
+                        "binding_idx": 0,
+                        "mip": 0,
+                        "layer": 0
+                    }
+                }
+            ],
+            "final_output": "SceneHDR"
         }
     ]
 }

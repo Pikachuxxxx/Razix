@@ -31,7 +31,6 @@
 #include "Razix/Graphics/Passes/Data/ShadowMapData.h"
 
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -69,10 +68,10 @@ namespace Razix {
             m_TileData.MinCorner = m_Grid.aabb.min;
             m_TileData.GridSize  = m_Grid.size;
             m_TileData.CellSize  = m_Grid.cellSize;
-            m_TileDataUBO        = RZUniformBuffer::Create(sizeof(TileData), &m_TileData RZ_DEBUG_NAME_TAG_STR_E_ARG("Tile Data UBO"));
+            m_TileDataUBO        = RZResourceManager::Get().createUniformBuffer({"Tile Data UBO ", sizeof(TileData), &m_TileData});
 
             // Lights UBO
-            m_LightDataUBO = RZUniformBuffer::Create(sizeof(GPULightsData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Light Data UBO"));
+            m_LightDataUBO = RZResourceManager::Get().createUniformBuffer({"Light Data UBO", sizeof(GPULightsData), nullptr});
 
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
             auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
@@ -166,7 +165,7 @@ namespace Razix {
                     //    m_GPULightData.data = light.light.getLightData();
                     //}
 
-                    m_LightDataUBO->SetData(sizeof(GPULightsData), &m_GPULightData);
+                    RZResourceManager::Get().getUniformBufferResource(m_LightDataUBO)->SetData(sizeof(GPULightsData), &m_GPULightData);
 
                 // Update the Sets only once on first frame to get runtime framegraph resources
 #if 0

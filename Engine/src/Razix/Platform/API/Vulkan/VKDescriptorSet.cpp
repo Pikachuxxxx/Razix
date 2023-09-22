@@ -27,7 +27,7 @@ namespace Razix {
 
             for (auto descriptor: descriptors) {
                 VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
-                setLayoutBindingInfo.binding             = descriptor.bindingInfo.location.binding;
+                setLayoutBindingInfo.binding                      = descriptor.bindingInfo.location.binding;
                 setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
                 setLayoutBindingInfo.descriptorType               = VKUtilities::DescriptorTypeToVK(descriptor.bindingInfo.type);
                 setLayoutBindingInfo.stageFlags                   = VKUtilities::ShaderStageToVK(descriptor.bindingInfo.stage);
@@ -115,7 +115,8 @@ namespace Razix {
                     } else {
                         // TODO: Don't use buffer members use a single one for the entire uniform buffer
                         //for (sz i = 0; i < descriptor.uboMembers.size(); i++) {
-                        auto buffer                    = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer);
+                        auto uboresource               = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
+                        auto buffer                    = static_cast<VKUniformBuffer*>(uboresource);
                         m_BufferInfoPool[index].buffer = buffer->getBuffer();
                         m_BufferInfoPool[index].offset = descriptor.offset;
                         m_BufferInfoPool[index].range  = buffer->getSize();

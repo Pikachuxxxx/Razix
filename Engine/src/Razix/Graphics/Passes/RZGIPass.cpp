@@ -24,7 +24,7 @@
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
+
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
@@ -260,7 +260,7 @@ namespace Razix {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
             // Get the setinfo ==> allocate UBOs and Textures and bind them to the descriptor sets
-            m_RadianceInjectionUBO = RZUniformBuffer::Create(sizeof(RadianceInjectionUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("RI UBO"));
+            m_RadianceInjectionUBO = RZResourceManager::Get().createUniformBuffer({"RI UBO", sizeof(RadianceInjectionUBOData), nullptr});
 
             // Create command buffers
             m_RadianceInjectionCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
@@ -380,7 +380,8 @@ namespace Razix {
                     radianceInjectionData.GridSize      = grid.size;
                     radianceInjectionData.CellSize      = grid.cellSize;
 
-                    m_RadianceInjectionUBO->SetData(sizeof(RadianceInjectionUBOData), &radianceInjectionData);
+                    auto buffer = RZResourceManager::Get().getUniformBufferResource(m_RadianceInjectionUBO);
+                    buffer->SetData(sizeof(RadianceInjectionUBOData), &radianceInjectionData);
 
                     // Bind the pipeline
                     RHI::BindPipeline(m_RIPipeline, cmdBuffer);
@@ -406,7 +407,7 @@ namespace Razix {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
             // Get the setinfo ==> allocate UBOs and Textures and bind them to the descriptor sets
-            m_RadiancePropagationUBO = RZUniformBuffer::Create(sizeof(RadiancePropagationUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("RPropagation UBO"));
+            m_RadiancePropagationUBO = RZResourceManager::Get().createUniformBuffer({"RPropagation UBO", sizeof(RadiancePropagationUBOData), nullptr});
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
@@ -509,7 +510,8 @@ namespace Razix {
                     // Bind the sets and update the data
                     radiancePropagationData.GridSize = grid.size;
 
-                    m_RadiancePropagationUBO->SetData(sizeof(RadianceInjectionUBOData), &radiancePropagationData);
+                    auto buffer = RZResourceManager::Get().getUniformBufferResource(m_RadiancePropagationUBO);
+                    buffer->SetData(sizeof(RadianceInjectionUBOData), &radiancePropagationData);
 
                     // Bind the pipeline
                     RHI::BindPipeline(m_RPropagationPipeline, cmdBuffer);

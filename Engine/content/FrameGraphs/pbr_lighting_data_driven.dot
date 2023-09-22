@@ -1,0 +1,49 @@
+digraph FrameGraph {
+graph [style=invis, rankdir="TB" ordering=out, splines=spline]
+node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
+
+P0 [label=<{ {<B>Pass.Builtin.Code.FrameDataUpload</B>} | {&#x2605; Refs: 1<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
+P1 [label=<{ {<B>Pass.Builtin.Code.SceneLightsDataUpload</B>} | {&#x2605; Refs: 1<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
+P2 [label=<{ {<B>Pass.Builtin.RenderShadows</B>} | {Refs: 0<BR/> Index: 2} }> style="rounded,filled", fillcolor=lightgray]
+P3 [label=<{ {<B>Pass.Builtin.PBRLighting</B>} | {Refs: 0<BR/> Index: 3} }> style="rounded,filled", fillcolor=lightgray]
+
+R0_1 [label=<{ {<B>Imported.BRDFLut</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
+R1_1 [label=<{ {<B>Imported.NoiseTexture</B><BR/>(128, 128) - RGBA8 [2D]} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
+R2_1 [label=<{ {<B>Imported.EnvironmentMap</B><BR/>(512, 512) - RGBA32F [CubeMap]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
+R3_1 [label=<{ {<B>Imported.DiffuseIrradiance</B><BR/>(32, 32) - RGBA32F [CubeMap]} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
+R4_1 [label=<{ {<B>Imported.SpecularPreFiltered</B><BR/>(128, 128) - RGBA32F [CubeMap]} | {Index: 4<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
+R5_1 [label=<{ {<B>FrameData</B><BR/>size : 304 bytes} | {Index: 5<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R6_1 [label=<{ {<B>SceneLightsData</B><BR/>size : 10256 bytes} | {Index: 6<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+
+P0 -> { R5_1 } [color=orangered]
+P1 -> { R6_1 } [color=orangered]
+P2 -> { } [color=orangered]
+P3 -> { } [color=orangered]
+
+R0_1 -> { } [color=olivedrab3]
+R1_1 -> { } [color=olivedrab3]
+R2_1 -> { } [color=olivedrab3]
+R3_1 -> { } [color=olivedrab3]
+R4_1 -> { } [color=olivedrab3]
+R5_1 -> { } [color=olivedrab3]
+R6_1 -> { } [color=olivedrab3]
+
+subgraph cluster_0 {
+P0 R5_1 
+}
+subgraph cluster_1 {
+P1 R6_1 
+}
+subgraph cluster_2 {
+P2 
+}
+subgraph cluster_3 {
+P3 
+}
+
+subgraph cluster_imported_resources {
+graph [style=dotted, fontname="helvetica", label=< <B>Imported</B> >]
+R0_1 R1_1 R2_1 R3_1 R4_1 
+}
+
+}

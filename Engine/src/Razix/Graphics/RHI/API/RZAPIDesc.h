@@ -46,18 +46,17 @@ namespace Razix {
             static std::string TypeToString(TextureType type);
         };
 
-        struct RZVertexBufferDesc
+        /* Used for creating Vertex, INdex or Constant buffers */
+        struct RZBufferDesc
         {
-            u32         size;  /* The size of the vertex buffer         */
+            std::string name = "$UNNAMED_BUFFER"; /* Name of the buffer */
+            union
+            {
+                u32 size;  /* The size of the vertex buffer         */
+                u32 count; /* The count of the index buffer         */
+            };
             void*       data;  /* vertex data to fill the buffer with   */
             BufferUsage usage; /* Usage of the vertex buffer            */
-        };
-
-        struct RZIndexBufferDesc
-        {
-            u32         count; /* The size of the index buffer         */
-            u32         data;  /* index data to fill the buffer with   */
-            BufferUsage usage; /* Usage of the index buffer            */
         };
 
         /* Information necessary to create the pipeline */

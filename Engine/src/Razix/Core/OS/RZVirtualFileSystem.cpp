@@ -4,6 +4,7 @@
 #include "RZVirtualFileSystem.h"
 
 #include "Razix/Core/OS/RZFileSystem.h"
+// TODO: Try to remove RZEngine.h from here
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZSplashScreen.h"
 

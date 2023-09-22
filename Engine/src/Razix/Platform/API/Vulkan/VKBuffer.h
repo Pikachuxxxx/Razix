@@ -10,7 +10,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Vulkan buffer to hold and transfer data */
-        class VKBuffer : public RZRoot
+        class VKBuffer
         {
         public:
             /**

@@ -5,6 +5,8 @@
 
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Graphics/Resources/RZResourceManager.h"
+
 #include "Razix/Platform/API/OpenGL/OpenGLDescriptorSet.h"
 #include "Razix/Platform/API/OpenGL/OpenGLPipeline.h"
 #include "Razix/Platform/API/OpenGL/OpenGLShader.h"
@@ -98,11 +100,12 @@
                         glUniformBlockBinding(glShader->getProgramID(), BindingIndex, descriptor.bindingInfo.location.binding);
 
                         // Bind the buffer itself
-                        descriptor.uniformBuffer->Bind();
+                        auto buffer = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
+                        buffer->Bind();
 
                         // Assuming it's updated from the renderer side
                         // Time to perform slot binding
-                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
+                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(buffer)->getHandle(), descriptor.offset, descriptor.size));
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         // Bind the texture
                         //descriptor.texture->Bind(descriptor.bindingInfo.location.binding);
@@ -128,10 +131,11 @@
                 for (const auto descriptor: descriptors) {
                     // Let's bind all the uniform buffers first
                     if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
-                        descriptor.uniformBuffer->Bind();
+                        auto buffer = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
+                        buffer->Bind();
                         // Assuming it's updated from the renderer side
                         // Time to perform slot binding
-                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(descriptor.uniformBuffer)->getHandle(), descriptor.offset, descriptor.size));
+                        GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(buffer)->getHandle(), descriptor.offset, descriptor.size));
                     } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
                         // First enable the right slot
                         glActiveTexture(GL_TEXTURE0 + descriptor.bindingInfo.location.binding);
@@ -235,7 +239,7 @@
             shader->Bind();
 
             // now use the push constant to create uniform buffer and bind it
-            OpenGLUniformBuffer ubo(pushConstant.size, pushConstant.data);
+            OpenGLUniformBuffer ubo({"UNNAMED_OPENGL_PUSH_CONSTANT", pushConstant.size, pushConstant.data});
             ubo.Bind();
             ubo.SetData(pushConstant.size, pushConstant.data);
 

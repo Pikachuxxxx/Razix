@@ -6,7 +6,8 @@ namespace Razix {
 namespace Razix {
     namespace Graphics {
         struct RenderingInfo;
-    }
+        enum class Resolution : u32;
+    }    // namespace Graphics
 }    // namespace Razix
 
 /**
@@ -75,14 +76,16 @@ namespace Razix {
 
             struct RZFrameGraphDataPass final : IRZFrameGraphPass
             {
-                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Graphics::RenderingInfo info);
+                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Resolution res, bool resize);
 
                 Graphics::RZShaderHandle   shader;
                 Graphics::RZPipelineHandle pipeline;
                 Razix::SceneDrawParams    &params;
-                Graphics::RenderingInfo   &info;
+                Resolution                 resolution;
+                bool                       enableResize;
 
                 void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;
+                void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override;
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

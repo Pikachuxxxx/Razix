@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZFrameGraphTexture.h"
 
-#include "Razix/Graphics/Resources/RZTransientResources.h"
+
 
 #include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 

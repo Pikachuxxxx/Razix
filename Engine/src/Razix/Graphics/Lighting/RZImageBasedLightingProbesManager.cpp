@@ -56,8 +56,8 @@ namespace Razix {
 
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = TextureFormat::RGBA32F, .wrapping = Wrapping::CLAMP_TO_EDGE, .dataSize = sizeof(float)});
 
-            std::vector<RZDescriptorSet*> envMapSets;
-            std::vector<RZUniformBuffer*> UBOs;
+            std::vector<RZDescriptorSet*>      envMapSets;
+            std::vector<RZUniformBufferHandle> UBOs;
 
             struct ViewProjLayerUBOData
             {
@@ -78,7 +78,8 @@ namespace Razix {
                 uboData.projection[1][1] = -1;
                 uboData.layer            = i;
 
-                RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
+                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({.name = "ViewProjLayerUBOData : #" + std::to_string(i), .size = sizeof(ViewProjLayerUBOData), .data = &uboData});
+
                 UBOs.push_back(viewProjLayerUBO);
 
                 for (auto& setInfo: setInfos) {
@@ -171,7 +172,7 @@ namespace Razix {
 
             for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();
-                UBOs[i]->Destroy();
+                RZResourceManager::Get().destroyUniformBuffer(UBOs[i]);
             }
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
             cubeMesh->Destroy();
@@ -197,8 +198,8 @@ namespace Razix {
 
             // Create the View Projection buffer
 
-            std::vector<RZDescriptorSet*> envMapSets;
-            std::vector<RZUniformBuffer*> UBOs;
+            std::vector<RZDescriptorSet*>      envMapSets;
+            std::vector<RZUniformBufferHandle> UBOs;
 
             struct ViewProjLayerUBOData
             {
@@ -217,7 +218,7 @@ namespace Razix {
                 uboData.projection[1][1] = -1;
                 uboData.layer            = i;
 
-                RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
+                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({.name = "ViewProjLayerUBOData : #" + std::to_string(i), .size = sizeof(ViewProjLayerUBOData), .data = &uboData});
                 UBOs.push_back(viewProjLayerUBO);
 
                 for (auto& setInfo: setInfos) {
@@ -291,7 +292,7 @@ namespace Razix {
 
             for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();
-                UBOs[i]->Destroy();
+                RZResourceManager::Get().destroyUniformBuffer(UBOs[i]);
             }
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
             cubeMesh->Destroy();
@@ -320,8 +321,8 @@ namespace Razix {
 
             // Create the View Projection buffer
 
-            std::vector<RZDescriptorSet*> envMapSets;
-            std::vector<RZUniformBuffer*> UBOs;
+            std::vector<RZDescriptorSet*>      envMapSets;
+            std::vector<RZUniformBufferHandle> UBOs;
 
             struct ViewProjLayerUBOData
             {
@@ -340,7 +341,7 @@ namespace Razix {
                 uboData.projection[1][1] = -1;
                 uboData.layer            = i;
 
-                RZUniformBuffer* viewProjLayerUBO = RZUniformBuffer::Create(sizeof(ViewProjLayerUBOData), &uboData RZ_DEBUG_NAME_TAG_STR_E_ARG("ViewProjLayerUBOData : #" + std::to_string(i)));
+                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({.name = "ViewProjLayerUBOData : #" + std::to_string(i), .size = sizeof(ViewProjLayerUBOData), .data = &uboData});
                 UBOs.push_back(viewProjLayerUBO);
 
                 //for (auto& setInfo: setInfos) {
@@ -438,7 +439,7 @@ namespace Razix {
 
             for (sz i = 0; i < envMapSets.size(); i++) {
                 envMapSets[i]->Destroy();
-                UBOs[i]->Destroy();
+                RZResourceManager::Get().destroyUniformBuffer(UBOs[i]);
             }
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
             cubeMesh->Destroy();

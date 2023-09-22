@@ -1,6 +1,6 @@
 {
-    "name": "Pass.Builtin.DepthPreTest",
-    "shader": "Shader.Builtin.DepthPreTest",
+    "name": "Pass.Builtin.PBRLighting",
+    "shader": "Shader.Builtin.PBRIBL",
     "pipeline_info": {
         "depth": {
             "write": true,
@@ -12,7 +12,7 @@
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
         "depth_format": "DEPTH32F",
-        "color_formats": [ "RGBA32F", "RGBA32F" ],
+        "color_formats": [ "RGBA32F" ],
         "color_blend": {
             "src": "SrcAlpha",
             "dst": "OneMinusSrcAlpha",
@@ -26,16 +26,12 @@
         "transparency": true
     },
     "scene_params": {
-        "geometry_mode": "scene",
-        "enable_materials": false,
+        "geometry_mode": "SceneGeometry",
+        "enable_materials": true,
         "enable_lights": true
     },
-    "rendering_info" {
-        "resolution": "Custom",
-        "extents" {
-            "x": 2048,
-            "y": 2048
-        },
-        "resize": false
+    "rendering_info": {
+        "resolution": "Window",
+        "resize": true
     }
 }

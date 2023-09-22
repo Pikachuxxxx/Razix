@@ -349,6 +349,8 @@ namespace Razix {
 
         void VKRenderContext::BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             std::vector<VkWriteDescriptorSet> writeDescriptorSets;
 
             auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
@@ -388,7 +390,8 @@ namespace Razix {
                     } else {
                         VkDescriptorBufferInfo bufferInfo{};
 
-                        auto buffer       = static_cast<VKUniformBuffer*>(descriptor.uniformBuffer);
+                        auto uboresource  = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
+                        auto buffer       = static_cast<VKUniformBuffer*>(uboresource);
                         bufferInfo.buffer = buffer->getBuffer();
                         bufferInfo.offset = descriptor.offset;
                         bufferInfo.range  = buffer->getSize();

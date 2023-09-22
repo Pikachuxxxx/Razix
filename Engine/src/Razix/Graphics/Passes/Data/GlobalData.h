@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Graphics/Lighting/LightData.h"
-#include "Razix/Graphics/Resources/RZTransientResources.h"
+
 
 namespace Razix {
     namespace Graphics {

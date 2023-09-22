@@ -25,7 +25,6 @@ namespace Razix {
             /* Shuts down the Resource System */
             void ShutDown();
 
-            // TODO: Maybe make these private and use them via friend class?
             template<class T>
             RZResourcePoolTyped<T>& getPool()
             {
@@ -49,6 +48,12 @@ namespace Razix {
                 return m_PipelinePool;
             }
 
+            template<>
+            RZResourcePoolTyped<RZUniformBuffer>& getPool()
+            {
+                return m_UniformBufferPool;
+            }
+
             /* GPU Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             RZTextureHandle createTexture(const RZTextureDesc& desc);
@@ -64,14 +69,16 @@ namespace Razix {
             void             destroyPipeline(RZPipelineHandle handle);
             RZPipeline*      getPipelineResource(RZPipelineHandle handle);
             //-----------------------------------------------------------------------------------
-            RZVertexBufferHandle createVertexBuffer(RZVertexBufferDesc& desc);
-            RZIndexBufferHandle  createIndexBuffer(RZIndexBufferDesc& desc);
+            RZUniformBufferHandle createUniformBuffer(const RZBufferDesc& desc);
+            void                  destroyUniformBuffer(RZUniformBufferHandle handle);
+            RZUniformBuffer*      getUniformBufferResource(RZUniformBufferHandle handle);
             //-----------------------------------------------------------------------------------
 
         private:
-            RZResourcePoolTyped<RZTexture>  m_TexturePool;
-            RZResourcePoolTyped<RZShader>   m_ShaderPool;
-            RZResourcePoolTyped<RZPipeline> m_PipelinePool;
+            RZResourcePoolTyped<RZTexture>       m_TexturePool;
+            RZResourcePoolTyped<RZShader>        m_ShaderPool;
+            RZResourcePoolTyped<RZPipeline>      m_PipelinePool;
+            RZResourcePoolTyped<RZUniformBuffer> m_UniformBufferPool;
         };
     }    // namespace Graphics
 }    // namespace Razix

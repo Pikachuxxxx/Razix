@@ -11,11 +11,12 @@
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
+
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Graphics/Lighting/RZImageBasedLightingProbesManager.h"
@@ -28,6 +29,9 @@
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZScene.h"
 
+#define ENABLE_CODE_DRIVEN_FG_PASSES 0
+#define ENABLE_DATA_DRIVEN_FG_PASSES 1
+
 namespace Razix {
     namespace Graphics {
 
@@ -35,11 +39,11 @@ namespace Razix {
         {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTextureHandle          = RZResourceManager::Get().createTextureFromFile({.name = "BRDF LUT", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
+            m_BRDFfLUTTextureHandle          = RZResourceManager::Get().createTextureFromFile({.name = "Imported.BRDFLut", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
             const auto& BRDFfLUTTextureDesc  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
             m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
 
-            m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "Noise Texture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
+            m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "Imported.NoiseTexture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
             const auto& NoiseTextureDesc                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
             m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
 
@@ -63,10 +67,13 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
+            // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
-#if 0
+#if ENABLE_CODE_DRIVEN_FG_PASSES
+
+    #if 0
             //-------------------------------
             // Cascaded Shadow Maps x
             //-------------------------------
@@ -92,7 +99,7 @@ namespace Razix {
             //-------------------------------
             m_DeferredPass.setGrid(sceneGrid);
             m_DeferredPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-#endif
+    #endif
 
             //-------------------------------
             // [ ] SSR Pass
@@ -108,7 +115,7 @@ namespace Razix {
             //-------------------------------
             m_ShadowPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
-#if 0
+    #if 0
             //-------------------------------
             // [Test] Omni-Dir Shadow Pass
             //-------------------------------
@@ -119,7 +126,7 @@ namespace Razix {
                 },
                 [=](const OmniDirectionalShadowPassData& data, FrameGraph::RZFrameGraphPassResources& resources) {
                 });
-#endif
+    #endif
 
             //-------------------------------
             // [Test] Forward Lighting Pass
@@ -127,7 +134,7 @@ namespace Razix {
             auto& frameDataBlock = m_Blackboard.get<FrameData>();
             auto& shadowData     = m_Blackboard.get<SimpleShadowPassData>();
 
-#if 0
+    #if 0
             m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Forward Lighting Pass",
                 [&](FrameGraph::RZPassResourceBuilder& builder, SceneData& data) {
@@ -176,7 +183,7 @@ namespace Razix {
 
                         m_ForwardRenderer.SetFrameDataHeap(RZDescriptorSet::Create({frame_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Buffer Forward")));
 
-    #if 0
+        #if 0
                         auto csmTextures = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
                         RZDescriptor csm_descriptor{};
@@ -191,7 +198,7 @@ namespace Razix {
                         shadow_data_descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
                         shadow_data_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
-    #endif
+        #endif
 
                         m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({ /*csm_descriptor, shadow_data_descriptor*/ } RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM + Matrices")));
 
@@ -208,7 +215,7 @@ namespace Razix {
 
                     Graphics::RHI::SubmitWork({}, {});
                 });
-#endif
+    #endif
             //-------------------------------
             // PBR Pass
             //-------------------------------
@@ -230,7 +237,7 @@ namespace Razix {
             // Debug Scene Pass
             //-------------------------------
             sceneData = m_Blackboard.get<SceneData>();
-#if 1
+    #if 1
             m_FrameGraph.addCallbackPass(
                 "Pass.Builtin.Code.Debug",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
@@ -300,7 +307,7 @@ namespace Razix {
 
                     RZDebugRenderer::Get()->End();
                 });
-#endif
+    #endif
 
             //-------------------------------
             // ImGui Pass
@@ -320,7 +327,7 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
-#if 1
+    #if 1
                     m_ImGuiRenderer.Begin(scene);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
@@ -338,13 +345,24 @@ namespace Razix {
                     m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
-#endif
+    #endif
                 });
 
             //-------------------------------
             // Final Image Presentation
             //-------------------------------
             m_CompositePass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
+
+#endif    // ENABLE_CODE_DRIVEN_FG_PASSES
+
+#if ENABLE_DATA_DRIVEN_FG_PASSES
+            //-------------------------------
+            // Data Driven Frame Graph
+            //-------------------------------
+
+            // Test
+            RAZIX_ASSERT(m_FrameGraph.parse("//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json"), "[Frame Graph] Failed to parse graph!");
+#endif
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");
@@ -354,7 +372,7 @@ namespace Razix {
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
-            std::ofstream os(outPath + "/pbr_lighting_test.dot");
+            std::ofstream os(outPath + "/pbr_lighting_data_driven.dot");
             os << m_FrameGraph;
         }
 
@@ -378,7 +396,7 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("Frame [back buffer #" + std::to_string(RHI::GetSwapchain()->getCurrentImageIndex()), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
-                m_FrameGraph.execute(&m_TransientResources);
+                m_FrameGraph.execute(nullptr);
 
                 // End Frame Marker
                 RAZIX_MARK_END();
@@ -420,8 +438,7 @@ namespace Razix {
             //m_GIPass.destroy();
             //m_GBufferPass.destroy();
 
-            // Destroy Frame Graph Resources
-            m_TransientResources.destroyResources();
+            // TODO: Destroy Frame Graph Transient Resources
         }
 
         void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)
@@ -432,11 +449,11 @@ namespace Razix {
             const auto& DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
             const auto& SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
 
-            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Environment Map", {.name = "Environment Map", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = TextureType::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
+            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Imported.EnvironmentMap", {.name = "Imported.EnvironmentMap", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = TextureType::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
 
-            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Diffuse Irradiance", {.name = "Diffuse Irradiance", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = TextureType::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
+            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Imported.DiffuseIrradiance", {.name = "Imported.DiffuseIrradiance", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = TextureType::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
 
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Specular PreFiltered", {.name = "Specular PreFiltered", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = TextureType::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("Imported.SpecularPreFiltered", {.name = "Imported.SpecularPreFiltered", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = TextureType::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
         }
 
         //--------------------------------------------------------------------------
@@ -448,7 +465,7 @@ namespace Razix {
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("Frame Data", {"FrameData", sizeof(GPUFrameData)});
+                    data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("FrameData", {"FrameData", sizeof(GPUFrameData)});
 
                     data.frameData = builder.write(data.frameData);
                 },
@@ -481,15 +498,15 @@ namespace Razix {
                     gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
 
                     // update and upload the UBO
-                    auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
-                    frameDataBuffer->SetData(sizeof(GPUFrameData), &gpuData);
+                    auto frameDataBufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
+                    RZResourceManager::Get().getUniformBufferResource(frameDataBufferHandle)->SetData(sizeof(GPUFrameData), &gpuData);
 
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
                         descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
                         descriptor.bindingInfo.stage            = ShaderStage::VERTEX;
-                        descriptor.uniformBuffer                = frameDataBuffer;
+                        descriptor.uniformBuffer                = frameDataBufferHandle;
                         auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Graphics::RHI::Get().setFrameDataSet(m_FrameDataSet);
                     }
@@ -501,11 +518,11 @@ namespace Razix {
         void RZWorldRenderer::uploadLightsData(RZScene* scene, RZRendererSettings& settings)
         {
             m_Blackboard.add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
-                "Pass.Builtin.Code.SceneLightsUpload",
+                "Pass.Builtin.Code.SceneLightsDataUpload",
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("Scene Lights Data", {"Scene Lights Data", sizeof(GPULightsData)});
+                    data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("SceneLightsData", {"SceneLightsData", sizeof(GPULightsData)});
                     data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
                 },
                 [=](const SceneLightsData& data, FrameGraph::RZPassResourceDirectory& resources) {
@@ -528,7 +545,7 @@ namespace Razix {
                     }
                     // update and upload the UBO
                     auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
-                    lightsDataBuffer->SetData(sizeof(GPULightsData), &gpuLightsData);
+                    RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
 
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};

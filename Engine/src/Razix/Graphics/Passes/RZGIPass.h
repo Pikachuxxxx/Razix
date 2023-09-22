@@ -33,9 +33,9 @@ namespace Razix {
             std::vector<RZCommandBuffer*> m_RadianceInjectionCmdBuffers;
             std::vector<RZCommandBuffer*> m_RadiancePropagationCmdBuffers;
             RadianceInjectionUBOData      radianceInjectionData;
-            RZUniformBuffer*              m_RadianceInjectionUBO = nullptr;
+            RZUniformBufferHandle         m_RadianceInjectionUBO;
             RadiancePropagationUBOData    radiancePropagationData;
-            RZUniformBuffer*              m_RadiancePropagationUBO = nullptr;
+            RZUniformBufferHandle         m_RadiancePropagationUBO;
 
             struct PropagationGPUResources
             {

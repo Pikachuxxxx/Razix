@@ -44,7 +44,7 @@ namespace Razix {
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
             auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
 
-            m_LightViewProjUBO = RZUniformBuffer::Create(sizeof(LightVPUBOData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("LightViewProj"));
+            m_LightViewProjUBO = RZResourceManager::Get().createUniformBuffer({.name = "LightViewProj", .size = sizeof(LightVPUBOData), .data = nullptr});
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -103,7 +103,8 @@ namespace Razix {
                     lightProjection[1][1] *= -1;
                     light_data.lightViewProj = lightProjection * lightView;
 
-                    resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle()->SetData(sizeof(LightVPUBOData), &light_data);
+                    auto lightVPHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
+                    RZResourceManager::Get().getUniformBufferResource(lightVPHandle)->SetData(sizeof(LightVPUBOData), &light_data);
 
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
@@ -116,7 +117,7 @@ namespace Razix {
 
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
-                    m_LightViewProjUBO->SetData(sizeof(LightVPUBOData), &light_data);
+                    RZResourceManager::Get().getUniformBufferResource(m_LightViewProjUBO)->SetData(sizeof(LightVPUBOData), &light_data);
 
                     RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LVPSet, BindingTable_System::SET_IDX_SYSTEM_START);
 
@@ -132,7 +133,7 @@ namespace Razix {
 
         void RZShadowPass::destroy()
         {
-            m_LightViewProjUBO->Destroy();
+            RZResourceManager::Get().destroyUniformBuffer(m_LightViewProjUBO);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
             m_LVPSet->Destroy();
         }

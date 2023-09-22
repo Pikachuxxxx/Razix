@@ -31,9 +31,9 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZUniformBuffer* m_LightViewProjUBO;
-            RZDescriptorSet* m_LVPSet;
-            RZPipelineHandle m_Pipeline;
+            RZUniformBufferHandle m_LightViewProjUBO;
+            RZDescriptorSet*      m_LVPSet;
+            RZPipelineHandle      m_Pipeline;
         };
     }    // namespace Graphics
 }    // namespace Razix
