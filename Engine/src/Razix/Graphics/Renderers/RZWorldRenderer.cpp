@@ -11,11 +11,12 @@
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
+
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Graphics/Lighting/RZImageBasedLightingProbesManager.h"
@@ -395,7 +396,7 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("Frame [back buffer #" + std::to_string(RHI::GetSwapchain()->getCurrentImageIndex()), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
-                m_FrameGraph.execute(&m_TransientResources);
+                m_FrameGraph.execute(nullptr);
 
                 // End Frame Marker
                 RAZIX_MARK_END();
@@ -437,8 +438,7 @@ namespace Razix {
             //m_GIPass.destroy();
             //m_GBufferPass.destroy();
 
-            // Destroy Frame Graph Resources
-            m_TransientResources.destroyResources();
+            // TODO: Destroy Frame Graph Transient Resources
         }
 
         void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)
@@ -498,15 +498,15 @@ namespace Razix {
                     gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
 
                     // update and upload the UBO
-                    auto frameDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
-                    frameDataBuffer->SetData(sizeof(GPUFrameData), &gpuData);
+                    auto frameDataBufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
+                    RZResourceManager::Get().getUniformBufferResource(frameDataBufferHandle)->SetData(sizeof(GPUFrameData), &gpuData);
 
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
                         descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
                         descriptor.bindingInfo.stage            = ShaderStage::VERTEX;
-                        descriptor.uniformBuffer                = frameDataBuffer;
+                        descriptor.uniformBuffer                = frameDataBufferHandle;
                         auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Graphics::RHI::Get().setFrameDataSet(m_FrameDataSet);
                     }
@@ -545,7 +545,7 @@ namespace Razix {
                     }
                     // update and upload the UBO
                     auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
-                    lightsDataBuffer->SetData(sizeof(GPULightsData), &gpuLightsData);
+                    RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
 
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};

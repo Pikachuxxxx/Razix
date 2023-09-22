@@ -76,7 +76,7 @@ namespace Razix {
         {
             std::string                           typeName = "DESCRIPTOR_UNNAMED";
             std::string                           name;
-            RZUniformBuffer*                      uniformBuffer = nullptr;
+            RZUniformBufferHandle                 uniformBuffer;
             RZTextureHandle                       texture;
             std::vector<RZShaderBufferMemberInfo> uboMembers;
             DescriptorBindingInfo                 bindingInfo;

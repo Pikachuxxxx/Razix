@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 
 namespace Razix {
     namespace Graphics {

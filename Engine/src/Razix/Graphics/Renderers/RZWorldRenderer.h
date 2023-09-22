@@ -5,8 +5,6 @@
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 
-#include "Razix/Graphics/Resources/RZTransientResources.h"
-
 // Passes
 #include "Razix/Graphics/Passes/RZBloomPass.h"
 #include "Razix/Graphics/Passes/RZDeferredLightingPass.h"
@@ -113,7 +111,6 @@ namespace Razix {
         private:
             FrameGraph::RZFrameGraph         m_FrameGraph;
             FrameGraph::RZBlackboard         m_Blackboard;
-            FrameGraph::RZTransientResources m_TransientResources;
             // Frame Graph Import Data
             RZTextureHandle m_BRDFfLUTTextureHandle;
             RZTextureHandle m_NoiseTextureHandle;

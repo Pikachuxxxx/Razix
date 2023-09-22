@@ -1,36 +1,18 @@
 #pragma once
 
-// GLM
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Razix/Core/RZDebugConfig.h"
 
 namespace Razix {
     namespace Graphics {
 
-        class RZDescriptorSet;
-
-        // TODO: TEST - Add bind method to RZUniformBuffer with ownership of RZDescriptorSet which will be bound
         /* Uniform Buffer that contains various kinds of data such as animation, lighting etc and can be passed to the shader stages */
-        class RAZIX_API RZUniformBuffer : public RZRoot
+        class RAZIX_API RZUniformBuffer : public IRZResource<RZUniformBuffer>
         {
         public:
             /* The API is responsible for deallocating any resources */
-            virtual ~RZUniformBuffer() = default;
+            RAZIX_VIRTUAL_DESCTURCTOR(RZUniformBuffer)
 
-            /**
-             * Creates a uniform buffer that can be used to send data to the shaders using the underlying Graphics API
-             * 
-             * @parma size The size of the uniform buffer
-             * @parma data The data being stored in the uniform buffer
-             * @returns The pointer handle to underlying Uniform buffer API implementation
-             */
-            static RZUniformBuffer* Create(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG);
+            GET_INSTANCE_SIZE;
 
             /* Initializes the uniform buffer */
             virtual void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
@@ -47,9 +29,20 @@ namespace Razix {
             virtual void Destroy() = 0;
 
             // virtual void GenerateDescriptorSet() = 0;
-
         protected:
-            RZDescriptorSet* m_DescriptorSet = nullptr;
+            RZBufferDesc m_Desc;
+
+        private:
+            /**
+             * Creates a uniform buffer that can be used to send data to the shaders using the underlying Graphics API
+             * 
+             * @parma size The size of the uniform buffer
+             * @parma data The data being stored in the uniform buffer
+             * @returns The pointer handle to underlying Uniform buffer API implementation
+             */
+            static void Create(void* where, const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            friend class RZResourceManager;
         };
     }    // namespace Graphics
 }    // namespace Razix

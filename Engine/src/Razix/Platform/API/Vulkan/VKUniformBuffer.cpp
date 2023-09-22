@@ -6,14 +6,16 @@
 namespace Razix {
     namespace Graphics {
 
-        VKUniformBuffer::VKUniformBuffer(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+        VKUniformBuffer::VKUniformBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_Desc = desc;
+
             // Create the uniform buffer
             setUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-            setSize(size);
-            Init(data RZ_DEBUG_E_ARG_NAME);
+            setSize(desc.size);
+            Init(desc.data RZ_DEBUG_E_ARG_NAME);
         }
 
         void VKUniformBuffer::Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG)
@@ -38,6 +40,11 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             VKBuffer::destroy();
+        }
+
+        void VKUniformBuffer::DestroyResource()
+        {
+            Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix

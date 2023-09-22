@@ -147,8 +147,8 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         static std::map<std::string, Razix::Graphics::DrawType> DrawTypeStringMap = {
-            {"Triangle ", Razix::Graphics::DrawType::Triangle},
-            {"Line ", Razix::Graphics::DrawType::Line},
+            {"Triangle", Razix::Graphics::DrawType::Triangle},
+            {"Line", Razix::Graphics::DrawType::Line},
             {"Point", Razix::Graphics::DrawType::Point}};
 
         Razix::Graphics::DrawType StringToDrawType(const std::string& str)
@@ -159,8 +159,8 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         static std::map<std::string, Razix::Graphics::PolygonMode> PolygonModeStringMap = {
-            {"Fill ", Razix::Graphics::PolygonMode::Fill},
-            {"Line ", Razix::Graphics::PolygonMode::Line},
+            {"Fill", Razix::Graphics::PolygonMode::Fill},
+            {"Line", Razix::Graphics::PolygonMode::Line},
             {"Point", Razix::Graphics::PolygonMode::Point}};
 
         Razix::Graphics::PolygonMode StringToPolygonMode(const std::string& str)

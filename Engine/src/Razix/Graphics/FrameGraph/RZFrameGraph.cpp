@@ -12,6 +12,9 @@
 
 #include "Razix/Graphics/FrameGraph/RZFrameGraphPass.h"
 
+#include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
+
 #include "Razix/Scene/RZScene.h"
 
 #include <nlohmann/json.hpp>
@@ -24,6 +27,15 @@ static std::unordered_map<std::string, Razix::Graphics::Resolution> StringToReso
     {"4KNative", Razix::Graphics::Resolution::k4KNative},
     {"Window", Razix::Graphics::Resolution::kWindow},
     {"Custom", Razix::Graphics::Resolution::kCustom}};
+
+static std::unordered_map<std::string, Razix::Graphics::ClearColorPresets> StringToColorPreset = {
+    {"OpaqueBlack", Razix::Graphics::ClearColorPresets::OpaqueBlack},
+    {"OpaqueWhite", Razix::Graphics::ClearColorPresets::OpaqueWhite},
+    {"TransparentBlack", Razix::Graphics::ClearColorPresets::TransparentBlack},
+    {"TransparentWhite", Razix::Graphics::ClearColorPresets::TransparentWhite},
+    {"Pink", Razix::Graphics::ClearColorPresets::Pink},
+    {"DepthZeroToOne", Razix::Graphics::ClearColorPresets::DepthZeroToOne},
+    {"DepthOneToZero", Razix::Graphics::ClearColorPresets::DepthOneToZero}};
 
 namespace Razix {
     namespace Graphics {
@@ -49,18 +61,96 @@ namespace Razix {
                     // Load this render pass from file
                     RZPassNode &passNode = parsePass("//RazixFG/Passes/" + std::string(render_pass) + ".json");
 
+                    // Use the builder to build input/output resources
+                    RZPassResourceBuilder builder(*this, passNode);
+
+                    /**
+                     * As mentioned in design docs, we will have 3 types
+                     * 1. Texture -> RZFrameGraphTexture
+                     * 2. Buffer -> RZFrameGraphBuffer
+                     * 3. Reference -> points to existing Texture/Buffer
+                     * 
+                     * So identify and create them, as for Reference we need blackboard's extended functionality
+                     */
+
                     // Load the Input Resources
                     auto &inputs = pass["inputs"];
                     for (auto &input: inputs) {
+                        auto &type = input["type"];
+                        RAZIX_ASSERT(!type.empty(), "[Frame Graph] Missing input resource type!");
+
+                        auto &attachment_info = input["attachment_info"];
+
+                        // Use this for
+                        AttachmentInfo attachInfo{};
+                        if (!attachment_info.empty()) {
+                            auto &clear = attachment_info["clear"];
+                            if (!clear.empty())
+                                attachInfo.clear = clear.get<bool>();
+
+                            auto &clear_color = attachment_info["clear_color"];
+                            if (!clear_color.empty())
+                                attachInfo.clearColor = StringToColorPreset[clear_color];
+
+                            auto &binding_idx = attachment_info["binding_idx"];
+                            if (!binding_idx.empty())
+                                attachInfo.bindingIdx = binding_idx.get<int>();
+
+                            auto &mip = attachment_info["mip"];
+                            if (!mip.empty())
+                                attachInfo.mip = mip.get<int>();
+
+                            auto &layer = attachment_info["layer"];
+                            if (!layer.empty())
+                                attachInfo.layer = layer.get<int>();
+                        }
+
+                        if (std::string(type) == "Texture") {
+                            RZTextureDesc desc{};
+                            desc.name = std::string(input["name"]);
+
+                            auto &format = input["format"];
+                            RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
+
+                            auto &resolution = input["resolution"];
+                            RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
+                            desc.width  = resolution["x"].get<int>();
+                            desc.height = resolution["y"].get<int>();
+
+                            // TODO: Support rest of the RZTextureDesc members
+
+                            // Create the resource
+                            RZFrameGraphResource resource = builder.create<RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc);
+                            // Mark the input resource as read for the current pass and pass the attachment info
+                            builder.read(resource, EncodeAttachmentInfo(attachInfo));
+
+                        } else if (std::string(type) == "Buffer") {
+                            RZBufferDesc desc{};
+                            desc.name = std::string(input["name"]);
+
+                            desc.size = input["size"].get<int>();
+
+                            // Create the buffer resource
+                            RZFrameGraphResource resource = builder.create<RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc);
+                            // Mark the input resource as read for the current pass and pass the attachment info
+                            builder.read(resource, EncodeAttachmentInfo(attachInfo));
+
+                        } else { 
+
+                            //RZFrameGraphResource resource =    // Get it from blackboard? or How?
+                            //    // Mark the input resource as read for the current pass and pass the attachment info
+                            //    builder.read(resource, EncodeAttachmentInfo(attachInfo));
+                        }
+   
                     }
 
                     // Load the Output Resources
                     auto &outputs = pass["outputs"];
                     for (auto &output: outputs) {
                     }
-
-                    // Load imported resources
                 }
+
+                // Load imported resources
 
                 return true;
             }
@@ -85,37 +175,49 @@ namespace Razix {
                 auto  shader         = Graphics::RZShaderLibrary::Get().getBuiltInShader(std::string(shaderFileName) + ".rzsf");
 
                 RZPipelineDesc pipelineDesc{};
+                pipelineDesc.name = std::string(passName) + ".Pipeline";
 
                 // Set the shader to the pipeline
-                pipelineDesc.shader = shader;
+                if (!shaderFileName.empty()) {
+                    pipelineDesc.shader = shader;
+                } else
+                    RAZIX_ASSERT(false, "[Frame Graph] No shader in pass description!");
 
                 // parse the pipeline info
                 auto &pipelineInfo = data["pipeline_info"];
-                {
+                if (!pipelineInfo.empty()) {
                     auto &depth = pipelineInfo["depth"];
-                    {
+                    if (!depth.empty()) {
                         auto &depthWrite     = depth["write"];
                         auto &depthTest      = depth["test"];
                         auto &depthoperation = depth["op"];
                         auto &depthBias      = depth["bias"];
 
-                        pipelineDesc.depthTestEnabled  = depthTest.get<bool>();
-                        pipelineDesc.depthWriteEnabled = depthWrite.get<bool>();
-                        pipelineDesc.depthBiasEnabled  = depthBias.get<bool>();
+                        if (!depthTest.empty())
+                            pipelineDesc.depthTestEnabled = depthTest.get<bool>();
+                        if (!depthWrite.empty())
+                            pipelineDesc.depthWriteEnabled = depthWrite.get<bool>();
+                        if (!depthBias.empty())
+                            pipelineDesc.depthBiasEnabled = depthBias.get<bool>();
 
-                        pipelineDesc.depthOp = StringToCompareOp(depthoperation);
+                        if (!depthoperation.empty())
+                            pipelineDesc.depthOp = StringToCompareOp(depthoperation);
                     }
-                    auto &cullMode        = pipelineInfo["cull_mode"];
-                    pipelineDesc.cullMode = StringToCullMode(cullMode);
+                    auto &cullMode = pipelineInfo["cull_mode"];
+                    if (!cullMode.empty())
+                        pipelineDesc.cullMode = StringToCullMode(cullMode);
 
-                    auto &polygonMode        = pipelineInfo["polygon_mode"];
-                    pipelineDesc.polygonMode = StringToPolygonMode(polygonMode);
+                    auto &polygonMode = pipelineInfo["polygon_mode"];
+                    if (!polygonMode.empty())
+                        pipelineDesc.polygonMode = StringToPolygonMode(polygonMode);
 
-                    auto &drawType        = pipelineInfo["draw_type"];
-                    pipelineDesc.drawType = StringToDrawType(drawType);
+                    auto &drawType = pipelineInfo["draw_type"];
+                    if (!drawType.empty())
+                        pipelineDesc.drawType = StringToDrawType(drawType);
 
-                    auto &depthFormat        = pipelineInfo["depth_format"];
-                    pipelineDesc.depthFormat = StringToTextureFormat(depthFormat);
+                    auto &depthFormat = pipelineInfo["depth_format"];
+                    if (!depthFormat.empty())
+                        pipelineDesc.depthFormat = StringToTextureFormat(depthFormat);
 
                     auto &colorFormats = pipelineInfo["color_formats"];
                     for (auto &format: colorFormats) {
@@ -123,29 +225,36 @@ namespace Razix {
                     }
 
                     auto &colorBlendInfo = pipelineInfo["color_blend"];
-                    {
+                    if (!colorBlendInfo.empty()) {
                         auto &src = colorBlendInfo["src"];
                         auto &dst = colorBlendInfo["dst"];
                         auto &op  = colorBlendInfo["op"];
 
-                        pipelineDesc.colorDst = StringToBlendFactor(dst);
-                        pipelineDesc.colorSrc = StringToBlendFactor(src);
-                        pipelineDesc.colorOp  = StringToBlendOp(op);
+                        if (!dst.empty())
+                            pipelineDesc.colorDst = StringToBlendFactor(dst);
+                        if (!src.empty())
+                            pipelineDesc.colorSrc = StringToBlendFactor(src);
+                        if (!op.empty())
+                            pipelineDesc.colorOp = StringToBlendOp(op);
                     }
 
                     auto &alphaBlendInfo = pipelineInfo["alpha_blend"];
-                    {
+                    if (!alphaBlendInfo.empty()) {
                         auto &src = alphaBlendInfo["src"];
                         auto &dst = alphaBlendInfo["dst"];
                         auto &op  = alphaBlendInfo["op"];
 
-                        pipelineDesc.alphaDst = StringToBlendFactor(dst);
-                        pipelineDesc.alphaSrc = StringToBlendFactor(src);
-                        pipelineDesc.alphaOp  = StringToBlendOp(op);
+                        if (!dst.empty())
+                            pipelineDesc.alphaDst = StringToBlendFactor(dst);
+                        if (!src.empty())
+                            pipelineDesc.alphaSrc = StringToBlendFactor(src);
+                        if (!op.empty())
+                            pipelineDesc.alphaOp = StringToBlendOp(op);
                     }
 
-                    auto &transparency               = pipelineInfo["transparency"];
-                    pipelineDesc.transparencyEnabled = transparency.get<bool>();
+                    auto &transparency = pipelineInfo["transparency"];
+                    if (!transparency.empty())
+                        pipelineDesc.transparencyEnabled = transparency.get<bool>();
                 }
 
                 // Create the pipeline object
@@ -156,18 +265,22 @@ namespace Razix {
                 SceneDrawParams sceneDrawParams{};
                 // parse the scene params
                 auto &scenceParams = data["scene_params"];
-                {
-                    auto &geometry               = scenceParams["geometry_mode"];
-                    sceneDrawParams.geometryMode = SceneGeometryModeStringMap[geometry];
+                if (!scenceParams.empty()) {
+                    auto &geometry = scenceParams["geometry_mode"];
+                    if (!geometry.empty())
+                        sceneDrawParams.geometryMode = SceneGeometryModeStringMap[geometry];
 
-                    auto &enableMaterials           = scenceParams["enable_materials"];
-                    sceneDrawParams.enableMaterials = enableMaterials.get<bool>();
+                    auto &enableMaterials = scenceParams["enable_materials"];
+                    if (!enableMaterials.empty())
+                        sceneDrawParams.enableMaterials = enableMaterials.get<bool>();
 
-                    auto &enableLights           = scenceParams["enable_lights"];
-                    sceneDrawParams.enableLights = enableLights.get<bool>();
+                    auto &enableLights = scenceParams["enable_lights"];
+                    if (!enableLights.empty())
+                        sceneDrawParams.enableLights = enableLights.get<bool>();
                 }
 
-                auto      &renderInfo = data["rendering_info"];
+                auto &renderInfo = data["rendering_info"];
+                RAZIX_ASSERT(!renderInfo.empty(), "[Frame Graph] Missing Rendering info in pass description!");
                 Resolution resolution = StringToResolutionsMap[renderInfo["resolution"]];
                 bool       resize     = renderInfo["resize"].get<bool>();
 

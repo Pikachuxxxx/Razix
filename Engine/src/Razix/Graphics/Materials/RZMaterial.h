@@ -58,7 +58,7 @@ namespace Razix {
             std::string            m_Name                  = "PBR material";
             RZShaderHandle         m_Shader                = {};
             RZDescriptorSet*       m_DescriptorSet         = nullptr;
-            RZUniformBuffer*       m_MaterialPropertiesUBO = nullptr;
+            RZUniformBufferHandle  m_MaterialPropertiesUBO = {};
             bool                   m_TexturesUpdated       = false;
             WorkFlow               m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
         };

@@ -23,7 +23,10 @@ namespace Razix {
         {
         public:
             RZPipeline() = default;
-            virtual ~RZPipeline() {}
+            
+            RAZIX_VIRTUAL_DESCTURCTOR(RZPipeline)
+
+            GET_INSTANCE_SIZE;
 
             virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
 

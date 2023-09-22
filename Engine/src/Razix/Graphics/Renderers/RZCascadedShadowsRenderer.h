@@ -46,8 +46,8 @@ namespace Razix {
 
             //--------------------------------------------------------------------------
 
-            void             updateCascades(RZScene* scene);
-            RZUniformBuffer* getCascadedMatriceUBO() { return m_CascadedMatricesUBO; }
+            void                  updateCascades(RZScene* scene);
+            RZUniformBufferHandle getCascadedMatriceUBO() { return m_CascadedMatricesUBO; }
 
             /**
              * Builds the cascaded shadow maps
@@ -69,11 +69,11 @@ namespace Razix {
             static glm::mat4      buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist);
 
         private:
-            RZUniformBuffer* m_CascadedMatricesUBO;
+            RZUniformBufferHandle m_CascadedMatricesUBO;
             struct CascadeGPUResources
             {
                 std::vector<RZCommandBuffer*> CmdBuffers;
-                RZUniformBuffer*              ViewProjLayerUBO;
+                RZUniformBufferHandle         ViewProjLayerUBO;
                 std::vector<RZDescriptorSet*> CascadeVPSet;
                 RZPipelineHandle              CascadePassPipeline;
             } cascadeGPUResources[kNumCascades];

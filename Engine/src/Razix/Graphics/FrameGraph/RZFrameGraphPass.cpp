@@ -32,7 +32,7 @@
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
 
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Graphics/Resources/RZFrameGraphSemaphore.h"
+
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -86,6 +86,7 @@ namespace Razix {
             void RZFrameGraphDataPass::resize(RZPassResourceDirectory &resources, u32 width, u32 height)
             {
                 // Update the descriptors table
+
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

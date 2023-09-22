@@ -303,7 +303,8 @@ namespace Razix {
                 return;
             //m_DepthTexture->Release(true);
 
-            m_FontAtlasDescriptorSet->Destroy();
+            if (m_FontAtlasDescriptorSet)
+                m_FontAtlasDescriptorSet->Destroy();
             //m_FontAtlasTexture->Release(true);
             RZResourceManager::Get().destroyTexture(m_FontAtlasTexture);
             m_ImGuiVBO->Destroy();

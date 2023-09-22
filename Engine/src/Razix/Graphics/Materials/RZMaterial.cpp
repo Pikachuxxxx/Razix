@@ -29,7 +29,7 @@ namespace Razix {
             m_Shader = shader;
 
             // Create the uniform buffer first
-            m_MaterialPropertiesUBO = Graphics::RZUniformBuffer::Create(sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties RZ_DEBUG_NAME_TAG_STR_E_ARG("Material Properties UBO"));
+            m_MaterialPropertiesUBO = RZResourceManager::Get().createUniformBuffer({"Material Properties UBO", sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties});
         }
 
         void RZMaterial::Destroy()
@@ -38,8 +38,7 @@ namespace Razix {
                 m_DescriptorSet->Destroy();
 
             m_MaterialTextures.Destroy();
-            if (m_MaterialPropertiesUBO)
-                m_MaterialPropertiesUBO->Destroy();
+            RZResourceManager::Get().destroyUniformBuffer(m_MaterialPropertiesUBO);
         }
 
         void RZMaterial::InitDefaultTexture()
@@ -232,7 +231,8 @@ namespace Razix {
         void RZMaterial::setProperties(MaterialProperties& props)
         {
             memcpy(&m_MaterialData.m_MaterialProperties, &props, sizeof(MaterialProperties));
-            m_MaterialPropertiesUBO->SetData(sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties);
+            auto materialBuffer = RZResourceManager::Get().getUniformBufferResource(m_MaterialPropertiesUBO);
+            materialBuffer->SetData(sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties);
         }
 
         void RZMaterial::setTexturePaths(MaterialTexturePaths& paths)

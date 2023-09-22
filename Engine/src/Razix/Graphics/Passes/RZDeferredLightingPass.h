@@ -29,9 +29,9 @@ namespace Razix {
 
         private:
             Maths::RZGrid                 m_Grid;
-            RZUniformBuffer*              m_TileDataUBO;
+            RZUniformBufferHandle         m_TileDataUBO;
             TileData                      m_TileData;
-            RZUniformBuffer*              m_LightDataUBO;
+            RZUniformBufferHandle         m_LightDataUBO;
             RZMesh*                       m_ScreenQuadMesh;
             std::vector<RZDescriptorSet*> m_DescriptorSets;
             RZPipelineHandle              m_Pipeline;

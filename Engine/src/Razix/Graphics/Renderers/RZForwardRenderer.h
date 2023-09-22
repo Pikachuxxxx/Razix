@@ -39,12 +39,12 @@ namespace Razix {
             void setCSMArrayHeap(RZDescriptorSet* csmSet) { m_CSMSet = csmSet; }
 
         private:
-            RZUniformBuffer* m_ForwardLightsUBO        = nullptr;
-            RZDescriptorSet* m_GPULightsDescriptorSet  = nullptr;
-            RZScene*         m_CurrentScene            = nullptr;
-            RZDescriptorSet* m_FrameDataSet            = nullptr;
-            RZDescriptorSet* m_CSMSet                  = nullptr;
-            RZShaderHandle   m_OverrideGlobalRHIShader = {};
+            RZUniformBufferHandle m_ForwardLightsUBO        = {};
+            RZDescriptorSet*      m_GPULightsDescriptorSet  = nullptr;
+            RZScene*              m_CurrentScene            = nullptr;
+            RZDescriptorSet*      m_FrameDataSet            = nullptr;
+            RZDescriptorSet*      m_CSMSet                  = nullptr;
+            RZShaderHandle        m_OverrideGlobalRHIShader = {};
         };
     }    // namespace Graphics
 }    // namespace Razix

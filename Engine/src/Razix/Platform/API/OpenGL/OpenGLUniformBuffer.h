@@ -8,8 +8,10 @@ namespace Razix {
         class OpenGLUniformBuffer : public RZUniformBuffer
         {
         public:
-            OpenGLUniformBuffer(u32 size, const void* data);
+            OpenGLUniformBuffer(const RZBufferDesc& desc);
             ~OpenGLUniformBuffer();
+
+            void DestroyResource() override;
 
             void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
             void Bind() override;

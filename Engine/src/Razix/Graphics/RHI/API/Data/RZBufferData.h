@@ -10,5 +10,20 @@ namespace Razix {
             Dynamic,
             Stream
         };
+
+        enum class BufferType
+        {
+            Constant,
+            RWConstant,
+            Storage,
+            RWStructured,
+            RWData,
+            RWRegular,
+            Structured,
+            Data,
+            Regular,
+            AccelerationStructure
+        };
+
     }    // namespace Graphics
 }    // namespace Razix
