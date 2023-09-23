@@ -723,8 +723,8 @@ namespace Razix {
             }
 
             //-----------------------------------------------------------------------------------
-            // RZPassResourceBuilder Class
-            //-----------------------------------------------------------------------------------
+            // RZPassResourceBuilder Class            //-----------------------------------------------------------------------------------
+
 
             RZFrameGraphResource RZPassResourceBuilder::read(RZFrameGraphResource id, u32 flags /*= kFlagsNone*/)
             {

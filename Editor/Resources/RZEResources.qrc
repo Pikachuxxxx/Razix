@@ -48,5 +48,10 @@
         <file>styles/ue.qss</file>
         <file>memory_pool_icon.png</file>
         <file>Add_icon.png</file>
+        <file>RazixLogo1024.png</file>
+        <file>maximize.png</file>
+        <file>minimize.png</file>
+        <file>close.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>
