@@ -110,7 +110,6 @@ namespace Razix {
 
         private:
             FrameGraph::RZFrameGraph         m_FrameGraph;
-            FrameGraph::RZBlackboard         m_Blackboard;
             // Frame Graph Import Data
             RZTextureHandle m_BRDFfLUTTextureHandle;
             RZTextureHandle m_NoiseTextureHandle;
