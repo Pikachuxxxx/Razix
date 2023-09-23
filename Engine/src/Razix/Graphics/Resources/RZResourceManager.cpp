@@ -161,7 +161,6 @@ namespace Razix {
 
             return m_PipelinePool.get(handle);
         }
-
         //-----------------------------------------------------------------------------------
 
         RZUniformBufferHandle RZResourceManager::createUniformBuffer(const RZBufferDesc& desc)

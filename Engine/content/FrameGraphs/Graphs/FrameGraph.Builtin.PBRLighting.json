@@ -36,6 +36,10 @@
                 },
                 {
                     "type": "Reference",
+                    "name": "FrameData"
+                },
+                {
+                    "type": "Reference",
                     "name": "ShadowMapData.LightSpaceMatrix"
                 },
                 {

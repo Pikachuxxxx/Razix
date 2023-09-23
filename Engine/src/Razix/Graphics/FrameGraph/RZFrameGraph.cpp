@@ -79,12 +79,75 @@ namespace Razix {
                         auto &type = input["type"];
                         RAZIX_ASSERT(!type.empty(), "[Frame Graph] Missing input resource type!");
 
-                        auto &attachment_info = input["attachment_info"];
+                        // Binding Info
+                        DescriptorBindingInfo bindingInfo{};
+                        bool                  hasBindingInfo = false;
+                        auto                 &binding_info   = input["binding_info"];
+                        if (!binding_info.empty()) {
+                            hasBindingInfo = true;
+                            // TODO: Implement this
+                        }
 
-                        // Use this for
+                        RZFrameGraphResource resource{-1};
+
+                        auto &resourceName = input["name"];
+
+                        if (std::string(type) == "Texture") {
+                            RZTextureDesc desc{};
+                            desc.name = std::string(resourceName);
+
+                            auto &format = input["format"];
+                            RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
+
+                            auto &resolution = input["resolution"];
+                            RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
+                            desc.width  = resolution["x"].get<int>();
+                            desc.height = resolution["y"].get<int>();
+
+                            // TODO: Support rest of the RZTextureDesc members
+
+                            // Create the resource
+                            resource = builder.create<RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc);
+                            // Mark the input resource as read for the current pass and pass the attachment info
+                            builder.read(resource, hasBindingInfo ? EncodeDescriptorBindingInfo(bindingInfo) : kFlagsNone);
+
+                        } else if (std::string(type) == "Buffer") {
+                            RZBufferDesc desc{};
+                            desc.name = std::string(resourceName);
+
+                            desc.size = input["size"].get<int>();
+
+                            // Create the buffer resource
+                            resource = builder.create<RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc);
+                            // Mark the input resource as read for the current pass and pass the attachment info
+                            builder.read(resource, hasBindingInfo ? EncodeDescriptorBindingInfo(bindingInfo) : kFlagsNone);
+
+                        } else {
+                            // This is a reference which means some pass node has this, in code driven we search blackboard which stores a struct of resources it uses, without actually touching RZPassNode
+                            // But here we have access to RZPassNode and data driven can't use types for access hence we search each RZPassNode for resource using the string ID
+                            // We can instead have a map in blackboard for this which will cache and speed thing up a little instead of having to search through each pass node without a string identfier for resourceID
+
+                            resource = m_Blackboard.getID(resourceName);
+                            builder.read(resource, hasBindingInfo ? EncodeDescriptorBindingInfo(bindingInfo) : kFlagsNone);
+                        }
+
+                        // Add each of them into the blackboard
+                        m_Blackboard.add(resourceName, resource);
+                    }
+
+                    // Load the Output Resources
+                    auto &outputs = pass["outputs"];
+                    for (auto &output: outputs) {
+                        auto &type = output["type"];
+                        RAZIX_ASSERT(!type.empty(), "[Frame Graph] Missing output resource type!");
+
+                        auto &attachment_info = output["attachment_info"];
+
                         AttachmentInfo attachInfo{};
+                        bool           hasAttachmentInfo = false;
                         if (!attachment_info.empty()) {
-                            auto &clear = attachment_info["clear"];
+                            hasAttachmentInfo = true;
+                            auto &clear       = attachment_info["clear"];
                             if (!clear.empty())
                                 attachInfo.clear = clear.get<bool>();
 
@@ -105,14 +168,18 @@ namespace Razix {
                                 attachInfo.layer = layer.get<int>();
                         }
 
+                        RZFrameGraphResource resource{-1};
+
+                        auto &resourceName = output["name"];
+
                         if (std::string(type) == "Texture") {
                             RZTextureDesc desc{};
-                            desc.name = std::string(input["name"]);
+                            desc.name = std::string(resourceName);
 
-                            auto &format = input["format"];
+                            auto &format = output["format"];
                             RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
 
-                            auto &resolution = input["resolution"];
+                            auto &resolution = output["resolution"];
                             RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
                             desc.width  = resolution["x"].get<int>();
                             desc.height = resolution["y"].get<int>();
@@ -120,37 +187,32 @@ namespace Razix {
                             // TODO: Support rest of the RZTextureDesc members
 
                             // Create the resource
-                            RZFrameGraphResource resource = builder.create<RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc);
+                            resource = builder.create<RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc);
                             // Mark the input resource as read for the current pass and pass the attachment info
-                            builder.read(resource, EncodeAttachmentInfo(attachInfo));
+                            resource = builder.write(resource, hasAttachmentInfo ? EncodeAttachmentInfo(attachInfo) : kFlagsNone);
 
                         } else if (std::string(type) == "Buffer") {
                             RZBufferDesc desc{};
-                            desc.name = std::string(input["name"]);
+                            desc.name = std::string(resourceName);
 
-                            desc.size = input["size"].get<int>();
+                            desc.size = output["size"].get<int>();
 
                             // Create the buffer resource
-                            RZFrameGraphResource resource = builder.create<RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc);
+                            resource = builder.create<RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc);
                             // Mark the input resource as read for the current pass and pass the attachment info
-                            builder.read(resource, EncodeAttachmentInfo(attachInfo));
+                            resource = builder.write(resource, hasAttachmentInfo ? EncodeAttachmentInfo(attachInfo) : kFlagsNone);
 
-                        } else { 
-
-                            //RZFrameGraphResource resource =    // Get it from blackboard? or How?
-                            //    // Mark the input resource as read for the current pass and pass the attachment info
-                            //    builder.read(resource, EncodeAttachmentInfo(attachInfo));
+                        } else {
+                            resource = m_Blackboard.getID(resourceName);
+                            resource = builder.write(resource, hasAttachmentInfo ? EncodeAttachmentInfo(attachInfo) : kFlagsNone);
                         }
-   
-                    }
 
-                    // Load the Output Resources
-                    auto &outputs = pass["outputs"];
-                    for (auto &output: outputs) {
+                        // Add each of them into the blackboard
+                        m_Blackboard.add(resourceName, resource);
                     }
                 }
 
-                // Load imported resources
+                // TODO: Load imported resources + style for code and data imported resources!
 
                 return true;
             }
@@ -289,6 +351,9 @@ namespace Razix {
                 auto *pass = new RZFrameGraphDataPass(shader, pipeline, sceneDrawParams, resolution, resize);
                 // Create the PassNode in the graph
                 RZPassNode &passNode = createPassNode(passName, std::unique_ptr<RZFrameGraphDataPass>(pass));
+                // Mark as data driven
+                passNode.m_IsDataDriven = true;
+                passNode.m_IsStandAlone = true;
 
                 return passNode;
             }
@@ -381,8 +446,7 @@ namespace Razix {
                      */
                     for (auto &entry: m_ResourceRegistry)
                         if (entry.m_Last == &pass && entry.isTransient())
-                            entry.getConcept()
-                                ->destroy(transientAllocator);
+                            entry.getConcept()->destroy(transientAllocator);
                 }
             }
 
@@ -415,6 +479,7 @@ namespace Razix {
                     struct
                     {
                         const char *executed{"orange"};
+                        const char *datadriven{"firebrick2"};
                         const char *culled{"lightgray"};
                     } pass;
                     struct
@@ -452,7 +517,7 @@ namespace Razix {
                        << "Refs: " << node.m_RefCount << "<BR/> Index: " << node.m_ID
                        << "} }> style=\"rounded,filled\", fillcolor="
                        << ((node.m_RefCount > 0 || node.isStandAlone())
-                                  ? style.color.pass.executed
+                                  ? (node.isDataDriven() ? style.color.pass.datadriven : style.color.pass.executed)
                                   : style.color.pass.culled);
 
                     os << "]" << std::endl;
@@ -542,7 +607,7 @@ namespace Razix {
                 return node.m_Version == resource.m_Version;
             }
 
-            const RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id) const
+            const RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id)
             {
                 assert(id < m_ResourceNodes.size());
                 return m_ResourceNodes[id];
@@ -553,6 +618,13 @@ namespace Razix {
                 const auto &node = getResourceNode(id);
                 assert(node.m_ResourceEntryID < m_ResourceRegistry.size());
                 return m_ResourceRegistry[node.m_ResourceEntryID];
+            }
+
+            const std::string &RZFrameGraph::getResourceName(RZFrameGraphResource id)
+            {
+                assert(id < m_ResourceNodes.size());
+                auto &resNode = m_ResourceNodes[id];
+                return resNode.getName();
             }
 
             std::ostream &operator<<(std::ostream &os, const RZFrameGraph &fg)
@@ -595,7 +667,12 @@ namespace Razix {
             RZFrameGraphResource RZPassResourceBuilder::read(RZFrameGraphResource id, u32 flags /*= kFlagsNone*/)
             {
                 RAZIX_ASSERT(m_FrameGraph.isValid(id), "Invalid resource");
-                return m_PassNode.registerResourceForRead(id, flags);
+                auto readID = m_PassNode.registerResourceForRead(id, flags);
+
+                // Register the name, this makes code based frame graph pass resources compatible with data driven passes
+                m_FrameGraph.m_Blackboard.add(m_FrameGraph.getResourceName(readID), readID);
+
+                return readID;
             }
 
             RZFrameGraphResource RZPassResourceBuilder::write(RZFrameGraphResource id, u32 flags /*= kFlagsNone*/)
@@ -603,13 +680,14 @@ namespace Razix {
                 RAZIX_ASSERT(m_FrameGraph.isValid(id), "Invalid resource");
 
                 // If it writes to an imported resource mark this pass as stand alone pass
-                // WHY?
                 if (m_FrameGraph.getResourceEntry(id).isImported())
                     setAsStandAlonePass();
 
+                RZFrameGraphResource writeID{id};
+
                 // If the pass creates a resources it means its writing to it
                 if (m_PassNode.canCreateResouce(id))
-                    return m_PassNode.registerResourceForWrite(id, flags);
+                    writeID = m_PassNode.registerResourceForWrite(id, flags);
                 else {
                     /**
                      * If it's writing to a resource not created by this PassNode
@@ -617,9 +695,14 @@ namespace Razix {
                      * a clone of the same resource 
                      */
                     m_PassNode.registerResourceForRead(id, flags);
-                    // we're writing to the same external resource so clone it before writing to it
-                    return m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), flags);
+                    // we're writing to the same existing external resource so clone it before writing to it
+                    writeID = m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), flags);
                 }
+
+                // Register the name, this makes code based frame graph pass resources compatible with data driven passes
+                m_FrameGraph.m_Blackboard.add(m_FrameGraph.getResourceName(writeID), writeID);
+
+                return writeID;
             }
 
             RZPassResourceBuilder &RZPassResourceBuilder::setAsStandAlonePass()

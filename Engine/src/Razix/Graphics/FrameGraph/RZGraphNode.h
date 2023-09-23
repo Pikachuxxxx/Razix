@@ -42,9 +42,9 @@ namespace Razix {
                 RZGraphNode(const std::string_view name, u32 id);
 
             protected:
-                const std::string m_Name;        /* Name of the Node                                                                                                    */
-                const u32         m_ID;          /* Unique ID (should be name it RZFrameGraphResource?), matches an vector index in FG (m_PassNodes or m_ResourceNodes) */
-                i32               m_RefCount{0}; /* References count to this node in the graph                                                                          */
+                const std::string m_Name;          /* Name of the Node                                                                                                    */
+                const u32         m_ID       = -1; /* Unique ID (should be name it RZFrameGraphResource?), matches an vector index in FG (m_PassNodes or m_ResourceNodes) */
+                i32               m_RefCount = 0;  /* References count to this node in the graph                                                                          */
             };
         }    // namespace FrameGraph
     }        // namespace Graphics

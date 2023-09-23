@@ -41,11 +41,11 @@ namespace Razix {
             // Upload BRDF look up texture to the GPU
             m_BRDFfLUTTextureHandle          = RZResourceManager::Get().createTextureFromFile({.name = "Imported.BRDFLut", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
             const auto& BRDFfLUTTextureDesc  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
-            m_Blackboard.add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
+            m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
 
             m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "Imported.NoiseTexture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
             const auto& NoiseTextureDesc                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
-            m_Blackboard.add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
+            m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
@@ -443,7 +443,7 @@ namespace Razix {
 
         void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)
         {
-            auto& globalLightProbeData = m_Blackboard.add<GlobalLightProbeData>();
+            auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
 
             const auto& SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
             const auto& DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
@@ -460,7 +460,7 @@ namespace Razix {
 
         void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings& settings)
         {
-            m_Blackboard.add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
+            m_FrameGraph.getBlackboard().add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
                 "Pass.Builtin.Code.FrameDataUpload",
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
@@ -517,7 +517,7 @@ namespace Razix {
 
         void RZWorldRenderer::uploadLightsData(RZScene* scene, RZRendererSettings& settings)
         {
-            m_Blackboard.add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
+            m_FrameGraph.getBlackboard().add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
                 "Pass.Builtin.Code.SceneLightsDataUpload",
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();

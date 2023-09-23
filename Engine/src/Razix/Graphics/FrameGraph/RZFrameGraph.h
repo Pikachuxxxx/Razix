@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraphResourceTypeChecks.h"
 #include "Razix/Graphics/FrameGraph/RZResourceEntry.h"
 #include "Razix/Graphics/FrameGraph/RZResourceNode.h"
@@ -7,8 +8,6 @@
 namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
-
-            constexpr u32 kFlagsNone = ~0;
 
             /**
              * How does a pass gets the PassNode?
@@ -129,6 +128,10 @@ namespace Razix {
                     m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kResourceInitialVersion, true});    // Non-empty T constructor
                     // Create the node for this resource in the graph
                     RZFrameGraphResource id = createResourceNode(name, resourceId).m_ID;
+
+                    // Register the name, this makes code based frame graph pass resources compatible with data driven passes
+                    m_Blackboard.add(std::string(name), id);
+
                     return id;
                 }
 
@@ -163,17 +166,22 @@ namespace Razix {
                 /* Tell whether or no the current resource is valid to read/write */
                 bool isValid(RZFrameGraphResource id);
                 /* Get the resource node for a given frame graph resource */
-                const RZResourceNode &getResourceNode(RZFrameGraphResource id) const;
+                const RZResourceNode &getResourceNode(RZFrameGraphResource id);
                 /* Get the resource entry for a given frame graph resource */
                 RZResourceEntry &getResourceEntry(RZFrameGraphResource id);
+                /* Gets the blackboard database */
+                RZBlackboard &getBlackboard() { return m_Blackboard; }
 
                 // Export function to dot format for GraphViz
                 friend std::ostream &operator<<(std::ostream &, const RZFrameGraph &);
+
+                const std::string &getResourceName(RZFrameGraphResource id);
 
             private:
                 std::vector<RZPassNode>      m_PassNodes;        /* List of all the pass nodes in the frame graph                             */
                 std::vector<RZResourceNode>  m_ResourceNodes;    /* List of the all the resources nodes (including clones) in the frame graph */
                 std::vector<RZResourceEntry> m_ResourceRegistry; /* List of Resource entries for each unique resource in the frame graph      */
+                RZBlackboard                 m_Blackboard;       /* Blackboard stores a database of per pass node resources  */
 
             private:
                 ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource createResource(const std::string_view name, typename T::Desc &&desc)

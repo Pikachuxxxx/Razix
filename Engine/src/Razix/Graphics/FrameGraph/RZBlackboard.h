@@ -3,6 +3,8 @@
 #include <any>
 #include <typeindex>
 
+#include "Razix/Graphics/FrameGraph/RZFrameGraphResource.h"
+
 /**
     * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
     * Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 
@@ -30,12 +32,33 @@ namespace Razix {
                     return m_Storage[typeid(T)].emplace<T>(T{std::forward<Args>(args)...});
                 }
 
+                void add(std::string resStrID, RZFrameGraphResource ID)
+                {
+                    // FIXME: Support this assert(!has<T>()); here
+                    //m_DataDrivenStorage[passStrID].push_back({resStrID, ID});
+                    m_DataDrivenStorage[resStrID] = ID;
+                }
+
                 template<typename T>
                 RAZIX_NO_DISCARD const T& get() const
                 {
                     assert(has<T>());
                     return std::any_cast<const T&>(m_Storage.at(typeid(T)));
                 }
+
+                RZFrameGraphResource getID(std::string resStrID)
+                {
+                    //auto& passResources = m_DataDrivenStorage[passStrID];
+                    //for (auto& res: passResources) {
+                    //    if (res.first == resStrID)
+                    //        return res.second;
+                    //}
+                    //return RZFrameGraphResource{-1};
+
+                    RAZIX_ASSERT((m_DataDrivenStorage.find(resStrID) != m_DataDrivenStorage.end()), "[Frame Graph Blackboard] Cannot find resource! please check and the resource previously exists!");
+                    return m_DataDrivenStorage[resStrID];
+                }
+
                 template<typename T>
                 RAZIX_NO_DISCARD const T* try_get() const
                 {
@@ -62,6 +85,8 @@ namespace Razix {
 
             private:
                 std::unordered_map<std::type_index, std::any> m_Storage;
+                //std::unordered_map<std::string, std::vector<std::pair<std::string, RZFrameGraphResource>>> m_DataDrivenStorage;
+                std::unordered_map<std::string, RZFrameGraphResource> m_DataDrivenStorage;
             };
         }    // namespace FrameGraph
     }        // namespace Graphics
