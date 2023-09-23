@@ -258,7 +258,7 @@ m_IsAnimated = true;
                     for (auto& setInfo: setInfos) {
                         // Fill the descriptors with buffers and textures
                         for (auto& descriptor: setInfo.second) {
-                            if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                            if (descriptor.bindingInfo.type == Graphics::DescriptorType::ImageSamplerCombined)
                                 descriptor.texture = m_Texture;
                         }
                         auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(__FUNCTION__));

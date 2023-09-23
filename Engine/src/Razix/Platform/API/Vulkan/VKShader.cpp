@@ -99,15 +99,15 @@ namespace Razix {
 
             switch (type) {
                 case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    return DescriptorType::IMAGE_SAMPLER;
+                    return DescriptorType::ImageSamplerCombined;
                     break;
                 case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    return DescriptorType::UNIFORM_BUFFER;
+                    return DescriptorType::UniformBuffer;
                     break;
             }
 
             // FIXME: Make this return something like NONE and cause a ASSERT_ERROR
-            return DescriptorType::UNIFORM_BUFFER;
+            return DescriptorType::UniformBuffer;
         }
 
         VKShader::VKShader(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
@@ -218,7 +218,7 @@ namespace Razix {
                 //result = spvReflectEnumerateInputVariables(&module, &var_count, input_vars);
 
                 // Vertex Input attributes
-                if (spvSource.first == ShaderStage::VERTEX) {
+                if (spvSource.first == ShaderStage::Vertex) {
                     m_VertexInputStride = 0;
 
                     //std::cout << "---------------------------------------------" << std::endl;
@@ -371,7 +371,7 @@ namespace Razix {
                     pc.bindingInfo.location.set     = 0;    // Doesn't make sense for PushConstants
                     pc.bindingInfo.stage            = spvSource.first;
                     pc.bindingInfo.count            = 1;
-                    pc.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
+                    pc.bindingInfo.type             = DescriptorType::UniformBuffer;
                     for (sz i = 0; i < pushConstant->member_count; i++) {
                         auto                     member = pushConstant->members[i];
                         RZShaderBufferMemberInfo mem{};

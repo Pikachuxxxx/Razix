@@ -49,7 +49,7 @@ namespace Razix {
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
                         descriptor.uniformBuffer = m_LightViewProjUBO;
                 }
                 m_LVPSet = (Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Depth pass set")));

@@ -57,7 +57,7 @@ namespace Razix {
             auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getSetsCreateInfos();
             for (auto& setInfo: setInfos) {
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                         if (setInfo.first == BindingTable_System::SET_IDX_SYSTEM_START) {
                             //descriptor.uniformBuffer = m_SystemMVPUBO;
                             //m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("BINDING_SET_SYSTEM_VIEW_PROJECTION"));

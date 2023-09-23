@@ -97,8 +97,8 @@ namespace Razix {
             descriptor.name                         = m_Desc.name;
             descriptor.bindingInfo.location.binding = 0;
             descriptor.bindingInfo.count            = 1;
-            descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
-            descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
+            descriptor.bindingInfo.stage            = ShaderStage::Pixel;
+            descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
             //descriptor.texture             = (RZTexture2D*) this;
 
             std::vector<RZDescriptor> descriptors = {descriptor};

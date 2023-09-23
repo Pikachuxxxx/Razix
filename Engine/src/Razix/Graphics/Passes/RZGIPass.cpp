@@ -191,7 +191,7 @@ namespace Razix {
                         for (auto& setInfo: setInfos) {
                             if (setInfo.first == BindingTable_System::SET_IDX_SYSTEM_START) {
                                 for (auto& descriptor: setInfo.second) {
-                                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                                         descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameblockData.frameData).getHandle();
                                         m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GI Pass Set"));
                                     }
@@ -341,7 +341,7 @@ namespace Razix {
                         auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
-                                if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                                     descriptor.uniformBuffer = m_RadianceInjectionUBO;
                                 } else {
                                     switch (descriptor.bindingInfo.location.binding) {
@@ -476,7 +476,7 @@ namespace Razix {
                         auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
-                                if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                                     descriptor.uniformBuffer = m_RadiancePropagationUBO;
                                 } else {
                                     switch (descriptor.bindingInfo.location.binding) {

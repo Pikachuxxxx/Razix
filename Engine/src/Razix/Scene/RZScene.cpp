@@ -139,7 +139,7 @@ namespace Razix {
 
             //-----------------------------
             Graphics::RZPushConstant modelMatrixPC;
-            modelMatrixPC.shaderStage = Graphics::ShaderStage::VERTEX;
+            modelMatrixPC.shaderStage = Graphics::ShaderStage::Vertex;
             modelMatrixPC.offset      = 0;
             struct PCD
             {

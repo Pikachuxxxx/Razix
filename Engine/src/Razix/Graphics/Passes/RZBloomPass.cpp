@@ -105,7 +105,7 @@ namespace Razix {
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER)
+                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined)
                         descriptor.texture = RZMaterial::GetDefaultTexture();
                 }
                 upsamplebBloomGpuResources[mipindex].bloomDescSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Upsample Set")));
@@ -224,7 +224,7 @@ namespace Razix {
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER)
+                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined)
                         descriptor.texture = RZMaterial::GetDefaultTexture();
                 }
                 downsamplebBloomGpuResources[mipindex].bloomDescSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Downsample Set")));
@@ -334,7 +334,7 @@ namespace Razix {
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER)
+                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined)
                         descriptor.texture = RZMaterial::GetDefaultTexture();
                 }
                 bloomSceneMixGpuResources.bloomDescSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom mix Set")));

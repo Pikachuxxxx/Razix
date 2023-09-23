@@ -87,7 +87,7 @@ namespace Razix {
                 spirv_cross::ShaderResources resources = glsl.get_shader_resources();
 
                 // Get the input variables info to create the buffer layout for glsl only in the vertex shader
-                if (source.first == ShaderStage::VERTEX) {
+                if (source.first == ShaderStage::Vertex) {
                     u32 stride = 0;
                     for (const spirv_cross::Resource& resource: resources.stage_inputs) {
                         const spirv_cross::SPIRType& InputType = glsl.get_type(resource.type_id);
@@ -117,8 +117,8 @@ namespace Razix {
                     DescriptorBindingInfo bindingLayout = {};
                     bindingLayout.location.binding      = binding;
                     bindingLayout.count                 = 1;
-                    bindingLayout.stage                 = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
-                    bindingLayout.type                  = DescriptorType::IMAGE_SAMPLER;
+                    bindingLayout.stage                 = source.first == ShaderStage::Vertex ? ShaderStage::Vertex : (source.first == ShaderStage::Pixel ? ShaderStage::Pixel : ShaderStage::NONE);
+                    bindingLayout.type                  = DescriptorType::ImageSamplerCombined;
 
                     RZDescriptor rzDescriptor;
                     rzDescriptor.bindingInfo = bindingLayout;
@@ -154,8 +154,8 @@ namespace Razix {
                     DescriptorBindingInfo bindingLayout = {};
                     bindingLayout.location.binding               = binding;
                     bindingLayout.count                 = 1;
-                    bindingLayout.stage                 = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
-                    bindingLayout.type                  = DescriptorType::UNIFORM_BUFFER;
+                    bindingLayout.stage                 = source.first == ShaderStage::Vertex ? ShaderStage::Vertex : (source.first == ShaderStage::Pixel ? ShaderStage::Pixel : ShaderStage::NONE);
+                    bindingLayout.type                  = DescriptorType::UniformBuffer;
 
                     RAZIX_CORE_WARN("id : {0}, type_id {1}, base_type_id : {2}, name : {3}", glsl.get_name(uniform_buffer.id), glsl.get_name(uniform_buffer.type_id), glsl.get_name(uniform_buffer.base_type_id), uniform_buffer.name);
 
@@ -227,8 +227,8 @@ namespace Razix {
                     DescriptorBindingInfo bindingLayout = {};
                     bindingLayout.location.binding               = binding;
                     bindingLayout.count                 = 1;
-                    bindingLayout.stage                 = source.first == ShaderStage::VERTEX ? ShaderStage::VERTEX : (source.first == ShaderStage::PIXEL ? ShaderStage::PIXEL : ShaderStage::NONE);
-                    bindingLayout.type                  = DescriptorType::UNIFORM_BUFFER;
+                    bindingLayout.stage                 = source.first == ShaderStage::Vertex ? ShaderStage::Vertex : (source.first == ShaderStage::Pixel ? ShaderStage::Pixel : ShaderStage::NONE);
+                    bindingLayout.type                  = DescriptorType::UniformBuffer;
 
                     RAZIX_CORE_WARN("id : {0}, type_id {1}, base_type_id : {2}, name : {3}", glsl.get_name(push_constant.id), glsl.get_name(push_constant.type_id), glsl.get_name(push_constant.base_type_id), push_constant.name);
 
@@ -294,7 +294,7 @@ namespace Razix {
                 RAZIX_CORE_TRACE("//---------------------------------------------------------------------------------------------------------------------------------------//");
 
                 // Now compile this
-                if (source.first == ShaderStage::VERTEX) {
+                if (source.first == ShaderStage::Vertex) {
                     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 
                     const GLchar* ShaderCode = glslSource.c_str();
@@ -308,7 +308,7 @@ namespace Razix {
                         RAZIX_CORE_ERROR("[OPENGL] [Shader Compilation Failed :: VEXTEX_SHADER] Info : {0} ", infoLog);
                     }
 
-                } else if (source.first == ShaderStage::PIXEL) {
+                } else if (source.first == ShaderStage::Pixel) {
                     pixel_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
                     const GLchar* ShaderCode = glslSource.c_str();

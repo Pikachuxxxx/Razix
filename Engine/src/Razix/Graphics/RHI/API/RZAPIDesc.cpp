@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZAPIDesc.h"
 
+#include "Razix/Graphics/RHI/API/RZShader.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -247,6 +249,22 @@ namespace Razix {
         Razix::Graphics::BufferUsage StringToBufferUsage(const std::string& str)
         {
             return BufferUsageStringMap[str];
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        static std::map<std::string, Razix::Graphics::ShaderStage> ShaderStageStringMap = {
+            {"NONE", Razix::Graphics::ShaderStage::NONE},
+            {"VERTEX", Razix::Graphics::ShaderStage::Vertex},
+            {"PIXEL", Razix::Graphics::ShaderStage::Pixel},
+            {"COMPUTE", Razix::Graphics::ShaderStage::Compute},
+            {"GEOMETRY", Razix::Graphics::ShaderStage::Geometry},
+            {"TCS", Razix::Graphics::ShaderStage::TCS},
+            {"TES", Razix::Graphics::ShaderStage::TES}};
+
+        Razix::Graphics::ShaderStage StringToShaderStage(const std::string& str)
+        {
+            return ShaderStageStringMap[str];
         }
     }    // namespace Graphics
 }    // namespace Razix

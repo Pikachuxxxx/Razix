@@ -11,6 +11,7 @@ namespace Razix {
 
         // Forward Declarations
         class RZShader;
+        enum class ShaderStage;
 
         // Graphics API
 
@@ -95,5 +96,6 @@ namespace Razix {
         Filtering     StringToFiltering(const std::string& str);
         BlendFactor   StringToBlendFactor(const std::string& str);
         BufferUsage   StringToBufferUsage(const std::string& str);
+        ShaderStage   StringToShaderStage(const std::string& str);
     }    // namespace Graphics
 }    // namespace Razix

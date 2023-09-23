@@ -504,8 +504,8 @@ namespace Razix {
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
-                        descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
-                        descriptor.bindingInfo.stage            = ShaderStage::VERTEX;
+                        descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
+                        descriptor.bindingInfo.stage            = ShaderStage::Vertex;
                         descriptor.uniformBuffer                = frameDataBufferHandle;
                         auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Graphics::RHI::Get().setFrameDataSet(m_FrameDataSet);
@@ -550,8 +550,8 @@ namespace Razix {
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};
                         lightsData_descriptor.bindingInfo.location.binding = 0;
-                        lightsData_descriptor.bindingInfo.type             = DescriptorType::UNIFORM_BUFFER;
-                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        lightsData_descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
+                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
                         lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
 
                         auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));

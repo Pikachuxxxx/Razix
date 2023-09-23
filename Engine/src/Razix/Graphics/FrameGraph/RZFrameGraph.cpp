@@ -55,6 +55,50 @@ namespace Razix {
 
                 json data = json::parse(jsonStrData);
 
+                // Load imported resources
+                auto &imports = data["imports"];
+                for (auto &import_res: imports) {
+                    auto &type = import_res["type"];
+                    RAZIX_ASSERT(!type.empty(), "[Frame Graph] Missing import resource type!");
+
+                    RZFrameGraphResource resource{-1};
+
+                    auto &resourceName = import_res["name"];
+
+                    if (std::string(type) == "Texture") {
+                        RZTextureDesc desc{};
+                        desc.name = std::string(resourceName);
+
+                        auto &format = import_res["format"];
+                        RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
+
+                        auto &resolution = import_res["resolution"];
+                        RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
+                        desc.width  = resolution["x"].get<int>();
+                        desc.height = resolution["y"].get<int>();
+
+                        // Create the resource
+                        auto textureHandle = RZResourceManager::Get().createTextureFromFile(desc, import_res["file_path"]);
+                        resource           = import <RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc, {textureHandle});
+
+                    } else if (std::string(type) == "Buffer") {
+                        RZBufferDesc desc{};
+                        desc.name = std::string(resourceName);
+
+                        desc.size = import_res["size"].get<int>();
+
+                        // TODO: Load some data here, How?
+
+                        // Create the buffer resource
+                        auto bufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
+                        resource          = import <RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc, {bufferHandle});
+                    }
+                    // we skip else cause imported resources can't be a reference
+
+                    // Add each of them into the blackboard
+                    m_Blackboard.add(resourceName, resource);
+                }
+
                 auto &passes = data["passes"];
                 for (auto &pass: passes) {
                     auto &render_pass = pass["render_pass"];
@@ -85,7 +129,27 @@ namespace Razix {
                         auto                 &binding_info   = input["binding_info"];
                         if (!binding_info.empty()) {
                             hasBindingInfo = true;
-                            // TODO: Implement this
+
+                            auto &type = binding_info["type"];
+                            if (!type.empty())
+                                bindingInfo.type = std::string(type) == "ImageSamplerCombined" ? DescriptorType::ImageSamplerCombined : DescriptorType::UniformBuffer;
+
+                            auto &stage = binding_info["stage"];
+                            if (!stage.empty())
+                                bindingInfo.stage = StringToShaderStage(stage);
+
+                            auto &location = binding_info["location"];
+                            if (!location.empty()) {
+                                auto &set                = location["set"];
+                                bindingInfo.location.set = set.get<int>();
+
+                                auto &binding                = location["binding"];
+                                bindingInfo.location.binding = binding.get<int>();
+                            }
+
+                            auto &count = binding_info["count"];
+                            if (!count.empty())
+                                bindingInfo.count = count.get<int>();
                         }
 
                         RZFrameGraphResource resource{-1};
@@ -211,8 +275,6 @@ namespace Razix {
                         m_Blackboard.add(resourceName, resource);
                     }
                 }
-
-                // TODO: Load imported resources + style for code and data imported resources!
 
                 return true;
             }

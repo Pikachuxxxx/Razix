@@ -15,10 +15,10 @@ namespace Razix {
         enum class ShaderStage
         {
             NONE = -1,
-            VERTEX,
-            PIXEL,
-            COMPUTE,
-            GEOMETRY,
+            Vertex,
+            Pixel,
+            Compute,
+            Geometry,
             TCS,
             TES,
             COUNT

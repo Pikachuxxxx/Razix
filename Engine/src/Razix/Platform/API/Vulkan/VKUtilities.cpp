@@ -754,10 +754,10 @@ namespace Razix {
             VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType)
             {
                 switch (descriptorType) {
-                    case Razix::Graphics::DescriptorType::UNIFORM_BUFFER:
+                    case Razix::Graphics::DescriptorType::UniformBuffer:
                         return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                         break;
-                    case Razix::Graphics::DescriptorType::IMAGE_SAMPLER:
+                    case Razix::Graphics::DescriptorType::ImageSamplerCombined:
                         return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                         break;
                     default:
@@ -772,13 +772,13 @@ namespace Razix {
                     case Razix::Graphics::ShaderStage::NONE:
                         return VK_SHADER_STAGE_ALL;
                         break;
-                    case Razix::Graphics::ShaderStage::VERTEX:
+                    case Razix::Graphics::ShaderStage::Vertex:
                         return VK_SHADER_STAGE_VERTEX_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::PIXEL:
+                    case Razix::Graphics::ShaderStage::Pixel:
                         return VK_SHADER_STAGE_FRAGMENT_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::GEOMETRY:
+                    case Razix::Graphics::ShaderStage::Geometry:
                         return VK_SHADER_STAGE_GEOMETRY_BIT;
                         break;
                     case Razix::Graphics::ShaderStage::TCS:
@@ -787,7 +787,7 @@ namespace Razix {
                     case Razix::Graphics::ShaderStage::TES:
                         return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::COMPUTE:
+                    case Razix::Graphics::ShaderStage::Compute:
                         return VK_SHADER_STAGE_COMPUTE_BIT;
                         break;
                     default:
