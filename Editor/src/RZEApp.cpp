@@ -242,7 +242,9 @@ int main(int argc, char** argv)
     printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
 
     mainWindow = new Razix::Editor::RZEMainWindow;
-    titlebar   = new Razix::Editor::RZETitleBar(mainWindow);
+#ifdef ENABLE_CUSTOM_TITLE_BAR
+    titlebar = new Razix::Editor::RZETitleBar(mainWindow);
+#endif
     mainWindow->setWindowTitle("Razix Engine Editor");
     mainWindow->resize(1280, 720);
     mainWindow->setWindowState(Qt::WindowMaximized);

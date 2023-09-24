@@ -368,6 +368,12 @@ namespace Razix {
         {
             GL_CALL(glDeleteProgram(m_ProgramID));
         }
+
+        void OpenGLShader::GenerateDescriptorHeaps()
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
     }    // namespace Graphics
 }    // namespace Razix
 #endif

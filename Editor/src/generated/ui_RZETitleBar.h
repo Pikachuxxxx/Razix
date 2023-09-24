@@ -26,7 +26,7 @@ class Ui_TitleBar
 {
 public:
     QVBoxLayout *verticalLayout_4;
-    QFrame *frame_2;
+    QFrame *header;
     QHBoxLayout *horizontalLayout_3;
     QVBoxLayout *verticalLayout_2;
     QFrame *frame;
@@ -35,6 +35,7 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QLabel *ProjectName;
     QSpacerItem *horizontalSpacer_2;
+    QLabel *BuildVersion;
     QPushButton *minimize;
     QPushButton *maximize;
     QPushButton *close;
@@ -46,7 +47,7 @@ public:
     {
         if (TitleBar->objectName().isEmpty())
             TitleBar->setObjectName(QString::fromUtf8("TitleBar"));
-        TitleBar->resize(1122, 118);
+        TitleBar->resize(1122, 66);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -59,18 +60,18 @@ public:
         verticalLayout_4->setContentsMargins(11, 11, 11, 11);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         verticalLayout_4->setContentsMargins(0, 0, 0, 0);
-        frame_2 = new QFrame(TitleBar);
-        frame_2->setObjectName(QString::fromUtf8("frame_2"));
+        header = new QFrame(TitleBar);
+        header->setObjectName(QString::fromUtf8("header"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(frame_2->sizePolicy().hasHeightForWidth());
-        frame_2->setSizePolicy(sizePolicy1);
-        frame_2->setMinimumSize(QSize(0, 66));
-        frame_2->setMaximumSize(QSize(16777215, 66));
-        frame_2->setFrameShape(QFrame::StyledPanel);
-        frame_2->setFrameShadow(QFrame::Raised);
-        horizontalLayout_3 = new QHBoxLayout(frame_2);
+        sizePolicy1.setHeightForWidth(header->sizePolicy().hasHeightForWidth());
+        header->setSizePolicy(sizePolicy1);
+        header->setMinimumSize(QSize(0, 66));
+        header->setMaximumSize(QSize(16777215, 66));
+        header->setFrameShape(QFrame::StyledPanel);
+        header->setFrameShadow(QFrame::Raised);
+        horizontalLayout_3 = new QHBoxLayout(header);
         horizontalLayout_3->setSpacing(0);
         horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
@@ -78,7 +79,7 @@ public:
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        frame = new QFrame(frame_2);
+        frame = new QFrame(header);
         frame->setObjectName(QString::fromUtf8("frame"));
         frame->setMinimumSize(QSize(64, 64));
         frame->setMaximumSize(QSize(64, 64));
@@ -102,15 +103,18 @@ public:
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(0);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        ProjectName = new QLabel(frame_2);
+        ProjectName = new QLabel(header);
         ProjectName->setObjectName(QString::fromUtf8("ProjectName"));
         QFont font;
         font.setPointSize(12);
         ProjectName->setFont(font);
-        ProjectName->setStyleSheet(QString::fromUtf8("background-color: rgb(36, 36, 36);\n"
+        ProjectName->setStyleSheet(QString::fromUtf8("#ProjectName{\n"
+"background-color: rgb(16, 16, 16);\n"
 "border-bottom-right-radius: 5px;\n"
 "border-bottom-left-radius: 5px;\n"
+"}\n"
 ""));
+        ProjectName->setMargin(5);
 
         horizontalLayout_2->addWidget(ProjectName);
 
@@ -118,7 +122,14 @@ public:
 
         horizontalLayout_2->addItem(horizontalSpacer_2);
 
-        minimize = new QPushButton(frame_2);
+        BuildVersion = new QLabel(header);
+        BuildVersion->setObjectName(QString::fromUtf8("BuildVersion"));
+        BuildVersion->setFont(font);
+        BuildVersion->setMargin(4);
+
+        horizontalLayout_2->addWidget(BuildVersion);
+
+        minimize = new QPushButton(header);
         minimize->setObjectName(QString::fromUtf8("minimize"));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/rzeditor/minimize.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -126,7 +137,7 @@ public:
 
         horizontalLayout_2->addWidget(minimize);
 
-        maximize = new QPushButton(frame_2);
+        maximize = new QPushButton(header);
         maximize->setObjectName(QString::fromUtf8("maximize"));
         QIcon icon1;
         icon1.addFile(QString::fromUtf8(":/rzeditor/maximize.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -134,7 +145,7 @@ public:
 
         horizontalLayout_2->addWidget(maximize);
 
-        close = new QPushButton(frame_2);
+        close = new QPushButton(header);
         close->setObjectName(QString::fromUtf8("close"));
         QIcon icon2;
         icon2.addFile(QString::fromUtf8(":/rzeditor/close.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -153,7 +164,7 @@ public:
         horizontalLayout_3->addLayout(verticalLayout);
 
 
-        verticalLayout_4->addWidget(frame_2);
+        verticalLayout_4->addWidget(header);
 
         body = new QWidget(TitleBar);
         body->setObjectName(QString::fromUtf8("body"));
@@ -175,6 +186,7 @@ public:
     {
         TitleBar->setWindowTitle(QCoreApplication::translate("TitleBar", "RZETitleBar", nullptr));
         ProjectName->setText(QCoreApplication::translate("TitleBar", "ProjectName", nullptr));
+        BuildVersion->setText(QCoreApplication::translate("TitleBar", "Build : V.0.43.0.Dev", nullptr));
         minimize->setText(QString());
         maximize->setText(QString());
         close->setText(QString());

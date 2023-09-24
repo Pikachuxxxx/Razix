@@ -20,6 +20,7 @@ namespace Razix {
             void Bind() const override;
             void Unbind() const override;
             void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
+            void GenerateDescriptorHeaps() override;
 
             /* Gets the buffer layout information in engine internal format, this is how the shader expects the vertex buffer data to be packed while uploading to the GPU */
             inline const RZVertexBufferLayout& getBufferLayout() const { return m_BufferLayout; }
@@ -29,7 +30,7 @@ namespace Razix {
             inline const DescriptorSetsCreateInfos getDescriptorSetInfos() const { return m_DescriptorSetsCreateInfos; }
             /* Gets the pipeline layout that encapsulates the descriptor sets and push constants information while creating the graphics pipeline */
             inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
-
+            /* Gets list of per shader stage create infos */
             std::vector<VkPipelineShaderStageCreateInfo> getShaderStages();
 
         private:

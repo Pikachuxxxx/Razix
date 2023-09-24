@@ -174,6 +174,16 @@ namespace Razix {
                 return;
         }
 
+        void VKShader::GenerateDescriptorHeaps()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Create the Descriptor Sets for the Shader
+            // We skip if they're system sets like FrameData, SceneLightsData and Material which are managed by RHI and Scene
+
+
+        }
+
         std::vector<VkPipelineShaderStageCreateInfo> VKShader::getShaderStages()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
