@@ -233,7 +233,7 @@ namespace Razix {
 
                     RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
-                    scene->drawScene(m_Pipeline, {.userSets = {m_ShadowDataSet, m_PBRDataSet}});
+                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();

@@ -122,7 +122,8 @@ private:
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             mainWindow->restoreLayout();
             mainWindow->show();
-            titlebar->show();
+            if (titlebar)
+                titlebar->show();
         });
 
         Razix::RZEngine::Get().getSceneManager().loadScene(0);

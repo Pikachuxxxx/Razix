@@ -8,6 +8,18 @@
 namespace Razix {
     namespace Graphics {
 
+        struct SceneDrawParams
+        {
+            bool           enableFrameData              = false;
+            bool           enableMaterials              = false;
+            bool           enableLights                 = false;
+            bool           enableBindlessTextures       = false;
+            DescriptorSets userSets                     = {};
+            void*          overridePushConstantData     = nullptr;
+            u32            overridePushConstantDataSize = 0;
+            // TODO: Add support for Pixel PC data
+        };
+
         class RZShaderLibrary;
         enum class ShaderBuiltin : u32;
 
@@ -35,6 +47,19 @@ namespace Razix {
             CG
         };
 
+        struct ShaderBindVars
+        {
+            std::unordered_map<std::string, RZDescriptor*> m_BindMap; /* Holds the references to the descriptors in m_DescriptorsPerHeap using a string map */
+
+            RZDescriptor* operator[](const std::string& name)
+            {
+                if (m_BindMap.find(name) != m_BindMap.end())
+                    return m_BindMap[name];
+                else
+                    return nullptr;
+            }
+        };
+
         /* 
          * Razix Shader that will be passed to the GPU at various stages 
          * 
@@ -60,6 +85,11 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
+            /**
+             * Parse RZSF shaders into individual API shader modules
+             */
+            static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
+
             /* Bind the shader to the pipeline */
             virtual void Bind() const = 0;
             /* Unbind the shader from the pipeline */
@@ -69,11 +99,6 @@ namespace Razix {
             /* Generates descriptor sets, useful when resize events or shader reload occurs */
             virtual void GenerateDescriptorHeaps() = 0;
 
-            /**
-             * Parse RZSF shaders into individual API shader modules
-             */
-            static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
-
             /* Gets the name of the shader file */
             RAZIX_INLINE const std::string& getName() { return m_Name; }
             /* Gets the stage of the pipeline that shader is bound/being used with */
@@ -81,9 +106,15 @@ namespace Razix {
             /* Gets the input stride of the vertex layout */
             RAZIX_INLINE const u32& getInputStride() const { return m_VertexInputStride; }
             /* Gets per set descriptors info */
-            RAZIX_INLINE DescriptorSetsCreateInfos getSetsCreateInfos() { return m_DescriptorSetsCreateInfos; }
+            RAZIX_INLINE DescriptorsPerHeapMap getDescriptorsPerHeapMap() { return m_DescriptorsPerHeap; }
             /* Gets the push constants in the shader */
             RAZIX_INLINE std::vector<RZPushConstant>& getPushConstants() { return m_PushConstants; }
+            /* Gets the scene draw parameters */
+            RAZIX_INLINE const SceneDrawParams& getSceneDrawParams() { return m_SceneParams; }
+            /* Gets the bind variables for shader */
+            RAZIX_INLINE ShaderBindVars& getBindVars() { return m_BindVars; }
+            /* Updates the descriptor sets with the bind variables aka filled descriptors */
+            void updateBindVarsHeaps();
 
             // TODO: Expose internal Vertex Attributes and Layout functions in a engine wide style
 
@@ -95,8 +126,9 @@ namespace Razix {
             std::string                        m_Name;                                  /* The name of the shader                                                                                   */
             std::map<ShaderStage, std::string> m_ParsedRZSF;                            /* The razix shader file that was parsed                                                                    */
             RZVertexBufferLayout               m_BufferLayout;                          /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
-            DescriptorSetsCreateInfos          m_DescriptorSetsCreateInfos;             /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
-            DescriptorSets                     m_DescriptorSets;                        /* Descriptors sets per shader, vectorIdx == setIdx                                                         */
+            DescriptorsPerHeapMap              m_DescriptorsPerHeap;                    /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
+            ShaderBindVars                     m_BindVars;                              /* Descriptors and name maps for updating descriptors                                                       */
+            SceneDrawParams                    m_SceneParams;                           /* Some params to help with scene drawing                                                                   */
             std::vector<RZPushConstant>        m_PushConstants;                         /* The list of the the push constants                                                                       */
             u32                                m_VertexInputStride = 0;                 /* The stride of the vertex data that is extracted from the information                                     */
 

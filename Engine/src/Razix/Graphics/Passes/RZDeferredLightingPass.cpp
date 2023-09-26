@@ -74,7 +74,7 @@ namespace Razix {
             m_LightDataUBO = RZResourceManager::Get().createUniformBuffer({"Light Data UBO", sizeof(GPULightsData), nullptr});
 
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
-            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
 
             RZPipelineDesc info{};
             info.name                   = "Deferred Lighting Pipeline";

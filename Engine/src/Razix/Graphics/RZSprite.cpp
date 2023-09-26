@@ -252,7 +252,7 @@ m_IsAnimated = true;
 
             // Create the descriptor sets for normal sprite
             if (m_IsTextured) {
-                auto setInfos = RZResourceManager::Get().getShaderResource(m_TexturedSpriteShader)->getSetsCreateInfos();
+                auto setInfos = RZResourceManager::Get().getShaderResource(m_TexturedSpriteShader)->getDescriptorsPerHeapMap();
 
                 for (sz i = 0; i < 3; i++) {
                     for (auto& setInfo: setInfos) {

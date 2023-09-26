@@ -80,5 +80,12 @@ namespace Razix {
             }
             return shaders;
         }
+
+        void RZShader::updateBindVarsHeaps()
+        {
+            // Since we update the descriptors in each set using references we can just iterate though all sets and update them normally
+            for (auto& set: m_DescriptorsPerHeap)
+                m_SceneParams.userSets[set.first]->UpdateSet(set.second);
+        }
     }    // namespace Graphics
 }    // namespace Razix

@@ -117,7 +117,7 @@ namespace Razix {
                     RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
                     // Use scene to draw geometry
-                    scene->drawScene(m_Pipeline, {.enableLights = true});
+                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     RAZIX_MARK_END();
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());

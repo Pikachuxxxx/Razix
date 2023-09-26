@@ -178,10 +178,37 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            // Destroy them and then clear them
+            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
+                m_SceneParams.userSets[i]->Destroy();
+            m_SceneParams.userSets.clear();
+
             // Create the Descriptor Sets for the Shader
             // We skip if they're system sets like FrameData, SceneLightsData and Material which are managed by RHI and Scene
+            for (auto& setInfo: m_DescriptorsPerHeap) {
+                // Skip creating some sets!
+                // We skip the system sets such as FrameData, SceneLightsData and Material Data
+                auto& descriptor = setInfo.second[0];
 
+                if (descriptor.name == "FrameData") {
+                    m_SceneParams.enableFrameData = true;
+                    continue;
 
+                } else if (descriptor.name == "Material") {
+                    m_SceneParams.enableMaterials = true;
+                    continue;
+
+                } else if (descriptor.name == "SceneLightsData") {
+                    m_SceneParams.enableLights = true;
+                    continue;
+                }
+                // TODO: Add support for m_SceneParams.enableBindless
+                m_SceneParams.userSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(m_ShaderFilePath)));
+
+                // Add all descriptors of user sets into a named map
+                for (auto& descr: setInfo.second)
+                    m_BindVars.m_BindMap.insert({descr.name, &descr});
+            }
         }
 
         std::vector<VkPipelineShaderStageCreateInfo> VKShader::getShaderStages()
@@ -346,7 +373,7 @@ namespace Razix {
                         rzDescriptor->uboMembers.push_back(std::move(memberInfo));
                     }
 
-                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[descriptor.set];
+                    auto& descriptors_in_set = m_DescriptorsPerHeap[descriptor.set];
                     descriptors_in_set.push_back(std::move(*rzDescriptor));
 
                     delete rzDescriptor;
@@ -469,6 +496,9 @@ namespace Razix {
 
             for (sz i = 0; i < descriptorLayouts.size(); i++)
                 vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), descriptorLayouts[i], nullptr);
+
+            // Generate the Descriptor Sets
+            GenerateDescriptorHeaps();
         }
 
         void VKShader::createShaderModules()

@@ -7,7 +7,7 @@
 // .r = empty .g = Roughness .b  = Metalness .a = AO
 //----------------------------------------------------------------------------
 // Material Data and maps
-layout(set = 1, binding = 0) uniform Material
+layout(set = 1, binding = 0) uniform MaterialData
 {
     vec3  baseColor;
     vec3  normal;
@@ -34,7 +34,7 @@ layout(set = 1, binding = 0) uniform Material
     uint SpecularMapIdx;
     uint EmissiveMapIdx;
     uint AOMapIdx;
-} material;
+} Material;
 //----------------------------------------------------------------------------
 // Material Textures
 #if !ENABLE_BINDLESS
@@ -50,27 +50,27 @@ layout(set = 1, binding = 7) uniform sampler2D aoMap;
 // Material Data [Bindless]
 //layout (std140, set = SET_IDX_BINDLESS_RESOURCES_START, binding = GLOBAL_BINDLESS_MATERIAL_STORAGE_BUFFERS_BINDING_IDX ) readonly buffer MaterialBuffer
 //{
-//    Material materials[];
+//    Material Materials[];
 //}matBuffer;
 //----------------------------------------------------------------------------
 // Helper Functions
 vec3 Mat_getAlbedoColor(vec2 uv)
 {
-    if(material.isUsingAlbedoMap)
+    if(Material.isUsingAlbedoMap)
 #if ENABLE_BINDLESS
-        return texture(global_textures_2d[nonuniformEXT(material.AlbedoMapIdx)], uv).rgb * material.emissiveIntensity;
+        return texture(global_textures_2d[nonuniformEXT(Material.AlbedoMapIdx)], uv).rgb * Material.emissiveIntensity;
 #else
-        return vec3(texture(albedoMap, uv)) * material.emissiveIntensity;
+        return vec3(texture(albedoMap, uv)) * Material.emissiveIntensity;
 #endif
     else 
-        return material.baseColor * material.emissiveIntensity;
+        return Material.baseColor * Material.emissiveIntensity;
 }
 //----------------------------------------------------------------------------
 vec3 Mat_getNormalMapNormals(vec2 uv, vec3 worldPos, vec3 N)
 {
-    if(material.isUsingNormalMap) {
+    if(Material.isUsingNormalMap) {
 #if ENABLE_BINDLESS
-        vec3 tangentNormal = texture(global_textures_2d[nonuniformEXT(material.NormalMapIdx)], uv).rgb;
+        vec3 tangentNormal = texture(global_textures_2d[nonuniformEXT(Material.NormalMapIdx)], uv).rgb;
 #else
         vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
 #endif
@@ -93,33 +93,33 @@ vec3 Mat_getNormalMapNormals(vec2 uv, vec3 worldPos, vec3 N)
 //----------------------------------------------------------------------------
 float Mat_getMetallicColor(vec2 uv)
 {
-    if(material.isUsingMetallicMap)
+    if(Material.isUsingMetallicMap)
 #if ENABLE_BINDLESS
-        return texture(global_textures_2d[nonuniformEXT(material.MetallicMapIdx)], uv).r;
+        return texture(global_textures_2d[nonuniformEXT(Material.MetallicMapIdx)], uv).r;
 #else
         return vec3(texture(metallicMap, uv)).r;
 #endif
     else 
-        return material.metallic;
+        return Material.metallic;
 }
 //----------------------------------------------------------------------------
 float Mat_getRoughnessColor(vec2 uv)
 {
-    if(material.isUsingRoughnessMap)
+    if(Material.isUsingRoughnessMap)
 #if ENABLE_BINDLESS
-        return texture(global_textures_2d[nonuniformEXT(material.RoughnessMapIdx)], uv).r;
+        return texture(global_textures_2d[nonuniformEXT(Material.RoughnessMapIdx)], uv).r;
 #else
         return vec3(texture(roughnessMap, uv)).r;
 #endif
     else 
-        return material.roughness;
+        return Material.roughness;
 }
 //----------------------------------------------------------------------------
 vec3 getSpecularColor(vec2 uv)
 {
-    if(material.isUsingSpecular)
+    if(Material.isUsingSpecular)
 #if ENABLE_BINDLESS
-        return texture(global_textures_2d[nonuniformEXT(material.SpecularMapIdx)], uv).rgb;
+        return texture(global_textures_2d[nonuniformEXT(Material.SpecularMapIdx)], uv).rgb;
 #else
         return vec3(texture(specularMap, uv));
 #endif
@@ -129,9 +129,9 @@ vec3 getSpecularColor(vec2 uv)
 //----------------------------------------------------------------------------
 float Mat_getAOColor(vec2 uv)
 {
-    if(material.isUsingAOMap)
+    if(Material.isUsingAOMap)
 #if ENABLE_BINDLESS
-        return texture(global_textures_2d[nonuniformEXT(material.AOMapIdx)], uv).r;
+        return texture(global_textures_2d[nonuniformEXT(Material.AOMapIdx)], uv).r;
 #else
         return vec3(texture(aoMap, uv)).r;
 #endif
@@ -141,14 +141,14 @@ float Mat_getAOColor(vec2 uv)
 //----------------------------------------------------------------------------
 float Mat_getOpacity(vec2 uv)
 {
-    if(material.isUsingAlbedoMap)
+    if(Material.isUsingAlbedoMap)
 #if ENABLE_BINDLESS
-        return texture(global_textures_2d[nonuniformEXT(material.AlbedoMapIdx)], uv).a;
+        return texture(global_textures_2d[nonuniformEXT(Material.AlbedoMapIdx)], uv).a;
 #else
         return texture(albedoMap, uv).a;
 #endif
     else 
-        return material.opacity;
+        return Material.opacity;
 }
 //----------------------------------------------------------------------------
 #endif

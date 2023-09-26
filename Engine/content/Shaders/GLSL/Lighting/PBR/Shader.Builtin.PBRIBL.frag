@@ -36,20 +36,20 @@ layout(location = 0) in VSOutput
 // Fragment Shader Stage Uniforms
 DECLARE_LIGHT_BUFFER(2, 0, SceneLightsData)
 //--------------------------------------------------------
-layout(set = 3, binding = 0) uniform sampler2D shadowMap;
+layout(set = 3, binding = 0) uniform sampler2D ShadowMap;
 layout(set = 3, binding = 1) uniform ShadowData {
-    mat4 lightSpaceMatrix;
-}ShadowMapData;
+    mat4 matrix;
+}LightSpaceMatrix;
 //--------------------------------------------------------
 // IBL maps
-layout(set = 4, binding = 0) uniform samplerCube irradianceMap;
-layout(set = 4, binding = 1) uniform samplerCube prefilteredMap;
-layout(set = 4, binding = 2) uniform sampler2D brdfLUT;
+layout(set = 4, binding = 0) uniform samplerCube IrradianceMap;
+layout(set = 4, binding = 1) uniform samplerCube PreFilteredMap;
+layout(set = 4, binding = 2) uniform sampler2D BrdfLUT;
 //------------------------------------------------------------------------------
 //layout (set = SET_IDX_USER_DATA_SLOT_0, binding = 1) uniform PBRPassTextures
 //{
-//    uint shadowMapIdx;
-//    uint irradianceMapIdx;
+//    uint ShadowMapIdx;
+//    uint IrradianceMapIdx;
 //    uint prefilteredMapIdx;
 //    uint brdfLUTIdx;
 //}texs;
@@ -123,7 +123,7 @@ void main()
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
-    //vec3 irradiance = texture(global_textures_cubemap[nonuniformEXT(texs.irradianceMapIdx)], N).rgb;
+    //vec3 irradiance = texture(global_textures_cubemap[nonuniformEXT(texs.IrradianceMapIdx)], N).rgb;
     //vec3 diffuse = irradiance * albedo;
     //
     //const float MAX_REFLECTION_LOD = 4.0;
@@ -131,12 +131,12 @@ void main()
     //vec2 envBRDF  = texture(global_textures_2d[nonuniformEXT(texs.brdfLUTIdx)], vec2(max(dot(N, V), 0.0), roughness)).rg;
     //vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 irradiance = texture(IrradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
 
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(prefilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;   
-    vec2 envBRDF  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 prefilteredColor = textureLod(PreFilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;   
+    vec2 envBRDF  = texture(BrdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
     vec3 ambient = (kD * diffuse + specular ) * ao; 
@@ -145,14 +145,14 @@ void main()
 
     //-----------------------------------------------
     // Shadow map calculation
-    vec4 FragPosLightSpace = ShadowMapData.lightSpaceMatrix * vec4(fs_in.fragPos, 1.0);
+    vec4 FragPosLightSpace = LightSpaceMatrix.matrix * vec4(fs_in.fragPos, 1.0);
     float shadow = 1.0f;
     // FIXME: We assume the first light is the Directional Light and only use that
     if(SceneLightsData.data[0].type == LightType_Directional)
-        //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.shadowMapIdx)], FragPosLightSpace, N, SceneLightsData.data[0].position);
-        shadow = DirectionalShadowCalculation(shadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
+        //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.ShadowMapIdx)], FragPosLightSpace, N, SceneLightsData.data[0].position);
+        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
 
-    result *= shadow;
+    //result *= shadow;
     //-----------------------------------------------
 
     // gamma correct

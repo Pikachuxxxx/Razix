@@ -14,17 +14,14 @@
         "depth_format": "DEPTH32F",
         "transparency": false
     },
-    "scene_params": {
-        "geometry_mode": "SceneGeometry",
-        "enable_materials": false,
-        "enable_lights": false
-    },
+    "geometry_mode": "SceneGeometry",
     "rendering_info": {
         "resolution": "Custom",
         "extents": {
             "x": 4096,
             "y": 4096
         },
-        "resize": false
+        "resize": false,
+        "layers_count": 1
     }
 }

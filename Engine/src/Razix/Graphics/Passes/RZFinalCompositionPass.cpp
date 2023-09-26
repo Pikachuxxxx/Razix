@@ -34,7 +34,7 @@ namespace Razix {
 
         void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZScene* scene, RZRendererSettings& settings)
         {
-            DescriptorSetsCreateInfos setInfos;
+            DescriptorsPerHeapMap setInfos;
 
             RZPipelineDesc pipelineInfo{
                 // Build the pipeline here for this pass
@@ -106,7 +106,7 @@ namespace Razix {
                     // Init the mesh
                     m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
 
-                    setInfos = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getSetsCreateInfos();
+                    setInfos = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getDescriptorsPerHeapMap();
                     for (auto& setInfo: setInfos) {
                         for (auto& descriptor: setInfo.second) {
                             descriptor.texture = Graphics::RZMaterial::GetDefaultTexture();
@@ -124,7 +124,7 @@ namespace Razix {
                     // Update the Descriptor Set with the new texture once
 
                     if (!updatedRT) {
-                        auto setInfos      = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getSetsCreateInfos();
+                        auto setInfos      = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal

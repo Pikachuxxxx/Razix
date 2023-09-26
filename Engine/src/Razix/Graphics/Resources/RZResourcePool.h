@@ -109,13 +109,19 @@ namespace Razix {
         template<typename T>
         inline T* RZResourcePoolTyped<T>::getInternal(RZHandle<T>& handle)
         {
-            return (T*) RZResourcePool::accessResource(handle.getIndex());
+            if (handle.isValid())
+                return (T*) RZResourcePool::accessResource(handle.getIndex());
+            else
+                return nullptr;
         }
 
         template<typename T>
         inline T* RZResourcePoolTyped<T>::get(RZHandle<T> handle) const
         {
-            return (/*const */ T*) RZResourcePool::accessResource(handle.getIndex());
+            if (handle.isValid())
+                return (/*const */ T*) RZResourcePool::accessResource(handle.getIndex());
+            else
+                return nullptr;
         }
     }    // namespace Graphics
 }    // namespace Razix

@@ -44,8 +44,8 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
-            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Resolution res, bool resize)
-                : shader(shader), pipeline(pipeline), params(sceneDrawParams), resolution(resolution), enableResize(resize)
+            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers)
+                : shader(shader), pipeline(pipeline), geometryMode(geometryMode), resolution(resolution), enableResize(resize), extent(extents), layers(layers)
             {
             }
 
@@ -53,31 +53,80 @@ namespace Razix {
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                // Since this a debug color we don't care much but see if we can use the color from the Frame Graph Editor here
                 RAZIX_MARK_BEGIN(node.getName(), glm::vec4(((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, 1.0f));
 
-                // TODO: Rendering Info, use the writable resources in the pass node
+                // Rendering Info, use all the writable resources in the pass node to render onto
                 RenderingInfo info{};
                 info.resolution = Resolution::kWindow;
-                //info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
-                //info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-                //info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                info.resize = true;
+                info.resize     = true;
+                info.extent     = extent;
+                info.layerCount = layers;
+
+                auto &writeResourceIDs = node.getOutputResources();
+                for (auto &writeResourceID: writeResourceIDs) {
+                    // Get the attachment info
+                    AttachmentInfo attachmentInfo{};
+                    if (writeResourceID.flags != kFlagsNone)
+                        attachmentInfo = DecodeAttachmentInfo(writeResourceID.flags);
+
+                    // Distinguish b/w texture and buffer resource
+                    if (resources.verifyType<RZFrameGraphTexture>(writeResourceID.id)) {
+                        // TODO: Use the layer and mip to set the current mip and array layer of the resource
+                        auto writeResourceTextureHandle = resources.get<RZFrameGraphTexture>(writeResourceID.id).getHandle();
+                        // Distinguish b/w Depth and color texture
+                        auto &textureDesc = resources.getDescriptor<RZFrameGraphTexture>(writeResourceID.id);
+                        if (textureDesc.type == TextureType::Texture_Depth)
+                            info.depthAttachment = {writeResourceTextureHandle, attachmentInfo};
+                        else
+                            info.colorAttachments.push_back({writeResourceTextureHandle, attachmentInfo});
+                    }
+                    // TODO: Support writing to buffers in an API friendly way
+                }
 
                 RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-                // TODO: Set the Descriptor Set once rendering starts, using the readable resource in the PassNode
-                static bool updatedSets = false;
-                if (!updatedSets) {
-                    // Create Descriptor Sets here, use the readable resources in the pass node
-                    updatedSets = true;
-                }
-
-                // TODO: TBD on what to and how to bind the PassNode m_Read resource, use the flags too if needed
-                //RHI::BindDescriptorSet(pipeline, RHI::GetCurrentCommandBuffer(), );
-
                 RHI::BindPipeline(pipeline, RHI::GetCurrentCommandBuffer());
 
-                RZSceneManager::Get().getCurrentScene()->drawScene(pipeline, params);
+                auto &shaderBindVars = Graphics::RZResourceManager::Get().getShaderResource(shader)->getBindVars();
+
+                // Bind the input resources before drawing the scene
+                auto &readResourceIDs = node.getInputResources();
+                for (auto &readResourceID: readResourceIDs) {
+                    // Get the Binding info
+                    DescriptorBindingInfo bindingInfo{};
+                    if (readResourceID.flags != kFlagsNone)
+                        bindingInfo = DecodeDescriptorBindingInfo(readResourceID.flags);
+
+                    // TODO: Move this shaderBindVars to preRead? here the petty problem is we will have to rely on using the name in T::Desc (not a big issue though) + also how to pass shader handle embed into the struct? too weird
+                    // One possible solution is to use Global ShaderBindVars table per set, we pass the shader to a global table which will give it's bind vars and we can update it there
+
+                    // Distinguish b/w texture and buffer resource
+                    if (resources.verifyType<RZFrameGraphTexture>(readResourceID.id)) {
+                        auto readResourceTextureHandle = resources.get<RZFrameGraphTexture>(readResourceID.id).getHandle();
+                        // Get the ResourceNode name, bind will be successful if it matches with descriptor name
+                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(readResourceID.id)];
+                        if (descriptor)
+                            descriptor->texture = readResourceTextureHandle;
+                    } else {
+                        auto readResourceBufferHandle = resources.get<RZFrameGraphBuffer>(readResourceID.id).getHandle();
+                        // Get the ResourceNode name, bind will be successful if it matches with descriptor name
+                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(readResourceID.id)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = readResourceBufferHandle;
+                    }
+                }
+
+                // TODO: Find a better way to update stuff only once that too on first frame
+                // Update the Bind vars only on the first frame
+                static bool FirstFrame = true;
+                if (FirstFrame) {
+                    RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
+                    FirstFrame = false;
+                }
+
+                // Based on the geometry mode, draw the scene
+                RZSceneManager::Get().getCurrentScene()->drawScene(pipeline, geometryMode);
 
                 RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                 RAZIX_MARK_END();
@@ -85,8 +134,12 @@ namespace Razix {
 
             void RZFrameGraphDataPass::resize(RZPassResourceDirectory &resources, u32 width, u32 height)
             {
-                // Update the descriptors table
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                // TODO: [High Priority] Resize all input texture resource and then re-generate the descriptor sets
+
+                // Update/Regenerate the descriptors table on resize
+                RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

@@ -71,7 +71,7 @@ namespace Razix {
             // Load the shader
             auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
             auto shader       = RZResourceManager::Get().getShaderResource(shaderHandle);
-            auto setInfos     = shader->getSetsCreateInfos();
+            auto setInfos     = shader->getDescriptorsPerHeapMap();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -211,7 +211,7 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto setInfos = shader->getSetsCreateInfos();
+            auto setInfos = shader->getDescriptorsPerHeapMap();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -334,7 +334,7 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto setInfos = shader->getSetsCreateInfos();
+            auto setInfos = shader->getDescriptorsPerHeapMap();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;

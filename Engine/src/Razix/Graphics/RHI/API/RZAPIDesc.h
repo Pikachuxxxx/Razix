@@ -33,18 +33,13 @@ namespace Razix {
             bool          flipY      = false;                       /* Flip the texture on Y-axis during load                                                   */
             u32           dataSize   = sizeof(unsigned char);       /* data size of each pixel, HDR data vs normal pixel data                                   */
 
-            /**
-             * Returns the Format of the Texture in string
-             * 
-             * @param format The format of the Texture
-             */
+            // TODO: move them with below funcs or to some util class
+
             static std::string FormatToString(const Graphics::TextureFormat format);
-            /**
-             * Returns the Type of the Texture in string
-             * 
-             * @param type The type of the Texture
-             */
             static std::string TypeToString(TextureType type);
+
+            static TextureFormat StringToFormat(const std::string& str);
+            static TextureType   StringToType(const std::string& str);
         };
 
         /* Used for creating Vertex, INdex or Constant buffers */
@@ -58,6 +53,16 @@ namespace Razix {
             };
             void*       data;  /* vertex data to fill the buffer with   */
             BufferUsage usage; /* Usage of the vertex buffer            */
+        };
+
+        // TODO: Add presets to select blendings like Additive, Subtractive etc as in PhotoShop + util methods
+        enum class BlendPresets
+        {
+            Additive,
+            AlphaBlend,
+            Subtractive,
+            Multiply,
+            Darken
         };
 
         /* Information necessary to create the pipeline */

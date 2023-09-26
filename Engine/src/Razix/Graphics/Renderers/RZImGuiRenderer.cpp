@@ -94,7 +94,7 @@ namespace Razix {
             //uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getDescriptorsPerHeapMap();
 
             // Add icon fonts to ImGui
             // merge in icons from Font Awesome

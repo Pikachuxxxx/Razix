@@ -121,8 +121,8 @@ namespace Razix {
         };
 
         /* Encapsulating the descriptors of a set along with the setID */
-        using DescriptorSetsCreateInfos = std::map<u32, std::vector<RZDescriptor>>;
-        using DescriptorSets            = std::vector<Graphics::RZDescriptorSet*>; // vector IDx == set Idx
+        using DescriptorsPerHeapMap = std::map<u32, std::vector<RZDescriptor>>;
+        using DescriptorSets        = std::vector<Graphics::RZDescriptorSet*>;    // vector IDx == set Idx
 
         // https://www.reddit.com/r/vulkan/comments/ybmld8/how_expensive_is_descriptor_set_creationupdate/
         // https://gist.github.com/nanokatze/bb03a486571e13a7b6a8709368bd87cf

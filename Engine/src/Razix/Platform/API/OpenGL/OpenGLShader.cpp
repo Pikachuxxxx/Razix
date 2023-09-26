@@ -125,7 +125,7 @@ namespace Razix {
                     rzDescriptor.name        = resource.name;
 
                     // Find the set first and then it's descriptors vector to append to
-                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[set];
+                    auto& descriptors_in_set = m_DescriptorsPerHeap[set];
                     descriptors_in_set.push_back(rzDescriptor);
                 }
 
@@ -193,7 +193,7 @@ namespace Razix {
                     }
 
                     // Find the set first and then it's descriptors vector to append to
-                    auto& descriptors_in_set = m_DescriptorSetsCreateInfos[set];
+                    auto& descriptors_in_set = m_DescriptorsPerHeap[set];
                     descriptors_in_set.push_back(rzDescriptor);
                 }
 

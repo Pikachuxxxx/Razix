@@ -92,7 +92,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            return m_TexturePool.get(handle);
+            if (handle.isValid())
+                return m_TexturePool.get(handle);
+            return nullptr;
         }
 
         //-----------------------------------------------------------------------------------
@@ -126,7 +128,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            return m_ShaderPool.get(handle);
+            if (handle.isValid())
+                return m_ShaderPool.get(handle);
+            return nullptr;
         }
 
         //-----------------------------------------------------------------------------------
@@ -159,7 +163,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            return m_PipelinePool.get(handle);
+            if (handle.isValid())
+                return m_PipelinePool.get(handle);
+            return nullptr;
         }
         //-----------------------------------------------------------------------------------
 
@@ -191,7 +197,10 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            return m_UniformBufferPool.get(handle);
+            if (handle.isValid())
+                return m_UniformBufferPool.get(handle);
+            else
+                return nullptr;
         }
     }    // namespace Graphics
 }    // namespace Razix

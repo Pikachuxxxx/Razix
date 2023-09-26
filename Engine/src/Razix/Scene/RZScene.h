@@ -17,6 +17,7 @@ namespace Razix {
     namespace Graphics {
         class RZPipeline;
         class RZDescriptorSet;
+        class RZMesh;
     }    // namespace Graphics
 
     using RZDescriptorSets = std::vector<Graphics::RZDescriptorSet*>;
@@ -39,19 +40,6 @@ namespace Razix {
         {"UI", Razix::SceneDrawGeometryMode::UI},
         {"Custom", Razix::SceneDrawGeometryMode::Custom}};
 
-    struct SceneDrawParams
-    {
-        SceneDrawGeometryMode geometryMode                 = SceneDrawGeometryMode::SceneGeometry;
-        bool                  enableMaterials              = true;
-        bool                  enableLights                 = true;
-        bool                  enableFrameData              = true;
-        bool                  enableBindlessTextures       = false;
-        RZDescriptorSets      userSets                     = {};
-        void*                 overridePushConstantData     = nullptr;
-        u32                   overridePushConstantDataSize = 0;
-        // TODO: Add support for Pixel PC data
-    };
-
     /**
      * Scene contains entities that will be used by the engine for rendering and other runtime systems
      */
@@ -66,7 +54,7 @@ namespace Razix {
         void update();
         void updateTransform(entt::entity entity);
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
-        void drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawParams sceneDrawParams = {});
+        void drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode = SceneDrawGeometryMode::SceneGeometry);
 
         void Destroy();
 
@@ -129,6 +117,9 @@ namespace Razix {
         std::string    m_SceneName = "Razix Scene"; /* The name of the scene                        */
         std::string    m_ScenePath;                 /* The Path of the scene file                   */
         friend class RZEntity;
+
+        Graphics::RZMesh* m_Cube;
+        Graphics::RZMesh* m_ScreenQuad;
 
     private:
         template<typename T>

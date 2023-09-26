@@ -278,16 +278,16 @@ namespace Razix {
 
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
-            Razix::RZEngine::Get().getSceneManager().enqueueSceneFromFile(sceneFilePath);
+            RZSceneManager::Get().enqueueSceneFromFile(sceneFilePath);
 
         // Load a scene into memory
-        Razix::RZEngine::Get().getSceneManager().loadScene(0);
+        RZSceneManager::Get().loadScene(0);
 
         Razix::RZSplashScreen::Get().setLogString("Scene Loading Successful...");
 
         Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
 
-        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), Razix::RZEngine::Get().getSceneManager().getCurrentScene());
+        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 
         m_CurrentState = AppState::Running;
 
@@ -429,7 +429,7 @@ namespace Razix {
         archive(cereal::make_nvp("Height", m_Window->getHeight()));
         archive(cereal::make_nvp("Project Path", m_ProjectFilePath));    // Why am I even serializing this?
 
-        auto& paths = Razix::RZEngine::Get().getSceneManager().getSceneFilePaths();
+        auto& paths = RZSceneManager::Get().getSceneFilePaths();
 
         std::vector<std::string> newPaths;
         for (auto& path: paths) {
@@ -447,8 +447,8 @@ namespace Razix {
         OnStart();
 
         // Run the OnStart method for all the scripts in the scene
-        if (RZEngine::Get().getSceneManager().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnStart(RZEngine::Get().getSceneManager().getCurrentScene());
+        if (RZSceneManager::Get().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentScene());
     }
 
     void RZApplication::Update(const RZTimestep& dt)
@@ -458,9 +458,9 @@ namespace Razix {
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
         // Update Scene Graph here
-        RZEngine::Get().getSceneManager().getCurrentScene()->update();
+        RZSceneManager::Get().getCurrentScene()->update();
         // Update the Scene Camera Here
-        RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
+        RZSceneManager::Get().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
@@ -477,8 +477,8 @@ namespace Razix {
         //if (m_appType == AppType::GAME) {
         // Run the OnUpdate for all the scripts
         // FIXME: Enable this when the data driven rendering is finished
-        //if (RZEngine::Get().getSceneManager().getCurrentScene())
-        //    RZEngine::Get().getScriptHandler().OnUpdate(RZEngine::Get().getSceneManager().getCurrentScene(), dt);
+        //if (RZSceneManager::Get().getCurrentScene())
+        //    RZEngine::Get().getScriptHandler().OnUpdate(RZSceneManager::Get().getCurrentScene(), dt);
 
         // TODO: Update the Physics Engine here
         /*RZEngine::Get().getPhysicsEngine().update(dt); */
@@ -498,16 +498,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        // Disable rendering if needed here
-
-        // We are not checking if the current is scene is null or not
-        //Razix::RZEngine::Get().getRenderStack().BeginScene(RZEngine::Get().getSceneManager().getCurrentScene());
-
-        //Razix::RZEngine::Get().getRenderStack().OnRender();
-
-        //Razix::RZEngine::Get().getRenderStack().EndScene(RZEngine::Get().getSceneManager().getCurrentScene());
-
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), Razix::RZEngine::Get().getSceneManager().getCurrentScene());
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 
         OnRender();
     }
@@ -543,14 +534,14 @@ namespace Razix {
 
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
-        if (RZEngine::Get().getSceneManager().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnImGui(RZEngine::Get().getSceneManager().getCurrentScene());
+        if (RZSceneManager::Get().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentScene());
 
         OnImGui();
 
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {
-            auto           currentScene = RZEngine::Get().getSceneManager().getCurrentScene();
+            auto           currentScene = RZSceneManager::Get().getCurrentScene();
             auto&          registry     = currentScene->getRegistry();
             auto           cameraView   = registry.view<CameraComponent>();
             RZSceneCamera* cam          = nullptr;
@@ -596,8 +587,8 @@ namespace Razix {
 
         // Icons for Components
         //{
-        //    auto& registry = RZEngine::Get().getSceneManager().getCurrentScene()->getRegistry();
-        //    auto& scnCam   = RZEngine::Get().getSceneManager().getCurrentScene()->getSceneCamera();
+        //    auto& registry = RZSceneManager::Get().getCurrentScene()->getRegistry();
+        //    auto& scnCam   = RZSceneManager::Get().getCurrentScene()->getSceneCamera();
         //    auto  group    = registry.group<LightComponent>(entt::get<TransformComponent>);
         //
         //    for (auto entity: group) {
@@ -675,8 +666,8 @@ namespace Razix {
         OnQuit();
 
         // Save the scene and the Application
-        RZEngine::Get().getSceneManager().saveAllScenes();
-        RZEngine::Get().getSceneManager().destroyAllScenes();
+        RZSceneManager::Get().saveAllScenes();
+        RZSceneManager::Get().destroyAllScenes();
         SaveApp();
 
         // FIXME: This is fucked up I'm not cleaning stuff for editor mode

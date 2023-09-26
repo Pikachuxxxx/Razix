@@ -7,7 +7,8 @@
                 {
                     "type": "Texture",
                     "name": "ShadowMap",
-                    "format": "RGBA32F",
+                    "texture_type": "Depth",
+                    "format": "DEPTH32F",
                     "resolution": {
                         "x": 4096,
                         "y": 4096
@@ -22,7 +23,7 @@
                 },
                 {
                     "type": "Buffer",
-                    "name": "ShadowMapData.LightSpaceMatrix",
+                    "name": "LightSpaceMatrix",
                     "size": 64
                 }
             ]
@@ -40,7 +41,7 @@
                 },
                 {
                     "type": "Reference",
-                    "name": "ShadowMapData.LightSpaceMatrix"
+                    "name": "LightSpaceMatrix"
                 },
                 {
                     "type": "Reference",
@@ -48,29 +49,26 @@
                 },
                 {
                     "type": "Reference",
-                    "name": "Imported.BRDFLut"
+                    "name": "BrdfLUT"
                 },
                 {
                     "type": "Reference",
-                    "name": "Imported.EnvironmentMap"
+                    "name": "EnvironmentMap"
                 },
                 {
                     "type": "Reference",
-                    "name": "Imported.SpecularPreFiltered"
+                    "name": "PreFilteredMap"
                 },
                 {
                     "type": "Reference",
-                    "name": "Imported.DiffuseIrradiance"
-                },
-                {
-                    "type": "Reference",
-                    "name": "Imported.NoiseTexture"
+                    "name": "IrradianceMap"
                 }
             ],
             "outputs": [
                 {
                     "type": "Texture",
                     "name": "SceneHDR",
+                    "texture_type": "2D",
                     "format": "RGBA32F",
                     "resolution": {
                         "x": 4096,
@@ -88,7 +86,8 @@
                 {
                     "type": "Texture",
                     "name": "SceneDepth",
-                    "format": "Depth32F",
+                    "texture_type": "Depth",
+                    "format": "DEPTH32F",
                     "resolution": {
                         "x": 4096,
                         "y": 4096
