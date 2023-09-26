@@ -10,6 +10,7 @@
 #include "Razix/Scene/Components/RZComponents.h"
 
 #include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
@@ -91,89 +92,129 @@ namespace Razix {
             } else {
                 transform->SetWorldTransform(glm::mat4(1.0f));
             }
-        }
 
-        entt::entity child = hierarchy->First;
-        while (child != entt::null) {
-            auto hierarchyComponent = m_Registry.try_get<HierarchyComponent>(child);
-            auto next               = hierarchyComponent ? hierarchyComponent->Next : entt::null;
-            updateTransform(child);
-            child = next;
+            entt::entity child = hierarchy->First;
+            while (child != entt::null) {
+                auto hierarchyComponent = m_Registry.try_get<HierarchyComponent>(child);
+                auto next               = hierarchyComponent ? hierarchyComponent->Next : entt::null;
+                updateTransform(child);
+                child = next;
+            }
         }
     }
 
-    void RZScene::drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawParams sceneDrawParams)
+    void RZScene::drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
 
+        auto  shaderHandle    = Graphics::RZResourceManager::Get().getPipelineResource(pipeline)->getDesc().shader;
+        auto& sceneDrawParams = Graphics::RZResourceManager::Get().getShaderResource(shaderHandle)->getSceneDrawParams();
+
+        u32 startSetIdx = 0;
+
         //-----------------------------
         // Frame Data
-        if (sceneDrawParams.enableFrameData)
+        if (sceneDrawParams.enableFrameData) {
             Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+            startSetIdx++;
+        }
         //-----------------------------
+        if (sceneDrawParams.enableMaterials)
+            startSetIdx++;
         // Bindless Textures (Can be used for any texture, not just mats, even RTs used a bindables hence this is always bound)
         //if (!sceneDrawParams.disableBindlessTextures)
         //    Graphics::RHI::EnableBindlessTextures(pipeline, cmdBuffer);
         //-----------------------------
         // Scene Lighting Data
-        if (sceneDrawParams.enableLights)
+        if (sceneDrawParams.enableLights) {
             Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getSceneLightsDataSet(), BindingTable_System::SET_IDX_LIGHTING_DATA);
+            startSetIdx++;
+        }
         //-----------------------------
         // User Sets
         if (sceneDrawParams.userSets.size() > 0)
-            Graphics::RHI::BindUserDescriptorSets(pipeline, cmdBuffer, sceneDrawParams.userSets);
+            Graphics::RHI::BindUserDescriptorSets(pipeline, cmdBuffer, sceneDrawParams.userSets, startSetIdx);
         //-----------------------------
 
-        auto mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
-        for (auto entity: mesh_group) {
-            // Draw the mesh renderer components
-            const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+        if (geometryMode == SceneDrawGeometryMode::SceneGeometry) {
+            auto mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
+            for (auto entity: mesh_group) {
+                // Draw the mesh renderer components
+                const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
-            if (!mrc.Mesh)
-                continue;
-
-            // Bind push constants, VBO, IBO and draw
-            glm::mat4 transform = mesh_trans.GetGlobalTransform();
-
-            //-----------------------------
-            Graphics::RZPushConstant modelMatrixPC;
-            modelMatrixPC.shaderStage = Graphics::ShaderStage::VERTEX;
-            modelMatrixPC.offset      = 0;
-            struct PCD
-            {
-                glm::mat4 mat;
-            } pcData{};
-            pcData.mat         = transform;
-            modelMatrixPC.size = sizeof(PCD);
-            modelMatrixPC.data = &pcData;
-            if (sceneDrawParams.overridePushConstantData != nullptr) {
-                modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
-                modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
-            }
-            Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
-            //-----------------------------
-            Graphics::RZMaterial* mat = nullptr;
-
-            if (sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
-                mat = mrc.Mesh->getMaterial();
-                if (!mat)
+                if (!mrc.Mesh)
                     continue;
-                mat->Bind();
-                Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+
+                // Bind push constants, VBO, IBO and draw
+                glm::mat4 transform = mesh_trans.GetGlobalTransform();
+
+                //-----------------------------
+                Graphics::RZPushConstant modelMatrixPC;
+                modelMatrixPC.shaderStage = Graphics::ShaderStage::Vertex;
+                modelMatrixPC.offset      = 0;
+                struct PCD
+                {
+                    glm::mat4 mat;
+                } pcData{};
+                pcData.mat         = transform;
+                modelMatrixPC.size = sizeof(PCD);
+                modelMatrixPC.data = &pcData;
+                if (sceneDrawParams.overridePushConstantData != nullptr) {
+                    modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
+                    modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
+                }
+                Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
+                //-----------------------------
+                Graphics::RZMaterial* mat = nullptr;
+
+                if (sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
+                    mat = mrc.Mesh->getMaterial();
+                    if (!mat)
+                        continue;
+                    mat->Bind();
+                    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+                }
+
+                mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
+                mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
+
+                ////-----------------------------
+                //// Material Data
+                //if (sceneDrawParams.enableMaterials)
+                //    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+                ////-----------------------------
+
+                Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
+        } else if (geometryMode == SceneDrawGeometryMode::Cubemap) {
+            if (m_Cube)
+                m_Cube = Graphics::MeshFactory::CreatePrimitive(Graphics::Cube);
 
-            mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
-            mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
+            m_Cube->getVertexBuffer()->Bind(cmdBuffer);
+            m_Cube->getIndexBuffer()->Bind(cmdBuffer);
 
-            ////-----------------------------
-            //// Material Data
-            //if (sceneDrawParams.enableMaterials)
-            //    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
-            ////-----------------------------
+            // TODO: Bind mat and desc sets and PCs
 
-            Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
+            Graphics::RHI::DrawIndexed(cmdBuffer, m_Cube->getIndexCount());
+
+        } else if (geometryMode == SceneDrawGeometryMode::ScreenQuad) {
+            if (m_ScreenQuad)
+                m_ScreenQuad = Graphics::MeshFactory::CreatePrimitive(Graphics::ScreenQuad);
+
+            m_ScreenQuad->getVertexBuffer()->Bind(cmdBuffer);
+            m_ScreenQuad->getIndexBuffer()->Bind(cmdBuffer);
+
+            // TODO: Bind mat and desc sets and PCs
+
+            Graphics::RHI::DrawIndexed(cmdBuffer, m_ScreenQuad->getIndexCount());
+
+        } else if (geometryMode == SceneDrawGeometryMode::UI) {
+            // If we ever have engine UI system other than ImGui we handle it's drawing here
+        } else if (geometryMode == SceneDrawGeometryMode::Custom) {
+            // Custom so we don't do anything here
+            return;
         }
     }
 

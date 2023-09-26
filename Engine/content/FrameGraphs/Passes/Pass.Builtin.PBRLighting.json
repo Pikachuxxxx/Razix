@@ -25,13 +25,10 @@
         },
         "transparency": true
     },
-    "scene_params": {
-        "geometry_mode": "SceneGeometry",
-        "enable_materials": true,
-        "enable_lights": true
-    },
+    "geometry_mode": "SceneGeometry",
     "rendering_info": {
         "resolution": "Window",
-        "resize": true
+        "resize": true,
+        "layers_count": 1
     }
 }

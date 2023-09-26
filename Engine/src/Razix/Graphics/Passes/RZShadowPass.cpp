@@ -42,14 +42,14 @@ namespace Razix {
         {
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
-            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
 
             m_LightViewProjUBO = RZResourceManager::Get().createUniformBuffer({.name = "LightViewProj", .size = sizeof(LightVPUBOData), .data = nullptr});
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
                         descriptor.uniformBuffer = m_LightViewProjUBO;
                 }
                 m_LVPSet = (Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Depth pass set")));
@@ -73,7 +73,7 @@ namespace Razix {
 
                     data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .enableMips = false});
 
-                    data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("ShadowMapData.LightSpaceMatrix", {"ShadowMapData.LightSpaceMatrix", sizeof(LightVPUBOData)});
+                    data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 
                     data.shadowMap = builder.write(data.shadowMap);
                     data.lightVP   = builder.write(data.lightVP);
@@ -123,7 +123,7 @@ namespace Razix {
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
-                    scene->drawScene(m_Pipeline, {.enableMaterials = false, .enableLights = false, .enableFrameData = false});
+                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     // End Rendering
                     RHI::EndRendering(cmdBuffer);

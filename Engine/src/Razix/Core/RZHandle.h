@@ -19,6 +19,32 @@ namespace Razix {
         RZHandle()
             : m_Index(0), m_Generation(0) {}
 
+        RZHandle(const RZHandle& handle)
+        {
+            m_Index      = handle.m_Index;
+            m_Generation = handle.m_Generation;
+        }
+
+        RZHandle& operator=(const RZHandle& handle)
+        {
+            m_Index      = handle.m_Index;
+            m_Generation = handle.m_Generation;
+            return *this;
+        }
+
+        RZHandle(RZHandle&& handle)
+        {
+            m_Index      = handle.m_Index;
+            m_Generation = handle.m_Generation;
+        }
+
+        RZHandle& operator=(RZHandle&& handle)
+        {
+            m_Index      = handle.m_Index;
+            m_Generation = handle.m_Generation;
+            return *this;
+        }
+
         inline bool isValid() const { return m_Generation != 0; }
 
         inline u32  getIndex() { return m_Index; }

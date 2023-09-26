@@ -270,14 +270,14 @@ namespace Razix {
 
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::CSM);
-            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
 
             cascadeGPUResources[cascadeIdx].ViewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({"Cascaded Depth pass VPLayerUBO", sizeof(ModelViewProjLayerUBOData), nullptr});
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
                         descriptor.uniformBuffer = cascadeGPUResources[cascadeIdx].ViewProjLayerUBO;
                 }
                 cascadeGPUResources[cascadeIdx].CascadeVPSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Cascaded Depth pass set")));

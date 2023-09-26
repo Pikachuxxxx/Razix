@@ -120,7 +120,7 @@ namespace Razix {
 
         // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
         Graphics::RZWorldRenderer&     getWorldRenderer() { return m_WorldRenderer; }
-        RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
+        //RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
         Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
         Graphics::RZShaderLibrary&     getShaderLibrary() { return m_ShaderLibrary; }
 

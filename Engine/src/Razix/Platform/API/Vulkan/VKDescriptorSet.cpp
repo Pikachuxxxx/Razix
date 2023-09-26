@@ -83,10 +83,11 @@ namespace Razix {
                 int index      = 0;
 
                 for (auto& descriptor: descriptors) {
-                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
+                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined) {
                         const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
-                        VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+                        if (texturePtr) {
+                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
 
 #if 0
                         if (descriptor.texture->getType() == TextureType::Texture_2D) {
@@ -97,9 +98,14 @@ namespace Razix {
                         }
 #endif
 
-                        m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                        m_ImageInfoPool[imageIndex].imageView   = des.imageView;
-                        m_ImageInfoPool[imageIndex].sampler     = des.sampler;
+                            m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            m_ImageInfoPool[imageIndex].imageView   = des.imageView;
+                            m_ImageInfoPool[imageIndex].sampler     = des.sampler;
+                        } else {
+                            m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                            m_ImageInfoPool[imageIndex].imageView   = VK_NULL_HANDLE;
+                            m_ImageInfoPool[imageIndex].sampler     = VKTexture::CreateImageSampler();    // Use some default sampler!
+                        }
 
                         VkWriteDescriptorSet writeDescriptorSet{};
                         writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -115,11 +121,17 @@ namespace Razix {
                     } else {
                         // TODO: Don't use buffer members use a single one for the entire uniform buffer
                         //for (sz i = 0; i < descriptor.uboMembers.size(); i++) {
-                        auto uboresource               = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
-                        auto buffer                    = static_cast<VKUniformBuffer*>(uboresource);
-                        m_BufferInfoPool[index].buffer = buffer->getBuffer();
-                        m_BufferInfoPool[index].offset = descriptor.offset;
-                        m_BufferInfoPool[index].range  = buffer->getSize();
+                        auto uboresource = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
+                        auto buffer      = static_cast<VKUniformBuffer*>(uboresource);
+                        if (buffer) {
+                            m_BufferInfoPool[index].buffer = buffer->getBuffer();
+                            m_BufferInfoPool[index].offset = descriptor.offset;
+                            m_BufferInfoPool[index].range  = buffer->getSize();
+                        } else {
+                            m_BufferInfoPool[index].buffer = VK_NULL_HANDLE;
+                            m_BufferInfoPool[index].offset = 0;
+                            m_BufferInfoPool[index].range  = VK_WHOLE_SIZE;
+                        }
                         //}
 
                         VkWriteDescriptorSet writeDescriptorSet{};

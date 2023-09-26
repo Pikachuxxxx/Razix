@@ -85,16 +85,16 @@ public:
         }
 
         // Add a directional light for test
-        auto lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
+        auto lightEnitties = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
-            auto directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
+            auto directionalLightEntity = RZSceneManager::Get().getCurrentScene()->createEntity("Directional Light");
             directionalLightEntity.AddComponent<Razix::LightComponent>();
             directionalLightEntity.GetComponent<Razix::LightComponent>().light.setDirection(glm::vec3(1.0f));
         }
 
-        auto scripts = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LuaScriptComponent>();
+        auto scripts = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::LuaScriptComponent>();
         if (!scripts.size()) {
-            Razix::RZEntity imguiEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("imgui_script_entity");
+            Razix::RZEntity imguiEntity = RZSceneManager::Get().getCurrentScene()->createEntity("imgui_script_entity");
             imguiEntity.AddComponent<Razix::LuaScriptComponent>();
             if (imguiEntity.HasComponent<Razix::LuaScriptComponent>()) {
                 Razix::LuaScriptComponent& lsc = imguiEntity.GetComponent<Razix::LuaScriptComponent>();
@@ -103,9 +103,9 @@ public:
         }
 
         // Camera Entity
-        auto cameras = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::CameraComponent>();
+        auto cameras = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::CameraComponent>();
         if (!cameras.size()) {
-            Razix::RZEntity camera = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Camera");
+            Razix::RZEntity camera = RZSceneManager::Get().getCurrentScene()->createEntity("Camera");
             camera.AddComponent<Razix::CameraComponent>();
             if (camera.HasComponent<Razix::CameraComponent>()) {
                 Razix::CameraComponent& cc = camera.GetComponent<Razix::CameraComponent>();
@@ -129,7 +129,7 @@ public:
                 for (int col = 0; col < nrColumns; ++col) {
                     float roughness                                             = glm::clamp((float) col / (float) nrColumns, 0.075f, 1.0f);
                     auto  pos                                                   = glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f);
-                    auto  sphereEntity                                          = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Sphere");
+                    auto  sphereEntity                                          = RZSceneManager::Get().getCurrentScene()->createEntity("Sphere");
                     sphereEntity.GetComponent<TransformComponent>().Translation = pos;
                     sphereEntity.GetComponent<TransformComponent>().Scale       = glm::vec3(0.75f);
                     auto& mrc                                                   = sphereEntity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Sphere);

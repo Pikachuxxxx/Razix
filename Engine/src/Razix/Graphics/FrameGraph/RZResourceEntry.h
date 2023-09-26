@@ -42,8 +42,8 @@ namespace Razix {
             {
                 // Only Frame Graph can create these and store
                 friend class RZFrameGraph;
-
-                // Define custom types here
+                // To verify if we are accessing a valid type or not
+                friend class RZPassResourceDirectory;
 
                 /**
                  * Concept is used to enforce certain rules in Type Erasure, like a fake interface for all types without making anyone derive from them

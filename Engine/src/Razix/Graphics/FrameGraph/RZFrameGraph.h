@@ -166,7 +166,7 @@ namespace Razix {
                 /* Tell whether or no the current resource is valid to read/write */
                 bool isValid(RZFrameGraphResource id);
                 /* Get the resource node for a given frame graph resource */
-                const RZResourceNode &getResourceNode(RZFrameGraphResource id);
+                RZResourceNode &getResourceNode(RZFrameGraphResource id);
                 /* Get the resource entry for a given frame graph resource */
                 RZResourceEntry &getResourceEntry(RZFrameGraphResource id);
                 /* Gets the blackboard database */
@@ -288,11 +288,29 @@ namespace Razix {
                     // This is a safe way that doesn't violate the design of the frame graph PassNodes
                     return m_FrameGraph.getResourceEntry(id).get<T>();
                 }
+
                 ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE typename const T::Desc &getDescriptor(RZFrameGraphResource id) const
                 {
                     RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                     // This is a safe way that doesn't violate the design of the frame graph PassNodes
                     return m_FrameGraph.getResourceEntry(id).getDescriptor<T>();
+                }
+
+                /* Verifies the type of the resource ID */
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD bool verifyType(RZFrameGraphResource id)
+                {
+                    RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
+                    // This is a safe way that doesn't violate the design of the frame graph PassNodes
+                    auto res = m_FrameGraph.getResourceEntry(id).getModel<T>();
+                    return res ? true : false;
+                }
+
+                /* Gets the resource name using the resource ID, this ie because we don't know if T::Desc will have a name member or not */
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD const std::string &getResourceName(RZFrameGraphResource id)
+                {
+                    RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
+                    // This is a safe way that doesn't violate the design of the frame graph PassNodes
+                    return m_FrameGraph.getResourceNode(id).getName();
                 }
 
             private:

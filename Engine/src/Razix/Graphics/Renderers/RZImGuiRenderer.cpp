@@ -94,7 +94,7 @@ namespace Razix {
             //uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getDescriptorsPerHeapMap();
 
             // Add icon fonts to ImGui
             // merge in icons from Font Awesome
@@ -116,7 +116,7 @@ namespace Razix {
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                    if (descriptor.bindingInfo.type == Graphics::DescriptorType::ImageSamplerCombined)
                         descriptor.texture = m_FontAtlasTexture;
                 }
                 m_FontAtlasDescriptorSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Font Atlas Desc Set"));
@@ -233,7 +233,7 @@ namespace Razix {
 
             RZPushConstant model{};    //RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getPushConstants()[0];
             model.name        = "ImGui model mat";
-            model.shaderStage = ShaderStage::VERTEX;
+            model.shaderStage = ShaderStage::Vertex;
             model.size        = sizeof(PushConstBlock);
             model.data        = &pushConstBlock;
 

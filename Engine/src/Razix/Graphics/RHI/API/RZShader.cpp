@@ -56,15 +56,15 @@ namespace Razix {
 
                 if (Razix::Utilities::StartsWith(str, "#shader")) {
                     if (Razix::Utilities::StringContains(str, "vertex")) {
-                        stage                                           = ShaderStage::VERTEX;
+                        stage                                           = ShaderStage::Vertex;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     } else if (Razix::Utilities::StringContains(str, "geometry")) {
-                        stage                                           = ShaderStage::GEOMETRY;
+                        stage                                           = ShaderStage::Geometry;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     } else if (Razix::Utilities::StringContains(str, "fragment")) {
-                        stage                                           = ShaderStage::PIXEL;
+                        stage                                           = ShaderStage::Pixel;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     }
@@ -79,6 +79,13 @@ namespace Razix {
                 }
             }
             return shaders;
+        }
+
+        void RZShader::updateBindVarsHeaps()
+        {
+            // Since we update the descriptors in each set using references we can just iterate though all sets and update them normally
+            for (auto& set: m_DescriptorsPerHeap)
+                m_SceneParams.userSets[set.first]->UpdateSet(set.second);
         }
     }    // namespace Graphics
 }    // namespace Razix

@@ -71,7 +71,7 @@ namespace Razix {
             // Load the shader
             auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
             auto shader       = RZResourceManager::Get().getShaderResource(shaderHandle);
-            auto setInfos     = shader->getSetsCreateInfos();
+            auto setInfos     = shader->getDescriptorsPerHeapMap();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -85,9 +85,9 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::ImageSamplerCombined)
                             descriptor.texture = equirectangularMapHandle;
-                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                        if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
                     auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)), false);
@@ -149,7 +149,7 @@ namespace Razix {
                 u32            idx = equirectangularMapHandle.getIndex();
                 RZPushConstant pc;
                 pc.size        = sizeof(u32);
-                pc.shaderStage = ShaderStage::PIXEL;
+                pc.shaderStage = ShaderStage::Pixel;
                 pc.data        = &idx;
 
                 //RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
@@ -211,7 +211,7 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto setInfos = shader->getSetsCreateInfos();
+            auto setInfos = shader->getDescriptorsPerHeapMap();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -224,9 +224,9 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::ImageSamplerCombined)
                             descriptor.texture = cubeMap;
-                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                        if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
                     auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance map conversion set : #" + std::to_string(i)), false);
@@ -334,7 +334,7 @@ namespace Razix {
             // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
 
             // Load the shader
-            auto setInfos = shader->getSetsCreateInfos();
+            auto setInfos = shader->getDescriptorsPerHeapMap();
             for (int i = 0; i < 6; i++) {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
@@ -357,9 +357,9 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::ImageSamplerCombined)
                             descriptor.texture = cubeMap;
-                        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
+                        if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
                     auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map conversion set : #" + std::to_string(i)), false);
@@ -421,7 +421,7 @@ namespace Razix {
                         } data{};
                         data.roughness = roughness;
                         RZPushConstant pc;
-                        pc.shaderStage = ShaderStage::PIXEL;
+                        pc.shaderStage = ShaderStage::Pixel;
                         pc.data        = &data;
                         pc.size        = sizeof(PCData);
 

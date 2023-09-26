@@ -2,7 +2,7 @@ project "SpirvCross"
     kind "StaticLib"
     language "C++"
     systemversion "latest"
-    cppdialect "C++20"
+    cppdialect "C++17"
     staticruntime "off"
 
     files

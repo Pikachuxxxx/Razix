@@ -33,16 +33,16 @@ void main()
 {
     worldPos = vec4(vs_in.fragPos, 1.0f);
 
-    if(material.isUsingNormalMap)
+    if(Material.isUsingNormalMap)
         normal = texture(normalMap, vs_in.fragUV);
     else 
         normal = vec4(normalize(vs_in.fragNormal), 1.0f);
         
     vec3 color;
-    if(material.isUsingAlbedoMap)
-        color = material.baseColor;
+    if(Material.isUsingAlbedoMap)
+        color = Material.baseColor;
     else 
         color =  texture(albedoMap, vs_in.fragUV).rgb;
 
-    flux = vec4((color) + material.emissiveIntensity, 1.0f) * 20.0f;
+    flux = vec4((color) + Material.emissiveIntensity, 1.0f) * 20.0f;
 }

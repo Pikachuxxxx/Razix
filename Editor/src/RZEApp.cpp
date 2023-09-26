@@ -22,6 +22,7 @@
 #include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZEResourceViewer.h"
 #include "UI/Windows/RZESceneHierarchyPanel.h"
+#include "UI/Windows/RZETitleBar.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
 #include "RZEFrameGraphEditor.h"
@@ -37,6 +38,7 @@
 // TOOD: Clean this cluster fuck code!!!
 static QApplication*                    qrzeditorApp = nullptr;
 Razix::Editor::RZEMainWindow*           mainWindow;
+Razix::Editor::RZETitleBar*             titlebar;
 Razix::Editor::RZEInspectorWindow*      inspectorWidget;
 Razix::Editor::RZEViewport*             viewportWidget;
 Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
@@ -120,6 +122,8 @@ private:
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             mainWindow->restoreLayout();
             mainWindow->show();
+            if (titlebar)
+                titlebar->show();
         });
 
         Razix::RZEngine::Get().getSceneManager().loadScene(0);
@@ -239,6 +243,9 @@ int main(int argc, char** argv)
     printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
 
     mainWindow = new Razix::Editor::RZEMainWindow;
+#ifdef ENABLE_CUSTOM_TITLE_BAR
+    titlebar = new Razix::Editor::RZETitleBar(mainWindow);
+#endif
     mainWindow->setWindowTitle("Razix Engine Editor");
     mainWindow->resize(1280, 720);
     mainWindow->setWindowState(Qt::WindowMaximized);

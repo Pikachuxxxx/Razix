@@ -121,8 +121,13 @@ namespace Razix {
         };
 
         /* Encapsulating the descriptors of a set along with the setID */
-        using DescriptorSetsCreateInfos = std::map<u32, std::vector<RZDescriptor>>;
-        using RZDescriptorSets          = std::vector<Graphics::RZDescriptorSet*>;
+        using DescriptorsPerHeapMap = std::map<u32, std::vector<RZDescriptor>>;
+        using DescriptorSets        = std::vector<Graphics::RZDescriptorSet*>;    // vector IDx == set Idx
+
+        // https://www.reddit.com/r/vulkan/comments/ybmld8/how_expensive_is_descriptor_set_creationupdate/
+        // https://gist.github.com/nanokatze/bb03a486571e13a7b6a8709368bd87cf
+        // https://github.com/ARM-software/vulkan_best_practice_for_mobile_developers/blob/master/samples/performance/descriptor_management/descriptor_management_tutorial.md
+        // [Transient Resource System] https://logins.github.io/graphics/2021/05/31/RenderGraphs.html#:~:text=Transient%20Resource%20System,are%20also%20called%20transient%20resources.
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
         class RAZIX_API RZDescriptorSet : public RZRoot

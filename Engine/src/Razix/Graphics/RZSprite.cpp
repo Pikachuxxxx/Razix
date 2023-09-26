@@ -252,13 +252,13 @@ m_IsAnimated = true;
 
             // Create the descriptor sets for normal sprite
             if (m_IsTextured) {
-                auto setInfos = RZResourceManager::Get().getShaderResource(m_TexturedSpriteShader)->getSetsCreateInfos();
+                auto setInfos = RZResourceManager::Get().getShaderResource(m_TexturedSpriteShader)->getDescriptorsPerHeapMap();
 
                 for (sz i = 0; i < 3; i++) {
                     for (auto& setInfo: setInfos) {
                         // Fill the descriptors with buffers and textures
                         for (auto& descriptor: setInfo.second) {
-                            if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER)
+                            if (descriptor.bindingInfo.type == Graphics::DescriptorType::ImageSamplerCombined)
                                 descriptor.texture = m_Texture;
                         }
                         auto descSet = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(__FUNCTION__));

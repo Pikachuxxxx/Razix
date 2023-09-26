@@ -16,21 +16,19 @@ namespace Razix {
          * one needs to re-adjust the materials uses in a FrameGraph pass during Frame Graph compilation phase
          */
 
-        // TODO: Add presets to select blendings like Additive, Subtractive etc as in PhotoShop
-
         /* Pipeline binds all the resources together that are necessary to render geometry such as shaders, buffers, uniforms, descriptors and pipeline info */
         class RAZIX_API RZPipeline : public IRZResource<RZPipeline>
         {
         public:
             RZPipeline() = default;
-            
+
             RAZIX_VIRTUAL_DESCTURCTOR(RZPipeline)
 
             GET_INSTANCE_SIZE;
 
             virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
 
-            RZPipelineDesc getDesc() { return m_Desc; }
+            RAZIX_INLINE RZPipelineDesc getDesc() { return m_Desc; }
 
         protected:
             RZPipelineDesc m_Desc;

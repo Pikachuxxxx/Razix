@@ -104,8 +104,8 @@ namespace Razix {
 
                         RZDescriptor lightProbes_descriptor{};
                         lightProbes_descriptor.bindingInfo.location.binding = 0;
-                        lightProbes_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
-                        lightProbes_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        lightProbes_descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
+                        lightProbes_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
                         lightProbes_descriptor.texture                      = envMap;
 
                         m_LightProbesDescriptorSet = RZDescriptorSet::Create({lightProbes_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Env Map - Skybox"));
@@ -114,8 +114,8 @@ namespace Razix {
 
                         RZDescriptor volumetric_descriptor{};
                         volumetric_descriptor.bindingInfo.location.binding = 0;
-                        volumetric_descriptor.bindingInfo.type             = DescriptorType::IMAGE_SAMPLER;
-                        volumetric_descriptor.bindingInfo.stage            = ShaderStage::PIXEL;
+                        volumetric_descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
+                        volumetric_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
                         volumetric_descriptor.texture                      = noiseTexture;
 
                         m_VolumetricDescriptorSet = RZDescriptorSet::Create({volumetric_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Volumetric"));
@@ -168,7 +168,7 @@ namespace Razix {
                         RZPushConstant pc;
                         pc.data        = &data;
                         pc.size        = sizeof(PCData);
-                        pc.shaderStage = ShaderStage::PIXEL;
+                        pc.shaderStage = ShaderStage::Pixel;
 
                         RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
                     }

@@ -20,6 +20,7 @@ static std::vector<cstr> deviceExtensions = {
     VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
     VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
     VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
+    VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
     "VK_KHR_push_descriptor" // On the fly Push Descriptors similar to PushConstants
     //"VK_NV_device_diagnostic_checkpoints"
 };

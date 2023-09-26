@@ -101,11 +101,11 @@ namespace Razix {
             }
 
             auto upsamplingShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
-            auto setInfos         = RZResourceManager::Get().getShaderResource(upsamplingShader)->getSetsCreateInfos();
+            auto setInfos         = RZResourceManager::Get().getShaderResource(upsamplingShader)->getDescriptorsPerHeapMap();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER)
+                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined)
                         descriptor.texture = RZMaterial::GetDefaultTexture();
                 }
                 upsamplebBloomGpuResources[mipindex].bloomDescSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Upsample Set")));
@@ -147,7 +147,7 @@ namespace Razix {
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
                     if (!updatedRT) {
-                        auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
@@ -220,11 +220,11 @@ namespace Razix {
             }
 
             auto downsamplingShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
-            auto setInfos           = RZResourceManager::Get().getShaderResource(downsamplingShader)->getSetsCreateInfos();
+            auto setInfos           = RZResourceManager::Get().getShaderResource(downsamplingShader)->getDescriptorsPerHeapMap();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER)
+                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined)
                         descriptor.texture = RZMaterial::GetDefaultTexture();
                 }
                 downsamplebBloomGpuResources[mipindex].bloomDescSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom Downsample Set")));
@@ -266,7 +266,7 @@ namespace Razix {
                     static bool updatedRT     = false;
                     static i32  mipIdxTracker = 0;
                     if (!updatedRT) {
-                        auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
@@ -330,11 +330,11 @@ namespace Razix {
             }
 
             auto downsamplingShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
-            auto setInfos           = RZResourceManager::Get().getShaderResource(downsamplingShader)->getSetsCreateInfos();
+            auto setInfos           = RZResourceManager::Get().getShaderResource(downsamplingShader)->getDescriptorsPerHeapMap();
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER)
+                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined)
                         descriptor.texture = RZMaterial::GetDefaultTexture();
                 }
                 bloomSceneMixGpuResources.bloomDescSet.push_back(Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Bloom mix Set")));
@@ -383,7 +383,7 @@ namespace Razix {
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
                     if (!updatedRT) {
-                        auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.location.binding == 0)

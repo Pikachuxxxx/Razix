@@ -187,11 +187,11 @@ namespace Razix {
                     // Update the View Projection descriptor set only once
                     static bool setUpdated = false;
                     if (!setUpdated) {
-                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             if (setInfo.first == BindingTable_System::SET_IDX_SYSTEM_START) {
                                 for (auto& descriptor: setInfo.second) {
-                                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                                         descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameblockData.frameData).getHandle();
                                         m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GI Pass Set"));
                                     }
@@ -338,10 +338,10 @@ namespace Razix {
     #if 1
                     static bool setsCreated = false;
                     if (!setsCreated) {
-                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
-                                if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                                     descriptor.uniformBuffer = m_RadianceInjectionUBO;
                                 } else {
                                     switch (descriptor.bindingInfo.location.binding) {
@@ -473,10 +473,10 @@ namespace Razix {
                     RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
 
                     if (!m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet) {
-                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getSetsCreateInfos();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
-                                if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                                if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                                     descriptor.uniformBuffer = m_RadiancePropagationUBO;
                                 } else {
                                     switch (descriptor.bindingInfo.location.binding) {

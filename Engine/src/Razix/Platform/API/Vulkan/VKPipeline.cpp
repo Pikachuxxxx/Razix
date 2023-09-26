@@ -5,7 +5,6 @@
 
 #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
-#include "Razix/Platform/API/Vulkan/VKRenderPass.h"
 #include "Razix/Platform/API/Vulkan/VKShader.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 

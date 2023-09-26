@@ -77,7 +77,7 @@
             pp->Bind(cmdBuffer);
         }
 
-        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets)
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -93,7 +93,7 @@
             for (auto& set: descriptorSets) {
                 for (auto& descriptor: static_cast<OpenGLDescriptorSet*>(set)->getDescriptors()) {
                     // Let's bind all the uniform buffers first
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                         // Bind the shader to uniform buffer block index
                         // TODO: USe type name instead of the actual variable name, where the fuck do I store that as (type_id)
                         unsigned int BindingIndex = glGetUniformBlockIndex(glShader->getProgramID(), descriptor.typeName.c_str());
@@ -106,7 +106,7 @@
                         // Assuming it's updated from the renderer side
                         // Time to perform slot binding
                         GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(buffer)->getHandle(), descriptor.offset, descriptor.size));
-                    } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
+                    } else if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined) {
                         // Bind the texture
                         //descriptor.texture->Bind(descriptor.bindingInfo.location.binding);
                     }
@@ -114,7 +114,7 @@
             }
         }
 
-        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets)
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -130,13 +130,13 @@
                 auto                       descriptors = glSet->getDescriptors();
                 for (const auto descriptor: descriptors) {
                     // Let's bind all the uniform buffers first
-                    if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER) {
+                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
                         auto buffer = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
                         buffer->Bind();
                         // Assuming it's updated from the renderer side
                         // Time to perform slot binding
                         GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, descriptor.bindingInfo.location.binding, static_cast<OpenGLUniformBuffer*>(buffer)->getHandle(), descriptor.offset, descriptor.size));
-                    } else if (descriptor.bindingInfo.type == DescriptorType::IMAGE_SAMPLER) {
+                    } else if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined) {
                         // First enable the right slot
                         glActiveTexture(GL_TEXTURE0 + descriptor.bindingInfo.location.binding);
                         // Bind the texture

@@ -4,6 +4,9 @@ namespace Razix {
     struct SceneDrawParams;
 }
 namespace Razix {
+
+    enum class SceneDrawGeometryMode;
+
     namespace Graphics {
         struct RenderingInfo;
         enum class Resolution : u32;
@@ -74,15 +77,28 @@ namespace Razix {
                 Data        data{};         /* Pass data that contains the list of FrameGraphResources  */
             };
 
+            struct FrameGraphDataPassDesc
+            {
+                Graphics::RZShaderHandle     shader;
+                Graphics::RZPipelineHandle   pipeline;
+                Razix::SceneDrawGeometryMode geometryMode;
+                Resolution                   resolution;
+                bool                         enableResize;
+                glm::vec2                    extent;
+                u32                          layers;
+            };
+
             struct RZFrameGraphDataPass final : IRZFrameGraphPass
             {
-                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawParams sceneDrawParams, Resolution res, bool resize);
+                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers);
 
-                Graphics::RZShaderHandle   shader;
-                Graphics::RZPipelineHandle pipeline;
-                Razix::SceneDrawParams    &params;
-                Resolution                 resolution;
-                bool                       enableResize;
+                Graphics::RZShaderHandle     shader;
+                Graphics::RZPipelineHandle   pipeline;
+                Razix::SceneDrawGeometryMode geometryMode;
+                Resolution                   resolution;
+                bool                         enableResize;
+                glm::vec2                    extent;
+                u32                          layers;
 
                 void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;
                 void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override;

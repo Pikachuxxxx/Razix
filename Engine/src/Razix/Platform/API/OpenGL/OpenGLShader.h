@@ -25,6 +25,8 @@ namespace Razix {
 
             void DestroyResource() override;
 
+            void GenerateDescriptorHeaps() override;
+
         private:
             u32                          m_ProgramID; /* OpenGL ID for the shader program that will bind to the pipeline  */
             RZVertexBufferLayout         m_Layout;    /* The layout of the vertex buffer and it's attributes              */

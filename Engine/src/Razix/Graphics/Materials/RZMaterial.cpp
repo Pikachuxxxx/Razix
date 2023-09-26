@@ -152,16 +152,16 @@ namespace Razix {
 #if 1
             // Create the descriptor set for material properties data and it's textures
             // How about renderer data for forward lights info + system vars???? How to associate and update?
-            auto setInfos = RZResourceManager::Get().getShaderResource(m_Shader)->getSetsCreateInfos();
+            auto setInfos = RZResourceManager::Get().getShaderResource(m_Shader)->getDescriptorsPerHeapMap();
             for (auto& setInfo: setInfos) {
                 if (setInfo.first == BindingTable_System::SET_IDX_MATERIAL_DATA) {
                     for (auto& descriptor: setInfo.second) {
                         // Find the material properties UBO and assign it's UBO to this slot
-                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::UNIFORM_BUFFER) {
+                        if (descriptor.bindingInfo.type == Graphics::DescriptorType::UniformBuffer) {
                             descriptor.uniformBuffer = m_MaterialPropertiesUBO;
                         }
     #if 1
-                        else if (descriptor.bindingInfo.type == Graphics::DescriptorType::IMAGE_SAMPLER) {
+                        else if (descriptor.bindingInfo.type == Graphics::DescriptorType::ImageSamplerCombined) {
                             // Choose the mat textures based on the workflow & preset
                             switch (descriptor.bindingInfo.location.binding) {
                                 case TextureBindingTable::BINDING_IDX_TEX_ALBEDO:

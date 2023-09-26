@@ -55,6 +55,55 @@ namespace Razix {
 
                 json data = json::parse(jsonStrData);
 
+                // Load imported resources
+                auto &imports = data["imports"];
+                for (auto &import_res: imports) {
+                    auto &type = import_res["type"];
+                    RAZIX_ASSERT(!type.empty(), "[Frame Graph] Missing import resource type!");
+
+                    RZFrameGraphResource resource{-1};
+
+                    auto &resourceName = import_res["name"];
+
+                    if (std::string(type) == "Texture") {
+                        RZTextureDesc desc{};
+                        desc.name = std::string(resourceName);
+
+                        auto &format = import_res["format"];
+                        RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
+                        desc.format = RZTextureDesc::StringToFormat(format);
+
+                        auto &texture_type = import_res["texture_type"];
+                        RAZIX_ASSERT(!texture_type.empty(), "[Frame Graph] Missing Texture Type!");
+                        desc.type = RZTextureDesc::StringToType(texture_type);
+
+                        auto &resolution = import_res["resolution"];
+                        RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
+                        desc.width  = resolution["x"].get<int>();
+                        desc.height = resolution["y"].get<int>();
+
+                        // Create the resource
+                        auto textureHandle = RZResourceManager::Get().createTextureFromFile(desc, import_res["file_path"]);
+                        resource           = import <RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc, {textureHandle});
+
+                    } else if (std::string(type) == "Buffer") {
+                        RZBufferDesc desc{};
+                        desc.name = std::string(resourceName);
+
+                        desc.size = import_res["size"].get<int>();
+
+                        // TODO: Load some data here, How?
+
+                        // Create the buffer resource
+                        auto bufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
+                        resource          = import <RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc, {bufferHandle});
+                    }
+                    // we skip else cause imported resources can't be a reference
+
+                    // Add each of them into the blackboard
+                    m_Blackboard.add(resourceName, resource);
+                }
+
                 auto &passes = data["passes"];
                 for (auto &pass: passes) {
                     auto &render_pass = pass["render_pass"];
@@ -85,7 +134,27 @@ namespace Razix {
                         auto                 &binding_info   = input["binding_info"];
                         if (!binding_info.empty()) {
                             hasBindingInfo = true;
-                            // TODO: Implement this
+
+                            auto &type = binding_info["type"];
+                            if (!type.empty())
+                                bindingInfo.type = std::string(type) == "ImageSamplerCombined" ? DescriptorType::ImageSamplerCombined : DescriptorType::UniformBuffer;
+
+                            auto &stage = binding_info["stage"];
+                            if (!stage.empty())
+                                bindingInfo.stage = StringToShaderStage(stage);
+
+                            auto &location = binding_info["location"];
+                            if (!location.empty()) {
+                                auto &set                = location["set"];
+                                bindingInfo.location.set = set.get<int>();
+
+                                auto &binding                = location["binding"];
+                                bindingInfo.location.binding = binding.get<int>();
+                            }
+
+                            auto &count = binding_info["count"];
+                            if (!count.empty())
+                                bindingInfo.count = count.get<int>();
                         }
 
                         RZFrameGraphResource resource{-1};
@@ -98,6 +167,11 @@ namespace Razix {
 
                             auto &format = input["format"];
                             RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
+                            desc.format = RZTextureDesc::StringToFormat(format);
+
+                            auto &texture_type = input["texture_type"];
+                            RAZIX_ASSERT(!texture_type.empty(), "[Frame Graph] Missing Texture Type!");
+                            desc.type = RZTextureDesc::StringToType(texture_type);
 
                             auto &resolution = input["resolution"];
                             RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
@@ -178,6 +252,11 @@ namespace Razix {
 
                             auto &format = output["format"];
                             RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
+                            desc.format = RZTextureDesc::StringToFormat(format);
+
+                            auto &texture_type = output["texture_type"];
+                            RAZIX_ASSERT(!texture_type.empty(), "[Frame Graph] Missing Texture Type!");
+                            desc.type = RZTextureDesc::StringToType(texture_type);
 
                             auto &resolution = output["resolution"];
                             RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
@@ -212,8 +291,6 @@ namespace Razix {
                     }
                 }
 
-                // TODO: Load imported resources + style for code and data imported resources!
-
                 return true;
             }
 
@@ -234,7 +311,7 @@ namespace Razix {
                 // TODO: Support loading user land shaders and re-verification of Builtin.Shaders
                 // Since as of now we only deal with Built-in passes and shaders we can go ahead fine
                 auto &shaderFileName = data["shader"];
-                auto  shader         = Graphics::RZShaderLibrary::Get().getBuiltInShader(std::string(shaderFileName) + ".rzsf");
+                auto  shader         = Graphics::RZShaderLibrary::Get().getBuiltInShader(std::string(shaderFileName));
 
                 RZPipelineDesc pipelineDesc{};
                 pipelineDesc.name = std::string(passName) + ".Pipeline";
@@ -324,31 +401,30 @@ namespace Razix {
 
                 // TODO: support parsing enableFrameData and enableBindless from JSON file
 
-                SceneDrawParams sceneDrawParams{};
+                SceneDrawGeometryMode geomMode{};
                 // parse the scene params
-                auto &scenceParams = data["scene_params"];
-                if (!scenceParams.empty()) {
-                    auto &geometry = scenceParams["geometry_mode"];
-                    if (!geometry.empty())
-                        sceneDrawParams.geometryMode = SceneGeometryModeStringMap[geometry];
-
-                    auto &enableMaterials = scenceParams["enable_materials"];
-                    if (!enableMaterials.empty())
-                        sceneDrawParams.enableMaterials = enableMaterials.get<bool>();
-
-                    auto &enableLights = scenceParams["enable_lights"];
-                    if (!enableLights.empty())
-                        sceneDrawParams.enableLights = enableLights.get<bool>();
-                }
+                auto &geometry = data["geometry_mode"];
+                if (!geometry.empty())
+                    geomMode = SceneGeometryModeStringMap[geometry];
 
                 auto &renderInfo = data["rendering_info"];
                 RAZIX_ASSERT(!renderInfo.empty(), "[Frame Graph] Missing Rendering info in pass description!");
                 Resolution resolution = StringToResolutionsMap[renderInfo["resolution"]];
                 bool       resize     = renderInfo["resize"].get<bool>();
+                auto      &extents    = renderInfo["extents"];
+                glm::vec2  extent     = glm::vec2(0.0f);
+                if (!extents.empty()) {
+                    extent.x = extents["x"].get<float>();
+                    extent.y = extents["y"].get<float>();
+                }
+                auto &layersCount = renderInfo["layers_count"];
+                u32   layers      = 1;
+                if (!layersCount.empty())
+                    layers = layersCount.get<int>();
 
                 // First create the FrameGraphPass (Data) and create a pass node
                 // Now that the checks are done, let's create the pass and PassNode
-                auto *pass = new RZFrameGraphDataPass(shader, pipeline, sceneDrawParams, resolution, resize);
+                auto *pass = new RZFrameGraphDataPass(shader, pipeline, geomMode, resolution, resize, extent, layers);
                 // Create the PassNode in the graph
                 RZPassNode &passNode = createPassNode(passName, std::unique_ptr<RZFrameGraphDataPass>(pass));
                 // Mark as data driven
@@ -607,7 +683,7 @@ namespace Razix {
                 return node.m_Version == resource.m_Version;
             }
 
-            const RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id)
+            RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id)
             {
                 assert(id < m_ResourceNodes.size());
                 return m_ResourceNodes[id];
@@ -661,8 +737,7 @@ namespace Razix {
             }
 
             //-----------------------------------------------------------------------------------
-            // RZPassResourceBuilder Class
-            //-----------------------------------------------------------------------------------
+            // RZPassResourceBuilder Class            //-----------------------------------------------------------------------------------
 
             RZFrameGraphResource RZPassResourceBuilder::read(RZFrameGraphResource id, u32 flags /*= kFlagsNone*/)
             {

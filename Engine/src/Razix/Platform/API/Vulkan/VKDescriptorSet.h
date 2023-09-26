@@ -25,14 +25,13 @@ namespace Razix {
             inline const VkDescriptorSet& getDescriptorSet() const { return m_DescriptorSet; }
 
         private:
-            VkDescriptorPool        m_DescriptorPool; /* The descriptor pool from which the descriptor sets will be allocated from                                */
-            VkDescriptorSet         m_DescriptorSet;  /* Each frame gets a descriptor set that helps in mapping the necessary data to the shader slots            */
+            VkDescriptorPool        m_DescriptorPool         = {}; /* The descriptor pool from which the descriptor sets will be allocated from                                */
+            VkDescriptorSet         m_DescriptorSet          = {}; /* Each frame gets a descriptor set that helps in mapping the necessary data to the shader slots            */
             VkDescriptorBufferInfo* m_BufferInfoPool         = nullptr;
             VkDescriptorImageInfo*  m_ImageInfoPool          = nullptr;
             VkWriteDescriptorSet*   m_WriteDescriptorSetPool = nullptr;
             VkDescriptorSetLayout   setLayout;
         };
-
     }    // namespace Graphics
 }    // namespace Razix
 #endif
