@@ -365,7 +365,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;

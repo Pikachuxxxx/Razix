@@ -524,6 +524,8 @@ namespace Razix {
                         if (entry.m_Last == &pass && entry.isTransient())
                             entry.getConcept()->destroy(transientAllocator);
                 }
+
+                IRZFrameGraphPass::m_IsFirstFrame = false;
             }
 
             void RZFrameGraph::resize(u32 width, u32 height)

@@ -26,7 +26,6 @@
 
 #include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
 
-
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 namespace Razix {
@@ -47,8 +46,9 @@ namespace Razix {
                 .depthBiasEnabled       = false};
 
             // Get the final Scene Color HDR RT
-            SceneData sceneData = blackboard.get<SceneData>();
-
+            //SceneData            sceneData = blackboard.get<SceneData>();
+            FrameGraph::RZFrameGraphResource sceneHDR  = blackboard.getID("SceneHDR");
+            FrameGraph::RZFrameGraphResource sceneDepth  = blackboard.getID("SceneDepth");
 #if 1
             blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Final Composition",
@@ -81,8 +81,8 @@ namespace Razix {
                     data.depthTexture       = builder.write(data.depthTexture);
 
                     if (settings.renderFeatures & RendererFeature_ImGui) {
-                        builder.read(sceneData.outputHDR);
-                        builder.read(sceneData.depth);
+                        builder.read(blackboard.getID("SceneHDR"));
+                        builder.read(blackboard.getID("SceneDepth"));
                     }
 
                     /**
@@ -124,11 +124,11 @@ namespace Razix {
                     // Update the Descriptor Set with the new texture once
 
                     if (!updatedRT) {
-                        auto setInfos      = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getDescriptorsPerHeapMap();
+                        auto setInfos = RZResourceManager::Get().getShaderResource(pipelineInfo.shader)->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
-                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneHDR).getHandle();
                             }
                             m_DescriptorSets->UpdateSet(setInfo.second);
                         }

@@ -113,6 +113,7 @@ namespace Razix {
             RAZIX_INLINE const SceneDrawParams& getSceneDrawParams() { return m_SceneParams; }
             /* Gets the bind variables for shader */
             RAZIX_INLINE ShaderBindVars& getBindVars() { return m_BindVars; }
+            RAZIX_INLINE void            setBindVars(ShaderBindVars& vars) { m_BindVars = vars; }
             /* Updates the descriptor sets with the bind variables aka filled descriptors */
             void updateBindVarsHeaps();
 
