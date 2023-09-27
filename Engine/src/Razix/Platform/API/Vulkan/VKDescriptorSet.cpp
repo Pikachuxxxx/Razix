@@ -18,6 +18,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            // This also works for set index since all the descriptors will have the same set idx
+            m_SetIdx = descriptors[0].bindingInfo.location.set;
+
             // Descriptor sets can't be created directly, they must be allocated from a pool like command buffers i.e. use a descriptor pool to allocate the descriptor sets
             // We first need to describe which descriptor types our descriptor sets are going to contain and how many of them, we allocate a pool for each type of descriptor
             // Also we use one set for each frame, because it binds the with command buffer state, we will need as many uniform buffers and textures and the same amount of
@@ -102,6 +105,7 @@ namespace Razix {
                             m_ImageInfoPool[imageIndex].imageView   = des.imageView;
                             m_ImageInfoPool[imageIndex].sampler     = des.sampler;
                         } else {
+                            RAZIX_CORE_ERROR("Descriptor image is empty : {0}", descriptor.name);
                             m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageIndex].imageView   = VK_NULL_HANDLE;
                             m_ImageInfoPool[imageIndex].sampler     = VKTexture::CreateImageSampler();    // Use some default sampler!
@@ -128,6 +132,7 @@ namespace Razix {
                             m_BufferInfoPool[index].offset = descriptor.offset;
                             m_BufferInfoPool[index].range  = buffer->getSize();
                         } else {
+                            RAZIX_CORE_ERROR("Descriptor buffer is empty : {0}", descriptor.name);
                             m_BufferInfoPool[index].buffer = VK_NULL_HANDLE;
                             m_BufferInfoPool[index].offset = 0;
                             m_BufferInfoPool[index].range  = VK_WHOLE_SIZE;

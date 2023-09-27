@@ -286,10 +286,10 @@ namespace Razix {
                 }
 
                 VkWriteDescriptorSet writeDescriptorSet{};
-                writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                writeDescriptorSet.dstSet          = VKDevice::Get().getBindlessDescriptorSet();
-                writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;    // for R/W write texture this will be STORAGE_IMAGE with different binding idx
-                writeDescriptorSet.dstBinding      = bindingIdx;
+                writeDescriptorSet.sType          = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                writeDescriptorSet.dstSet         = VKDevice::Get().getBindlessDescriptorSet();
+                writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;    // for R/W write texture this will be STORAGE_IMAGE with different binding idx
+                writeDescriptorSet.dstBinding     = bindingIdx;
                 //BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
                 writeDescriptorSet.dstArrayElement = getHandle().getIndex();    // RZTexturePool index is allocated to this as the binding index in the global_texture_xxxyyy_array
                 writeDescriptorSet.pImageInfo      = &imageInfo;
@@ -312,7 +312,7 @@ namespace Razix {
             if (m_Desc.enableMips) {
                 // Not useful while binding (textureLod), only useful when rendering to desired mip level
                 for (u32 i = 1; i < m_TotalMipLevels; i++) {
-                    VkDescriptorImageInfo descriptor;
+                    VkDescriptorImageInfo descriptor{};
                     descriptor.sampler     = m_ImageSampler;
                     descriptor.imageView   = m_ImageViews[i];
                     descriptor.imageLayout = m_ImageLayout;

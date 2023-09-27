@@ -39,12 +39,12 @@ namespace Razix {
         {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTextureHandle          = RZResourceManager::Get().createTextureFromFile({.name = "BrdfLUT", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
-            const auto& BRDFfLUTTextureDesc  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
+            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTextureFromFile({.name = "BrdfLUT", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
+            const auto& BRDFfLUTTextureDesc                  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
 
-            m_NoiseTextureHandle                                  = RZResourceManager::Get().createTextureFromFile({.name = "NoiseTexture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
-            const auto& NoiseTextureDesc                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
+            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTextureFromFile({.name = "NoiseTexture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
+            const auto& NoiseTextureDesc                                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
 
             // Load the Skybox and Global Light Probes
@@ -348,11 +348,6 @@ namespace Razix {
     #endif
                 });
 
-            //-------------------------------
-            // Final Image Presentation
-            //-------------------------------
-            m_CompositePass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
-
 #endif    // ENABLE_CODE_DRIVEN_FG_PASSES
 
 #if ENABLE_DATA_DRIVEN_FG_PASSES
@@ -363,6 +358,11 @@ namespace Razix {
             // Test
             RAZIX_ASSERT(m_FrameGraph.parse("//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json"), "[Frame Graph] Failed to parse graph!");
 #endif
+
+            //-------------------------------
+            // Final Image Presentation
+            //-------------------------------
+            m_CompositePass.addPass(m_FrameGraph, m_FrameGraph.getBlackboard(), scene, settings);
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");

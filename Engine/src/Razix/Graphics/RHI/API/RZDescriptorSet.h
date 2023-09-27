@@ -129,6 +129,8 @@ namespace Razix {
         // https://github.com/ARM-software/vulkan_best_practice_for_mobile_developers/blob/master/samples/performance/descriptor_management/descriptor_management_tutorial.md
         // [Transient Resource System] https://logins.github.io/graphics/2021/05/31/RenderGraphs.html#:~:text=Transient%20Resource%20System,are%20also%20called%20transient%20resources.
 
+        const u32 kInvalidSetIdx = ~0;
+
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
         class RAZIX_API RZDescriptorSet : public RZRoot
         {
@@ -147,6 +149,12 @@ namespace Razix {
             /* Updates the descriptor set with the given descriptors */
             virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition = true) = 0;
             virtual void Destroy()                                                                             = 0;
+
+            RAZIX_INLINE u32  getSetIdx() { return m_SetIdx; }
+            RAZIX_INLINE void setSetIdx(u32 idx) { m_SetIdx = idx; }
+
+        protected:
+            u32 m_SetIdx = kInvalidSetIdx;
         };
     }    // namespace Graphics
 }    // namespace Razix

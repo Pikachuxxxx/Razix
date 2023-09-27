@@ -44,6 +44,9 @@ namespace Razix {
     namespace Graphics {
         namespace FrameGraph {
 
+            // First frame test
+            bool IRZFrameGraphPass::m_IsFirstFrame = true;
+
             RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers)
                 : shader(shader), pipeline(pipeline), geometryMode(geometryMode), resolution(resolution), enableResize(resize), extent(extents), layers(layers)
             {
@@ -117,12 +120,14 @@ namespace Razix {
                     }
                 }
 
+                Graphics::RZResourceManager::Get().getShaderResource(shader)->setBindVars(shaderBindVars);
+
                 // TODO: Find a better way to update stuff only once that too on first frame
                 // Update the Bind vars only on the first frame
-                static bool FirstFrame = true;
-                if (FirstFrame) {
+                //static bool FirstFrame = true;
+                if (m_IsFirstFrame) {
                     RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
-                    FirstFrame = false;
+                    //FirstFrame = false;
                 }
 
                 // Based on the geometry mode, draw the scene
