@@ -6,7 +6,7 @@ P0 [label=<{ {<B>Pass.Builtin.Code.FrameDataUpload</B>} | {&#x2605; Refs: 1<BR/>
 P1 [label=<{ {<B>Pass.Builtin.Code.SceneLightsDataUpload</B>} | {&#x2605; Refs: 1<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
 P2 [label=<{ {<B>Pass.Builtin.RenderShadows</B>} | {&#x2605; Refs: 2<BR/> Index: 2} }> style="rounded,filled", fillcolor=firebrick2]
 P3 [label=<{ {<B>Pass.Builtin.PBRLighting</B>} | {&#x2605; Refs: 2<BR/> Index: 3} }> style="rounded,filled", fillcolor=firebrick2]
-P4 [label=<{ {<B>Final Composition</B>} | {&#x2605; Refs: 2<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
+P4 [label=<{ {<B>Pass.Builtin.Code.FinalComposition</B>} | {&#x2605; Refs: 2<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
 
 R0_1 [label=<{ {<B>BrdfLUT</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
 R1_1 [label=<{ {<B>NoiseTexture</B><BR/>(128, 128) - RGBA8 [2D]} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]

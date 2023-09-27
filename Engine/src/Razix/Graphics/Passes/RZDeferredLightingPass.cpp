@@ -39,25 +39,25 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZDeferredLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZDeferredLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Get data from the blackboard
             // Get the GBuffer data
-            const GBufferData& gBuffer      = blackboard.get<GBufferData>();
+            const GBufferData& gBuffer      = framegraph.getBlackboard().get<GBufferData>();
             auto               gbuffer_desc = framegraph.getDescriptor<FrameGraph::RZFrameGraphTexture>(gBuffer.Depth);
             const auto         extent       = glm::vec2(gbuffer_desc.width, gbuffer_desc.height);
 
             // BRDF
-            const BRDFData& brdf = blackboard.get<BRDFData>();
+            const BRDFData& brdf = framegraph.getBlackboard().get<BRDFData>();
 
             // Light probe data
-            const auto& globalLightProbe = blackboard.get<GlobalLightProbeData>();
+            const auto& globalLightProbe = framegraph.getBlackboard().get<GlobalLightProbeData>();
 
             // Cascade shadow maps
-            const ShadowMapData& cascades = blackboard.get<ShadowMapData>();
+            const ShadowMapData& cascades = framegraph.getBlackboard().get<ShadowMapData>();
 
             // GI data
-            const LightPropagationVolumesData* LPV = blackboard.try_get<LightPropagationVolumesData>();
+            const LightPropagationVolumesData* LPV = framegraph.getBlackboard().try_get<LightPropagationVolumesData>();
 
             // Shader, UBOs & Sets, Pipeline, CmdBuffers
             // FrameBlock UBO
@@ -91,9 +91,9 @@ namespace Razix {
             // Screen Quad Mesh
             m_ScreenQuadMesh = MeshFactory::CreatePrimitive(MeshPrimitive::ScreenQuad);
 
-            auto& frameDataBlock = blackboard.get<FrameData>();
+            auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
 
-            blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
+            framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Deferred PBR Lighting Pass",
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     // TEMP:

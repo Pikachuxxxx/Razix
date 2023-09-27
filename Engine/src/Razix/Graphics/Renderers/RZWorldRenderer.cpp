@@ -362,7 +362,7 @@ namespace Razix {
             //-------------------------------
             // Final Image Presentation
             //-------------------------------
-            m_CompositePass.addPass(m_FrameGraph, m_FrameGraph.getBlackboard(), scene, settings);
+            m_CompositePass.addPass(m_FrameGraph, scene, settings);
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");

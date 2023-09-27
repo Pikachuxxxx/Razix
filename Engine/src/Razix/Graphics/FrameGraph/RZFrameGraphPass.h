@@ -94,13 +94,13 @@ namespace Razix {
             {
                 RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers);
 
-                Graphics::RZShaderHandle     shader;
-                Graphics::RZPipelineHandle   pipeline;
-                Razix::SceneDrawGeometryMode geometryMode;
-                Resolution                   resolution;
-                bool                         enableResize;
-                glm::vec2                    extent;
-                u32                          layers;
+                Graphics::RZShaderHandle     m_shader;
+                Graphics::RZPipelineHandle   m_pipeline;
+                Razix::SceneDrawGeometryMode m_geometryMode;
+                Resolution                   m_resolution;
+                bool                         m_enableResize;
+                glm::vec2                    m_extent;
+                u32                          m_layers;
 
                 void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;
                 void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override;

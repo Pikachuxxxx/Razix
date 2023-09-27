@@ -38,7 +38,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
@@ -66,7 +66,7 @@ namespace Razix {
             pipelineInfo.depthFormat         = {Graphics::TextureFormat::DEPTH32F};
             m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            blackboard.add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
+            framegraph.getBlackboard().add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
                 "Pass.Builtin.Code.RenderShadows",
                 [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();

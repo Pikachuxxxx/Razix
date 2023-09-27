@@ -33,11 +33,11 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
-            SceneData forwardSceneData = blackboard.get<SceneData>();
+            SceneData forwardSceneData = framegraph.getBlackboard().get<SceneData>();
 
-            auto& bloomMipData = blackboard.add<BloomPassData>();
+            auto& bloomMipData = framegraph.getBlackboard().add<BloomPassData>();
 
             // Create GPU resources
             auto upsamplingShader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
@@ -75,7 +75,7 @@ namespace Razix {
 
             bloomMipData.bloomTexture = sourceMip.mip;
 
-            mixScene(framegraph, blackboard, scene, settings);
+            mixScene(framegraph, scene, settings);
         }
 
         void RZBloomPass::destroy()
@@ -321,7 +321,7 @@ namespace Razix {
             return mip;
         }
 
-        void RZBloomPass::mixScene(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZBloomPass::mixScene(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
                 auto cmdBuffer = RZCommandBuffer::Create();
@@ -353,8 +353,8 @@ namespace Razix {
             pipelineInfo.shader                 = bloomMixShader;
             m_HDRBloomMixPipeline               = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto&     bloomData        = blackboard.get<BloomPassData>();
-            SceneData forwardSceneData = blackboard.get<SceneData>();
+            auto&     bloomData        = framegraph.getBlackboard().get<BloomPassData>();
+            SceneData forwardSceneData = framegraph.getBlackboard().get<SceneData>();
 
             struct TonemapData
             {

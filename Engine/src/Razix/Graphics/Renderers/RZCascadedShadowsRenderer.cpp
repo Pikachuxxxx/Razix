@@ -73,9 +73,9 @@ namespace Razix {
 
         //--------------------------------------------------------------------------
 
-        void RZCascadedShadowsRenderer::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZCascadedShadowsRenderer::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
-            auto& shadowMapData = blackboard.add<ShadowMapData>();
+            auto& shadowMapData = framegraph.getBlackboard().add<ShadowMapData>();
             // Import the cascades buffer into the FG
             RZBufferDesc desc{};
             desc.name                      = "Cascades UBO";

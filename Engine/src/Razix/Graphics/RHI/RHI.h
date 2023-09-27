@@ -31,7 +31,7 @@ namespace Razix {
         /* Rendering Resolution of the render targets */
         enum class Resolution : u32
         {
-            k1080p,      /* native 1920x1080 full HD resolution                                 */
+            k1080p = 0,  /* native 1920x1080 full HD resolution                                 */
             k1440p,      /* native 2K resolution 2560x1440 rendering                            */
             k4KUpscaled, /* Upscaled using FSR/DLSS                                             */
             k4KNative,   /* native 3840x2160 rendering                                          */

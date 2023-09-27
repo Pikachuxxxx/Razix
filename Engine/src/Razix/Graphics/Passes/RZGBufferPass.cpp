@@ -36,7 +36,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
@@ -59,9 +59,9 @@ namespace Razix {
 
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto& frameDataBlock = blackboard.get<FrameData>();
+            auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
 
-            blackboard.add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
+            framegraph.getBlackboard().add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
                 "GBuffer",
                 [&](GBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();

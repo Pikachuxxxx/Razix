@@ -26,7 +26,7 @@ namespace Razix {
             IRZPass()          = default;
             virtual ~IRZPass() = default;
 
-            virtual void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings) = 0;
+            virtual void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings) = 0;
 
             virtual void destroy() = 0;
         };

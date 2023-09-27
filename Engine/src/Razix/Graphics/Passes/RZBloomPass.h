@@ -26,7 +26,7 @@ namespace Razix {
             RZBloomPass() {}
             ~RZBloomPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings) override;
 
             void destroy() override;
 
@@ -51,7 +51,7 @@ namespace Razix {
             /**
              * Mixes the final bloom blurred texture with the scene HDR color render target
              */
-            void mixScene(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings);
+            void mixScene(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings);
         };
     }    // namespace Graphics
 }    // namespace Razix
