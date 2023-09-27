@@ -134,12 +134,12 @@ namespace Razix {
 
         void RZEMainWindow::on_SaveScene()
         {
-            RZEngine::Get().getSceneManager().getCurrentScene()->saveScene();
+            RZSceneManager::Get().getCurrentScene()->saveScene();
         }
 
         void RZEMainWindow::on_LoadScene()
         {
-            RZEngine::Get().getSceneManager().loadScene();
+            RZSceneManager::Get().loadScene();
         }
 
         void RZEMainWindow::on_NewScene()
@@ -391,7 +391,7 @@ namespace Razix {
         void RZEMainWindow::Create_Entity()
         {
             // Create an entity
-            auto entity = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Entity");
+            auto entity = RZSceneManager::Get().getCurrentScene()->createEntity("Entity");
             //entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
             // Update the scene hierarchy panel to re-draw
             emit OnEntityAddedToScene();
@@ -404,7 +404,7 @@ namespace Razix {
                 progressBar->setValue(progressBar->value() + 1);
                 auto lbl = std::string("Importing rzmesh...") + std::string(childNode.name);
                 progressBar->setLabelText(lbl.c_str());
-                auto scene                                                        = RZEngine::Get().getSceneManager().getCurrentScene();
+                auto scene                                                        = RZSceneManager::Get().getCurrentScene();
                 auto childEntity                                                  = scene->createEntity(childNode.name);
                 childEntity.GetComponent<Razix::TransformComponent>().Translation = childNode.translation;
                 auto& hc                                                          = childEntity.AddComponent<Razix::HierarchyComponent>(parentEntity);
@@ -467,10 +467,10 @@ namespace Razix {
                 // Create the Hierarchy, pass the stuff to engine and emit a signal to re-paint the scene hierarchy panel
                 auto rootNode = importer->getRootNode();
                 // Add the root node first
-                auto rootEntity                                                  = RZEngine::Get().getSceneManager().getCurrentScene()->createEntity(rootNode->name);
+                auto rootEntity                                                  = RZSceneManager::Get().getCurrentScene()->createEntity(rootNode->name);
                 rootEntity.GetComponent<Razix::TransformComponent>().Translation = rootNode->translation;
                 auto& hc                                                         = rootEntity.AddComponent<Razix::HierarchyComponent>();
-                hc.OnConstruct(RZEngine::Get().getSceneManager().getCurrentScene()->getRegistry(), rootEntity);
+                hc.OnConstruct(RZSceneManager::Get().getCurrentScene()->getRegistry(), rootEntity);
 
                 // Now stop the other thread first from rendering before we issue resize commands
                 std::lock_guard<std::mutex> lk(RZApplication::m);

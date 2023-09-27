@@ -19,8 +19,8 @@ R7_1 [label=<{ {<B>ShadowMap</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Inde
 R8_1 [label=<{ {<B>LightSpaceMatrix</B><BR/>size : 64 bytes} | {Index: 8<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R9_1 [label=<{ {<B>SceneHDR</B><BR/>(4096, 4096) - RGBA32F [2D]} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R10_1 [label=<{ {<B>SceneDepth</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R11_1 [label=<{ {<B>Present Image</B><BR/>(1280, 720) - BGRA8_UNORM [2D]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Depth Texture</B><BR/>(1280, 720) - BGRA8_UNORM [Depth]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R11_1 [label=<{ {<B>Present Image</B><BR/>(80, 10) - BGRA8_UNORM [2D]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Depth Texture</B><BR/>(80, 10) - BGRA8_UNORM [Depth]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R5_1 } [color=orangered]
 P1 -> { R6_1 } [color=orangered]

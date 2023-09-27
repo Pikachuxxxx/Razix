@@ -44,7 +44,7 @@ namespace Razix {
 
         void RZESceneHierarchyPanel::populateHierarchy()
         {
-            Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+            Razix::RZScene* scene    = RZSceneManager::Get().getCurrentScene();
             auto&           registry = scene->getRegistry();
 
             // Set the scene name as the header name
@@ -126,7 +126,7 @@ namespace Razix {
                 return;
 
             // Find the entity from the registry
-            Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+            Razix::RZScene* scene    = RZSceneManager::Get().getCurrentScene();
             auto&           registry = scene->getRegistry();
 
             // TODO: Support multiple selection using the selectedItems list

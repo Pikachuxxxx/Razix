@@ -244,6 +244,13 @@ project "RazixEditor"
 
        disablewarnings { 4307 }
 
+    print(qtpath)
+
+    -- TODO: Add post build command to copy QT DLLs and Plugins folder
+
+    --postbuildcommands {
+    --}
+
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
         qtsuffix "d"
