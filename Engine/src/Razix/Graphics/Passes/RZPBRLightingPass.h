@@ -15,7 +15,7 @@ namespace Razix {
             RZPBRLightingPass() {}
             ~RZPBRLightingPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings) override;
 
             void destroy() override;
 

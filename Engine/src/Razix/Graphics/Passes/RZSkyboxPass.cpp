@@ -35,7 +35,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZSkyboxPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZSkyboxPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
             auto skyboxShader           = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Skybox);
             auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ProceduralSkybox);
@@ -60,10 +60,10 @@ namespace Razix {
 
             m_SkyboxCube = MeshFactory::CreateCube();
 
-            auto& frameDataBlock  = blackboard.get<FrameData>();
-            auto& lightProbesData = blackboard.get<GlobalLightProbeData>();
-            auto& sceneData       = blackboard.get<SceneData>();
-            auto& volumetricData  = blackboard.get<VolumetricCloudsData>();
+            auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
+            auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
+            auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
+            auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
 
             framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Skybox",

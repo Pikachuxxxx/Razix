@@ -35,7 +35,7 @@ namespace Razix {
                     if (!selectedItems.size())
                         return;
 
-                    Razix::RZScene* scene    = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+                    Razix::RZScene* scene    = RZSceneManager::Get().getCurrentScene();
                     auto&           registry = scene->getRegistry();
 
                     for (i32 i = 0; i < selectedItems.size(); i++) {

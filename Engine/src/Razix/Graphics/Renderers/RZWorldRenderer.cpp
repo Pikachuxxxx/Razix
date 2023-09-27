@@ -71,6 +71,8 @@ namespace Razix {
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
+            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+
 #if ENABLE_CODE_DRIVEN_FG_PASSES
 
     #if 0
@@ -131,8 +133,7 @@ namespace Razix {
             //-------------------------------
             // [Test] Forward Lighting Pass
             //-------------------------------
-            auto& frameDataBlock = m_Blackboard.get<FrameData>();
-            auto& shadowData     = m_Blackboard.get<SimpleShadowPassData>();
+            auto& shadowData = m_Blackboard.get<SimpleShadowPassData>();
 
     #if 0
             m_Blackboard.add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
@@ -359,10 +360,88 @@ namespace Razix {
             RAZIX_ASSERT(m_FrameGraph.parse("//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json"), "[Frame Graph] Failed to parse graph!");
 #endif
 
+            m_FrameGraph.addCallbackPass(
+                "Pass.Builtin.Code.Debug",
+                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
+                    builder.setAsStandAlonePass();
+
+                    RZDebugRenderer::Get()->Init();
+
+                    //builder.read(sceneData.outputHDR);
+                    //builder.read(sceneData.depth);
+                    builder.read(frameDataBlock.frameData);
+                    builder.read(m_FrameGraph.getBlackboard().getID("SceneHDR"));
+                    builder.read(m_FrameGraph.getBlackboard().getID("SceneDepth"));
+
+                    //sceneData.outputHDR = builder.write(sceneData.outputHDR);
+                    //sceneData.depth     = builder.write(sceneData.depth);
+
+                    auto sceneHDR   = builder.write(m_FrameGraph.getBlackboard().getID("SceneHDR"));
+                    auto sceneDepth = builder.write(m_FrameGraph.getBlackboard().getID("SceneDepth"));
+                },
+                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                    // Origin point
+                    RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
+
+                    // X, Y, Z lines
+                    RZDebugRenderer::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRenderer::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+                    // Grid
+                    RZDebugRenderer::DrawGrid(25, glm::vec4(0.75f));
+
+                    // Draw all lights in the scene
+                    auto lights = scene->GetComponentsOfType<LightComponent>();
+                    for (auto& lightComponent: lights) {
+                        if (lightComponent.light.getType() == LightType::Point)
+                            RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
+                    }
+
+                    // Draw AABBs for all the Meshes in the Scene
+                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    for (auto entity: mesh_group) {
+                        // Draw the mesh renderer components
+                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+
+                        // Bind push constants, VBO, IBO and draw
+                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
+
+                        RZDebugRenderer::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    }
+
+                    RZDebugRenderer::Get()->Begin(scene);
+
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
+                    auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
+                    auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneDepth).getHandle();
+
+                    RenderingInfo info{
+                        .resolution       = Resolution::kCustom,
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
+                        .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
+                        .resize           = true};
+
+                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+
+                    RHI::BeginRendering(cmdBuffer, info);
+
+                    RZDebugRenderer::Get()->Draw(cmdBuffer);
+
+                    RHI::EndRendering(cmdBuffer);
+
+                    RZDebugRenderer::Get()->End();
+                });
+
             //-------------------------------
             // Final Image Presentation
             //-------------------------------
-            m_CompositePass.addPass(m_FrameGraph, m_FrameGraph.getBlackboard(), scene, settings);
+            m_CompositePass.addPass(m_FrameGraph, scene, settings);
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");

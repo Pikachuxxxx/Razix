@@ -31,7 +31,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, RZScene* scene, RZRendererSettings& settings)
+        void RZFinalCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, RZScene* scene, RZRendererSettings& settings)
         {
             DescriptorsPerHeapMap setInfos;
 
@@ -46,12 +46,12 @@ namespace Razix {
                 .depthBiasEnabled       = false};
 
             // Get the final Scene Color HDR RT
-            //SceneData            sceneData = blackboard.get<SceneData>();
-            FrameGraph::RZFrameGraphResource sceneHDR  = blackboard.getID("SceneHDR");
-            FrameGraph::RZFrameGraphResource sceneDepth  = blackboard.getID("SceneDepth");
+            //SceneData            sceneData = framegraph.getBlackboard().get<SceneData>();
+            FrameGraph::RZFrameGraphResource sceneHDR  = framegraph.getBlackboard().getID("SceneHDR");
+            FrameGraph::RZFrameGraphResource sceneDepth = framegraph.getBlackboard().getID("SceneDepth");
 #if 1
-            blackboard.add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
-                "Final Composition",
+            framegraph.getBlackboard().add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
+                "Pass.Builtin.Code.FinalComposition",
                 [&](CompositeData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
@@ -81,8 +81,8 @@ namespace Razix {
                     data.depthTexture       = builder.write(data.depthTexture);
 
                     if (settings.renderFeatures & RendererFeature_ImGui) {
-                        builder.read(blackboard.getID("SceneHDR"));
-                        builder.read(blackboard.getID("SceneDepth"));
+                        builder.read(framegraph.getBlackboard().getID("SceneHDR"));
+                        builder.read(framegraph.getBlackboard().getID("SceneDepth"));
                     }
 
                     /**

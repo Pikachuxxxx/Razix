@@ -39,7 +39,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZPBRLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZPBRLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
 
@@ -56,12 +56,12 @@ namespace Razix {
             pipelineInfo.depthWriteEnabled      = true;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto& frameDataBlock       = blackboard.get<FrameData>();
-            auto& sceneLightsDataBlock = blackboard.get<SceneLightsData>();
-            auto& shadowData           = blackboard.get<SimpleShadowPassData>();
-            auto& globalLightProbes    = blackboard.get<GlobalLightProbeData>();
-            auto& brdfData             = blackboard.get<BRDFData>();
-            //auto& gbufferData          = blackboard.get<GBufferData>();
+            auto& frameDataBlock       = framegraph.getBlackboard().get<FrameData>();
+            auto& sceneLightsDataBlock = framegraph.getBlackboard().get<SceneLightsData>();
+            auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
+            auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
+            auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
+            //auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
 
             m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
 
@@ -75,7 +75,7 @@ namespace Razix {
 
             //m_PBRPassBindingUBO = RZUniformBuffer::Create(sizeof(PBRPassBindingData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("PBRPassTextures UBO"));
 
-            blackboard.add<SceneData>() = framegraph.addCallbackPass<SceneData>(
+            framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRLighting",
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();

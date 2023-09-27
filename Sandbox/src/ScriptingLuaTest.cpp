@@ -42,15 +42,15 @@ public:
     {
         // Get the current active scene
         // Someone or some system must load some scene manually
-        Razix::RZEngine::Get().getSceneManager().loadScene(0);
-        activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+        RZSceneManager::Get().loadScene(0);
+        activeScene = RZSceneManager::Get().getCurrentScene();
 
         if (activeScene == nullptr) {
             RAZIX_TRACE("Creatng new scene...");
             RZScene* scriptingScene = new RZScene("ScriptingTest");
-            Razix::RZEngine::Get().getSceneManager().enqueScene(scriptingScene);
-            Razix::RZEngine::Get().getSceneManager().loadScene();
-            activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+            RZSceneManager::Get().enqueScene(scriptingScene);
+            RZSceneManager::Get().loadScene();
+            activeScene = RZSceneManager::Get().getCurrentScene();
         }
 
         // Add entities to the scene programatically for the first time
@@ -109,11 +109,11 @@ public:
     void OnUpdate(const RZTimestep& dt) override
     {
         if (Razix::RZInput::IsKeyPressed(KeyCode::Key::P)) {
-            Razix::RZEngine::Get().getSceneManager().loadScene(1);
-            activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+            RZSceneManager::Get().loadScene(1);
+            activeScene = RZSceneManager::Get().getCurrentScene();
         } else if (Razix::RZInput::IsKeyPressed(KeyCode::Key::O)) {
-            Razix::RZEngine::Get().getSceneManager().loadScene(0);
-            activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+            RZSceneManager::Get().loadScene(0);
+            activeScene = RZSceneManager::Get().getCurrentScene();
         }
         // Update the camera
         auto cameras = activeScene->GetComponentsOfType<CameraComponent>();
@@ -184,11 +184,11 @@ public:
     void OnQuit() override
     {
         // Save the current scene
-        Razix::RZEngine::Get().getSceneManager().saveAllScenes();
+        RZSceneManager::Get().saveAllScenes();
 
         getImGuiRenderer()->destroy();
 
-        RAZIX_TRACE("Current Active Scene index : {0}", Razix::RZEngine::Get().getSceneManager().getCurrentSceneIndex());
+        RAZIX_TRACE("Current Active Scene index : {0}", RZSceneManager::Get().getCurrentSceneIndex());
         // Delete the models
         auto mcs = activeScene->GetComponentsOfType<Graphics::RZModel>();
         for (Graphics::RZModel model: mcs) model.Destroy();

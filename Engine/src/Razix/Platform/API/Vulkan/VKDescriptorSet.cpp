@@ -105,7 +105,6 @@ namespace Razix {
                             m_ImageInfoPool[imageIndex].imageView   = des.imageView;
                             m_ImageInfoPool[imageIndex].sampler     = des.sampler;
                         } else {
-                            RAZIX_CORE_ERROR("Descriptor image is empty : {0}", descriptor.name);
                             m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageIndex].imageView   = VK_NULL_HANDLE;
                             m_ImageInfoPool[imageIndex].sampler     = VKTexture::CreateImageSampler();    // Use some default sampler!
@@ -132,7 +131,6 @@ namespace Razix {
                             m_BufferInfoPool[index].offset = descriptor.offset;
                             m_BufferInfoPool[index].range  = buffer->getSize();
                         } else {
-                            RAZIX_CORE_ERROR("Descriptor buffer is empty : {0}", descriptor.name);
                             m_BufferInfoPool[index].buffer = VK_NULL_HANDLE;
                             m_BufferInfoPool[index].offset = 0;
                             m_BufferInfoPool[index].range  = VK_WHOLE_SIZE;

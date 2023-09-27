@@ -51,16 +51,16 @@ namespace Razix {
 
     namespace Graphics {
 
-        void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Use this to get the Reflective shadow map cascade
             auto rsmLightViewProj = RZCascadedShadowsRenderer::buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), 1, 1.0f, kRSMResolution)[0].viewProjMatrix;
 
             // RSM pass
-            ReflectiveShadowMapData RSM = addRSMPass(framegraph, blackboard, scene, rsmLightViewProj, glm::vec3(3.0f));
+            ReflectiveShadowMapData RSM = addRSMPass(framegraph, scene, rsmLightViewProj, glm::vec3(3.0f));
 
             // Add this to the blackboard
-            blackboard.add<ReflectiveShadowMapData>(RSM);
+            framegraph.getBlackboard().add<ReflectiveShadowMapData>(RSM);
 
             // Radiance Injection Pass
             auto radiance = addRadianceInjectionPass(framegraph, RSM, m_Grid);
@@ -77,7 +77,7 @@ namespace Razix {
             for (u32 i = 0; i < kDefaultNumPropagations; i++)
                 LPV = addRadiancePropagationPass(framegraph, i == 0 ? radiance : LPV, m_Grid, i);
 
-            blackboard.add<LightPropagationVolumesData>(LPV);
+            framegraph.getBlackboard().add<LightPropagationVolumesData>(LPV);
         }
 
         void RZGIPass::destroy()
@@ -85,7 +85,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD;
         }
 
-        ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
+        ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
         {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
@@ -113,7 +113,7 @@ namespace Razix {
 
             m_RSMPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto& frameblockData = blackboard.get<FrameData>();
+            auto& frameblockData = framegraph.getBlackboard().get<FrameData>();
 
             auto& data = framegraph.addCallbackPass<ReflectiveShadowMapData>(
                 "Reflective Shadow Map",

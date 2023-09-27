@@ -20,13 +20,15 @@ namespace Razix {
 
         constexpr u32 kShadowMapSize = 4096;
 
+        // TODO: Implement this https://www.fabiensanglard.net/shadowmappingPCF/index.php
+
         class RZShadowPass : public IRZPass
         {
         public:
             RZShadowPass()  = default;
             ~RZShadowPass() = default;
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, FrameGraph::RZBlackboard& blackboard, Razix::RZScene* scene, RZRendererSettings& settings) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings) override;
 
             void destroy() override;
 

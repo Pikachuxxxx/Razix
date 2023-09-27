@@ -126,16 +126,16 @@ private:
                 titlebar->show();
         });
 
-        Razix::RZEngine::Get().getSceneManager().loadScene(0);
-        RZScene* activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+        RZSceneManager::Get().loadScene(0);
+        RZScene* activeScene = RZSceneManager::Get().getCurrentScene();
 
         // This won't actually work though! cause by the time we reach here we will have a default scene
         if (!activeScene) {
             RAZIX_TRACE("Creatng new scene...");
             Razix::RZScene* editormodelLightScene = new Razix::RZScene("Editor_Scene_1");
-            Razix::RZEngine::Get().getSceneManager().enqueScene(editormodelLightScene);
-            Razix::RZEngine::Get().getSceneManager().loadScene();
-            activeScene = Razix::RZEngine::Get().getSceneManager().getCurrentScene();
+            RZSceneManager::Get().enqueScene(editormodelLightScene);
+            RZSceneManager::Get().loadScene();
+            activeScene = RZSceneManager::Get().getCurrentScene();
         }
 
         // Add entities to the scene programatically for the first time
@@ -168,9 +168,9 @@ private:
         }
 
         // Add a directional light for test
-        auto lightEnitties = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
+        auto lightEnitties = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
-            auto directionalLightEntity = Razix::RZEngine::Get().getSceneManager().getCurrentScene()->createEntity("Directional Light");
+            auto directionalLightEntity = RZSceneManager::Get().getCurrentScene()->createEntity("Directional Light");
             directionalLightEntity.AddComponent<Razix::LightComponent>();
         }
 
