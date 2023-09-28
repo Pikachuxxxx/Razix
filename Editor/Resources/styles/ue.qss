@@ -45,6 +45,20 @@ QFrame {
   border-color: #242424;
  }
 
+QFrame#line{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+
+QFrame#line_2{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+
 QGroupBox {
   padding-top: 10px; }
   QGroupBox::title {

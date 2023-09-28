@@ -72,7 +72,7 @@ namespace Razix {
             RZShaderHandle             shader                 = {};                            /* Shader used by the Pipeline                                                 */
             std::vector<TextureFormat> colorAttachmentFormats = {};                            /* color attachments used by this pipeline, that we write to                   */
             TextureFormat              depthFormat            = TextureFormat::DEPTH32F;       /* depth attachment format for this pipeline                                   */
-            CullMode                   cullMode               = CullMode::Back;                /* geometry cull mode                                                          */
+            CullMode                   cullMode               = CullMode::Front;               /* geometry cull mode                                                          */
             PolygonMode                polygonMode            = PolygonMode::Fill;             /* polygons fill mode                                                          */
             DrawType                   drawType               = DrawType::Triangle;            /* draw primitive used to draw the geometry                                    */
             bool                       transparencyEnabled    = true;                          /* whether or not to enable transparency while blending colors                 */

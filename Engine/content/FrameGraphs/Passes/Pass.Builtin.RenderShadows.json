@@ -8,7 +8,7 @@
             "op": "Less",
             "bias": false
         },
-        "cull_mode": "Back",
+        "cull_mode": "Front",
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
         "depth_format": "DEPTH32F",
