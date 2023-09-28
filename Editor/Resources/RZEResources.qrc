@@ -52,6 +52,24 @@
         <file>maximize.png</file>
         <file>minimize.png</file>
         <file>close.png</file>
+        <file>fg_toolbar_icons/add_blackboard.png</file>
+        <file>fg_toolbar_icons/add_code_pass.png</file>
+        <file>fg_toolbar_icons/blackboard.png</file>
+        <file>fg_toolbar_icons/breakpoint.png</file>
+        <file>fg_toolbar_icons/compile.png</file>
+        <file>fg_toolbar_icons/debug.png</file>
+        <file>fg_toolbar_icons/disable_pass.png</file>
+        <file>fg_toolbar_icons/enable_pass.png</file>
+        <file>fg_toolbar_icons/group.png</file>
+        <file>fg_toolbar_icons/hot_reload.png</file>
+        <file>fg_toolbar_icons/import.png</file>
+        <file>fg_toolbar_icons/mark_standalone_pass.png</file>
+        <file>fg_toolbar_icons/open.png</file>
+        <file>fg_toolbar_icons/pngwing.com-3.png</file>
+        <file>fg_toolbar_icons/redo.png</file>
+        <file>fg_toolbar_icons/save.png</file>
+        <file>fg_toolbar_icons/search.png</file>
+        <file>fg_toolbar_icons/undo.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

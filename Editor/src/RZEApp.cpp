@@ -25,7 +25,7 @@
 #include "UI/Windows/RZETitleBar.h"
 #include "UI/Windows/RZEVulkanWindow.h"
 
-#include "RZEFrameGraphEditor.h"
+#include "UI/Windows/RZEFrameGraphEditor.h"
 
 #include "UI/RZEProjectBrowser.h"
 
@@ -304,7 +304,7 @@ int main(int argc, char** argv)
 
 #if 1
     framegraphEditor = new Razix::Editor::RZEFrameGraphEditor;
-    mainWindow->addDockableWidget(framegraphEditor->getWidget(), "Frame Graph Editor");
+    mainWindow->addDockableWidget(framegraphEditor, "Frame Graph Editor");
 #endif
 
     // Load the engine DLL and Ignite it on a separate thread

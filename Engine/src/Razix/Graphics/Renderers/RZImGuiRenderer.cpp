@@ -316,7 +316,7 @@ namespace Razix {
         {
             // Create the graphics pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "ImGui Pipeline";
+            pipelineInfo.name                   = "Pipeline.ImGui";
             pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;

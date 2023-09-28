@@ -201,7 +201,7 @@ namespace Razix {
                         shadow_data_descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
         #endif
 
-                        m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({ /*csm_descriptor, shadow_data_descriptor*/ } RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM + Matrices")));
+                        m_ForwardRenderer.setCSMArrayHeap(RZDescriptorSet::Create({ /*csm_descriptor, shadow_data_descriptor*/ } RZ_DEBUG_NAME _TAG_STR_E_ARG("CSM + Matrices")));
 
                         updatedSets = true;
                     }
@@ -374,7 +374,7 @@ namespace Razix {
                     builder.read(m_FrameGraph.getBlackboard().getID("SceneDepth"));
 
                     //sceneData.outputHDR = builder.write(sceneData.outputHDR);
-                    //sceneData.depth     = builder.write(sceneData.depth);
+                    //sceneData.depth     = builder.write(sceneData.depth); 
 
                     auto sceneHDR   = builder.write(m_FrameGraph.getBlackboard().getID("SceneHDR"));
                     auto sceneDepth = builder.write(m_FrameGraph.getBlackboard().getID("SceneDepth"));
