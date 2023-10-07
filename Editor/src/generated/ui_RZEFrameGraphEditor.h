@@ -15,6 +15,7 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
@@ -75,12 +76,25 @@ public:
     QVBoxLayout *verticalLayout_17;
     QPushButton *mask_as_standalone;
     QLabel *label_16;
+    QSpacerItem *horizontalSpacer;
     QVBoxLayout *verticalLayout_18;
     QPushButton *mask_as_standalone_2;
     QLabel *label_17;
-    QSpacerItem *horizontalSpacer;
     QHBoxLayout *horizontalLayout;
-    QFrame *pass_presets;
+    QFrame *presets_inspector;
+    QVBoxLayout *verticalLayout_16;
+    QLabel *PassPresetsLbl;
+    QWidget *test_preset;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *label_15;
+    QLabel *label_18;
+    QWidget *widget;
+    QVBoxLayout *verticalLayout_19;
+    QListWidget *preset_passes_list;
+    QLabel *label_19;
+    QListWidget *preset_import_list;
+    QLabel *label_20;
+    QListWidget *preset_resources_list;
     QVBoxLayout *body_layout;
     QFrame *node_inspector;
 
@@ -88,10 +102,8 @@ public:
     {
         if (FrameGraphEditor->objectName().isEmpty())
             FrameGraphEditor->setObjectName(QString::fromUtf8("FrameGraphEditor"));
-        FrameGraphEditor->resize(1348, 448);
-        FrameGraphEditor->setStyleSheet(QString::fromUtf8("#line{\n"
-"color:#ffffff\n"
-"}"));
+        FrameGraphEditor->resize(1366, 923);
+        FrameGraphEditor->setStyleSheet(QString::fromUtf8(""));
         verticalLayout = new QVBoxLayout(FrameGraphEditor);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         toolbar = new QFrame(FrameGraphEditor);
@@ -480,6 +492,10 @@ public:
 
         horizontalLayout_2->addLayout(verticalLayout_17);
 
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer);
+
         verticalLayout_18 = new QVBoxLayout();
         verticalLayout_18->setSpacing(0);
         verticalLayout_18->setObjectName(QString::fromUtf8("verticalLayout_18"));
@@ -504,21 +520,156 @@ public:
 
         horizontalLayout_2->addLayout(verticalLayout_18);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_2->addItem(horizontalSpacer);
-
 
         verticalLayout->addWidget(toolbar);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        pass_presets = new QFrame(FrameGraphEditor);
-        pass_presets->setObjectName(QString::fromUtf8("pass_presets"));
-        pass_presets->setFrameShape(QFrame::StyledPanel);
-        pass_presets->setFrameShadow(QFrame::Raised);
+        presets_inspector = new QFrame(FrameGraphEditor);
+        presets_inspector->setObjectName(QString::fromUtf8("presets_inspector"));
+        presets_inspector->setMinimumSize(QSize(250, 0));
+        presets_inspector->setMaximumSize(QSize(300, 16777215));
+        presets_inspector->setFrameShape(QFrame::StyledPanel);
+        presets_inspector->setFrameShadow(QFrame::Raised);
+        verticalLayout_16 = new QVBoxLayout(presets_inspector);
+        verticalLayout_16->setObjectName(QString::fromUtf8("verticalLayout_16"));
+        verticalLayout_16->setContentsMargins(0, 0, 0, 0);
+        PassPresetsLbl = new QLabel(presets_inspector);
+        PassPresetsLbl->setObjectName(QString::fromUtf8("PassPresetsLbl"));
+        PassPresetsLbl->setMinimumSize(QSize(0, 25));
+        PassPresetsLbl->setMaximumSize(QSize(16777215, 50));
+        QFont font;
+        font.setPointSize(16);
+        font.setBold(false);
+        font.setWeight(50);
+        PassPresetsLbl->setFont(font);
+        PassPresetsLbl->setAutoFillBackground(false);
+        PassPresetsLbl->setStyleSheet(QString::fromUtf8("background-color: rgb(61, 61, 61);\n"
+"color: #ffffff;\n"
+"border-style:solid;\n"
+"border-color:#ffffff;\n"
+"border-width:1px;\n"
+"\n"
+""));
+        PassPresetsLbl->setScaledContents(false);
+        PassPresetsLbl->setAlignment(Qt::AlignCenter);
+        PassPresetsLbl->setMargin(4);
 
-        horizontalLayout->addWidget(pass_presets);
+        verticalLayout_16->addWidget(PassPresetsLbl);
+
+        test_preset = new QWidget(presets_inspector);
+        test_preset->setObjectName(QString::fromUtf8("test_preset"));
+        test_preset->setMaximumSize(QSize(16777215, 50));
+        test_preset->setAutoFillBackground(false);
+        test_preset->setStyleSheet(QString::fromUtf8("background-color: #212121;\n"
+"color: #FFFFFF;\n"
+"border-color: #696969;\n"
+"border-width:4px;\n"
+"border-style: solid;\n"
+"border-radius:20px;"));
+        horizontalLayout_4 = new QHBoxLayout(test_preset);
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        label_15 = new QLabel(test_preset);
+        label_15->setObjectName(QString::fromUtf8("label_15"));
+        QFont font1;
+        font1.setFamily(QString::fromUtf8("Fira Code"));
+        font1.setPointSize(16);
+        label_15->setFont(font1);
+        label_15->setStyleSheet(QString::fromUtf8("\n"
+"color: #FFFFFF;\n"
+"border-width:0px;\n"
+"border-style: solid;\n"
+"border-radius:0px;"));
+
+        horizontalLayout_4->addWidget(label_15);
+
+        label_18 = new QLabel(test_preset);
+        label_18->setObjectName(QString::fromUtf8("label_18"));
+        label_18->setMaximumSize(QSize(80, 16777215));
+        QFont font2;
+        font2.setFamily(QString::fromUtf8("Fira Code"));
+        font2.setPointSize(12);
+        label_18->setFont(font2);
+        label_18->setStyleSheet(QString::fromUtf8("background-color: #AAAAAA;\n"
+"color: #000000;\n"
+"border-color:#000000;\n"
+"border-width:1px;\n"
+"border-style: solid;\n"
+"border-radius:14px;"));
+        label_18->setAlignment(Qt::AlignCenter);
+        label_18->setMargin(3);
+
+        horizontalLayout_4->addWidget(label_18);
+
+
+        verticalLayout_16->addWidget(test_preset);
+
+        widget = new QWidget(presets_inspector);
+        widget->setObjectName(QString::fromUtf8("widget"));
+        widget->setStyleSheet(QString::fromUtf8("background-color: #F6D975;\n"
+"border-color: rgb(0, 0, 0);\n"
+"border-width:1px;\n"
+"border-style:dashed;\n"
+"border-radius:4px;"));
+        verticalLayout_19 = new QVBoxLayout(widget);
+        verticalLayout_19->setSpacing(0);
+        verticalLayout_19->setObjectName(QString::fromUtf8("verticalLayout_19"));
+        verticalLayout_19->setContentsMargins(0, 0, 0, 0);
+
+        verticalLayout_16->addWidget(widget);
+
+        preset_passes_list = new QListWidget(presets_inspector);
+        preset_passes_list->setObjectName(QString::fromUtf8("preset_passes_list"));
+        preset_passes_list->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 0, 0, 0);"));
+        preset_passes_list->setDragEnabled(true);
+        preset_passes_list->setSpacing(12);
+
+        verticalLayout_16->addWidget(preset_passes_list);
+
+        label_19 = new QLabel(presets_inspector);
+        label_19->setObjectName(QString::fromUtf8("label_19"));
+        QFont font3;
+        font3.setPointSize(16);
+        label_19->setFont(font3);
+        label_19->setStyleSheet(QString::fromUtf8("background-color: rgb(61, 61, 61);\n"
+"color: #ffffff;\n"
+"border-style:solid;\n"
+"border-color:#ffffff;\n"
+"border-width:1px;"));
+        label_19->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_16->addWidget(label_19);
+
+        preset_import_list = new QListWidget(presets_inspector);
+        preset_import_list->setObjectName(QString::fromUtf8("preset_import_list"));
+        preset_import_list->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 0, 0, 0);"));
+        preset_import_list->setDragEnabled(true);
+        preset_import_list->setSpacing(12);
+
+        verticalLayout_16->addWidget(preset_import_list);
+
+        label_20 = new QLabel(presets_inspector);
+        label_20->setObjectName(QString::fromUtf8("label_20"));
+        label_20->setFont(font3);
+        label_20->setStyleSheet(QString::fromUtf8("background-color: rgb(61, 61, 61);\n"
+"color: #ffffff;\n"
+"border-style:solid;\n"
+"border-color:#ffffff;\n"
+"border-width:1px;"));
+        label_20->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_16->addWidget(label_20);
+
+        preset_resources_list = new QListWidget(presets_inspector);
+        preset_resources_list->setObjectName(QString::fromUtf8("preset_resources_list"));
+        preset_resources_list->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 0, 0, 0);"));
+        preset_resources_list->setDragEnabled(true);
+        preset_resources_list->setSpacing(12);
+
+        verticalLayout_16->addWidget(preset_resources_list);
+
+
+        horizontalLayout->addWidget(presets_inspector);
 
         body_layout = new QVBoxLayout();
         body_layout->setObjectName(QString::fromUtf8("body_layout"));
@@ -576,6 +727,11 @@ public:
         label_16->setText(QCoreApplication::translate("FrameGraphEditor", "Mark as Standalone", nullptr));
         mask_as_standalone_2->setText(QString());
         label_17->setText(QCoreApplication::translate("FrameGraphEditor", "Add Breakpoint", nullptr));
+        PassPresetsLbl->setText(QCoreApplication::translate("FrameGraphEditor", "Pass Presets", nullptr));
+        label_15->setText(QCoreApplication::translate("FrameGraphEditor", "Shadow Pass", nullptr));
+        label_18->setText(QCoreApplication::translate("FrameGraphEditor", "{code}", nullptr));
+        label_19->setText(QCoreApplication::translate("FrameGraphEditor", "Import Presets", nullptr));
+        label_20->setText(QCoreApplication::translate("FrameGraphEditor", "Resource Node Presets", nullptr));
     } // retranslateUi
 
 };
