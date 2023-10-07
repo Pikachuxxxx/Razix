@@ -125,10 +125,8 @@ namespace Razix {
                 // TODO: Find a better way to update stuff only once that too on first frame
                 // Update the Bind vars only on the first frame
                 //static bool FirstFrame = true;
-                if (m_IsFirstFrame) {
+                if (m_IsFirstFrame)
                     RZResourceManager::Get().getShaderResource(m_shader)->updateBindVarsHeaps();
-                    //FirstFrame = false;
-                }
 
                 // Based on the geometry mode, draw the scene
                 RZSceneManager::Get().getCurrentScene()->drawScene(m_pipeline, m_geometryMode);
@@ -141,7 +139,7 @@ namespace Razix {
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                // TODO: [High Priority] Resize all input texture resource and then re-generate the descriptor sets
+                // TODO: [High Priority] Resize all "Input" texture resources and only then re-generate the descriptor sets
 
                 // Update/Regenerate the descriptors table on resize
                 RZResourceManager::Get().getShaderResource(m_shader)->updateBindVarsHeaps();
