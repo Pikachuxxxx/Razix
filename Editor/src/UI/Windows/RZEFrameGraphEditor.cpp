@@ -6,7 +6,9 @@
 #include <QGraphicsDropShadowEffect>
 #include <QListWidget>
 
+#include "Nodes/RZEBufferResourceNodeUI.h"
 #include "Nodes/RZEPassNodeUI.h"
+#include "Nodes/RZETextureResourceNodeUI.h"
 
 static QGraphicsDropShadowEffect* DropShadowEffect = new QGraphicsDropShadowEffect();
 // effect->setBlurRadius(10);
@@ -41,10 +43,12 @@ namespace Razix {
 
         void FrameGraphGraphicsView::OnAddBufferNode()
         {
+            RZEBufferResourceNodeUI* bufferResNodeUI = new RZEBufferResourceNodeUI("Buffer", getScene());
         }
 
         void FrameGraphGraphicsView::OnAddTextureNode()
         {
+            RZETextureResourceNodeUI* textureResNodeUI = new RZETextureResourceNodeUI("Texture", getScene());
         }
 
         void FrameGraphGraphicsView::OnImportResource()
@@ -63,7 +67,7 @@ namespace Razix {
 
             ui.body_layout->addWidget(m_NodeGraphWidget);
 
-            DropShadowEffect->setBlurRadius(10);
+            DropShadowEffect->setBlurRadius(5);
             DropShadowEffect->setOffset(2, 4);
             DropShadowEffect->setColor(Qt::black);
 
