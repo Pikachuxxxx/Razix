@@ -7,6 +7,7 @@
 #include <QListWidget>
 
 #include "Nodes/RZEBufferResourceNodeUI.h"
+#include "Nodes/RZEImportNodeUI.h"
 #include "Nodes/RZEPassNodeUI.h"
 #include "Nodes/RZETextureResourceNodeUI.h"
 
@@ -53,6 +54,7 @@ namespace Razix {
 
         void FrameGraphGraphicsView::OnImportResource()
         {
+            RZEImportNodeUI* importNodeUI = new RZEImportNodeUI("Imported", getScene());
         }
 
         //-----------------------------------------------------------
