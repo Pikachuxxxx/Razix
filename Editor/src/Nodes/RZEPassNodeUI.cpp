@@ -65,12 +65,12 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         RZEPassNodeUI::RZEPassNodeUI(const std::string& nodeName, NodeScene* scene)
-            : Node(scene, nodeName, 1, 1)
+            : Node(scene, nodeName, CIRCLE, 1, 1)
         {
             m_PassGraphicsNode = new PassNodeGraphicsNode(this);
             this->setGraphicsNode(m_PassGraphicsNode);
 
-            addInputSocket("SceneHDR", LEFT_TOP);
+            addInputSocket("SceneHDR");
             addInputSocket("SceneDepth");
             addInputSocket("FrameData");
             addInputSocket("IrradianceMap");
