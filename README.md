@@ -17,9 +17,10 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Features
 - Support for Windows, Linux, macOS.
 - Support for OpenGL, Vulkan & DirectX 12.
-- **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  **WIP custom [Node Graph Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
+- **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  
+    - **Uses Custom [Node Graph Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
 
-| Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_design_demo_1.png" width="400"> |  
+| Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_design_demo_2.png" width="400"> |  
 | ------------- | ------------- |
 
 - 3D audio using OpenAL
