@@ -6,6 +6,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QListWidget>
 
+#include "Nodes/RZEPassNodeUI.h"
+
 static QGraphicsDropShadowEffect* DropShadowEffect = new QGraphicsDropShadowEffect();
 // effect->setBlurRadius(10);
 // effect->setOffset(2, 4);
@@ -31,9 +33,10 @@ namespace Razix {
             : NodeGraphicsView()
         {
         }
-         
+
         void FrameGraphGraphicsView::OnAddPassNode()
         {
+            RZEPassNodeUI* passNodeUI = new RZEPassNodeUI("Test Pass Node", getScene());
         }
 
         void FrameGraphGraphicsView::OnAddBufferNode()
