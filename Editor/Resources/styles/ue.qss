@@ -1,3 +1,4 @@
+
 /*
 Unreal Engine 5 like Qt Stylesheet
 
@@ -53,6 +54,20 @@ QFrame#line{
 }
 
 QFrame#line_2{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+
+QFrame#line_3{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+
+QFrame#line_4{
     background-color: rgb(255, 255, 255);
     width: 5px;
     border-width: 5px;
