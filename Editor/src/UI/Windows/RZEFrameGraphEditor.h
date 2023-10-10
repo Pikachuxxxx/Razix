@@ -5,6 +5,8 @@
 
 #include "generated/ui_RZEFrameGraphEditor.h"
 
+#include <QSignalMapper>
+
 namespace Razix {
     namespace Editor {
 
@@ -36,7 +38,6 @@ namespace Razix {
 
             void OnRightMousePress(QMouseEvent* event) override
             {
-
             }
 
         public slots:
@@ -59,12 +60,19 @@ namespace Razix {
         public slots:
             void OnImportPresetButtonClicked();
 
-        private:
-            NodeGraphWidget*     m_NodeGraphWidget;
-            Ui::FrameGraphEditor ui;
+            void OnAddInputPinClicked();
+            void OnInputPinNameChanged(int idx);
+            void OnRemoveInputPinClicked(int idx);
 
         private:
-            void populatePresetResourceNodesList();
+            Ui::FrameGraphEditor ui;
+            NodeGraphWidget*     m_NodeGraphWidget = nullptr;
+            QSignalMapper*       m_LineEditsSignalMapper    = nullptr;
+            QSignalMapper*       m_ButtonsSignalMapper = nullptr;
+
+        private:
+            void
+                 populatePresetResourceNodesList();
             void populatePresetImportNodesList();
             void populatePresetPassNodesList();
         };
