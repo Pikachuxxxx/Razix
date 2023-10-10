@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1366</width>
-    <height>923</height>
+    <height>1087</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1185,7 +1185,7 @@ border-width:1px;
         </layout>
        </widget>
        <widget class="QWidget" name="page_2_pass_node">
-        <layout class="QVBoxLayout" name="verticalLayout_23">
+        <layout class="QVBoxLayout" name="verticalLayout_22">
          <item>
           <widget class="QLabel" name="PassPresetsLbl_2">
            <property name="minimumSize">
@@ -1234,6 +1234,66 @@ border-width:1px;
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="label_48">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Pins</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QFormLayout" name="pins_layout">
+           <property name="labelAlignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="add_ip_pin">
+             <property name="maximumSize">
+              <size>
+               <width>75</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Add i/p Pin</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="clear_ip_pins">
+             <property name="maximumSize">
+              <size>
+               <width>75</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>clear_ip_pins</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="Line" name="line_5">
+           <property name="frameShadow">
+            <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>4</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QFormLayout" name="formLayout">
            <property name="labelAlignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1262,23 +1322,38 @@ border-width:1px;
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="comboBox">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <property name="text">
-               <string>Shader.Builtin.PBR</string>
-              </property>
+              <widget class="QLineEdit" name="lineEdit_5">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>Choose shader file</string>
+               </property>
+              </widget>
              </item>
              <item>
-              <property name="text">
-               <string>Shader.Builtin.GBuffer</string>
-              </property>
+              <widget class="QPushButton" name="pushButton_2">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../Resources/RZEResources.qrc">
+                 <normaloff>:/rzeditor/Browse.png</normaloff>:/rzeditor/Browse.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>32</width>
+                 <height>32</height>
+                </size>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
-            </widget>
+            </layout>
            </item>
           </layout>
          </item>
