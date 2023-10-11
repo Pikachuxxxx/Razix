@@ -81,10 +81,10 @@ public:
     QVBoxLayout *verticalLayout_17;
     QPushButton *mask_as_standalone;
     QLabel *label_16;
-    QSpacerItem *horizontalSpacer;
     QVBoxLayout *verticalLayout_18;
     QPushButton *mask_as_standalone_2;
     QLabel *label_17;
+    QSpacerItem *horizontalSpacer;
     QHBoxLayout *horizontalLayout;
     QFrame *presets_inspector;
     QVBoxLayout *verticalLayout_16;
@@ -108,12 +108,16 @@ public:
     QLabel *label_21;
     QSpacerItem *verticalSpacer;
     QWidget *page_2_pass_node;
-    QVBoxLayout *verticalLayout_22;
+    QVBoxLayout *verticalLayout_23;
     QLabel *PassPresetsLbl_2;
     QLabel *label_48;
-    QFormLayout *pins_layout;
+    QVBoxLayout *verticalLayout_22;
+    QFormLayout *ip_pins_layout;
     QPushButton *add_ip_pin;
-    QPushButton *clear_ip_pins;
+    QPushButton *remove_ip_pin;
+    QFormLayout *op_pins_layout;
+    QPushButton *add_op_pin;
+    QPushButton *remove_op_pin;
     QFrame *line_5;
     QFormLayout *formLayout;
     QLabel *label_22;
@@ -183,7 +187,7 @@ public:
     {
         if (FrameGraphEditor->objectName().isEmpty())
             FrameGraphEditor->setObjectName(QString::fromUtf8("FrameGraphEditor"));
-        FrameGraphEditor->resize(1366, 1087);
+        FrameGraphEditor->resize(1437, 1087);
         FrameGraphEditor->setStyleSheet(QString::fromUtf8(""));
         verticalLayout = new QVBoxLayout(FrameGraphEditor);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
@@ -573,10 +577,6 @@ public:
 
         horizontalLayout_2->addLayout(verticalLayout_17);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_2->addItem(horizontalSpacer);
-
         verticalLayout_18 = new QVBoxLayout();
         verticalLayout_18->setSpacing(0);
         verticalLayout_18->setObjectName(QString::fromUtf8("verticalLayout_18"));
@@ -600,6 +600,10 @@ public:
 
 
         horizontalLayout_2->addLayout(verticalLayout_18);
+
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer);
 
 
         verticalLayout->addWidget(toolbar);
@@ -804,8 +808,8 @@ public:
         stackedWidget->addWidget(page_1_empty);
         page_2_pass_node = new QWidget();
         page_2_pass_node->setObjectName(QString::fromUtf8("page_2_pass_node"));
-        verticalLayout_22 = new QVBoxLayout(page_2_pass_node);
-        verticalLayout_22->setObjectName(QString::fromUtf8("verticalLayout_22"));
+        verticalLayout_23 = new QVBoxLayout(page_2_pass_node);
+        verticalLayout_23->setObjectName(QString::fromUtf8("verticalLayout_23"));
         PassPresetsLbl_2 = new QLabel(page_2_pass_node);
         PassPresetsLbl_2->setObjectName(QString::fromUtf8("PassPresetsLbl_2"));
         PassPresetsLbl_2->setMinimumSize(QSize(0, 25));
@@ -823,7 +827,7 @@ public:
         PassPresetsLbl_2->setAlignment(Qt::AlignCenter);
         PassPresetsLbl_2->setMargin(4);
 
-        verticalLayout_22->addWidget(PassPresetsLbl_2);
+        verticalLayout_23->addWidget(PassPresetsLbl_2);
 
         label_48 = new QLabel(page_2_pass_node);
         label_48->setObjectName(QString::fromUtf8("label_48"));
@@ -833,25 +837,52 @@ public:
         font5.setWeight(75);
         label_48->setFont(font5);
 
-        verticalLayout_22->addWidget(label_48);
+        verticalLayout_23->addWidget(label_48);
 
-        pins_layout = new QFormLayout();
-        pins_layout->setObjectName(QString::fromUtf8("pins_layout"));
-        pins_layout->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        verticalLayout_22 = new QVBoxLayout();
+        verticalLayout_22->setObjectName(QString::fromUtf8("verticalLayout_22"));
+        ip_pins_layout = new QFormLayout();
+        ip_pins_layout->setObjectName(QString::fromUtf8("ip_pins_layout"));
+        ip_pins_layout->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         add_ip_pin = new QPushButton(page_2_pass_node);
         add_ip_pin->setObjectName(QString::fromUtf8("add_ip_pin"));
-        add_ip_pin->setMaximumSize(QSize(75, 16777215));
+        add_ip_pin->setMinimumSize(QSize(100, 0));
+        add_ip_pin->setMaximumSize(QSize(100, 16777215));
 
-        pins_layout->setWidget(0, QFormLayout::LabelRole, add_ip_pin);
+        ip_pins_layout->setWidget(0, QFormLayout::LabelRole, add_ip_pin);
 
-        clear_ip_pins = new QPushButton(page_2_pass_node);
-        clear_ip_pins->setObjectName(QString::fromUtf8("clear_ip_pins"));
-        clear_ip_pins->setMaximumSize(QSize(75, 16777215));
+        remove_ip_pin = new QPushButton(page_2_pass_node);
+        remove_ip_pin->setObjectName(QString::fromUtf8("remove_ip_pin"));
+        remove_ip_pin->setMinimumSize(QSize(100, 0));
+        remove_ip_pin->setMaximumSize(QSize(100, 16777215));
 
-        pins_layout->setWidget(0, QFormLayout::FieldRole, clear_ip_pins);
+        ip_pins_layout->setWidget(0, QFormLayout::FieldRole, remove_ip_pin);
 
 
-        verticalLayout_22->addLayout(pins_layout);
+        verticalLayout_22->addLayout(ip_pins_layout);
+
+        op_pins_layout = new QFormLayout();
+        op_pins_layout->setObjectName(QString::fromUtf8("op_pins_layout"));
+        op_pins_layout->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        add_op_pin = new QPushButton(page_2_pass_node);
+        add_op_pin->setObjectName(QString::fromUtf8("add_op_pin"));
+        add_op_pin->setMinimumSize(QSize(100, 0));
+        add_op_pin->setMaximumSize(QSize(100, 16777215));
+
+        op_pins_layout->setWidget(0, QFormLayout::LabelRole, add_op_pin);
+
+        remove_op_pin = new QPushButton(page_2_pass_node);
+        remove_op_pin->setObjectName(QString::fromUtf8("remove_op_pin"));
+        remove_op_pin->setMinimumSize(QSize(100, 0));
+        remove_op_pin->setMaximumSize(QSize(100, 16777215));
+
+        op_pins_layout->setWidget(0, QFormLayout::FieldRole, remove_op_pin);
+
+
+        verticalLayout_22->addLayout(op_pins_layout);
+
+
+        verticalLayout_23->addLayout(verticalLayout_22);
 
         line_5 = new QFrame(page_2_pass_node);
         line_5->setObjectName(QString::fromUtf8("line_5"));
@@ -859,7 +890,7 @@ public:
         line_5->setLineWidth(4);
         line_5->setFrameShape(QFrame::HLine);
 
-        verticalLayout_22->addWidget(line_5);
+        verticalLayout_23->addWidget(line_5);
 
         formLayout = new QFormLayout();
         formLayout->setObjectName(QString::fromUtf8("formLayout"));
@@ -895,7 +926,7 @@ public:
         formLayout->setLayout(0, QFormLayout::FieldRole, horizontalLayout_8);
 
 
-        verticalLayout_22->addLayout(formLayout);
+        verticalLayout_23->addLayout(formLayout);
 
         line_3 = new QFrame(page_2_pass_node);
         line_3->setObjectName(QString::fromUtf8("line_3"));
@@ -911,7 +942,7 @@ public:
         line_3->setLineWidth(4);
         line_3->setFrameShape(QFrame::HLine);
 
-        verticalLayout_22->addWidget(line_3);
+        verticalLayout_23->addWidget(line_3);
 
         label_41 = new QLabel(page_2_pass_node);
         label_41->setObjectName(QString::fromUtf8("label_41"));
@@ -922,7 +953,7 @@ public:
         font6.setWeight(75);
         label_41->setFont(font6);
 
-        verticalLayout_22->addWidget(label_41);
+        verticalLayout_23->addWidget(label_41);
 
         formLayout_2 = new QFormLayout();
         formLayout_2->setObjectName(QString::fromUtf8("formLayout_2"));
@@ -1150,7 +1181,7 @@ public:
         formLayout_2->setLayout(15, QFormLayout::FieldRole, verticalLayout_21);
 
 
-        verticalLayout_22->addLayout(formLayout_2);
+        verticalLayout_23->addLayout(formLayout_2);
 
         line_4 = new QFrame(page_2_pass_node);
         line_4->setObjectName(QString::fromUtf8("line_4"));
@@ -1158,7 +1189,7 @@ public:
         line_4->setLineWidth(3);
         line_4->setFrameShape(QFrame::HLine);
 
-        verticalLayout_22->addWidget(line_4);
+        verticalLayout_23->addWidget(line_4);
 
         formLayout_3 = new QFormLayout();
         formLayout_3->setObjectName(QString::fromUtf8("formLayout_3"));
@@ -1259,11 +1290,11 @@ public:
         formLayout_3->setWidget(4, QFormLayout::FieldRole, lineEdit_4);
 
 
-        verticalLayout_22->addLayout(formLayout_3);
+        verticalLayout_23->addLayout(formLayout_3);
 
         verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        verticalLayout_22->addItem(verticalSpacer_2);
+        verticalLayout_23->addItem(verticalSpacer_2);
 
         stackedWidget->addWidget(page_2_pass_node);
 
@@ -1326,7 +1357,9 @@ public:
         PassPresetsLbl_2->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
         label_48->setText(QCoreApplication::translate("FrameGraphEditor", "Pins", nullptr));
         add_ip_pin->setText(QCoreApplication::translate("FrameGraphEditor", "Add i/p Pin", nullptr));
-        clear_ip_pins->setText(QCoreApplication::translate("FrameGraphEditor", "clear_ip_pins", nullptr));
+        remove_ip_pin->setText(QCoreApplication::translate("FrameGraphEditor", "remove_ip_pin", nullptr));
+        add_op_pin->setText(QCoreApplication::translate("FrameGraphEditor", "Add o/p Pin", nullptr));
+        remove_op_pin->setText(QCoreApplication::translate("FrameGraphEditor", "remove_o/p_pin", nullptr));
         label_22->setText(QCoreApplication::translate("FrameGraphEditor", "Shader", nullptr));
         lineEdit_5->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Choose shader file", nullptr));
         pushButton_2->setText(QString());

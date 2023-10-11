@@ -53,6 +53,47 @@ QFrame#line, line_2, line_3, line_4, line_5, line_6{
     border-color: #ffffff;
 }
 
+QFrame#line_2{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+QFrame#line_3{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+QFrame#line_4{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+QFrame#line_5{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+QFrame#line_6{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}QFrame#line_7{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}QFrame#line_8{
+    background-color: rgb(255, 255, 255);
+    width: 5px;
+    border-width: 5px;
+    border-color: #ffffff;
+}
+
 QLine{
     background-color: rgb(255, 255, 255);
     width: 5px;

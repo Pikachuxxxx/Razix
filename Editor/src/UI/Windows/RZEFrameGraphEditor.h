@@ -62,13 +62,18 @@ namespace Razix {
 
             void OnAddInputPinClicked();
             void OnInputPinNameChanged(int idx);
-            void OnRemoveInputPinClicked(int idx);
+            void OnRemoveInputPinClicked();
+
+            void OnAddOutputPinClicked();
+            void OnOutputPinNameChanged(int idx);
+            void OnRemoveOutputPinClicked();
 
         private:
             Ui::FrameGraphEditor ui;
-            NodeGraphWidget*     m_NodeGraphWidget = nullptr;
-            QSignalMapper*       m_LineEditsSignalMapper    = nullptr;
-            QSignalMapper*       m_ButtonsSignalMapper = nullptr;
+            NodeGraphWidget*     m_NodeGraphWidget         = nullptr;
+            QSignalMapper*       m_IpLineEditsSignalMapper   = nullptr;
+            QSignalMapper*       m_IpButtonsSignalMapper     = nullptr;
+            QSignalMapper*       m_OpLineEditsSignalMapper = nullptr;
 
         private:
             void

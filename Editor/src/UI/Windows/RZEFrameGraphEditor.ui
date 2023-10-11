@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1366</width>
+    <width>1437</width>
     <height>1087</height>
    </rect>
   </property>
@@ -747,19 +747,6 @@ color:#ff00ff
        </layout>
       </item>
       <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <layout class="QVBoxLayout" name="verticalLayout_18">
         <property name="spacing">
          <number>0</number>
@@ -804,6 +791,19 @@ color:#ff00ff
          </widget>
         </item>
        </layout>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -1185,7 +1185,7 @@ border-width:1px;
         </layout>
        </widget>
        <widget class="QWidget" name="page_2_pass_node">
-        <layout class="QVBoxLayout" name="verticalLayout_22">
+        <layout class="QVBoxLayout" name="verticalLayout_23">
          <item>
           <widget class="QLabel" name="PassPresetsLbl_2">
            <property name="minimumSize">
@@ -1248,35 +1248,96 @@ border-width:1px;
           </widget>
          </item>
          <item>
-          <layout class="QFormLayout" name="pins_layout">
-           <property name="labelAlignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="add_ip_pin">
-             <property name="maximumSize">
-              <size>
-               <width>75</width>
-               <height>16777215</height>
-              </size>
+          <layout class="QVBoxLayout" name="verticalLayout_22">
+           <item>
+            <layout class="QFormLayout" name="ip_pins_layout">
+             <property name="labelAlignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
-             <property name="text">
-              <string>Add i/p Pin</string>
-             </property>
-            </widget>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="add_ip_pin">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Add i/p Pin</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="remove_ip_pin">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>remove_ip_pin</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="clear_ip_pins">
-             <property name="maximumSize">
-              <size>
-               <width>75</width>
-               <height>16777215</height>
-              </size>
+           <item>
+            <layout class="QFormLayout" name="op_pins_layout">
+             <property name="labelAlignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
-             <property name="text">
-              <string>clear_ip_pins</string>
-             </property>
-            </widget>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="add_op_pin">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Add o/p Pin</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="remove_op_pin">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>remove_o/p_pin</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
