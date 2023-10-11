@@ -79,6 +79,16 @@ namespace Razix {
 
             // TEST:
             connect(ui.add_ip_pin, SIGNAL(pressed()), this, SLOT(OnAddInputPinClicked()));
+            connect(ui.remove_ip_pin, SIGNAL(pressed()), this, SLOT(OnRemoveInputPinClicked()));
+
+            connect(ui.add_op_pin, SIGNAL(pressed()), this, SLOT(OnAddOutputPinClicked()));
+            connect(ui.remove_op_pin, SIGNAL(pressed()), this, SLOT(OnRemoveOutputPinClicked()));
+
+            // https://stackoverflow.com/questions/5153157/passing-an-argument-to-a-slot
+            m_IpLineEditsSignalMapper = new QSignalMapper(this);
+            //m_IpButtonsSignalMapper   = new QSignalMapper(this);
+
+            m_OpLineEditsSignalMapper = new QSignalMapper(this);
         }
 
         void RZEFrameGraphEditor::OnImportPresetButtonClicked()
@@ -90,33 +100,33 @@ namespace Razix {
             // TODO: Add QT user data to identify the pin idx
 
             // Create HBoxLayout with a text edit and cross button and connect them to a signal
-            QHBoxLayout* hLayout = new QHBoxLayout;
+            //QHBoxLayout* hLayout = new QHBoxLayout;
 
             auto pinNameEdit = new QLineEdit();
             pinNameEdit->setPlaceholderText("Enter input socket name");
 
-            // https://stackoverflow.com/questions/5153157/passing-an-argument-to-a-slot
-            m_LineEditsSignalMapper = new QSignalMapper(this);
-            m_ButtonsSignalMapper   = new QSignalMapper(this);
+            //m_ButtonsSignalMapper   = new QSignalMapper(this);
 
-            m_LineEditsSignalMapper->setMapping(pinNameEdit, ui.pins_layout->rowCount());
+            m_IpLineEditsSignalMapper->setMapping(pinNameEdit, ui.ip_pins_layout->rowCount());
 
-            connect(pinNameEdit, SIGNAL(returnPressed()), m_LineEditsSignalMapper, SLOT(map()));
-            connect(m_LineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnInputPinNameChanged(int)));
+            connect(pinNameEdit, SIGNAL(returnPressed()), m_IpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
+            connect(m_IpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnInputPinNameChanged(int)), Qt::UniqueConnection);
 
+#if 0
             hLayout->addWidget(pinNameEdit);
 
             QPushButton* deleteButton = new QPushButton;
             deleteButton->setIcon(QIcon(":/rzeditor/cross_red.png"));
-            m_ButtonsSignalMapper->setMapping(deleteButton, ui.pins_layout->rowCount());
+            m_ButtonsSignalMapper->setMapping(deleteButton, ui.ip_pins_layout->rowCount());
 
             connect(deleteButton, SIGNAL(pressed()), m_ButtonsSignalMapper, SLOT(map()));
             connect(m_ButtonsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnRemoveInputPinClicked(int)));
 
             hLayout->addWidget(deleteButton);
+#endif
 
-            auto label = "input pin #" + std::to_string(ui.pins_layout->rowCount());
-            ui.pins_layout->addRow(label.c_str(), hLayout);
+            auto label = "input pin #" + std::to_string(ui.ip_pins_layout->rowCount());
+            ui.ip_pins_layout->addRow(label.c_str(), pinNameEdit);
         }
 
         void RZEFrameGraphEditor::OnInputPinNameChanged(int idx)
@@ -126,27 +136,31 @@ namespace Razix {
             //QString labelText         = label->text();
             //std::cout << "Text from Label: " << labelText.toStdString() << std::endl;
 
-            auto FieldLayoutItem = ui.pins_layout->itemAt(idx, QFormLayout::ItemRole::FieldRole);
+            auto FieldLayoutItem = ui.ip_pins_layout->itemAt(idx, QFormLayout::ItemRole::FieldRole);
             // NOTE: Since we are adding a layout we need to cast it as layout, be careful on how we are adding into the row!
-            QHBoxLayout* hLayout  = qobject_cast<QHBoxLayout*>(FieldLayoutItem->layout());
-            QLineEdit*   lineEdit = qobject_cast<QLineEdit*>(hLayout->itemAt(0)->widget());
+            //QHBoxLayout* hLayout  = qobject_cast<QHBoxLayout*>(FieldLayoutItem->layout());
+
+            QWidget*   widget   = qobject_cast<QWidget*>(FieldLayoutItem->widget());
+            QLineEdit* lineEdit = qobject_cast<QLineEdit*>(widget);
 
             std::cout << lineEdit->text().toStdString() << std::endl;
         }
 
-        void RZEFrameGraphEditor::OnRemoveInputPinClicked(int idx)
+        void RZEFrameGraphEditor::OnRemoveInputPinClicked()
         {
-            ui.pins_layout->removeRow(idx);
-
-            ui.pins_layout->update();
-
-            for (i32 i = 1; i < ui.pins_layout->rowCount(); i++) {
+            // Always remove the last pin
+            if (ui.ip_pins_layout->rowCount() > 1) {
+                ui.ip_pins_layout->removeRow(ui.ip_pins_layout->rowCount() - 1);
+                ui.ip_pins_layout->update();
+            }
+#if 0
+            for (i32 i = 1; i < ui.ip_pins_layout->rowCount(); i++) {
                 // First rename the label then update it's signal mapper Idx
-                auto    LabelLayoutWidget = ui.pins_layout->itemAt(i, QFormLayout::ItemRole::LabelRole)->widget();
+                auto    LabelLayoutWidget = ui.ip_pins_layout->itemAt(i, QFormLayout::ItemRole::LabelRole)->widget();
                 auto    label             = qobject_cast<QLabel*>(LabelLayoutWidget);
                 QString pinlabelText      = label->text();
 
-                auto FieldLayoutItem = ui.pins_layout->itemAt(i, QFormLayout::ItemRole::FieldRole);
+                auto FieldLayoutItem = ui.ip_pins_layout->itemAt(i, QFormLayout::ItemRole::FieldRole);
 
                 // NOTE: Since we are adding a layout we need to cast it as layout, be careful on how we are adding into the row!
                 QHBoxLayout* hLayout  = qobject_cast<QHBoxLayout*>(FieldLayoutItem->layout());
@@ -173,6 +187,40 @@ namespace Razix {
 
                 //connect(button, SIGNAL(pressed()), m_ButtonsSignalMapper, SLOT(map()));
                 //connect(m_ButtonsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnRemoveInputPinClicked(int)));
+            }
+#endif
+        }
+
+        void RZEFrameGraphEditor::OnAddOutputPinClicked()
+        {
+            auto pinNameEdit = new QLineEdit();
+            pinNameEdit->setPlaceholderText("Enter output socket name");
+
+            m_OpLineEditsSignalMapper->setMapping(pinNameEdit, ui.op_pins_layout->rowCount());
+
+            connect(pinNameEdit, SIGNAL(returnPressed()), m_OpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
+            connect(m_OpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnOutputPinNameChanged(int)), Qt::UniqueConnection);
+
+            auto label = "output pin #" + std::to_string(ui.op_pins_layout->rowCount());
+            ui.op_pins_layout->addRow(label.c_str(), pinNameEdit);
+        }
+
+        void RZEFrameGraphEditor::OnOutputPinNameChanged(int idx)
+        {
+            auto FieldLayoutItem = ui.op_pins_layout->itemAt(idx, QFormLayout::ItemRole::FieldRole);
+
+            QWidget*   widget   = qobject_cast<QWidget*>(FieldLayoutItem->widget());
+            QLineEdit* lineEdit = qobject_cast<QLineEdit*>(widget);
+
+            std::cout << lineEdit->text().toStdString() << std::endl;
+        }
+
+        void RZEFrameGraphEditor::OnRemoveOutputPinClicked()
+        {
+            // Always remove the last pin
+            if (ui.op_pins_layout->rowCount() > 1) {
+                ui.op_pins_layout->removeRow(ui.op_pins_layout->rowCount() - 1);
+                ui.op_pins_layout->update();
             }
         }
 
