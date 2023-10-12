@@ -131,8 +131,8 @@ int Razix::Editor::FrameGraphGraphicsView::qt_metacall(QMetaObject::Call _c, int
     return _id;
 }
 struct qt_meta_stringdata_Razix__Editor__RZEFrameGraphEditor_t {
-    QByteArrayData data[10];
-    char stringdata0[205];
+    QByteArrayData data[13];
+    char stringdata0[231];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -144,17 +144,21 @@ static const qt_meta_stringdata_Razix__Editor__RZEFrameGraphEditor_t qt_meta_str
 QT_MOC_LITERAL(0, 0, 34), // "Razix::Editor::RZEFrameGraphE..."
 QT_MOC_LITERAL(1, 35, 27), // "OnImportPresetButtonClicked"
 QT_MOC_LITERAL(2, 63, 0), // ""
-QT_MOC_LITERAL(3, 64, 20), // "OnAddInputPinClicked"
-QT_MOC_LITERAL(4, 85, 21), // "OnInputPinNameChanged"
-QT_MOC_LITERAL(5, 107, 3), // "idx"
-QT_MOC_LITERAL(6, 111, 23), // "OnRemoveInputPinClicked"
-QT_MOC_LITERAL(7, 135, 21), // "OnAddOutputPinClicked"
-QT_MOC_LITERAL(8, 157, 22), // "OnOutputPinNameChanged"
-QT_MOC_LITERAL(9, 180, 24) // "OnRemoveOutputPinClicked"
+QT_MOC_LITERAL(3, 64, 14), // "OnNodeSelected"
+QT_MOC_LITERAL(4, 79, 5), // "Node*"
+QT_MOC_LITERAL(5, 85, 4), // "node"
+QT_MOC_LITERAL(6, 90, 20), // "OnAddInputPinClicked"
+QT_MOC_LITERAL(7, 111, 21), // "OnInputPinNameChanged"
+QT_MOC_LITERAL(8, 133, 3), // "idx"
+QT_MOC_LITERAL(9, 137, 23), // "OnRemoveInputPinClicked"
+QT_MOC_LITERAL(10, 161, 21), // "OnAddOutputPinClicked"
+QT_MOC_LITERAL(11, 183, 22), // "OnOutputPinNameChanged"
+QT_MOC_LITERAL(12, 206, 24) // "OnRemoveOutputPinClicked"
 
     },
     "Razix::Editor::RZEFrameGraphEditor\0"
     "OnImportPresetButtonClicked\0\0"
+    "OnNodeSelected\0Node*\0node\0"
     "OnAddInputPinClicked\0OnInputPinNameChanged\0"
     "idx\0OnRemoveInputPinClicked\0"
     "OnAddOutputPinClicked\0OnOutputPinNameChanged\0"
@@ -168,7 +172,7 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       7,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -176,21 +180,23 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   49,    2, 0x0a /* Public */,
-       3,    0,   50,    2, 0x0a /* Public */,
-       4,    1,   51,    2, 0x0a /* Public */,
-       6,    0,   54,    2, 0x0a /* Public */,
-       7,    0,   55,    2, 0x0a /* Public */,
-       8,    1,   56,    2, 0x0a /* Public */,
-       9,    0,   59,    2, 0x0a /* Public */,
+       1,    0,   54,    2, 0x0a /* Public */,
+       3,    1,   55,    2, 0x0a /* Public */,
+       6,    0,   58,    2, 0x0a /* Public */,
+       7,    1,   59,    2, 0x0a /* Public */,
+       9,    0,   62,    2, 0x0a /* Public */,
+      10,    0,   63,    2, 0x0a /* Public */,
+      11,    1,   64,    2, 0x0a /* Public */,
+      12,    0,   67,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 4,    5,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    5,
+    QMetaType::Void, QMetaType::Int,    8,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    5,
+    QMetaType::Void, QMetaType::Int,    8,
     QMetaType::Void,
 
        0        // eod
@@ -203,12 +209,13 @@ void Razix::Editor::RZEFrameGraphEditor::qt_static_metacall(QObject *_o, QMetaOb
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->OnImportPresetButtonClicked(); break;
-        case 1: _t->OnAddInputPinClicked(); break;
-        case 2: _t->OnInputPinNameChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 3: _t->OnRemoveInputPinClicked(); break;
-        case 4: _t->OnAddOutputPinClicked(); break;
-        case 5: _t->OnOutputPinNameChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 6: _t->OnRemoveOutputPinClicked(); break;
+        case 1: _t->OnNodeSelected((*reinterpret_cast< Node*(*)>(_a[1]))); break;
+        case 2: _t->OnAddInputPinClicked(); break;
+        case 3: _t->OnInputPinNameChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 4: _t->OnRemoveInputPinClicked(); break;
+        case 5: _t->OnAddOutputPinClicked(); break;
+        case 6: _t->OnOutputPinNameChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->OnRemoveOutputPinClicked(); break;
         default: ;
         }
     }
@@ -243,13 +250,13 @@ int Razix::Editor::RZEFrameGraphEditor::qt_metacall(QMetaObject::Call _c, int _i
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 7)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 7;
+        _id -= 8;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 7)
+        if (_id < 8)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 7;
+        _id -= 8;
     }
     return _id;
 }

@@ -110,6 +110,10 @@ public:
     QWidget *page_2_pass_node;
     QVBoxLayout *verticalLayout_23;
     QLabel *PassPresetsLbl_2;
+    QHBoxLayout *horizontalLayout_9;
+    QLabel *label_49;
+    QLineEdit *PassName;
+    QFrame *line_6;
     QLabel *label_48;
     QVBoxLayout *verticalLayout_22;
     QFormLayout *ip_pins_layout;
@@ -120,10 +124,10 @@ public:
     QPushButton *remove_op_pin;
     QFrame *line_5;
     QFormLayout *formLayout;
-    QLabel *label_22;
     QHBoxLayout *horizontalLayout_8;
     QLineEdit *lineEdit_5;
     QPushButton *pushButton_2;
+    QLabel *label_22;
     QFrame *line_3;
     QLabel *label_41;
     QFormLayout *formLayout_2;
@@ -182,6 +186,10 @@ public:
     QLabel *label_47;
     QLineEdit *lineEdit_4;
     QSpacerItem *verticalSpacer_2;
+    QWidget *page_3_resource_node;
+    QVBoxLayout *verticalLayout_24;
+    QLabel *PassPresetsLbl_4;
+    QSpacerItem *verticalSpacer_3;
 
     void setupUi(QWidget *FrameGraphEditor)
     {
@@ -770,6 +778,7 @@ public:
         page_1_empty->setObjectName(QString::fromUtf8("page_1_empty"));
         verticalLayout_20 = new QVBoxLayout(page_1_empty);
         verticalLayout_20->setObjectName(QString::fromUtf8("verticalLayout_20"));
+        verticalLayout_20->setContentsMargins(0, 0, 0, 0);
         PassPresetsLbl_3 = new QLabel(page_1_empty);
         PassPresetsLbl_3->setObjectName(QString::fromUtf8("PassPresetsLbl_3"));
         PassPresetsLbl_3->setMinimumSize(QSize(0, 25));
@@ -829,12 +838,36 @@ public:
 
         verticalLayout_23->addWidget(PassPresetsLbl_2);
 
-        label_48 = new QLabel(page_2_pass_node);
-        label_48->setObjectName(QString::fromUtf8("label_48"));
+        horizontalLayout_9 = new QHBoxLayout();
+        horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        label_49 = new QLabel(page_2_pass_node);
+        label_49->setObjectName(QString::fromUtf8("label_49"));
         QFont font5;
         font5.setPointSize(12);
         font5.setBold(true);
         font5.setWeight(75);
+        label_49->setFont(font5);
+
+        horizontalLayout_9->addWidget(label_49);
+
+        PassName = new QLineEdit(page_2_pass_node);
+        PassName->setObjectName(QString::fromUtf8("PassName"));
+
+        horizontalLayout_9->addWidget(PassName);
+
+
+        verticalLayout_23->addLayout(horizontalLayout_9);
+
+        line_6 = new QFrame(page_2_pass_node);
+        line_6->setObjectName(QString::fromUtf8("line_6"));
+        line_6->setFrameShadow(QFrame::Plain);
+        line_6->setLineWidth(3);
+        line_6->setFrameShape(QFrame::HLine);
+
+        verticalLayout_23->addWidget(line_6);
+
+        label_48 = new QLabel(page_2_pass_node);
+        label_48->setObjectName(QString::fromUtf8("label_48"));
         label_48->setFont(font5);
 
         verticalLayout_23->addWidget(label_48);
@@ -898,12 +931,6 @@ public:
         formLayout->setFormAlignment(Qt::AlignCenter);
         formLayout->setHorizontalSpacing(0);
         formLayout->setVerticalSpacing(0);
-        label_22 = new QLabel(page_2_pass_node);
-        label_22->setObjectName(QString::fromUtf8("label_22"));
-        label_22->setFont(font5);
-
-        formLayout->setWidget(0, QFormLayout::LabelRole, label_22);
-
         horizontalLayout_8 = new QHBoxLayout();
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         lineEdit_5 = new QLineEdit(page_2_pass_node);
@@ -924,6 +951,12 @@ public:
 
 
         formLayout->setLayout(0, QFormLayout::FieldRole, horizontalLayout_8);
+
+        label_22 = new QLabel(page_2_pass_node);
+        label_22->setObjectName(QString::fromUtf8("label_22"));
+        label_22->setFont(font5);
+
+        formLayout->setWidget(0, QFormLayout::LabelRole, label_22);
 
 
         verticalLayout_23->addLayout(formLayout);
@@ -1297,6 +1330,35 @@ public:
         verticalLayout_23->addItem(verticalSpacer_2);
 
         stackedWidget->addWidget(page_2_pass_node);
+        page_3_resource_node = new QWidget();
+        page_3_resource_node->setObjectName(QString::fromUtf8("page_3_resource_node"));
+        verticalLayout_24 = new QVBoxLayout(page_3_resource_node);
+        verticalLayout_24->setObjectName(QString::fromUtf8("verticalLayout_24"));
+        verticalLayout_24->setContentsMargins(0, 0, 0, 0);
+        PassPresetsLbl_4 = new QLabel(page_3_resource_node);
+        PassPresetsLbl_4->setObjectName(QString::fromUtf8("PassPresetsLbl_4"));
+        PassPresetsLbl_4->setMinimumSize(QSize(0, 25));
+        PassPresetsLbl_4->setMaximumSize(QSize(16777215, 50));
+        PassPresetsLbl_4->setFont(font);
+        PassPresetsLbl_4->setAutoFillBackground(false);
+        PassPresetsLbl_4->setStyleSheet(QString::fromUtf8("background-color: rgb(61, 61, 61);\n"
+"color: #ffffff;\n"
+"border-style:solid;\n"
+"border-color:#ffffff;\n"
+"border-width:1px;\n"
+"\n"
+""));
+        PassPresetsLbl_4->setScaledContents(false);
+        PassPresetsLbl_4->setAlignment(Qt::AlignCenter);
+        PassPresetsLbl_4->setMargin(4);
+
+        verticalLayout_24->addWidget(PassPresetsLbl_4);
+
+        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_24->addItem(verticalSpacer_3);
+
+        stackedWidget->addWidget(page_3_resource_node);
 
         horizontalLayout->addWidget(stackedWidget);
 
@@ -1355,14 +1417,15 @@ public:
         PassPresetsLbl_3->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
         label_21->setText(QCoreApplication::translate("FrameGraphEditor", "Select a Node to inspect and edit properties", nullptr));
         PassPresetsLbl_2->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
+        label_49->setText(QCoreApplication::translate("FrameGraphEditor", "Pass Name", nullptr));
         label_48->setText(QCoreApplication::translate("FrameGraphEditor", "Pins", nullptr));
         add_ip_pin->setText(QCoreApplication::translate("FrameGraphEditor", "Add i/p Pin", nullptr));
         remove_ip_pin->setText(QCoreApplication::translate("FrameGraphEditor", "remove_ip_pin", nullptr));
         add_op_pin->setText(QCoreApplication::translate("FrameGraphEditor", "Add o/p Pin", nullptr));
         remove_op_pin->setText(QCoreApplication::translate("FrameGraphEditor", "remove_o/p_pin", nullptr));
-        label_22->setText(QCoreApplication::translate("FrameGraphEditor", "Shader", nullptr));
         lineEdit_5->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Choose shader file", nullptr));
         pushButton_2->setText(QString());
+        label_22->setText(QCoreApplication::translate("FrameGraphEditor", "Shader", nullptr));
         label_41->setText(QCoreApplication::translate("FrameGraphEditor", "Pipeline Settings", nullptr));
         label_24->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
         label_25->setText(QCoreApplication::translate("FrameGraphEditor", "Cull Mode", nullptr));
@@ -1393,6 +1456,7 @@ public:
         label_45->setText(QCoreApplication::translate("FrameGraphEditor", "x", nullptr));
         label_46->setText(QCoreApplication::translate("FrameGraphEditor", "y", nullptr));
         label_47->setText(QCoreApplication::translate("FrameGraphEditor", "Layers", nullptr));
+        PassPresetsLbl_4->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
     } // retranslateUi
 
 };
