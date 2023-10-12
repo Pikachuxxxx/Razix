@@ -89,10 +89,28 @@ namespace Razix {
             //m_IpButtonsSignalMapper   = new QSignalMapper(this);
 
             m_OpLineEditsSignalMapper = new QSignalMapper(this);
+
+            connect(frameGraphGraphicsView, SIGNAL(OnNodeSelected(Node*)), this, SLOT(OnNodeSelected(Node*)));
         }
 
         void RZEFrameGraphEditor::OnImportPresetButtonClicked()
         {
+        }
+
+        void RZEFrameGraphEditor::OnNodeSelected(Node* node)
+        {
+            if (node) {
+                if (dynamic_cast<RZEPassNodeUI*>(node)) {
+                    ui.stackedWidget->setCurrentIndex(1);
+                    m_CurrentEditingPassNode = dynamic_cast<RZEPassNodeUI*>(node);
+                } else if (dynamic_cast<RZEBufferResourceNodeUI*>(node)) {
+                    ui.stackedWidget->setCurrentIndex(2);
+                    //m_CurrentEditingPassNode = dynamic_cast<RZEPassNodeUI*>(node);
+                }
+            } else {
+                ui.stackedWidget->setCurrentIndex(0);
+                m_CurrentEditingPassNode = nullptr;
+            }
         }
 
         void RZEFrameGraphEditor::OnAddInputPinClicked()
@@ -144,6 +162,11 @@ namespace Razix {
             QLineEdit* lineEdit = qobject_cast<QLineEdit*>(widget);
 
             std::cout << lineEdit->text().toStdString() << std::endl;
+
+            // Add input names after have successfully given names!
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->addInputSocket(lineEdit->text().toStdString());
+            }
         }
 
         void RZEFrameGraphEditor::OnRemoveInputPinClicked()
@@ -213,6 +236,11 @@ namespace Razix {
             QLineEdit* lineEdit = qobject_cast<QLineEdit*>(widget);
 
             std::cout << lineEdit->text().toStdString() << std::endl;
+
+            // Add output names after have successfully given names!
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->addOutputSocket(lineEdit->text().toStdString());
+            }
         }
 
         void RZEFrameGraphEditor::OnRemoveOutputPinClicked()

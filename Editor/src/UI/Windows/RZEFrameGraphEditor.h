@@ -10,6 +10,8 @@
 namespace Razix {
     namespace Editor {
 
+        class RZEPassNodeUI;
+
         class FrameGraphGraphicsView : public NodeGraphicsView
         {
             Q_OBJECT
@@ -36,6 +38,10 @@ namespace Razix {
                 }
             }
 
+            void OnLeftMousePress(QMouseEvent* event) override
+            {
+            }
+
             void OnRightMousePress(QMouseEvent* event) override
             {
             }
@@ -60,6 +66,8 @@ namespace Razix {
         public slots:
             void OnImportPresetButtonClicked();
 
+            void OnNodeSelected(Node* node);
+
             void OnAddInputPinClicked();
             void OnInputPinNameChanged(int idx);
             void OnRemoveInputPinClicked();
@@ -71,9 +79,10 @@ namespace Razix {
         private:
             Ui::FrameGraphEditor ui;
             NodeGraphWidget*     m_NodeGraphWidget         = nullptr;
-            QSignalMapper*       m_IpLineEditsSignalMapper   = nullptr;
-            QSignalMapper*       m_IpButtonsSignalMapper     = nullptr;
+            QSignalMapper*       m_IpLineEditsSignalMapper = nullptr;
+            QSignalMapper*       m_IpButtonsSignalMapper   = nullptr;
             QSignalMapper*       m_OpLineEditsSignalMapper = nullptr;
+            RZEPassNodeUI*       m_CurrentEditingPassNode  = nullptr;
 
         private:
             void

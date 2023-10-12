@@ -80,6 +80,5 @@ namespace Razix {
         RZEImportNodeUI::~RZEImportNodeUI()
         {
         }
-
     }    // namespace Editor
 }    // namespace Razix

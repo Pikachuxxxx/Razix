@@ -70,16 +70,16 @@ namespace Razix {
             m_PassGraphicsNode = new PassNodeGraphicsNode(this);
             this->setGraphicsNode(m_PassGraphicsNode);
 
-            addInputSocket("SceneHDR");
-            addInputSocket("SceneDepth");
-            addInputSocket("FrameData");
-            addInputSocket("IrradianceMap");
-            addInputSocket("PrefilteredMap");
-            addInputSocket("BRDFLutMap");
-            addInputSocket("SomeOtherMap");
-
-            addOutputSocket("SceneHDR");
-            addOutputSocket("SceneDepth");
+            addInputSocket("Empty");
+            //addInputSocket("SceneDepth");
+            //addInputSocket("FrameData");
+            //addInputSocket("IrradianceMap");
+            //addInputSocket("PrefilteredMap");
+            //addInputSocket("BRDFLutMap");
+            //addInputSocket("SomeOtherMap");
+            //
+            //addOutputSocket("SceneHDR");
+            //addOutputSocket("SceneDepth");
         }
 
         RZEPassNodeUI::~RZEPassNodeUI()
