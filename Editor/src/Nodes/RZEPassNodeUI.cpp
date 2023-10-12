@@ -24,7 +24,9 @@ namespace Razix {
 
         void PassNodeGraphicsNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget /* = nullptr */)
         {
-            height = uint32_t(std::max(node->getInputSockets().size(), node->getOutputSockets().size())) * SOCKET_SPACING;
+            uint32_t socketsCount = uint32_t(std::max(node->getInputSockets().size(), node->getOutputSockets().size()));
+            if (socketsCount > 3)
+                height = socketsCount * SOCKET_SPACING;
 
             // Title
             auto path_title = QPainterPath();
@@ -70,7 +72,7 @@ namespace Razix {
             m_PassGraphicsNode = new PassNodeGraphicsNode(this);
             this->setGraphicsNode(m_PassGraphicsNode);
 
-            addInputSocket("Empty");
+            //addInputSocket("Empty");
             //addInputSocket("SceneDepth");
             //addInputSocket("FrameData");
             //addInputSocket("IrradianceMap");

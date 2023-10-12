@@ -1368,7 +1368,7 @@ public:
 
         retranslateUi(FrameGraphEditor);
 
-        stackedWidget->setCurrentIndex(1);
+        stackedWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(FrameGraphEditor);

@@ -99,18 +99,71 @@ namespace Razix {
 
         void RZEFrameGraphEditor::OnNodeSelected(Node* node)
         {
+            std::cout << "Input pins still in UI : " << ui.ip_pins_layout->rowCount() << std::endl;
+            std::cout << "Output pins still in UI : " << ui.op_pins_layout->rowCount() << std::endl;
+
             if (node) {
                 if (dynamic_cast<RZEPassNodeUI*>(node)) {
+                    // Clear the widget stuff and set as per this node
+                    // 1. clear the sockets and set as per this node
+                    while (ui.ip_pins_layout->rowCount() > 1) {
+                        ui.ip_pins_layout->removeRow(ui.ip_pins_layout->rowCount() - 1);
+                        ui.ip_pins_layout->update();
+                    }
+
+                    while (ui.op_pins_layout->rowCount() > 1) {
+                        ui.op_pins_layout->removeRow(ui.op_pins_layout->rowCount() - 1);
+                        ui.op_pins_layout->update();
+                    }
+
                     ui.stackedWidget->setCurrentIndex(1);
                     m_CurrentEditingPassNode = dynamic_cast<RZEPassNodeUI*>(node);
+
+                    for (i32 i = 0; i < m_CurrentEditingPassNode->getInputSockets().size(); i++) {
+                        auto pinNameEdit = new QLineEdit();
+                        pinNameEdit->setPlaceholderText("Enter input socket name");
+
+                        m_IpLineEditsSignalMapper->setMapping(pinNameEdit, i + 1);
+
+                        connect(pinNameEdit, SIGNAL(returnPressed()), m_IpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
+                        connect(m_IpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnInputPinNameChanged(int)), Qt::UniqueConnection);
+
+                        auto label = "input pin #" + std::to_string(i + 1);
+                        ui.ip_pins_layout->addRow(label.c_str(), pinNameEdit);
+
+                        pinNameEdit->setText(m_CurrentEditingPassNode->getInputSocket(i)->getSocketName().c_str());
+
+                        ui.ip_pins_layout->update();
+                    }
+
+                    for (i32 i = 0; i < m_CurrentEditingPassNode->getOutputSockets().size(); i++) {
+                        auto pinNameEdit = new QLineEdit();
+                        pinNameEdit->setPlaceholderText("Enter output socket name");
+
+                        m_OpLineEditsSignalMapper->setMapping(pinNameEdit, i + 1);
+
+                        connect(pinNameEdit, SIGNAL(returnPressed()), m_OpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
+                        connect(m_OpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnOutputPinNameChanged(int)), Qt::UniqueConnection);
+
+                        auto label = "output pin #" + std::to_string(i + 1);
+                        ui.op_pins_layout->addRow(label.c_str(), pinNameEdit);
+
+                        pinNameEdit->setText(m_CurrentEditingPassNode->getOutputSocket(i)->getSocketName().c_str());
+
+                        ui.op_pins_layout->update();
+                    }
+
                 } else if (dynamic_cast<RZEBufferResourceNodeUI*>(node)) {
                     ui.stackedWidget->setCurrentIndex(2);
                     //m_CurrentEditingPassNode = dynamic_cast<RZEPassNodeUI*>(node);
                 }
+                node->update();
             } else {
                 ui.stackedWidget->setCurrentIndex(0);
                 m_CurrentEditingPassNode = nullptr;
             }
+
+            m_NodeGraphWidget->repaint();
         }
 
         void RZEFrameGraphEditor::OnAddInputPinClicked()
@@ -145,6 +198,14 @@ namespace Razix {
 
             auto label = "input pin #" + std::to_string(ui.ip_pins_layout->rowCount());
             ui.ip_pins_layout->addRow(label.c_str(), pinNameEdit);
+
+            // Add input node
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->addInputSocket(pinNameEdit->text().toStdString());
+                m_CurrentEditingPassNode->update();
+            }
+
+            m_NodeGraphWidget->repaint();
         }
 
         void RZEFrameGraphEditor::OnInputPinNameChanged(int idx)
@@ -163,10 +224,12 @@ namespace Razix {
 
             std::cout << lineEdit->text().toStdString() << std::endl;
 
-            // Add input names after have successfully given names!
             if (m_CurrentEditingPassNode) {
-                m_CurrentEditingPassNode->addInputSocket(lineEdit->text().toStdString());
+                m_CurrentEditingPassNode->getInputSocket(idx - 1)->setSocketName(lineEdit->text().toStdString());
+                m_CurrentEditingPassNode->update();
             }
+
+            m_NodeGraphWidget->repaint();
         }
 
         void RZEFrameGraphEditor::OnRemoveInputPinClicked()
@@ -212,6 +275,14 @@ namespace Razix {
                 //connect(m_ButtonsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnRemoveInputPinClicked(int)));
             }
 #endif
+
+            // Remove input sockets
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->removeInputSocket(ui.ip_pins_layout->rowCount() - 1);
+                m_CurrentEditingPassNode->update();
+            }
+
+            m_NodeGraphWidget->repaint();
         }
 
         void RZEFrameGraphEditor::OnAddOutputPinClicked()
@@ -226,6 +297,14 @@ namespace Razix {
 
             auto label = "output pin #" + std::to_string(ui.op_pins_layout->rowCount());
             ui.op_pins_layout->addRow(label.c_str(), pinNameEdit);
+
+            // Add output node
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->addOutputSocket(pinNameEdit->text().toStdString());
+                m_CurrentEditingPassNode->update();
+            }
+
+            m_NodeGraphWidget->repaint();
         }
 
         void RZEFrameGraphEditor::OnOutputPinNameChanged(int idx)
@@ -237,10 +316,12 @@ namespace Razix {
 
             std::cout << lineEdit->text().toStdString() << std::endl;
 
-            // Add output names after have successfully given names!
             if (m_CurrentEditingPassNode) {
-                m_CurrentEditingPassNode->addOutputSocket(lineEdit->text().toStdString());
+                m_CurrentEditingPassNode->getOutputSocket(idx - 1)->setSocketName(lineEdit->text().toStdString());
+                m_CurrentEditingPassNode->update();
             }
+
+            m_NodeGraphWidget->repaint();
         }
 
         void RZEFrameGraphEditor::OnRemoveOutputPinClicked()
@@ -250,6 +331,14 @@ namespace Razix {
                 ui.op_pins_layout->removeRow(ui.op_pins_layout->rowCount() - 1);
                 ui.op_pins_layout->update();
             }
+
+            // Remove output sockets
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->removeOutputSocket(ui.op_pins_layout->rowCount() - 1);
+                m_CurrentEditingPassNode->update();
+            }
+
+            m_NodeGraphWidget->repaint();
         }
 
         void RZEFrameGraphEditor::populatePresetImportNodesList()
