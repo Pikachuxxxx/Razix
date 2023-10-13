@@ -91,6 +91,7 @@ namespace Razix {
             m_OpLineEditsSignalMapper = new QSignalMapper(this);
 
             connect(frameGraphGraphicsView, SIGNAL(OnNodeSelected(Node*)), this, SLOT(OnNodeSelected(Node*)));
+            connect(ui.PassName, SIGNAL(returnPressed()), this, SLOT(OnNodeNameChanged()));
         }
 
         void RZEFrameGraphEditor::OnImportPresetButtonClicked()
@@ -99,9 +100,6 @@ namespace Razix {
 
         void RZEFrameGraphEditor::OnNodeSelected(Node* node)
         {
-            std::cout << "Input pins still in UI : " << ui.ip_pins_layout->rowCount() << std::endl;
-            std::cout << "Output pins still in UI : " << ui.op_pins_layout->rowCount() << std::endl;
-
             if (node) {
                 if (dynamic_cast<RZEPassNodeUI*>(node)) {
                     // Clear the widget stuff and set as per this node
@@ -118,6 +116,8 @@ namespace Razix {
 
                     ui.stackedWidget->setCurrentIndex(1);
                     m_CurrentEditingPassNode = dynamic_cast<RZEPassNodeUI*>(node);
+
+                    ui.PassName->setText(m_CurrentEditingPassNode->getTitle().c_str());
 
                     for (i32 i = 0; i < m_CurrentEditingPassNode->getInputSockets().size(); i++) {
                         auto pinNameEdit = new QLineEdit();
@@ -164,6 +164,13 @@ namespace Razix {
             }
 
             m_NodeGraphWidget->repaint();
+        }
+
+        void RZEFrameGraphEditor::OnNodeNameChanged()
+        {
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->setTitle(ui.PassName->text().toStdString());
+            }
         }
 
         void RZEFrameGraphEditor::OnAddInputPinClicked()

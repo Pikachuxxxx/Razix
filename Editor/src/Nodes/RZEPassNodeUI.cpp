@@ -9,8 +9,9 @@ namespace Razix {
         PassNodeGraphicsNode::PassNodeGraphicsNode(Node* node)
             : IGraphicsNode(node)
         {
-            width  = 240;
-            height = 160;
+            width       = 240;
+            height      = 160;
+            titleHeight = 30;
         }
 
         PassNodeGraphicsNode::~PassNodeGraphicsNode()

@@ -67,6 +67,7 @@ namespace Razix {
             void OnImportPresetButtonClicked();
 
             void OnNodeSelected(Node* node);
+            void OnNodeNameChanged();
 
             void OnAddInputPinClicked();
             void OnInputPinNameChanged(int idx);
