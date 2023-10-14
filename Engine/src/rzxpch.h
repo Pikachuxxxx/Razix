@@ -11,14 +11,15 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <memory>
 #include <random>
 #include <sstream>
 #include <type_traits>
 #include <utility>
 
 //-----Data Structures-----//
+// TODO: DIsable this once rzstl replacement is done
 #include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <stack>
@@ -39,7 +40,10 @@
 #include "Razix/Graphics/Resources/IRZResource.h"
 
 //-----Engine Internal-----//
+// Razix Memory
 #include "internal/RazixMemory/include/RZMemory.h"
+// Razix STL
+#include "internal/RZSTL/include/RZSTL/rzstl.h"
 
 //-----3rd Party-----//
 // Profilers

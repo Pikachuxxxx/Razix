@@ -141,6 +141,7 @@ namespace Razix {
 
         Razix::Graphics::TextureFormat RZTextureDesc::StringToFormat(const std::string& str)
         {
+            RAZIX_ASSERT((StringTextureFormatMap.size() == (u32) TextureFormat::COUNT), "TextureFormat string enum map has missing values");
             return StringTextureFormatMap[str];
         }
 
