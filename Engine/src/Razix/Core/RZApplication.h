@@ -1,9 +1,9 @@
 #pragma once
 
+#include "RZSTL/smart_pointers.h"
 #include "Razix/Core/OS/RZWindow.h"
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZProfiling.h"
-#include "Razix/Core/RZSmartPointers.h"
 #include "Razix/Core/RZUUID.h"
 
 #include "Razix/Events/ApplicationEvent.h"

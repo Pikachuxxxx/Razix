@@ -13,7 +13,8 @@ namespace Razix {
             Texture_Depth,
             Texture_CubeMap,
             Texture_CubeMapArray,
-            Texture_SwapchainImage
+            Texture_SwapchainImage,
+            COUNT
         };
 
         /* The format of the Texture resource */
@@ -41,7 +42,8 @@ namespace Razix {
             BGRA8_UNORM,
             R11G11B10A2_UINT,
             R11G11B10A2_SFLOAT,
-            NONE
+            NONE,
+            COUNT
         };
 
         /* Wrap mode for the texture texels */
@@ -50,7 +52,8 @@ namespace Razix {
             REPEAT,
             MIRRORED_REPEAT,
             CLAMP_TO_EDGE,
-            CLAMP_TO_BORDER
+            CLAMP_TO_BORDER,
+            COUNT
         };
 
         /* Filtering for the Texture */
@@ -59,7 +62,8 @@ namespace Razix {
             enum class Mode
             {
                 LINEAR,
-                NEAREST
+                NEAREST,
+                COUNT
             };
             Mode minFilter = Mode::LINEAR;
             Mode magFilter = Mode::LINEAR;

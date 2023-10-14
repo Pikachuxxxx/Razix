@@ -9,11 +9,9 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZLog.h"
-#include "Razix/Core/RZSmartPointers.h"
 #include "Razix/Core/RZSplashScreen.h"
 #include "Razix/Core/RZUUID.h"
 #include "Razix/Core/RazixVersion.h"
-#include "Razix/Core/ReferenceCounter.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZFileSystem.h"
@@ -73,6 +71,8 @@
 // Internal
 // Razix Memory
 #include "RZMemory.h"
+// Razix STL
+#include "RZSTL/rzstl.h"
 
 #include <imgui/imgui.h>
 

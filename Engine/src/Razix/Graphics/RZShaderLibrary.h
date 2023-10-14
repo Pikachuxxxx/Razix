@@ -2,7 +2,7 @@
 
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "Razix/Core/RZSmartPointers.h"
+#include "RZSTL/smart_pointers.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 
