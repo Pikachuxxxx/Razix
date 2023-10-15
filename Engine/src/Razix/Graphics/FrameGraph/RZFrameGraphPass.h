@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+
 namespace Razix {
     struct SceneDrawParams;
 }
@@ -52,8 +54,6 @@ namespace Razix {
 
                 virtual void operator()(RZPassNode &node, RZPassResourceDirectory &resources)  = 0;
                 virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;
-
-                static bool m_IsFirstFrame;
             };
 
             /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */

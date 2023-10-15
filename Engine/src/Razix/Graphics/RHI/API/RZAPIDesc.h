@@ -33,13 +33,13 @@ namespace Razix {
             bool          flipY      = false;                       /* Flip the texture on Y-axis during load                                                   */
             u32           dataSize   = sizeof(unsigned char);       /* data size of each pixel, HDR data vs normal pixel data                                   */
 
-            // TODO: move them with below funcs or to some util class
+            // TODO: move them with below functions or to some util class
 
-            static std::string FormatToString(const Graphics::TextureFormat format);
-            static std::string TypeToString(TextureType type);
+            static RAZIX_API std::string FormatToString(const Graphics::TextureFormat format);
+            static RAZIX_API std::string TypeToString(TextureType type);
 
-            static TextureFormat StringToFormat(const std::string& str);
-            static TextureType   StringToType(const std::string& str);
+            static RAZIX_API TextureFormat StringToFormat(const std::string& str);
+            static RAZIX_API TextureType   StringToType(const std::string& str);
         };
 
         /* Used for creating Vertex, INdex or Constant buffers */
@@ -102,5 +102,10 @@ namespace Razix {
         BlendFactor   StringToBlendFactor(const std::string& str);
         BufferUsage   StringToBufferUsage(const std::string& str);
         ShaderStage   StringToShaderStage(const std::string& str);
+        //-----------------------------------------------------------------------------------
+        // [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
+
+
+        //-----------------------------------------------------------------------------------
     }    // namespace Graphics
 }    // namespace Razix

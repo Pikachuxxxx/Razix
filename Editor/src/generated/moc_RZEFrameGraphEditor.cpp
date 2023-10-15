@@ -131,8 +131,8 @@ int Razix::Editor::FrameGraphGraphicsView::qt_metacall(QMetaObject::Call _c, int
     return _id;
 }
 struct qt_meta_stringdata_Razix__Editor__RZEFrameGraphEditor_t {
-    QByteArrayData data[14];
-    char stringdata0[249];
+    QByteArrayData data[39];
+    char stringdata0[903];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -154,7 +154,32 @@ QT_MOC_LITERAL(9, 151, 3), // "idx"
 QT_MOC_LITERAL(10, 155, 23), // "OnRemoveInputPinClicked"
 QT_MOC_LITERAL(11, 179, 21), // "OnAddOutputPinClicked"
 QT_MOC_LITERAL(12, 201, 22), // "OnOutputPinNameChanged"
-QT_MOC_LITERAL(13, 224, 24) // "OnRemoveOutputPinClicked"
+QT_MOC_LITERAL(13, 224, 24), // "OnRemoveOutputPinClicked"
+QT_MOC_LITERAL(14, 249, 23), // "OnAddColorFormatClicked"
+QT_MOC_LITERAL(15, 273, 20), // "OnColorFormatChanged"
+QT_MOC_LITERAL(16, 294, 26), // "OnRemoveColorFormatClicked"
+QT_MOC_LITERAL(17, 321, 21), // "OnBrowseShaderPressed"
+QT_MOC_LITERAL(18, 343, 21), // "OnPipelineNameChanged"
+QT_MOC_LITERAL(19, 365, 26), // "OnPipelineCullModeSelected"
+QT_MOC_LITERAL(20, 392, 29), // "OnPipelinePolygonModeSelected"
+QT_MOC_LITERAL(21, 422, 26), // "OnPipelineDrawTypeSelected"
+QT_MOC_LITERAL(22, 449, 35), // "OnPipelineEnableTransparencyC..."
+QT_MOC_LITERAL(23, 485, 32), // "OnPipelineEnableDepthTestChecked"
+QT_MOC_LITERAL(24, 518, 33), // "OnPipelineEnableDepthWriteChe..."
+QT_MOC_LITERAL(25, 552, 32), // "OnPipelineDepthOperationSelected"
+QT_MOC_LITERAL(26, 585, 26), // "OnPipelineColorSrcSelected"
+QT_MOC_LITERAL(27, 612, 26), // "OnPipelineColorDstSelected"
+QT_MOC_LITERAL(28, 639, 32), // "OnPipelineColorOperationSelected"
+QT_MOC_LITERAL(29, 672, 26), // "OnPipelineAlphaSrcSelected"
+QT_MOC_LITERAL(30, 699, 26), // "OnPipelineAlphaDstSelected"
+QT_MOC_LITERAL(31, 726, 32), // "OnPipelineAlphaOperationSelected"
+QT_MOC_LITERAL(32, 759, 29), // "OnPipelineDepthFormatSelected"
+QT_MOC_LITERAL(33, 789, 27), // "OnSceneGeometryModeSelected"
+QT_MOC_LITERAL(34, 817, 14), // "OnEnableResize"
+QT_MOC_LITERAL(35, 832, 20), // "OnResolutionSelected"
+QT_MOC_LITERAL(36, 853, 16), // "OnExtentXChanged"
+QT_MOC_LITERAL(37, 870, 16), // "OnExtentYChanged"
+QT_MOC_LITERAL(38, 887, 15) // "OnLayersChanged"
 
     },
     "Razix::Editor::RZEFrameGraphEditor\0"
@@ -163,7 +188,27 @@ QT_MOC_LITERAL(13, 224, 24) // "OnRemoveOutputPinClicked"
     "OnAddInputPinClicked\0OnInputPinNameChanged\0"
     "idx\0OnRemoveInputPinClicked\0"
     "OnAddOutputPinClicked\0OnOutputPinNameChanged\0"
-    "OnRemoveOutputPinClicked"
+    "OnRemoveOutputPinClicked\0"
+    "OnAddColorFormatClicked\0OnColorFormatChanged\0"
+    "OnRemoveColorFormatClicked\0"
+    "OnBrowseShaderPressed\0OnPipelineNameChanged\0"
+    "OnPipelineCullModeSelected\0"
+    "OnPipelinePolygonModeSelected\0"
+    "OnPipelineDrawTypeSelected\0"
+    "OnPipelineEnableTransparencyChecked\0"
+    "OnPipelineEnableDepthTestChecked\0"
+    "OnPipelineEnableDepthWriteChecked\0"
+    "OnPipelineDepthOperationSelected\0"
+    "OnPipelineColorSrcSelected\0"
+    "OnPipelineColorDstSelected\0"
+    "OnPipelineColorOperationSelected\0"
+    "OnPipelineAlphaSrcSelected\0"
+    "OnPipelineAlphaDstSelected\0"
+    "OnPipelineAlphaOperationSelected\0"
+    "OnPipelineDepthFormatSelected\0"
+    "OnSceneGeometryModeSelected\0OnEnableResize\0"
+    "OnResolutionSelected\0OnExtentXChanged\0"
+    "OnExtentYChanged\0OnLayersChanged"
 };
 #undef QT_MOC_LITERAL
 
@@ -173,7 +218,7 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+      34,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -181,15 +226,40 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   59,    2, 0x0a /* Public */,
-       3,    1,   60,    2, 0x0a /* Public */,
-       6,    0,   63,    2, 0x0a /* Public */,
-       7,    0,   64,    2, 0x0a /* Public */,
-       8,    1,   65,    2, 0x0a /* Public */,
-      10,    0,   68,    2, 0x0a /* Public */,
-      11,    0,   69,    2, 0x0a /* Public */,
-      12,    1,   70,    2, 0x0a /* Public */,
-      13,    0,   73,    2, 0x0a /* Public */,
+       1,    0,  184,    2, 0x0a /* Public */,
+       3,    1,  185,    2, 0x0a /* Public */,
+       6,    0,  188,    2, 0x0a /* Public */,
+       7,    0,  189,    2, 0x0a /* Public */,
+       8,    1,  190,    2, 0x0a /* Public */,
+      10,    0,  193,    2, 0x0a /* Public */,
+      11,    0,  194,    2, 0x0a /* Public */,
+      12,    1,  195,    2, 0x0a /* Public */,
+      13,    0,  198,    2, 0x0a /* Public */,
+      14,    0,  199,    2, 0x0a /* Public */,
+      15,    1,  200,    2, 0x0a /* Public */,
+      16,    0,  203,    2, 0x0a /* Public */,
+      17,    0,  204,    2, 0x0a /* Public */,
+      18,    0,  205,    2, 0x0a /* Public */,
+      19,    0,  206,    2, 0x0a /* Public */,
+      20,    0,  207,    2, 0x0a /* Public */,
+      21,    0,  208,    2, 0x0a /* Public */,
+      22,    0,  209,    2, 0x0a /* Public */,
+      23,    0,  210,    2, 0x0a /* Public */,
+      24,    0,  211,    2, 0x0a /* Public */,
+      25,    0,  212,    2, 0x0a /* Public */,
+      26,    0,  213,    2, 0x0a /* Public */,
+      27,    0,  214,    2, 0x0a /* Public */,
+      28,    0,  215,    2, 0x0a /* Public */,
+      29,    0,  216,    2, 0x0a /* Public */,
+      30,    0,  217,    2, 0x0a /* Public */,
+      31,    0,  218,    2, 0x0a /* Public */,
+      32,    0,  219,    2, 0x0a /* Public */,
+      33,    0,  220,    2, 0x0a /* Public */,
+      34,    0,  221,    2, 0x0a /* Public */,
+      35,    0,  222,    2, 0x0a /* Public */,
+      36,    0,  223,    2, 0x0a /* Public */,
+      37,    0,  224,    2, 0x0a /* Public */,
+      38,    0,  225,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
@@ -200,6 +270,31 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
 
        0        // eod
@@ -220,6 +315,31 @@ void Razix::Editor::RZEFrameGraphEditor::qt_static_metacall(QObject *_o, QMetaOb
         case 6: _t->OnAddOutputPinClicked(); break;
         case 7: _t->OnOutputPinNameChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 8: _t->OnRemoveOutputPinClicked(); break;
+        case 9: _t->OnAddColorFormatClicked(); break;
+        case 10: _t->OnColorFormatChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 11: _t->OnRemoveColorFormatClicked(); break;
+        case 12: _t->OnBrowseShaderPressed(); break;
+        case 13: _t->OnPipelineNameChanged(); break;
+        case 14: _t->OnPipelineCullModeSelected(); break;
+        case 15: _t->OnPipelinePolygonModeSelected(); break;
+        case 16: _t->OnPipelineDrawTypeSelected(); break;
+        case 17: _t->OnPipelineEnableTransparencyChecked(); break;
+        case 18: _t->OnPipelineEnableDepthTestChecked(); break;
+        case 19: _t->OnPipelineEnableDepthWriteChecked(); break;
+        case 20: _t->OnPipelineDepthOperationSelected(); break;
+        case 21: _t->OnPipelineColorSrcSelected(); break;
+        case 22: _t->OnPipelineColorDstSelected(); break;
+        case 23: _t->OnPipelineColorOperationSelected(); break;
+        case 24: _t->OnPipelineAlphaSrcSelected(); break;
+        case 25: _t->OnPipelineAlphaDstSelected(); break;
+        case 26: _t->OnPipelineAlphaOperationSelected(); break;
+        case 27: _t->OnPipelineDepthFormatSelected(); break;
+        case 28: _t->OnSceneGeometryModeSelected(); break;
+        case 29: _t->OnEnableResize(); break;
+        case 30: _t->OnResolutionSelected(); break;
+        case 31: _t->OnExtentXChanged(); break;
+        case 32: _t->OnExtentYChanged(); break;
+        case 33: _t->OnLayersChanged(); break;
         default: ;
         }
     }
@@ -254,13 +374,13 @@ int Razix::Editor::RZEFrameGraphEditor::qt_metacall(QMetaObject::Call _c, int _i
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 34)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 34;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 9)
+        if (_id < 34)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 9;
+        _id -= 34;
     }
     return _id;
 }

@@ -109,7 +109,7 @@ namespace Razix {
             FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
         private:
-            FrameGraph::RZFrameGraph         m_FrameGraph;
+            FrameGraph::RZFrameGraph m_FrameGraph;
             // Frame Graph Import Data
             RZTextureHandle m_BRDFfLUTTextureHandle;
             RZTextureHandle m_NoiseTextureHandle;

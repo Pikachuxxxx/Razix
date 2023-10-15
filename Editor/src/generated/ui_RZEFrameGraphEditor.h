@@ -125,66 +125,66 @@ public:
     QFrame *line_5;
     QFormLayout *formLayout;
     QHBoxLayout *horizontalLayout_8;
-    QLineEdit *lineEdit_5;
-    QPushButton *pushButton_2;
+    QLineEdit *shaderFileLocation;
+    QPushButton *browseShaderFIleBtn;
     QLabel *label_22;
     QFrame *line_3;
     QLabel *label_41;
     QFormLayout *formLayout_2;
     QLabel *label_24;
-    QLineEdit *lineEdit_2;
+    QLineEdit *pipelineName;
     QLabel *label_25;
-    QComboBox *comboBox_2;
+    QComboBox *cullMode;
     QLabel *label_26;
-    QComboBox *comboBox_3;
+    QComboBox *polygonMode;
     QLabel *label_27;
-    QComboBox *comboBox_4;
+    QComboBox *drawType;
     QLabel *label_28;
-    QCheckBox *checkBox;
+    QCheckBox *enableTransparency;
     QLabel *label_29;
-    QCheckBox *checkBox_2;
+    QCheckBox *enableDepthTest;
     QLabel *label_30;
-    QCheckBox *checkBox_3;
+    QCheckBox *enableDepthWrite;
     QLabel *label_38;
-    QComboBox *comboBox_11;
+    QComboBox *depthOperation;
     QLabel *label_31;
-    QComboBox *comboBox_5;
+    QComboBox *colorSrc;
     QLabel *label_32;
-    QComboBox *comboBox_6;
+    QComboBox *colorDst;
     QLabel *label_36;
-    QComboBox *comboBox_10;
+    QComboBox *colorOp;
     QLabel *label_33;
-    QComboBox *comboBox_7;
+    QComboBox *alphaSrc;
     QLabel *label_34;
-    QComboBox *comboBox_8;
+    QComboBox *alphaDst;
     QLabel *label_37;
-    QComboBox *comboBox_9;
+    QComboBox *alphaOp;
     QLabel *label_35;
-    QComboBox *comboBox_12;
+    QComboBox *depthFormat;
     QLabel *label_39;
     QVBoxLayout *verticalLayout_21;
-    QLabel *label_40;
+    QFormLayout *color_formats_layout;
     QHBoxLayout *horizontalLayout_3;
-    QComboBox *comboBox_13;
-    QPushButton *pushButton;
+    QPushButton *add_color_format;
+    QPushButton *remove_color_format;
     QFrame *line_4;
     QFormLayout *formLayout_3;
     QLabel *label_23;
-    QComboBox *comboBox_14;
+    QComboBox *sceneGeometry;
     QLabel *label_42;
-    QCheckBox *checkBox_4;
+    QCheckBox *enableResize;
     QLabel *label_43;
-    QComboBox *comboBox_15;
+    QComboBox *resolution;
     QLabel *label_44;
     QHBoxLayout *horizontalLayout_7;
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_45;
-    QLineEdit *lineEdit;
+    QLineEdit *extentX;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_46;
-    QLineEdit *lineEdit_3;
+    QLineEdit *extentY;
     QLabel *label_47;
-    QLineEdit *lineEdit_4;
+    QLineEdit *layers;
     QSpacerItem *verticalSpacer_2;
     QWidget *page_3_resource_node;
     QVBoxLayout *verticalLayout_24;
@@ -195,7 +195,7 @@ public:
     {
         if (FrameGraphEditor->objectName().isEmpty())
             FrameGraphEditor->setObjectName(QString::fromUtf8("FrameGraphEditor"));
-        FrameGraphEditor->resize(1437, 1087);
+        FrameGraphEditor->resize(1327, 986);
         FrameGraphEditor->setStyleSheet(QString::fromUtf8(""));
         verticalLayout = new QVBoxLayout(FrameGraphEditor);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
@@ -819,6 +819,7 @@ public:
         page_2_pass_node->setObjectName(QString::fromUtf8("page_2_pass_node"));
         verticalLayout_23 = new QVBoxLayout(page_2_pass_node);
         verticalLayout_23->setObjectName(QString::fromUtf8("verticalLayout_23"));
+        verticalLayout_23->setContentsMargins(0, 0, 0, 0);
         PassPresetsLbl_2 = new QLabel(page_2_pass_node);
         PassPresetsLbl_2->setObjectName(QString::fromUtf8("PassPresetsLbl_2"));
         PassPresetsLbl_2->setMinimumSize(QSize(0, 25));
@@ -933,21 +934,21 @@ public:
         formLayout->setVerticalSpacing(0);
         horizontalLayout_8 = new QHBoxLayout();
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
-        lineEdit_5 = new QLineEdit(page_2_pass_node);
-        lineEdit_5->setObjectName(QString::fromUtf8("lineEdit_5"));
-        lineEdit_5->setReadOnly(true);
+        shaderFileLocation = new QLineEdit(page_2_pass_node);
+        shaderFileLocation->setObjectName(QString::fromUtf8("shaderFileLocation"));
+        shaderFileLocation->setReadOnly(true);
 
-        horizontalLayout_8->addWidget(lineEdit_5);
+        horizontalLayout_8->addWidget(shaderFileLocation);
 
-        pushButton_2 = new QPushButton(page_2_pass_node);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        browseShaderFIleBtn = new QPushButton(page_2_pass_node);
+        browseShaderFIleBtn->setObjectName(QString::fromUtf8("browseShaderFIleBtn"));
         QIcon icon16;
         icon16.addFile(QString::fromUtf8(":/rzeditor/Browse.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_2->setIcon(icon16);
-        pushButton_2->setIconSize(QSize(32, 32));
-        pushButton_2->setFlat(true);
+        browseShaderFIleBtn->setIcon(icon16);
+        browseShaderFIleBtn->setIconSize(QSize(32, 32));
+        browseShaderFIleBtn->setFlat(true);
 
-        horizontalLayout_8->addWidget(pushButton_2);
+        horizontalLayout_8->addWidget(browseShaderFIleBtn);
 
 
         formLayout->setLayout(0, QFormLayout::FieldRole, horizontalLayout_8);
@@ -1002,10 +1003,10 @@ public:
 
         formLayout_2->setWidget(0, QFormLayout::LabelRole, label_24);
 
-        lineEdit_2 = new QLineEdit(page_2_pass_node);
-        lineEdit_2->setObjectName(QString::fromUtf8("lineEdit_2"));
+        pipelineName = new QLineEdit(page_2_pass_node);
+        pipelineName->setObjectName(QString::fromUtf8("pipelineName"));
 
-        formLayout_2->setWidget(0, QFormLayout::FieldRole, lineEdit_2);
+        formLayout_2->setWidget(0, QFormLayout::FieldRole, pipelineName);
 
         label_25 = new QLabel(page_2_pass_node);
         label_25->setObjectName(QString::fromUtf8("label_25"));
@@ -1014,10 +1015,10 @@ public:
 
         formLayout_2->setWidget(1, QFormLayout::LabelRole, label_25);
 
-        comboBox_2 = new QComboBox(page_2_pass_node);
-        comboBox_2->setObjectName(QString::fromUtf8("comboBox_2"));
+        cullMode = new QComboBox(page_2_pass_node);
+        cullMode->setObjectName(QString::fromUtf8("cullMode"));
 
-        formLayout_2->setWidget(1, QFormLayout::FieldRole, comboBox_2);
+        formLayout_2->setWidget(1, QFormLayout::FieldRole, cullMode);
 
         label_26 = new QLabel(page_2_pass_node);
         label_26->setObjectName(QString::fromUtf8("label_26"));
@@ -1026,10 +1027,10 @@ public:
 
         formLayout_2->setWidget(2, QFormLayout::LabelRole, label_26);
 
-        comboBox_3 = new QComboBox(page_2_pass_node);
-        comboBox_3->setObjectName(QString::fromUtf8("comboBox_3"));
+        polygonMode = new QComboBox(page_2_pass_node);
+        polygonMode->setObjectName(QString::fromUtf8("polygonMode"));
 
-        formLayout_2->setWidget(2, QFormLayout::FieldRole, comboBox_3);
+        formLayout_2->setWidget(2, QFormLayout::FieldRole, polygonMode);
 
         label_27 = new QLabel(page_2_pass_node);
         label_27->setObjectName(QString::fromUtf8("label_27"));
@@ -1038,10 +1039,10 @@ public:
 
         formLayout_2->setWidget(3, QFormLayout::LabelRole, label_27);
 
-        comboBox_4 = new QComboBox(page_2_pass_node);
-        comboBox_4->setObjectName(QString::fromUtf8("comboBox_4"));
+        drawType = new QComboBox(page_2_pass_node);
+        drawType->setObjectName(QString::fromUtf8("drawType"));
 
-        formLayout_2->setWidget(3, QFormLayout::FieldRole, comboBox_4);
+        formLayout_2->setWidget(3, QFormLayout::FieldRole, drawType);
 
         label_28 = new QLabel(page_2_pass_node);
         label_28->setObjectName(QString::fromUtf8("label_28"));
@@ -1050,10 +1051,10 @@ public:
 
         formLayout_2->setWidget(4, QFormLayout::LabelRole, label_28);
 
-        checkBox = new QCheckBox(page_2_pass_node);
-        checkBox->setObjectName(QString::fromUtf8("checkBox"));
+        enableTransparency = new QCheckBox(page_2_pass_node);
+        enableTransparency->setObjectName(QString::fromUtf8("enableTransparency"));
 
-        formLayout_2->setWidget(4, QFormLayout::FieldRole, checkBox);
+        formLayout_2->setWidget(4, QFormLayout::FieldRole, enableTransparency);
 
         label_29 = new QLabel(page_2_pass_node);
         label_29->setObjectName(QString::fromUtf8("label_29"));
@@ -1062,10 +1063,11 @@ public:
 
         formLayout_2->setWidget(5, QFormLayout::LabelRole, label_29);
 
-        checkBox_2 = new QCheckBox(page_2_pass_node);
-        checkBox_2->setObjectName(QString::fromUtf8("checkBox_2"));
+        enableDepthTest = new QCheckBox(page_2_pass_node);
+        enableDepthTest->setObjectName(QString::fromUtf8("enableDepthTest"));
+        enableDepthTest->setChecked(true);
 
-        formLayout_2->setWidget(5, QFormLayout::FieldRole, checkBox_2);
+        formLayout_2->setWidget(5, QFormLayout::FieldRole, enableDepthTest);
 
         label_30 = new QLabel(page_2_pass_node);
         label_30->setObjectName(QString::fromUtf8("label_30"));
@@ -1074,10 +1076,11 @@ public:
 
         formLayout_2->setWidget(6, QFormLayout::LabelRole, label_30);
 
-        checkBox_3 = new QCheckBox(page_2_pass_node);
-        checkBox_3->setObjectName(QString::fromUtf8("checkBox_3"));
+        enableDepthWrite = new QCheckBox(page_2_pass_node);
+        enableDepthWrite->setObjectName(QString::fromUtf8("enableDepthWrite"));
+        enableDepthWrite->setChecked(true);
 
-        formLayout_2->setWidget(6, QFormLayout::FieldRole, checkBox_3);
+        formLayout_2->setWidget(6, QFormLayout::FieldRole, enableDepthWrite);
 
         label_38 = new QLabel(page_2_pass_node);
         label_38->setObjectName(QString::fromUtf8("label_38"));
@@ -1086,10 +1089,10 @@ public:
 
         formLayout_2->setWidget(7, QFormLayout::LabelRole, label_38);
 
-        comboBox_11 = new QComboBox(page_2_pass_node);
-        comboBox_11->setObjectName(QString::fromUtf8("comboBox_11"));
+        depthOperation = new QComboBox(page_2_pass_node);
+        depthOperation->setObjectName(QString::fromUtf8("depthOperation"));
 
-        formLayout_2->setWidget(7, QFormLayout::FieldRole, comboBox_11);
+        formLayout_2->setWidget(7, QFormLayout::FieldRole, depthOperation);
 
         label_31 = new QLabel(page_2_pass_node);
         label_31->setObjectName(QString::fromUtf8("label_31"));
@@ -1098,10 +1101,10 @@ public:
 
         formLayout_2->setWidget(8, QFormLayout::LabelRole, label_31);
 
-        comboBox_5 = new QComboBox(page_2_pass_node);
-        comboBox_5->setObjectName(QString::fromUtf8("comboBox_5"));
+        colorSrc = new QComboBox(page_2_pass_node);
+        colorSrc->setObjectName(QString::fromUtf8("colorSrc"));
 
-        formLayout_2->setWidget(8, QFormLayout::FieldRole, comboBox_5);
+        formLayout_2->setWidget(8, QFormLayout::FieldRole, colorSrc);
 
         label_32 = new QLabel(page_2_pass_node);
         label_32->setObjectName(QString::fromUtf8("label_32"));
@@ -1110,10 +1113,10 @@ public:
 
         formLayout_2->setWidget(9, QFormLayout::LabelRole, label_32);
 
-        comboBox_6 = new QComboBox(page_2_pass_node);
-        comboBox_6->setObjectName(QString::fromUtf8("comboBox_6"));
+        colorDst = new QComboBox(page_2_pass_node);
+        colorDst->setObjectName(QString::fromUtf8("colorDst"));
 
-        formLayout_2->setWidget(9, QFormLayout::FieldRole, comboBox_6);
+        formLayout_2->setWidget(9, QFormLayout::FieldRole, colorDst);
 
         label_36 = new QLabel(page_2_pass_node);
         label_36->setObjectName(QString::fromUtf8("label_36"));
@@ -1122,10 +1125,10 @@ public:
 
         formLayout_2->setWidget(10, QFormLayout::LabelRole, label_36);
 
-        comboBox_10 = new QComboBox(page_2_pass_node);
-        comboBox_10->setObjectName(QString::fromUtf8("comboBox_10"));
+        colorOp = new QComboBox(page_2_pass_node);
+        colorOp->setObjectName(QString::fromUtf8("colorOp"));
 
-        formLayout_2->setWidget(10, QFormLayout::FieldRole, comboBox_10);
+        formLayout_2->setWidget(10, QFormLayout::FieldRole, colorOp);
 
         label_33 = new QLabel(page_2_pass_node);
         label_33->setObjectName(QString::fromUtf8("label_33"));
@@ -1134,10 +1137,10 @@ public:
 
         formLayout_2->setWidget(11, QFormLayout::LabelRole, label_33);
 
-        comboBox_7 = new QComboBox(page_2_pass_node);
-        comboBox_7->setObjectName(QString::fromUtf8("comboBox_7"));
+        alphaSrc = new QComboBox(page_2_pass_node);
+        alphaSrc->setObjectName(QString::fromUtf8("alphaSrc"));
 
-        formLayout_2->setWidget(11, QFormLayout::FieldRole, comboBox_7);
+        formLayout_2->setWidget(11, QFormLayout::FieldRole, alphaSrc);
 
         label_34 = new QLabel(page_2_pass_node);
         label_34->setObjectName(QString::fromUtf8("label_34"));
@@ -1146,10 +1149,10 @@ public:
 
         formLayout_2->setWidget(12, QFormLayout::LabelRole, label_34);
 
-        comboBox_8 = new QComboBox(page_2_pass_node);
-        comboBox_8->setObjectName(QString::fromUtf8("comboBox_8"));
+        alphaDst = new QComboBox(page_2_pass_node);
+        alphaDst->setObjectName(QString::fromUtf8("alphaDst"));
 
-        formLayout_2->setWidget(12, QFormLayout::FieldRole, comboBox_8);
+        formLayout_2->setWidget(12, QFormLayout::FieldRole, alphaDst);
 
         label_37 = new QLabel(page_2_pass_node);
         label_37->setObjectName(QString::fromUtf8("label_37"));
@@ -1158,10 +1161,10 @@ public:
 
         formLayout_2->setWidget(13, QFormLayout::LabelRole, label_37);
 
-        comboBox_9 = new QComboBox(page_2_pass_node);
-        comboBox_9->setObjectName(QString::fromUtf8("comboBox_9"));
+        alphaOp = new QComboBox(page_2_pass_node);
+        alphaOp->setObjectName(QString::fromUtf8("alphaOp"));
 
-        formLayout_2->setWidget(13, QFormLayout::FieldRole, comboBox_9);
+        formLayout_2->setWidget(13, QFormLayout::FieldRole, alphaOp);
 
         label_35 = new QLabel(page_2_pass_node);
         label_35->setObjectName(QString::fromUtf8("label_35"));
@@ -1170,10 +1173,10 @@ public:
 
         formLayout_2->setWidget(14, QFormLayout::LabelRole, label_35);
 
-        comboBox_12 = new QComboBox(page_2_pass_node);
-        comboBox_12->setObjectName(QString::fromUtf8("comboBox_12"));
+        depthFormat = new QComboBox(page_2_pass_node);
+        depthFormat->setObjectName(QString::fromUtf8("depthFormat"));
 
-        formLayout_2->setWidget(14, QFormLayout::FieldRole, comboBox_12);
+        formLayout_2->setWidget(14, QFormLayout::FieldRole, depthFormat);
 
         label_39 = new QLabel(page_2_pass_node);
         label_39->setObjectName(QString::fromUtf8("label_39"));
@@ -1184,28 +1187,22 @@ public:
 
         verticalLayout_21 = new QVBoxLayout();
         verticalLayout_21->setObjectName(QString::fromUtf8("verticalLayout_21"));
-        label_40 = new QLabel(page_2_pass_node);
-        label_40->setObjectName(QString::fromUtf8("label_40"));
-        QFont font8;
-        font8.setFamily(QString::fromUtf8("Courier New"));
-        font8.setPointSize(12);
-        label_40->setFont(font8);
-        label_40->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        label_40->setWordWrap(true);
+        color_formats_layout = new QFormLayout();
+        color_formats_layout->setObjectName(QString::fromUtf8("color_formats_layout"));
 
-        verticalLayout_21->addWidget(label_40);
+        verticalLayout_21->addLayout(color_formats_layout);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-        comboBox_13 = new QComboBox(page_2_pass_node);
-        comboBox_13->setObjectName(QString::fromUtf8("comboBox_13"));
+        add_color_format = new QPushButton(page_2_pass_node);
+        add_color_format->setObjectName(QString::fromUtf8("add_color_format"));
 
-        horizontalLayout_3->addWidget(comboBox_13);
+        horizontalLayout_3->addWidget(add_color_format);
 
-        pushButton = new QPushButton(page_2_pass_node);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        remove_color_format = new QPushButton(page_2_pass_node);
+        remove_color_format->setObjectName(QString::fromUtf8("remove_color_format"));
 
-        horizontalLayout_3->addWidget(pushButton);
+        horizontalLayout_3->addWidget(remove_color_format);
 
 
         verticalLayout_21->addLayout(horizontalLayout_3);
@@ -1233,10 +1230,10 @@ public:
 
         formLayout_3->setWidget(0, QFormLayout::LabelRole, label_23);
 
-        comboBox_14 = new QComboBox(page_2_pass_node);
-        comboBox_14->setObjectName(QString::fromUtf8("comboBox_14"));
+        sceneGeometry = new QComboBox(page_2_pass_node);
+        sceneGeometry->setObjectName(QString::fromUtf8("sceneGeometry"));
 
-        formLayout_3->setWidget(0, QFormLayout::FieldRole, comboBox_14);
+        formLayout_3->setWidget(0, QFormLayout::FieldRole, sceneGeometry);
 
         label_42 = new QLabel(page_2_pass_node);
         label_42->setObjectName(QString::fromUtf8("label_42"));
@@ -1244,10 +1241,10 @@ public:
 
         formLayout_3->setWidget(1, QFormLayout::LabelRole, label_42);
 
-        checkBox_4 = new QCheckBox(page_2_pass_node);
-        checkBox_4->setObjectName(QString::fromUtf8("checkBox_4"));
+        enableResize = new QCheckBox(page_2_pass_node);
+        enableResize->setObjectName(QString::fromUtf8("enableResize"));
 
-        formLayout_3->setWidget(1, QFormLayout::FieldRole, checkBox_4);
+        formLayout_3->setWidget(1, QFormLayout::FieldRole, enableResize);
 
         label_43 = new QLabel(page_2_pass_node);
         label_43->setObjectName(QString::fromUtf8("label_43"));
@@ -1255,10 +1252,10 @@ public:
 
         formLayout_3->setWidget(2, QFormLayout::LabelRole, label_43);
 
-        comboBox_15 = new QComboBox(page_2_pass_node);
-        comboBox_15->setObjectName(QString::fromUtf8("comboBox_15"));
+        resolution = new QComboBox(page_2_pass_node);
+        resolution->setObjectName(QString::fromUtf8("resolution"));
 
-        formLayout_3->setWidget(2, QFormLayout::FieldRole, comboBox_15);
+        formLayout_3->setWidget(2, QFormLayout::FieldRole, resolution);
 
         label_44 = new QLabel(page_2_pass_node);
         label_44->setObjectName(QString::fromUtf8("label_44"));
@@ -1279,11 +1276,15 @@ public:
 
         horizontalLayout_5->addWidget(label_45);
 
-        lineEdit = new QLineEdit(page_2_pass_node);
-        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
-        lineEdit->setMaximumSize(QSize(40, 16777215));
+        extentX = new QLineEdit(page_2_pass_node);
+        extentX->setObjectName(QString::fromUtf8("extentX"));
+        extentX->setMaximumSize(QSize(40, 16777215));
+        extentX->setAutoFillBackground(false);
+        extentX->setStyleSheet(QString::fromUtf8("border-color: rgb(255, 0, 0);\n"
+"border-width:2px;\n"
+"border-style:solid;"));
 
-        horizontalLayout_5->addWidget(lineEdit);
+        horizontalLayout_5->addWidget(extentX);
 
 
         horizontalLayout_7->addLayout(horizontalLayout_5);
@@ -1299,11 +1300,14 @@ public:
 
         horizontalLayout_6->addWidget(label_46);
 
-        lineEdit_3 = new QLineEdit(page_2_pass_node);
-        lineEdit_3->setObjectName(QString::fromUtf8("lineEdit_3"));
-        lineEdit_3->setMaximumSize(QSize(40, 16777215));
+        extentY = new QLineEdit(page_2_pass_node);
+        extentY->setObjectName(QString::fromUtf8("extentY"));
+        extentY->setMaximumSize(QSize(40, 16777215));
+        extentY->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 255, 0);\n"
+"border-width:2px;\n"
+"border-style:solid;"));
 
-        horizontalLayout_6->addWidget(lineEdit_3);
+        horizontalLayout_6->addWidget(extentY);
 
 
         horizontalLayout_7->addLayout(horizontalLayout_6);
@@ -1317,10 +1321,10 @@ public:
 
         formLayout_3->setWidget(4, QFormLayout::LabelRole, label_47);
 
-        lineEdit_4 = new QLineEdit(page_2_pass_node);
-        lineEdit_4->setObjectName(QString::fromUtf8("lineEdit_4"));
+        layers = new QLineEdit(page_2_pass_node);
+        layers->setObjectName(QString::fromUtf8("layers"));
 
-        formLayout_3->setWidget(4, QFormLayout::FieldRole, lineEdit_4);
+        formLayout_3->setWidget(4, QFormLayout::FieldRole, layers);
 
 
         verticalLayout_23->addLayout(formLayout_3);
@@ -1368,7 +1372,7 @@ public:
 
         retranslateUi(FrameGraphEditor);
 
-        stackedWidget->setCurrentIndex(0);
+        stackedWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(FrameGraphEditor);
@@ -1418,44 +1422,47 @@ public:
         label_21->setText(QCoreApplication::translate("FrameGraphEditor", "Select a Node to inspect and edit properties", nullptr));
         PassPresetsLbl_2->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
         label_49->setText(QCoreApplication::translate("FrameGraphEditor", "Pass Name", nullptr));
+        PassName->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Enter the name of the Frame Graph Pass", nullptr));
         label_48->setText(QCoreApplication::translate("FrameGraphEditor", "Pins", nullptr));
         add_ip_pin->setText(QCoreApplication::translate("FrameGraphEditor", "Add i/p Pin", nullptr));
         remove_ip_pin->setText(QCoreApplication::translate("FrameGraphEditor", "remove_ip_pin", nullptr));
         add_op_pin->setText(QCoreApplication::translate("FrameGraphEditor", "Add o/p Pin", nullptr));
         remove_op_pin->setText(QCoreApplication::translate("FrameGraphEditor", "remove_o/p_pin", nullptr));
-        lineEdit_5->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Choose shader file", nullptr));
-        pushButton_2->setText(QString());
+        shaderFileLocation->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Choose shader file", nullptr));
+        browseShaderFIleBtn->setText(QString());
         label_22->setText(QCoreApplication::translate("FrameGraphEditor", "Shader", nullptr));
         label_41->setText(QCoreApplication::translate("FrameGraphEditor", "Pipeline Settings", nullptr));
         label_24->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
+        pipelineName->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Enter the name of the Pipeline", nullptr));
         label_25->setText(QCoreApplication::translate("FrameGraphEditor", "Cull Mode", nullptr));
         label_26->setText(QCoreApplication::translate("FrameGraphEditor", "Polygon Mode", nullptr));
         label_27->setText(QCoreApplication::translate("FrameGraphEditor", "Draw Type", nullptr));
         label_28->setText(QCoreApplication::translate("FrameGraphEditor", "Enable Transparencey", nullptr));
-        checkBox->setText(QString());
+        enableTransparency->setText(QString());
         label_29->setText(QCoreApplication::translate("FrameGraphEditor", "Enable Depth Test", nullptr));
-        checkBox_2->setText(QString());
+        enableDepthTest->setText(QString());
         label_30->setText(QCoreApplication::translate("FrameGraphEditor", "Enable Depth Write", nullptr));
-        checkBox_3->setText(QString());
+        enableDepthWrite->setText(QString());
         label_38->setText(QCoreApplication::translate("FrameGraphEditor", "Depth Operation", nullptr));
         label_31->setText(QCoreApplication::translate("FrameGraphEditor", "Color Src", nullptr));
         label_32->setText(QCoreApplication::translate("FrameGraphEditor", "Color Dst", nullptr));
         label_36->setText(QCoreApplication::translate("FrameGraphEditor", "Color Operation", nullptr));
-        label_33->setText(QCoreApplication::translate("FrameGraphEditor", "Alpha Dst", nullptr));
-        label_34->setText(QCoreApplication::translate("FrameGraphEditor", "Alpha Src", nullptr));
+        label_33->setText(QCoreApplication::translate("FrameGraphEditor", "Alpha Src", nullptr));
+        label_34->setText(QCoreApplication::translate("FrameGraphEditor", "Alpha Dst", nullptr));
         label_37->setText(QCoreApplication::translate("FrameGraphEditor", "Alpha Operation", nullptr));
         label_35->setText(QCoreApplication::translate("FrameGraphEditor", "Depth Format", nullptr));
         label_39->setText(QCoreApplication::translate("FrameGraphEditor", "Color Formats", nullptr));
-        label_40->setText(QCoreApplication::translate("FrameGraphEditor", "RGBA32F, RGB8_UNORM, Depth32F, R10G10A10B10A11", nullptr));
-        pushButton->setText(QCoreApplication::translate("FrameGraphEditor", "Add", nullptr));
+        add_color_format->setText(QCoreApplication::translate("FrameGraphEditor", "Add", nullptr));
+        remove_color_format->setText(QCoreApplication::translate("FrameGraphEditor", "Remove", nullptr));
         label_23->setText(QCoreApplication::translate("FrameGraphEditor", "Geometry Mode", nullptr));
         label_42->setText(QCoreApplication::translate("FrameGraphEditor", "Enable Resize", nullptr));
-        checkBox_4->setText(QString());
+        enableResize->setText(QString());
         label_43->setText(QCoreApplication::translate("FrameGraphEditor", "Resolution", nullptr));
         label_44->setText(QCoreApplication::translate("FrameGraphEditor", "Extents", nullptr));
         label_45->setText(QCoreApplication::translate("FrameGraphEditor", "x", nullptr));
         label_46->setText(QCoreApplication::translate("FrameGraphEditor", "y", nullptr));
         label_47->setText(QCoreApplication::translate("FrameGraphEditor", "Layers", nullptr));
+        layers->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Enter number of rendering layers", nullptr));
         PassPresetsLbl_4->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
     } // retranslateUi
 

@@ -45,6 +45,9 @@ namespace Razix {
             // Frame Graph Class
             //-----------------------------------------------------------------------------------
 
+            // First frame test
+            bool RZFrameGraph::m_IsFirstFrame = true;
+
             bool RZFrameGraph::parse(const std::string &path)
             {
                 std::string physicalPath;
@@ -525,7 +528,8 @@ namespace Razix {
                             entry.getConcept()->destroy(transientAllocator);
                 }
 
-                IRZFrameGraphPass::m_IsFirstFrame = false;
+                // End first frame identifier
+                RZFrameGraph::m_IsFirstFrame = false;
             }
 
             void RZFrameGraph::resize(u32 width, u32 height)

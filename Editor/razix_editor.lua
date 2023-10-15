@@ -78,6 +78,9 @@ project "RazixEditor"
         "%{VulkanSDK}/Include",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
+        "%{InternalIncludeDir.RZSTL}",
+        "%{InternalIncludeDir.EASTL}",
+        "%{InternalIncludeDir.EABase}",
         -- Tools Include Dirs
         "%{ToolIncludeDir.RazixAssetPacker}",
         -- Extensions
@@ -243,7 +246,7 @@ project "RazixEditor"
        -- buildoptions {"/fsanitize=address", "/fno-omit-frame-pointer"}
        -- linkoptions {"/fsanitize=address"}
 
-       disablewarnings { 4307 }
+       disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
 
     print(qtpath)
 

@@ -425,7 +425,7 @@ namespace Razix {
         void RZEMainWindow::Create_Import_Model()
         {
             // TODO: Add a UI for before and after import launch results and stuff
-            auto fileName = QFileDialog::getOpenFileName(this, "Select Model File to load", "", tr("GLB (*.glb);;GLTF (*.gltf);;OBJ (*.obj);;Collada(*.dae)"));
+            auto fileName = QFileDialog::getOpenFileName(this, "Select Model File to load", "", tr("Model files (*.glb *.gltf *.obj *.dae)"));
             if (!fileName.isEmpty()) {
                 // Progress Dialog
                 QProgressDialog* progressBar = new QProgressDialog("Importing mesh...", "Cancel", 0, 100);

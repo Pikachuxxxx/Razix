@@ -374,7 +374,7 @@ namespace Razix {
                     builder.read(m_FrameGraph.getBlackboard().getID("SceneDepth"));
 
                     //sceneData.outputHDR = builder.write(sceneData.outputHDR);
-                    //sceneData.depth     = builder.write(sceneData.depth); 
+                    //sceneData.depth     = builder.write(sceneData.depth);
 
                     auto sceneHDR   = builder.write(m_FrameGraph.getBlackboard().getID("SceneHDR"));
                     auto sceneDepth = builder.write(m_FrameGraph.getBlackboard().getID("SceneDepth"));
