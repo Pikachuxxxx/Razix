@@ -72,5 +72,58 @@ namespace Razix {
             Filtering(Mode min, Mode max)
                 : minFilter(min), magFilter(max) {}
         };
+
+        //-----------------------------------------------------------------------------------
+        // [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
+
+        static const char* TextureTypeNames[] = {
+            "Texture_1D",
+            "Texture_2D",
+            "Texture_2DArray",
+            "Texture_3D",
+            "Texture_Depth",
+            "Texture_CubeMap",
+            "Texture_CubeMapArray",
+            "Texture_SwapchainImage"};
+
+        RAZIX_ENUM_NAMES_ASSERT(TextureTypeNames, TextureType);
+
+        static const char* TextureFormatNames[] = {
+            "R8",
+            "R32_INT",
+            "R32_UINT",
+            "R32F",
+            "RG8",
+            "RGB8",
+            "RGBA8",
+            "RGB16",
+            "RGBA16",
+            "RGB32",
+            "RGBA32",
+            "RGBA32F",
+            "RGB",
+            "RGBA",
+            "DEPTH16_UNORM",
+            "DEPTH32F",
+            "STENCIL",
+            "DEPTH_STENCIL",
+            "SCREEN",
+            "BGRA8_UNORM",
+            "R11G11B10A2_UINT",
+            "R11G11B10A2_SFLOAT",
+            "NONE"};
+
+        RAZIX_ENUM_NAMES_ASSERT(TextureFormatNames, TextureFormat);
+
+        static const char* WrappingNames[] = {
+            "REPEAT",
+            "MIRRORED_REPEAT",
+            "CLAMP_TO_EDGE",
+            "CLAMP_TO_BORDER"};
+
+        RAZIX_ENUM_NAMES_ASSERT(WrappingNames, Wrapping);
+
+        //-----------------------------------------------------------------------------------
+
     }    // namespace Graphics
 }    // namespace Razix

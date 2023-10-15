@@ -76,5 +76,73 @@ namespace Razix {
             Always,
             COUNT
         };
+
+        //-----------------------------------------------------------------------------------
+        // [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
+
+        static const char* CullModeNames[] = {
+            "Back",
+            "Front",
+            "FrontBack",
+            "None"};
+
+        RAZIX_ENUM_NAMES_ASSERT(CullModeNames, CullMode);
+
+        static const char* PolygonModeNames[] = {
+            "Fill",
+            "Line",
+            "Point"};
+
+        RAZIX_ENUM_NAMES_ASSERT(PolygonModeNames, PolygonMode);
+
+        static const char* DrawTypeNames[] = {
+            "Point",
+            "Triangle",
+            "Line"};
+
+        RAZIX_ENUM_NAMES_ASSERT(DrawTypeNames, DrawType);
+
+        static const char* BlendOpNames[] = {
+            "Add",
+            "Subtract",
+            "ReverseSubtract",
+            "Min",
+            "Max"};
+
+        RAZIX_ENUM_NAMES_ASSERT(BlendOpNames, BlendOp);
+
+        static const char* BlendFactorNames[] = {
+            "Zero",
+            "One",
+            "SrcColor",
+            "OneMinusSrcColor",
+            "DstColor",
+            "OneMinusDstColor",
+            "SrcAlpha",
+            "OneMinusSrcAlpha",
+            "DstAlpha",
+            "OneMinusDstAlpha",
+            "ConstantColor",
+            "OneMinusConstantColor",
+            "ConstantAlpha",
+            "OneMinusConstantAlpha",
+            "SrcAlphaSaturate"};
+
+        RAZIX_ENUM_NAMES_ASSERT(BlendFactorNames, BlendFactor);
+
+        static const char* CompareOpNames[] = {
+            "Never",
+            "Less",
+            "Equal",
+            "LessOrEqual",
+            "Greater",
+            "NotEqual",
+            "GreaterOrEqual",
+            "Always"};
+
+        RAZIX_ENUM_NAMES_ASSERT(CompareOpNames, CompareOp);
+
+        //-----------------------------------------------------------------------------------
+
     }    // namespace Graphics
 }    // namespace Razix

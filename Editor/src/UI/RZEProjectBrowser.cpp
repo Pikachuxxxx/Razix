@@ -52,6 +52,8 @@ namespace Razix {
 
         void RZEProjectBrowser::on_OpenProjectPressed()
         {
+            // https://stackoverflow.com/questions/1604440/how-to-set-selected-filter-on-qfiledialog
+            // https://doc.qt.io/qt-5/qfiledialog.html#details
             auto fileName = QFileDialog::getOpenFileName(this, "Select Razix Project File", "", tr("Razix Project Files (*.razixproject)"));
             ui.projects_history_list->addItem(fileName);
             auto fileNameStr = fileName.toStdString();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1437</width>
-    <height>1087</height>
+    <width>1327</width>
+    <height>986</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1098,7 +1098,7 @@ border-width:1px;</string>
         <string notr="true">color: rgb(255, 255, 255);</string>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page_1_empty">
         <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1198,6 +1198,18 @@ border-width:1px;
        </widget>
        <widget class="QWidget" name="page_2_pass_node">
         <layout class="QVBoxLayout" name="verticalLayout_23">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
           <widget class="QLabel" name="PassPresetsLbl_2">
            <property name="minimumSize">
@@ -1262,7 +1274,11 @@ border-width:1px;
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="PassName"/>
+            <widget class="QLineEdit" name="PassName">
+             <property name="placeholderText">
+              <string>Enter the name of the Frame Graph Pass</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -1417,7 +1433,7 @@ border-width:1px;
            <item row="0" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="QLineEdit" name="lineEdit_5">
+              <widget class="QLineEdit" name="shaderFileLocation">
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -1427,7 +1443,7 @@ border-width:1px;
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_2">
+              <widget class="QPushButton" name="browseShaderFIleBtn">
                <property name="text">
                 <string/>
                </property>
@@ -1531,7 +1547,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit_2"/>
+            <widget class="QLineEdit" name="pipelineName">
+             <property name="placeholderText">
+              <string>Enter the name of the Pipeline</string>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_25">
@@ -1549,7 +1569,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="comboBox_2"/>
+            <widget class="QComboBox" name="cullMode"/>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_26">
@@ -1567,7 +1587,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="comboBox_3"/>
+            <widget class="QComboBox" name="polygonMode"/>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_27">
@@ -1585,7 +1605,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QComboBox" name="comboBox_4"/>
+            <widget class="QComboBox" name="drawType"/>
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_28">
@@ -1603,7 +1623,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QCheckBox" name="checkBox">
+            <widget class="QCheckBox" name="enableTransparency">
              <property name="text">
               <string/>
              </property>
@@ -1625,9 +1645,12 @@ border-width:1px;
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="QCheckBox" name="checkBox_2">
+            <widget class="QCheckBox" name="enableDepthTest">
              <property name="text">
               <string/>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -1647,9 +1670,12 @@ border-width:1px;
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QCheckBox" name="checkBox_3">
+            <widget class="QCheckBox" name="enableDepthWrite">
              <property name="text">
               <string/>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -1669,7 +1695,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="7" column="1">
-            <widget class="QComboBox" name="comboBox_11"/>
+            <widget class="QComboBox" name="depthOperation"/>
            </item>
            <item row="8" column="0">
             <widget class="QLabel" name="label_31">
@@ -1687,7 +1713,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="8" column="1">
-            <widget class="QComboBox" name="comboBox_5"/>
+            <widget class="QComboBox" name="colorSrc"/>
            </item>
            <item row="9" column="0">
             <widget class="QLabel" name="label_32">
@@ -1705,7 +1731,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="9" column="1">
-            <widget class="QComboBox" name="comboBox_6"/>
+            <widget class="QComboBox" name="colorDst"/>
            </item>
            <item row="10" column="0">
             <widget class="QLabel" name="label_36">
@@ -1723,28 +1749,10 @@ border-width:1px;
             </widget>
            </item>
            <item row="10" column="1">
-            <widget class="QComboBox" name="comboBox_10"/>
+            <widget class="QComboBox" name="colorOp"/>
            </item>
            <item row="11" column="0">
             <widget class="QLabel" name="label_33">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Alpha Dst</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="1">
-            <widget class="QComboBox" name="comboBox_7"/>
-           </item>
-           <item row="12" column="0">
-            <widget class="QLabel" name="label_34">
              <property name="font">
               <font>
                <pointsize>12</pointsize>
@@ -1758,8 +1766,26 @@ border-width:1px;
              </property>
             </widget>
            </item>
+           <item row="11" column="1">
+            <widget class="QComboBox" name="alphaSrc"/>
+           </item>
+           <item row="12" column="0">
+            <widget class="QLabel" name="label_34">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Alpha Dst</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item row="12" column="1">
-            <widget class="QComboBox" name="comboBox_8"/>
+            <widget class="QComboBox" name="alphaDst"/>
            </item>
            <item row="13" column="0">
             <widget class="QLabel" name="label_37">
@@ -1777,7 +1803,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="13" column="1">
-            <widget class="QComboBox" name="comboBox_9"/>
+            <widget class="QComboBox" name="alphaOp"/>
            </item>
            <item row="14" column="0">
             <widget class="QLabel" name="label_35">
@@ -1795,7 +1821,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="14" column="1">
-            <widget class="QComboBox" name="comboBox_12"/>
+            <widget class="QComboBox" name="depthFormat"/>
            </item>
            <item row="15" column="0">
             <widget class="QLabel" name="label_39">
@@ -1815,33 +1841,21 @@ border-width:1px;
            <item row="15" column="1">
             <layout class="QVBoxLayout" name="verticalLayout_21">
              <item>
-              <widget class="QLabel" name="label_40">
-               <property name="font">
-                <font>
-                 <family>Courier New</family>
-                 <pointsize>12</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>RGBA32F, RGB8_UNORM, Depth32F, R10G10A10B10A11</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
-               </property>
-              </widget>
+              <layout class="QFormLayout" name="color_formats_layout"/>
              </item>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
-                <widget class="QComboBox" name="comboBox_13"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButton">
+                <widget class="QPushButton" name="add_color_format">
                  <property name="text">
                   <string>Add</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="remove_color_format">
+                 <property name="text">
+                  <string>Remove</string>
                  </property>
                 </widget>
                </item>
@@ -1882,7 +1896,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="comboBox_14"/>
+            <widget class="QComboBox" name="sceneGeometry"/>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_42">
@@ -1897,7 +1911,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QCheckBox" name="checkBox_4">
+            <widget class="QCheckBox" name="enableResize">
              <property name="text">
               <string/>
              </property>
@@ -1916,7 +1930,7 @@ border-width:1px;
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="comboBox_15"/>
+            <widget class="QComboBox" name="resolution"/>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_44">
@@ -1957,12 +1971,20 @@ border-width:1px;
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit">
+                <widget class="QLineEdit" name="extentX">
                  <property name="maximumSize">
                   <size>
                    <width>40</width>
                    <height>16777215</height>
                   </size>
+                 </property>
+                 <property name="autoFillBackground">
+                  <bool>false</bool>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">border-color: rgb(255, 0, 0);
+border-width:2px;
+border-style:solid;</string>
                  </property>
                 </widget>
                </item>
@@ -1993,12 +2015,17 @@ border-width:1px;
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_3">
+                <widget class="QLineEdit" name="extentY">
                  <property name="maximumSize">
                   <size>
                    <width>40</width>
                    <height>16777215</height>
                   </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">border-color: rgb(0, 255, 0);
+border-width:2px;
+border-style:solid;</string>
                  </property>
                 </widget>
                </item>
@@ -2019,7 +2046,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QLineEdit" name="lineEdit_4"/>
+            <widget class="QLineEdit" name="layers">
+             <property name="placeholderText">
+              <string>Enter number of rendering layers</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

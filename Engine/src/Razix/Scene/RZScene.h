@@ -30,7 +30,18 @@ namespace Razix {
         Quad,          /* Draws a quad for GS manipulation                     */
         UI,            /* Draws UI elements                                    */
         Custom,        /* Issues custom draw calls instead                     */
+        COUNT
     };
+
+    static const char* SceneDrawGeometryModeNames[] = {
+        "SceneGeometry",
+        "Cubemap",
+        "ScreenQuad",
+        "Quad",
+        "UI",
+        "Custom"};
+
+    RAZIX_ENUM_NAMES_ASSERT(SceneDrawGeometryModeNames, SceneDrawGeometryMode);
 
     static std::map<std::string, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
         {"SceneGeometry", Razix::SceneDrawGeometryMode::SceneGeometry},

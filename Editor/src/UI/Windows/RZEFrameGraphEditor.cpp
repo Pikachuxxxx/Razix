@@ -3,6 +3,7 @@
 // clang-format on
 #include "RZEFrameGraphEditor.h"
 
+#include <QFileDialog>
 #include <QFormLayout>
 #include <QGraphicsDropShadowEffect>
 #include <QListWidget>
@@ -11,6 +12,18 @@
 #include "Nodes/RZEImportNodeUI.h"
 #include "Nodes/RZEPassNodeUI.h"
 #include "Nodes/RZETextureResourceNodeUI.h"
+
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
+
+#include "Razix/Graphics/RHI/API/Data/RZBufferData.h"
+#include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
+#include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
+
+#include "Razix/Graphics/RHI/RHI.h"
+
+#include "Razix/Scene/RZScene.h"
+
+#include "Razix/Utilities/RZStringUtilities.h"
 
 static QGraphicsDropShadowEffect* DropShadowEffect = new QGraphicsDropShadowEffect();
 // effect->setBlurRadius(10);
@@ -32,6 +45,10 @@ static const std::unordered_map<std::string, std::string> ResourceNodesPresets =
 
 namespace Razix {
     namespace Editor {
+
+        //-----------------------------------------------------------
+        // FrameGraphGraphicsView
+        //-----------------------------------------------------------
 
         FrameGraphGraphicsView::FrameGraphGraphicsView()
             : NodeGraphicsView()
@@ -59,6 +76,8 @@ namespace Razix {
         }
 
         //-----------------------------------------------------------
+        // RZEFrameGraphEditor
+        //-----------------------------------------------------------
 
         RZEFrameGraphEditor::RZEFrameGraphEditor(QWidget* parent)
             : QWidget(parent)
@@ -74,93 +93,38 @@ namespace Razix {
             DropShadowEffect->setOffset(2, 4);
             DropShadowEffect->setColor(Qt::black);
 
-            populatePresetImportNodesList();
-            populatePresetResourceNodesList();
-
-            // TEST:
-            connect(ui.add_ip_pin, SIGNAL(pressed()), this, SLOT(OnAddInputPinClicked()));
-            connect(ui.remove_ip_pin, SIGNAL(pressed()), this, SLOT(OnRemoveInputPinClicked()));
-
-            connect(ui.add_op_pin, SIGNAL(pressed()), this, SLOT(OnAddOutputPinClicked()));
-            connect(ui.remove_op_pin, SIGNAL(pressed()), this, SLOT(OnRemoveOutputPinClicked()));
-
-            // https://stackoverflow.com/questions/5153157/passing-an-argument-to-a-slot
-            m_IpLineEditsSignalMapper = new QSignalMapper(this);
-            //m_IpButtonsSignalMapper   = new QSignalMapper(this);
-
-            m_OpLineEditsSignalMapper = new QSignalMapper(this);
-
             connect(frameGraphGraphicsView, SIGNAL(OnNodeSelected(Node*)), this, SLOT(OnNodeSelected(Node*)));
             connect(ui.PassName, SIGNAL(returnPressed()), this, SLOT(OnNodeNameChanged()));
-        }
 
+            // prepare Data for combo boxes in the props inspector and other such stuff
+            initializePassNodePropertiesInspector();
+
+            populatePresetImportNodesList();
+            populatePresetResourceNodesList();
+        }
+        //-----------------------------------------------------------
         void RZEFrameGraphEditor::OnImportPresetButtonClicked()
         {
         }
-
+        //-----------------------------------------------------------
         void RZEFrameGraphEditor::OnNodeSelected(Node* node)
         {
             if (node) {
                 if (dynamic_cast<RZEPassNodeUI*>(node)) {
-                    // Clear the widget stuff and set as per this node
-                    // 1. clear the sockets and set as per this node
-                    while (ui.ip_pins_layout->rowCount() > 1) {
-                        ui.ip_pins_layout->removeRow(ui.ip_pins_layout->rowCount() - 1);
-                        ui.ip_pins_layout->update();
-                    }
-
-                    while (ui.op_pins_layout->rowCount() > 1) {
-                        ui.op_pins_layout->removeRow(ui.op_pins_layout->rowCount() - 1);
-                        ui.op_pins_layout->update();
-                    }
-
                     ui.stackedWidget->setCurrentIndex(1);
                     m_CurrentEditingPassNode = dynamic_cast<RZEPassNodeUI*>(node);
-
-                    ui.PassName->setText(m_CurrentEditingPassNode->getTitle().c_str());
-
-                    for (i32 i = 0; i < m_CurrentEditingPassNode->getInputSockets().size(); i++) {
-                        auto pinNameEdit = new QLineEdit();
-                        pinNameEdit->setPlaceholderText("Enter input socket name");
-
-                        m_IpLineEditsSignalMapper->setMapping(pinNameEdit, i + 1);
-
-                        connect(pinNameEdit, SIGNAL(returnPressed()), m_IpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
-                        connect(m_IpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnInputPinNameChanged(int)), Qt::UniqueConnection);
-
-                        auto label = "input pin #" + std::to_string(i + 1);
-                        ui.ip_pins_layout->addRow(label.c_str(), pinNameEdit);
-
-                        pinNameEdit->setText(m_CurrentEditingPassNode->getInputSocket(i)->getSocketName().c_str());
-
-                        ui.ip_pins_layout->update();
-                    }
-
-                    for (i32 i = 0; i < m_CurrentEditingPassNode->getOutputSockets().size(); i++) {
-                        auto pinNameEdit = new QLineEdit();
-                        pinNameEdit->setPlaceholderText("Enter output socket name");
-
-                        m_OpLineEditsSignalMapper->setMapping(pinNameEdit, i + 1);
-
-                        connect(pinNameEdit, SIGNAL(returnPressed()), m_OpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
-                        connect(m_OpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnOutputPinNameChanged(int)), Qt::UniqueConnection);
-
-                        auto label = "output pin #" + std::to_string(i + 1);
-                        ui.op_pins_layout->addRow(label.c_str(), pinNameEdit);
-
-                        pinNameEdit->setText(m_CurrentEditingPassNode->getOutputSocket(i)->getSocketName().c_str());
-
-                        ui.op_pins_layout->update();
-                    }
+                    // Populate the panel
+                    populatePopertiesPanelWithPassNode();
 
                 } else if (dynamic_cast<RZEBufferResourceNodeUI*>(node)) {
                     ui.stackedWidget->setCurrentIndex(2);
-                    //m_CurrentEditingPassNode = dynamic_cast<RZEPassNodeUI*>(node);
+                    //m_CurrentEditingBufferResourceNode = dynamic_cast<RZEBufferResourceNodeUI*>(node);
                 }
                 node->update();
             } else {
                 ui.stackedWidget->setCurrentIndex(0);
                 m_CurrentEditingPassNode = nullptr;
+                //m_CurrentEditingBufferResourceNode = nullptr;
             }
 
             m_NodeGraphWidget->repaint();
@@ -172,7 +136,7 @@ namespace Razix {
                 m_CurrentEditingPassNode->setTitle(ui.PassName->text().toStdString());
             }
         }
-
+        //-----------------------------------------------------------
         void RZEFrameGraphEditor::OnAddInputPinClicked()
         {
             // TODO: Add QT user data to identify the pin idx
@@ -291,7 +255,7 @@ namespace Razix {
 
             m_NodeGraphWidget->repaint();
         }
-
+        //-----------------------------------------------------------
         void RZEFrameGraphEditor::OnAddOutputPinClicked()
         {
             auto pinNameEdit = new QLineEdit();
@@ -346,6 +310,416 @@ namespace Razix {
             }
 
             m_NodeGraphWidget->repaint();
+        }
+
+        //-----------------------------------------------------------
+
+        void RZEFrameGraphEditor::OnAddColorFormatClicked()
+        {
+            auto formatsComboBox = new QComboBox();
+            formatsComboBox->addItems(m_FormatsStringList);
+            formatsComboBox->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA32F);    // Default format = RGBA32F
+
+            m_ColorFormatsComboBoxSignalMapper->setMapping(formatsComboBox, ui.color_formats_layout->rowCount());
+
+            connect(formatsComboBox, SIGNAL(currentIndexChanged(int)), m_ColorFormatsComboBoxSignalMapper, SLOT(map()), Qt::UniqueConnection);
+            connect(m_ColorFormatsComboBoxSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnColorFormatChanged(int)), Qt::UniqueConnection);
+
+            auto label = "#" + std::to_string(ui.color_formats_layout->rowCount());
+            ui.color_formats_layout->addRow(label.c_str(), formatsComboBox);
+
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->getPipelineSettings().colorFormats.push_back(formatsComboBox->currentText().toStdString());
+            }
+
+            m_NodeGraphWidget->repaint();
+        }
+
+        void RZEFrameGraphEditor::OnColorFormatChanged(int idx)
+        {
+            auto FieldLayoutItem = ui.color_formats_layout->itemAt(idx, QFormLayout::ItemRole::FieldRole);
+
+            QWidget*   widget   = qobject_cast<QWidget*>(FieldLayoutItem->widget());
+            QComboBox* comboBox = qobject_cast<QComboBox*>(widget);
+
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->getPipelineSettings().colorFormats[idx] = comboBox->currentText().toStdString();
+            }
+        }
+
+        void RZEFrameGraphEditor::OnRemoveColorFormatClicked()
+        {
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->getPipelineSettings().colorFormats.pop_back();
+            }
+
+            // Always remove the last pin
+            if (ui.color_formats_layout->rowCount() > 0) {
+                ui.color_formats_layout->removeRow(ui.color_formats_layout->rowCount() - 1);
+                ui.color_formats_layout->update();
+            }
+
+            m_NodeGraphWidget->repaint();
+        }
+        //-----------------------------------------------------------
+        void RZEFrameGraphEditor::OnBrowseShaderPressed()
+        {
+            // TODO: Use VFS to get shader files directory and pass it here
+            auto fileName = QFileDialog::getOpenFileName(this, "Select Razix Shader File", "", tr("Razix Shader File (*.rzsf)"));
+
+            auto shaderName = Utilities::GetFileName(fileName.toStdString());
+            ui.shaderFileLocation->setText(shaderName.c_str());
+
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->setShaderName(shaderName);
+            }
+        }
+        //-----------------------------------------------------------
+        void RZEFrameGraphEditor::OnPipelineNameChanged()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().pipelineName = ui.pipelineName->text().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineCullModeSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().cullMode = ui.cullMode->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelinePolygonModeSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().polygonMode = ui.polygonMode->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineDrawTypeSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().drawMode = ui.drawType->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineEnableTransparencyChecked()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().enableTransparencey = ui.enableTransparency->isChecked();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineEnableDepthTestChecked()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().enableDepthTest = ui.enableDepthTest->isChecked();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineEnableDepthWriteChecked()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().enableDepthWrite = ui.enableDepthWrite->isChecked();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineDepthOperationSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().depthOperation = ui.depthOperation->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineColorSrcSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().colorSrc = ui.colorSrc->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineColorDstSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().colorDst = ui.colorDst->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineColorOperationSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().colorOp = ui.colorOp->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineAlphaSrcSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().alphaOp = ui.alphaOp->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineAlphaDstSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().alphaOp = ui.alphaOp->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineAlphaOperationSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().alphaOp = ui.alphaOp->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnPipelineDepthFormatSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getPipelineSettings().depthFormat = ui.depthFormat->currentText().toStdString();
+        }
+
+        //-----------------------------------------------------------
+
+        void RZEFrameGraphEditor::OnSceneGeometryModeSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getSceneSettings().geometryMode = ui.sceneGeometry->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnEnableResize()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getSceneSettings().enableResize = ui.enableResize->isChecked();
+        }
+
+        void RZEFrameGraphEditor::OnResolutionSelected()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getSceneSettings().resolution = ui.resolution->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnExtentXChanged()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getSceneSettings().extents.x = ui.extentX->text().toInt();
+        }
+
+        void RZEFrameGraphEditor::OnExtentYChanged()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getSceneSettings().extents.y = ui.extentY->text().toInt();
+        }
+
+        void RZEFrameGraphEditor::OnLayersChanged()
+        {
+            if (m_CurrentEditingPassNode)
+                m_CurrentEditingPassNode->getSceneSettings().layers = ui.layers->text().toInt();
+        }
+
+        //-----------------------------------------------------------
+
+        void RZEFrameGraphEditor::initializePassNodePropertiesInspector()
+        {
+            //------------------
+            // Pins
+            //------------------
+
+            connect(ui.add_ip_pin, SIGNAL(pressed()), this, SLOT(OnAddInputPinClicked()));
+            connect(ui.remove_ip_pin, SIGNAL(pressed()), this, SLOT(OnRemoveInputPinClicked()));
+
+            connect(ui.add_op_pin, SIGNAL(pressed()), this, SLOT(OnAddOutputPinClicked()));
+            connect(ui.remove_op_pin, SIGNAL(pressed()), this, SLOT(OnRemoveOutputPinClicked()));
+
+            // https://stackoverflow.com/questions/5153157/passing-an-argument-to-a-slot
+            m_IpLineEditsSignalMapper          = new QSignalMapper(this);
+            m_OpLineEditsSignalMapper          = new QSignalMapper(this);
+            m_ColorFormatsComboBoxSignalMapper = new QSignalMapper(this);
+
+            //------------------
+            // Shader
+            //------------------
+
+            connect(ui.browseShaderFIleBtn, SIGNAL(pressed()), this, SLOT(OnBrowseShaderPressed()));
+
+            //------------------
+            // Pipeline
+            //------------------
+
+            connect(ui.pipelineName, SIGNAL(returnPressed()), this, SLOT(OnPipelineNameChanged()));
+
+            connect(ui.cullMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineCullModeSelected()));
+            // Fill cull mode combo box
+            for (u32 i = 0; i < (u32) Graphics::CullMode::COUNT; i++)
+                ui.cullMode->addItem(Graphics::CullModeNames[i]);
+
+            connect(ui.polygonMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelinePolygonModeSelected()));
+            for (u32 i = 0; i < (u32) Graphics::PolygonMode::COUNT; i++)
+                ui.polygonMode->addItem(Graphics::PolygonModeNames[i]);
+
+            connect(ui.drawType, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDrawTypeSelected()));
+            for (u32 i = 0; i < (u32) Graphics::DrawType::COUNT; i++)
+                ui.drawType->addItem(Graphics::DrawTypeNames[i]);
+
+            connect(ui.enableTransparency, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableTransparencyChecked()));
+            connect(ui.enableDepthTest, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableDepthTestChecked()));
+            connect(ui.enableDepthWrite, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableDepthWriteChecked()));
+
+            connect(ui.depthOperation, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDepthOperationSelected()));
+            for (u32 i = 0; i < (u32) Graphics::CompareOp ::COUNT; i++)
+                ui.depthOperation->addItem(Graphics::CompareOpNames[i]);
+
+            // Blend Factor
+            connect(ui.colorSrc, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorSrcSelected()));
+            connect(ui.colorDst, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorDstSelected()));
+            connect(ui.alphaSrc, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineAlphaSrcSelected()));
+            connect(ui.alphaDst, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineAlphaDstSelected()));
+            for (u32 i = 0; i < (u32) Graphics::BlendFactor::COUNT; i++) {
+                ui.colorSrc->addItem(Graphics::BlendFactorNames[i]);
+                ui.colorDst->addItem(Graphics::BlendFactorNames[i]);
+                ui.alphaSrc->addItem(Graphics::BlendFactorNames[i]);
+                ui.alphaDst->addItem(Graphics::BlendFactorNames[i]);
+            }
+
+            // Blend Op
+            connect(ui.colorOp, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorOperationSelected()));
+            connect(ui.alphaOp, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineAlphaOperationSelected()));
+            for (u32 i = 0; i < (u32) Graphics::BlendOp::COUNT; i++) {
+                ui.colorOp->addItem(Graphics::BlendOpNames[i]);
+                ui.alphaOp->addItem(Graphics::BlendOpNames[i]);
+            }
+
+            // Fill the formats combobox items
+            for (u32 i = 0; i < (u32) Graphics::TextureFormat::COUNT; i++)
+                m_FormatsStringList.push_back(Graphics::RZTextureDesc::FormatToString((Graphics::TextureFormat) i).c_str());
+
+            // Depth format
+            connect(ui.depthFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDepthFormatSelected()));
+            ui.depthFormat->addItems(m_FormatsStringList);
+
+            connect(ui.add_color_format, SIGNAL(pressed()), this, SLOT(OnAddColorFormatClicked()));
+            connect(ui.remove_color_format, SIGNAL(pressed()), this, SLOT(OnRemoveColorFormatClicked()));
+
+            //------------------
+            // Scene props
+            //------------------
+
+            // Fill the geom mode combobox items
+            connect(ui.sceneGeometry, SIGNAL(currentIndexChanged(int)), this, SLOT(OnSceneGeometryModeSelected()));
+            for (u32 i = 0; i < (u32) Razix::SceneDrawGeometryMode::COUNT; i++)
+                ui.sceneGeometry->addItem(Razix::SceneDrawGeometryModeNames[i]);
+
+            connect(ui.enableResize, SIGNAL(stateChanged(int)), this, SLOT(OnEnableResize()));
+
+            connect(ui.resolution, SIGNAL(currentIndexChanged(int)), this, SLOT(OnResolutionSelected()));
+            for (u32 i = 0; i < (u32) Razix::Graphics::Resolution::COUNT; i++)
+                ui.resolution->addItem(Razix::Graphics::ResolutionNames[i]);
+
+            // Extents X & Y
+            connect(ui.extentX, SIGNAL(returnPressed()), this, SLOT(OnExtentXChanged()));
+            ui.extentX->setValidator(new QIntValidator(-10000, 10000, this));
+            connect(ui.extentY, SIGNAL(returnPressed()), this, SLOT(OnExtentYChanged()));
+            ui.extentY->setValidator(new QIntValidator(-10000, 10000, this));
+
+            connect(ui.layers, SIGNAL(returnPressed()), this, SLOT(OnLayersChanged()));
+            ui.layers->setValidator(new QIntValidator(0, 1024, this));
+        }
+
+        void RZEFrameGraphEditor::populatePopertiesPanelWithPassNode()
+        {
+            //------------------
+            // Pins
+            //------------------
+
+            // Clear the widget stuff and set as per this node
+            // 1. clear the sockets and set as per this node
+            while (ui.ip_pins_layout->rowCount() > 1) {
+                ui.ip_pins_layout->removeRow(ui.ip_pins_layout->rowCount() - 1);
+                ui.ip_pins_layout->update();
+            }
+
+            while (ui.op_pins_layout->rowCount() > 1) {
+                ui.op_pins_layout->removeRow(ui.op_pins_layout->rowCount() - 1);
+                ui.op_pins_layout->update();
+            }
+
+            // Clear the color formats layout
+            while (ui.color_formats_layout->rowCount() > 0) {
+                ui.color_formats_layout->removeRow(ui.color_formats_layout->rowCount() - 1);
+                ui.color_formats_layout->update();
+            }
+
+            ui.PassName->setText(m_CurrentEditingPassNode->getTitle().c_str());
+
+            for (i32 i = 0; i < m_CurrentEditingPassNode->getInputSockets().size(); i++) {
+                auto pinNameEdit = new QLineEdit();
+                pinNameEdit->setPlaceholderText("Enter input socket name");
+
+                m_IpLineEditsSignalMapper->setMapping(pinNameEdit, i + 1);
+
+                connect(pinNameEdit, SIGNAL(returnPressed()), m_IpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
+                connect(m_IpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnInputPinNameChanged(int)), Qt::UniqueConnection);
+
+                auto label = "input pin #" + std::to_string(i + 1);
+                ui.ip_pins_layout->addRow(label.c_str(), pinNameEdit);
+
+                pinNameEdit->setText(m_CurrentEditingPassNode->getInputSocket(i)->getSocketName().c_str());
+
+                ui.ip_pins_layout->update();
+            }
+
+            for (i32 i = 0; i < m_CurrentEditingPassNode->getOutputSockets().size(); i++) {
+                auto pinNameEdit = new QLineEdit();
+                pinNameEdit->setPlaceholderText("Enter output socket name");
+
+                m_OpLineEditsSignalMapper->setMapping(pinNameEdit, i + 1);
+
+                connect(pinNameEdit, SIGNAL(returnPressed()), m_OpLineEditsSignalMapper, SLOT(map()), Qt::UniqueConnection);
+                connect(m_OpLineEditsSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnOutputPinNameChanged(int)), Qt::UniqueConnection);
+
+                auto label = "output pin #" + std::to_string(i + 1);
+                ui.op_pins_layout->addRow(label.c_str(), pinNameEdit);
+
+                pinNameEdit->setText(m_CurrentEditingPassNode->getOutputSocket(i)->getSocketName().c_str());
+
+                ui.op_pins_layout->update();
+            }
+
+            //------------------
+            // Shader
+            //------------------
+            ui.shaderFileLocation->setText(m_CurrentEditingPassNode->getShaderName().c_str());
+
+            //------------------
+            // Pipeline
+            //------------------
+            auto& pipelineSettings = m_CurrentEditingPassNode->getPipelineSettings();
+            ui.pipelineName->setText(pipelineSettings.pipelineName.c_str());
+            ui.cullMode->setCurrentIndex(ui.cullMode->findText(pipelineSettings.cullMode.c_str()));
+            ui.polygonMode->setCurrentIndex(ui.polygonMode->findText(pipelineSettings.polygonMode.c_str()));
+            ui.drawType->setCurrentIndex(ui.drawType->findText(pipelineSettings.drawMode.c_str()));
+            ui.enableTransparency->setChecked(pipelineSettings.enableTransparencey);
+            ui.enableDepthWrite->setChecked(pipelineSettings.enableDepthWrite);
+            ui.enableDepthTest->setChecked(pipelineSettings.enableDepthTest);
+            ui.depthOperation->setCurrentIndex(ui.depthOperation->findText(pipelineSettings.depthOperation.c_str()));
+            ui.colorSrc->setCurrentIndex(ui.colorSrc->findText(pipelineSettings.colorSrc.c_str()));
+            ui.colorDst->setCurrentIndex(ui.colorDst->findText(pipelineSettings.colorDst.c_str()));
+            ui.colorOp->setCurrentIndex(ui.colorOp->findText(pipelineSettings.colorOp.c_str()));
+            ui.alphaSrc->setCurrentIndex(ui.alphaSrc->findText(pipelineSettings.alphaSrc.c_str()));
+            ui.alphaDst->setCurrentIndex(ui.alphaDst->findText(pipelineSettings.alphaDst.c_str()));
+            ui.alphaOp->setCurrentIndex(ui.alphaOp->findText(pipelineSettings.alphaOp.c_str()));
+            ui.depthFormat->setCurrentIndex(ui.depthFormat->findText(pipelineSettings.depthFormat.c_str()));
+
+            for (i32 i = 0; i < pipelineSettings.colorFormats.size(); i++) {
+                auto formatsComboBox = new QComboBox();
+                formatsComboBox->addItems(m_FormatsStringList);
+                formatsComboBox->setCurrentIndex(formatsComboBox->findText(pipelineSettings.colorFormats[i].c_str()));
+
+                m_ColorFormatsComboBoxSignalMapper->setMapping(formatsComboBox, ui.color_formats_layout->rowCount());
+
+                connect(formatsComboBox, SIGNAL(currentIndexChanged(int)), m_ColorFormatsComboBoxSignalMapper, SLOT(map()), Qt::UniqueConnection);
+                connect(m_ColorFormatsComboBoxSignalMapper, SIGNAL(mapped(int)), this, SLOT(OnColorFormatChanged(int)), Qt::UniqueConnection);
+
+                auto label = "#" + std::to_string(ui.color_formats_layout->rowCount());
+                ui.color_formats_layout->addRow(label.c_str(), formatsComboBox);
+            }
+
+            //------------------
+            // Scene
+            //------------------
+            auto& sceneSettings = m_CurrentEditingPassNode->getSceneSettings();
+            ui.sceneGeometry->setCurrentIndex(ui.sceneGeometry->findText(sceneSettings.geometryMode.c_str()));
+            ui.enableResize->setChecked(sceneSettings.enableResize);
+            ui.resolution->setCurrentIndex(ui.resolution->findText(sceneSettings.resolution.c_str()));
+            ui.extentX->setText(std::to_string(sceneSettings.extents.x).c_str());
+            ui.extentY->setText(std::to_string(sceneSettings.extents.y).c_str());
+            ui.layers->setText(std::to_string(sceneSettings.layers).c_str());
         }
 
         void RZEFrameGraphEditor::populatePresetImportNodesList()

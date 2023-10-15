@@ -27,8 +27,8 @@ namespace Razix {
         /* What type of data does the descriptor set member represent */
         enum class DescriptorType : u32
         {
-            UniformBuffer = 0,
-            ImageSamplerCombined  = 1    // (combined image sampler)
+            UniformBuffer        = 0,
+            ImageSamplerCombined = 1    // (combined image sampler)
             // TODO: Add more types like STORAGE_BUFFER, STORAGE_IMAGE, UNIFORM_TEXEL etc.
         };
 
@@ -72,8 +72,21 @@ namespace Razix {
             TransparentWhite,
             Pink,
             DepthZeroToOne,
-            DepthOneToZero
+            DepthOneToZero,
+            COUNT
         };
+
+        static const char* ClearColorPresetsNames[] =
+            {
+                "OpaqueBlack",
+                "OpaqueWhite",
+                "TransparentBlack",
+                "TransparentWhite",
+                "Pink",
+                "DepthZeroToOne",
+                "DepthOneToZero"};
+
+        RAZIX_ENUM_NAMES_ASSERT(ClearColorPresetsNames, ClearColorPresets);
 
         glm::vec4 ClearColorFromPreset(ClearColorPresets preset);
 
@@ -81,7 +94,7 @@ namespace Razix {
         {
             ZeroToOne,
             OneToZero
-        }; 
+        };
 
         /* Gives information for the attachment Info */
         struct RAZIX_MEM_ALIGN AttachmentInfo

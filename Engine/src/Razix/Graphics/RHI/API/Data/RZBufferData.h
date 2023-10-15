@@ -8,7 +8,8 @@ namespace Razix {
         {
             Static,
             Dynamic,
-            Stream
+            Stream,
+            COUNT
         };
 
         enum class BufferType
@@ -22,8 +23,31 @@ namespace Razix {
             Structured,
             Data,
             Regular,
-            AccelerationStructure
+            AccelerationStructure,
+            COUNT
         };
+
+        static const char* BufferUsageNames[] = {
+            "Static",
+            "Dynamic",
+            "Stream"};
+
+        RAZIX_ENUM_NAMES_ASSERT(BufferUsageNames, BufferUsage);
+
+        static const char* BufferTypeNames[] =
+            {
+                "Constant",
+                "RWConstant",
+                "Storage",
+                "RWStructured",
+                "RWData",
+                "RWRegular",
+                "Structured",
+                "Data",
+                "Regular",
+                "AccelerationStructure"};
+
+        RAZIX_ENUM_NAMES_ASSERT(BufferTypeNames, BufferType);
 
     }    // namespace Graphics
 }    // namespace Razix

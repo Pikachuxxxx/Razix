@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>88</height>
+    <width>473</width>
+    <height>135</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -27,23 +27,8 @@ border-bottom: 2px;
 </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>3</number>
-   </property>
-   <property name="leftMargin">
-    <number>5</number>
-   </property>
-   <property name="topMargin">
-    <number>5</number>
-   </property>
-   <property name="rightMargin">
-    <number>5</number>
-   </property>
-   <property name="bottomMargin">
-    <number>5</number>
-   </property>
    <item>
-    <layout class="QHBoxLayout" name="PositionLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_10">
      <item>
       <widget class="QLabel" name="PosLbl">
        <property name="minimumSize">
@@ -71,117 +56,171 @@ border-bottom: 2px;
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="PosX">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 0, 4);</string>
-       </property>
-       <property name="text">
-        <string>x</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="PosX">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 0, 4);</string>
+         </property>
+         <property name="text">
+          <string>x</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="PosVal_X">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(255, 0, 0);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+         <property name="dragEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLineEdit" name="PosVal_X">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-       <property name="dragEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="PosY">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
+         </property>
+         <property name="text">
+          <string>y</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="PosVal_Y">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 255, 0);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="PosY">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
-       </property>
-       <property name="text">
-        <string>y</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="PosVal_Y">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="PosZ">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
-       </property>
-       <property name="text">
-        <string>z</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="PosVal_Z">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="PosZ">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
+         </property>
+         <property name="text">
+          <string>z</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="PosVal_Z">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 150, 225);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="RotationLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_11">
      <item>
       <widget class="QLabel" name="RotLbl">
        <property name="minimumSize">
@@ -209,117 +248,171 @@ border-bottom: 2px;
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="RotX">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 0, 4);</string>
-       </property>
-       <property name="text">
-        <string>x</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="RotX">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 0, 4);</string>
+         </property>
+         <property name="text">
+          <string>x</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="RotVal_X">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(255, 0, 0);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+         <property name="dragEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLineEdit" name="RotVal_X">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-       <property name="dragEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="RotY">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
+         </property>
+         <property name="text">
+          <string>y</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="RotVal_Y">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 255, 0);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="RotY">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
-       </property>
-       <property name="text">
-        <string>y</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="RotVal_Y">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="RotZ">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
-       </property>
-       <property name="text">
-        <string>z</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="RotVal_Z">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="RotZ">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
+         </property>
+         <property name="text">
+          <string>z</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="RotVal_Z">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 150, 225);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="ScaleLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_12">
      <item>
       <widget class="QLabel" name="ScaleLbl">
        <property name="minimumSize">
@@ -347,112 +440,166 @@ border-bottom: 2px;
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="ScaleX">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 0, 4);</string>
-       </property>
-       <property name="text">
-        <string>x</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="ScaleX">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 0, 4);</string>
+         </property>
+         <property name="text">
+          <string>x</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ScaleVal_X">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(255, 0, 0);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+         <property name="dragEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLineEdit" name="ScaleVal_X">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-       <property name="dragEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="ScaleY">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
+         </property>
+         <property name="text">
+          <string>y</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ScaleVal_Y">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 255, 0);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="ScaleY">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
+      <layout class="QHBoxLayout" name="horizontalLayout_9">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(0, 255, 0, 255);</string>
-       </property>
-       <property name="text">
-        <string>y</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ScaleVal_Y">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="ScaleZ">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
-       </property>
-       <property name="text">
-        <string>z</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="ScaleVal_Z">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>80</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.000000</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="ScaleZ">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(0, 150, 225, 255);</string>
+         </property>
+         <property name="text">
+          <string>z</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ScaleVal_Z">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 150, 225);
+border-width:2px;
+border-style:solid;</string>
+         </property>
+         <property name="text">
+          <string>0.000000</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

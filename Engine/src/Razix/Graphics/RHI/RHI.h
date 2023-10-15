@@ -36,8 +36,20 @@ namespace Razix {
             k4KUpscaled, /* Upscaled using FSR/DLSS                                             */
             k4KNative,   /* native 3840x2160 rendering                                          */
             kWindow,     /* Selects the resolution dynamically based on the presentation window */
-            kCustom      /* Custom resolution for rendering                                     */
+            kCustom,     /* Custom resolution for rendering                                     */
+            COUNT
         };
+
+        static const char* ResolutionNames[] =
+            {
+                "k1080p",
+                "k1440p",
+                "k4KUpscaled",
+                "k4KNative",
+                "kWindow",
+                "kCustom"};
+
+        RAZIX_ENUM_NAMES_ASSERT(ResolutionNames, Resolution);
 
         static std::unordered_map<Resolution, glm::uvec2> ResolutionToExtentsMap = {
             {Resolution::k1080p, glm::uvec2(1920, 1080)},

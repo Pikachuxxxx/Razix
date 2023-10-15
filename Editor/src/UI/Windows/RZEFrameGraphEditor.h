@@ -1,11 +1,12 @@
 #pragma once
 
 #include <QMenu>
+#include <QSignalMapper>
 #include <QtNodeGraph.h>
 
 #include "generated/ui_RZEFrameGraphEditor.h"
 
-#include <QSignalMapper>
+#include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 
 namespace Razix {
     namespace Editor {
@@ -65,29 +66,62 @@ namespace Razix {
 
         public slots:
             void OnImportPresetButtonClicked();
-
+            //-----------------------------------------------------------
             void OnNodeSelected(Node* node);
             void OnNodeNameChanged();
-
+            //-----------------------------------------------------------
             void OnAddInputPinClicked();
             void OnInputPinNameChanged(int idx);
             void OnRemoveInputPinClicked();
-
+            //-----------------------------------------------------------
             void OnAddOutputPinClicked();
             void OnOutputPinNameChanged(int idx);
             void OnRemoveOutputPinClicked();
+            //-----------------------------------------------------------
+            void OnAddColorFormatClicked();
+            void OnColorFormatChanged(int idx);
+            void OnRemoveColorFormatClicked();
+            //-----------------------------------------------------------
+            void OnBrowseShaderPressed();
+            //-----------------------------------------------------------
+            void OnPipelineNameChanged();
+            void OnPipelineCullModeSelected();
+            void OnPipelinePolygonModeSelected();
+            void OnPipelineDrawTypeSelected();
+            void OnPipelineEnableTransparencyChecked();
+            void OnPipelineEnableDepthTestChecked();
+            void OnPipelineEnableDepthWriteChecked();
+            void OnPipelineDepthOperationSelected();
+            void OnPipelineColorSrcSelected();
+            void OnPipelineColorDstSelected();
+            void OnPipelineColorOperationSelected();
+            void OnPipelineAlphaSrcSelected();
+            void OnPipelineAlphaDstSelected();
+            void OnPipelineAlphaOperationSelected();
+            void OnPipelineDepthFormatSelected();
+            //-----------------------------------------------------------
+            void OnSceneGeometryModeSelected();
+            void OnEnableResize();
+            void OnResolutionSelected();
+            void OnExtentXChanged();
+            void OnExtentYChanged();
+            void OnLayersChanged();
+            //-----------------------------------------------------------
 
         private:
-            Ui::FrameGraphEditor ui;
-            NodeGraphWidget*     m_NodeGraphWidget         = nullptr;
-            QSignalMapper*       m_IpLineEditsSignalMapper = nullptr;
-            QSignalMapper*       m_IpButtonsSignalMapper   = nullptr;
-            QSignalMapper*       m_OpLineEditsSignalMapper = nullptr;
-            RZEPassNodeUI*       m_CurrentEditingPassNode  = nullptr;
+            Ui::FrameGraphEditor               ui;
+            NodeGraphWidget*                   m_NodeGraphWidget                  = nullptr;
+            QSignalMapper*                     m_IpLineEditsSignalMapper          = nullptr;
+            QSignalMapper*                     m_OpLineEditsSignalMapper          = nullptr;
+            QSignalMapper*                     m_ColorFormatsComboBoxSignalMapper = nullptr;
+            RZEPassNodeUI*                     m_CurrentEditingPassNode           = nullptr;
+            QStringList                        m_FormatsStringList                = {};
+            Graphics::FrameGraph::RZFrameGraph m_FrameGraph                       = {}; /* FrameGraph classes used to export into a JSON file */
 
         private:
-            void
-                 populatePresetResourceNodesList();
+            void initializePassNodePropertiesInspector();
+            void populatePopertiesPanelWithPassNode();
+            void populatePresetResourceNodesList();
             void populatePresetImportNodesList();
             void populatePresetPassNodesList();
         };

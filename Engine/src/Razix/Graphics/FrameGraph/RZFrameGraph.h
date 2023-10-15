@@ -177,11 +177,18 @@ namespace Razix {
 
                 const std::string &getResourceName(RZFrameGraphResource id);
 
+                RAZIX_INLINE static bool IsFirstFrame()
+                {
+                    return m_IsFirstFrame;
+                }
+
             private:
                 std::vector<RZPassNode>      m_PassNodes;        /* List of all the pass nodes in the frame graph                             */
                 std::vector<RZResourceNode>  m_ResourceNodes;    /* List of the all the resources nodes (including clones) in the frame graph */
                 std::vector<RZResourceEntry> m_ResourceRegistry; /* List of Resource entries for each unique resource in the frame graph      */
                 RZBlackboard                 m_Blackboard;       /* Blackboard stores a database of per pass node resources  */
+
+                static bool m_IsFirstFrame;
 
             private:
                 ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource createResource(const std::string_view name, typename T::Desc &&desc)

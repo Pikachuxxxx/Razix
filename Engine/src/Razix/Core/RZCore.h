@@ -280,6 +280,8 @@ public:                                                  \
 #define RAZIX_WARNING_DISABLE(x) __pragma warning(disable \
                                                   : x)
 
+#define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+
 // TODO: Add Safe memory delete and unloading macros
 /****************************************************************************************************
  *                                         Graphics Settings                                        *
