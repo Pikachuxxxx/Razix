@@ -230,6 +230,17 @@ public:
     QComboBox *textureFormat;
     QComboBox *textureType;
     QSpacerItem *verticalSpacer_4;
+    QWidget *page_5_import_node;
+    QVBoxLayout *verticalLayout_26;
+    QLabel *PassPresetsLbl_6;
+    QFormLayout *formLayout_7;
+    QLabel *label_67;
+    QLineEdit *importResourceName;
+    QLabel *label_68;
+    QHBoxLayout *horizontalLayout_10;
+    QLineEdit *importedTexturePath;
+    QPushButton *browseImportTextureBtn;
+    QSpacerItem *verticalSpacer_5;
 
     void setupUi(QWidget *FrameGraphEditor)
     {
@@ -1619,6 +1630,75 @@ public:
         verticalLayout_25->addItem(verticalSpacer_4);
 
         stackedWidget->addWidget(page_4_texture_resource_node);
+        page_5_import_node = new QWidget();
+        page_5_import_node->setObjectName(QString::fromUtf8("page_5_import_node"));
+        verticalLayout_26 = new QVBoxLayout(page_5_import_node);
+        verticalLayout_26->setObjectName(QString::fromUtf8("verticalLayout_26"));
+        verticalLayout_26->setContentsMargins(0, 0, 0, 0);
+        PassPresetsLbl_6 = new QLabel(page_5_import_node);
+        PassPresetsLbl_6->setObjectName(QString::fromUtf8("PassPresetsLbl_6"));
+        PassPresetsLbl_6->setMinimumSize(QSize(0, 25));
+        PassPresetsLbl_6->setMaximumSize(QSize(16777215, 50));
+        PassPresetsLbl_6->setFont(font);
+        PassPresetsLbl_6->setAutoFillBackground(false);
+        PassPresetsLbl_6->setStyleSheet(QString::fromUtf8("background-color: rgb(61, 61, 61);\n"
+"color: #ffffff;\n"
+"border-style:solid;\n"
+"border-color:#ffffff;\n"
+"border-width:1px;\n"
+"\n"
+""));
+        PassPresetsLbl_6->setScaledContents(false);
+        PassPresetsLbl_6->setAlignment(Qt::AlignCenter);
+        PassPresetsLbl_6->setMargin(4);
+
+        verticalLayout_26->addWidget(PassPresetsLbl_6);
+
+        formLayout_7 = new QFormLayout();
+        formLayout_7->setObjectName(QString::fromUtf8("formLayout_7"));
+        formLayout_7->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_67 = new QLabel(page_5_import_node);
+        label_67->setObjectName(QString::fromUtf8("label_67"));
+
+        formLayout_7->setWidget(0, QFormLayout::LabelRole, label_67);
+
+        importResourceName = new QLineEdit(page_5_import_node);
+        importResourceName->setObjectName(QString::fromUtf8("importResourceName"));
+
+        formLayout_7->setWidget(0, QFormLayout::FieldRole, importResourceName);
+
+        label_68 = new QLabel(page_5_import_node);
+        label_68->setObjectName(QString::fromUtf8("label_68"));
+
+        formLayout_7->setWidget(1, QFormLayout::LabelRole, label_68);
+
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
+        importedTexturePath = new QLineEdit(page_5_import_node);
+        importedTexturePath->setObjectName(QString::fromUtf8("importedTexturePath"));
+        importedTexturePath->setReadOnly(true);
+
+        horizontalLayout_10->addWidget(importedTexturePath);
+
+        browseImportTextureBtn = new QPushButton(page_5_import_node);
+        browseImportTextureBtn->setObjectName(QString::fromUtf8("browseImportTextureBtn"));
+        browseImportTextureBtn->setIcon(icon16);
+        browseImportTextureBtn->setIconSize(QSize(24, 24));
+        browseImportTextureBtn->setFlat(true);
+
+        horizontalLayout_10->addWidget(browseImportTextureBtn);
+
+
+        formLayout_7->setLayout(1, QFormLayout::FieldRole, horizontalLayout_10);
+
+
+        verticalLayout_26->addLayout(formLayout_7);
+
+        verticalSpacer_5 = new QSpacerItem(20, 813, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_26->addItem(verticalSpacer_5);
+
+        stackedWidget->addWidget(page_5_import_node);
 
         horizontalLayout->addWidget(stackedWidget);
 
@@ -1628,7 +1708,7 @@ public:
 
         retranslateUi(FrameGraphEditor);
 
-        stackedWidget->setCurrentIndex(3);
+        stackedWidget->setCurrentIndex(4);
 
 
         QMetaObject::connectSlotsByName(FrameGraphEditor);
@@ -1743,6 +1823,10 @@ public:
         label_64->setText(QCoreApplication::translate("FrameGraphEditor", "is HDR", nullptr));
         enableMips->setText(QString());
         isHDR->setText(QString());
+        PassPresetsLbl_6->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
+        label_67->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
+        label_68->setText(QCoreApplication::translate("FrameGraphEditor", "Texture Path", nullptr));
+        browseImportTextureBtn->setText(QString());
     } // retranslateUi
 
 };

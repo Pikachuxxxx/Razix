@@ -115,6 +115,23 @@ namespace Razix {
             void OnBufferNameChanged();
             void OnBufferSizeChanged();
             void OnBufferUsageSelected();
+            // Texture Resource Panel
+            void OnTextureNameChanged();
+            void OnTextureWidthChanged();
+            void OnTextureHeightChanged();
+            void OnTextureDepthChanged();
+            void OnTextureLayersChanged();
+            void OnTextureTypeSelected();
+            void OnTextureFormatSelected();
+            void OnTextureWrapModeSelected();
+            void OnTextureFilteringMinModeSelected();
+            void OnTextureFilteringMagModeSelected();
+            void OnEnableMips();
+            void OnEnableIsHDR();
+            //-----------------------------------------------------------
+            // Import
+            void OnImportNameChanged();
+            void OnImportTextureBrowsePressed();
 
         private:
             Ui::FrameGraphEditor               ui;
@@ -125,21 +142,23 @@ namespace Razix {
             RZEPassNodeUI*                     m_CurrentEditingPassNode           = nullptr;
             RZEBufferResourceNodeUI*           m_CurrentEditingBufferNode         = nullptr;
             RZETextureResourceNodeUI*          m_CurrentEditingTextureNode        = nullptr;
+            RZEImportNodeUI*                   m_CurrentEditingImportNode         = nullptr;
             QStringList                        m_FormatsStringList                = {};
             Graphics::FrameGraph::RZFrameGraph m_FrameGraph                       = {}; /* FrameGraph classes used to export into a JSON file */
 
         private:
             void initializePassNodePropertiesInspector();
             void initializeResourceNodePropertiesInspector();
+            void initializeImportNodePropertiesInspector();
             //-----------------------------------------------------------
             void populatePopertiesPanelWithPassNode();
             void populatePopertiesPanelWithBufferNode();
             void populatePopertiesPanelWithTextureNode();
             void populatePopertiesPanelWithImportNode();
             //-----------------------------------------------------------
-            void initializePresetResourceNodesList();
-            void initializePresetImportNodesList();
             void initializePresetPassNodesList();
+            void initializePresetImportNodesList();
+            void initializePresetResourceNodesList();
         };
     }    // namespace Editor
 }    // namespace Razix
