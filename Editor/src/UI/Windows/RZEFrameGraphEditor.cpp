@@ -94,19 +94,25 @@ namespace Razix {
             DropShadowEffect->setColor(Qt::black);
 
             connect(frameGraphGraphicsView, SIGNAL(OnNodeSelected(Node*)), this, SLOT(OnNodeSelected(Node*)));
-            connect(ui.PassName, SIGNAL(returnPressed()), this, SLOT(OnNodeNameChanged()));
 
             // prepare Data for combo boxes in the props inspector and other such stuff
             initializePassNodePropertiesInspector();
+            initializeResourceNodePropertiesInspector();
+            initializeImportNodePropertiesInspector();
 
-            populatePresetImportNodesList();
-            populatePresetResourceNodesList();
+            // Load presets panel
+            initializePresetImportNodesList();
+            initializePresetResourceNodesList();
         }
+
         //-----------------------------------------------------------
+
         void RZEFrameGraphEditor::OnImportPresetButtonClicked()
         {
         }
+
         //-----------------------------------------------------------
+
         void RZEFrameGraphEditor::OnNodeSelected(Node* node)
         {
             if (node) {
@@ -118,19 +124,33 @@ namespace Razix {
 
                 } else if (dynamic_cast<RZEBufferResourceNodeUI*>(node)) {
                     ui.stackedWidget->setCurrentIndex(2);
-                    //m_CurrentEditingBufferResourceNode = dynamic_cast<RZEBufferResourceNodeUI*>(node);
+                    m_CurrentEditingBufferNode = dynamic_cast<RZEBufferResourceNodeUI*>(node);
+                    // Populate the panel
+                    populatePopertiesPanelWithBufferNode();
+                } else if (dynamic_cast<RZETextureResourceNodeUI*>(node)) {
+                    ui.stackedWidget->setCurrentIndex(3);
+                    m_CurrentEditingTextureNode = dynamic_cast<RZETextureResourceNodeUI*>(node);
+                    // Populate the panel
+                    populatePopertiesPanelWithTextureNode();
+                } else if (dynamic_cast<RZEImportNodeUI*>(node)) {
+                    ui.stackedWidget->setCurrentIndex(4);
+                    m_CurrentEditingImportNode = dynamic_cast<RZEImportNodeUI*>(node);
+                    // Populate the panel
+                    populatePopertiesPanelWithImportNode();
                 }
                 node->update();
             } else {
                 ui.stackedWidget->setCurrentIndex(0);
-                m_CurrentEditingPassNode = nullptr;
-                //m_CurrentEditingBufferResourceNode = nullptr;
+                m_CurrentEditingPassNode    = nullptr;
+                m_CurrentEditingBufferNode  = nullptr;
+                m_CurrentEditingTextureNode = nullptr;
+                m_CurrentEditingImportNode  = nullptr;
             }
 
             m_NodeGraphWidget->repaint();
         }
 
-        void RZEFrameGraphEditor::OnNodeNameChanged()
+        void RZEFrameGraphEditor::OnPassNodeNameChanged()
         {
             if (m_CurrentEditingPassNode) {
                 m_CurrentEditingPassNode->setTitle(ui.PassName->text().toStdString());
@@ -505,8 +525,124 @@ namespace Razix {
 
         //-----------------------------------------------------------
 
+        // Buffer Resource Panel
+        void RZEFrameGraphEditor::OnBufferNameChanged()
+        {
+            if (m_CurrentEditingBufferNode)
+                m_CurrentEditingBufferNode->setTitle(ui.bufferName->text().toStdString());
+        }
+
+        void RZEFrameGraphEditor::OnBufferSizeChanged()
+        {
+            if (m_CurrentEditingBufferNode)
+                m_CurrentEditingBufferNode->setSize(ui.bufferSize->text().toInt());
+        }
+
+        void RZEFrameGraphEditor::OnBufferUsageSelected()
+        {
+            if (m_CurrentEditingBufferNode)
+                m_CurrentEditingBufferNode->setUsage(ui.bufferUsage->currentText().toStdString());
+        }
+
+        // Texture Resource Panel
+        void RZEFrameGraphEditor::OnTextureNameChanged()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->setTitle(ui.textureName->text().toStdString());
+        }
+
+        void RZEFrameGraphEditor::OnTextureWidthChanged()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_Width = ui.textureWidth->text().toInt();
+        }
+
+        void RZEFrameGraphEditor::OnTextureHeightChanged()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_Height = ui.textureHeight->text().toInt();
+        }
+
+        void RZEFrameGraphEditor::OnTextureDepthChanged()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_Depth = ui.textureDepth->text().toInt();
+        }
+
+        void RZEFrameGraphEditor::OnTextureLayersChanged()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_Layers = ui.textureLayers->text().toInt();
+        }
+
+        void RZEFrameGraphEditor::OnTextureTypeSelected()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_Type = ui.textureType->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnTextureFormatSelected()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_Format = ui.textureFormat->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnTextureWrapModeSelected()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_Wrapping = ui.wrapMode->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnTextureFilteringMinModeSelected()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_FilteringMin = ui.filterModeMin->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnTextureFilteringMagModeSelected()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_FilteringMag = ui.filterModeMag->currentText().toStdString();
+        }
+
+        void RZEFrameGraphEditor::OnEnableMips()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_EnableMips = ui.enableMips->isChecked();
+        }
+
+        void RZEFrameGraphEditor::OnEnableIsHDR()
+        {
+            if (m_CurrentEditingTextureNode)
+                m_CurrentEditingTextureNode->m_IsHDR = ui.isHDR->isChecked();
+        }
+
+        //-----------------------------------------------------------
+
+        void RZEFrameGraphEditor::OnImportNameChanged()
+        {
+            if (m_CurrentEditingImportNode)
+                m_CurrentEditingImportNode->setTitle(ui.importResourceName->text().toStdString());
+        }
+
+        void RZEFrameGraphEditor::OnImportTextureBrowsePressed()
+        {
+            // TODO: Use VFS to get shader files directory and pass it here
+            auto fileName = QFileDialog::getOpenFileName(this, "Select Texture File to import", "", tr("image file (*.png *jpg *jpeg)"));
+
+            ui.importedTexturePath->setText(fileName.toStdString().c_str());
+
+            if (m_CurrentEditingImportNode) {
+                m_CurrentEditingImportNode->m_TexturePath = ui.importedTexturePath->text().toStdString();
+            }
+        }
+
+        //-----------------------------------------------------------
+
         void RZEFrameGraphEditor::initializePassNodePropertiesInspector()
         {
+            connect(ui.PassName, SIGNAL(returnPressed()), this, SLOT(OnPassNodeNameChanged()));
+
             //------------------
             // Pins
             //------------------
@@ -610,6 +746,59 @@ namespace Razix {
             connect(ui.layers, SIGNAL(returnPressed()), this, SLOT(OnLayersChanged()));
             ui.layers->setValidator(new QIntValidator(0, 1024, this));
         }
+
+        void RZEFrameGraphEditor::initializeResourceNodePropertiesInspector()
+        {
+            // Buffer Resource
+            connect(ui.bufferName, SIGNAL(returnPressed()), this, SLOT(OnBufferNameChanged()));
+            connect(ui.bufferSize, SIGNAL(returnPressed()), this, SLOT(OnBufferSizeChanged()));
+            ui.bufferSize->setValidator(new QIntValidator(0, Gib(1), this));
+            connect(ui.bufferUsage, SIGNAL(currentIndexChanged(int)), this, SLOT(OnBufferUsageSelected()));
+            for (u32 i = 0; i < (u32) Razix::Graphics::BufferUsage::COUNT; i++)
+                ui.bufferUsage->addItem(Razix::Graphics::BufferUsageNames[i]);
+            // TODO: enable data reflection check box
+
+            // Texture Resource
+            connect(ui.textureName, SIGNAL(returnPressed()), this, SLOT(OnTextureNameChanged()));
+            connect(ui.textureWidth, SIGNAL(returnPressed()), this, SLOT(OnTextureWidthChanged()));
+            ui.textureWidth->setValidator(new QIntValidator(0, Mib(1), this));
+
+            connect(ui.textureHeight, SIGNAL(returnPressed()), this, SLOT(OnTextureHeightChanged()));
+            ui.textureHeight->setValidator(new QIntValidator(0, Mib(1), this));
+
+            connect(ui.textureDepth, SIGNAL(returnPressed()), this, SLOT(OnTextureDepthChanged()));
+            ui.textureDepth->setValidator(new QIntValidator(0, Mib(1), this));
+
+            connect(ui.textureLayers, SIGNAL(returnPressed()), this, SLOT(OnTextureLayersChanged()));
+            ui.textureLayers->setValidator(new QIntValidator(0, Mib(1), this));
+
+            connect(ui.textureType, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureTypeSelected()));
+            for (u32 i = 0; i < (u32) Razix::Graphics::TextureType::COUNT; i++)
+                ui.textureType->addItem(Razix::Graphics::TextureTypeNames[i]);
+            connect(ui.textureFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFormatSelected()));
+            for (u32 i = 0; i < (u32) Razix::Graphics::TextureFormat::COUNT; i++)
+                ui.textureFormat->addItem(Razix::Graphics::TextureFormatNames[i]);
+            connect(ui.wrapMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureWrapModeSelected()));
+            for (u32 i = 0; i < (u32) Razix::Graphics::Wrapping::COUNT; i++)
+                ui.wrapMode->addItem(Razix::Graphics::WrappingNames[i]);
+            connect(ui.filterModeMin, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMinModeSelected()));
+            for (u32 i = 0; i < (u32) Razix::Graphics::Filtering::Mode::COUNT; i++)
+                ui.filterModeMin->addItem(Razix::Graphics::FitleringModeNames[i]);
+            connect(ui.filterModeMag, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMagModeSelected()));
+            for (u32 i = 0; i < (u32) Razix::Graphics::Filtering::Mode::COUNT; i++)
+                ui.filterModeMag->addItem(Razix::Graphics::FitleringModeNames[i]);
+
+            connect(ui.enableMips, SIGNAL(stateChanged(int)), this, SLOT(OnEnableMips()));
+            connect(ui.isHDR, SIGNAL(stateChanged(int)), this, SLOT(OnEnableIsHDR()));
+        }
+
+        void RZEFrameGraphEditor::initializeImportNodePropertiesInspector()
+        {
+            connect(ui.importResourceName, SIGNAL(returnPressed()), this, SLOT(OnImportNameChanged()));
+            connect(ui.browseImportTextureBtn, SIGNAL(pressed()), this, SLOT(OnImportTextureBrowsePressed()));
+        }
+
+        //-----------------------------------------------------------
 
         void RZEFrameGraphEditor::populatePopertiesPanelWithPassNode()
         {
@@ -722,7 +911,44 @@ namespace Razix {
             ui.layers->setText(std::to_string(sceneSettings.layers).c_str());
         }
 
-        void RZEFrameGraphEditor::populatePresetImportNodesList()
+        void RZEFrameGraphEditor::populatePopertiesPanelWithBufferNode()
+        {
+            ui.bufferName->setText(m_CurrentEditingBufferNode->getTitle().c_str());
+            ui.bufferSize->setText(std::to_string(m_CurrentEditingBufferNode->getSize()).c_str());
+            ui.bufferUsage->setCurrentIndex(ui.bufferUsage->findText(m_CurrentEditingBufferNode->getUsage().c_str()));
+        }
+
+        void RZEFrameGraphEditor::populatePopertiesPanelWithTextureNode()
+        {
+            ui.textureName->setText(m_CurrentEditingTextureNode->getTitle().c_str());
+            ui.textureWidth->setText(std::to_string(m_CurrentEditingTextureNode->m_Width).c_str());
+            ui.textureHeight->setText(std::to_string(m_CurrentEditingTextureNode->m_Height).c_str());
+            ui.textureDepth->setText(std::to_string(m_CurrentEditingTextureNode->m_Depth).c_str());
+            ui.textureLayers->setText(std::to_string(m_CurrentEditingTextureNode->m_Layers).c_str());
+
+            ui.textureType->setCurrentIndex(ui.textureType->findText(m_CurrentEditingTextureNode->m_Type.c_str()));
+            ui.textureFormat->setCurrentIndex(ui.textureFormat->findText(m_CurrentEditingTextureNode->m_Format.c_str()));
+            ui.wrapMode->setCurrentIndex(ui.wrapMode->findText(m_CurrentEditingTextureNode->m_Wrapping.c_str()));
+            ui.filterModeMin->setCurrentIndex(ui.filterModeMin->findText(m_CurrentEditingTextureNode->m_FilteringMin.c_str()));
+            ui.filterModeMag->setCurrentIndex(ui.filterModeMag->findText(m_CurrentEditingTextureNode->m_FilteringMag.c_str()));
+
+            ui.enableMips->setChecked(m_CurrentEditingTextureNode->m_EnableMips);
+            ui.isHDR->setChecked(m_CurrentEditingTextureNode->m_IsHDR);
+        }
+
+        void RZEFrameGraphEditor::populatePopertiesPanelWithImportNode()
+        {
+            ui.importResourceName->setText(m_CurrentEditingImportNode->getTitle().c_str());
+            ui.importedTexturePath->setText(m_CurrentEditingImportNode->m_TexturePath.c_str());
+        }
+
+        //-----------------------------------------------------------
+
+        void RZEFrameGraphEditor::initializePresetPassNodesList()
+        {
+        }
+
+        void RZEFrameGraphEditor::initializePresetImportNodesList()
         {
             for (auto& importPreset: ImportNodesPresets) {
                 auto label = new QLabel(importPreset.c_str());
@@ -757,7 +983,7 @@ namespace Razix {
 
         // TODO: https://stackoverflow.com/questions/46920221/qlistwidget-drag-and-drop-with-a-custom-widget-set-via-setitemwidget
 
-        void RZEFrameGraphEditor::populatePresetResourceNodesList()
+        void RZEFrameGraphEditor::initializePresetResourceNodesList()
         {
             for (auto& resourcePreset: ResourceNodesPresets) {
                 auto label = new QLabel(resourcePreset.first.c_str());

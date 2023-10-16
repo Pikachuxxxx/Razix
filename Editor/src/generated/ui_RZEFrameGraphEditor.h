@@ -186,16 +186,67 @@ public:
     QLabel *label_47;
     QLineEdit *layers;
     QSpacerItem *verticalSpacer_2;
-    QWidget *page_3_resource_node;
+    QWidget *page_3_buffer_resource_node;
     QVBoxLayout *verticalLayout_24;
     QLabel *PassPresetsLbl_4;
+    QLabel *label_66;
+    QFormLayout *formLayout_5;
+    QLabel *label_40;
+    QLineEdit *bufferName;
+    QLabel *label_50;
+    QLineEdit *bufferSize;
+    QLabel *label_51;
+    QComboBox *bufferUsage;
+    QLabel *label_52;
+    QCheckBox *reflectBuffer;
     QSpacerItem *verticalSpacer_3;
+    QWidget *page_4_texture_resource_node;
+    QVBoxLayout *verticalLayout_25;
+    QLabel *PassPresetsLbl_5;
+    QLabel *label_65;
+    QFormLayout *formLayout_6;
+    QLabel *label_53;
+    QLineEdit *textureName;
+    QLabel *label_54;
+    QLabel *label_55;
+    QLabel *label_56;
+    QLabel *label_57;
+    QLineEdit *textureWidth;
+    QLineEdit *textureDepth;
+    QLineEdit *textureHeight;
+    QLineEdit *textureLayers;
+    QLabel *label_58;
+    QLabel *label_59;
+    QLabel *label_60;
+    QLabel *label_61;
+    QLabel *label_62;
+    QLabel *label_63;
+    QLabel *label_64;
+    QCheckBox *enableMips;
+    QCheckBox *isHDR;
+    QComboBox *filterModeMag;
+    QComboBox *filterModeMin;
+    QComboBox *wrapMode;
+    QComboBox *textureFormat;
+    QComboBox *textureType;
+    QSpacerItem *verticalSpacer_4;
+    QWidget *page_5_import_node;
+    QVBoxLayout *verticalLayout_26;
+    QLabel *PassPresetsLbl_6;
+    QFormLayout *formLayout_7;
+    QLabel *label_67;
+    QLineEdit *importResourceName;
+    QLabel *label_68;
+    QHBoxLayout *horizontalLayout_10;
+    QLineEdit *importedTexturePath;
+    QPushButton *browseImportTextureBtn;
+    QSpacerItem *verticalSpacer_5;
 
     void setupUi(QWidget *FrameGraphEditor)
     {
         if (FrameGraphEditor->objectName().isEmpty())
             FrameGraphEditor->setObjectName(QString::fromUtf8("FrameGraphEditor"));
-        FrameGraphEditor->resize(1327, 986);
+        FrameGraphEditor->resize(1327, 1026);
         FrameGraphEditor->setStyleSheet(QString::fromUtf8(""));
         verticalLayout = new QVBoxLayout(FrameGraphEditor);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
@@ -1334,12 +1385,12 @@ public:
         verticalLayout_23->addItem(verticalSpacer_2);
 
         stackedWidget->addWidget(page_2_pass_node);
-        page_3_resource_node = new QWidget();
-        page_3_resource_node->setObjectName(QString::fromUtf8("page_3_resource_node"));
-        verticalLayout_24 = new QVBoxLayout(page_3_resource_node);
+        page_3_buffer_resource_node = new QWidget();
+        page_3_buffer_resource_node->setObjectName(QString::fromUtf8("page_3_buffer_resource_node"));
+        verticalLayout_24 = new QVBoxLayout(page_3_buffer_resource_node);
         verticalLayout_24->setObjectName(QString::fromUtf8("verticalLayout_24"));
         verticalLayout_24->setContentsMargins(0, 0, 0, 0);
-        PassPresetsLbl_4 = new QLabel(page_3_resource_node);
+        PassPresetsLbl_4 = new QLabel(page_3_buffer_resource_node);
         PassPresetsLbl_4->setObjectName(QString::fromUtf8("PassPresetsLbl_4"));
         PassPresetsLbl_4->setMinimumSize(QSize(0, 25));
         PassPresetsLbl_4->setMaximumSize(QSize(16777215, 50));
@@ -1358,11 +1409,296 @@ public:
 
         verticalLayout_24->addWidget(PassPresetsLbl_4);
 
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        label_66 = new QLabel(page_3_buffer_resource_node);
+        label_66->setObjectName(QString::fromUtf8("label_66"));
+        label_66->setFont(font7);
+
+        verticalLayout_24->addWidget(label_66);
+
+        formLayout_5 = new QFormLayout();
+        formLayout_5->setObjectName(QString::fromUtf8("formLayout_5"));
+        formLayout_5->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_40 = new QLabel(page_3_buffer_resource_node);
+        label_40->setObjectName(QString::fromUtf8("label_40"));
+
+        formLayout_5->setWidget(0, QFormLayout::LabelRole, label_40);
+
+        bufferName = new QLineEdit(page_3_buffer_resource_node);
+        bufferName->setObjectName(QString::fromUtf8("bufferName"));
+
+        formLayout_5->setWidget(0, QFormLayout::FieldRole, bufferName);
+
+        label_50 = new QLabel(page_3_buffer_resource_node);
+        label_50->setObjectName(QString::fromUtf8("label_50"));
+
+        formLayout_5->setWidget(1, QFormLayout::LabelRole, label_50);
+
+        bufferSize = new QLineEdit(page_3_buffer_resource_node);
+        bufferSize->setObjectName(QString::fromUtf8("bufferSize"));
+
+        formLayout_5->setWidget(1, QFormLayout::FieldRole, bufferSize);
+
+        label_51 = new QLabel(page_3_buffer_resource_node);
+        label_51->setObjectName(QString::fromUtf8("label_51"));
+
+        formLayout_5->setWidget(2, QFormLayout::LabelRole, label_51);
+
+        bufferUsage = new QComboBox(page_3_buffer_resource_node);
+        bufferUsage->setObjectName(QString::fromUtf8("bufferUsage"));
+
+        formLayout_5->setWidget(2, QFormLayout::FieldRole, bufferUsage);
+
+        label_52 = new QLabel(page_3_buffer_resource_node);
+        label_52->setObjectName(QString::fromUtf8("label_52"));
+
+        formLayout_5->setWidget(3, QFormLayout::LabelRole, label_52);
+
+        reflectBuffer = new QCheckBox(page_3_buffer_resource_node);
+        reflectBuffer->setObjectName(QString::fromUtf8("reflectBuffer"));
+        QFont font8;
+        font8.setItalic(true);
+        reflectBuffer->setFont(font8);
+
+        formLayout_5->setWidget(3, QFormLayout::FieldRole, reflectBuffer);
+
+
+        verticalLayout_24->addLayout(formLayout_5);
+
+        verticalSpacer_3 = new QSpacerItem(20, 741, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_24->addItem(verticalSpacer_3);
 
-        stackedWidget->addWidget(page_3_resource_node);
+        stackedWidget->addWidget(page_3_buffer_resource_node);
+        page_4_texture_resource_node = new QWidget();
+        page_4_texture_resource_node->setObjectName(QString::fromUtf8("page_4_texture_resource_node"));
+        verticalLayout_25 = new QVBoxLayout(page_4_texture_resource_node);
+        verticalLayout_25->setObjectName(QString::fromUtf8("verticalLayout_25"));
+        verticalLayout_25->setContentsMargins(0, 0, 0, 0);
+        PassPresetsLbl_5 = new QLabel(page_4_texture_resource_node);
+        PassPresetsLbl_5->setObjectName(QString::fromUtf8("PassPresetsLbl_5"));
+        PassPresetsLbl_5->setMinimumSize(QSize(0, 25));
+        PassPresetsLbl_5->setMaximumSize(QSize(16777215, 50));
+        PassPresetsLbl_5->setFont(font);
+        PassPresetsLbl_5->setAutoFillBackground(false);
+        PassPresetsLbl_5->setStyleSheet(QString::fromUtf8("background-color: rgb(61, 61, 61);\n"
+"color: #ffffff;\n"
+"border-style:solid;\n"
+"border-color:#ffffff;\n"
+"border-width:1px;\n"
+"\n"
+""));
+        PassPresetsLbl_5->setScaledContents(false);
+        PassPresetsLbl_5->setAlignment(Qt::AlignCenter);
+        PassPresetsLbl_5->setMargin(4);
+
+        verticalLayout_25->addWidget(PassPresetsLbl_5);
+
+        label_65 = new QLabel(page_4_texture_resource_node);
+        label_65->setObjectName(QString::fromUtf8("label_65"));
+        label_65->setFont(font7);
+
+        verticalLayout_25->addWidget(label_65);
+
+        formLayout_6 = new QFormLayout();
+        formLayout_6->setObjectName(QString::fromUtf8("formLayout_6"));
+        formLayout_6->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_53 = new QLabel(page_4_texture_resource_node);
+        label_53->setObjectName(QString::fromUtf8("label_53"));
+
+        formLayout_6->setWidget(0, QFormLayout::LabelRole, label_53);
+
+        textureName = new QLineEdit(page_4_texture_resource_node);
+        textureName->setObjectName(QString::fromUtf8("textureName"));
+
+        formLayout_6->setWidget(0, QFormLayout::FieldRole, textureName);
+
+        label_54 = new QLabel(page_4_texture_resource_node);
+        label_54->setObjectName(QString::fromUtf8("label_54"));
+
+        formLayout_6->setWidget(1, QFormLayout::LabelRole, label_54);
+
+        label_55 = new QLabel(page_4_texture_resource_node);
+        label_55->setObjectName(QString::fromUtf8("label_55"));
+
+        formLayout_6->setWidget(2, QFormLayout::LabelRole, label_55);
+
+        label_56 = new QLabel(page_4_texture_resource_node);
+        label_56->setObjectName(QString::fromUtf8("label_56"));
+
+        formLayout_6->setWidget(3, QFormLayout::LabelRole, label_56);
+
+        label_57 = new QLabel(page_4_texture_resource_node);
+        label_57->setObjectName(QString::fromUtf8("label_57"));
+
+        formLayout_6->setWidget(4, QFormLayout::LabelRole, label_57);
+
+        textureWidth = new QLineEdit(page_4_texture_resource_node);
+        textureWidth->setObjectName(QString::fromUtf8("textureWidth"));
+
+        formLayout_6->setWidget(1, QFormLayout::FieldRole, textureWidth);
+
+        textureDepth = new QLineEdit(page_4_texture_resource_node);
+        textureDepth->setObjectName(QString::fromUtf8("textureDepth"));
+
+        formLayout_6->setWidget(3, QFormLayout::FieldRole, textureDepth);
+
+        textureHeight = new QLineEdit(page_4_texture_resource_node);
+        textureHeight->setObjectName(QString::fromUtf8("textureHeight"));
+
+        formLayout_6->setWidget(2, QFormLayout::FieldRole, textureHeight);
+
+        textureLayers = new QLineEdit(page_4_texture_resource_node);
+        textureLayers->setObjectName(QString::fromUtf8("textureLayers"));
+
+        formLayout_6->setWidget(4, QFormLayout::FieldRole, textureLayers);
+
+        label_58 = new QLabel(page_4_texture_resource_node);
+        label_58->setObjectName(QString::fromUtf8("label_58"));
+
+        formLayout_6->setWidget(5, QFormLayout::LabelRole, label_58);
+
+        label_59 = new QLabel(page_4_texture_resource_node);
+        label_59->setObjectName(QString::fromUtf8("label_59"));
+
+        formLayout_6->setWidget(6, QFormLayout::LabelRole, label_59);
+
+        label_60 = new QLabel(page_4_texture_resource_node);
+        label_60->setObjectName(QString::fromUtf8("label_60"));
+
+        formLayout_6->setWidget(7, QFormLayout::LabelRole, label_60);
+
+        label_61 = new QLabel(page_4_texture_resource_node);
+        label_61->setObjectName(QString::fromUtf8("label_61"));
+
+        formLayout_6->setWidget(8, QFormLayout::LabelRole, label_61);
+
+        label_62 = new QLabel(page_4_texture_resource_node);
+        label_62->setObjectName(QString::fromUtf8("label_62"));
+
+        formLayout_6->setWidget(9, QFormLayout::LabelRole, label_62);
+
+        label_63 = new QLabel(page_4_texture_resource_node);
+        label_63->setObjectName(QString::fromUtf8("label_63"));
+
+        formLayout_6->setWidget(10, QFormLayout::LabelRole, label_63);
+
+        label_64 = new QLabel(page_4_texture_resource_node);
+        label_64->setObjectName(QString::fromUtf8("label_64"));
+
+        formLayout_6->setWidget(11, QFormLayout::LabelRole, label_64);
+
+        enableMips = new QCheckBox(page_4_texture_resource_node);
+        enableMips->setObjectName(QString::fromUtf8("enableMips"));
+
+        formLayout_6->setWidget(10, QFormLayout::FieldRole, enableMips);
+
+        isHDR = new QCheckBox(page_4_texture_resource_node);
+        isHDR->setObjectName(QString::fromUtf8("isHDR"));
+
+        formLayout_6->setWidget(11, QFormLayout::FieldRole, isHDR);
+
+        filterModeMag = new QComboBox(page_4_texture_resource_node);
+        filterModeMag->setObjectName(QString::fromUtf8("filterModeMag"));
+
+        formLayout_6->setWidget(9, QFormLayout::FieldRole, filterModeMag);
+
+        filterModeMin = new QComboBox(page_4_texture_resource_node);
+        filterModeMin->setObjectName(QString::fromUtf8("filterModeMin"));
+
+        formLayout_6->setWidget(8, QFormLayout::FieldRole, filterModeMin);
+
+        wrapMode = new QComboBox(page_4_texture_resource_node);
+        wrapMode->setObjectName(QString::fromUtf8("wrapMode"));
+
+        formLayout_6->setWidget(7, QFormLayout::FieldRole, wrapMode);
+
+        textureFormat = new QComboBox(page_4_texture_resource_node);
+        textureFormat->setObjectName(QString::fromUtf8("textureFormat"));
+
+        formLayout_6->setWidget(6, QFormLayout::FieldRole, textureFormat);
+
+        textureType = new QComboBox(page_4_texture_resource_node);
+        textureType->setObjectName(QString::fromUtf8("textureType"));
+
+        formLayout_6->setWidget(5, QFormLayout::FieldRole, textureType);
+
+
+        verticalLayout_25->addLayout(formLayout_6);
+
+        verticalSpacer_4 = new QSpacerItem(20, 556, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_25->addItem(verticalSpacer_4);
+
+        stackedWidget->addWidget(page_4_texture_resource_node);
+        page_5_import_node = new QWidget();
+        page_5_import_node->setObjectName(QString::fromUtf8("page_5_import_node"));
+        verticalLayout_26 = new QVBoxLayout(page_5_import_node);
+        verticalLayout_26->setObjectName(QString::fromUtf8("verticalLayout_26"));
+        verticalLayout_26->setContentsMargins(0, 0, 0, 0);
+        PassPresetsLbl_6 = new QLabel(page_5_import_node);
+        PassPresetsLbl_6->setObjectName(QString::fromUtf8("PassPresetsLbl_6"));
+        PassPresetsLbl_6->setMinimumSize(QSize(0, 25));
+        PassPresetsLbl_6->setMaximumSize(QSize(16777215, 50));
+        PassPresetsLbl_6->setFont(font);
+        PassPresetsLbl_6->setAutoFillBackground(false);
+        PassPresetsLbl_6->setStyleSheet(QString::fromUtf8("background-color: rgb(61, 61, 61);\n"
+"color: #ffffff;\n"
+"border-style:solid;\n"
+"border-color:#ffffff;\n"
+"border-width:1px;\n"
+"\n"
+""));
+        PassPresetsLbl_6->setScaledContents(false);
+        PassPresetsLbl_6->setAlignment(Qt::AlignCenter);
+        PassPresetsLbl_6->setMargin(4);
+
+        verticalLayout_26->addWidget(PassPresetsLbl_6);
+
+        formLayout_7 = new QFormLayout();
+        formLayout_7->setObjectName(QString::fromUtf8("formLayout_7"));
+        formLayout_7->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_67 = new QLabel(page_5_import_node);
+        label_67->setObjectName(QString::fromUtf8("label_67"));
+
+        formLayout_7->setWidget(0, QFormLayout::LabelRole, label_67);
+
+        importResourceName = new QLineEdit(page_5_import_node);
+        importResourceName->setObjectName(QString::fromUtf8("importResourceName"));
+
+        formLayout_7->setWidget(0, QFormLayout::FieldRole, importResourceName);
+
+        label_68 = new QLabel(page_5_import_node);
+        label_68->setObjectName(QString::fromUtf8("label_68"));
+
+        formLayout_7->setWidget(1, QFormLayout::LabelRole, label_68);
+
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
+        importedTexturePath = new QLineEdit(page_5_import_node);
+        importedTexturePath->setObjectName(QString::fromUtf8("importedTexturePath"));
+        importedTexturePath->setReadOnly(true);
+
+        horizontalLayout_10->addWidget(importedTexturePath);
+
+        browseImportTextureBtn = new QPushButton(page_5_import_node);
+        browseImportTextureBtn->setObjectName(QString::fromUtf8("browseImportTextureBtn"));
+        browseImportTextureBtn->setIcon(icon16);
+        browseImportTextureBtn->setIconSize(QSize(24, 24));
+        browseImportTextureBtn->setFlat(true);
+
+        horizontalLayout_10->addWidget(browseImportTextureBtn);
+
+
+        formLayout_7->setLayout(1, QFormLayout::FieldRole, horizontalLayout_10);
+
+
+        verticalLayout_26->addLayout(formLayout_7);
+
+        verticalSpacer_5 = new QSpacerItem(20, 813, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_26->addItem(verticalSpacer_5);
+
+        stackedWidget->addWidget(page_5_import_node);
 
         horizontalLayout->addWidget(stackedWidget);
 
@@ -1372,7 +1708,7 @@ public:
 
         retranslateUi(FrameGraphEditor);
 
-        stackedWidget->setCurrentIndex(1);
+        stackedWidget->setCurrentIndex(4);
 
 
         QMetaObject::connectSlotsByName(FrameGraphEditor);
@@ -1464,6 +1800,33 @@ public:
         label_47->setText(QCoreApplication::translate("FrameGraphEditor", "Layers", nullptr));
         layers->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Enter number of rendering layers", nullptr));
         PassPresetsLbl_4->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
+        label_66->setText(QCoreApplication::translate("FrameGraphEditor", "Buffer Resource", nullptr));
+        label_40->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
+        label_50->setText(QCoreApplication::translate("FrameGraphEditor", "Size", nullptr));
+        label_51->setText(QCoreApplication::translate("FrameGraphEditor", "Usage", nullptr));
+        label_52->setText(QCoreApplication::translate("FrameGraphEditor", "Use shader reflection to fill data", nullptr));
+        reflectBuffer->setText(QCoreApplication::translate("FrameGraphEditor", "Note: for this to work make sure the name \n"
+" matches with shader variable", nullptr));
+        PassPresetsLbl_5->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
+        label_65->setText(QCoreApplication::translate("FrameGraphEditor", "Texture Resource", nullptr));
+        label_53->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
+        label_54->setText(QCoreApplication::translate("FrameGraphEditor", "Width", nullptr));
+        label_55->setText(QCoreApplication::translate("FrameGraphEditor", "Height", nullptr));
+        label_56->setText(QCoreApplication::translate("FrameGraphEditor", "Depth", nullptr));
+        label_57->setText(QCoreApplication::translate("FrameGraphEditor", "Layers", nullptr));
+        label_58->setText(QCoreApplication::translate("FrameGraphEditor", "Type", nullptr));
+        label_59->setText(QCoreApplication::translate("FrameGraphEditor", "Format", nullptr));
+        label_60->setText(QCoreApplication::translate("FrameGraphEditor", "Wrap Mode", nullptr));
+        label_61->setText(QCoreApplication::translate("FrameGraphEditor", "Filetring Mode: Min", nullptr));
+        label_62->setText(QCoreApplication::translate("FrameGraphEditor", "Filetring Mode: Mag", nullptr));
+        label_63->setText(QCoreApplication::translate("FrameGraphEditor", "enable Mips", nullptr));
+        label_64->setText(QCoreApplication::translate("FrameGraphEditor", "is HDR", nullptr));
+        enableMips->setText(QString());
+        isHDR->setText(QString());
+        PassPresetsLbl_6->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
+        label_67->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
+        label_68->setText(QCoreApplication::translate("FrameGraphEditor", "Texture Path", nullptr));
+        browseImportTextureBtn->setText(QString());
     } // retranslateUi
 
 };

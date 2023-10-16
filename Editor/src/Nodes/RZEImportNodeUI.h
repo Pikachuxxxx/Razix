@@ -23,6 +23,8 @@ namespace Razix {
             RZEImportNodeUI(const std::string& nodeName, NodeScene* scene);
             ~RZEImportNodeUI();
 
+            std::string m_TexturePath;
+
         private:
             ImportNodeGraphicsNode* m_ImportGraphicsNode = nullptr;
         };

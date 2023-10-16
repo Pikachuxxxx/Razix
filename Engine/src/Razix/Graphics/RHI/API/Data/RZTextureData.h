@@ -123,6 +123,13 @@ namespace Razix {
 
         RAZIX_ENUM_NAMES_ASSERT(WrappingNames, Wrapping);
 
+        static const char* FitleringModeNames[] =
+            {
+                "LINEAR",
+                "NEAREST"};
+
+        RAZIX_ENUM_NAMES_ASSERT(FitleringModeNames, Filtering::Mode);
+
         //-----------------------------------------------------------------------------------
 
     }    // namespace Graphics

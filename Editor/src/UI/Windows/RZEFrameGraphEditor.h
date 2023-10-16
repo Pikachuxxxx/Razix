@@ -12,6 +12,9 @@ namespace Razix {
     namespace Editor {
 
         class RZEPassNodeUI;
+        class RZEBufferResourceNodeUI;
+        class RZETextureResourceNodeUI;
+        class RZEImportNodeUI;
 
         class FrameGraphGraphicsView : public NodeGraphicsView
         {
@@ -68,8 +71,9 @@ namespace Razix {
             void OnImportPresetButtonClicked();
             //-----------------------------------------------------------
             void OnNodeSelected(Node* node);
-            void OnNodeNameChanged();
+            void OnPassNodeNameChanged();
             //-----------------------------------------------------------
+            // Pass Node Panel
             void OnAddInputPinClicked();
             void OnInputPinNameChanged(int idx);
             void OnRemoveInputPinClicked();
@@ -107,6 +111,27 @@ namespace Razix {
             void OnExtentYChanged();
             void OnLayersChanged();
             //-----------------------------------------------------------
+            // Buffer Resource Panel
+            void OnBufferNameChanged();
+            void OnBufferSizeChanged();
+            void OnBufferUsageSelected();
+            // Texture Resource Panel
+            void OnTextureNameChanged();
+            void OnTextureWidthChanged();
+            void OnTextureHeightChanged();
+            void OnTextureDepthChanged();
+            void OnTextureLayersChanged();
+            void OnTextureTypeSelected();
+            void OnTextureFormatSelected();
+            void OnTextureWrapModeSelected();
+            void OnTextureFilteringMinModeSelected();
+            void OnTextureFilteringMagModeSelected();
+            void OnEnableMips();
+            void OnEnableIsHDR();
+            //-----------------------------------------------------------
+            // Import
+            void OnImportNameChanged();
+            void OnImportTextureBrowsePressed();
 
         private:
             Ui::FrameGraphEditor               ui;
@@ -115,15 +140,25 @@ namespace Razix {
             QSignalMapper*                     m_OpLineEditsSignalMapper          = nullptr;
             QSignalMapper*                     m_ColorFormatsComboBoxSignalMapper = nullptr;
             RZEPassNodeUI*                     m_CurrentEditingPassNode           = nullptr;
+            RZEBufferResourceNodeUI*           m_CurrentEditingBufferNode         = nullptr;
+            RZETextureResourceNodeUI*          m_CurrentEditingTextureNode        = nullptr;
+            RZEImportNodeUI*                   m_CurrentEditingImportNode         = nullptr;
             QStringList                        m_FormatsStringList                = {};
             Graphics::FrameGraph::RZFrameGraph m_FrameGraph                       = {}; /* FrameGraph classes used to export into a JSON file */
 
         private:
             void initializePassNodePropertiesInspector();
+            void initializeResourceNodePropertiesInspector();
+            void initializeImportNodePropertiesInspector();
+            //-----------------------------------------------------------
             void populatePopertiesPanelWithPassNode();
-            void populatePresetResourceNodesList();
-            void populatePresetImportNodesList();
-            void populatePresetPassNodesList();
+            void populatePopertiesPanelWithBufferNode();
+            void populatePopertiesPanelWithTextureNode();
+            void populatePopertiesPanelWithImportNode();
+            //-----------------------------------------------------------
+            void initializePresetPassNodesList();
+            void initializePresetImportNodesList();
+            void initializePresetResourceNodesList();
         };
     }    // namespace Editor
 }    // namespace Razix
