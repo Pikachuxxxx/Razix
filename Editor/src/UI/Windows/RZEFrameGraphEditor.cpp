@@ -25,6 +25,10 @@
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
+#include <nlohmann/json.hpp>
+using json         = nlohmann::json;
+using ordered_json = nlohmann::ordered_json;
+
 static QGraphicsDropShadowEffect* DropShadowEffect = new QGraphicsDropShadowEffect();
 // effect->setBlurRadius(10);
 // effect->setOffset(2, 4);
@@ -103,6 +107,9 @@ namespace Razix {
             // Load presets panel
             initializePresetImportNodesList();
             initializePresetResourceNodesList();
+
+            // Setup Toolbar
+            setupToolbar();
         }
 
         //-----------------------------------------------------------
@@ -387,7 +394,7 @@ namespace Razix {
             // TODO: Use VFS to get shader files directory and pass it here
             auto fileName = QFileDialog::getOpenFileName(this, "Select Razix Shader File", "", tr("Razix Shader File (*.rzsf)"));
 
-            auto shaderName = Utilities::GetFileName(fileName.toStdString());
+            auto shaderName = Utilities::RemoveFilePathExtension(Utilities::GetFileName(fileName.toStdString()));
             ui.shaderFileLocation->setText(shaderName.c_str());
 
             if (m_CurrentEditingPassNode) {
@@ -634,6 +641,34 @@ namespace Razix {
 
             if (m_CurrentEditingImportNode) {
                 m_CurrentEditingImportNode->m_TexturePath = ui.importedTexturePath->text().toStdString();
+            }
+        }
+
+        //-----------------------------------------------------------
+        // Toolbar
+
+        void RZEFrameGraphEditor::OnOpenPressed()
+        {
+        }
+
+        void RZEFrameGraphEditor::OnSavePressed()
+        {
+            if (m_FrameGraphFilePath.empty()) {
+                auto fileName = QFileDialog::getSaveFileName(this, "Export Frame Graph to JSON", "", tr("frame graph (*.json)"));
+
+                // Store the current file name and path
+                if (!fileName.isEmpty()) {
+                    auto label = std::string("FrameGraph File : ") + fileName.toStdString();
+                    ui.fg_file_name->setText(label.c_str());
+
+                    m_FrameGraphFilePath = fileName.toStdString();
+
+                    // Now parse the Graph and start exporting to JSON file
+                    exportNodeScenetoJSON();
+                }
+            } else {
+                // Now parse the Graph and start exporting to JSON file
+                exportNodeScenetoJSON();
             }
         }
 
@@ -1002,6 +1037,130 @@ namespace Razix {
                 ui.preset_resources_list->addItem(listItem);
                 ui.preset_resources_list->setItemWidget(listItem, label);
             }
+        }
+
+        //-----------------------------------------------------------
+        // Toolbar
+
+        void RZEFrameGraphEditor::setupToolbar()
+        {
+            connect(ui.open_fg, SIGNAL(pressed()), this, SLOT(OnOpenPressed()));
+            connect(ui.save_fg, SIGNAL(pressed()), this, SLOT(OnSavePressed()));
+        }
+
+        //-----------------------------------------------------------
+        // Other Misc
+
+        void RZEFrameGraphEditor::exportNodeScenetoJSON()
+        {
+            // Create a file
+            std::ofstream fg_file(m_FrameGraphFilePath);
+
+            if (fg_file.is_open()) {
+                // FG name
+                ordered_json fg;
+
+                fg["name"] = Utilities::RemoveFilePathExtension(Utilities::GetFileName(m_FrameGraphFilePath));
+
+                auto passes = json::array();
+
+                for (auto& node: m_NodeGraphWidget->getScene()->getNodes()) {
+                    std::cout << node->getTitle() << std::endl;
+
+                    auto passNode = dynamic_cast<RZEPassNodeUI*>(node);
+
+                    if (passNode) {
+                        // Export the node as a Pass.json file and give it's file/path name as render_pass
+                        std::string passName = "Pass.User." + node->getTitle();
+
+                        // If the node is a Pass Node export it to JSON first
+                        exportPassNodedtoJSON(dynamic_cast<RZEPassNodeUI*>(node), passName);
+
+                        auto passNode           = ordered_json::object();
+                        passNode["render_pass"] = passName;
+
+                        ordered_json inputs  = ordered_json::array();
+                        ordered_json outputs = ordered_json::array();
+
+                        passes.push_back(passNode);
+                    }
+                }
+
+                fg["passes"] = passes;
+
+                // Dump to file
+                fg_file << fg.dump(4);
+            }
+            fg_file.close();
+        }
+
+        void RZEFrameGraphEditor::exportPassNodedtoJSON(RZEPassNodeUI* passNode, std::string& passNodeName)
+        {
+            // Create a file to save the render Pass file
+            auto          passFilePath = Utilities::GetFileLocation(m_FrameGraphFilePath) + "/../Passes/" + passNodeName + ".json";
+            std::ofstream pass_file(passFilePath);
+
+            if (pass_file.is_open()) {
+                ordered_json pass;
+
+                pass["name"]   = passNodeName;
+                pass["shader"] = passNode->getShaderName();
+
+                auto& pipeline                        = passNode->getPipelineSettings();
+                pass["pipeline_info"]["cull_mode"]    = pipeline.cullMode;
+                pass["pipeline_info"]["polygon_mode"] = pipeline.polygonMode;
+                pass["pipeline_info"]["draw_type"]    = pipeline.drawMode;
+                pass["pipeline_info"]["cull_mode"]    = pipeline.cullMode;
+                pass["pipeline_info"]["transparency"] = pipeline.enableTransparencey;
+
+                ordered_json color_blend = ordered_json::object();
+                color_blend["src"]       = pipeline.colorSrc;
+                color_blend["dst"]       = pipeline.colorDst;
+                color_blend["op"]        = pipeline.colorOp;
+
+                ordered_json alpha_blend = ordered_json::object();
+                alpha_blend["src"]       = pipeline.alphaSrc;
+                alpha_blend["dst"]       = pipeline.alphaDst;
+                alpha_blend["op"]        = pipeline.alphaOp;
+
+                pass["color_blend"] = color_blend;
+                pass["alpha_blend"] = alpha_blend;
+
+                ordered_json depth = ordered_json::object();
+                depth["write"]     = pipeline.enableDepthWrite;
+                depth["test"]      = pipeline.enableDepthTest;
+                depth["op"]        = pipeline.depthOperation;
+
+                pass["depth"] = depth;
+
+                pass["depth_format"] = pipeline.depthFormat;
+
+                ordered_json color_formats = ordered_json::array();
+                for (u32 i = 0; i < pipeline.colorFormats.size(); i++)
+                    color_formats.push_back(pipeline.colorFormats[i]);
+
+                pass["color_formats"] = color_formats;
+
+                auto& sceneSettings = passNode->getSceneSettings();
+
+                pass["scene_params"]                  = ordered_json::object();
+                pass["scene_params"]["geometry_mode"] = sceneSettings.geometryMode;
+                // TODO: Support enable lights and enable materials booleans
+
+                pass["rendering_info"]["resolution"] = sceneSettings.resolution;
+
+                ordered_json extents;
+                extents["x"]                     = sceneSettings.extents.x;
+                extents["y"]                     = sceneSettings.extents.y;
+                pass["rendering_info"]["extent"] = extents;
+
+                pass["rendering_info"]["resize"] = sceneSettings.enableResize;
+                pass["rendering_info"]["layers"] = sceneSettings.layers;
+
+                // Dump to file
+                pass_file << pass.dump(4);
+            }
+            pass_file.close();
         }
     }    // namespace Editor
 }    // namespace Razix

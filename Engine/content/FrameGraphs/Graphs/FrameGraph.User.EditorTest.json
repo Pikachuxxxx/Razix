@@ -1,0 +1,8 @@
+{
+    "name": "FrameGraph.User.EditorTest",
+    "passes": [
+        {
+            "render_pass": "Pass.User.RenderShadow"
+        }
+    ]
+}

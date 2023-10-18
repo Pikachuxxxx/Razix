@@ -131,8 +131,8 @@ int Razix::Editor::FrameGraphGraphicsView::qt_metacall(QMetaObject::Call _c, int
     return _id;
 }
 struct qt_meta_stringdata_Razix__Editor__RZEFrameGraphEditor_t {
-    QByteArrayData data[56];
-    char stringdata0[1296];
+    QByteArrayData data[58];
+    char stringdata0[1324];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -196,7 +196,9 @@ QT_MOC_LITERAL(51, 1186, 33), // "OnTextureFilteringMagModeSele..."
 QT_MOC_LITERAL(52, 1220, 12), // "OnEnableMips"
 QT_MOC_LITERAL(53, 1233, 13), // "OnEnableIsHDR"
 QT_MOC_LITERAL(54, 1247, 19), // "OnImportNameChanged"
-QT_MOC_LITERAL(55, 1267, 28) // "OnImportTextureBrowsePressed"
+QT_MOC_LITERAL(55, 1267, 28), // "OnImportTextureBrowsePressed"
+QT_MOC_LITERAL(56, 1296, 13), // "OnOpenPressed"
+QT_MOC_LITERAL(57, 1310, 13) // "OnSavePressed"
 
     },
     "Razix::Editor::RZEFrameGraphEditor\0"
@@ -235,7 +237,8 @@ QT_MOC_LITERAL(55, 1267, 28) // "OnImportTextureBrowsePressed"
     "OnTextureFilteringMinModeSelected\0"
     "OnTextureFilteringMagModeSelected\0"
     "OnEnableMips\0OnEnableIsHDR\0"
-    "OnImportNameChanged\0OnImportTextureBrowsePressed"
+    "OnImportNameChanged\0OnImportTextureBrowsePressed\0"
+    "OnOpenPressed\0OnSavePressed"
 };
 #undef QT_MOC_LITERAL
 
@@ -245,7 +248,7 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      51,   14, // methods
+      53,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -253,57 +256,59 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  269,    2, 0x0a /* Public */,
-       3,    1,  270,    2, 0x0a /* Public */,
-       6,    0,  273,    2, 0x0a /* Public */,
-       7,    0,  274,    2, 0x0a /* Public */,
-       8,    1,  275,    2, 0x0a /* Public */,
-      10,    0,  278,    2, 0x0a /* Public */,
-      11,    0,  279,    2, 0x0a /* Public */,
-      12,    1,  280,    2, 0x0a /* Public */,
-      13,    0,  283,    2, 0x0a /* Public */,
-      14,    0,  284,    2, 0x0a /* Public */,
-      15,    1,  285,    2, 0x0a /* Public */,
-      16,    0,  288,    2, 0x0a /* Public */,
-      17,    0,  289,    2, 0x0a /* Public */,
-      18,    0,  290,    2, 0x0a /* Public */,
-      19,    0,  291,    2, 0x0a /* Public */,
-      20,    0,  292,    2, 0x0a /* Public */,
-      21,    0,  293,    2, 0x0a /* Public */,
-      22,    0,  294,    2, 0x0a /* Public */,
-      23,    0,  295,    2, 0x0a /* Public */,
-      24,    0,  296,    2, 0x0a /* Public */,
-      25,    0,  297,    2, 0x0a /* Public */,
-      26,    0,  298,    2, 0x0a /* Public */,
-      27,    0,  299,    2, 0x0a /* Public */,
-      28,    0,  300,    2, 0x0a /* Public */,
-      29,    0,  301,    2, 0x0a /* Public */,
-      30,    0,  302,    2, 0x0a /* Public */,
-      31,    0,  303,    2, 0x0a /* Public */,
-      32,    0,  304,    2, 0x0a /* Public */,
-      33,    0,  305,    2, 0x0a /* Public */,
-      34,    0,  306,    2, 0x0a /* Public */,
-      35,    0,  307,    2, 0x0a /* Public */,
-      36,    0,  308,    2, 0x0a /* Public */,
-      37,    0,  309,    2, 0x0a /* Public */,
-      38,    0,  310,    2, 0x0a /* Public */,
-      39,    0,  311,    2, 0x0a /* Public */,
-      40,    0,  312,    2, 0x0a /* Public */,
-      41,    0,  313,    2, 0x0a /* Public */,
-      42,    0,  314,    2, 0x0a /* Public */,
-      43,    0,  315,    2, 0x0a /* Public */,
-      44,    0,  316,    2, 0x0a /* Public */,
-      45,    0,  317,    2, 0x0a /* Public */,
-      46,    0,  318,    2, 0x0a /* Public */,
-      47,    0,  319,    2, 0x0a /* Public */,
-      48,    0,  320,    2, 0x0a /* Public */,
-      49,    0,  321,    2, 0x0a /* Public */,
-      50,    0,  322,    2, 0x0a /* Public */,
-      51,    0,  323,    2, 0x0a /* Public */,
-      52,    0,  324,    2, 0x0a /* Public */,
-      53,    0,  325,    2, 0x0a /* Public */,
-      54,    0,  326,    2, 0x0a /* Public */,
-      55,    0,  327,    2, 0x0a /* Public */,
+       1,    0,  279,    2, 0x0a /* Public */,
+       3,    1,  280,    2, 0x0a /* Public */,
+       6,    0,  283,    2, 0x0a /* Public */,
+       7,    0,  284,    2, 0x0a /* Public */,
+       8,    1,  285,    2, 0x0a /* Public */,
+      10,    0,  288,    2, 0x0a /* Public */,
+      11,    0,  289,    2, 0x0a /* Public */,
+      12,    1,  290,    2, 0x0a /* Public */,
+      13,    0,  293,    2, 0x0a /* Public */,
+      14,    0,  294,    2, 0x0a /* Public */,
+      15,    1,  295,    2, 0x0a /* Public */,
+      16,    0,  298,    2, 0x0a /* Public */,
+      17,    0,  299,    2, 0x0a /* Public */,
+      18,    0,  300,    2, 0x0a /* Public */,
+      19,    0,  301,    2, 0x0a /* Public */,
+      20,    0,  302,    2, 0x0a /* Public */,
+      21,    0,  303,    2, 0x0a /* Public */,
+      22,    0,  304,    2, 0x0a /* Public */,
+      23,    0,  305,    2, 0x0a /* Public */,
+      24,    0,  306,    2, 0x0a /* Public */,
+      25,    0,  307,    2, 0x0a /* Public */,
+      26,    0,  308,    2, 0x0a /* Public */,
+      27,    0,  309,    2, 0x0a /* Public */,
+      28,    0,  310,    2, 0x0a /* Public */,
+      29,    0,  311,    2, 0x0a /* Public */,
+      30,    0,  312,    2, 0x0a /* Public */,
+      31,    0,  313,    2, 0x0a /* Public */,
+      32,    0,  314,    2, 0x0a /* Public */,
+      33,    0,  315,    2, 0x0a /* Public */,
+      34,    0,  316,    2, 0x0a /* Public */,
+      35,    0,  317,    2, 0x0a /* Public */,
+      36,    0,  318,    2, 0x0a /* Public */,
+      37,    0,  319,    2, 0x0a /* Public */,
+      38,    0,  320,    2, 0x0a /* Public */,
+      39,    0,  321,    2, 0x0a /* Public */,
+      40,    0,  322,    2, 0x0a /* Public */,
+      41,    0,  323,    2, 0x0a /* Public */,
+      42,    0,  324,    2, 0x0a /* Public */,
+      43,    0,  325,    2, 0x0a /* Public */,
+      44,    0,  326,    2, 0x0a /* Public */,
+      45,    0,  327,    2, 0x0a /* Public */,
+      46,    0,  328,    2, 0x0a /* Public */,
+      47,    0,  329,    2, 0x0a /* Public */,
+      48,    0,  330,    2, 0x0a /* Public */,
+      49,    0,  331,    2, 0x0a /* Public */,
+      50,    0,  332,    2, 0x0a /* Public */,
+      51,    0,  333,    2, 0x0a /* Public */,
+      52,    0,  334,    2, 0x0a /* Public */,
+      53,    0,  335,    2, 0x0a /* Public */,
+      54,    0,  336,    2, 0x0a /* Public */,
+      55,    0,  337,    2, 0x0a /* Public */,
+      56,    0,  338,    2, 0x0a /* Public */,
+      57,    0,  339,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
@@ -317,6 +322,8 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -418,6 +425,8 @@ void Razix::Editor::RZEFrameGraphEditor::qt_static_metacall(QObject *_o, QMetaOb
         case 48: _t->OnEnableIsHDR(); break;
         case 49: _t->OnImportNameChanged(); break;
         case 50: _t->OnImportTextureBrowsePressed(); break;
+        case 51: _t->OnOpenPressed(); break;
+        case 52: _t->OnSavePressed(); break;
         default: ;
         }
     }
@@ -452,13 +461,13 @@ int Razix::Editor::RZEFrameGraphEditor::qt_metacall(QMetaObject::Call _c, int _i
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 51)
+        if (_id < 53)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 51;
+        _id -= 53;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 51)
+        if (_id < 53)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 51;
+        _id -= 53;
     }
     return _id;
 }

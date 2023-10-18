@@ -132,6 +132,12 @@ namespace Razix {
             // Import
             void OnImportNameChanged();
             void OnImportTextureBrowsePressed();
+            //-----------------------------------------------------------
+            // Toolbar slots
+            /* Import it into the node graph scene by de-serializing the JSON file and also filling nodes for m_FrameGraph */ 
+            void OnOpenPressed(); 
+            /* Exports it the node graph scene by serializing the JSON file */ 
+            void OnSavePressed();
 
         private:
             Ui::FrameGraphEditor               ui;
@@ -145,6 +151,7 @@ namespace Razix {
             RZEImportNodeUI*                   m_CurrentEditingImportNode         = nullptr;
             QStringList                        m_FormatsStringList                = {};
             Graphics::FrameGraph::RZFrameGraph m_FrameGraph                       = {}; /* FrameGraph classes used to export into a JSON file */
+            std::string                        m_FrameGraphFilePath               = "";
 
         private:
             void initializePassNodePropertiesInspector();
@@ -159,6 +166,14 @@ namespace Razix {
             void initializePresetPassNodesList();
             void initializePresetImportNodesList();
             void initializePresetResourceNodesList();
+            //-----------------------------------------------------------
+            // Toolbar
+            void setupToolbar();
+
+            //-----------------------------------------------------------
+            // Other Misc
+            void exportNodeScenetoJSON();
+            void exportPassNodedtoJSON(RZEPassNodeUI* passNode, std::string& passNodeName);
         };
     }    // namespace Editor
 }    // namespace Razix
