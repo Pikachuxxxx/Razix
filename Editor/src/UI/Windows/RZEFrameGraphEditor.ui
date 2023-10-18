@@ -17,6 +17,18 @@
    <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
    <item>
     <widget class="QFrame" name="toolbar">
      <property name="minimumSize">
@@ -809,6 +821,31 @@ color:#ff00ff
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="label_69">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Open or Save file to export to JSON, click compile after exporting to JSON for verification and Hot Reload to load into engine</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="fg_file_name">
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="text">
+      <string>FrameGraph file: </string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QFrame" name="presets_inspector">
@@ -1085,6 +1122,12 @@ border-width:1px;</string>
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>300</width>
@@ -1098,7 +1141,7 @@ border-width:1px;</string>
         <string notr="true">color: rgb(255, 255, 255);</string>
        </property>
        <property name="currentIndex">
-        <number>4</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page_1_empty">
         <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1119,7 +1162,7 @@ border-width:1px;</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>25</height>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -1215,7 +1258,7 @@ border-width:1px;
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>25</height>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -2088,7 +2131,7 @@ border-style:solid;</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>25</height>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -2233,7 +2276,7 @@ border-width:1px;
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>25</height>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -2456,7 +2499,7 @@ border-width:1px;
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>25</height>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
