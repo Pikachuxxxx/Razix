@@ -303,7 +303,7 @@ QProgressBar {
     border-image:url(:/rzeditor/styles/icons/progress-pattern.png) 0 0 0 0 repeat repeat; }
 
 QSlider {
-  border: 1px solid #353535;
+  border: 1px solid #FFFFFF;
   border-radius: 3px; }
   QSlider:horizontal {
     height: 18px; }
@@ -406,7 +406,7 @@ QDockWidget {
       image:url(:/rzeditor/styles/icons/cross-white.png); }
 
 QToolBar {
-    border:0px;
+    border:1px;
 }
 
 QToolBox::tab {

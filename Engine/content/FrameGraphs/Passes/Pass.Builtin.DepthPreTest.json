@@ -1,6 +1,7 @@
 {
     "name": "Pass.Builtin.DepthPreTest",
     "shader": "Shader.Builtin.DepthPreTest",
+    "is_standalone": true,
     "pipeline_info": {
         "depth": {
             "write": true,

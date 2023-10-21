@@ -438,6 +438,8 @@ namespace Razix {
                     RZDebugRenderer::Get()->End();
                 });
 
+
+
             //-------------------------------
             // Final Image Presentation
             //-------------------------------

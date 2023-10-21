@@ -42,6 +42,18 @@ namespace Razix {
 
             QRectF boundingRect() const override;    // { return QRectF(0, 0, width, height).normalized(); }
             void   paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget /* = nullptr */) override;
+
+            bool getHasBreakPoint() const { return m_HasBreakPoint; }
+            void setHasBreakPoint(bool val) { m_HasBreakPoint = val; }
+
+            bool getIsStandAlonePass() const { return m_IsStandAlonePass; }
+            void setIsStandAlonePass(bool val) { m_IsStandAlonePass = val; }
+
+        private:
+            u32                titleBgHeight      = 30;
+            QGraphicsTextItem* m_IdxTitle         = nullptr;
+            bool               m_HasBreakPoint    = false;
+            bool               m_IsStandAlonePass = false;
         };
 
         //-----------------------------------------------------------------------------------
@@ -49,6 +61,8 @@ namespace Razix {
         class RZEPassNodeUI : public Node
         {
         public:
+            static u32 Idx;
+
             RZEPassNodeUI(const std::string& nodeName, NodeScene* scene);
             ~RZEPassNodeUI();
 
@@ -58,6 +72,20 @@ namespace Razix {
             RAZIX_INLINE PipelineDescStringView& getPipelineSettings() { return m_PipelineSettings; }
             RAZIX_INLINE SceneParamsStringView&  getSceneSettings() { return m_SceneSettings; }
 
+            bool getHasBreakPoint() const { return m_HasBreakPoint; }
+            void setHasBreakPoint(bool val)
+            {
+                m_HasBreakPoint = val;
+                m_PassGraphicsNode->setHasBreakPoint(val);
+            }
+
+            bool getIsStandAlonePass() const { return m_IsStandAlonePass; }
+            void setIsStandAlonePass(bool val)
+            {
+                m_IsStandAlonePass = val;
+                m_PassGraphicsNode->setIsStandAlonePass(val);
+            }
+
         private:
             PassNodeGraphicsNode* m_PassGraphicsNode = nullptr;
             //------------------------------
@@ -66,6 +94,8 @@ namespace Razix {
             std::string            m_ShaderName;
             PipelineDescStringView m_PipelineSettings{};
             SceneParamsStringView  m_SceneSettings{};
+            bool                   m_HasBreakPoint    = false;
+            bool                   m_IsStandAlonePass = false;
         };
 
         //-----------------------------------------------------------------------------------

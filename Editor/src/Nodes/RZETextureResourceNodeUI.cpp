@@ -25,6 +25,13 @@ namespace Razix {
             QFontMetrics fm(titleItem->font());
 
             titleItem->setPos(width / 2 - fm.horizontalAdvance(titleItem->toPlainText()) / 2, 4);
+
+            QLinearGradient rainbowGrad(QPointF(0, 0), QPointF(width, height));
+            rainbowGrad.setColorAt(1.0, QColor("#FF0000"));
+            rainbowGrad.setColorAt(0.5, QColor("#00FF00"));
+            rainbowGrad.setColorAt(0.0, QColor("#0000FF"));
+
+            outputPen = QPen(rainbowGrad, 5);
         }
 
         TextureResourceNodeGraphicsNode::~TextureResourceNodeGraphicsNode()
@@ -45,6 +52,14 @@ namespace Razix {
             painter->setPen(Qt::NoPen);
             painter->setBrush(bgBrush);
             painter->drawPath(path_content.simplified());
+
+            if (m_IsFinalOutput) {
+                auto path_outline = QPainterPath();
+                path_outline.addRoundedRect(-10, -10, width + 20, height + 20, edge_size, edge_size);
+                painter->setBrush(Qt::NoBrush);
+                painter->setPen(outputPen);
+                painter->drawPath(path_outline.simplified());
+            }
 
             // Outline
             auto path_outline = QPainterPath();

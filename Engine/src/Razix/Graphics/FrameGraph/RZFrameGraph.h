@@ -182,6 +182,8 @@ namespace Razix {
                     return m_IsFirstFrame;
                 }
 
+                // TODO: Add was resized
+
             private:
                 std::vector<RZPassNode>      m_PassNodes;        /* List of all the pass nodes in the frame graph                             */
                 std::vector<RZResourceNode>  m_ResourceNodes;    /* List of the all the resources nodes (including clones) in the frame graph */

@@ -265,22 +265,47 @@ namespace Razix {
 
         //-----------------------------------------------------------------------------------
 
-        static std::unordered_map<std::string, Razix::Graphics::BlendFactor> BlendFactorStringMap = {
-            {"Zero", Razix::Graphics::BlendFactor::Zero},
-            {"One", Razix::Graphics::BlendFactor::One},
-            {"SrcColor", Razix::Graphics::BlendFactor::SrcColor},
-            {"OneMinusSrcColor", Razix::Graphics::BlendFactor::OneMinusSrcColor},
-            {"DstColor", Razix::Graphics::BlendFactor::DstColor},
-            {"OneMinusDstColor", Razix::Graphics::BlendFactor::OneMinusDstColor},
-            {"SrcAlpha", Razix::Graphics::BlendFactor::SrcAlpha},
-            {"OneMinusSrcAlpha", Razix::Graphics::BlendFactor::OneMinusSrcAlpha},
-            {"DstAlpha", Razix::Graphics::BlendFactor::DstAlpha},
-            {"OneMinusDstAlpha", Razix::Graphics::BlendFactor::OneMinusDstAlpha},
-            {"ConstantColor", Razix::Graphics::BlendFactor::ConstantColor},
-            {"OneMinusConstantColor", Razix::Graphics::BlendFactor::OneMinusConstantColor},
-            {"ConstantAlpha", Razix::Graphics::BlendFactor::ConstantAlpha},
-            {"OneMinusConstantAlpha", Razix::Graphics::BlendFactor::OneMinusConstantAlpha},
-            {"SrcAlphaSaturate", Razix::Graphics::BlendFactor::SrcAlphaSaturate}};
+        static std::unordered_map<std::string, Razix::Graphics::Wrapping> TextureWrapModeStringMap = {
+            {"REPEAT", Razix::Graphics::Wrapping::REPEAT},
+            {"MIRRORED_REPEAT", Razix::Graphics::Wrapping::MIRRORED_REPEAT},
+            {"CLAMP_TO_EDGE", Razix::Graphics::Wrapping::CLAMP_TO_EDGE},
+            {"CLAMP_TO_BORDER", Razix::Graphics::Wrapping::CLAMP_TO_BORDER}};
+
+        Razix::Graphics::Wrapping StringToWrapping(const std::string& str)
+        {
+            return TextureWrapModeStringMap[str];
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        static std::unordered_map<std::string, Razix::Graphics::Filtering::Mode> TextureFiletingModeStringMap = {
+            {"LINEAR", Razix::Graphics::Filtering::Mode::LINEAR},
+            {"NEAREST", Razix::Graphics::Filtering::Mode::NEAREST}};
+
+        Razix::Graphics::Filtering::Mode StringToFilteringMode(const std::string& str)
+        {
+            return TextureFiletingModeStringMap[str];
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        static std::unordered_map<std::string, Razix::Graphics::BlendFactor>
+            BlendFactorStringMap = {
+                {"Zero", Razix::Graphics::BlendFactor::Zero},
+                {"One", Razix::Graphics::BlendFactor::One},
+                {"SrcColor", Razix::Graphics::BlendFactor::SrcColor},
+                {"OneMinusSrcColor", Razix::Graphics::BlendFactor::OneMinusSrcColor},
+                {"DstColor", Razix::Graphics::BlendFactor::DstColor},
+                {"OneMinusDstColor", Razix::Graphics::BlendFactor::OneMinusDstColor},
+                {"SrcAlpha", Razix::Graphics::BlendFactor::SrcAlpha},
+                {"OneMinusSrcAlpha", Razix::Graphics::BlendFactor::OneMinusSrcAlpha},
+                {"DstAlpha", Razix::Graphics::BlendFactor::DstAlpha},
+                {"OneMinusDstAlpha", Razix::Graphics::BlendFactor::OneMinusDstAlpha},
+                {"ConstantColor", Razix::Graphics::BlendFactor::ConstantColor},
+                {"OneMinusConstantColor", Razix::Graphics::BlendFactor::OneMinusConstantColor},
+                {"ConstantAlpha", Razix::Graphics::BlendFactor::ConstantAlpha},
+                {"OneMinusConstantAlpha", Razix::Graphics::BlendFactor::OneMinusConstantAlpha},
+                {"SrcAlphaSaturate", Razix::Graphics::BlendFactor::SrcAlphaSaturate}};
 
         Razix::Graphics::BlendFactor StringToBlendFactor(const std::string& str)
         {

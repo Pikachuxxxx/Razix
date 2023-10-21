@@ -79,11 +79,14 @@ public:
     QPushButton *disable_pass;
     QLabel *label_14;
     QVBoxLayout *verticalLayout_17;
-    QPushButton *mask_as_standalone;
+    QPushButton *mark_as_standalone;
     QLabel *label_16;
     QVBoxLayout *verticalLayout_18;
-    QPushButton *mask_as_standalone_2;
+    QPushButton *add_breakpoint;
     QLabel *label_17;
+    QVBoxLayout *verticalLayout_27;
+    QPushButton *final_output;
+    QLabel *label_70;
     QSpacerItem *horizontalSpacer;
     QLabel *label_69;
     QLabel *fg_file_name;
@@ -210,27 +213,27 @@ public:
     QLabel *label_53;
     QLineEdit *textureName;
     QLabel *label_54;
-    QLabel *label_55;
-    QLabel *label_56;
-    QLabel *label_57;
     QLineEdit *textureWidth;
-    QLineEdit *textureDepth;
+    QLabel *label_55;
     QLineEdit *textureHeight;
+    QLabel *label_56;
+    QLineEdit *textureDepth;
+    QLabel *label_57;
     QLineEdit *textureLayers;
     QLabel *label_58;
-    QLabel *label_59;
-    QLabel *label_60;
-    QLabel *label_61;
-    QLabel *label_62;
-    QLabel *label_63;
-    QLabel *label_64;
-    QCheckBox *enableMips;
-    QCheckBox *isHDR;
-    QComboBox *filterModeMag;
-    QComboBox *filterModeMin;
-    QComboBox *wrapMode;
-    QComboBox *textureFormat;
     QComboBox *textureType;
+    QLabel *label_59;
+    QComboBox *textureFormat;
+    QLabel *label_60;
+    QComboBox *wrapMode;
+    QLabel *label_61;
+    QComboBox *filterModeMin;
+    QLabel *label_62;
+    QComboBox *filterModeMag;
+    QLabel *label_63;
+    QCheckBox *enableMips;
+    QLabel *label_64;
+    QCheckBox *isHDR;
     QSpacerItem *verticalSpacer_4;
     QWidget *page_5_import_node;
     QVBoxLayout *verticalLayout_26;
@@ -617,16 +620,16 @@ public:
         verticalLayout_17 = new QVBoxLayout();
         verticalLayout_17->setSpacing(0);
         verticalLayout_17->setObjectName(QString::fromUtf8("verticalLayout_17"));
-        mask_as_standalone = new QPushButton(toolbar);
-        mask_as_standalone->setObjectName(QString::fromUtf8("mask_as_standalone"));
-        mask_as_standalone->setMinimumSize(QSize(32, 40));
+        mark_as_standalone = new QPushButton(toolbar);
+        mark_as_standalone->setObjectName(QString::fromUtf8("mark_as_standalone"));
+        mark_as_standalone->setMinimumSize(QSize(32, 40));
         QIcon icon14;
         icon14.addFile(QString::fromUtf8(":/rzeditor/fg_toolbar_icons/mark_standalone_pass.png"), QSize(), QIcon::Normal, QIcon::Off);
-        mask_as_standalone->setIcon(icon14);
-        mask_as_standalone->setIconSize(QSize(32, 32));
-        mask_as_standalone->setFlat(true);
+        mark_as_standalone->setIcon(icon14);
+        mark_as_standalone->setIconSize(QSize(32, 32));
+        mark_as_standalone->setFlat(true);
 
-        verticalLayout_17->addWidget(mask_as_standalone);
+        verticalLayout_17->addWidget(mark_as_standalone);
 
         label_16 = new QLabel(toolbar);
         label_16->setObjectName(QString::fromUtf8("label_16"));
@@ -642,16 +645,16 @@ public:
         verticalLayout_18 = new QVBoxLayout();
         verticalLayout_18->setSpacing(0);
         verticalLayout_18->setObjectName(QString::fromUtf8("verticalLayout_18"));
-        mask_as_standalone_2 = new QPushButton(toolbar);
-        mask_as_standalone_2->setObjectName(QString::fromUtf8("mask_as_standalone_2"));
-        mask_as_standalone_2->setMinimumSize(QSize(32, 40));
+        add_breakpoint = new QPushButton(toolbar);
+        add_breakpoint->setObjectName(QString::fromUtf8("add_breakpoint"));
+        add_breakpoint->setMinimumSize(QSize(32, 40));
         QIcon icon15;
         icon15.addFile(QString::fromUtf8(":/rzeditor/fg_toolbar_icons/breakpoint.png"), QSize(), QIcon::Normal, QIcon::Off);
-        mask_as_standalone_2->setIcon(icon15);
-        mask_as_standalone_2->setIconSize(QSize(32, 32));
-        mask_as_standalone_2->setFlat(true);
+        add_breakpoint->setIcon(icon15);
+        add_breakpoint->setIconSize(QSize(32, 32));
+        add_breakpoint->setFlat(true);
 
-        verticalLayout_18->addWidget(mask_as_standalone_2);
+        verticalLayout_18->addWidget(add_breakpoint);
 
         label_17 = new QLabel(toolbar);
         label_17->setObjectName(QString::fromUtf8("label_17"));
@@ -662,6 +665,30 @@ public:
 
 
         horizontalLayout_2->addLayout(verticalLayout_18);
+
+        verticalLayout_27 = new QVBoxLayout();
+        verticalLayout_27->setSpacing(0);
+        verticalLayout_27->setObjectName(QString::fromUtf8("verticalLayout_27"));
+        final_output = new QPushButton(toolbar);
+        final_output->setObjectName(QString::fromUtf8("final_output"));
+        final_output->setMinimumSize(QSize(32, 40));
+        QIcon icon16;
+        icon16.addFile(QString::fromUtf8(":/rzeditor/hello_triangle.png"), QSize(), QIcon::Normal, QIcon::Off);
+        final_output->setIcon(icon16);
+        final_output->setIconSize(QSize(32, 32));
+        final_output->setFlat(true);
+
+        verticalLayout_27->addWidget(final_output);
+
+        label_70 = new QLabel(toolbar);
+        label_70->setObjectName(QString::fromUtf8("label_70"));
+        label_70->setAlignment(Qt::AlignCenter);
+        label_70->setWordWrap(false);
+
+        verticalLayout_27->addWidget(label_70);
+
+
+        horizontalLayout_2->addLayout(verticalLayout_27);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -1014,9 +1041,9 @@ public:
 
         browseShaderFIleBtn = new QPushButton(page_2_pass_node);
         browseShaderFIleBtn->setObjectName(QString::fromUtf8("browseShaderFIleBtn"));
-        QIcon icon16;
-        icon16.addFile(QString::fromUtf8(":/rzeditor/Browse.png"), QSize(), QIcon::Normal, QIcon::Off);
-        browseShaderFIleBtn->setIcon(icon16);
+        QIcon icon17;
+        icon17.addFile(QString::fromUtf8(":/rzeditor/Browse.png"), QSize(), QIcon::Normal, QIcon::Off);
+        browseShaderFIleBtn->setIcon(icon17);
         browseShaderFIleBtn->setIconSize(QSize(32, 32));
         browseShaderFIleBtn->setFlat(true);
 
@@ -1538,35 +1565,35 @@ public:
 
         formLayout_6->setWidget(1, QFormLayout::LabelRole, label_54);
 
+        textureWidth = new QLineEdit(page_4_texture_resource_node);
+        textureWidth->setObjectName(QString::fromUtf8("textureWidth"));
+
+        formLayout_6->setWidget(1, QFormLayout::FieldRole, textureWidth);
+
         label_55 = new QLabel(page_4_texture_resource_node);
         label_55->setObjectName(QString::fromUtf8("label_55"));
 
         formLayout_6->setWidget(2, QFormLayout::LabelRole, label_55);
+
+        textureHeight = new QLineEdit(page_4_texture_resource_node);
+        textureHeight->setObjectName(QString::fromUtf8("textureHeight"));
+
+        formLayout_6->setWidget(2, QFormLayout::FieldRole, textureHeight);
 
         label_56 = new QLabel(page_4_texture_resource_node);
         label_56->setObjectName(QString::fromUtf8("label_56"));
 
         formLayout_6->setWidget(3, QFormLayout::LabelRole, label_56);
 
-        label_57 = new QLabel(page_4_texture_resource_node);
-        label_57->setObjectName(QString::fromUtf8("label_57"));
-
-        formLayout_6->setWidget(4, QFormLayout::LabelRole, label_57);
-
-        textureWidth = new QLineEdit(page_4_texture_resource_node);
-        textureWidth->setObjectName(QString::fromUtf8("textureWidth"));
-
-        formLayout_6->setWidget(1, QFormLayout::FieldRole, textureWidth);
-
         textureDepth = new QLineEdit(page_4_texture_resource_node);
         textureDepth->setObjectName(QString::fromUtf8("textureDepth"));
 
         formLayout_6->setWidget(3, QFormLayout::FieldRole, textureDepth);
 
-        textureHeight = new QLineEdit(page_4_texture_resource_node);
-        textureHeight->setObjectName(QString::fromUtf8("textureHeight"));
+        label_57 = new QLabel(page_4_texture_resource_node);
+        label_57->setObjectName(QString::fromUtf8("label_57"));
 
-        formLayout_6->setWidget(2, QFormLayout::FieldRole, textureHeight);
+        formLayout_6->setWidget(4, QFormLayout::LabelRole, label_57);
 
         textureLayers = new QLineEdit(page_4_texture_resource_node);
         textureLayers->setObjectName(QString::fromUtf8("textureLayers"));
@@ -1578,70 +1605,70 @@ public:
 
         formLayout_6->setWidget(5, QFormLayout::LabelRole, label_58);
 
+        textureType = new QComboBox(page_4_texture_resource_node);
+        textureType->setObjectName(QString::fromUtf8("textureType"));
+
+        formLayout_6->setWidget(5, QFormLayout::FieldRole, textureType);
+
         label_59 = new QLabel(page_4_texture_resource_node);
         label_59->setObjectName(QString::fromUtf8("label_59"));
 
         formLayout_6->setWidget(6, QFormLayout::LabelRole, label_59);
-
-        label_60 = new QLabel(page_4_texture_resource_node);
-        label_60->setObjectName(QString::fromUtf8("label_60"));
-
-        formLayout_6->setWidget(7, QFormLayout::LabelRole, label_60);
-
-        label_61 = new QLabel(page_4_texture_resource_node);
-        label_61->setObjectName(QString::fromUtf8("label_61"));
-
-        formLayout_6->setWidget(8, QFormLayout::LabelRole, label_61);
-
-        label_62 = new QLabel(page_4_texture_resource_node);
-        label_62->setObjectName(QString::fromUtf8("label_62"));
-
-        formLayout_6->setWidget(9, QFormLayout::LabelRole, label_62);
-
-        label_63 = new QLabel(page_4_texture_resource_node);
-        label_63->setObjectName(QString::fromUtf8("label_63"));
-
-        formLayout_6->setWidget(10, QFormLayout::LabelRole, label_63);
-
-        label_64 = new QLabel(page_4_texture_resource_node);
-        label_64->setObjectName(QString::fromUtf8("label_64"));
-
-        formLayout_6->setWidget(11, QFormLayout::LabelRole, label_64);
-
-        enableMips = new QCheckBox(page_4_texture_resource_node);
-        enableMips->setObjectName(QString::fromUtf8("enableMips"));
-
-        formLayout_6->setWidget(10, QFormLayout::FieldRole, enableMips);
-
-        isHDR = new QCheckBox(page_4_texture_resource_node);
-        isHDR->setObjectName(QString::fromUtf8("isHDR"));
-
-        formLayout_6->setWidget(11, QFormLayout::FieldRole, isHDR);
-
-        filterModeMag = new QComboBox(page_4_texture_resource_node);
-        filterModeMag->setObjectName(QString::fromUtf8("filterModeMag"));
-
-        formLayout_6->setWidget(9, QFormLayout::FieldRole, filterModeMag);
-
-        filterModeMin = new QComboBox(page_4_texture_resource_node);
-        filterModeMin->setObjectName(QString::fromUtf8("filterModeMin"));
-
-        formLayout_6->setWidget(8, QFormLayout::FieldRole, filterModeMin);
-
-        wrapMode = new QComboBox(page_4_texture_resource_node);
-        wrapMode->setObjectName(QString::fromUtf8("wrapMode"));
-
-        formLayout_6->setWidget(7, QFormLayout::FieldRole, wrapMode);
 
         textureFormat = new QComboBox(page_4_texture_resource_node);
         textureFormat->setObjectName(QString::fromUtf8("textureFormat"));
 
         formLayout_6->setWidget(6, QFormLayout::FieldRole, textureFormat);
 
-        textureType = new QComboBox(page_4_texture_resource_node);
-        textureType->setObjectName(QString::fromUtf8("textureType"));
+        label_60 = new QLabel(page_4_texture_resource_node);
+        label_60->setObjectName(QString::fromUtf8("label_60"));
 
-        formLayout_6->setWidget(5, QFormLayout::FieldRole, textureType);
+        formLayout_6->setWidget(7, QFormLayout::LabelRole, label_60);
+
+        wrapMode = new QComboBox(page_4_texture_resource_node);
+        wrapMode->setObjectName(QString::fromUtf8("wrapMode"));
+
+        formLayout_6->setWidget(7, QFormLayout::FieldRole, wrapMode);
+
+        label_61 = new QLabel(page_4_texture_resource_node);
+        label_61->setObjectName(QString::fromUtf8("label_61"));
+
+        formLayout_6->setWidget(8, QFormLayout::LabelRole, label_61);
+
+        filterModeMin = new QComboBox(page_4_texture_resource_node);
+        filterModeMin->setObjectName(QString::fromUtf8("filterModeMin"));
+
+        formLayout_6->setWidget(8, QFormLayout::FieldRole, filterModeMin);
+
+        label_62 = new QLabel(page_4_texture_resource_node);
+        label_62->setObjectName(QString::fromUtf8("label_62"));
+
+        formLayout_6->setWidget(9, QFormLayout::LabelRole, label_62);
+
+        filterModeMag = new QComboBox(page_4_texture_resource_node);
+        filterModeMag->setObjectName(QString::fromUtf8("filterModeMag"));
+
+        formLayout_6->setWidget(9, QFormLayout::FieldRole, filterModeMag);
+
+        label_63 = new QLabel(page_4_texture_resource_node);
+        label_63->setObjectName(QString::fromUtf8("label_63"));
+
+        formLayout_6->setWidget(10, QFormLayout::LabelRole, label_63);
+
+        enableMips = new QCheckBox(page_4_texture_resource_node);
+        enableMips->setObjectName(QString::fromUtf8("enableMips"));
+
+        formLayout_6->setWidget(10, QFormLayout::FieldRole, enableMips);
+
+        label_64 = new QLabel(page_4_texture_resource_node);
+        label_64->setObjectName(QString::fromUtf8("label_64"));
+
+        formLayout_6->setWidget(11, QFormLayout::LabelRole, label_64);
+
+        isHDR = new QCheckBox(page_4_texture_resource_node);
+        isHDR->setObjectName(QString::fromUtf8("isHDR"));
+
+        formLayout_6->setWidget(11, QFormLayout::FieldRole, isHDR);
 
 
         verticalLayout_25->addLayout(formLayout_6);
@@ -1703,7 +1730,7 @@ public:
 
         browseImportTextureBtn = new QPushButton(page_5_import_node);
         browseImportTextureBtn->setObjectName(QString::fromUtf8("browseImportTextureBtn"));
-        browseImportTextureBtn->setIcon(icon16);
+        browseImportTextureBtn->setIcon(icon17);
         browseImportTextureBtn->setIconSize(QSize(24, 24));
         browseImportTextureBtn->setFlat(true);
 
@@ -1766,10 +1793,12 @@ public:
         label_13->setText(QCoreApplication::translate("FrameGraphEditor", "Add to Blackboad", nullptr));
         disable_pass->setText(QString());
         label_14->setText(QCoreApplication::translate("FrameGraphEditor", "Enable/Disable Pass", nullptr));
-        mask_as_standalone->setText(QString());
+        mark_as_standalone->setText(QString());
         label_16->setText(QCoreApplication::translate("FrameGraphEditor", "Mark as Standalone", nullptr));
-        mask_as_standalone_2->setText(QString());
+        add_breakpoint->setText(QString());
         label_17->setText(QCoreApplication::translate("FrameGraphEditor", "Add Breakpoint", nullptr));
+        final_output->setText(QString());
+        label_70->setText(QCoreApplication::translate("FrameGraphEditor", "Final Output", nullptr));
         label_69->setText(QCoreApplication::translate("FrameGraphEditor", "Open or Save file to export to JSON, click compile after exporting to JSON for verification and Hot Reload to load into engine", nullptr));
         fg_file_name->setText(QCoreApplication::translate("FrameGraphEditor", "FrameGraph file: ", nullptr));
         PassPresetsLbl->setText(QCoreApplication::translate("FrameGraphEditor", "Pass Presets", nullptr));
@@ -1843,8 +1872,8 @@ public:
         label_61->setText(QCoreApplication::translate("FrameGraphEditor", "Filetring Mode: Min", nullptr));
         label_62->setText(QCoreApplication::translate("FrameGraphEditor", "Filetring Mode: Mag", nullptr));
         label_63->setText(QCoreApplication::translate("FrameGraphEditor", "enable Mips", nullptr));
-        label_64->setText(QCoreApplication::translate("FrameGraphEditor", "is HDR", nullptr));
         enableMips->setText(QString());
+        label_64->setText(QCoreApplication::translate("FrameGraphEditor", "is HDR", nullptr));
         isHDR->setText(QString());
         PassPresetsLbl_6->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
         label_67->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
