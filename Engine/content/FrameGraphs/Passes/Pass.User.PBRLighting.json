@@ -1,6 +1,7 @@
 {
     "name": "Pass.User.PBRLighting",
     "shader": "Shader.Builtin.PBRIBL",
+    "is_standalone": true,
     "pipeline_info": {
         "cull_mode": "Back",
         "polygon_mode": "Fill",

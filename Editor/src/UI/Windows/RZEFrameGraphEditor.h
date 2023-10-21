@@ -59,6 +59,7 @@ namespace Razix {
 
         //-----------------------------------------------------------
 
+        // TODO: Change the returnPresses SIGNAL for QLineEdit to textChanged
         class RZEFrameGraphEditor : public QWidget
         {
             Q_OBJECT
@@ -138,6 +139,10 @@ namespace Razix {
             void OnOpenPressed();
             /* Exports it the node graph scene by serializing the JSON file */
             void OnSavePressed();
+            /* Compiles frame graph and exports a compiled visualization SVG output */
+            void OnCompilePressed();
+            /* Hot reloads the frame graph into the engine */
+            void OnHotReloadPressed();
             /* While selecting a PassNode we can toggle set as stand alone pass for it */
             void OnSetAsStandAlonePressed();
             /* Sets a breakpoint on the node */

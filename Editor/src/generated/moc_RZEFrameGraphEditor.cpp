@@ -131,8 +131,8 @@ int Razix::Editor::FrameGraphGraphicsView::qt_metacall(QMetaObject::Call _c, int
     return _id;
 }
 struct qt_meta_stringdata_Razix__Editor__RZEFrameGraphEditor_t {
-    QByteArrayData data[61];
-    char stringdata0[1393];
+    QByteArrayData data[63];
+    char stringdata0[1429];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -199,9 +199,11 @@ QT_MOC_LITERAL(54, 1247, 19), // "OnImportNameChanged"
 QT_MOC_LITERAL(55, 1267, 28), // "OnImportTextureBrowsePressed"
 QT_MOC_LITERAL(56, 1296, 13), // "OnOpenPressed"
 QT_MOC_LITERAL(57, 1310, 13), // "OnSavePressed"
-QT_MOC_LITERAL(58, 1324, 24), // "OnSetAsStandAlonePressed"
-QT_MOC_LITERAL(59, 1349, 22), // "OnAddBreakpointPressed"
-QT_MOC_LITERAL(60, 1372, 20) // "OnFinalOutputPressed"
+QT_MOC_LITERAL(58, 1324, 16), // "OnCompilePressed"
+QT_MOC_LITERAL(59, 1341, 18), // "OnHotReloadPressed"
+QT_MOC_LITERAL(60, 1360, 24), // "OnSetAsStandAlonePressed"
+QT_MOC_LITERAL(61, 1385, 22), // "OnAddBreakpointPressed"
+QT_MOC_LITERAL(62, 1408, 20) // "OnFinalOutputPressed"
 
     },
     "Razix::Editor::RZEFrameGraphEditor\0"
@@ -242,6 +244,7 @@ QT_MOC_LITERAL(60, 1372, 20) // "OnFinalOutputPressed"
     "OnEnableMips\0OnEnableIsHDR\0"
     "OnImportNameChanged\0OnImportTextureBrowsePressed\0"
     "OnOpenPressed\0OnSavePressed\0"
+    "OnCompilePressed\0OnHotReloadPressed\0"
     "OnSetAsStandAlonePressed\0"
     "OnAddBreakpointPressed\0OnFinalOutputPressed"
 };
@@ -253,7 +256,7 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      56,   14, // methods
+      58,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -261,62 +264,64 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  294,    2, 0x0a /* Public */,
-       3,    1,  295,    2, 0x0a /* Public */,
-       6,    0,  298,    2, 0x0a /* Public */,
-       7,    0,  299,    2, 0x0a /* Public */,
-       8,    1,  300,    2, 0x0a /* Public */,
-      10,    0,  303,    2, 0x0a /* Public */,
-      11,    0,  304,    2, 0x0a /* Public */,
-      12,    1,  305,    2, 0x0a /* Public */,
-      13,    0,  308,    2, 0x0a /* Public */,
-      14,    0,  309,    2, 0x0a /* Public */,
-      15,    1,  310,    2, 0x0a /* Public */,
-      16,    0,  313,    2, 0x0a /* Public */,
-      17,    0,  314,    2, 0x0a /* Public */,
-      18,    0,  315,    2, 0x0a /* Public */,
-      19,    0,  316,    2, 0x0a /* Public */,
-      20,    0,  317,    2, 0x0a /* Public */,
-      21,    0,  318,    2, 0x0a /* Public */,
-      22,    0,  319,    2, 0x0a /* Public */,
-      23,    0,  320,    2, 0x0a /* Public */,
-      24,    0,  321,    2, 0x0a /* Public */,
-      25,    0,  322,    2, 0x0a /* Public */,
-      26,    0,  323,    2, 0x0a /* Public */,
-      27,    0,  324,    2, 0x0a /* Public */,
-      28,    0,  325,    2, 0x0a /* Public */,
-      29,    0,  326,    2, 0x0a /* Public */,
-      30,    0,  327,    2, 0x0a /* Public */,
-      31,    0,  328,    2, 0x0a /* Public */,
-      32,    0,  329,    2, 0x0a /* Public */,
-      33,    0,  330,    2, 0x0a /* Public */,
-      34,    0,  331,    2, 0x0a /* Public */,
-      35,    0,  332,    2, 0x0a /* Public */,
-      36,    0,  333,    2, 0x0a /* Public */,
-      37,    0,  334,    2, 0x0a /* Public */,
-      38,    0,  335,    2, 0x0a /* Public */,
-      39,    0,  336,    2, 0x0a /* Public */,
-      40,    0,  337,    2, 0x0a /* Public */,
-      41,    0,  338,    2, 0x0a /* Public */,
-      42,    0,  339,    2, 0x0a /* Public */,
-      43,    0,  340,    2, 0x0a /* Public */,
-      44,    0,  341,    2, 0x0a /* Public */,
-      45,    0,  342,    2, 0x0a /* Public */,
-      46,    0,  343,    2, 0x0a /* Public */,
-      47,    0,  344,    2, 0x0a /* Public */,
-      48,    0,  345,    2, 0x0a /* Public */,
-      49,    0,  346,    2, 0x0a /* Public */,
-      50,    0,  347,    2, 0x0a /* Public */,
-      51,    0,  348,    2, 0x0a /* Public */,
-      52,    0,  349,    2, 0x0a /* Public */,
-      53,    0,  350,    2, 0x0a /* Public */,
-      54,    0,  351,    2, 0x0a /* Public */,
-      55,    0,  352,    2, 0x0a /* Public */,
-      56,    0,  353,    2, 0x0a /* Public */,
-      57,    0,  354,    2, 0x0a /* Public */,
-      58,    0,  355,    2, 0x0a /* Public */,
-      59,    0,  356,    2, 0x0a /* Public */,
-      60,    0,  357,    2, 0x0a /* Public */,
+       1,    0,  304,    2, 0x0a /* Public */,
+       3,    1,  305,    2, 0x0a /* Public */,
+       6,    0,  308,    2, 0x0a /* Public */,
+       7,    0,  309,    2, 0x0a /* Public */,
+       8,    1,  310,    2, 0x0a /* Public */,
+      10,    0,  313,    2, 0x0a /* Public */,
+      11,    0,  314,    2, 0x0a /* Public */,
+      12,    1,  315,    2, 0x0a /* Public */,
+      13,    0,  318,    2, 0x0a /* Public */,
+      14,    0,  319,    2, 0x0a /* Public */,
+      15,    1,  320,    2, 0x0a /* Public */,
+      16,    0,  323,    2, 0x0a /* Public */,
+      17,    0,  324,    2, 0x0a /* Public */,
+      18,    0,  325,    2, 0x0a /* Public */,
+      19,    0,  326,    2, 0x0a /* Public */,
+      20,    0,  327,    2, 0x0a /* Public */,
+      21,    0,  328,    2, 0x0a /* Public */,
+      22,    0,  329,    2, 0x0a /* Public */,
+      23,    0,  330,    2, 0x0a /* Public */,
+      24,    0,  331,    2, 0x0a /* Public */,
+      25,    0,  332,    2, 0x0a /* Public */,
+      26,    0,  333,    2, 0x0a /* Public */,
+      27,    0,  334,    2, 0x0a /* Public */,
+      28,    0,  335,    2, 0x0a /* Public */,
+      29,    0,  336,    2, 0x0a /* Public */,
+      30,    0,  337,    2, 0x0a /* Public */,
+      31,    0,  338,    2, 0x0a /* Public */,
+      32,    0,  339,    2, 0x0a /* Public */,
+      33,    0,  340,    2, 0x0a /* Public */,
+      34,    0,  341,    2, 0x0a /* Public */,
+      35,    0,  342,    2, 0x0a /* Public */,
+      36,    0,  343,    2, 0x0a /* Public */,
+      37,    0,  344,    2, 0x0a /* Public */,
+      38,    0,  345,    2, 0x0a /* Public */,
+      39,    0,  346,    2, 0x0a /* Public */,
+      40,    0,  347,    2, 0x0a /* Public */,
+      41,    0,  348,    2, 0x0a /* Public */,
+      42,    0,  349,    2, 0x0a /* Public */,
+      43,    0,  350,    2, 0x0a /* Public */,
+      44,    0,  351,    2, 0x0a /* Public */,
+      45,    0,  352,    2, 0x0a /* Public */,
+      46,    0,  353,    2, 0x0a /* Public */,
+      47,    0,  354,    2, 0x0a /* Public */,
+      48,    0,  355,    2, 0x0a /* Public */,
+      49,    0,  356,    2, 0x0a /* Public */,
+      50,    0,  357,    2, 0x0a /* Public */,
+      51,    0,  358,    2, 0x0a /* Public */,
+      52,    0,  359,    2, 0x0a /* Public */,
+      53,    0,  360,    2, 0x0a /* Public */,
+      54,    0,  361,    2, 0x0a /* Public */,
+      55,    0,  362,    2, 0x0a /* Public */,
+      56,    0,  363,    2, 0x0a /* Public */,
+      57,    0,  364,    2, 0x0a /* Public */,
+      58,    0,  365,    2, 0x0a /* Public */,
+      59,    0,  366,    2, 0x0a /* Public */,
+      60,    0,  367,    2, 0x0a /* Public */,
+      61,    0,  368,    2, 0x0a /* Public */,
+      62,    0,  369,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
@@ -330,6 +335,8 @@ static const uint qt_meta_data_Razix__Editor__RZEFrameGraphEditor[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -438,9 +445,11 @@ void Razix::Editor::RZEFrameGraphEditor::qt_static_metacall(QObject *_o, QMetaOb
         case 50: _t->OnImportTextureBrowsePressed(); break;
         case 51: _t->OnOpenPressed(); break;
         case 52: _t->OnSavePressed(); break;
-        case 53: _t->OnSetAsStandAlonePressed(); break;
-        case 54: _t->OnAddBreakpointPressed(); break;
-        case 55: _t->OnFinalOutputPressed(); break;
+        case 53: _t->OnCompilePressed(); break;
+        case 54: _t->OnHotReloadPressed(); break;
+        case 55: _t->OnSetAsStandAlonePressed(); break;
+        case 56: _t->OnAddBreakpointPressed(); break;
+        case 57: _t->OnFinalOutputPressed(); break;
         default: ;
         }
     }
@@ -475,13 +484,13 @@ int Razix::Editor::RZEFrameGraphEditor::qt_metacall(QMetaObject::Call _c, int _i
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 56)
+        if (_id < 58)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 56;
+        _id -= 58;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 56)
+        if (_id < 58)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 56;
+        _id -= 58;
     }
     return _id;
 }

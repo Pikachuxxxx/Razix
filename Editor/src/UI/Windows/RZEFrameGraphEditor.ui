@@ -1187,7 +1187,7 @@ border-width:1px;</string>
         <string notr="true">color: rgb(255, 255, 255);</string>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page_1_empty">
         <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1658,7 +1658,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="cullMode"/>
+            <widget class="QComboBox" name="cullMode">
+             <property name="currentIndex">
+              <number>-1</number>
+             </property>
+            </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_26">
@@ -1676,7 +1680,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="polygonMode"/>
+            <widget class="QComboBox" name="polygonMode">
+             <property name="currentIndex">
+              <number>-1</number>
+             </property>
+            </widget>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_27">
@@ -2075,6 +2083,9 @@ border-width:1px;
 border-width:2px;
 border-style:solid;</string>
                  </property>
+                 <property name="text">
+                  <string>0</string>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -2115,6 +2126,9 @@ border-style:solid;</string>
                   <string notr="true">border-color: rgb(0, 255, 0);
 border-width:2px;
 border-style:solid;</string>
+                 </property>
+                 <property name="text">
+                  <string>0</string>
                  </property>
                 </widget>
                </item>
@@ -2399,7 +2413,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="textureWidth"/>
+            <widget class="QLineEdit" name="textureWidth">
+             <property name="text">
+              <string>1920</string>
+             </property>
+            </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_55">
@@ -2409,7 +2427,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="textureHeight"/>
+            <widget class="QLineEdit" name="textureHeight">
+             <property name="text">
+              <string>1080</string>
+             </property>
+            </widget>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_56">
@@ -2419,7 +2441,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QLineEdit" name="textureDepth"/>
+            <widget class="QLineEdit" name="textureDepth">
+             <property name="text">
+              <string>1</string>
+             </property>
+            </widget>
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_57">
@@ -2429,7 +2455,11 @@ border-width:1px;
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QLineEdit" name="textureLayers"/>
+            <widget class="QLineEdit" name="textureLayers">
+             <property name="text">
+              <string>1</string>
+             </property>
+            </widget>
            </item>
            <item row="5" column="0">
             <widget class="QLabel" name="label_58">

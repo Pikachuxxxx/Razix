@@ -1,7 +1,7 @@
 {
-    "name": "Pass.User.RenderShadows",
+    "name": "Pass.User.Pass.User.RenderShadows",
     "shader": "Shader.Builtin.DepthPreTest",
-    "is_standalone": true,
+    "is_standalone": false,
     "pipeline_info": {
         "cull_mode": "Back",
         "polygon_mode": "Fill",

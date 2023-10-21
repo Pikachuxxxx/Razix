@@ -380,7 +380,7 @@ namespace Razix {
                 }
 
                 // Final Output RT name (pass this to FinalCompositionPass via Blackboard)
-                auto finalOutput     = data["final_output"];
+                auto finalOutput = data["final_output"];
                 m_Blackboard.setFinalOutputName(finalOutput.empty() ? "SceneHDR" : finalOutput);
 
                 return true;
@@ -771,6 +771,14 @@ namespace Razix {
                 }
 
                 os << "}";
+            }
+
+            void RZFrameGraph::exportToGraphViz(const std::string &location) const
+            {
+                std::ofstream os(location, std::ofstream::out | std::ofstream::trunc);
+                RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", location);
+                os << *this;
+                os.close();
             }
 
             bool RZFrameGraph::isValid(RZFrameGraphResource id)
