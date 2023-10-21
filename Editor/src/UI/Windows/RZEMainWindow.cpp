@@ -169,13 +169,13 @@ namespace Razix {
         {
             if (World_vs_LocalButton->isChecked()) {
                 World_vs_LocalButton->setIcon(QIcon(":/rzeditor/local_icon.png"));
-                World_vs_LocalButton->setIconSize(QSize(32, 32));
+                World_vs_LocalButton->setIconSize(QSize(20, 20));
 
                 RZApplication::Get().setGuizmoMode(ImGuizmo::LOCAL);
 
             } else {
                 World_vs_LocalButton->setIcon(QIcon(":/rzeditor/world_icon.png"));
-                World_vs_LocalButton->setIconSize(QSize(32, 32));
+                World_vs_LocalButton->setIconSize(QSize(20, 20));
 
                 RZApplication::Get().setGuizmoMode(ImGuizmo::WORLD);
             }
@@ -225,15 +225,15 @@ namespace Razix {
             // Save Project button
             QPushButton* saveProjectButton = new QPushButton();
             saveProjectButton->setIcon(QIcon(":/rzeditor/save_project.png"));
-            saveProjectButton->setIconSize(QSize(32, 32));
+            saveProjectButton->setIconSize(QSize(20, 20));
             // Open
             QPushButton* openProjectButton = new QPushButton();
             openProjectButton->setIcon(QIcon(":/rzeditor/open_project.png"));
-            openProjectButton->setIconSize(QSize(32, 32));
+            openProjectButton->setIconSize(QSize(20, 20));
             // New project
             QPushButton* newProjectButton = new QPushButton();
             newProjectButton->setIcon(QIcon(":/rzeditor/new_project.png"));
-            newProjectButton->setIconSize(QSize(32, 32));
+            newProjectButton->setIconSize(QSize(20, 20));
 
             m_ProjectSettingsTB->addWidget(saveProjectButton);
             m_ProjectSettingsTB->addWidget(openProjectButton);
@@ -253,15 +253,15 @@ namespace Razix {
             // Save Project button
             QPushButton* saveButton = new QPushButton();
             saveButton->setIcon(QIcon(":/rzeditor/save_scene.png"));
-            saveButton->setIconSize(QSize(32, 32));
+            saveButton->setIconSize(QSize(20, 20));
             // Open
             QPushButton* openButton = new QPushButton();
             openButton->setIcon(QIcon(":/rzeditor/open_scene.png"));
-            openButton->setIconSize(QSize(32, 32));
+            openButton->setIconSize(QSize(20, 20));
             // New project
             QPushButton* newButton = new QPushButton();
             newButton->setIcon(QIcon(":/rzeditor/new_scene.png"));
-            newButton->setIconSize(QSize(32, 32));
+            newButton->setIconSize(QSize(20, 20));
 
             // Load next scene (loads first if it's the last scene in a cyclic order)
             QPushButton* nextSceneBtn = new QPushButton;
@@ -287,32 +287,32 @@ namespace Razix {
 
             QPushButton* pos = new QPushButton();
             pos->setIcon(QIcon(":/rzeditor/Move_Gizmo.png"));
-            pos->setIconSize(QSize(32, 32));
+            pos->setIconSize(QSize(20, 20));
 
             QPushButton* rot = new QPushButton();
             rot->setIcon(QIcon(":/rzeditor/Rotate_Gizmo.png"));
-            rot->setIconSize(QSize(32, 32));
+            rot->setIconSize(QSize(20, 20));
 
             QPushButton* scale = new QPushButton();
             scale->setIcon(QIcon(":/rzeditor/Scale_Gizmo.png"));
-            scale->setIconSize(QSize(32, 32));
+            scale->setIconSize(QSize(20, 20));
 
             // Disable Guizmo
             QPushButton* noGuizmo = new QPushButton();
             noGuizmo->setIcon(QIcon(":/rzeditor/No_Gizmo.png"));
-            noGuizmo->setIconSize(QSize(32, 32));
+            noGuizmo->setIconSize(QSize(20, 20));
 
             // Use WORLD space for calculating transformations
             World_vs_LocalButton = new QPushButton;
             World_vs_LocalButton->setCheckable(true);
             World_vs_LocalButton->setIcon(QIcon(":/rzeditor/world_icon.png"));
-            World_vs_LocalButton->setIconSize(QSize(32, 32));
+            World_vs_LocalButton->setIconSize(QSize(20, 20));
 
             // small line edit for (The snap amount can be set in the Editor Settings menu)
             enableSnapBtn = new QPushButton;
             enableSnapBtn->setCheckable(true);
             enableSnapBtn->setIcon(QIcon(":/rzeditor/grid_snap_on.png"));
-            enableSnapBtn->setIconSize(QSize(32, 32));
+            enableSnapBtn->setIconSize(QSize(20, 20));
 
             transformTB->addWidget(pos);
             transformTB->addWidget(rot);
@@ -349,7 +349,7 @@ namespace Razix {
             // TODO: Add button for various settings windows (Engine/Editor/Rendering/Lighting etc)
             QPushButton* settingsButton = new QPushButton();
             settingsButton->setIcon(QIcon(":/rzeditor/Razix_Settings_Icon.png"));
-            settingsButton->setIconSize(QSize(32, 32));
+            settingsButton->setIconSize(QSize(20, 20));
             m_RenderSettingsTB->addWidget(settingsButton);
 
             m_RenderSettingsTB->addSeparator();
