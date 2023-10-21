@@ -10,6 +10,7 @@
 #define UI_RZEMATERIALEDITOR_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFrame>
@@ -113,6 +114,9 @@ public:
         if (MaterialEditor->objectName().isEmpty())
             MaterialEditor->setObjectName(QString::fromUtf8("MaterialEditor"));
         MaterialEditor->resize(310, 842);
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/rzeditor/material.png"), QSize(), QIcon::Normal, QIcon::Off);
+        MaterialEditor->setWindowIcon(icon);
         MaterialEditor->setStyleSheet(QString::fromUtf8("background-color: #151515;"));
         verticalLayout = new QVBoxLayout(MaterialEditor);
         verticalLayout->setSpacing(5);

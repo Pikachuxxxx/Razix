@@ -78,12 +78,37 @@ namespace Razix {
 
                         auto &texture_type = import_res["texture_type"];
                         RAZIX_ASSERT(!texture_type.empty(), "[Frame Graph] Missing Texture Type!");
-                        desc.type = RZTextureDesc::StringToType(texture_type);
+                        desc.type  = RZTextureDesc::StringToType(texture_type);
+                        auto width = import_res["width"];
+                        if (!width.empty())
+                            desc.width = width.get<int>();
+                        auto height = import_res["height"];
+                        if (!height.empty())
+                            desc.height = height.get<int>();
+                        auto depth = import_res["depth"];
+                        if (!depth.empty())
+                            desc.depth = depth.get<int>();
+                        auto layers = import_res["layers"];
+                        if (!layers.empty())
+                            desc.layers = layers.get<int>();
 
-                        auto &resolution = import_res["resolution"];
-                        RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
-                        desc.width  = resolution["x"].get<int>();
-                        desc.height = resolution["y"].get<int>();
+                        auto &wrapping = import_res["wrapping"];
+                        if (!wrapping.empty())
+                            desc.wrapping = StringToWrapping(wrapping);
+
+                        auto &filtering = import_res["filtering"];
+                        if (!filtering.empty()) {
+                            desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
+                            desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
+                        }
+
+                        auto &enableMips = import_res["enable_mips"];
+                        if (!enableMips.empty())
+                            desc.enableMips = enableMips.get<bool>();
+
+                        auto &isHDR = import_res["hdr"];
+                        if (!isHDR.empty())
+                            desc.dataSize = sizeof(float);
 
                         // Create the resource
                         auto textureHandle = RZResourceManager::Get().createTextureFromFile(desc, import_res["file_path"]);
@@ -93,8 +118,10 @@ namespace Razix {
                         RZBufferDesc desc{};
                         desc.name = std::string(resourceName);
 
-                        desc.size = import_res["size"].get<int>();
-
+                        desc.size  = import_res["size"].get<int>();
+                        auto usage = import_res["usage"];
+                        if (!usage.empty())
+                            desc.usage = StringToBufferUsage(usage);
                         // TODO: Load some data here, How?
 
                         // Create the buffer resource
@@ -176,12 +203,36 @@ namespace Razix {
                             RAZIX_ASSERT(!texture_type.empty(), "[Frame Graph] Missing Texture Type!");
                             desc.type = RZTextureDesc::StringToType(texture_type);
 
-                            auto &resolution = input["resolution"];
-                            RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
-                            desc.width  = resolution["x"].get<int>();
-                            desc.height = resolution["y"].get<int>();
+                            auto width = input["width"];
+                            if (!width.empty())
+                                desc.width = width.get<int>();
+                            auto height = input["height"];
+                            if (!height.empty())
+                                desc.height = height.get<int>();
+                            auto depth = input["depth"];
+                            if (!depth.empty())
+                                desc.depth = depth.get<int>();
+                            auto layers = input["layers"];
+                            if (!layers.empty())
+                                desc.layers = layers.get<int>();
 
-                            // TODO: Support rest of the RZTextureDesc members
+                            auto &wrapping = input["wrapping"];
+                            if (!wrapping.empty())
+                                desc.wrapping = StringToWrapping(wrapping);
+
+                            auto &filtering = input["filtering"];
+                            if (!filtering.empty()) {
+                                desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
+                                desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
+                            }
+
+                            auto &enableMips = input["enable_mips"];
+                            if (!enableMips.empty())
+                                desc.enableMips = enableMips.get<bool>();
+
+                            auto &isHDR = input["hdr"];
+                            if (!isHDR.empty())
+                                desc.dataSize = sizeof(float);
 
                             // Create the resource
                             resource = builder.create<RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc);
@@ -193,6 +244,10 @@ namespace Razix {
                             desc.name = std::string(resourceName);
 
                             desc.size = input["size"].get<int>();
+
+                            auto usage = input["usage"];
+                            if (!usage.empty())
+                                desc.usage = StringToBufferUsage(usage);
 
                             // Create the buffer resource
                             resource = builder.create<RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc);
@@ -261,10 +316,36 @@ namespace Razix {
                             RAZIX_ASSERT(!texture_type.empty(), "[Frame Graph] Missing Texture Type!");
                             desc.type = RZTextureDesc::StringToType(texture_type);
 
-                            auto &resolution = output["resolution"];
-                            RAZIX_ASSERT(!resolution.empty(), "[Frame Graph] Missing Texture Resoluion!");
-                            desc.width  = resolution["x"].get<int>();
-                            desc.height = resolution["y"].get<int>();
+                            auto width = output["width"];
+                            if (!width.empty())
+                                desc.width = width.get<int>();
+                            auto height = output["height"];
+                            if (!height.empty())
+                                desc.height = height.get<int>();
+                            auto depth = output["depth"];
+                            if (!depth.empty())
+                                desc.depth = depth.get<int>();
+                            auto layers = output["layers"];
+                            if (!layers.empty())
+                                desc.layers = layers.get<int>();
+
+                            auto &wrapping = output["wrapping"];
+                            if (!wrapping.empty())
+                                desc.wrapping = StringToWrapping(wrapping);
+
+                            auto &filtering = output["filtering"];
+                            if (!filtering.empty()) {
+                                desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
+                                desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
+                            }
+
+                            auto &enableMips = output["enable_mips"];
+                            if (!enableMips.empty())
+                                desc.enableMips = enableMips.get<bool>();
+
+                            auto &isHDR = output["hdr"];
+                            if (!isHDR.empty())
+                                desc.dataSize = sizeof(float);
 
                             // TODO: Support rest of the RZTextureDesc members
 
@@ -278,6 +359,10 @@ namespace Razix {
                             desc.name = std::string(resourceName);
 
                             desc.size = output["size"].get<int>();
+
+                            auto usage = output["usage"];
+                            if (!usage.empty())
+                                desc.usage = StringToBufferUsage(usage);
 
                             // Create the buffer resource
                             resource = builder.create<RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc);
@@ -293,6 +378,10 @@ namespace Razix {
                         m_Blackboard.add(resourceName, resource);
                     }
                 }
+
+                // Final Output RT name (pass this to FinalCompositionPass via Blackboard)
+                auto finalOutput     = data["final_output"];
+                m_Blackboard.setFinalOutputName(finalOutput.empty() ? "SceneHDR" : finalOutput);
 
                 return true;
             }
@@ -432,7 +521,9 @@ namespace Razix {
                 RZPassNode &passNode = createPassNode(passName, std::unique_ptr<RZFrameGraphDataPass>(pass));
                 // Mark as data driven
                 passNode.m_IsDataDriven = true;
-                passNode.m_IsStandAlone = true;
+                auto isStandAlonePass   = data["is_standalone"];
+                if (!isStandAlonePass.empty())
+                    passNode.m_IsStandAlone = isStandAlonePass;
 
                 return passNode;
             }

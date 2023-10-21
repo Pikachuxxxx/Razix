@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Material Editor</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../../Resources/RZEResources.qrc">
+    <normaloff>:/rzeditor/material.png</normaloff>:/rzeditor/material.png</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true">background-color: #151515;</string>
   </property>
@@ -674,6 +678,8 @@ border-style:solid;</string>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../../../Resources/RZEResources.qrc"/>
+ </resources>
  <connections/>
 </ui>

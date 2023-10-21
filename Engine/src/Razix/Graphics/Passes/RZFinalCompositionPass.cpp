@@ -45,10 +45,8 @@ namespace Razix {
                 .transparencyEnabled    = true,
                 .depthBiasEnabled       = false};
 
-            // Get the final Scene Color HDR RT
-            //SceneData            sceneData = framegraph.getBlackboard().get<SceneData>();
-            FrameGraph::RZFrameGraphResource sceneHDR  = framegraph.getBlackboard().getID("SceneHDR");
-            FrameGraph::RZFrameGraphResource sceneDepth = framegraph.getBlackboard().getID("SceneDepth");
+            // Get the final output
+            FrameGraph::RZFrameGraphResource FinalOutputRenderTarget = framegraph.getBlackboard().getFinalOutputID();
 #if 1
             framegraph.getBlackboard().add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
                 "Pass.Builtin.Code.FinalComposition",
@@ -63,27 +61,13 @@ namespace Razix {
                         .type   = TextureType::Texture_2D,
                         .format = TextureFormat::BGRA8_UNORM};
 
-                    RZTextureDesc depthImageDesc{
-                        .name       = "Depth Image",
-                        .width      = RZApplication::Get().getWindow()->getWidth(),
-                        .height     = RZApplication::Get().getWindow()->getHeight(),
-                        .type       = TextureType::Texture_Depth,
-                        .format     = TextureFormat::DEPTH32F,
-                        .filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                        .enableMips = false};
-
                     data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
-
-                    data.depthTexture = builder.create<FrameGraph::RZFrameGraphTexture>("Depth Texture", (FrameGraph::RZFrameGraphTexture::Desc) depthImageDesc);
 
                     // Writes from this pass
                     data.presentationTarget = builder.write(data.presentationTarget);
-                    data.depthTexture       = builder.write(data.depthTexture);
 
-                    if (settings.renderFeatures & RendererFeature_ImGui) {
-                        builder.read(framegraph.getBlackboard().getID("SceneHDR"));
-                        builder.read(framegraph.getBlackboard().getID("SceneDepth"));
-                    }
+                    // Read the Final RT from where ever it's given from
+                    builder.read(FinalOutputRenderTarget);
 
                     /**
                      * Issues:- Well pipeline creation needs a shader and some info from the Frame Graph(all the output attachments that the current frame graph pas writes to)
@@ -128,7 +112,7 @@ namespace Razix {
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 // change the layout to be in Shader Read Only Optimal
-                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneHDR).getHandle();
+                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle();
                             }
                             m_DescriptorSets->UpdateSet(setInfo.second);
                         }
@@ -138,10 +122,7 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
-                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::TransparentBlack}} /*,
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.depthTexture).getHandle(), {true}}*/
-                    };
-                    //info.extent = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::TransparentBlack}}};
                     info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);

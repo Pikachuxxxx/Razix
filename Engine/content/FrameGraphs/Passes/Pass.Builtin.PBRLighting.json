@@ -1,6 +1,7 @@
 {
     "name": "Pass.Builtin.PBRLighting",
     "shader": "Shader.Builtin.PBRIBL",
+    "is_standalone": true,
     "pipeline_info": {
         "depth": {
             "write": true,

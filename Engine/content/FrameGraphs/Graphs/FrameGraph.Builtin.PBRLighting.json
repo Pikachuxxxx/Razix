@@ -9,10 +9,8 @@
                     "name": "ShadowMap",
                     "texture_type": "Depth",
                     "format": "DEPTH32F",
-                    "resolution": {
-                        "x": 4096,
-                        "y": 4096
-                    },
+                    "width": 4096,
+                    "height": 4096,
                     "attachment_info": {
                         "clear": true,
                         "clear_color": "OpaqueBlack",
@@ -70,10 +68,8 @@
                     "name": "SceneHDR",
                     "texture_type": "2D",
                     "format": "RGBA32F",
-                    "resolution": {
-                        "x": 4096,
-                        "y": 4096
-                    },
+                    "width": 4096,
+                    "height": 4096,
                     "attachment_info": {
 
                         "clear": true,
@@ -88,10 +84,8 @@
                     "name": "SceneDepth",
                     "texture_type": "Depth",
                     "format": "DEPTH32F",
-                    "resolution": {
-                        "x": 4096,
-                        "y": 4096
-                    },
+                    "width": 4096,
+                    "height": 4096,
                     "attachment_info": {
 
                         "clear": true,
@@ -101,8 +95,8 @@
                         "layer": 0
                     }
                 }
-            ],
-            "final_output": "SceneHDR"
+            ]
         }
-    ]
+    ],
+    "final_output": "SceneHDR"
 }

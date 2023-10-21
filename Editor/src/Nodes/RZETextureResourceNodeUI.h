@@ -13,6 +13,13 @@ namespace Razix {
 
             QRectF boundingRect() const override;    // { return QRectF(0, 0, width, height).normalized(); }
             void   paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget /* = nullptr */) override;
+
+            bool getIsFinalOutput() const { return m_IsFinalOutput; }
+            void setIsFinalOutput(bool val) { m_IsFinalOutput = val; }
+
+        private:
+            bool m_IsFinalOutput = false;
+            QPen outputPen;
         };
 
         //-----------------------------------------------------------------------------------
@@ -38,8 +45,16 @@ namespace Razix {
             bool        m_EnableMips = false;
             bool        m_IsHDR      = false;
 
+            bool getIsFinalOutput() const { return m_IsFinalOutput; }
+            void setIsFinalOutput(bool val)
+            {
+                m_IsFinalOutput = val;
+                m_TextureResourceGraphicsNode->setIsFinalOutput(val);
+            }
+
         private:
             TextureResourceNodeGraphicsNode* m_TextureResourceGraphicsNode = nullptr;
+            bool                             m_IsFinalOutput               = false;
         };
 
         //-----------------------------------------------------------------------------------

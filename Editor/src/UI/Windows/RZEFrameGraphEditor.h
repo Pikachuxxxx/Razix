@@ -134,10 +134,16 @@ namespace Razix {
             void OnImportTextureBrowsePressed();
             //-----------------------------------------------------------
             // Toolbar slots
-            /* Import it into the node graph scene by de-serializing the JSON file and also filling nodes for m_FrameGraph */ 
-            void OnOpenPressed(); 
-            /* Exports it the node graph scene by serializing the JSON file */ 
+            /* Import it into the node graph scene by de-serializing the JSON file and also filling nodes for m_FrameGraph */
+            void OnOpenPressed();
+            /* Exports it the node graph scene by serializing the JSON file */
             void OnSavePressed();
+            /* While selecting a PassNode we can toggle set as stand alone pass for it */
+            void OnSetAsStandAlonePressed();
+            /* Sets a breakpoint on the node */
+            void OnAddBreakpointPressed();
+            /* Sets the selected Texture Resource Node as final output */
+            void OnFinalOutputPressed();
 
         private:
             Ui::FrameGraphEditor               ui;
@@ -152,6 +158,7 @@ namespace Razix {
             QStringList                        m_FormatsStringList                = {};
             Graphics::FrameGraph::RZFrameGraph m_FrameGraph                       = {}; /* FrameGraph classes used to export into a JSON file */
             std::string                        m_FrameGraphFilePath               = "";
+            std::string                        m_FinalOutputName                  = "SceneHDR";
 
         private:
             void initializePassNodePropertiesInspector();
@@ -173,7 +180,8 @@ namespace Razix {
             //-----------------------------------------------------------
             // Other Misc
             void exportNodeScenetoJSON();
-            void exportPassNodedtoJSON(RZEPassNodeUI* passNode, std::string& passNodeName);
+            void exportPassNodetoJSON(RZEPassNodeUI* passNode, std::string& passNodeName);
+            void parseJSONtoNodeScene(const std::string& framegraphFilePath);
         };
     }    // namespace Editor
 }    // namespace Razix

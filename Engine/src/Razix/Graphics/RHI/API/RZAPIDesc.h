@@ -90,21 +90,20 @@ namespace Razix {
 
         //-----------------------------------------------------------------------------------
         /* utility functions for frame graph parsing to convert string to enums */
-        CompareOp     StringToCompareOp(const std::string& str);
-        DrawType      StringToDrawType(const std::string& str);
-        PolygonMode   StringToPolygonMode(const std::string& str);
-        CullMode      StringToCullMode(const std::string& str);
-        BlendOp       StringToBlendOp(const std::string& str);
-        TextureFormat StringToTextureFormat(const std::string& str);
-        TextureType   StringToTextureType(const std::string& str);
-        Wrapping      StringToWrapping(const std::string& str);
-        Filtering     StringToFiltering(const std::string& str);
-        BlendFactor   StringToBlendFactor(const std::string& str);
-        BufferUsage   StringToBufferUsage(const std::string& str);
-        ShaderStage   StringToShaderStage(const std::string& str);
+        CompareOp       StringToCompareOp(const std::string& str);
+        DrawType        StringToDrawType(const std::string& str);
+        PolygonMode     StringToPolygonMode(const std::string& str);
+        CullMode        StringToCullMode(const std::string& str);
+        BlendOp         StringToBlendOp(const std::string& str);
+        TextureFormat   StringToTextureFormat(const std::string& str);
+        TextureType     StringToTextureType(const std::string& str);
+        Wrapping        StringToWrapping(const std::string& str);
+        Filtering::Mode StringToFilteringMode(const std::string& str);
+        BlendFactor     StringToBlendFactor(const std::string& str);
+        BufferUsage     StringToBufferUsage(const std::string& str);
+        ShaderStage     StringToShaderStage(const std::string& str);
         //-----------------------------------------------------------------------------------
         // [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
-
 
         //-----------------------------------------------------------------------------------
     }    // namespace Graphics

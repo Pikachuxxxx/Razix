@@ -715,7 +715,7 @@ color:#ff00ff
          <number>0</number>
         </property>
         <item>
-         <widget class="QPushButton" name="mask_as_standalone">
+         <widget class="QPushButton" name="mark_as_standalone">
           <property name="minimumSize">
            <size>
             <width>32</width>
@@ -764,7 +764,7 @@ color:#ff00ff
          <number>0</number>
         </property>
         <item>
-         <widget class="QPushButton" name="mask_as_standalone_2">
+         <widget class="QPushButton" name="add_breakpoint">
           <property name="minimumSize">
            <size>
             <width>32</width>
@@ -793,6 +793,52 @@ color:#ff00ff
          <widget class="QLabel" name="label_17">
           <property name="text">
            <string>Add Breakpoint</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_27">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="final_output">
+          <property name="minimumSize">
+           <size>
+            <width>32</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../Resources/RZEResources.qrc">
+            <normaloff>:/rzeditor/hello_triangle.png</normaloff>:/rzeditor/hello_triangle.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_70">
+          <property name="text">
+           <string>Final Output</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -2352,12 +2398,18 @@ border-width:1px;
              </property>
             </widget>
            </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="textureWidth"/>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_55">
              <property name="text">
               <string>Height</string>
              </property>
             </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="textureHeight"/>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_56">
@@ -2366,21 +2418,15 @@ border-width:1px;
              </property>
             </widget>
            </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="textureDepth"/>
+           </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_57">
              <property name="text">
               <string>Layers</string>
              </property>
             </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="textureWidth"/>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="textureDepth"/>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="textureHeight"/>
            </item>
            <item row="4" column="1">
             <widget class="QLineEdit" name="textureLayers"/>
@@ -2392,12 +2438,18 @@ border-width:1px;
              </property>
             </widget>
            </item>
+           <item row="5" column="1">
+            <widget class="QComboBox" name="textureType"/>
+           </item>
            <item row="6" column="0">
             <widget class="QLabel" name="label_59">
              <property name="text">
               <string>Format</string>
              </property>
             </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QComboBox" name="textureFormat"/>
            </item>
            <item row="7" column="0">
             <widget class="QLabel" name="label_60">
@@ -2406,12 +2458,18 @@ border-width:1px;
              </property>
             </widget>
            </item>
+           <item row="7" column="1">
+            <widget class="QComboBox" name="wrapMode"/>
+           </item>
            <item row="8" column="0">
             <widget class="QLabel" name="label_61">
              <property name="text">
               <string>Filetring Mode: Min</string>
              </property>
             </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QComboBox" name="filterModeMin"/>
            </item>
            <item row="9" column="0">
             <widget class="QLabel" name="label_62">
@@ -2420,17 +2478,13 @@ border-width:1px;
              </property>
             </widget>
            </item>
+           <item row="9" column="1">
+            <widget class="QComboBox" name="filterModeMag"/>
+           </item>
            <item row="10" column="0">
             <widget class="QLabel" name="label_63">
              <property name="text">
               <string>enable Mips</string>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="0">
-            <widget class="QLabel" name="label_64">
-             <property name="text">
-              <string>is HDR</string>
              </property>
             </widget>
            </item>
@@ -2441,27 +2495,19 @@ border-width:1px;
              </property>
             </widget>
            </item>
+           <item row="11" column="0">
+            <widget class="QLabel" name="label_64">
+             <property name="text">
+              <string>is HDR</string>
+             </property>
+            </widget>
+           </item>
            <item row="11" column="1">
             <widget class="QCheckBox" name="isHDR">
              <property name="text">
               <string/>
              </property>
             </widget>
-           </item>
-           <item row="9" column="1">
-            <widget class="QComboBox" name="filterModeMag"/>
-           </item>
-           <item row="8" column="1">
-            <widget class="QComboBox" name="filterModeMin"/>
-           </item>
-           <item row="7" column="1">
-            <widget class="QComboBox" name="wrapMode"/>
-           </item>
-           <item row="6" column="1">
-            <widget class="QComboBox" name="textureFormat"/>
-           </item>
-           <item row="5" column="1">
-            <widget class="QComboBox" name="textureType"/>
            </item>
           </layout>
          </item>

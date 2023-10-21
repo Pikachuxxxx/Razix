@@ -2,7 +2,96 @@
     "name": "FrameGraph.User.EditorTest",
     "passes": [
         {
-            "render_pass": "Pass.User.RenderShadow"
+            "inputs": [],
+            "outputs": [
+                {
+                    "depth": 1,
+                    "enable_mips": false,
+                    "filtering": {
+                        "mag": "LINEAR",
+                        "min": "LINEAR"
+                    },
+                    "format": "DEPTH32F",
+                    "hdr": false,
+                    "height": 4096,
+                    "layers": 1,
+                    "name": "ShadowMap",
+                    "texture_type": "Texture_2D",
+                    "type": "Texture",
+                    "width": 4096,
+                    "wrapping": "CLAMP_TO_EDGE"
+                },
+                {
+                    "depth": 1,
+                    "enable_mips": false,
+                    "filtering": {
+                        "mag": "LINEAR",
+                        "min": "LINEAR"
+                    },
+                    "format": "DEPTH32F",
+                    "hdr": false,
+                    "height": 4096,
+                    "layers": 1,
+                    "name": "LightSpaceMatrix",
+                    "size": 64,
+                    "texture_type": "Texture_2D",
+                    "type": "Buffer",
+                    "usage": "Static",
+                    "width": 4096,
+                    "wrapping": "CLAMP_TO_EDGE"
+                }
+            ],
+            "render_pass": "Pass.User.RenderShadows"
+        },
+        {
+            "inputs": [
+                {
+                    "name": "ShadowMap",
+                    "type": "Reference"
+                },
+                {
+                    "name": "LightSpaceMatrix",
+                    "type": "Reference"
+                }
+            ],
+            "outputs": [
+                {
+                    "depth": 1,
+                    "enable_mips": false,
+                    "filtering": {
+                        "mag": "LINEAR",
+                        "min": "LINEAR"
+                    },
+                    "format": "RGBA32F",
+                    "hdr": true,
+                    "height": 1080,
+                    "layers": 1,
+                    "name": "SceneHDR",
+                    "texture_type": "Texture_2D",
+                    "type": "Texture",
+                    "width": 1920,
+                    "wrapping": "CLAMP_TO_EDGE"
+                },
+                {
+                    "depth": 1,
+                    "enable_mips": false,
+                    "filtering": {
+                        "mag": "LINEAR",
+                        "min": "LINEAR"
+                    },
+                    "format": "DEPTH32F",
+                    "hdr": false,
+                    "height": 1080,
+                    "layers": 1,
+                    "name": "Texture",
+                    "texture_type": "Texture_2D",
+                    "type": "Texture",
+                    "width": 1920,
+                    "wrapping": "CLAMP_TO_EDGE"
+                }
+            ],
+            "render_pass": "Pass.User.PBRLighting"
         }
-    ]
+    ],
+    "final_output": "SceneHDR"
 }

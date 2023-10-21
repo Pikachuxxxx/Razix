@@ -45,7 +45,10 @@ static const std::vector<std::string> ImportNodesPresets = {
 
 static const std::unordered_map<std::string, std::string> ResourceNodesPresets = {
     {"Buffer", "color:#000000;\n background-color: #F6D975;\nborder-color: rgb(0, 0, 0);\nborder-width:1px;\nborder-style:dashed;\nborder-radius:4px;"},
-    {"Texture", "color:#000000;\n background-color: #9AD0FC;\nborder-color: rgb(0, 0, 0);\nborder-width:1px;\nborder-style:dashed;\nborder-radius:4px;"}};
+    {"Texture", "color:#000000;\n background-color: #9AD0FC;\nborder-color: rgb(0, 0, 0);\nborder-width:1px;\nborder-style:dashed;\nborder-radius:4px;"},
+    {"FrameData", "color:#000000;\n background-color: #9370DB;\nborder-color: rgb(0, 0, 0);\nborder-width:1px;\nborder-style:dashed;\nborder-radius:4px;"},
+    {"SceneLightsData", "color:#000000;\n background-color: #9370DB;\nborder-color: rgb(0, 0, 0);\nborder-width:1px;\nborder-style:dashed;\nborder-radius:4px;"},
+};
 
 namespace Razix {
     namespace Editor {
@@ -81,7 +84,7 @@ namespace Razix {
 
         //-----------------------------------------------------------
         // RZEFrameGraphEditor
-        //-----------------------------------------------------------
+        //-----------------------------------------------------------n
 
         RZEFrameGraphEditor::RZEFrameGraphEditor(QWidget* parent)
             : QWidget(parent)
@@ -672,6 +675,35 @@ namespace Razix {
             }
         }
 
+        void RZEFrameGraphEditor::OnSetAsStandAlonePressed()
+        {
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->setIsStandAlonePass(!m_CurrentEditingPassNode->getIsStandAlonePass());
+                m_CurrentEditingPassNode->update();
+            }
+        }
+
+        void RZEFrameGraphEditor::OnAddBreakpointPressed()
+        {
+            if (m_CurrentEditingPassNode) {
+                m_CurrentEditingPassNode->setHasBreakPoint(!m_CurrentEditingPassNode->getHasBreakPoint());
+                m_CurrentEditingPassNode->update();
+            }
+        }
+
+        void RZEFrameGraphEditor::OnFinalOutputPressed()
+        {
+            // TODO: Iterate and clear final output status for all other TextureResoruceNodes (maybe use signals and emit one here)
+            // For now we will do it manually
+
+            if (m_CurrentEditingTextureNode) {
+                m_CurrentEditingTextureNode->setIsFinalOutput(!m_CurrentEditingTextureNode->getIsFinalOutput());
+                if (m_CurrentEditingTextureNode->getIsFinalOutput())
+                    m_FinalOutputName = m_CurrentEditingTextureNode->getTitle();
+                m_CurrentEditingTextureNode->update();
+            }
+        }
+
         //-----------------------------------------------------------
 
         void RZEFrameGraphEditor::initializePassNodePropertiesInspector()
@@ -1046,6 +1078,11 @@ namespace Razix {
         {
             connect(ui.open_fg, SIGNAL(pressed()), this, SLOT(OnOpenPressed()));
             connect(ui.save_fg, SIGNAL(pressed()), this, SLOT(OnSavePressed()));
+
+            connect(ui.mark_as_standalone, SIGNAL(pressed()), this, SLOT(OnSetAsStandAlonePressed()));
+            connect(ui.add_breakpoint, SIGNAL(pressed()), this, SLOT(OnAddBreakpointPressed()));
+
+            connect(ui.final_output, SIGNAL(pressed()), this, SLOT(OnFinalOutputPressed()));
         }
 
         //-----------------------------------------------------------
@@ -1054,7 +1091,7 @@ namespace Razix {
         void RZEFrameGraphEditor::exportNodeScenetoJSON()
         {
             // Create a file
-            std::ofstream fg_file(m_FrameGraphFilePath);
+            std::ofstream fg_file(m_FrameGraphFilePath, std::ofstream::out | std::ofstream::trunc);
 
             if (fg_file.is_open()) {
                 // FG name
@@ -1062,11 +1099,12 @@ namespace Razix {
 
                 fg["name"] = Utilities::RemoveFilePathExtension(Utilities::GetFileName(m_FrameGraphFilePath));
 
-                auto passes = json::array();
+                auto passes = ordered_json::array();
 
                 for (auto& node: m_NodeGraphWidget->getScene()->getNodes()) {
                     std::cout << node->getTitle() << std::endl;
 
+                    // Only process if it's a Pass Node and not Resource Node
                     auto passNode = dynamic_cast<RZEPassNodeUI*>(node);
 
                     if (passNode) {
@@ -1074,7 +1112,7 @@ namespace Razix {
                         std::string passName = "Pass.User." + node->getTitle();
 
                         // If the node is a Pass Node export it to JSON first
-                        exportPassNodedtoJSON(dynamic_cast<RZEPassNodeUI*>(node), passName);
+                        exportPassNodetoJSON(dynamic_cast<RZEPassNodeUI*>(node), passName);
 
                         auto passNode           = ordered_json::object();
                         passNode["render_pass"] = passName;
@@ -1082,9 +1120,111 @@ namespace Razix {
                         ordered_json inputs  = ordered_json::array();
                         ordered_json outputs = ordered_json::array();
 
+                        /**
+                         * 1. FrameData, SceneLightsData & Material descriptor sets are bound by the Scene so showing them in FrameGraph is just 
+                         * for visualization and doesn't affect rendering, these resources are not managed by FG
+                         * 
+                         * 2. As for References we check if the input/out resource has a non-empty sockets if so, we mark it as a Reference
+                         * 
+                         * 3. Also one doesn't create input nodes, they are always given from someone so they are always references and outputs 
+                         * can be ofc both so let's restrict some stuff and generate the JSON as we create more 
+                         */
+
+                        // Process the Inputs (PassNode has only one I/p & O/P socket, with multi edge support)
+                        auto inputSocket = node->getInputSockets()[0];
+                        {
+                            ordered_json input;
+
+                            // So from each input/output node we get the list of edges and get the nodes that they are connected to as input/output resources
+                            auto inputEdges = inputSocket->getEdges();
+
+                            for (u32 j = 0; j < inputEdges.size(); j++) {
+                                auto startSocket = inputSocket->getEdges()[j]->getStartSocket();
+                                auto endSocket   = inputSocket->getEdges()[j]->getEndSocket();
+
+                                // Also the edge for this node can have the start and end sockets in any order so we need to check for self and select other other one
+                                Socket* fromSocket = nullptr;
+
+                                if (startSocket == inputSocket)
+                                    fromSocket = endSocket;
+                                else
+                                    fromSocket = startSocket;
+
+                                RAZIX_ASSERT(fromSocket, "[Frame Graph Editor] empty socket while exporting");
+
+                                // Get the ResourceNode from which this socket it from and give it's name
+                                auto bufferResourceNode  = dynamic_cast<RZEBufferResourceNodeUI*>(fromSocket->getNode());
+                                auto textureResourceNode = dynamic_cast<RZETextureResourceNodeUI*>(fromSocket->getNode());
+
+                                if (bufferResourceNode || textureResourceNode) {
+                                    input["name"] = fromSocket->getNode()->getTitle();
+
+                                    // Since it's a input so always a reference, if we need add check for if the fromNode has any input nodes
+                                    input["type"] = "Reference";
+
+                                    inputs.push_back(input);
+                                }
+                            }
+                        }
+
+                        // Process the Outputs (PassNode has only one I/p & O/P socket, with multi edge support)
+                        auto outputSocket = node->getOutputSockets()[0];
+                        {
+                            ordered_json output;
+
+                            // So from each input/output node we get the list of edges and get the nodes that they are connected to as input/output resources
+                            auto outputEdges = outputSocket->getEdges();
+
+                            for (u32 j = 0; j < outputEdges.size(); j++) {
+                                auto startSocket = outputSocket->getEdges()[j]->getStartSocket();
+                                auto endSocket   = outputSocket->getEdges()[j]->getEndSocket();
+
+                                // Also the edge for this node can have the start and end sockets in any order so we need to check for self and select other other one
+                                Socket* toSocket = nullptr;
+
+                                if (startSocket == outputSocket)
+                                    toSocket = endSocket;
+                                else
+                                    toSocket = startSocket;
+
+                                RAZIX_ASSERT(toSocket, "[Frame Graph Editor] empty socket while exporting");
+
+                                // Get the ResourceNode from which this socket it from and give it's name
+                                auto bufferResourceNode  = dynamic_cast<RZEBufferResourceNodeUI*>(toSocket->getNode());
+                                auto textureResourceNode = dynamic_cast<RZETextureResourceNodeUI*>(toSocket->getNode());
+
+                                if (bufferResourceNode) {
+                                    output["type"]  = "Buffer";
+                                    output["name"]  = bufferResourceNode->getTitle();
+                                    output["size"]  = bufferResourceNode->getSize();
+                                    output["usage"] = bufferResourceNode->getUsage();
+                                } else if (textureResourceNode) {
+                                    output["type"]             = "Texture";
+                                    output["name"]             = textureResourceNode->getTitle();
+                                    output["width"]            = textureResourceNode->m_Width;
+                                    output["height"]           = textureResourceNode->m_Height;
+                                    output["depth"]            = textureResourceNode->m_Depth;
+                                    output["layers"]           = textureResourceNode->m_Layers;
+                                    output["texture_type"]     = textureResourceNode->m_Type;
+                                    output["format"]           = textureResourceNode->m_Format;
+                                    output["wrapping"]         = textureResourceNode->m_Wrapping;
+                                    output["filtering"]["min"] = textureResourceNode->m_FilteringMin;
+                                    output["filtering"]["mag"] = textureResourceNode->m_FilteringMag;
+                                    output["enable_mips"]      = textureResourceNode->m_EnableMips;
+                                    output["hdr"]              = textureResourceNode->m_IsHDR;
+                                }
+                                outputs.push_back(output);
+                            }
+                        }
+                        passNode["inputs"]  = inputs;
+                        passNode["outputs"] = outputs;
+
                         passes.push_back(passNode);
                     }
                 }
+
+                // Set the Final output to which it will be rendered to
+                fg["final_output"] = m_FinalOutputName;
 
                 fg["passes"] = passes;
 
@@ -1094,11 +1234,11 @@ namespace Razix {
             fg_file.close();
         }
 
-        void RZEFrameGraphEditor::exportPassNodedtoJSON(RZEPassNodeUI* passNode, std::string& passNodeName)
+        void RZEFrameGraphEditor::exportPassNodetoJSON(RZEPassNodeUI* passNode, std::string& passNodeName)
         {
             // Create a file to save the render Pass file
             auto          passFilePath = Utilities::GetFileLocation(m_FrameGraphFilePath) + "/../Passes/" + passNodeName + ".json";
-            std::ofstream pass_file(passFilePath);
+            std::ofstream pass_file(passFilePath, std::ofstream::out | std::ofstream::trunc);
 
             if (pass_file.is_open()) {
                 ordered_json pass;
@@ -1106,49 +1246,47 @@ namespace Razix {
                 pass["name"]   = passNodeName;
                 pass["shader"] = passNode->getShaderName();
 
-                auto& pipeline                        = passNode->getPipelineSettings();
-                pass["pipeline_info"]["cull_mode"]    = pipeline.cullMode;
-                pass["pipeline_info"]["polygon_mode"] = pipeline.polygonMode;
-                pass["pipeline_info"]["draw_type"]    = pipeline.drawMode;
-                pass["pipeline_info"]["cull_mode"]    = pipeline.cullMode;
-                pass["pipeline_info"]["transparency"] = pipeline.enableTransparencey;
+                auto& pipeline = passNode->getPipelineSettings();
+                {
+                    pass["pipeline_info"]["cull_mode"]    = pipeline.cullMode;
+                    pass["pipeline_info"]["polygon_mode"] = pipeline.polygonMode;
+                    pass["pipeline_info"]["draw_type"]    = pipeline.drawMode;
+                    pass["pipeline_info"]["cull_mode"]    = pipeline.cullMode;
+                    pass["pipeline_info"]["transparency"] = pipeline.enableTransparencey;
 
-                ordered_json color_blend = ordered_json::object();
-                color_blend["src"]       = pipeline.colorSrc;
-                color_blend["dst"]       = pipeline.colorDst;
-                color_blend["op"]        = pipeline.colorOp;
+                    ordered_json color_blend = ordered_json::object();
+                    color_blend["src"]       = pipeline.colorSrc;
+                    color_blend["dst"]       = pipeline.colorDst;
+                    color_blend["op"]        = pipeline.colorOp;
 
-                ordered_json alpha_blend = ordered_json::object();
-                alpha_blend["src"]       = pipeline.alphaSrc;
-                alpha_blend["dst"]       = pipeline.alphaDst;
-                alpha_blend["op"]        = pipeline.alphaOp;
+                    ordered_json alpha_blend = ordered_json::object();
+                    alpha_blend["src"]       = pipeline.alphaSrc;
+                    alpha_blend["dst"]       = pipeline.alphaDst;
+                    alpha_blend["op"]        = pipeline.alphaOp;
 
-                pass["color_blend"] = color_blend;
-                pass["alpha_blend"] = alpha_blend;
+                    pass["pipeline_info"]["color_blend"] = color_blend;
+                    pass["pipeline_info"]["alpha_blend"] = alpha_blend;
 
-                ordered_json depth = ordered_json::object();
-                depth["write"]     = pipeline.enableDepthWrite;
-                depth["test"]      = pipeline.enableDepthTest;
-                depth["op"]        = pipeline.depthOperation;
+                    ordered_json depth = ordered_json::object();
+                    depth["write"]     = pipeline.enableDepthWrite;
+                    depth["test"]      = pipeline.enableDepthTest;
+                    depth["op"]        = pipeline.depthOperation;
 
-                pass["depth"] = depth;
+                    pass["pipeline_info"]["depth"] = depth;
 
-                pass["depth_format"] = pipeline.depthFormat;
+                    pass["pipeline_info"]["depth_format"] = pipeline.depthFormat;
 
-                ordered_json color_formats = ordered_json::array();
-                for (u32 i = 0; i < pipeline.colorFormats.size(); i++)
-                    color_formats.push_back(pipeline.colorFormats[i]);
+                    ordered_json color_formats = ordered_json::array();
+                    for (u32 i = 0; i < pipeline.colorFormats.size(); i++)
+                        color_formats.push_back(pipeline.colorFormats[i]);
 
-                pass["color_formats"] = color_formats;
+                    pass["pipeline_info"]["color_formats"] = color_formats;
+                }
 
-                auto& sceneSettings = passNode->getSceneSettings();
-
-                pass["scene_params"]                  = ordered_json::object();
+                auto& sceneSettings                   = passNode->getSceneSettings();
                 pass["scene_params"]["geometry_mode"] = sceneSettings.geometryMode;
-                // TODO: Support enable lights and enable materials booleans
 
                 pass["rendering_info"]["resolution"] = sceneSettings.resolution;
-
                 ordered_json extents;
                 extents["x"]                     = sceneSettings.extents.x;
                 extents["y"]                     = sceneSettings.extents.y;
