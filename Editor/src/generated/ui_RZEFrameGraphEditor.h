@@ -1756,7 +1756,9 @@ public:
 
         retranslateUi(FrameGraphEditor);
 
-        stackedWidget->setCurrentIndex(3);
+        stackedWidget->setCurrentIndex(1);
+        cullMode->setCurrentIndex(-1);
+        polygonMode->setCurrentIndex(-1);
 
 
         QMetaObject::connectSlotsByName(FrameGraphEditor);
@@ -1848,7 +1850,9 @@ public:
         label_43->setText(QCoreApplication::translate("FrameGraphEditor", "Resolution", nullptr));
         label_44->setText(QCoreApplication::translate("FrameGraphEditor", "Extents", nullptr));
         label_45->setText(QCoreApplication::translate("FrameGraphEditor", "x", nullptr));
+        extentX->setText(QCoreApplication::translate("FrameGraphEditor", "0", nullptr));
         label_46->setText(QCoreApplication::translate("FrameGraphEditor", "y", nullptr));
+        extentY->setText(QCoreApplication::translate("FrameGraphEditor", "0", nullptr));
         label_47->setText(QCoreApplication::translate("FrameGraphEditor", "Layers", nullptr));
         layers->setPlaceholderText(QCoreApplication::translate("FrameGraphEditor", "Enter number of rendering layers", nullptr));
         PassPresetsLbl_4->setText(QCoreApplication::translate("FrameGraphEditor", "Node Properties Inspector", nullptr));
@@ -1863,9 +1867,13 @@ public:
         label_65->setText(QCoreApplication::translate("FrameGraphEditor", "Texture Resource", nullptr));
         label_53->setText(QCoreApplication::translate("FrameGraphEditor", "Name", nullptr));
         label_54->setText(QCoreApplication::translate("FrameGraphEditor", "Width", nullptr));
+        textureWidth->setText(QCoreApplication::translate("FrameGraphEditor", "1920", nullptr));
         label_55->setText(QCoreApplication::translate("FrameGraphEditor", "Height", nullptr));
+        textureHeight->setText(QCoreApplication::translate("FrameGraphEditor", "1080", nullptr));
         label_56->setText(QCoreApplication::translate("FrameGraphEditor", "Depth", nullptr));
+        textureDepth->setText(QCoreApplication::translate("FrameGraphEditor", "1", nullptr));
         label_57->setText(QCoreApplication::translate("FrameGraphEditor", "Layers", nullptr));
+        textureLayers->setText(QCoreApplication::translate("FrameGraphEditor", "1", nullptr));
         label_58->setText(QCoreApplication::translate("FrameGraphEditor", "Type", nullptr));
         label_59->setText(QCoreApplication::translate("FrameGraphEditor", "Format", nullptr));
         label_60->setText(QCoreApplication::translate("FrameGraphEditor", "Wrap Mode", nullptr));

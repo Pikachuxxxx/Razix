@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZEFrameGraphEditor.h"
 
+#include <fstream>
+
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGraphicsDropShadowEffect>
@@ -13,11 +15,16 @@
 #include "Nodes/RZEPassNodeUI.h"
 #include "Nodes/RZETextureResourceNodeUI.h"
 
+#include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+
 #include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 
 #include "Razix/Graphics/RHI/API/Data/RZBufferData.h"
 #include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
 #include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
+
+#include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 
 #include "Razix/Graphics/RHI/RHI.h"
 
@@ -652,6 +659,10 @@ namespace Razix {
 
         void RZEFrameGraphEditor::OnOpenPressed()
         {
+            auto fileName        = QFileDialog::getOpenFileName(this, "Select Frame Graph File to import", "", tr("frame graph(*.json)"));
+            m_FrameGraphFilePath = fileName.toStdString();
+
+            parseJSONtoNodeScene(m_FrameGraphFilePath);
         }
 
         void RZEFrameGraphEditor::OnSavePressed()
@@ -673,6 +684,39 @@ namespace Razix {
                 // Now parse the Graph and start exporting to JSON file
                 exportNodeScenetoJSON();
             }
+        }
+
+        void RZEFrameGraphEditor::OnCompilePressed()
+        {
+            if (!m_FrameGraphFilePath.empty()) {
+                // Save again just in case we have any unsaved work
+                exportNodeScenetoJSON();
+
+                // use a dummy FrameGraph class to compile the Exported JSON file to validate it
+                RAZIX_INFO("[Frame Graph Editor] Parsing Exported FrameGraph ....");
+                m_FrameGraph.parse(m_FrameGraphFilePath);
+
+                // Compile the Frame Graph
+                RAZIX_INFO("[Frame Graph Editor] Compiling FrameGraph ....");
+                m_FrameGraph.compile();
+
+                // Dump the compiled Frame Graph for static visualization
+                auto location       = Utilities::GetFileLocation(m_FrameGraphFilePath);
+                auto name           = Utilities::GetFileName(m_FrameGraphFilePath);
+                auto exportLocation = location + "/../FrameGraph.Compiled." + name + ".dot";
+
+                m_FrameGraph.exportToGraphViz(exportLocation);
+            }
+        }
+
+        void RZEFrameGraphEditor::OnHotReloadPressed()
+        {
+            // 1. Save to JSON
+            // 2. Check for compilation status, if not compile again
+            // 3. Build the frame graph using the current exported JSON file
+            //  3.1 Halt the Engine Rendering and Flush the GPU work
+            //  3.2 Build the Framegraph into the current WorldRenderer Interface
+            // 4. Resume Engine Rendering safely
         }
 
         void RZEFrameGraphEditor::OnSetAsStandAlonePressed()
@@ -741,14 +785,17 @@ namespace Razix {
             // Fill cull mode combo box
             for (u32 i = 0; i < (u32) Graphics::CullMode::COUNT; i++)
                 ui.cullMode->addItem(Graphics::CullModeNames[i]);
+            ui.cullMode->setCurrentIndex((u32) Graphics::CullMode::Back);
 
             connect(ui.polygonMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelinePolygonModeSelected()));
             for (u32 i = 0; i < (u32) Graphics::PolygonMode::COUNT; i++)
                 ui.polygonMode->addItem(Graphics::PolygonModeNames[i]);
+            ui.polygonMode->setCurrentIndex((u32) Graphics::PolygonMode::Fill);
 
             connect(ui.drawType, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDrawTypeSelected()));
             for (u32 i = 0; i < (u32) Graphics::DrawType::COUNT; i++)
                 ui.drawType->addItem(Graphics::DrawTypeNames[i]);
+            ui.drawType->setCurrentIndex((u32) Graphics::DrawType::Triangle);
 
             connect(ui.enableTransparency, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableTransparencyChecked()));
             connect(ui.enableDepthTest, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableDepthTestChecked()));
@@ -757,6 +804,7 @@ namespace Razix {
             connect(ui.depthOperation, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDepthOperationSelected()));
             for (u32 i = 0; i < (u32) Graphics::CompareOp ::COUNT; i++)
                 ui.depthOperation->addItem(Graphics::CompareOpNames[i]);
+            ui.depthOperation->setCurrentIndex((u32) Graphics::CompareOp::Less);
 
             // Blend Factor
             connect(ui.colorSrc, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorSrcSelected()));
@@ -769,6 +817,10 @@ namespace Razix {
                 ui.alphaSrc->addItem(Graphics::BlendFactorNames[i]);
                 ui.alphaDst->addItem(Graphics::BlendFactorNames[i]);
             }
+            ui.colorSrc->setCurrentIndex((u32) Graphics::BlendFactor::SrcAlpha);
+            ui.colorDst->setCurrentIndex((u32) Graphics::BlendFactor::OneMinusSrcAlpha);
+            ui.alphaSrc->setCurrentIndex((u32) Graphics::BlendFactor::One);
+            ui.alphaDst->setCurrentIndex((u32) Graphics::BlendFactor::One);
 
             // Blend Op
             connect(ui.colorOp, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorOperationSelected()));
@@ -777,14 +829,17 @@ namespace Razix {
                 ui.colorOp->addItem(Graphics::BlendOpNames[i]);
                 ui.alphaOp->addItem(Graphics::BlendOpNames[i]);
             }
+            ui.colorOp->setCurrentIndex((u32) Graphics::BlendOp::Add);
+            ui.alphaOp->setCurrentIndex((u32) Graphics::BlendOp::Add);
 
             // Fill the formats combobox items
             for (u32 i = 0; i < (u32) Graphics::TextureFormat::COUNT; i++)
-                m_FormatsStringList.push_back(Graphics::RZTextureDesc::FormatToString((Graphics::TextureFormat) i).c_str());
+                m_FormatsStringList.push_back(Razix::Graphics::TextureFormatNames[i]);
 
             // Depth format
             connect(ui.depthFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDepthFormatSelected()));
             ui.depthFormat->addItems(m_FormatsStringList);
+            ui.depthFormat->setCurrentIndex((u32) Graphics::TextureFormat::DEPTH32F);
 
             connect(ui.add_color_format, SIGNAL(pressed()), this, SLOT(OnAddColorFormatClicked()));
             connect(ui.remove_color_format, SIGNAL(pressed()), this, SLOT(OnRemoveColorFormatClicked()));
@@ -797,6 +852,7 @@ namespace Razix {
             connect(ui.sceneGeometry, SIGNAL(currentIndexChanged(int)), this, SLOT(OnSceneGeometryModeSelected()));
             for (u32 i = 0; i < (u32) Razix::SceneDrawGeometryMode::COUNT; i++)
                 ui.sceneGeometry->addItem(Razix::SceneDrawGeometryModeNames[i]);
+            ui.sceneGeometry->setCurrentIndex((u32) SceneDrawGeometryMode::SceneGeometry);
 
             connect(ui.enableResize, SIGNAL(stateChanged(int)), this, SLOT(OnEnableResize()));
 
@@ -823,6 +879,7 @@ namespace Razix {
             connect(ui.bufferUsage, SIGNAL(currentIndexChanged(int)), this, SLOT(OnBufferUsageSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::BufferUsage::COUNT; i++)
                 ui.bufferUsage->addItem(Razix::Graphics::BufferUsageNames[i]);
+            ui.bufferUsage->setCurrentIndex(0);
             // TODO: enable data reflection check box
 
             // Texture Resource
@@ -842,18 +899,27 @@ namespace Razix {
             connect(ui.textureType, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureTypeSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::TextureType::COUNT; i++)
                 ui.textureType->addItem(Razix::Graphics::TextureTypeNames[i]);
+            ui.textureType->setCurrentIndex((u32) Razix::Graphics::TextureType::Texture_2D);
+
             connect(ui.textureFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFormatSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::TextureFormat::COUNT; i++)
                 ui.textureFormat->addItem(Razix::Graphics::TextureFormatNames[i]);
+            ui.textureFormat->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA32F);
+
             connect(ui.wrapMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureWrapModeSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::Wrapping::COUNT; i++)
                 ui.wrapMode->addItem(Razix::Graphics::WrappingNames[i]);
+            ui.wrapMode->setCurrentIndex((u32) Razix::Graphics::Wrapping::CLAMP_TO_EDGE);
+
             connect(ui.filterModeMin, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMinModeSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::Filtering::Mode::COUNT; i++)
                 ui.filterModeMin->addItem(Razix::Graphics::FitleringModeNames[i]);
+            ui.filterModeMin->setCurrentIndex((u32) Razix::Graphics::Filtering::Mode::LINEAR);
+
             connect(ui.filterModeMag, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMagModeSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::Filtering::Mode::COUNT; i++)
                 ui.filterModeMag->addItem(Razix::Graphics::FitleringModeNames[i]);
+            ui.filterModeMag->setCurrentIndex((u32) Razix::Graphics::Filtering::Mode::LINEAR);
 
             connect(ui.enableMips, SIGNAL(stateChanged(int)), this, SLOT(OnEnableMips()));
             connect(ui.isHDR, SIGNAL(stateChanged(int)), this, SLOT(OnEnableIsHDR()));
@@ -1079,6 +1145,8 @@ namespace Razix {
             connect(ui.open_fg, SIGNAL(pressed()), this, SLOT(OnOpenPressed()));
             connect(ui.save_fg, SIGNAL(pressed()), this, SLOT(OnSavePressed()));
 
+            connect(ui.compile, SIGNAL(pressed()), this, SLOT(OnCompilePressed()));
+
             connect(ui.mark_as_standalone, SIGNAL(pressed()), this, SLOT(OnSetAsStandAlonePressed()));
             connect(ui.add_breakpoint, SIGNAL(pressed()), this, SLOT(OnAddBreakpointPressed()));
 
@@ -1133,12 +1201,12 @@ namespace Razix {
                         // Process the Inputs (PassNode has only one I/p & O/P socket, with multi edge support)
                         auto inputSocket = node->getInputSockets()[0];
                         {
-                            ordered_json input;
-
                             // So from each input/output node we get the list of edges and get the nodes that they are connected to as input/output resources
                             auto inputEdges = inputSocket->getEdges();
 
                             for (u32 j = 0; j < inputEdges.size(); j++) {
+                                ordered_json input;
+
                                 auto startSocket = inputSocket->getEdges()[j]->getStartSocket();
                                 auto endSocket   = inputSocket->getEdges()[j]->getEndSocket();
 
@@ -1155,12 +1223,16 @@ namespace Razix {
                                 // Get the ResourceNode from which this socket it from and give it's name
                                 auto bufferResourceNode  = dynamic_cast<RZEBufferResourceNodeUI*>(fromSocket->getNode());
                                 auto textureResourceNode = dynamic_cast<RZETextureResourceNodeUI*>(fromSocket->getNode());
+                                auto importResourceNode  = dynamic_cast<RZEImportNodeUI*>(fromSocket->getNode());
 
-                                if (bufferResourceNode || textureResourceNode) {
+                                if (bufferResourceNode || textureResourceNode || importResourceNode) {
                                     input["name"] = fromSocket->getNode()->getTitle();
 
                                     // Since it's a input so always a reference, if we need add check for if the fromNode has any input nodes
                                     input["type"] = "Reference";
+
+                                    if (importResourceNode)
+                                        input["is_imported"] = true;
 
                                     inputs.push_back(input);
                                 }
@@ -1170,12 +1242,12 @@ namespace Razix {
                         // Process the Outputs (PassNode has only one I/p & O/P socket, with multi edge support)
                         auto outputSocket = node->getOutputSockets()[0];
                         {
-                            ordered_json output;
-
                             // So from each input/output node we get the list of edges and get the nodes that they are connected to as input/output resources
                             auto outputEdges = outputSocket->getEdges();
 
                             for (u32 j = 0; j < outputEdges.size(); j++) {
+                                ordered_json output;
+
                                 auto startSocket = outputSocket->getEdges()[j]->getStartSocket();
                                 auto endSocket   = outputSocket->getEdges()[j]->getEndSocket();
 
@@ -1243,8 +1315,9 @@ namespace Razix {
             if (pass_file.is_open()) {
                 ordered_json pass;
 
-                pass["name"]   = passNodeName;
-                pass["shader"] = passNode->getShaderName();
+                pass["name"]          = passNodeName;
+                pass["shader"]        = passNode->getShaderName();
+                pass["is_standalone"] = passNode->getIsStandAlonePass();
 
                 auto& pipeline = passNode->getPipelineSettings();
                 {
@@ -1299,6 +1372,142 @@ namespace Razix {
                 pass_file << pass.dump(4);
             }
             pass_file.close();
+        }
+
+        void RZEFrameGraphEditor::parseJSONtoNodeScene(const std::string& framegraphFilePath)
+        {
+            //auto        jsonStrData = RZFileSystem::ReadTextFile(framegraphFilePath);
+
+            // BUG: using VFS here to resolve the physical path is causing a thread change kinda issue and adding GUI elements from non-main threads in QT will cause application crash
+
+            std::ifstream graphFileStream(framegraphFilePath);
+            json          fg = json::parse(graphFileStream);
+
+            // Name of Graph
+            auto frameGraphName = fg["name"];
+
+            // Iterate thought all the passes and created nodes & edges
+            auto passes = fg["passes"];
+
+            for (auto& pass: passes) {
+                // Get the renderpass and use this to read another JSON file and create a RZEPassNodeUI
+                auto render_pass  = pass["render_pass"];
+                auto passFilePath = Utilities::GetFileLocation(framegraphFilePath) + "/../Passes/" + std::string(render_pass) + ".json";
+
+                std::ifstream passFileStream(passFilePath);
+                json          passNode = json::parse(passFileStream);
+
+                std::string passName = passNode["name"];
+
+                // Create a pass node UI
+                RZEPassNodeUI* passNodeUI = new RZEPassNodeUI(passName, m_NodeGraphWidget->getScene());
+
+                std::string shaderName = passNode["shader"];
+                passNodeUI->setShaderName(shaderName);
+
+                auto& pipelineSettings               = passNodeUI->getPipelineSettings();
+                pipelineSettings.cullMode            = passNode["pipeline_info"]["cull_mode"];
+                pipelineSettings.polygonMode         = passNode["pipeline_info"]["polygon_mode"];
+                pipelineSettings.drawMode            = passNode["pipeline_info"]["draw_type"];
+                pipelineSettings.enableTransparencey = passNode["pipeline_info"]["transparency"].get<bool>();
+
+                auto color_blend          = passNode["pipeline_info"]["color_blend"];
+                pipelineSettings.colorSrc = color_blend["src"];
+                pipelineSettings.colorDst = color_blend["dst"];
+                pipelineSettings.colorOp  = color_blend["op"];
+
+                auto alpha_blend          = passNode["pipeline_info"]["alpha_blend"];
+                pipelineSettings.alphaSrc = alpha_blend["src"];
+                pipelineSettings.alphaDst = alpha_blend["dst"];
+                pipelineSettings.alphaOp  = alpha_blend["op"];
+
+                auto depth                        = passNode["pipeline_info"]["depth"];
+                pipelineSettings.enableDepthWrite = depth["write"].get<bool>();
+                pipelineSettings.enableDepthTest  = depth["test"].get<bool>();
+                pipelineSettings.depthOperation   = depth["op"];
+
+                auto depthFormat = passNode["pipeline_info"]["depth_format"];
+                if (!depthFormat.empty())
+                    pipelineSettings.depthFormat = depthFormat;
+
+                auto color_formats = passNode["pipeline_info"]["color_formats"];
+                for (u32 i = 0; i < color_formats.size(); i++)
+                    pipelineSettings.colorFormats.push_back(color_formats[i]);
+
+                auto& sceneSettings        = passNodeUI->getSceneSettings();
+                sceneSettings.geometryMode = passNode["scene_params"]["geometry_mode"];
+
+                sceneSettings.resolution = passNode["rendering_info"]["resolution"];
+                auto extents             = passNode["rendering_info"]["extent"];
+                sceneSettings.extents.x  = extents["x"].get<int>();
+                sceneSettings.extents.y  = extents["y"].get<int>();
+
+                sceneSettings.enableResize = passNode["rendering_info"]["resize"].get<bool>();
+                sceneSettings.layers       = passNode["rendering_info"]["layers"].get<int>();
+
+                auto isStandAlone = passNode["is_standalone"];
+                passNodeUI->setIsStandAlonePass(isStandAlone.get<bool>());
+
+                // Created Edges and Resources/Import nodes and connect them and fill their infos
+                json inputs  = pass["inputs"];
+                json outputs = pass["outputs"];
+
+                for (auto& input: inputs) {
+                    auto inputName = input["name"];
+
+                    auto isImported = input["is_imported"];
+                    if (!isImported.empty()) {
+                        // Create a import node instead
+                        RZEImportNodeUI* importNodeUI = new RZEImportNodeUI(inputName, m_NodeGraphWidget->getScene());
+                        // Connect to this PassNode via an Edge
+                        NodeEdge* edge = new NodeEdge(m_NodeGraphWidget->getScene(), importNodeUI->getOutputSocket(0), passNodeUI->getInputSocket(0));
+
+                    } else {
+                        /**
+                         * Since these are references, they are pre-existing nodes in the Scene, we can get them by their name and connect the to this node via an edge
+                         */
+                        auto node = m_NodeGraphWidget->getScene()->getNodeByName(inputName);
+                        // Connect to this ResourceNode via an Edge
+                        NodeEdge* edge = new NodeEdge(m_NodeGraphWidget->getScene(), node->getOutputSocket(0), passNodeUI->getInputSocket(0));
+                    }
+                }
+
+                for (auto& output: outputs) {
+                    auto outputName = output["name"];
+
+                    // Create the Buffer/Texture Resource node
+                    auto type = output["type"];
+
+                    if (type == "Buffer") {
+                        // Create a Buffer resource node
+                        RZEBufferResourceNodeUI* bufferNodeUI = new RZEBufferResourceNodeUI(outputName, m_NodeGraphWidget->getScene());
+
+                        bufferNodeUI->setSize(output["size"].get<int>());
+                        bufferNodeUI->setUsage(output["usage"]);
+
+                        // Connect to this ResourceNode via an Edge
+                        NodeEdge* edge = new NodeEdge(m_NodeGraphWidget->getScene(), bufferNodeUI->getInputSocket(0), passNodeUI->getOutputSocket(0));
+
+                    } else if (type == "Texture") {
+                        // Create a Texture resource node
+                        RZETextureResourceNodeUI* textureNodeUI = new RZETextureResourceNodeUI(outputName, m_NodeGraphWidget->getScene());
+                        textureNodeUI->m_Width                  = output["width"].get<int>();
+                        textureNodeUI->m_Height                 = output["height"].get<int>();
+                        textureNodeUI->m_Depth                  = output["depth"].get<int>();
+                        textureNodeUI->m_Layers                 = output["layers"].get<int>();
+                        textureNodeUI->m_Type                   = output["texture_type"];
+                        textureNodeUI->m_Format                 = output["format"];
+                        textureNodeUI->m_Wrapping               = output["wrapping"];
+                        textureNodeUI->m_FilteringMin           = output["filtering"]["min"];
+                        textureNodeUI->m_FilteringMag           = output["filtering"]["mag"];
+                        textureNodeUI->m_EnableMips             = output["enable_mips"].get<bool>();
+                        textureNodeUI->m_IsHDR                  = output["hdr"].get<bool>();
+
+                        // Connect to this ResourceNode via an Edge
+                        NodeEdge* edge = new NodeEdge(m_NodeGraphWidget->getScene(), textureNodeUI->getInputSocket(0), passNodeUI->getOutputSocket(0));
+                    }
+                }
+            }
         }
     }    // namespace Editor
 }    // namespace Razix

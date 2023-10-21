@@ -162,6 +162,8 @@ namespace Razix {
                 void resize(u32 width, u32 height);
                 /* Exports it GraphViz format */
                 void exportToGraphViz(std::ostream &) const;
+                /* Exports it in GraphViz format to given location */
+                void exportToGraphViz(const std::string& location) const;
 
                 /* Tell whether or no the current resource is valid to read/write */
                 bool isValid(RZFrameGraphResource id);

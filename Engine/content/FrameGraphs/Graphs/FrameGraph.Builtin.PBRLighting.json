@@ -47,19 +47,23 @@
                 },
                 {
                     "type": "Reference",
-                    "name": "BrdfLUT"
+                    "name": "BrdfLUT",
+                    "is_imported": true
                 },
                 {
                     "type": "Reference",
-                    "name": "EnvironmentMap"
+                    "name": "EnvironmentMap",
+                    "is_imported": true
                 },
                 {
                     "type": "Reference",
-                    "name": "PreFilteredMap"
+                    "name": "PreFilteredMap",
+                    "is_imported": true
                 },
                 {
                     "type": "Reference",
-                    "name": "IrradianceMap"
+                    "name": "IrradianceMap",
+                    "is_imported": true
                 }
             ],
             "outputs": [
