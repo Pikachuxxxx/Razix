@@ -3,7 +3,7 @@
     "final_output": "SceneHDR",
     "passes": [
         {
-            "render_pass": "Pass.User.RenderShadows",
+            "render_pass": "Pass.User.Pass.User.RenderShadows",
             "inputs": [],
             "outputs": [
                 {
@@ -19,7 +19,7 @@
                     "height": 4096,
                     "depth": 1,
                     "layers": 1,
-                    "texture_type": "Texture_Depth",
+                    "texture_type": "Texture_2D",
                     "format": "DEPTH32F",
                     "wrapping": "CLAMP_TO_EDGE",
                     "filtering": {
@@ -32,7 +32,7 @@
             ]
         },
         {
-            "render_pass": "Pass.User.PBRLighting",
+            "render_pass": "Pass.User.Pass.User.PBRLighting",
             "inputs": [
                 {
                     "name": "LightSpaceMatrix",
@@ -53,7 +53,7 @@
                     "is_imported": true
                 },
                 {
-                    "name": "PreFilteredMap",
+                    "name": "PreFileteredMap",
                     "type": "Reference",
                     "is_imported": true
                 },
@@ -73,13 +73,13 @@
                     "layers": 1,
                     "texture_type": "Texture_2D",
                     "format": "RGBA32F",
-                    "wrapping": "CLAMP_TO_BORDER",
+                    "wrapping": "CLAMP_TO_EDGE",
                     "filtering": {
                         "min": "LINEAR",
                         "mag": "LINEAR"
                     },
                     "enable_mips": false,
-                    "hdr": false
+                    "hdr": true
                 },
                 {
                     "type": "Texture",
@@ -88,83 +88,9 @@
                     "height": 720,
                     "depth": 1,
                     "layers": 1,
-                    "texture_type": "Texture_Depth",
+                    "texture_type": "Texture_2D",
                     "format": "DEPTH32F",
                     "wrapping": "CLAMP_TO_EDGE",
-                    "filtering": {
-                        "min": "LINEAR",
-                        "mag": "LINEAR"
-                    },
-                    "enable_mips": false,
-                    "hdr": false
-                }
-            ]
-        },
-        {
-            "render_pass": "Pass.User.GBuffer",
-            "inputs": [],
-            "outputs": [
-                {
-                    "type": "Texture",
-                    "name": "Depth",
-                    "width": 111,
-                    "height": 111,
-                    "depth": 1,
-                    "layers": 1,
-                    "texture_type": "Texture_Depth",
-                    "format": "DEPTH32F",
-                    "wrapping": "CLAMP_TO_BORDER",
-                    "filtering": {
-                        "min": "LINEAR",
-                        "mag": ""
-                    },
-                    "enable_mips": false,
-                    "hdr": false
-                },
-                {
-                    "type": "Texture",
-                    "name": "GBuffer0",
-                    "width": 111,
-                    "height": 111,
-                    "depth": 1,
-                    "layers": 1,
-                    "texture_type": "Texture_2D",
-                    "format": "RGBA32F",
-                    "wrapping": "CLAMP_TO_BORDER",
-                    "filtering": {
-                        "min": "LINEAR",
-                        "mag": "LINEAR"
-                    },
-                    "enable_mips": false,
-                    "hdr": false
-                },
-                {
-                    "type": "Texture",
-                    "name": "GBuffer1",
-                    "width": 111,
-                    "height": 111,
-                    "depth": 1,
-                    "layers": 1,
-                    "texture_type": "Texture_2D",
-                    "format": "RGBA32F",
-                    "wrapping": "CLAMP_TO_BORDER",
-                    "filtering": {
-                        "min": "LINEAR",
-                        "mag": "LINEAR"
-                    },
-                    "enable_mips": false,
-                    "hdr": false
-                },
-                {
-                    "type": "Texture",
-                    "name": "GBuffer2",
-                    "width": 111,
-                    "height": 111,
-                    "depth": 1,
-                    "layers": 1,
-                    "texture_type": "Texture_2D",
-                    "format": "RGBA32F",
-                    "wrapping": "CLAMP_TO_BORDER",
                     "filtering": {
                         "min": "LINEAR",
                         "mag": "LINEAR"

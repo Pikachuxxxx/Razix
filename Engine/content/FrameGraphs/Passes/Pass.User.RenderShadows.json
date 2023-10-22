@@ -3,7 +3,7 @@
     "shader": "Shader.Builtin.DepthPreTest",
     "is_standalone": true,
     "pipeline_info": {
-        "cull_mode": "Back",
+        "cull_mode": "Front",
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
         "transparency": false,
@@ -30,7 +30,7 @@
     },
     "rendering_info": {
         "resolution": "kCustom",
-        "extent": {
+        "extents": {
             "x": 4096.0,
             "y": 4096.0
         },

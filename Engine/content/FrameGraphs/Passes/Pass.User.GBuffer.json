@@ -1,12 +1,12 @@
 {
-    "name": "Pass.User.Pass.User.PBRLighting",
-    "shader": "Shader.Builtin.PBRIBL",
+    "name": "Pass.User.GBuffer",
+    "shader": "Shader.Builtin.GBuffer",
     "is_standalone": true,
     "pipeline_info": {
-        "cull_mode": "Back",
+        "cull_mode": "Front",
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
-        "transparency": true,
+        "transparency": false,
         "color_blend": {
             "src": "SrcAlpha",
             "dst": "OneMinusSrcAlpha",
@@ -22,8 +22,10 @@
             "test": true,
             "op": "Less"
         },
-        "depth_format": "",
+        "depth_format": "DEPTH32F",
         "color_formats": [
+            "RGBA32F",
+            "RGBA32F",
             "RGBA32F"
         ]
     },
@@ -32,7 +34,7 @@
     },
     "rendering_info": {
         "resolution": "kWindow",
-        "extent": {
+        "extents": {
             "x": 0.0,
             "y": 0.0
         },

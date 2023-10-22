@@ -3,7 +3,7 @@
     "shader": "Shader.Builtin.PBRIBL",
     "is_standalone": true,
     "pipeline_info": {
-        "cull_mode": "Back",
+        "cull_mode": "Front",
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
         "transparency": true,
@@ -13,8 +13,8 @@
             "op": "Add"
         },
         "alpha_blend": {
-            "src": "",
-            "dst": "",
+            "src": "One",
+            "dst": "One",
             "op": "Add"
         },
         "depth": {
@@ -22,7 +22,7 @@
             "test": true,
             "op": "Less"
         },
-        "depth_format": "DEPTH",
+        "depth_format": "DEPTH32F",
         "color_formats": [
             "RGBA32F"
         ]
@@ -32,7 +32,7 @@
     },
     "rendering_info": {
         "resolution": "kWindow",
-        "extent": {
+        "extents": {
             "x": 0.0,
             "y": 0.0
         },

@@ -147,14 +147,14 @@ namespace Razix {
 
         static std::unordered_map<std::string, Graphics::TextureType> StringTextureTypeMap = {
 
-            {"1D", Graphics::TextureType::Texture_1D},
-            {"2D", Graphics::TextureType::Texture_2D},
-            {"2DArray", Graphics::TextureType::Texture_2DArray},
-            {"3D", Graphics::TextureType::Texture_3D},
-            {"Depth", Graphics::TextureType::Texture_Depth},
-            {"CubeMap", Graphics::TextureType::Texture_CubeMap},
-            {"CubeMapArray", Graphics::TextureType::Texture_CubeMapArray},
-            {"SwapchainImage", Graphics::TextureType::Texture_SwapchainImage}};
+            {"Texture_1D", Graphics::TextureType::Texture_1D},
+            {"Texture_2D", Graphics::TextureType::Texture_2D},
+            {"Texture_2DArray", Graphics::TextureType::Texture_2DArray},
+            {"Texture_3D", Graphics::TextureType::Texture_3D},
+            {"Texture_Depth", Graphics::TextureType::Texture_Depth},
+            {"Texture_CubeMap", Graphics::TextureType::Texture_CubeMap},
+            {"Texture_CubeMapArray", Graphics::TextureType::Texture_CubeMapArray},
+            {"Texture_SwapchainImage", Graphics::TextureType::Texture_SwapchainImage}};
 
         Razix::Graphics::TextureType RZTextureDesc::StringToType(const std::string& str)
         {

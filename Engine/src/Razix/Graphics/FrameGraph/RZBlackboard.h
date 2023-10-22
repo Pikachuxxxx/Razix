@@ -87,6 +87,12 @@ namespace Razix {
                 RAZIX_INLINE void               setFinalOutputName(const std::string& val) { m_FinalOutputName = val; }
                 RZFrameGraphResource            getFinalOutputID() { return getID(m_FinalOutputName); }
 
+                void destroy()
+                {
+                    m_Storage.clear();
+                    m_DataDrivenStorage.clear();
+                }
+
             private:
                 std::unordered_map<std::type_index, std::any> m_Storage;
                 //std::unordered_map<std::string, std::vector<std::pair<std::string, RZFrameGraphResource>>> m_DataDrivenStorage;

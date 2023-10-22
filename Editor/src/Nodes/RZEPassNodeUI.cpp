@@ -85,6 +85,7 @@ namespace Razix {
             painter->drawPath(path_content.simplified());
 
             // Draw References Count + Standalone status
+#if 1
             painter->setPen(QPen(QColor("#FFFFFF")));
             auto label = "Index : " + std::to_string(RZEPassNodeUI::Idx);
             painter->drawText(QPoint(12, titleBgHeight + 18), label.c_str());
@@ -93,6 +94,7 @@ namespace Razix {
 
             QFontMetrics fm(titleItem->font());
             painter->drawPixmap(fm.horizontalAdvance(label.c_str()) + 4, titleBgHeight + 8, pixmap);
+#endif
             // TODO: Draw Disabled status label with rounded outline
 
             // Outline

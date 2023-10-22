@@ -21,12 +21,12 @@
 using json = nlohmann::json;
 
 static std::unordered_map<std::string, Razix::Graphics::Resolution> StringToResolutionsMap = {
-    {"1080p", Razix::Graphics::Resolution::k1080p},
-    {"1440p", Razix::Graphics::Resolution::k1440p},
-    {"4KUpscaled", Razix::Graphics::Resolution::k4KUpscaled},
-    {"4KNative", Razix::Graphics::Resolution::k4KNative},
-    {"Window", Razix::Graphics::Resolution::kWindow},
-    {"Custom", Razix::Graphics::Resolution::kCustom}};
+    {"k1080p", Razix::Graphics::Resolution::k1080p},
+    {"k1440p", Razix::Graphics::Resolution::k1440p},
+    {"k4KUpscaled", Razix::Graphics::Resolution::k4KUpscaled},
+    {"k4KNative", Razix::Graphics::Resolution::k4KNative},
+    {"kWindow", Razix::Graphics::Resolution::kWindow},
+    {"kCustom", Razix::Graphics::Resolution::kCustom}};
 
 static std::unordered_map<std::string, Razix::Graphics::ClearColorPresets> StringToColorPreset = {
     {"OpaqueBlack", Razix::Graphics::ClearColorPresets::OpaqueBlack},
@@ -509,7 +509,7 @@ namespace Razix {
                     extent.x = extents["x"].get<float>();
                     extent.y = extents["y"].get<float>();
                 }
-                auto &layersCount = renderInfo["layers_count"];
+                auto &layersCount = renderInfo["layers"];
                 u32   layers      = 1;
                 if (!layersCount.empty())
                     layers = layersCount.get<int>();
@@ -779,6 +779,18 @@ namespace Razix {
                 RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", location);
                 os << *this;
                 os.close();
+            }
+
+            void RZFrameGraph::destroy()
+            {
+                for (auto &entry: m_ResourceRegistry)
+                    entry.getConcept()->destroy(nullptr);
+
+                m_PassNodes.clear();
+                m_ResourceNodes.clear();
+                m_ResourceRegistry.clear();
+
+                m_Blackboard.destroy();
             }
 
             bool RZFrameGraph::isValid(RZFrameGraphResource id)

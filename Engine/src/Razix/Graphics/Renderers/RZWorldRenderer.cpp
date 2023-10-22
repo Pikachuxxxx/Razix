@@ -37,6 +37,8 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+            m_FrameGraphBuildingInProgress = true;
+
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
             m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTextureFromFile({.name = "BrdfLUT", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
@@ -357,7 +359,8 @@ namespace Razix {
             //-------------------------------
 
             // Test
-            RAZIX_ASSERT(m_FrameGraph.parse("//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json"), "[Frame Graph] Failed to parse graph!");
+            if (!getFrameGraphFilePath().empty())
+                RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
 #endif
 
             m_FrameGraph.addCallbackPass(
@@ -438,8 +441,6 @@ namespace Razix {
                     RZDebugRenderer::Get()->End();
                 });
 
-
-
             //-------------------------------
             // Final Image Presentation
             //-------------------------------
@@ -453,13 +454,25 @@ namespace Razix {
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
-            std::ofstream os(outPath + "/pbr_lighting_data_driven.dot");
+            std::ofstream os(outPath + "/data_driven_editor_test.dot");
             os << m_FrameGraph;
+
+            m_FrameGraphBuildingInProgress = false;
         }
 
         void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (m_IsFGFilePathDirty) {
+                destroy();
+                FrameGraph::RZFrameGraph::ResetFirstFrame();
+                buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+                m_IsFGFilePathDirty = false;
+            }
+
+            if (m_FrameGraphBuildingInProgress)
+                return;
 
             // Update calls passes
             m_CascadedShadowsRenderer.updateCascades(scene);
@@ -495,32 +508,46 @@ namespace Razix {
 
         void RZWorldRenderer::destroy()
         {
+            Graphics::RZGraphicsContext::GetContext()->Wait();
+
+            m_FrameGraphBuildingInProgress = true;
+
             // Destroy Imported Resources
-            //m_BRDFfLUTTextureHandle->Release(true);
-            //m_NoiseTextureHandle->Release(true);
+            RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
+            RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
 
-#if 1
-            //m_GlobalLightProbes.skybox->Release(true);
-            //m_GlobalLightProbes.diffuse->Release(true);
-            //m_GlobalLightProbes.specular->Release(true);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
 
-#endif
             // Destroy Renderers
             //m_ForwardRenderer.Destroy();
             //m_CascadedShadowsRenderer.Destroy();
-            m_ImGuiRenderer.Destroy();
+            //m_ImGuiRenderer.Destroy();
             RZDebugRenderer::Get()->Destroy();
 
             // Destroy Passes
-            m_PBRLightingPass.destroy();
-            m_SkyboxPass.destroy();
-            m_CompositePass.destroy();
-            m_ShadowPass.destroy();
-            //m_GIPass.destroy();
+            //m_PBRLightingPass.destroy();
+            //m_SkyboxPass.destroy();
+            //m_ShadowPass.destroy();
             //m_GBufferPass.destroy();
+            m_CompositePass.destroy();
 
             // TODO: Destroy Frame Graph Transient Resources
+
+            m_FrameGraph.destroy();
+
+            // Wait for GPU to be done
+            Graphics::RZGraphicsContext::GetContext()->Wait();
         }
+
+        RAZIX_INLINE void RZWorldRenderer::setFrameGraphFilePath(std::string val)
+        {
+            m_IsFGFilePathDirty  = true;
+            m_FrameGraphFilePath = val;
+        }
+
+        //--------------------------------------------------------------------------
 
         void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)
         {
@@ -582,6 +609,14 @@ namespace Razix {
                     auto frameDataBufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(frameDataBufferHandle)->SetData(sizeof(GPUFrameData), &gpuData);
 
+                    // This is for when we hot-reload the frame graph
+                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                        auto set = Graphics::RHI::Get().getFrameDataSet();
+                        if (set)
+                            set->Destroy();
+                        Graphics::RHI::Get().setFrameDataSet(nullptr);
+                    }
+
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
@@ -627,6 +662,14 @@ namespace Razix {
                     // update and upload the UBO
                     auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
+
+                    // This is for when we hot-reload the frame graph
+                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                        auto set = Graphics::RHI::Get().getSceneLightsDataSet();
+                        if (set)
+                            set->Destroy();
+                        Graphics::RHI::Get().setSceneLightsDataSet(nullptr);
+                    }
 
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};

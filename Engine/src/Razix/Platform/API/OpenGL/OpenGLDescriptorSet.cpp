@@ -20,7 +20,7 @@ namespace Razix {
             // Update the uniform buffers here (don't we already get updated ones?)
         }
 
-        void OpenGLDescriptorSet::Destroy()
+        void OpenGLDescriptorSet::Destroy() const
         {
         }
 

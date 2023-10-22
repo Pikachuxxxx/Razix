@@ -111,7 +111,7 @@ public:
 
         std::lock_guard<std::mutex> lk(RZApplication::m);
         RZApplication::ready_for_execution = true;
-        RAZIX_INFO("Triggering worker thread to halt execution ::::");
+        RAZIX_INFO("Triggering worker thread to resume execution ::::");
         RZApplication::halt_execution.notify_one();
     }
 
@@ -189,7 +189,7 @@ private:
     {
         std::lock_guard<std::mutex> lk(RZApplication::m);
         RZApplication::ready_for_execution = true;
-        RAZIX_INFO("Triggering worker thread to halt execution ::::");
+        RAZIX_INFO("Triggering worker thread to resume execution ::::");
         RZApplication::halt_execution.notify_one();
 
         RAZIX_TRACE("Window Resize override Editor application! | W : {0}, H : {1}", width, height);

@@ -99,6 +99,15 @@ namespace Razix {
         bool RenderFrame();
 
         /**
+         * Since the application controls engine runtime flow we need to instruct the Application to halt/resume engine systems & rendering
+         */
+        bool HaltEngine();
+        /**
+         * Since the application controls engine runtime flow we need to instruct the Application to halt/resume engine systems & rendering
+         */
+        bool ResumeEngine();
+
+        /**
          * Called before the application starts rendering
          * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
          */

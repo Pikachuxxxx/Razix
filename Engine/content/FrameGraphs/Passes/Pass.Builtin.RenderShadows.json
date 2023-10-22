@@ -16,12 +16,12 @@
     },
     "geometry_mode": "SceneGeometry",
     "rendering_info": {
-        "resolution": "Custom",
+        "resolution": "kCustom",
         "extents": {
             "x": 4096,
             "y": 4096
         },
         "resize": false,
-        "layers_count": 1
+        "layers": 1
     }
 }

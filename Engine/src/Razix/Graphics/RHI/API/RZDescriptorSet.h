@@ -148,7 +148,7 @@ namespace Razix {
 
             /* Updates the descriptor set with the given descriptors */
             virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition = true) = 0;
-            virtual void Destroy()                                                                             = 0;
+            virtual void Destroy() const                                                                       = 0;
 
             RAZIX_INLINE u32  getSetIdx() { return m_SetIdx; }
             RAZIX_INLINE void setSetIdx(u32 idx) { m_SetIdx = idx; }

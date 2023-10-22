@@ -247,7 +247,7 @@ namespace Razix {
             // TODO: Formate the message id and stuff for colors etc
 
             // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE!
-            // return VK_FALSE;
+            return VK_FALSE;
 
             //if (!message_severity)
             //    return VK_FALSE;
