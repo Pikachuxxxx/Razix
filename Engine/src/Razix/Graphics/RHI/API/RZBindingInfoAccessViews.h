@@ -99,11 +99,11 @@ namespace Razix {
         /* Gives information for the attachment Info */
         struct RAZIX_MEM_ALIGN AttachmentInfo
         {
-            bool              clear      = true;                           /* Whether or not to clear the particular attachment              */
-            ClearColorPresets clearColor = ClearColorPresets::OpaqueBlack; /* Clear color with which the attachment is cleared               */
-            u32               bindingIdx = 0;                              /* Which output slot to bind the render target to                 */
-            u32               mip        = 0;                              /* Which mip map to render to                                     */
-            u32               layer      = 0;                              /* Which face/array layer to render to in a cubemap/texture array */
+            bool              clear      = true;                                /* Whether or not to clear the particular attachment              */
+            ClearColorPresets clearColor = ClearColorPresets::TransparentBlack; /* Clear color with which the attachment is cleared               */
+            u32               bindingIdx = 0;                                   /* Which output slot to bind the render target to                 */
+            u32               mip        = 0;                                   /* Which mip map to render to                                     */
+            u32               layer      = 0;                                   /* Which face/array layer to render to in a cubemap/texture array */
 
             RAZIX_NO_DISCARD u32 encode();
             RAZIX_NO_DISCARD     operator u32() const;

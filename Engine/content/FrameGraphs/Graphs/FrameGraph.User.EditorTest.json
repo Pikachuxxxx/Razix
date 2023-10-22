@@ -73,13 +73,13 @@
                     "layers": 1,
                     "texture_type": "Texture_2D",
                     "format": "RGBA32F",
-                    "wrapping": "CLAMP_TO_EDGE",
+                    "wrapping": "CLAMP_TO_BORDER",
                     "filtering": {
                         "min": "LINEAR",
                         "mag": "LINEAR"
                     },
                     "enable_mips": false,
-                    "hdr": true
+                    "hdr": false
                 },
                 {
                     "type": "Texture",

@@ -16,7 +16,7 @@
     },
     "geometry_mode": "SceneGeometry",
     "rendering_info": {
-        "resolution": "kWindow",
+        "resolution": "kCustom",
         "extents": {
             "x": 4096,
             "y": 4096
