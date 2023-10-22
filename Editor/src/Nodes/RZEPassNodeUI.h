@@ -51,7 +51,6 @@ namespace Razix {
 
         private:
             u32                titleBgHeight      = 30;
-            QGraphicsTextItem* m_IdxTitle         = nullptr;
             bool               m_HasBreakPoint    = false;
             bool               m_IsStandAlonePass = false;
         };

@@ -15,6 +15,9 @@
 #include "Nodes/RZEPassNodeUI.h"
 #include "Nodes/RZETextureResourceNodeUI.h"
 
+#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
@@ -659,7 +662,7 @@ namespace Razix {
 
         void RZEFrameGraphEditor::OnOpenPressed()
         {
-            auto fileName        = QFileDialog::getOpenFileName(this, "Select Frame Graph File to import", "", tr("frame graph(*.json)"));
+            auto fileName        = QFileDialog::getOpenFileName(this, "Select Frame Graph File to import", "./Engine/content/FrameGraphs/Graphs/", tr("frame graph(*.json)"));
             m_FrameGraphFilePath = fileName.toStdString();
 
             parseJSONtoNodeScene(m_FrameGraphFilePath);
@@ -689,23 +692,25 @@ namespace Razix {
         void RZEFrameGraphEditor::OnCompilePressed()
         {
             if (!m_FrameGraphFilePath.empty()) {
-                // Save again just in case we have any unsaved work
-                exportNodeScenetoJSON();
-
-                // use a dummy FrameGraph class to compile the Exported JSON file to validate it
-                RAZIX_INFO("[Frame Graph Editor] Parsing Exported FrameGraph ....");
-                m_FrameGraph.parse(m_FrameGraphFilePath);
-
-                // Compile the Frame Graph
-                RAZIX_INFO("[Frame Graph Editor] Compiling FrameGraph ....");
-                m_FrameGraph.compile();
-
-                // Dump the compiled Frame Graph for static visualization
-                auto location       = Utilities::GetFileLocation(m_FrameGraphFilePath);
-                auto name           = Utilities::GetFileName(m_FrameGraphFilePath);
-                auto exportLocation = location + "/../FrameGraph.Compiled." + name + ".dot";
-
-                m_FrameGraph.exportToGraphViz(exportLocation);
+                //// Save again just in case we have any unsaved work
+                //exportNodeScenetoJSON();
+                //
+                //// use a dummy FrameGraph class to compile the Exported JSON file to validate it
+                //RAZIX_INFO("[Frame Graph Editor] Parsing Exported FrameGraph ....");
+                //m_FrameGraph.parse(m_FrameGraphFilePath);
+                //
+                //// TODO!!!: FIXME Need to build this shit! for it to pick up import stuff, maybe separate world renderer into multiple function to make this possible, for now disable compilation!
+                //
+                //// Compile the Frame Graph
+                //RAZIX_INFO("[Frame Graph Editor] Compiling FrameGraph ....");
+                //m_FrameGraph.compile();
+                //
+                //// Dump the compiled Frame Graph for static visualization
+                //auto location       = Utilities::GetFileLocation(m_FrameGraphFilePath);
+                //auto name           = Utilities::GetFileName(m_FrameGraphFilePath);
+                //auto exportLocation = location + "/../FrameGraph.Compiled." + name + ".dot";
+                //
+                //m_FrameGraph.exportToGraphViz(exportLocation);
             }
         }
 
@@ -713,10 +718,29 @@ namespace Razix {
         {
             // 1. Save to JSON
             // 2. Check for compilation status, if not compile again
+            //OnCompilePressed();
+
             // 3. Build the frame graph using the current exported JSON file
             //  3.1 Halt the Engine Rendering and Flush the GPU work
+            // TODO: Only if we get a engine crash without halting
             //  3.2 Build the Framegraph into the current WorldRenderer Interface
             // 4. Resume Engine Rendering safely
+            if (!m_FrameGraphFilePath.empty()) {
+                //--------------------------------------------
+                // HALT ENGINE
+                std::lock_guard<std::mutex> lk(Razix::RZApplication::m);
+                RZApplication::ready_for_execution = false;
+                RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                RZApplication::halt_execution.notify_one();
+                //--------------------------------------------
+                Razix::RZEngine::Get().getWorldRenderer().setFrameGraphFilePath(m_FrameGraphFilePath);
+                //--------------------------------------------
+                // RESUME ENGINE
+                RZApplication::ready_for_execution = true;
+                RAZIX_INFO("Triggering worker thread to resume execution ::::");
+                RZApplication::halt_execution.notify_one();
+                //--------------------------------------------
+            }
         }
 
         void RZEFrameGraphEditor::OnSetAsStandAlonePressed()
@@ -1146,6 +1170,7 @@ namespace Razix {
             connect(ui.save_fg, SIGNAL(pressed()), this, SLOT(OnSavePressed()));
 
             connect(ui.compile, SIGNAL(pressed()), this, SLOT(OnCompilePressed()));
+            connect(ui.hot_reload, SIGNAL(pressed()), this, SLOT(OnHotReloadPressed()));
 
             connect(ui.mark_as_standalone, SIGNAL(pressed()), this, SLOT(OnSetAsStandAlonePressed()));
             connect(ui.add_breakpoint, SIGNAL(pressed()), this, SLOT(OnAddBreakpointPressed()));
@@ -1363,7 +1388,7 @@ namespace Razix {
                 ordered_json extents;
                 extents["x"]                     = sceneSettings.extents.x;
                 extents["y"]                     = sceneSettings.extents.y;
-                pass["rendering_info"]["extent"] = extents;
+                pass["rendering_info"]["extents"] = extents;
 
                 pass["rendering_info"]["resize"] = sceneSettings.enableResize;
                 pass["rendering_info"]["layers"] = sceneSettings.layers;
@@ -1380,8 +1405,12 @@ namespace Razix {
 
             // BUG: using VFS here to resolve the physical path is causing a thread change kinda issue and adding GUI elements from non-main threads in QT will cause application crash
 
+            if (framegraphFilePath.empty())
+                return;
+
             std::ifstream graphFileStream(framegraphFilePath);
-            json          fg = json::parse(graphFileStream);
+            RAZIX_ASSERT(graphFileStream.is_open(), "[Frame Graph Editor] Cannot open framegraph JSON file, check path again!");
+            json fg = json::parse(graphFileStream);
 
             // Name of Graph
             auto frameGraphName = fg["name"];
@@ -1389,18 +1418,24 @@ namespace Razix {
             // Iterate thought all the passes and created nodes & edges
             auto passes = fg["passes"];
 
+            glm::vec2 nodePos{m_NodeGraphWidget->getOrigin().x(), m_NodeGraphWidget->getOrigin().y()};
+
             for (auto& pass: passes) {
                 // Get the renderpass and use this to read another JSON file and create a RZEPassNodeUI
                 auto render_pass  = pass["render_pass"];
                 auto passFilePath = Utilities::GetFileLocation(framegraphFilePath) + "/../Passes/" + std::string(render_pass) + ".json";
 
                 std::ifstream passFileStream(passFilePath);
-                json          passNode = json::parse(passFileStream);
+                RAZIX_ASSERT(passFileStream.is_open(), "[Frame Graph Editor] Cannot open Pass JSON file, check path/name again!");
+                json passNode = json::parse(passFileStream);
 
-                std::string passName = passNode["name"];
+                std::string passFileName  = passNode["name"];
+                auto        splitPassName = Utilities::SplitString(passFileName, ".");
+                auto&       passName      = splitPassName[splitPassName.size() - 1];
 
                 // Create a pass node UI
                 RZEPassNodeUI* passNodeUI = new RZEPassNodeUI(passName, m_NodeGraphWidget->getScene());
+                passNodeUI->setPos(nodePos.x, nodePos.y);
 
                 std::string shaderName = passNode["shader"];
                 passNodeUI->setShaderName(shaderName);
@@ -1438,7 +1473,7 @@ namespace Razix {
                 sceneSettings.geometryMode = passNode["scene_params"]["geometry_mode"];
 
                 sceneSettings.resolution = passNode["rendering_info"]["resolution"];
-                auto extents             = passNode["rendering_info"]["extent"];
+                auto extents             = passNode["rendering_info"]["extents"];
                 sceneSettings.extents.x  = extents["x"].get<int>();
                 sceneSettings.extents.y  = extents["y"].get<int>();
 
@@ -1452,6 +1487,8 @@ namespace Razix {
                 json inputs  = pass["inputs"];
                 json outputs = pass["outputs"];
 
+                nodePos += glm::vec2(-300, -125);
+
                 for (auto& input: inputs) {
                     auto inputName = input["name"];
 
@@ -1459,9 +1496,10 @@ namespace Razix {
                     if (!isImported.empty()) {
                         // Create a import node instead
                         RZEImportNodeUI* importNodeUI = new RZEImportNodeUI(inputName, m_NodeGraphWidget->getScene());
+                        importNodeUI->setPos(nodePos.x, nodePos.y);
+
                         // Connect to this PassNode via an Edge
                         NodeEdge* edge = new NodeEdge(m_NodeGraphWidget->getScene(), importNodeUI->getOutputSocket(0), passNodeUI->getInputSocket(0));
-
                     } else {
                         /**
                          * Since these are references, they are pre-existing nodes in the Scene, we can get them by their name and connect the to this node via an edge
@@ -1470,8 +1508,12 @@ namespace Razix {
                         // Connect to this ResourceNode via an Edge
                         NodeEdge* edge = new NodeEdge(m_NodeGraphWidget->getScene(), node->getOutputSocket(0), passNodeUI->getInputSocket(0));
                     }
+
+                    nodePos.y += 75;
                 }
 
+                nodePos += glm::vec2(600, 0);
+                nodePos.y = m_NodeGraphWidget->getOrigin().y() - 125;
                 for (auto& output: outputs) {
                     auto outputName = output["name"];
 
@@ -1481,6 +1523,7 @@ namespace Razix {
                     if (type == "Buffer") {
                         // Create a Buffer resource node
                         RZEBufferResourceNodeUI* bufferNodeUI = new RZEBufferResourceNodeUI(outputName, m_NodeGraphWidget->getScene());
+                        bufferNodeUI->setPos(nodePos.x, nodePos.y);
 
                         bufferNodeUI->setSize(output["size"].get<int>());
                         bufferNodeUI->setUsage(output["usage"]);
@@ -1491,22 +1534,26 @@ namespace Razix {
                     } else if (type == "Texture") {
                         // Create a Texture resource node
                         RZETextureResourceNodeUI* textureNodeUI = new RZETextureResourceNodeUI(outputName, m_NodeGraphWidget->getScene());
-                        textureNodeUI->m_Width                  = output["width"].get<int>();
-                        textureNodeUI->m_Height                 = output["height"].get<int>();
-                        textureNodeUI->m_Depth                  = output["depth"].get<int>();
-                        textureNodeUI->m_Layers                 = output["layers"].get<int>();
-                        textureNodeUI->m_Type                   = output["texture_type"];
-                        textureNodeUI->m_Format                 = output["format"];
-                        textureNodeUI->m_Wrapping               = output["wrapping"];
-                        textureNodeUI->m_FilteringMin           = output["filtering"]["min"];
-                        textureNodeUI->m_FilteringMag           = output["filtering"]["mag"];
-                        textureNodeUI->m_EnableMips             = output["enable_mips"].get<bool>();
-                        textureNodeUI->m_IsHDR                  = output["hdr"].get<bool>();
+                        textureNodeUI->setPos(nodePos.x, nodePos.y);
+
+                        textureNodeUI->m_Width        = output["width"].get<int>();
+                        textureNodeUI->m_Height       = output["height"].get<int>();
+                        textureNodeUI->m_Depth        = output["depth"].get<int>();
+                        textureNodeUI->m_Layers       = output["layers"].get<int>();
+                        textureNodeUI->m_Type         = output["texture_type"];
+                        textureNodeUI->m_Format       = output["format"];
+                        textureNodeUI->m_Wrapping     = output["wrapping"];
+                        textureNodeUI->m_FilteringMin = output["filtering"]["min"];
+                        textureNodeUI->m_FilteringMag = output["filtering"]["mag"];
+                        textureNodeUI->m_EnableMips   = output["enable_mips"].get<bool>();
+                        textureNodeUI->m_IsHDR        = output["hdr"].get<bool>();
 
                         // Connect to this ResourceNode via an Edge
                         NodeEdge* edge = new NodeEdge(m_NodeGraphWidget->getScene(), textureNodeUI->getInputSocket(0), passNodeUI->getOutputSocket(0));
                     }
+                    nodePos.y += 75;
                 }
+                nodePos += glm::vec2(600, 0);
             }
         }
     }    // namespace Editor

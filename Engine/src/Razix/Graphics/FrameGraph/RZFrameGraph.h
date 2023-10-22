@@ -163,7 +163,9 @@ namespace Razix {
                 /* Exports it GraphViz format */
                 void exportToGraphViz(std::ostream &) const;
                 /* Exports it in GraphViz format to given location */
-                void exportToGraphViz(const std::string& location) const;
+                void exportToGraphViz(const std::string &location) const;
+                /* Destroy the frame graph and it's resources */
+                void destroy();
 
                 /* Tell whether or no the current resource is valid to read/write */
                 bool isValid(RZFrameGraphResource id);
@@ -179,6 +181,10 @@ namespace Razix {
 
                 const std::string &getResourceName(RZFrameGraphResource id);
 
+                RAZIX_INLINE static void ResetFirstFrame()
+                {
+                    m_IsFirstFrame = true;
+                }
                 RAZIX_INLINE static bool IsFirstFrame()
                 {
                     return m_IsFirstFrame;

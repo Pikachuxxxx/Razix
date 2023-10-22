@@ -28,7 +28,7 @@
     },
     "geometry_mode": "SceneGeometry",
     "rendering_info": {
-        "resolution": "Window",
+        "resolution": "kWindow",
         "resize": true,
         "layers_count": 1
     }

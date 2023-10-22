@@ -418,7 +418,7 @@
             },
             "value1": {
                 "value0": 0.0,
-                "value1": 3.0,
+                "value1": 1.0,
                 "value2": 0.0,
                 "value3": 0.0
             },
@@ -742,7 +742,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.6534733772277833,
+            "AspectRatio": 1.3998384475708008,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,

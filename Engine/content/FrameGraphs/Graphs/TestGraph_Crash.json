@@ -3,7 +3,7 @@
     "final_output": "SceneHDR",
     "passes": [
         {
-            "render_pass": "Pass.User.RenderShadows",
+            "render_pass": "Pass.User.Pass.User.RenderShadows",
             "inputs": [],
             "outputs": [
                 {
@@ -32,7 +32,7 @@
             ]
         },
         {
-            "render_pass": "Pass.User.PBRLighting",
+            "render_pass": "Pass.User.Pass.User.PBRLighting",
             "inputs": [
                 {
                     "name": "LightSpaceMatrix",
@@ -53,7 +53,7 @@
                     "is_imported": true
                 },
                 {
-                    "name": "PreFilteredMap",
+                    "name": "PreFileteredMap",
                     "type": "Reference",
                     "is_imported": true
                 },

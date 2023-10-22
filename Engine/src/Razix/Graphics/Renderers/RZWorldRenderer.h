@@ -108,6 +108,9 @@ namespace Razix {
             // Getters/Setters
             FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
+            RAZIX_INLINE std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
+            RAZIX_INLINE void        setFrameGraphFilePath(std::string val);
+
         private:
             FrameGraph::RZFrameGraph m_FrameGraph;
             // Frame Graph Import Data
@@ -131,6 +134,10 @@ namespace Razix {
 
             // Other Variables
             Maths::AABB m_SceneAABB;
+
+            bool        m_FrameGraphBuildingInProgress = true;
+            std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            bool        m_IsFGFilePathDirty            = false;
 
         private:
             /**

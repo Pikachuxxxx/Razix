@@ -22,7 +22,7 @@
             "test": true,
             "op": "Less"
         },
-        "depth_format": "DEPTH",
+        "depth_format": "DEPTH32F",
         "color_formats": [
             "RGBA32F"
         ]
@@ -32,7 +32,7 @@
     },
     "rendering_info": {
         "resolution": "kWindow",
-        "extent": {
+        "extents": {
             "x": 0.0,
             "y": 0.0
         },

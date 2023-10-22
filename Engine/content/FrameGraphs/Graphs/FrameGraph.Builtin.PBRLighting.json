@@ -7,7 +7,7 @@
                 {
                     "type": "Texture",
                     "name": "ShadowMap",
-                    "texture_type": "Depth",
+                    "texture_type": "Texture_Depth",
                     "format": "DEPTH32F",
                     "width": 4096,
                     "height": 4096,
@@ -70,7 +70,7 @@
                 {
                     "type": "Texture",
                     "name": "SceneHDR",
-                    "texture_type": "2D",
+                    "texture_type": "Texture_2D",
                     "format": "RGBA32F",
                     "width": 4096,
                     "height": 4096,
@@ -86,7 +86,7 @@
                 {
                     "type": "Texture",
                     "name": "SceneDepth",
-                    "texture_type": "Depth",
+                    "texture_type": "Texture_Depth",
                     "format": "DEPTH32F",
                     "width": 4096,
                     "height": 4096,
