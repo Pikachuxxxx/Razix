@@ -12,7 +12,6 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Events/ApplicationEvent.h"
 
-
 namespace Razix {
     namespace Editor {
 
@@ -63,6 +62,8 @@ namespace Razix {
 
                 // override from QWidget that triggers whenever the user resizes the window
                 m_UserIsResizing = true;
+
+                this->requestUpdate();
             }
 
             void mouseMoveEvent(QMouseEvent* event)
@@ -94,7 +95,7 @@ namespace Razix {
                 if (callback)
                     callback(e);
 
-                // Entity selection
+                    // Entity selection
 #if 0
                 int32_t selectedEntity = Razix::RZEngine::Get().getRenderStack().getSelectedEntityID();
                 // Find the entity from the registry

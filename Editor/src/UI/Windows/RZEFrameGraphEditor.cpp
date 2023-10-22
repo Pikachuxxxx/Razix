@@ -728,17 +728,17 @@ namespace Razix {
             if (!m_FrameGraphFilePath.empty()) {
                 //--------------------------------------------
                 // HALT ENGINE
-                std::lock_guard<std::mutex> lk(Razix::RZApplication::m);
-                RZApplication::ready_for_execution = false;
-                RAZIX_INFO("Triggering worker thread to halt execution ::::");
-                RZApplication::halt_execution.notify_one();
+                //std::lock_guard<std::mutex> lk(Razix::RZApplication::m);
+                //RZApplication::ready_for_execution = false;
+                //RAZIX_INFO("Triggering worker thread to halt execution ::::");
+                //RZApplication::halt_execution.notify_one();
                 //--------------------------------------------
                 Razix::RZEngine::Get().getWorldRenderer().setFrameGraphFilePath(m_FrameGraphFilePath);
                 //--------------------------------------------
                 // RESUME ENGINE
-                RZApplication::ready_for_execution = true;
-                RAZIX_INFO("Triggering worker thread to resume execution ::::");
-                RZApplication::halt_execution.notify_one();
+                //RZApplication::ready_for_execution = true;
+                //RAZIX_INFO("Triggering worker thread to resume execution ::::");
+                //RZApplication::halt_execution.notify_one();
                 //--------------------------------------------
             }
         }

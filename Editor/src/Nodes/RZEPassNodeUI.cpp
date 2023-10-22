@@ -85,7 +85,7 @@ namespace Razix {
             painter->drawPath(path_content.simplified());
 
             // Draw References Count + Standalone status
-#if 0
+#if 1
             painter->setPen(QPen(QColor("#FFFFFF")));
             auto label = "Index : " + std::to_string(RZEPassNodeUI::Idx);
             painter->drawText(QPoint(12, titleBgHeight + 18), label.c_str());
