@@ -1386,8 +1386,8 @@ namespace Razix {
 
                 pass["rendering_info"]["resolution"] = sceneSettings.resolution;
                 ordered_json extents;
-                extents["x"]                     = sceneSettings.extents.x;
-                extents["y"]                     = sceneSettings.extents.y;
+                extents["x"]                      = sceneSettings.extents.x;
+                extents["y"]                      = sceneSettings.extents.y;
                 pass["rendering_info"]["extents"] = extents;
 
                 pass["rendering_info"]["resize"] = sceneSettings.enableResize;

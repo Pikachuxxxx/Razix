@@ -509,7 +509,7 @@ namespace Razix {
                     extent.x = extents["x"].get<float>();
                     extent.y = extents["y"].get<float>();
                 }
-                auto &layersCount = renderInfo["layers_count"];
+                auto &layersCount = renderInfo["layers"];
                 u32   layers      = 1;
                 if (!layersCount.empty())
                     layers = layersCount.get<int>();

@@ -137,6 +137,7 @@ namespace Razix {
 
             bool        m_FrameGraphBuildingInProgress = true;
             std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            //std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.User.EditorTest.json";
             bool        m_IsFGFilePathDirty            = false;
 
         private:

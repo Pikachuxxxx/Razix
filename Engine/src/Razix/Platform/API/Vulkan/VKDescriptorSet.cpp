@@ -154,7 +154,7 @@ namespace Razix {
             vkUpdateDescriptorSets(VKDevice::Get().getDevice(), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);
         }
 
-        void VKDescriptorSet::Destroy()
+        void VKDescriptorSet::Destroy() const
         {
             vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), setLayout, nullptr);
         }

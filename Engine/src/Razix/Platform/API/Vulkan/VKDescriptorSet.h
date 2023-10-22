@@ -20,7 +20,7 @@ namespace Razix {
             VKDescriptorSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition RZ_DEBUG_NAME_TAG_E_ARG);
 
             void UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition = true) override;
-            void Destroy() override;
+            void Destroy() const override;
 
             inline const VkDescriptorSet& getDescriptorSet() const { return m_DescriptorSet; }
 

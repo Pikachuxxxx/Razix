@@ -609,6 +609,14 @@ namespace Razix {
                     auto frameDataBufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(frameDataBufferHandle)->SetData(sizeof(GPUFrameData), &gpuData);
 
+                    // This is for when we hot-reload the frame graph
+                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                        auto set = Graphics::RHI::Get().getFrameDataSet();
+                        if (set)
+                            set->Destroy();
+                        Graphics::RHI::Get().setFrameDataSet(nullptr);
+                    }
+
                     if (!Graphics::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
@@ -654,6 +662,14 @@ namespace Razix {
                     // update and upload the UBO
                     auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
+
+                    // This is for when we hot-reload the frame graph
+                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                        auto set = Graphics::RHI::Get().getSceneLightsDataSet();
+                        if (set)
+                            set->Destroy();
+                        Graphics::RHI::Get().setSceneLightsDataSet(nullptr);
+                    }
 
                     if (!Graphics::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};

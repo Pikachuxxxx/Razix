@@ -12,7 +12,7 @@ namespace Razix {
             ~OpenGLDescriptorSet();
 
             void UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition = true) override;
-            void Destroy() override;
+            void Destroy() const override;
 
             RAZIX_INLINE const std::vector<RZDescriptor>& getDescriptors() const { return m_Descriptors; }
 
