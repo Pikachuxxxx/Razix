@@ -60,7 +60,7 @@ namespace Razix {
             RZDescriptorSet*       m_DescriptorSet         = nullptr;
             RZUniformBufferHandle  m_MaterialPropertiesUBO = {};
             bool                   m_TexturesUpdated       = false;
-            WorkFlow               m_Workflow              = WorkFlow::PBR_WORKFLOW_METALLIC_ROUGHTNESS;
+            WorkFlow               m_Workflow              = WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE;
         };
 
         static RZMaterial* DefaultMaterial = nullptr;

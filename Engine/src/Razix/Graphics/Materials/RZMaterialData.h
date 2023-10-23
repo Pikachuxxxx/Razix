@@ -16,12 +16,18 @@ namespace Razix {
         class RZUniformBuffer;
         class RZDescriptorSet;
 
-        /* The type of workflow used by the material for authoring the materials for the PBR lighting models */
-        enum class WorkFlow
+        /* The type of workflow used by the material for authoring the materials for the different lighting models */
+        enum class WorkFlow : u32
         {
-            PBR_WORKFLOW_SEPARATE_TEXTURES,
-            PBR_WORKFLOW_METALLIC_ROUGHTNESS,
-            PBR_WORKFLOW_SPECULAR_ROUGHNESS
+            WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE,
+            WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED,
+            WORLFLOW_PBR_AO_METAL_ROUGHNESS_COMBINED,
+            WORLFLOW_PBR_ROUGHNESS_METAL_AO_COMBINED,
+            WORLFLOW_PBR_AO_ROUGHNESS_METAL_COMBINED,
+            WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE,
+            WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED,
+            WORKFLOW_UNLIT,
+            WORLFLOW_LIT_PHONG
         };
 
         // TODO: Make this work with bool
@@ -39,6 +45,7 @@ namespace Razix {
             f32 opacity           = 1.0f;
             f32 ambientOcclusion  = 1.0f;
             u32 visible           = true;
+            u32 workflow          = 0;
             // TODO: Use these as bindless array indices
             u32 isUsingAlbedoMap    = false;
             u32 isUsingNormalMap    = false;
@@ -63,6 +70,7 @@ namespace Razix {
         {
             RZTextureHandle albedo;
             RZTextureHandle normal;
+            RZTextureHandle metalRoughnessAOCombinedMap;
             RZTextureHandle metallic;
             RZTextureHandle roughness;
             RZTextureHandle specular;

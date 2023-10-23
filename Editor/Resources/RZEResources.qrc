@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/rzeditor">
+        <file>RazixMaterial.png</file>
         <file>cross_red.png</file>
         <file>Browse.png</file>
         <file>tag_icon.png</file>
@@ -74,5 +75,107 @@
         <file>material.png</file>
         <file>grid_snap_off.png</file>
         <file>hello_triangle.png</file>
+        <file>select_texture_placeholder.png</file>
+        <file>component.png</file>
+        <file>Cone_64x.png</file>
+        <file>Cube_64x.png</file>
+        <file>Cylinder_64x.png</file>
+        <file>FOLDER_128x128.png</file>
+        <file>pause.png</file>
+        <file>play.png</file>
+        <file>Sphere_64x.png</file>
+        <file>stop.png</file>
+        <file>widget_hidden.png</file>
+        <file>widget_shown.png</file>
+        <file>thumbnails/abl.png</file>
+        <file>thumbnails/ai.png</file>
+        <file>thumbnails/aiarch.png</file>
+        <file>thumbnails/animgraph.png</file>
+        <file>thumbnails/anims.png</file>
+        <file>thumbnails/app.png</file>
+        <file>thumbnails/arch.png</file>
+        <file>thumbnails/behavior.png</file>
+        <file>thumbnails/bk2.png</file>
+        <file>thumbnails/blackboard.png</file>
+        <file>thumbnails/blockout.png</file>
+        <file>thumbnails/community.png</file>
+        <file>thumbnails/conversations.png</file>
+        <file>thumbnails/crowd.png</file>
+        <file>thumbnails/csv.png</file>
+        <file>thumbnails/cubemap.png</file>
+        <file>thumbnails/curveset.png</file>
+        <file>thumbnails/default.png</file>
+        <file>thumbnails/detail.png</file>
+        <file>thumbnails/effect.png</file>
+        <file>thumbnails/ent.png</file>
+        <file>thumbnails/env.png</file>
+        <file>thumbnails/envparam.png</file>
+        <file>thumbnails/es.png</file>
+        <file>thumbnails/facialsetup.png</file>
+        <file>thumbnails/fev.png</file>
+        <file>thumbnails/font.png</file>
+        <file>thumbnails/fx.png</file>
+        <file>thumbnails/fxmeta.png</file>
+        <file>thumbnails/game.png</file>
+        <file>thumbnails/gamedef.png</file>
+        <file>thumbnails/inkatlas.png</file>
+        <file>thumbnails/inkbrush.png</file>
+        <file>thumbnails/inkhud.png</file>
+        <file>thumbnails/inklayers.png</file>
+        <file>thumbnails/inklibrary.png</file>
+        <file>thumbnails/inkmenu.png</file>
+        <file>thumbnails/inkstyle.png</file>
+        <file>thumbnails/inkwidget.png</file>
+        <file>thumbnails/interaction.png</file>
+        <file>thumbnails/journal.png</file>
+        <file>thumbnails/link.png</file>
+        <file>thumbnails/matlib.png</file>
+        <file>thumbnails/mesh.png</file>
+        <file>thumbnails/mi.png</file>
+        <file>thumbnails/mlmask.png</file>
+        <file>thumbnails/mlsetup.png</file>
+        <file>thumbnails/mltemplate.png</file>
+        <file>thumbnails/mt.png</file>
+        <file>thumbnails/particle.png</file>
+        <file>thumbnails/physicalscene.png</file>
+        <file>thumbnails/physmat.png</file>
+        <file>thumbnails/prefab.png</file>
+        <file>thumbnails/quest.png</file>
+        <file>thumbnails/questphase.png</file>
+        <file>thumbnails/redgeometrycut.png</file>
+        <file>thumbnails/redswf.png</file>
+        <file>thumbnails/remt.png</file>
+        <file>thumbnails/reps.png</file>
+        <file>thumbnails/rig.png</file>
+        <file>thumbnails/scene.png</file>
+        <file>thumbnails/scenerid.png</file>
+        <file>thumbnails/scenesolution.png</file>
+        <file>thumbnails/sp.png</file>
+        <file>thumbnails/spawnset.png</file>
+        <file>thumbnails/steering.png</file>
+        <file>thumbnails/swf.png</file>
+        <file>thumbnails/template.png</file>
+        <file>thumbnails/vbrush.png</file>
+        <file>thumbnails/voicesetsolution.png</file>
+        <file>thumbnails/voicetags.png</file>
+        <file>thumbnails/w2animev.png</file>
+        <file>thumbnails/w2conv.png</file>
+        <file>thumbnails/w2expr.png</file>
+        <file>thumbnails/w2fnt.png</file>
+        <file>thumbnails/w2goalcrv.png</file>
+        <file>thumbnails/w2mesh.png</file>
+        <file>thumbnails/w2pr.png</file>
+        <file>thumbnails/w2qlog.png</file>
+        <file>thumbnails/w2rag.png</file>
+        <file>thumbnails/w2ragdoll.png</file>
+        <file>thumbnails/w2sbnk.png</file>
+        <file>thumbnails/w2scene.png</file>
+        <file>thumbnails/w2surf.png</file>
+        <file>thumbnails/widget.png</file>
+        <file>thumbnails/widgetbrush.png</file>
+        <file>thumbnails/widgetstyle.png</file>
+        <file>thumbnails/workspot.png</file>
+        <file>thumbnails/world.png</file>
+        <file>thumbnails/xcube.png</file>
     </qresource>
 </RCC>

@@ -18,6 +18,7 @@ layout(set = 1, binding = 0) uniform MaterialData
     float opacity;            
     float ambientOcclusion;   
     bool  visible;            
+    uint workflow;
 
     bool isUsingAlbedoMap;
     bool isUsingNormalMap;
