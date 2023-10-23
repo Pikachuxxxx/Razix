@@ -52,7 +52,7 @@ namespace Razix {
 
         private:
             Ui::MaterialEditor           ui;
-            Razix::Graphics::RZMaterial* m_Material;
+            Razix::Graphics::RZMaterial* m_Material = nullptr;
             QColor                       m_DiffuseColor;
         };
     }    // namespace Editor
