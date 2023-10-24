@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>345</width>
-    <height>110</height>
+    <width>349</width>
+    <height>148</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,156 +19,197 @@
   <property name="windowTitle">
    <string>RZEMeshRendererComponentUI</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <property name="sizeConstraint">
-    <enum>QLayout::SetMinimumSize</enum>
+  <layout class="QFormLayout" name="formLayout">
+   <property name="labelAlignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="lineEdit_2"/>
+   <item row="0" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QComboBox" name="comboBox">
+       <item>
+        <property name="text">
+         <string>Plane</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Screen Quad</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Cube</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Pyramid</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Sphere</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Capsule</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Cylinder</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../Resources/RZEResources.qrc">
+         <normaloff>:/rzeditor/Browse.png</normaloff>:/rzeditor/Browse.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
    <item row="1" column="0">
-    <widget class="QCheckBox" name="checkBox_2">
-     <property name="text">
-      <string>Recieve Shadows</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="minimumSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../../Resources/RZEResources.qrc">
-       <normaloff>:/rzeditor/Browse.png</normaloff>:/rzeditor/Browse.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="comboBox">
-     <item>
-      <property name="text">
-       <string>Plane</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Screen Quad</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Cube</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Pyramid</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Sphere</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Capsule</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Cylinder</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Mesh</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="checkBox">
-     <property name="text">
-      <string>show Bounding Box</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Material</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="pushButton">
-     <property name="minimumSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-     </property>
+   <item row="1" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="lineEdit_2"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../Resources/RZEResources.qrc">
+         <normaloff>:/rzeditor/Browse.png</normaloff>:/rzeditor/Browse.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../../Resources/RZEResources.qrc">
-       <normaloff>:/rzeditor/Browse.png</normaloff>:/rzeditor/Browse.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>22</width>
-       <height>20</height>
-      </size>
+      <string>Mesh</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Recieve Shadows</string>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="receiveShadows">
+     <property name="text">
+      <string/>
      </property>
-    </spacer>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Show Bounding Box</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="showBoundingBox">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

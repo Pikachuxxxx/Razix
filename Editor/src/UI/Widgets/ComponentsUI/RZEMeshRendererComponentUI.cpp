@@ -33,7 +33,8 @@ namespace Razix {
         {
             auto& mrc = m_Entity.GetComponent<MeshRendererComponent>();
             //Graphics::RZMesh* oldMesh = mrc.Mesh;
-            mrc.Mesh = Razix::Graphics::MeshFactory::CreatePrimitive((Razix::Graphics::MeshPrimitive) meshType);
+            if (mrc.Mesh)
+                mrc.Mesh = Razix::Graphics::MeshFactory::CreatePrimitive((Razix::Graphics::MeshPrimitive) meshType);
             //oldMesh->Destroy();
             // TODO: Update the material in the Material Editor (emit a signal)
         }
@@ -44,6 +45,20 @@ namespace Razix {
 
         void RZEMeshRendererComponentUI::OnMaterialLocationEdited()
         {
+        }
+
+        void RZEMeshRendererComponentUI::OnEnableBoundingBoxPressed()
+        {
+            auto& mrc = m_Entity.GetComponent<MeshRendererComponent>();
+            if (m_Entity.HasComponent<MeshRendererComponent>())
+                mrc.enableBoundingBoxes = ui.showBoundingBox->isChecked();
+        }
+
+        void RZEMeshRendererComponentUI::OnReceiveShadowsPressed()
+        {
+            auto& mrc = m_Entity.GetComponent<MeshRendererComponent>();
+            if (m_Entity.HasComponent<MeshRendererComponent>())
+                mrc.receiveShadows = ui.receiveShadows->isChecked();
         }
 
         void RZEMeshRendererComponentUI::OnBrowseMesh()
@@ -57,8 +72,7 @@ namespace Razix {
         void RZEMeshRendererComponentUI::OnAddNewMaterial()
         {
             QString text = QInputDialog::getText(this, "Enter New Material Name", "Name");
-
         }
 
     }    // namespace Editor
-}    // namespace Razix  
+}    // namespace Razix

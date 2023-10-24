@@ -25,6 +25,9 @@ namespace Razix {
             void OnMeshLocationEdited();
             void OnMaterialLocationEdited();
 
+            void OnEnableBoundingBoxPressed();
+            void OnReceiveShadowsPressed();
+
             void OnBrowseMesh();
             void OnBrowseMaterial();
             void OnAddNewMaterial();
