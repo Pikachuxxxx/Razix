@@ -40,7 +40,7 @@ namespace Razix {
                 return nullptr;
 
             Razix::AssetSystem::BINFileHeader     file_header{};
-            Razix::AssetSystem::BINMeshFileHeader mesh_header{}; 
+            Razix::AssetSystem::BINMeshFileHeader mesh_header{};
 
             size_t offset = 0;
 
@@ -78,7 +78,7 @@ namespace Razix {
             //mesh->setBaseIndex(mesh_header.base_index);
             //mesh->setBaseVertex(mesh_header.base_vertex);
 
-            auto material = loadMaterial(mesh_header.materialName);
+            auto material = loadMaterial(mesh_header.materialName, std::string(mesh_header.name));
 
             mesh->setMaterial(material);
 
@@ -88,7 +88,7 @@ namespace Razix {
             return mesh;
         }
 
-        RZMaterial* loadMaterial(const std::string& materialName)
+        RZMaterial* loadMaterial(const std::string& materialName, const std::string& folderName)
         {
             if (materialName == "DefaultMaterial")
                 return GetDefaultMaterial();
@@ -98,7 +98,7 @@ namespace Razix {
             material->setName(materialName);
 
             // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
-            std::string                   matPath = "//Assets/Materials/" + std::string(materialName) + ".rzmaterial";
+            std::string                   matPath = "//Assets/Materials/" + folderName + "/" + std::string(materialName) + ".rzmaterial";
             Razix::Graphics::MaterialData matData{};
             std::string                   matPhysicalPath;
             if (RZVirtualFileSystem::Get().resolvePhysicalPath(matPath, matPhysicalPath)) {

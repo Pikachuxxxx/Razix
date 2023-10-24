@@ -19,13 +19,10 @@ namespace Razix {
         /* The type of workflow used by the material for authoring the materials for the different lighting models */
         enum class WorkFlow : u32
         {
+            WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED,    // In the order of BGR components! AO = r, Roughness = g, Metal = b
             WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE,
-            WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED,
-            WORLFLOW_PBR_AO_METAL_ROUGHNESS_COMBINED,
-            WORLFLOW_PBR_ROUGHNESS_METAL_AO_COMBINED,
-            WORLFLOW_PBR_AO_ROUGHNESS_METAL_COMBINED,
-            WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE,
             WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED,
+            WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE,
             WORKFLOW_UNLIT,
             WORLFLOW_LIT_PHONG
         };
@@ -45,7 +42,7 @@ namespace Razix {
             f32 opacity           = 1.0f;
             f32 ambientOcclusion  = 1.0f;
             u32 visible           = true;
-            u32 workflow          = 0;
+            u32 workflow          = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
             // TODO: Use these as bindless array indices
             u32 isUsingAlbedoMap    = false;
             u32 isUsingNormalMap    = false;
@@ -70,7 +67,6 @@ namespace Razix {
         {
             RZTextureHandle albedo;
             RZTextureHandle normal;
-            RZTextureHandle metalRoughnessAOCombinedMap;
             RZTextureHandle metallic;
             RZTextureHandle roughness;
             RZTextureHandle specular;
@@ -82,9 +78,13 @@ namespace Razix {
 
         struct MaterialTexturePaths
         {
-            char albedo[250]    = {};
-            char normal[250]    = {};
-            char metallic[250]  = {};
+            char albedo[250] = {};
+            char normal[250] = {};
+            union
+            {
+                char metallic[250] = {};
+                char metallicRoughnessAO[250];
+            };
             char roughness[250] = {};
             char specular[250]  = {};
             char emissive[250]  = {};

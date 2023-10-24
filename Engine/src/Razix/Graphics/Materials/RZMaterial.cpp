@@ -102,43 +102,43 @@ namespace Razix {
         {
             m_MaterialData.m_MaterialTexturePaths = paths;
 
-            if (paths.albedo) {
+            if (!std::string(paths.albedo).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.albedo);
                 if (!fileName.empty())
                     m_MaterialTextures.albedo = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.albedo);
             }
 
-            if (paths.ao) {
+            if (!std::string(paths.ao).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.ao);
                 if (!fileName.empty())
                     m_MaterialTextures.ao = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.ao);
             }
 
-            if (paths.emissive) {
+            if (!std::string(paths.emissive).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.emissive);
                 if (!fileName.empty())
                     m_MaterialTextures.emissive = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.emissive);
             }
 
-            if (paths.metallic) {
+            if (!std::string(paths.metallic).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.metallic);
                 if (!fileName.empty())
                     m_MaterialTextures.metallic = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.metallic);
             }
 
-            if (paths.normal) {
+            if (!std::string(paths.normal).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.normal);
                 if (!fileName.empty())
                     m_MaterialTextures.normal = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.normal);
             }
 
-            if (paths.roughness) {
+            if (!std::string(paths.roughness).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.roughness);
                 if (!fileName.empty())
                     m_MaterialTextures.roughness = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.roughness);
             }
 
-            if (paths.specular) {
+            if (!std::string(paths.specular).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.specular);
                 if (!fileName.empty())
                     m_MaterialTextures.specular = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.specular);
@@ -213,6 +213,14 @@ namespace Razix {
                 // TODO: Make sure the material instances similar to unreal exist with different Desc Sets for mat props both with same shader instance, Simple Solution: Use a shader library to load the same shader, of course we give the shader so that's possible
             }
 #endif
+            // TODO!!: Support more workflows, or read it from material file itself! IMPORVE THIS!!!
+            if (m_MaterialData.m_MaterialProperties.isUsingMetallicMap && !m_MaterialData.m_MaterialProperties.isUsingRoughnessMap && !m_MaterialData.m_MaterialProperties.isUsingAOMap)
+                m_MaterialData.m_MaterialProperties.workflow = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;
+            else
+                m_MaterialData.m_MaterialProperties.workflow = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE;
+
+            // Update the properties buffer
+            setProperties(m_MaterialData.m_MaterialProperties);
         }
 
         void RZMaterial::setTextures(MaterialTextures& textures)

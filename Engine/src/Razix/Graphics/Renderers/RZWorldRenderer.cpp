@@ -410,7 +410,8 @@ namespace Razix {
                         // Bind push constants, VBO, IBO and draw
                         glm::mat4 transform = mesh_trans.GetGlobalTransform();
 
-                        RZDebugRenderer::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                        if (mrc.Mesh)
+                            RZDebugRenderer::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     }
 
                     RZDebugRenderer::Get()->Begin(scene);

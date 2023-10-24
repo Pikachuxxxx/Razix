@@ -20,7 +20,6 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -89,14 +88,10 @@ public:
     QVBoxLayout *verticalLayout_4;
     QLabel *label_13;
     QLabel *label_17;
-    QStackedWidget *stackedWidget;
-    QWidget *page;
-    QVBoxLayout *verticalLayout_10;
-    QPushButton *metalRoughnessAOMap;
-    QSpacerItem *verticalSpacer;
-    QWidget *page_2;
-    QVBoxLayout *verticalLayout_13;
     QVBoxLayout *verticalLayout_14;
+    QHBoxLayout *horizontalLayout_8;
+    QPushButton *metalRoughnessAOMap;
+    QLabel *label_14;
     QHBoxLayout *horizontalLayout_9;
     QPushButton *metallicTexture;
     QHBoxLayout *horizontalLayout_14;
@@ -124,7 +119,7 @@ public:
     {
         if (MaterialEditor->objectName().isEmpty())
             MaterialEditor->setObjectName(QString::fromUtf8("MaterialEditor"));
-        MaterialEditor->resize(620, 653);
+        MaterialEditor->resize(1075, 867);
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/rzeditor/RazixMaterial.png"), QSize(), QIcon::Normal, QIcon::Off);
         MaterialEditor->setWindowIcon(icon);
@@ -251,9 +246,6 @@ public:
         workflow->addItem(QString());
         workflow->addItem(QString());
         workflow->addItem(QString());
-        workflow->addItem(QString());
-        workflow->addItem(QString());
-        workflow->addItem(QString());
         workflow->setObjectName(QString::fromUtf8("workflow"));
         workflow->setMaximumSize(QSize(250, 16777215));
         QFont font1;
@@ -327,6 +319,7 @@ public:
         label_8->setObjectName(QString::fromUtf8("label_8"));
         label_8->setMinimumSize(QSize(75, 0));
         label_8->setMaximumSize(QSize(16777215, 16777215));
+        label_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         formLayout->setWidget(7, QFormLayout::LabelRole, label_8);
 
@@ -371,6 +364,7 @@ public:
         label_9->setObjectName(QString::fromUtf8("label_9"));
         label_9->setMinimumSize(QSize(75, 0));
         label_9->setMaximumSize(QSize(16777215, 16777215));
+        label_9->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         formLayout->setWidget(9, QFormLayout::LabelRole, label_9);
 
@@ -433,6 +427,7 @@ public:
         label_12->setObjectName(QString::fromUtf8("label_12"));
         label_12->setMinimumSize(QSize(75, 0));
         label_12->setMaximumSize(QSize(16777215, 16777215));
+        label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         formLayout->setWidget(10, QFormLayout::LabelRole, label_12);
 
@@ -504,7 +499,7 @@ public:
         label_17 = new QLabel(MaterialEditor);
         label_17->setObjectName(QString::fromUtf8("label_17"));
         QFont font2;
-        font2.setItalic(true);
+        font2.setItalic(false);
         label_17->setFont(font2);
 
         verticalLayout_4->addWidget(label_17);
@@ -512,46 +507,33 @@ public:
 
         formLayout->setLayout(11, QFormLayout::LabelRole, verticalLayout_4);
 
-        stackedWidget = new QStackedWidget(MaterialEditor);
-        stackedWidget->setObjectName(QString::fromUtf8("stackedWidget"));
-        stackedWidget->setStyleSheet(QString::fromUtf8("background-color: #151515;\n"
-"border-width:0px;"));
-        stackedWidget->setLineWidth(0);
-        page = new QWidget();
-        page->setObjectName(QString::fromUtf8("page"));
-        verticalLayout_10 = new QVBoxLayout(page);
-        verticalLayout_10->setSpacing(6);
-        verticalLayout_10->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_10->setObjectName(QString::fromUtf8("verticalLayout_10"));
-        verticalLayout_10->setContentsMargins(0, 0, 0, 0);
-        metalRoughnessAOMap = new QPushButton(page);
+        verticalLayout_14 = new QVBoxLayout();
+        verticalLayout_14->setSpacing(6);
+        verticalLayout_14->setObjectName(QString::fromUtf8("verticalLayout_14"));
+        horizontalLayout_8 = new QHBoxLayout();
+        horizontalLayout_8->setSpacing(6);
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        metalRoughnessAOMap = new QPushButton(MaterialEditor);
         metalRoughnessAOMap->setObjectName(QString::fromUtf8("metalRoughnessAOMap"));
         sizePolicy1.setHeightForWidth(metalRoughnessAOMap->sizePolicy().hasHeightForWidth());
         metalRoughnessAOMap->setSizePolicy(sizePolicy1);
         metalRoughnessAOMap->setMinimumSize(QSize(50, 50));
         metalRoughnessAOMap->setStyleSheet(QString::fromUtf8("image: url(:/rzeditor/select_texture_placeholder.png);"));
 
-        verticalLayout_10->addWidget(metalRoughnessAOMap);
+        horizontalLayout_8->addWidget(metalRoughnessAOMap);
 
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        label_14 = new QLabel(MaterialEditor);
+        label_14->setObjectName(QString::fromUtf8("label_14"));
 
-        verticalLayout_10->addItem(verticalSpacer);
+        horizontalLayout_8->addWidget(label_14);
 
-        stackedWidget->addWidget(page);
-        page_2 = new QWidget();
-        page_2->setObjectName(QString::fromUtf8("page_2"));
-        verticalLayout_13 = new QVBoxLayout(page_2);
-        verticalLayout_13->setSpacing(6);
-        verticalLayout_13->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_13->setObjectName(QString::fromUtf8("verticalLayout_13"));
-        verticalLayout_13->setContentsMargins(0, 0, 0, 0);
-        verticalLayout_14 = new QVBoxLayout();
-        verticalLayout_14->setSpacing(6);
-        verticalLayout_14->setObjectName(QString::fromUtf8("verticalLayout_14"));
+
+        verticalLayout_14->addLayout(horizontalLayout_8);
+
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setSpacing(6);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
-        metallicTexture = new QPushButton(page_2);
+        metallicTexture = new QPushButton(MaterialEditor);
         metallicTexture->setObjectName(QString::fromUtf8("metallicTexture"));
         sizePolicy1.setHeightForWidth(metallicTexture->sizePolicy().hasHeightForWidth());
         metallicTexture->setSizePolicy(sizePolicy1);
@@ -563,7 +545,7 @@ public:
         horizontalLayout_14 = new QHBoxLayout();
         horizontalLayout_14->setSpacing(6);
         horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
-        label_15 = new QLabel(page_2);
+        label_15 = new QLabel(MaterialEditor);
         label_15->setObjectName(QString::fromUtf8("label_15"));
         label_15->setMinimumSize(QSize(75, 0));
         label_15->setMaximumSize(QSize(75, 16777215));
@@ -571,7 +553,7 @@ public:
 
         horizontalLayout_14->addWidget(label_15);
 
-        metallicValue = new QLineEdit(page_2);
+        metallicValue = new QLineEdit(MaterialEditor);
         metallicValue->setObjectName(QString::fromUtf8("metallicValue"));
         metallicValue->setMinimumSize(QSize(100, 0));
         metallicValue->setMaximumSize(QSize(100, 16777215));
@@ -597,7 +579,7 @@ public:
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setSpacing(6);
         horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
-        roughnessTexture = new QPushButton(page_2);
+        roughnessTexture = new QPushButton(MaterialEditor);
         roughnessTexture->setObjectName(QString::fromUtf8("roughnessTexture"));
         sizePolicy1.setHeightForWidth(roughnessTexture->sizePolicy().hasHeightForWidth());
         roughnessTexture->setSizePolicy(sizePolicy1);
@@ -609,7 +591,7 @@ public:
         horizontalLayout_20 = new QHBoxLayout();
         horizontalLayout_20->setSpacing(6);
         horizontalLayout_20->setObjectName(QString::fromUtf8("horizontalLayout_20"));
-        label_16 = new QLabel(page_2);
+        label_16 = new QLabel(MaterialEditor);
         label_16->setObjectName(QString::fromUtf8("label_16"));
         label_16->setMinimumSize(QSize(75, 0));
         label_16->setMaximumSize(QSize(75, 16777215));
@@ -617,7 +599,7 @@ public:
 
         horizontalLayout_20->addWidget(label_16);
 
-        roughnessValue = new QLineEdit(page_2);
+        roughnessValue = new QLineEdit(MaterialEditor);
         roughnessValue->setObjectName(QString::fromUtf8("roughnessValue"));
         roughnessValue->setMinimumSize(QSize(100, 0));
         roughnessValue->setMaximumSize(QSize(100, 16777215));
@@ -643,7 +625,7 @@ public:
         horizontalLayout_11 = new QHBoxLayout();
         horizontalLayout_11->setSpacing(6);
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
-        aoTexture = new QPushButton(page_2);
+        aoTexture = new QPushButton(MaterialEditor);
         aoTexture->setObjectName(QString::fromUtf8("aoTexture"));
         sizePolicy1.setHeightForWidth(aoTexture->sizePolicy().hasHeightForWidth());
         aoTexture->setSizePolicy(sizePolicy1);
@@ -655,7 +637,7 @@ public:
         horizontalLayout_21 = new QHBoxLayout();
         horizontalLayout_21->setSpacing(6);
         horizontalLayout_21->setObjectName(QString::fromUtf8("horizontalLayout_21"));
-        label_20 = new QLabel(page_2);
+        label_20 = new QLabel(MaterialEditor);
         label_20->setObjectName(QString::fromUtf8("label_20"));
         label_20->setMinimumSize(QSize(75, 0));
         label_20->setMaximumSize(QSize(75, 16777215));
@@ -663,7 +645,7 @@ public:
 
         horizontalLayout_21->addWidget(label_20);
 
-        aoIntensity = new QLineEdit(page_2);
+        aoIntensity = new QLineEdit(MaterialEditor);
         aoIntensity->setObjectName(QString::fromUtf8("aoIntensity"));
         aoIntensity->setMinimumSize(QSize(100, 0));
         aoIntensity->setMaximumSize(QSize(100, 16777215));
@@ -687,11 +669,7 @@ public:
         verticalLayout_14->addItem(verticalSpacer_3);
 
 
-        verticalLayout_13->addLayout(verticalLayout_14);
-
-        stackedWidget->addWidget(page_2);
-
-        formLayout->setWidget(11, QFormLayout::FieldRole, stackedWidget);
+        formLayout->setLayout(11, QFormLayout::FieldRole, verticalLayout_14);
 
 
         verticalLayout->addLayout(formLayout);
@@ -702,9 +680,6 @@ public:
 
 
         retranslateUi(MaterialEditor);
-
-        stackedWidget->setCurrentIndex(1);
-
 
         QMetaObject::connectSlotsByName(MaterialEditor);
     } // setupUi
@@ -726,15 +701,12 @@ public:
         pushButton->setText(QCoreApplication::translate("MaterialEditor", "Save", nullptr));
         pushButton_2->setText(QString());
         label_7->setText(QCoreApplication::translate("MaterialEditor", "Material Textures (PBR)", nullptr));
-        workflow->setItemText(0, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE", nullptr));
-        workflow->setItemText(1, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED", nullptr));
-        workflow->setItemText(2, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_AO_METAL_ROUGHNESS_COMBINED", nullptr));
-        workflow->setItemText(3, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_ROUGHNESS_METAL_AO_COMBINED", nullptr));
-        workflow->setItemText(4, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_AO_ROUGHNESS_METAL_COMBINED", nullptr));
-        workflow->setItemText(5, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE", nullptr));
-        workflow->setItemText(6, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED", nullptr));
-        workflow->setItemText(7, QCoreApplication::translate("MaterialEditor", "WORKFLOW_UNLIT", nullptr));
-        workflow->setItemText(8, QCoreApplication::translate("MaterialEditor", "WORLFLOW_LIT_PHONG", nullptr));
+        workflow->setItemText(0, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED (BGR)", nullptr));
+        workflow->setItemText(1, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE", nullptr));
+        workflow->setItemText(2, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED", nullptr));
+        workflow->setItemText(3, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE", nullptr));
+        workflow->setItemText(4, QCoreApplication::translate("MaterialEditor", "WORKFLOW_UNLIT", nullptr));
+        workflow->setItemText(5, QCoreApplication::translate("MaterialEditor", "WORLFLOW_LIT_PHONG", nullptr));
 
         label_6->setText(QCoreApplication::translate("MaterialEditor", "Albedo Map", nullptr));
         diffuseTexture->setText(QString());
@@ -754,8 +726,9 @@ public:
         useSpecTexture->setText(QCoreApplication::translate("MaterialEditor", "Use Texture", nullptr));
         label_10->setText(QCoreApplication::translate("MaterialEditor", "Spec intensity", nullptr));
         label_13->setText(QCoreApplication::translate("MaterialEditor", "MetallicRoughnessAO Map", nullptr));
-        label_17->setText(QCoreApplication::translate("MaterialEditor", "(Order is set by workflow)", nullptr));
+        label_17->setText(QCoreApplication::translate("MaterialEditor", "(Order is BGR respectively)", nullptr));
         metalRoughnessAOMap->setText(QString());
+        label_14->setText(QCoreApplication::translate("MaterialEditor", "Combined AORoughnessMetallicMap", nullptr));
         metallicTexture->setText(QString());
         label_15->setText(QCoreApplication::translate("MaterialEditor", "Metallic", nullptr));
         roughnessTexture->setText(QString());

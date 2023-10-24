@@ -52,11 +52,35 @@ namespace Razix {
 
             // Diffuse stuff
             auto& props    = material->getProperties();
+            auto& textures = material->getTexturePaths();
             m_DiffuseColor = QColor(props.albedoColor.x, props.albedoColor.y, props.albedoColor.z);
             QPalette pal   = ui.diffuseColor->palette();
             pal.setColor(QPalette::Button, m_DiffuseColor);
             ui.diffuseColor->setAutoFillBackground(true);
             ui.diffuseColor->setPalette(pal);
+            if (props.isUsingAlbedoMap) {
+                ui.diffuseTexture->setIcon(QIcon(QPixmap(textures.albedo)));
+                ui.diffuseTexture->setIconSize(QSize(40, 40));
+            }
+
+            if (props.isUsingNormalMap) {
+                ui.normalTexture->setIcon(QIcon(QPixmap(textures.normal)));
+            }
+
+            if (props.isUsingMetallicMap) {
+                if (props.workflow == 0)
+                    ui.metalRoughnessAOMap->setIcon(QIcon(QPixmap(textures.metallicRoughnessAO)));
+                else
+                    ui.metallicTexture->setIcon(QIcon(QPixmap(textures.metallic)));
+            }
+
+            if (props.isUsingRoughnessMap) {
+                ui.roughnessTexture->setIcon(QIcon(QPixmap(textures.roughness)));
+            }
+
+            if (props.isUsingAOMap) {
+                ui.aoTexture->setIcon(QIcon(QPixmap(textures.ao)));
+            }
 
             // Specular
             ui.specIntensity->setText(std::to_string(props.specularColor).c_str());
