@@ -26,7 +26,7 @@ namespace Razix {
             void*         data       = nullptr;                     /* The Data uses to initialize the Texture with                                             */
             TextureType   type       = TextureType::Texture_2D;     /* The type of the Texture                                                                  */
             TextureFormat format     = TextureFormat::RGBA32F;      /* The format of the texture                                                                */
-            Wrapping      wrapping   = Wrapping::CLAMP_TO_BORDER;   /* Wrap mode of the texture in memory                                                       */
+            Wrapping      wrapping   = Wrapping::REPEAT;            /* Wrap mode of the texture in memory                                                       */
             Filtering     filtering  = Filtering{};                 /* Filtering mode of the texture                                                            */
             bool          enableMips = false;                       /* Whether or not to generate mip maps or not for the texture                               */
             bool          flipX      = false;                       /* Flip the texture on X-axis during load                                                   */

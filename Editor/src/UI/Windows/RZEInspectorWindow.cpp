@@ -141,7 +141,9 @@ namespace Razix {
                 m_MeshRendererComponentSection->setVisible(true);
                 // Connect the entity and the MRC UI
                 m_MeshRendererComponentUI->setEditingEntity(entity);
-                emit OnMeshMaterialSelected(entity.GetComponent<MeshRendererComponent>().Mesh->getMaterial());
+                auto material = entity.GetComponent<MeshRendererComponent>().Mesh->getMaterial();
+                if (material)
+                    emit OnMeshMaterialSelected(material);
                 idx++;
             }
             if (entity.HasComponent<SpriteRendererComponent>()) {

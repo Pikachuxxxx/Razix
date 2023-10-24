@@ -415,8 +415,9 @@ namespace Razix {
 
                 // TODO: Add a progress bar (test running on a separate thread)
                 // Add a Mesh Renderer / Skinned Mesh Renderer component as needed
+                // TODO: Improve how meshes path is resolved, AssetPackerTool should give proper Relative paths!!!!
                 if (std::string(childNode.nodeType) == "$MESH") {
-                    std::string meshFilePath = "//Assets/Cache/Meshes/" + childNode.name + ".rzmesh";
+                    std::string meshFilePath = "//Assets/Cache/Meshes/" + rootMeshName + "/" + rootMeshName + "_" + childNode.name + ".rzmesh";
                     childEntity.AddComponent<MeshRendererComponent>(meshFilePath);
                 }
 
@@ -433,6 +434,7 @@ namespace Razix {
                 // Progress Dialog
                 QProgressDialog* progressBar = new QProgressDialog("Importing mesh...", "Cancel", 0, 100);
                 progressBar->show();
+                progressBar->setWindowModality(Qt::WindowModal);
                 progressBar->setMinimumDuration(0);
 
                 // Results of the mesh import
@@ -455,12 +457,12 @@ namespace Razix {
 
                 // Export Options
                 Razix::Tool::AssetPacker::MeshExportOptions export_options{};
-                export_options.outputDirectory = m_ProjectPathDir + "/Assets/Cache/Meshes/Battle of the Trash god/";
+                export_options.assetsOutputDirectory = m_ProjectPathDir + "/Assets/";
                 // Exporter
                 Razix::Tool::AssetPacker::MeshExporter exporter;
                 result = exporter.exportMesh(import_result, export_options);
                 if (!result) {
-                    RAZIX_ERROR("[ERROR!] Mesh Export Failed failed for file {0} to path {1}", fileName.toStdString(), export_options.outputDirectory);
+                    RAZIX_ERROR("[ERROR!] Mesh Export Failed failed for file {0} to path {1}", fileName.toStdString(), export_options.assetsOutputDirectory);
                     return;
                 }
 

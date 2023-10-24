@@ -6,6 +6,14 @@
 // Note:- When using a combined MetallicRoughnessAO map 
 // .r = empty .g = Roughness .b  = Metalness .a = AO
 //----------------------------------------------------------------------------
+// Defined and Constants
+const uint WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED = 0;    // In the order of BGR components! AO = r, Roughness = g, Metal = b
+const uint WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE = 1;
+const uint WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED = 2;
+const uint WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE = 3;
+const uint WORKFLOW_UNLIT = 4;
+const uint WORLFLOW_LIT_PHONG = 5;
+//----------------------------------------------------------------------------
 // Material Data and maps
 layout(set = 1, binding = 0) uniform MaterialData
 {
@@ -40,7 +48,7 @@ layout(set = 1, binding = 0) uniform MaterialData
 // Material Textures
 layout(set = 1, binding = 1) uniform sampler2D albedoMap;
 layout(set = 1, binding = 2) uniform sampler2D normalMap;
-layout(set = 1, binding = 3) uniform sampler2D metallicMap;
+layout(set = 1, binding = 3) uniform sampler2D metallicMap; // Also can be used as combined metallic roughness AO map 
 layout(set = 1, binding = 4) uniform sampler2D roughnessMap;
 layout(set = 1, binding = 5) uniform sampler2D specularMap;
 layout(set = 1, binding = 6) uniform sampler2D emissiveMap;
@@ -55,24 +63,17 @@ layout(set = 1, binding = 7) uniform sampler2D aoMap;
 // Helper Functions
 vec3 Mat_getAlbedoColor(vec2 uv)
 {
-    if(Material.isUsingAlbedoMap)
-//#if ENABLE_BINDLESS
-//        return texture(global_textures_2d[nonuniformEXT(Material.AlbedoMapIdx)], uv).rgb * Material.emissiveIntensity;
-//#else
-        return vec3(texture(albedoMap, uv)) * Material.emissiveIntensity;
-//#endif
-    else 
-        return Material.baseColor * Material.emissiveIntensity;
+    return vec3(texture(albedoMap, uv));
+    //if(Material.isUsingAlbedoMap)
+    //    return vec3(texture(albedoMap, uv));
+    //else 
+    //    return Material.baseColor * Material.emissiveIntensity;
 }
 //----------------------------------------------------------------------------
 vec3 Mat_getNormalMapNormals(vec2 uv, vec3 worldPos, vec3 N)
 {
     if(Material.isUsingNormalMap) {
-//#if ENABLE_BINDLESS
-//        vec3 tangentNormal = texture(global_textures_2d[nonuniformEXT(Material.NormalMapIdx)], uv).rgb;
-//#else
         vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
-//#endif
 
         vec3 Q1  = dFdx(worldPos);
         vec3 Q2  = dFdy(worldPos);
@@ -92,24 +93,20 @@ vec3 Mat_getNormalMapNormals(vec2 uv, vec3 worldPos, vec3 N)
 //----------------------------------------------------------------------------
 float Mat_getMetallicColor(vec2 uv)
 {
-    if(Material.isUsingMetallicMap)
-//#if ENABLE_BINDLESS
-//        return texture(global_textures_2d[nonuniformEXT(Material.MetallicMapIdx)], uv).r;
-//#else
+    if (Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE)
         return vec3(texture(metallicMap, uv)).r;
-//#endif
+    else if(Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED)
+        return vec3(texture(metallicMap, uv)).b;
     else 
         return Material.metallic;
 }
 //----------------------------------------------------------------------------
 float Mat_getRoughnessColor(vec2 uv)
 {
-    if(Material.isUsingRoughnessMap)
-//#if ENABLE_BINDLESS
-//        return texture(global_textures_2d[nonuniformEXT(Material.RoughnessMapIdx)], uv).r;
-//#else
+    if(Material.isUsingRoughnessMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE)
         return vec3(texture(roughnessMap, uv)).r;
-//#endif
+    else if (Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED)
+        return vec3(texture(metallicMap, uv)).g;
     else 
         return Material.roughness;
 }
@@ -117,23 +114,17 @@ float Mat_getRoughnessColor(vec2 uv)
 vec3 getSpecularColor(vec2 uv)
 {
     if(Material.isUsingSpecular)
-//#if ENABLE_BINDLESS
-//        return texture(global_textures_2d[nonuniformEXT(Material.SpecularMapIdx)], uv).rgb;
-//#else
         return vec3(texture(specularMap, uv));
-//#endif
     else 
         return vec3(1.0f);
 }
 //----------------------------------------------------------------------------
 float Mat_getAOColor(vec2 uv)
 {
-    if(Material.isUsingAOMap)
-//#if ENABLE_BINDLESS
-//        return texture(global_textures_2d[nonuniformEXT(Material.AOMapIdx)], uv).r;
-//#else
+    if(Material.isUsingAOMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE)
         return vec3(texture(aoMap, uv)).r;
-//#endif
+    else if (Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED)
+        return vec3(texture(metallicMap, uv)).r;
     else 
         return 1.0f;
 }
@@ -141,11 +132,7 @@ float Mat_getAOColor(vec2 uv)
 float Mat_getOpacity(vec2 uv)
 {
     if(Material.isUsingAlbedoMap)
-//#if ENABLE_BINDLESS
-//        return texture(global_textures_2d[nonuniformEXT(Material.AlbedoMapIdx)], uv).a;
-//#else
         return texture(albedoMap, uv).a;
-//#endif
     else 
         return Material.opacity;
 }

@@ -65,7 +65,7 @@ namespace Razix {
             *bpp = texChannels;
 
         const uint32_t size   = texWidth * texHeight * 4 * sizeof(float);    // 4 cause we used STBI_rgb_alpha and this will force the image to load in a 4-channel format
-        f32*          result = new f32[size];
+        f32*           result = new f32[size];
         memcpy(result, pixels, size);
 
         stbi_image_free(pixels);
