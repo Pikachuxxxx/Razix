@@ -64,8 +64,10 @@ namespace Razix {
                             return VK_FORMAT_R8G8B8A8_SRGB;
                             break;
                         case TextureFormat::BGRA8_UNORM:
-                        case TextureFormat::SCREEN:
                             return VK_FORMAT_B8G8R8A8_UNORM;
+                            break;
+                        case TextureFormat::SCREEN:
+                            return VK_FORMAT_B8G8R8A8_SRGB;
                             break;
                         case TextureFormat::DEPTH16_UNORM:
                             return VK_FORMAT_D16_UNORM;
@@ -131,7 +133,7 @@ namespace Razix {
                         case TextureFormat::BGRA8_UNORM:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case TextureFormat::SCREEN:
+                        case TextureFormat::SCREEN: // Is always sRGB
                             return VK_FORMAT_B8G8R8A8_SRGB;
                             break;
                         case TextureFormat::DEPTH16_UNORM:
