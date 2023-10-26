@@ -165,11 +165,13 @@ float uncharted2(float color) {
 // Adapted to be close to Tonemap_ACES, with similar range
 // Gamma 2.2 correction is baked in, don't use with sRGB conversion!
 vec3 unreal(vec3 x) {
-  return x / (x + 0.155) * 1.019;
+    // Reverse gamma
+    return pow( x / (x + 0.155) * 1.019, vec3(2.2));
 }
 
 float unreal(float x) {
-  return x / (x + 0.155) * 1.019;
+    // Reverse gamma
+    return pow(x / (x + 0.155) * 1.019, 2.2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

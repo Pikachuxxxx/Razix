@@ -133,18 +133,17 @@ void main()
         //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.ShadowMapIdx)], FragPosLightSpace, N, SceneLightsData.data[0].position);
         shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
 
-    //result *= shadow;
+    result *= shadow;
     //-----------------------------------------------
 
     // gamma correct
     //result = pow(result, vec3(1.0/2.2)); 
 
     // Opacity Discard
-    //if(Mat_getOpacity(fs_in.fragUV) < 0.1)
-    //    discard;
+    if(Mat_getOpacity(fs_in.fragUV) < 0.1)
+        discard;
 
-
-    outSceneColor = vec4(fs_in.fragUV, 0.0f, 1.0f);
-    outSceneColor = vec4(Mat_getAlbedoColor(fs_in.fragUV), Mat_getOpacity(fs_in.fragUV));
+    // outSceneColor = vec4(fs_in.fragUV, 0.0f, 1.0f);
+    // outSceneColor = vec4(Mat_getAlbedoColor(fs_in.fragUV), Mat_getOpacity(fs_in.fragUV));
     outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
 }

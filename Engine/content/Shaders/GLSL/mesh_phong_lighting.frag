@@ -10,7 +10,7 @@
 
 #include <Material/ShaderInclude.Builtin.Material.glsl>
 #include <Lighting/ShaderInclude.Builtin.Light.glsl>
-#include <FX/tonemapping.glsl>
+#include <FX/ShaderInclude.Builtin.Tonemapping.glsl>
 
  #define SHADOW_MAP_CASCADE_COUNT 4
  //------------------------------------------------------------------------------
