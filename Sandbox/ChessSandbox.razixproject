@@ -1,0 +1,14 @@
+{
+    "Razix Application": {
+        "Project Name": "ChessSandbox",
+        "Engine Version": "0.43.0",
+        "Project ID": "92f49d40-16f4-48e9-8eda-a0d608c5300d",
+        "Render API": 1,
+        "Width": 1648,
+        "Height": 1238,
+        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
+        "Scenes": [
+            "//Scenes/ChessScene.rzscn"
+        ]
+    }
+}

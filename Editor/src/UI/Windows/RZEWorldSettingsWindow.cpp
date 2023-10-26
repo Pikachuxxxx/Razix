@@ -17,6 +17,8 @@ namespace Razix {
             connect(ui.useProcSkyboxChkBox, SIGNAL(clicked(bool)), this, SLOT(On_UseProceduralSkybox()));
             connect(ui.filterRadius, SIGNAL(returnPressed()), this, SLOT(On_SetFilterRadius()));
             connect(ui.strength, SIGNAL(returnPressed()), this, SLOT(On_SetStrength()));
+
+            connect(ui.tonemapMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnToneMapModeChanged()));
         }
 
         RZEWorldSettingsWindow::~RZEWorldSettingsWindow()
@@ -27,6 +29,12 @@ namespace Razix {
         {
             auto& settings               = Razix::RZEngine::Get().getWorldSettings();
             settings.useProceduralSkybox = ui.useProcSkyboxChkBox->isChecked();
+        }
+
+        void RZEWorldSettingsWindow::OnToneMapModeChanged()
+        {
+            auto& settings       = Razix::RZEngine::Get().getWorldSettings();
+            settings.tonemapMode = (Razix::Graphics::TonemapMode) ui.tonemapMode->currentIndex();
         }
 
         void RZEWorldSettingsWindow::On_SetFilterRadius()

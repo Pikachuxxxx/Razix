@@ -53,6 +53,17 @@
    </item>
    <item>
     <widget class="Line" name="line_6">
+     <property name="styleSheet">
+      <string notr="true">border-color:#000000;
+border-style:solid;
+border-width:2px;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -157,6 +168,11 @@
    </item>
    <item>
     <widget class="Line" name="line_2">
+     <property name="styleSheet">
+      <string notr="true">border-color:#000000;
+border-style:solid;
+border-width:2px;</string>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -201,7 +217,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="tonemapMode">
         <item>
          <property name="text">
           <string>ACES</string>
@@ -267,6 +283,11 @@
    </item>
    <item>
     <widget class="Line" name="line_4">
+     <property name="styleSheet">
+      <string notr="true">border-color:#000000;
+border-style:solid;
+border-width:2px;</string>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -291,11 +312,37 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_7">
+        <property name="text">
+         <string>Overdraw vis mode</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_8">
+        <property name="text">
+         <string>Unlit mode</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_9">
+        <property name="text">
+         <string>Show UV coords</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="Line" name="line_5">
+     <property name="styleSheet">
+      <string notr="true">border-color:#000000;
+border-style:solid;
+border-width:2px;</string>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -314,13 +361,6 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
-       <widget class="QCheckBox" name="checkBox">
-        <property name="text">
-         <string>Shadows</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="checkBox_2">
         <property name="text">
          <string>GI</string>
@@ -328,9 +368,22 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>Shadows</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="checkBox_3">
         <property name="text">
          <string>ImGui</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

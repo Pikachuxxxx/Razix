@@ -629,7 +629,7 @@ namespace Razix {
                 {
                     // TODO: Add Average timings (CPU + GPU) and avg FPS
                     ImGui::Text("FPS                    : %.5d", stats.FramesPerSecond);
-                    ImGui::Text("CPU time               : %2.2f ms", stats.DeltaTime);
+                    ImGui::Text("CPU time               : %5.2f ms", stats.DeltaTime);
 
                     ImGui::Separator();
                     ImGui::Text("API calls");

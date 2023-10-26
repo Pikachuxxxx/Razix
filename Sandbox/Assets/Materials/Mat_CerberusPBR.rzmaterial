@@ -1,9 +1,9 @@
 {
     "$MATERIAL": {
         "Name": "",
-        "Albedo": "//Assets/Models/Cerberus/Cerberus_A.png",
-        "Normal": "//Assets/Models/Cerberus/Cerberus_N.png",
-        "Metallic": "//Assets/Models/Cerberus/Cerberus_M-Cerberus_R.png",
+        "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Cerberus/Cerberus_A.png",
+        "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Cerberus/Cerberus_N.png",
+        "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Cerberus/Cerberus_M-Cerberus_R.png",
         "Roughness": "",
         "Ao": "",
         "Emissive": "",

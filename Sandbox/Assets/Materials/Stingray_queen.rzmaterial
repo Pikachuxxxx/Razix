@@ -1,12 +1,12 @@
 {
-    "Stingray_queen": {
-        "Name": "Stingray_queen",
-        "Albedo": "//Assets/Models/Chess/Queen_D.jpg",
-        "Normal": "//Assets/Models/Chess/Queen_N.png",
-        "Metallic": "//Assets/Models/Chess/file444Queen_M_2.jpg",
-        "Roughness": "//Assets/",
-        "Ao": "//Assets/",
-        "Emissive": "//Assets/",
+    "$MATERIAL": {
+        "Name": "",
+        "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Chess/Queen_D.jpg",
+        "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Chess/Queen_N.png",
+        "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Chess/file444Queen_M_2.jpg",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
         "albedoColor": {
             "x": 1.0,
             "y": 1.0,
@@ -15,10 +15,10 @@
         "roughnessColor": 0.02500000037252903,
         "metallicColor": 1.0,
         "emissiveColor": 1.0,
-        "isUsingAlbedoMap": 0,
-        "isUsingMetallicMap": 0,
+        "isUsingAlbedoMap": 1,
+        "isUsingMetallicMap": 1,
         "isUsingRoughnessMap": 0,
-        "isUsingNormalMap": 0,
+        "isUsingNormalMap": 1,
         "isUsingAOMap": 0,
         "isUsingEmissiveMap": 0
     }

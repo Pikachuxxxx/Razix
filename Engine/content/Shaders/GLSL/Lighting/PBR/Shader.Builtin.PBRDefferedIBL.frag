@@ -124,7 +124,7 @@ void main()
     //-----------------------------------------------
 
     // gamma correct
-    result = pow(result, vec3(1.0/2.2)); 
+    //result = pow(result, vec3(1.0/2.2)); 
 
     outSceneColor = vec4(result, texture(gBuffer3, uv).a);
 }

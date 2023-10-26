@@ -18,6 +18,9 @@ namespace Razix {
             // Environment Settings
             void On_UseProceduralSkybox();
 
+            // Tonemap Mode
+            void OnToneMapModeChanged();
+
             // Bloom Settings
             void On_SetFilterRadius();
             void On_SetStrength();

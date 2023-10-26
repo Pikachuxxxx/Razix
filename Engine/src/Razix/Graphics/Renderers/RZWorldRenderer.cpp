@@ -312,45 +312,6 @@ namespace Razix {
                 });
     #endif
 
-            //-------------------------------
-            // ImGui Pass
-            //-------------------------------
-            sceneData = m_Blackboard.get<SceneData>();
-            m_FrameGraph.addCallbackPass(
-                "Pass.Builtin.Code.ImGui",
-                [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
-
-                    builder.read(sceneData.outputHDR);
-                    builder.read(sceneData.depth);
-
-                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
-                    sceneData.depth     = builder.write(sceneData.depth);
-
-                    m_ImGuiRenderer.Init();
-                },
-                [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
-    #if 1
-                    m_ImGuiRenderer.Begin(scene);
-
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
-
-                    RenderingInfo info{
-                        .resolution       = Resolution::kCustom,
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
-                        .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
-                        .resize           = true};
-
-                    RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
-
-                    m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
-
-                    m_ImGuiRenderer.End();
-    #endif
-                });
-
 #endif    // ENABLE_CODE_DRIVEN_FG_PASSES
 
 #if ENABLE_DATA_DRIVEN_FG_PASSES
@@ -363,12 +324,27 @@ namespace Razix {
                 RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
 #endif
 
-            m_FrameGraph.addCallbackPass(
+            /**
+             * These code driven passes only work with the Render Targets names SceneHDR and SceneDepth, 
+             * as of now they are necessary to be found and we will write to them!!!
+             * 
+             * Basically for data driven passes you need data!
+             * 
+             * Potential BUG: cloning of resources in StringBased blackboard won't track older read/write IDs FIX IT! 
+             * BUG: CLONING DOESN'T WORK IN DATA DRIVEN RENDERING!!!
+             * PLAUSIBLE DESING FIX: Use the version prefix when adding to blackboard and use that while retrieving this way we can have uniqueness in the unordered map
+             * Workaround: have unique resources names
+             */
+
+            m_FrameGraph.getBlackboard().add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.Debug",
-                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZDebugRenderer::Get()->Init();
+
+                    // TODO: Make these read/write safe, use hasID from blackboard and only then enable these passes
+                    // or register the Scene RTs similar to FinalOutputTarget to get this working safely
 
                     //builder.read(sceneData.outputHDR);
                     //builder.read(sceneData.depth);
@@ -379,10 +355,10 @@ namespace Razix {
                     //sceneData.outputHDR = builder.write(sceneData.outputHDR);
                     //sceneData.depth     = builder.write(sceneData.depth);
 
-                    auto sceneHDR   = builder.write(m_FrameGraph.getBlackboard().getID("SceneHDR"));
-                    auto sceneDepth = builder.write(m_FrameGraph.getBlackboard().getID("SceneDepth"));
+                    data.outputHDR = builder.write(m_FrameGraph.getBlackboard().getID("SceneHDR"));
+                    data.depth     = builder.write(m_FrameGraph.getBlackboard().getID("SceneDepth"));
                 },
-                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     // Origin point
                     RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
 
@@ -410,7 +386,7 @@ namespace Razix {
                         // Bind push constants, VBO, IBO and draw
                         glm::mat4 transform = mesh_trans.GetGlobalTransform();
 
-                        if (mrc.Mesh)
+                        if (mrc.Mesh && mrc.enableBoundingBoxes)
                             RZDebugRenderer::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     }
 
@@ -418,11 +394,11 @@ namespace Razix {
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-                    auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
-                    auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
+                    //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
+                    //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneDepth).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle();
 
                     RenderingInfo info{
                         .resolution       = Resolution::kCustom,
@@ -441,6 +417,60 @@ namespace Razix {
 
                     RZDebugRenderer::Get()->End();
                 });
+
+            SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
+            //-------------------------------
+            // ImGui Pass
+            //-------------------------------
+#if 1
+            m_FrameGraph.addCallbackPass(
+                "Pass.Builtin.Code.ImGui",
+                [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
+                    builder.setAsStandAlonePass();
+
+                    builder.read(sceneData.outputHDR);
+                    builder.read(sceneData.depth);
+
+                    //sceneData.outputHDR = builder.write(sceneData.outputHDR);
+                    //sceneData.depth     = builder.write(sceneData.depth);
+
+                    // Data Driven way
+
+                    //builder.read(m_FrameGraph.getBlackboard().getID("SceneHDR"));
+                    //builder.read(m_FrameGraph.getBlackboard().getID("SceneDepth"));
+
+                    //auto sceneHDR   = builder.write(m_FrameGraph.getBlackboard().getID("SceneHDR"));
+                    //auto sceneDepth = builder.write(m_FrameGraph.getBlackboard().getID("SceneDepth"));
+
+                    auto sceneHDR   = builder.write(sceneData.outputHDR);
+                    auto sceneDepth = builder.write(sceneData.depth);
+
+                    m_ImGuiRenderer.Init();
+                },
+                [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+                    m_ImGuiRenderer.Begin(scene);
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
+
+                    //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
+                    //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
+
+                    RenderingInfo info{
+                        .resolution       = Resolution::kCustom,
+                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
+                        .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
+                        .resize           = true};
+
+                    RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
+
+                    m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
+
+                    m_ImGuiRenderer.End();
+                });
+#endif
 
             //-------------------------------
             // Final Image Presentation
@@ -478,6 +508,7 @@ namespace Razix {
             // Update calls passes
             m_CascadedShadowsRenderer.updateCascades(scene);
             m_SkyboxPass.useProceduralSkybox(settings.useProceduralSkybox);
+            m_CompositePass.setTonemapMode(settings.tonemapMode);
 
             // Main Frame Graph World Rendering Loop
             {

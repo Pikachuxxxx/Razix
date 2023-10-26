@@ -59,7 +59,9 @@ namespace Razix {
             ui.diffuseColor->setAutoFillBackground(true);
             ui.diffuseColor->setPalette(pal);
             if (props.isUsingAlbedoMap) {
-                ui.diffuseTexture->setIcon(QIcon(QPixmap(textures.albedo)));
+                QPixmap pixmap(textures.albedo);
+                QIcon   ButtonIcon(pixmap);
+                ui.diffuseTexture->setIcon(ButtonIcon);
                 ui.diffuseTexture->setIconSize(QSize(40, 40));
             }
 

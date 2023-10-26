@@ -66,7 +66,7 @@ public:
     {
         if (TransformComponent->objectName().isEmpty())
             TransformComponent->setObjectName(QString::fromUtf8("TransformComponent"));
-        TransformComponent->resize(473, 135);
+        TransformComponent->resize(350, 102);
         TransformComponent->setMinimumSize(QSize(350, 0));
         TransformComponent->setStyleSheet(QString::fromUtf8("border-left: 2px;\n"
 "border-right: 2px;\n"
@@ -80,6 +80,7 @@ public:
         PosLbl = new QLabel(TransformComponent);
         PosLbl->setObjectName(QString::fromUtf8("PosLbl"));
         PosLbl->setMinimumSize(QSize(50, 0));
+        PosLbl->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_10->addWidget(PosLbl);
 
@@ -93,7 +94,7 @@ public:
         PosX = new QPushButton(TransformComponent);
         PosX->setObjectName(QString::fromUtf8("PosX"));
         PosX->setMaximumSize(QSize(20, 20));
-        PosX->setAutoFillBackground(true);
+        PosX->setAutoFillBackground(false);
         PosX->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
         PosX->setFlat(true);
 
@@ -105,7 +106,8 @@ public:
         PosVal_X->setMaximumSize(QSize(80, 20));
         PosVal_X->setStyleSheet(QString::fromUtf8("border-color: rgb(255, 0, 0);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
         PosVal_X->setDragEnabled(true);
 
         horizontalLayout->addWidget(PosVal_X);
@@ -119,7 +121,7 @@ public:
         PosY = new QPushButton(TransformComponent);
         PosY->setObjectName(QString::fromUtf8("PosY"));
         PosY->setMaximumSize(QSize(20, 20));
-        PosY->setAutoFillBackground(true);
+        PosY->setAutoFillBackground(false);
         PosY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
         PosY->setFlat(true);
 
@@ -131,7 +133,8 @@ public:
         PosVal_Y->setMaximumSize(QSize(80, 20));
         PosVal_Y->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 255, 0);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
 
         horizontalLayout_4->addWidget(PosVal_Y);
 
@@ -144,7 +147,7 @@ public:
         PosZ = new QPushButton(TransformComponent);
         PosZ->setObjectName(QString::fromUtf8("PosZ"));
         PosZ->setMaximumSize(QSize(20, 20));
-        PosZ->setAutoFillBackground(true);
+        PosZ->setAutoFillBackground(false);
         PosZ->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
         PosZ->setFlat(true);
 
@@ -156,7 +159,8 @@ public:
         PosVal_Z->setMaximumSize(QSize(80, 20));
         PosVal_Z->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 150, 225);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
 
         horizontalLayout_7->addWidget(PosVal_Z);
 
@@ -171,6 +175,7 @@ public:
         RotLbl = new QLabel(TransformComponent);
         RotLbl->setObjectName(QString::fromUtf8("RotLbl"));
         RotLbl->setMinimumSize(QSize(50, 0));
+        RotLbl->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_11->addWidget(RotLbl);
 
@@ -184,7 +189,7 @@ public:
         RotX = new QPushButton(TransformComponent);
         RotX->setObjectName(QString::fromUtf8("RotX"));
         RotX->setMaximumSize(QSize(20, 20));
-        RotX->setAutoFillBackground(true);
+        RotX->setAutoFillBackground(false);
         RotX->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
         RotX->setFlat(true);
 
@@ -196,7 +201,8 @@ public:
         RotVal_X->setMaximumSize(QSize(80, 20));
         RotVal_X->setStyleSheet(QString::fromUtf8("border-color: rgb(255, 0, 0);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
         RotVal_X->setDragEnabled(true);
 
         horizontalLayout_2->addWidget(RotVal_X);
@@ -210,7 +216,7 @@ public:
         RotY = new QPushButton(TransformComponent);
         RotY->setObjectName(QString::fromUtf8("RotY"));
         RotY->setMaximumSize(QSize(20, 20));
-        RotY->setAutoFillBackground(true);
+        RotY->setAutoFillBackground(false);
         RotY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
         RotY->setFlat(true);
 
@@ -222,7 +228,8 @@ public:
         RotVal_Y->setMaximumSize(QSize(80, 20));
         RotVal_Y->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 255, 0);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
 
         horizontalLayout_5->addWidget(RotVal_Y);
 
@@ -235,7 +242,7 @@ public:
         RotZ = new QPushButton(TransformComponent);
         RotZ->setObjectName(QString::fromUtf8("RotZ"));
         RotZ->setMaximumSize(QSize(20, 20));
-        RotZ->setAutoFillBackground(true);
+        RotZ->setAutoFillBackground(false);
         RotZ->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
         RotZ->setFlat(true);
 
@@ -247,7 +254,8 @@ public:
         RotVal_Z->setMaximumSize(QSize(80, 20));
         RotVal_Z->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 150, 225);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
 
         horizontalLayout_8->addWidget(RotVal_Z);
 
@@ -262,6 +270,7 @@ public:
         ScaleLbl = new QLabel(TransformComponent);
         ScaleLbl->setObjectName(QString::fromUtf8("ScaleLbl"));
         ScaleLbl->setMinimumSize(QSize(50, 0));
+        ScaleLbl->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_12->addWidget(ScaleLbl);
 
@@ -275,7 +284,7 @@ public:
         ScaleX = new QPushButton(TransformComponent);
         ScaleX->setObjectName(QString::fromUtf8("ScaleX"));
         ScaleX->setMaximumSize(QSize(20, 20));
-        ScaleX->setAutoFillBackground(true);
+        ScaleX->setAutoFillBackground(false);
         ScaleX->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 0, 4);"));
         ScaleX->setFlat(true);
 
@@ -287,7 +296,8 @@ public:
         ScaleVal_X->setMaximumSize(QSize(80, 20));
         ScaleVal_X->setStyleSheet(QString::fromUtf8("border-color: rgb(255, 0, 0);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
         ScaleVal_X->setDragEnabled(true);
 
         horizontalLayout_3->addWidget(ScaleVal_X);
@@ -301,7 +311,7 @@ public:
         ScaleY = new QPushButton(TransformComponent);
         ScaleY->setObjectName(QString::fromUtf8("ScaleY"));
         ScaleY->setMaximumSize(QSize(20, 20));
-        ScaleY->setAutoFillBackground(true);
+        ScaleY->setAutoFillBackground(false);
         ScaleY->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 255, 0, 255);"));
         ScaleY->setFlat(true);
 
@@ -313,7 +323,8 @@ public:
         ScaleVal_Y->setMaximumSize(QSize(80, 20));
         ScaleVal_Y->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 255, 0);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
 
         horizontalLayout_6->addWidget(ScaleVal_Y);
 
@@ -326,7 +337,7 @@ public:
         ScaleZ = new QPushButton(TransformComponent);
         ScaleZ->setObjectName(QString::fromUtf8("ScaleZ"));
         ScaleZ->setMaximumSize(QSize(20, 20));
-        ScaleZ->setAutoFillBackground(true);
+        ScaleZ->setAutoFillBackground(false);
         ScaleZ->setStyleSheet(QString::fromUtf8("background-color: rgba(0, 150, 225, 255);"));
         ScaleZ->setFlat(true);
 
@@ -338,7 +349,8 @@ public:
         ScaleVal_Z->setMaximumSize(QSize(80, 20));
         ScaleVal_Z->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 150, 225);\n"
 "border-width:2px;\n"
-"border-style:solid;"));
+"border-style:solid;\n"
+"border-radius:0px;"));
 
         horizontalLayout_9->addWidget(ScaleVal_Z);
 
