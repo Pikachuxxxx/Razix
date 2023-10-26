@@ -206,7 +206,7 @@ void main()
 
     outSceneColor = vec4(color, 1.0f);
     // Gamma Correction
-    outSceneColor.xyz = pow(outSceneColor.xyz, vec3(1.0 / 2.2));
+    //outSceneColor.xyz = pow(outSceneColor.xyz, vec3(1.0 / 2.2));
     // Tonemapping
     outSceneColor.xyz = robobo1221Tonemap(outSceneColor.xyz); 
 }

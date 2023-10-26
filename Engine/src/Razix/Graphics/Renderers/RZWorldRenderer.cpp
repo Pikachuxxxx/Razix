@@ -508,6 +508,7 @@ namespace Razix {
             // Update calls passes
             m_CascadedShadowsRenderer.updateCascades(scene);
             m_SkyboxPass.useProceduralSkybox(settings.useProceduralSkybox);
+            m_CompositePass.setTonemapMode(settings.tonemapMode);
 
             // Main Frame Graph World Rendering Loop
             {

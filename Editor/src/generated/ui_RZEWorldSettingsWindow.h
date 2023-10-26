@@ -48,17 +48,20 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QLabel *label;
     QFrame *line_3;
-    QComboBox *comboBox;
+    QComboBox *tonemapMode;
     QSpacerItem *horizontalSpacer_2;
     QFrame *line_4;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_4;
     QLabel *label_2;
+    QCheckBox *checkBox_7;
+    QCheckBox *checkBox_8;
+    QCheckBox *checkBox_9;
     QFrame *line_5;
     QGroupBox *groupBox_4;
     QVBoxLayout *verticalLayout_5;
-    QCheckBox *checkBox;
     QCheckBox *checkBox_2;
+    QCheckBox *checkBox;
     QCheckBox *checkBox_3;
     QCheckBox *checkBox_4;
     QCheckBox *checkBox_5;
@@ -105,8 +108,12 @@ public:
 
         line_6 = new QFrame(WorldSettings);
         line_6->setObjectName(QString::fromUtf8("line_6"));
+        line_6->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
+"border-style:solid;\n"
+"border-width:2px;"));
+        line_6->setFrameShadow(QFrame::Plain);
+        line_6->setLineWidth(1);
         line_6->setFrameShape(QFrame::HLine);
-        line_6->setFrameShadow(QFrame::Sunken);
 
         verticalLayout->addWidget(line_6);
 
@@ -173,6 +180,9 @@ public:
 
         line_2 = new QFrame(WorldSettings);
         line_2->setObjectName(QString::fromUtf8("line_2"));
+        line_2->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
+"border-style:solid;\n"
+"border-width:2px;"));
         line_2->setFrameShape(QFrame::HLine);
         line_2->setFrameShadow(QFrame::Sunken);
 
@@ -199,19 +209,19 @@ public:
 
         horizontalLayout_2->addWidget(line_3);
 
-        comboBox = new QComboBox(groupBox_2);
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+        tonemapMode = new QComboBox(groupBox_2);
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->setObjectName(QString::fromUtf8("tonemapMode"));
 
-        horizontalLayout_2->addWidget(comboBox);
+        horizontalLayout_2->addWidget(tonemapMode);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -222,6 +232,9 @@ public:
 
         line_4 = new QFrame(WorldSettings);
         line_4->setObjectName(QString::fromUtf8("line_4"));
+        line_4->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
+"border-style:solid;\n"
+"border-width:2px;"));
         line_4->setFrameShape(QFrame::HLine);
         line_4->setFrameShadow(QFrame::Sunken);
 
@@ -239,11 +252,29 @@ public:
 
         verticalLayout_4->addWidget(label_2);
 
+        checkBox_7 = new QCheckBox(groupBox_3);
+        checkBox_7->setObjectName(QString::fromUtf8("checkBox_7"));
+
+        verticalLayout_4->addWidget(checkBox_7);
+
+        checkBox_8 = new QCheckBox(groupBox_3);
+        checkBox_8->setObjectName(QString::fromUtf8("checkBox_8"));
+
+        verticalLayout_4->addWidget(checkBox_8);
+
+        checkBox_9 = new QCheckBox(groupBox_3);
+        checkBox_9->setObjectName(QString::fromUtf8("checkBox_9"));
+
+        verticalLayout_4->addWidget(checkBox_9);
+
 
         verticalLayout->addWidget(groupBox_3);
 
         line_5 = new QFrame(WorldSettings);
         line_5->setObjectName(QString::fromUtf8("line_5"));
+        line_5->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
+"border-style:solid;\n"
+"border-width:2px;"));
         line_5->setFrameShape(QFrame::HLine);
         line_5->setFrameShadow(QFrame::Sunken);
 
@@ -256,18 +287,20 @@ public:
         verticalLayout_5->setSpacing(6);
         verticalLayout_5->setContentsMargins(11, 11, 11, 11);
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
-        checkBox = new QCheckBox(groupBox_4);
-        checkBox->setObjectName(QString::fromUtf8("checkBox"));
-
-        verticalLayout_5->addWidget(checkBox);
-
         checkBox_2 = new QCheckBox(groupBox_4);
         checkBox_2->setObjectName(QString::fromUtf8("checkBox_2"));
 
         verticalLayout_5->addWidget(checkBox_2);
 
+        checkBox = new QCheckBox(groupBox_4);
+        checkBox->setObjectName(QString::fromUtf8("checkBox"));
+        checkBox->setChecked(true);
+
+        verticalLayout_5->addWidget(checkBox);
+
         checkBox_3 = new QCheckBox(groupBox_4);
         checkBox_3->setObjectName(QString::fromUtf8("checkBox_3"));
+        checkBox_3->setChecked(true);
 
         verticalLayout_5->addWidget(checkBox_3);
 
@@ -310,21 +343,24 @@ public:
         strengthLbl->setText(QCoreApplication::translate("WorldSettings", "strength", nullptr));
         groupBox_2->setTitle(QCoreApplication::translate("WorldSettings", "ToneMap Settings", nullptr));
         label->setText(QCoreApplication::translate("WorldSettings", "Tonemap Mode", nullptr));
-        comboBox->setItemText(0, QCoreApplication::translate("WorldSettings", "ACES", nullptr));
-        comboBox->setItemText(1, QCoreApplication::translate("WorldSettings", "Filmic", nullptr));
-        comboBox->setItemText(2, QCoreApplication::translate("WorldSettings", "Lottes", nullptr));
-        comboBox->setItemText(3, QCoreApplication::translate("WorldSettings", "Reinhard", nullptr));
-        comboBox->setItemText(4, QCoreApplication::translate("WorldSettings", "Reinhard_V2", nullptr));
-        comboBox->setItemText(5, QCoreApplication::translate("WorldSettings", "Uchimura", nullptr));
-        comboBox->setItemText(6, QCoreApplication::translate("WorldSettings", "Uncharted 2", nullptr));
-        comboBox->setItemText(7, QCoreApplication::translate("WorldSettings", "Unreal", nullptr));
-        comboBox->setItemText(8, QCoreApplication::translate("WorldSettings", "None", nullptr));
+        tonemapMode->setItemText(0, QCoreApplication::translate("WorldSettings", "ACES", nullptr));
+        tonemapMode->setItemText(1, QCoreApplication::translate("WorldSettings", "Filmic", nullptr));
+        tonemapMode->setItemText(2, QCoreApplication::translate("WorldSettings", "Lottes", nullptr));
+        tonemapMode->setItemText(3, QCoreApplication::translate("WorldSettings", "Reinhard", nullptr));
+        tonemapMode->setItemText(4, QCoreApplication::translate("WorldSettings", "Reinhard_V2", nullptr));
+        tonemapMode->setItemText(5, QCoreApplication::translate("WorldSettings", "Uchimura", nullptr));
+        tonemapMode->setItemText(6, QCoreApplication::translate("WorldSettings", "Uncharted 2", nullptr));
+        tonemapMode->setItemText(7, QCoreApplication::translate("WorldSettings", "Unreal", nullptr));
+        tonemapMode->setItemText(8, QCoreApplication::translate("WorldSettings", "None", nullptr));
 
         groupBox_3->setTitle(QCoreApplication::translate("WorldSettings", "Debug Mode Flags", nullptr));
         label_2->setText(QCoreApplication::translate("WorldSettings", "Flags", nullptr));
+        checkBox_7->setText(QCoreApplication::translate("WorldSettings", "Overdraw vis mode", nullptr));
+        checkBox_8->setText(QCoreApplication::translate("WorldSettings", "Unlit mode", nullptr));
+        checkBox_9->setText(QCoreApplication::translate("WorldSettings", "Show UV coords", nullptr));
         groupBox_4->setTitle(QCoreApplication::translate("WorldSettings", "Renderer Features (Passes List)", nullptr));
-        checkBox->setText(QCoreApplication::translate("WorldSettings", "Shadows", nullptr));
         checkBox_2->setText(QCoreApplication::translate("WorldSettings", "GI", nullptr));
+        checkBox->setText(QCoreApplication::translate("WorldSettings", "Shadows", nullptr));
         checkBox_3->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
         checkBox_4->setText(QCoreApplication::translate("WorldSettings", "SSAO", nullptr));
         checkBox_5->setText(QCoreApplication::translate("WorldSettings", "SSR", nullptr));

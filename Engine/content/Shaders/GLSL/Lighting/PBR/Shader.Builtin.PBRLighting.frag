@@ -95,7 +95,7 @@ void main()
     //-----------------------------------------------
 
     // gamma correct
-    result = pow(result, vec3(1.0/2.2)); 
+    //result = pow(result, vec3(1.0/2.2)); 
 
     outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
 }

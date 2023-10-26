@@ -11,6 +11,7 @@
 // Bindless Textures
 //#define ENABLE_BINDLESS 1
 //#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+#include <FX/ShaderInclude.Builtin.Tonemapping.glsl>
 //------------------------------------------------------------------------------
 // VersampleColor Input
 layout(location = 0) in VSOutput
@@ -22,10 +23,10 @@ layout(location = 0) in VSOutput
 // Fragment Shader Stage Uniforms
 layout(set = 0, binding = 0) uniform sampler2D renderTarget;
 
-//layout (push_constant) uniform FinalRT
-//{
-//    uint idx;
-//}tex;
+layout (push_constant) uniform ToneMapperMode
+{
+    uint toneMapMode;
+}pcData;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 outFragColor;
@@ -93,11 +94,47 @@ vec3 fxaa(vec2 p)
 
     return ((lumaB < lumaMin) || (lumaB > lumaMax)) ? rgbA : rgbB;
 }
-
+//------------------------------------------------------------------------------
 void main()
 {
-    vec3 antiAliased = fxaa(fs_in.uv);
+    // FXAA
+    vec3 result = fxaa(fs_in.uv);
     
-    outFragColor = vec4(antiAliased, 1.0f);
+    // Tonemap
+    switch(pcData.toneMapMode)
+    {
+        case 0:
+            result = ACES(result);
+            break;
+        case 1:
+            result = Filmic(result);
+            break;
+        case 2:
+            result = lottes(result);
+            break;
+        case 3:
+            result = reinhard(result);
+            break;
+        case 4:
+            result = reinhard2(result);
+            break;
+        case 5:
+            result = uchimura(result);
+            break;
+        case 6:
+            result = uncharted2(result);
+            break;
+        case 7:
+            result = unreal(result);
+            break;
+        case 8:
+            result = result;
+            break;
+    }
+
+    // Gamma correction
+    //result = pow(result, vec3(1.0/2.2)); 
+
+    outFragColor = vec4(result, 1.0f);
 }
 //------------------------------------------------------------------------------

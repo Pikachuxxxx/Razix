@@ -39,7 +39,7 @@ namespace Razix {
                 // Build the pipeline here for this pass
                 .name                   = "Composition Pipeline",
                 .shader                 = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition),
-                .colorAttachmentFormats = {TextureFormat::BGRA8_UNORM},
+                .colorAttachmentFormats = {TextureFormat::SCREEN},
                 .cullMode               = Graphics::CullMode::None,
                 .drawType               = Graphics::DrawType::Triangle,
                 .transparencyEnabled    = true,
@@ -59,7 +59,7 @@ namespace Razix {
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::BGRA8_UNORM};
+                        .format = TextureFormat::SCREEN};
 
                     data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
 
@@ -137,15 +137,14 @@ namespace Razix {
                     m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuffer);
                     m_ScreenQuadMesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                    //u32            idx = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle().getIndex();
-                    //RZPushConstant pc;
-                    //pc.size        = sizeof(u32);
-                    //pc.data        = &idx;
-                    //pc.shaderStage = ShaderStage::PIXEL;
-                    //RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
+                    RZPushConstant pc;
+                    pc.size         = sizeof(u32);
+                    u32 toneMapMode = m_TonemapMode;
+                    pc.data         = &toneMapMode;
+                    pc.shaderStage  = ShaderStage::Pixel;
+                    RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
 
                     // No need to bind the mesh material
-
                     RHI::DrawIndexed(cmdBuffer, m_ScreenQuadMesh->getIndexCount(), 1, 0, 0, 0);
 
                     RHI::EndRendering(cmdBuffer);
