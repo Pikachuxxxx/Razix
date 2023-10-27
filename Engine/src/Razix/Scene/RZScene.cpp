@@ -189,7 +189,7 @@ namespace Razix {
                 Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
         } else if (geometryMode == SceneDrawGeometryMode::Cubemap) {
-            if (m_Cube)
+            if (!m_Cube)
                 m_Cube = Graphics::MeshFactory::CreatePrimitive(Graphics::Cube);
 
             m_Cube->getVertexBuffer()->Bind(cmdBuffer);
@@ -200,7 +200,7 @@ namespace Razix {
             Graphics::RHI::DrawIndexed(cmdBuffer, m_Cube->getIndexCount());
 
         } else if (geometryMode == SceneDrawGeometryMode::ScreenQuad) {
-            if (m_ScreenQuad)
+            if (!m_ScreenQuad)
                 m_ScreenQuad = Graphics::MeshFactory::CreatePrimitive(Graphics::ScreenQuad);
 
             m_ScreenQuad->getVertexBuffer()->Bind(cmdBuffer);

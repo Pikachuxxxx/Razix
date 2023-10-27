@@ -23,8 +23,8 @@ layout(location = 4) in vec3 inTangent;
 // view projection matrix
 layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 {
-    mat4 lightViewProj;
-} vp;
+    mat4 mat;
+} LightSpaceMatrix;
 layout (push_constant) uniform ModelPushConstantData{
     mat4 model;
 }model_pc_data;
@@ -36,5 +36,5 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    gl_Position = vp.lightViewProj * model_pc_data.model * vec4(inPosition, 1.0f);
+    gl_Position = LightSpaceMatrix.mat * model_pc_data.model * vec4(inPosition, 1.0f);
 }

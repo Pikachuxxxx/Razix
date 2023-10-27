@@ -137,11 +137,18 @@ namespace Razix {
                     m_ScreenQuadMesh->getVertexBuffer()->Bind(cmdBuffer);
                     m_ScreenQuadMesh->getIndexBuffer()->Bind(cmdBuffer);
 
+                    struct PCData
+                    {
+                        u32       tonemapMode;
+                        glm::vec2 screenRes;
+                    } pcData{};
+                    pcData.tonemapMode = m_TonemapMode;
+                    pcData.screenRes   = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+
                     RZPushConstant pc;
-                    pc.size         = sizeof(u32);
-                    u32 toneMapMode = m_TonemapMode;
-                    pc.data         = &toneMapMode;
-                    pc.shaderStage  = ShaderStage::Pixel;
+                    pc.size        = sizeof(u32);
+                    pc.data        = &pcData;
+                    pc.shaderStage = ShaderStage::Pixel;
                     RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
 
                     // No need to bind the mesh material

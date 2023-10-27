@@ -49,6 +49,9 @@ namespace Razix {
             // AO
             void on_AOValueSet();
             void on_AOTextureSelected();
+            // UV scale
+            void OnUVScaleXChanged();
+            void OnUVScaleYChanged();
 
         private:
             Ui::MaterialEditor           ui;

@@ -35,14 +35,16 @@ namespace Razix {
             bool      _padding[4] = {};
             glm::vec3 normal      = glm::vec3(0.0f, 1.0f, 0.0f);
             //bool      _padding_[4]        = {1, 0, 1, 0};
-            f32 emissiveIntensity = 1.0f;
-            f32 metallicColor     = 1.0f;
-            f32 roughnessColor    = 0.025f;
-            f32 specularColor     = 1.0f;
-            f32 opacity           = 1.0f;
-            f32 ambientOcclusion  = 1.0f;
-            u32 visible           = true;
-            u32 workflow          = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
+            f32       emissiveIntensity = 1.0f;
+            f32       metallicColor     = 1.0f;
+            f32       roughnessColor    = 0.025f;
+            f32       specularColor     = 1.0f;
+            f32       opacity           = 1.0f;
+            f32       ambientOcclusion  = 1.0f;
+            bool      _padding2[4]      = {};
+            glm::vec2 uvScale           = {1.0f, 1.0f};
+            u32       visible           = true;
+            u32       workflow          = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
             // TODO: Use these as bindless array indices
             u32 isUsingAlbedoMap    = false;
             u32 isUsingNormalMap    = false;

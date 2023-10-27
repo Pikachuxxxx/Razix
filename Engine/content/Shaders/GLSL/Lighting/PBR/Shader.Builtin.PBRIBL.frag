@@ -115,7 +115,7 @@ void main()
     vec3 irradiance = texture(IrradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
 
-    const float MAX_REFLECTION_LOD = 4.0;
+    const float MAX_REFLECTION_LOD = 14.0;
     vec3 prefilteredColor = textureLod(PreFilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;   
     vec2 envBRDF  = texture(BrdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
@@ -136,14 +136,9 @@ void main()
     result *= shadow;
     //-----------------------------------------------
 
-    // gamma correct
-    //result = pow(result, vec3(1.0/2.2)); 
-
     // Opacity Discard
     if(Mat_getOpacity(fs_in.fragUV) < 0.1)
         discard;
 
-    // outSceneColor = vec4(fs_in.fragUV, 0.0f, 1.0f);
-    // outSceneColor = vec4(Mat_getAlbedoColor(fs_in.fragUV), Mat_getOpacity(fs_in.fragUV));
     outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
 }
