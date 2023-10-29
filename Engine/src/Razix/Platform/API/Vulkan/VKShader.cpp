@@ -114,7 +114,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_ShaderFilePath = filePath;
+            setShaderFilePath(filePath);
 
             m_Name = Razix::Utilities::GetFileName(filePath);
 
@@ -203,7 +203,7 @@ namespace Razix {
                     continue;
                 }
                 // TODO: Add support for m_SceneParams.enableBindless
-                m_SceneParams.userSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(m_ShaderFilePath)));
+                m_SceneParams.userSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(getShaderFilePath())));
 
                 // Add all descriptors of user sets into a named map
                 for (auto& descr: setInfo.second)

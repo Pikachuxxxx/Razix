@@ -90,6 +90,16 @@ namespace Razix {
             m_BuiltinShadersReverseNameMap[Utilities::RemoveFilePathExtension(Utilities::GetFileName(shaderPath))] = shaderID;
         }
 
+        void RZShaderLibrary::reloadShadersFromDisk()
+        {
+            for (auto& shader: m_BuiltinShaders) {
+                auto shaderPath = RZResourceManager::Get().getShaderResource(shader.second)->getShaderFilePath();
+                RZResourceManager::Get().destroyShader(shader.second);
+                RZShaderHandle shaderHandle      = RZResourceManager::Get().createShaderFromFile(shader.first, shaderPath);
+                m_BuiltinShaders[shader.first] = shaderHandle;
+            }
+        }
+
         RZShaderHandle RZShaderLibrary::getBuiltInShader(ShaderBuiltin builtInShaderName)
         {
             return m_BuiltinShaders[builtInShaderName];

@@ -50,6 +50,7 @@ namespace Razix {
             void ShutDown();
 
             void loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath);
+            void reloadShadersFromDisk();
 
             RZShaderHandle getBuiltInShader(ShaderBuiltin builtInShaderName);
             RZShaderHandle getBuiltInShader(std::string shaderName);

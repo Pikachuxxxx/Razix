@@ -95,22 +95,30 @@ namespace Razix {
 
             if (props.isUsingMetallicMap) {
                 if (props.workflow == 0) {
-                    auto qssPath = "image:url(\"" + std::string(textures.metallicRoughnessAO) + "\");";
-                    ui.metalRoughnessAOMap->setStyleSheet(qssPath.c_str());
+                    QPixmap pixmap(textures.metallicRoughnessAO);
+                    QIcon   icon(pixmap);
+                    ui.metalRoughnessAOMap->setIconSize(QSize(50, 50));
+                    ui.metalRoughnessAOMap->setIcon(icon);
                 } else {
-                    auto qssPath = "image:url(\"" + std::string(textures.metallic) + "\");";
-                    ui.metallicTexture->setStyleSheet(qssPath.c_str());
+                    QPixmap pixmap(textures.metallic);
+                    QIcon   icon(pixmap);
+                    ui.metallicTexture->setIconSize(QSize(50, 50));
+                    ui.metallicTexture->setIcon(icon);
                 }
             }
 
             if (props.isUsingRoughnessMap) {
-                auto qssPath = "image:url(\"" + std::string(textures.roughness) + "\");";
-                ui.roughnessTexture->setStyleSheet(qssPath.c_str());
+                QPixmap pixmap(textures.roughness);
+                QIcon   icon(pixmap);
+                ui.roughnessTexture->setIconSize(QSize(50, 50));
+                ui.roughnessTexture->setIcon(icon);
             }
 
             if (props.isUsingAOMap) {
-                auto qssPath = "image:url(\"" + std::string(textures.ao) + "\");";
-                ui.aoTexture->setStyleSheet(qssPath.c_str());
+                QPixmap pixmap(textures.ao);
+                QIcon   icon(pixmap);
+                ui.aoTexture->setIconSize(QSize(50, 50));
+                ui.aoTexture->setIcon(icon);
             }
 
             // Specular

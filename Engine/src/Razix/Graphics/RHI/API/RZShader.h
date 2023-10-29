@@ -117,6 +117,8 @@ namespace Razix {
             /* Updates the descriptor sets with the bind variables aka filled descriptors */
             void updateBindVarsHeaps();
 
+            RAZIX_INLINE std::string getShaderFilePath() const { return m_ShaderFilePath; }
+            RAZIX_INLINE void        setShaderFilePath(std::string val) { m_ShaderFilePath = val; }
             // TODO: Expose internal Vertex Attributes and Layout functions in a engine wide style
 
         protected:

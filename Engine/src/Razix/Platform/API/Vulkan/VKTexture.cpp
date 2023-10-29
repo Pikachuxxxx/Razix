@@ -95,10 +95,10 @@ namespace Razix {
             samplerInfo.maxAnisotropy           = maxAnisotropy;
             samplerInfo.anisotropyEnable        = anisotropyEnable;
             samplerInfo.unnormalizedCoordinates = VK_FALSE;
-            samplerInfo.compareEnable           = VK_FALSE;
+            samplerInfo.compareEnable           = VK_TRUE;
             samplerInfo.borderColor             = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
             samplerInfo.mipLodBias              = 0.0f;
-            samplerInfo.compareOp               = VK_COMPARE_OP_NEVER;
+            samplerInfo.compareOp               = VK_COMPARE_OP_LESS;
             samplerInfo.minLod                  = minLod;
             samplerInfo.maxLod                  = maxLod;
 

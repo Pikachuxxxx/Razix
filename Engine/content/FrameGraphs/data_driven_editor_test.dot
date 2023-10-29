@@ -19,7 +19,7 @@ R4_1 [label=<{ {<B>IrradianceMap</B><BR/>(32, 32) - RGBA32F [CubeMap]} | {Index:
 R5_1 [label=<{ {<B>PreFilteredMap</B><BR/>(128, 128) - RGBA32F [CubeMap]} | {Index: 5<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
 R6_1 [label=<{ {<B>FrameData</B><BR/>size : 304 bytes} | {Index: 6<BR/>Refs : 3} }> style=filled, fillcolor=skyblue]
 R7_1 [label=<{ {<B>SceneLightsData</B><BR/>size : 10256 bytes} | {Index: 7<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R8_1 [label=<{ {<B>ShadowMap</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 8<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R8_1 [label=<{ {<B>ShadowMap</B><BR/>(2048, 2048) - BGRA8_UNORM [Depth]} | {Index: 8<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R9_1 [label=<{ {<B>LightSpaceMatrix</B><BR/>size : 64 bytes} | {Index: 9<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R10_1 [label=<{ {<B>SceneHDR</B><BR/>(2560, 1440) - RGBA32F [2D]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R11_1 [label=<{ {<B>SceneDepth</B><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
