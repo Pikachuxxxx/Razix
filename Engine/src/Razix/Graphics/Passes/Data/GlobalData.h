@@ -2,7 +2,6 @@
 
 #include "Razix/Graphics/Lighting/LightData.h"
 
-
 namespace Razix {
     namespace Graphics {
 
@@ -52,10 +51,27 @@ namespace Razix {
             alignas(16) LightData lightData[MAX_LIGHTS];
         };
 
+        /**
+         * Simple shadow map data
+         */
         struct SimpleShadowPassData
         {
             FrameGraph::RZFrameGraphResource shadowMap;    // Depth texture to store the shadow map data
             FrameGraph::RZFrameGraphResource lightVP;
+        };
+
+        /**
+         * Color Grading LUT
+         */
+        struct ColorGradingLUTData
+        {
+            FrameGraph::RZFrameGraphResource neutralLUT;
+        };  
+
+        struct ColorGradingData
+        {
+            FrameGraph::RZFrameGraphResource colorGradedSceneHDR;
+            FrameGraph::RZFrameGraphResource colorGradedSceneLDR;
         };
 
     }    // namespace Graphics

@@ -30,6 +30,12 @@ class Ui_MaterialEditor
 public:
     QVBoxLayout *verticalLayout;
     QFormLayout *formLayout;
+    QLabel *label_4;
+    QHBoxLayout *horizontalLayout_7;
+    QLineEdit *materialName;
+    QPushButton *pushButton;
+    QPushButton *pushButton_2;
+    QSpacerItem *horizontalSpacer_21;
     QLabel *label;
     QLabel *shaderNameLbl;
     QLabel *label_2;
@@ -41,12 +47,15 @@ public:
     QPushButton *EditBtn;
     QPushButton *ShowReflectionBtn;
     QSpacerItem *horizontalSpacer_2;
-    QLabel *label_4;
-    QHBoxLayout *horizontalLayout_7;
-    QLineEdit *materialName;
-    QPushButton *pushButton;
-    QPushButton *pushButton_2;
-    QSpacerItem *horizontalSpacer_21;
+    QLabel *label_21;
+    QHBoxLayout *horizontalLayout_16;
+    QHBoxLayout *horizontalLayout_12;
+    QLabel *label_18;
+    QLineEdit *UVScaleX;
+    QHBoxLayout *horizontalLayout_13;
+    QLabel *label_19;
+    QLineEdit *UVScaleY;
+    QSpacerItem *horizontalSpacer_11;
     QLabel *label_7;
     QComboBox *workflow;
     QLabel *label_6;
@@ -119,7 +128,7 @@ public:
     {
         if (MaterialEditor->objectName().isEmpty())
             MaterialEditor->setObjectName(QString::fromUtf8("MaterialEditor"));
-        MaterialEditor->resize(1075, 867);
+        MaterialEditor->resize(447, 867);
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/rzeditor/RazixMaterial.png"), QSize(), QIcon::Normal, QIcon::Off);
         MaterialEditor->setWindowIcon(icon);
@@ -132,65 +141,6 @@ public:
         formLayout->setSpacing(6);
         formLayout->setObjectName(QString::fromUtf8("formLayout"));
         formLayout->setLabelAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        label = new QLabel(MaterialEditor);
-        label->setObjectName(QString::fromUtf8("label"));
-
-        formLayout->setWidget(0, QFormLayout::LabelRole, label);
-
-        shaderNameLbl = new QLabel(MaterialEditor);
-        shaderNameLbl->setObjectName(QString::fromUtf8("shaderNameLbl"));
-        shaderNameLbl->setStyleSheet(QString::fromUtf8("border-color: rgb(147, 147, 147);\n"
-"border:1px;\n"
-"border-radius:5;\n"
-"border-style:solid;"));
-
-        formLayout->setWidget(0, QFormLayout::FieldRole, shaderNameLbl);
-
-        label_2 = new QLabel(MaterialEditor);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-
-        formLayout->setWidget(1, QFormLayout::LabelRole, label_2);
-
-        parseVariantsLbl = new QLabel(MaterialEditor);
-        parseVariantsLbl->setObjectName(QString::fromUtf8("parseVariantsLbl"));
-
-        formLayout->setWidget(1, QFormLayout::FieldRole, parseVariantsLbl);
-
-        label_3 = new QLabel(MaterialEditor);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
-
-        formLayout->setWidget(2, QFormLayout::LabelRole, label_3);
-
-        stagesLbl = new QLabel(MaterialEditor);
-        stagesLbl->setObjectName(QString::fromUtf8("stagesLbl"));
-
-        formLayout->setWidget(2, QFormLayout::FieldRole, stagesLbl);
-
-        RecompileBtn = new QPushButton(MaterialEditor);
-        RecompileBtn->setObjectName(QString::fromUtf8("RecompileBtn"));
-
-        formLayout->setWidget(3, QFormLayout::LabelRole, RecompileBtn);
-
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setSpacing(6);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        EditBtn = new QPushButton(MaterialEditor);
-        EditBtn->setObjectName(QString::fromUtf8("EditBtn"));
-
-        horizontalLayout->addWidget(EditBtn);
-
-        ShowReflectionBtn = new QPushButton(MaterialEditor);
-        ShowReflectionBtn->setObjectName(QString::fromUtf8("ShowReflectionBtn"));
-
-        horizontalLayout->addWidget(ShowReflectionBtn);
-
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout->addItem(horizontalSpacer_2);
-
-
-        formLayout->setLayout(3, QFormLayout::FieldRole, horizontalLayout);
-
         label_4 = new QLabel(MaterialEditor);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -200,7 +150,7 @@ public:
         label_4->setSizePolicy(sizePolicy);
         label_4->setMaximumSize(QSize(16777215, 50));
 
-        formLayout->setWidget(4, QFormLayout::LabelRole, label_4);
+        formLayout->setWidget(0, QFormLayout::LabelRole, label_4);
 
         horizontalLayout_7 = new QHBoxLayout();
         horizontalLayout_7->setSpacing(6);
@@ -229,7 +179,133 @@ public:
         horizontalLayout_7->addItem(horizontalSpacer_21);
 
 
-        formLayout->setLayout(4, QFormLayout::FieldRole, horizontalLayout_7);
+        formLayout->setLayout(0, QFormLayout::FieldRole, horizontalLayout_7);
+
+        label = new QLabel(MaterialEditor);
+        label->setObjectName(QString::fromUtf8("label"));
+
+        formLayout->setWidget(1, QFormLayout::LabelRole, label);
+
+        shaderNameLbl = new QLabel(MaterialEditor);
+        shaderNameLbl->setObjectName(QString::fromUtf8("shaderNameLbl"));
+        shaderNameLbl->setStyleSheet(QString::fromUtf8("border-color: rgb(147, 147, 147);\n"
+"border:1px;\n"
+"border-radius:5;\n"
+"border-style:solid;"));
+
+        formLayout->setWidget(1, QFormLayout::FieldRole, shaderNameLbl);
+
+        label_2 = new QLabel(MaterialEditor);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        formLayout->setWidget(2, QFormLayout::LabelRole, label_2);
+
+        parseVariantsLbl = new QLabel(MaterialEditor);
+        parseVariantsLbl->setObjectName(QString::fromUtf8("parseVariantsLbl"));
+
+        formLayout->setWidget(2, QFormLayout::FieldRole, parseVariantsLbl);
+
+        label_3 = new QLabel(MaterialEditor);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+
+        formLayout->setWidget(3, QFormLayout::LabelRole, label_3);
+
+        stagesLbl = new QLabel(MaterialEditor);
+        stagesLbl->setObjectName(QString::fromUtf8("stagesLbl"));
+
+        formLayout->setWidget(3, QFormLayout::FieldRole, stagesLbl);
+
+        RecompileBtn = new QPushButton(MaterialEditor);
+        RecompileBtn->setObjectName(QString::fromUtf8("RecompileBtn"));
+
+        formLayout->setWidget(4, QFormLayout::LabelRole, RecompileBtn);
+
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        EditBtn = new QPushButton(MaterialEditor);
+        EditBtn->setObjectName(QString::fromUtf8("EditBtn"));
+
+        horizontalLayout->addWidget(EditBtn);
+
+        ShowReflectionBtn = new QPushButton(MaterialEditor);
+        ShowReflectionBtn->setObjectName(QString::fromUtf8("ShowReflectionBtn"));
+
+        horizontalLayout->addWidget(ShowReflectionBtn);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer_2);
+
+
+        formLayout->setLayout(4, QFormLayout::FieldRole, horizontalLayout);
+
+        label_21 = new QLabel(MaterialEditor);
+        label_21->setObjectName(QString::fromUtf8("label_21"));
+
+        formLayout->setWidget(5, QFormLayout::LabelRole, label_21);
+
+        horizontalLayout_16 = new QHBoxLayout();
+        horizontalLayout_16->setSpacing(6);
+        horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
+        horizontalLayout_12 = new QHBoxLayout();
+        horizontalLayout_12->setSpacing(0);
+        horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
+        label_18 = new QLabel(MaterialEditor);
+        label_18->setObjectName(QString::fromUtf8("label_18"));
+        label_18->setMaximumSize(QSize(20, 16777215));
+        label_18->setStyleSheet(QString::fromUtf8("border-color: rgb(255, 0, 0);\n"
+"background-color: rgb(255, 0, 0);\n"
+"border-width:2px;\n"
+"border-style:solid;"));
+        label_18->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_12->addWidget(label_18);
+
+        UVScaleX = new QLineEdit(MaterialEditor);
+        UVScaleX->setObjectName(QString::fromUtf8("UVScaleX"));
+        UVScaleX->setMaximumSize(QSize(40, 16777215));
+        UVScaleX->setStyleSheet(QString::fromUtf8("border-color: rgb(255, 0, 0);\n"
+"border-width:2px;\n"
+"border-style:solid;"));
+
+        horizontalLayout_12->addWidget(UVScaleX);
+
+
+        horizontalLayout_16->addLayout(horizontalLayout_12);
+
+        horizontalLayout_13 = new QHBoxLayout();
+        horizontalLayout_13->setSpacing(0);
+        horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
+        label_19 = new QLabel(MaterialEditor);
+        label_19->setObjectName(QString::fromUtf8("label_19"));
+        label_19->setMaximumSize(QSize(20, 16777215));
+        label_19->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 255, 0);\n"
+"border-width:2px;\n"
+"border-style:solid;\n"
+"background-color: rgb(0, 255, 0);"));
+        label_19->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_13->addWidget(label_19);
+
+        UVScaleY = new QLineEdit(MaterialEditor);
+        UVScaleY->setObjectName(QString::fromUtf8("UVScaleY"));
+        UVScaleY->setMaximumSize(QSize(40, 16777215));
+        UVScaleY->setStyleSheet(QString::fromUtf8("border-color: rgb(0, 255, 0);\n"
+"border-width:2px;\n"
+"border-style:solid;"));
+
+        horizontalLayout_13->addWidget(UVScaleY);
+
+
+        horizontalLayout_16->addLayout(horizontalLayout_13);
+
+        horizontalSpacer_11 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_16->addItem(horizontalSpacer_11);
+
+
+        formLayout->setLayout(5, QFormLayout::FieldRole, horizontalLayout_16);
 
         label_7 = new QLabel(MaterialEditor);
         label_7->setObjectName(QString::fromUtf8("label_7"));
@@ -237,7 +313,7 @@ public:
         font.setPointSize(12);
         label_7->setFont(font);
 
-        formLayout->setWidget(5, QFormLayout::LabelRole, label_7);
+        formLayout->setWidget(6, QFormLayout::LabelRole, label_7);
 
         workflow = new QComboBox(MaterialEditor);
         workflow->addItem(QString());
@@ -252,12 +328,12 @@ public:
         font1.setPointSize(8);
         workflow->setFont(font1);
 
-        formLayout->setWidget(5, QFormLayout::FieldRole, workflow);
+        formLayout->setWidget(6, QFormLayout::FieldRole, workflow);
 
         label_6 = new QLabel(MaterialEditor);
         label_6->setObjectName(QString::fromUtf8("label_6"));
 
-        formLayout->setWidget(6, QFormLayout::LabelRole, label_6);
+        formLayout->setWidget(7, QFormLayout::LabelRole, label_6);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
@@ -270,7 +346,7 @@ public:
         sizePolicy1.setHeightForWidth(diffuseTexture->sizePolicy().hasHeightForWidth());
         diffuseTexture->setSizePolicy(sizePolicy1);
         diffuseTexture->setMinimumSize(QSize(50, 50));
-        diffuseTexture->setStyleSheet(QString::fromUtf8("image: url(:/rzeditor/select_texture_placeholder.png);"));
+        diffuseTexture->setStyleSheet(QString::fromUtf8("image : url(\"C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Colorful Tile/Substance_graph_basecolor.jpg\");"));
         diffuseTexture->setIconSize(QSize(50, 50));
         diffuseTexture->setFlat(false);
 
@@ -313,7 +389,7 @@ public:
         horizontalLayout_2->addItem(horizontalSpacer_3);
 
 
-        formLayout->setLayout(6, QFormLayout::FieldRole, horizontalLayout_2);
+        formLayout->setLayout(7, QFormLayout::FieldRole, horizontalLayout_2);
 
         label_8 = new QLabel(MaterialEditor);
         label_8->setObjectName(QString::fromUtf8("label_8"));
@@ -321,7 +397,7 @@ public:
         label_8->setMaximumSize(QSize(16777215, 16777215));
         label_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        formLayout->setWidget(7, QFormLayout::LabelRole, label_8);
+        formLayout->setWidget(8, QFormLayout::LabelRole, label_8);
 
         horizontalLayout_5 = new QHBoxLayout();
         horizontalLayout_5->setSpacing(6);
@@ -358,7 +434,7 @@ public:
         horizontalLayout_5->addItem(horizontalSpacer_6);
 
 
-        formLayout->setLayout(7, QFormLayout::FieldRole, horizontalLayout_5);
+        formLayout->setLayout(8, QFormLayout::FieldRole, horizontalLayout_5);
 
         label_9 = new QLabel(MaterialEditor);
         label_9->setObjectName(QString::fromUtf8("label_9"));
@@ -366,7 +442,7 @@ public:
         label_9->setMaximumSize(QSize(16777215, 16777215));
         label_9->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        formLayout->setWidget(9, QFormLayout::LabelRole, label_9);
+        formLayout->setWidget(10, QFormLayout::LabelRole, label_9);
 
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setSpacing(6);
@@ -421,7 +497,7 @@ public:
         horizontalLayout_6->addItem(horizontalSpacer_5);
 
 
-        formLayout->setLayout(9, QFormLayout::FieldRole, horizontalLayout_6);
+        formLayout->setLayout(10, QFormLayout::FieldRole, horizontalLayout_6);
 
         label_12 = new QLabel(MaterialEditor);
         label_12->setObjectName(QString::fromUtf8("label_12"));
@@ -429,7 +505,7 @@ public:
         label_12->setMaximumSize(QSize(16777215, 16777215));
         label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        formLayout->setWidget(10, QFormLayout::LabelRole, label_12);
+        formLayout->setWidget(11, QFormLayout::LabelRole, label_12);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setSpacing(6);
@@ -484,7 +560,7 @@ public:
         horizontalLayout_3->addItem(horizontalSpacer);
 
 
-        formLayout->setLayout(10, QFormLayout::FieldRole, horizontalLayout_3);
+        formLayout->setLayout(11, QFormLayout::FieldRole, horizontalLayout_3);
 
         verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(6);
@@ -505,7 +581,7 @@ public:
         verticalLayout_4->addWidget(label_17);
 
 
-        formLayout->setLayout(11, QFormLayout::LabelRole, verticalLayout_4);
+        formLayout->setLayout(12, QFormLayout::LabelRole, verticalLayout_4);
 
         verticalLayout_14 = new QVBoxLayout();
         verticalLayout_14->setSpacing(6);
@@ -669,7 +745,7 @@ public:
         verticalLayout_14->addItem(verticalSpacer_3);
 
 
-        formLayout->setLayout(11, QFormLayout::FieldRole, verticalLayout_14);
+        formLayout->setLayout(12, QFormLayout::FieldRole, verticalLayout_14);
 
 
         verticalLayout->addLayout(formLayout);
@@ -687,6 +763,10 @@ public:
     void retranslateUi(QWidget *MaterialEditor)
     {
         MaterialEditor->setWindowTitle(QCoreApplication::translate("MaterialEditor", "Material Editor", nullptr));
+        label_4->setText(QCoreApplication::translate("MaterialEditor", "Name :", nullptr));
+        materialName->setPlaceholderText(QCoreApplication::translate("MaterialEditor", "Enter New Material Name", nullptr));
+        pushButton->setText(QCoreApplication::translate("MaterialEditor", "Save", nullptr));
+        pushButton_2->setText(QString());
         label->setText(QCoreApplication::translate("MaterialEditor", "Shader :", nullptr));
         shaderNameLbl->setText(QCoreApplication::translate("MaterialEditor", "Shader.Builtin.PBRIBL.rzsf", nullptr));
         label_2->setText(QCoreApplication::translate("MaterialEditor", "Parsed Variants :", nullptr));
@@ -696,10 +776,11 @@ public:
         RecompileBtn->setText(QCoreApplication::translate("MaterialEditor", "Recompile", nullptr));
         EditBtn->setText(QCoreApplication::translate("MaterialEditor", "Edit Code", nullptr));
         ShowReflectionBtn->setText(QCoreApplication::translate("MaterialEditor", "Show Reflection Info", nullptr));
-        label_4->setText(QCoreApplication::translate("MaterialEditor", "Name :", nullptr));
-        materialName->setPlaceholderText(QCoreApplication::translate("MaterialEditor", "Enter New Material Name", nullptr));
-        pushButton->setText(QCoreApplication::translate("MaterialEditor", "Save", nullptr));
-        pushButton_2->setText(QString());
+        label_21->setText(QCoreApplication::translate("MaterialEditor", "UV Scale", nullptr));
+        label_18->setText(QCoreApplication::translate("MaterialEditor", "U", nullptr));
+        UVScaleX->setText(QCoreApplication::translate("MaterialEditor", "1", nullptr));
+        label_19->setText(QCoreApplication::translate("MaterialEditor", "V", nullptr));
+        UVScaleY->setText(QCoreApplication::translate("MaterialEditor", "1", nullptr));
         label_7->setText(QCoreApplication::translate("MaterialEditor", "Material Textures (PBR)", nullptr));
         workflow->setItemText(0, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED (BGR)", nullptr));
         workflow->setItemText(1, QCoreApplication::translate("MaterialEditor", "WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE", nullptr));

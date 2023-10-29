@@ -1,0 +1,25 @@
+{
+    "Alpha_Joints_MAT": {
+        "Name": "Alpha_Joints_MAT",
+        "Albedo": "",
+        "Normal": "",
+        "Metallic": "",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 0.15355153381824494,
+            "y": 0.21289387345314027,
+            "z": 0.2222171425819397
+        },
+        "roughnessColor": 0.5,
+        "metallicColor": 0.858578622341156,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

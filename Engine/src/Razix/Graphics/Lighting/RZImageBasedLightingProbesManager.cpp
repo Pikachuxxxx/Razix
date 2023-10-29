@@ -54,7 +54,7 @@ namespace Razix {
             u32  width, height, bpp;
             f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = TextureFormat::RGBA32F, .wrapping = Wrapping::CLAMP_TO_EDGE, .dataSize = sizeof(float)});
+            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .format = TextureFormat::RGBA32F, .wrapping = Wrapping::CLAMP_TO_EDGE, .enableMips = false,  .dataSize = sizeof(float)});
 
             std::vector<RZDescriptorSet*>      envMapSets;
             std::vector<RZUniformBufferHandle> UBOs;

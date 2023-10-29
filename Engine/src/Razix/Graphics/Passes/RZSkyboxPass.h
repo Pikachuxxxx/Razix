@@ -13,8 +13,7 @@ namespace Razix {
             RZSkyboxPass() {}
             ~RZSkyboxPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings) override;
-
+            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings) override;
             void destroy() override;
 
             void useProceduralSkybox(bool use) { m_UseProceduralSkybox = use; }
@@ -22,10 +21,7 @@ namespace Razix {
         private:
             RZPipelineHandle m_Pipeline;
             RZPipelineHandle m_ProceduralPipeline;
-            RZMesh*          m_SkyboxCube;
             bool             m_UseProceduralSkybox = true;
-            RZDescriptorSet* m_LightProbesDescriptorSet;
-            RZDescriptorSet* m_VolumetricDescriptorSet;
         };
     }    // namespace Graphics
 }    // namespace Razix

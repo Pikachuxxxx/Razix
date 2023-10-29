@@ -38,22 +38,11 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
             auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
-
-            m_LightViewProjUBO = RZResourceManager::Get().createUniformBuffer({.name = "LightViewProj", .size = sizeof(LightVPUBOData), .data = nullptr});
-
-            for (auto& setInfo: setInfos) {
-                // Fill the descriptors with buffers and textures
-                for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
-                        descriptor.uniformBuffer = m_LightViewProjUBO;
-                }
-                m_LVPSet = (Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow Depth pass set")));
-            }
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
@@ -71,7 +60,7 @@ namespace Razix {
                 [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .enableMips = false});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .wrapping = Wrapping::CLAMP_TO_BORDER, .enableMips = false});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData)});
 
@@ -106,6 +95,16 @@ namespace Razix {
                     auto lightVPHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(lightVPHandle)->SetData(sizeof(LightVPUBOData), &light_data);
 
+                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
+
+                        auto descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.lightVP)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
+
+                        RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
+                    }
+
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
                     info.resolution      = Resolution::kCustom;
@@ -116,10 +115,6 @@ namespace Razix {
                     RHI::BeginRendering(cmdBuffer, info);
 
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
-
-                    RZResourceManager::Get().getUniformBufferResource(m_LightViewProjUBO)->SetData(sizeof(LightVPUBOData), &light_data);
-
-                    RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, m_LVPSet, BindingTable_System::SET_IDX_SYSTEM_START);
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
@@ -133,9 +128,7 @@ namespace Razix {
 
         void RZShadowPass::destroy()
         {
-            RZResourceManager::Get().destroyUniformBuffer(m_LightViewProjUBO);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-            m_LVPSet->Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix

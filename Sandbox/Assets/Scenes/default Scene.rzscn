@@ -1,0 +1,497 @@
+{
+    "Razix Scene": {
+        "UUID": "4a4c9da2-db8f-443a-a1d6-f8562d757856",
+        "SceneName": "default Scene",
+        "Total Entities": 7
+    },
+    "value0": 7,
+    "value1": 0,
+    "value2": 1,
+    "value3": 2,
+    "value4": 3,
+    "value5": 4,
+    "value6": 5,
+    "value7": 6,
+    "value8": 7,
+    "value9": 0,
+    "value10": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value11": 1,
+    "value12": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value13": 2,
+    "value14": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value15": 3,
+    "value16": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value17": 4,
+    "value18": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value19": 5,
+    "value20": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value21": 6,
+    "value22": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value23": 7,
+    "value24": 0,
+    "value25": {
+        "Tag": "Camera"
+    },
+    "value26": 1,
+    "value27": {
+        "Tag": "hello_lua"
+    },
+    "value28": 2,
+    "value29": {
+        "Tag": "imgui_lua"
+    },
+    "value30": 3,
+    "value31": {
+        "Tag": "Directional Light"
+    },
+    "value32": 4,
+    "value33": {
+        "Tag": "Ground"
+    },
+    "value34": 5,
+    "value35": {
+        "Tag": "Box"
+    },
+    "value36": 6,
+    "value37": {
+        "Tag": "Box_2"
+    },
+    "value38": 0,
+    "value39": 7,
+    "value40": 0,
+    "value41": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value42": 1,
+    "value43": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value44": 2,
+    "value45": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value46": 3,
+    "value47": {
+        "Translation": {
+            "x": 6.263948917388916,
+            "y": 6.837398529052734,
+            "z": 6.2664713859558109
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 6.263948917388916,
+                "value1": 6.837398529052734,
+                "value2": 6.2664713859558109,
+                "value3": 1.0
+            }
+        }
+    },
+    "value48": 4,
+    "value49": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 10.383865356445313,
+            "y": 0.089596226811409,
+            "z": 10.401421546936036
+        },
+        "Transform": {
+            "value0": {
+                "value0": 10.383865356445313,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.089596226811409,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 10.401421546936036,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value50": 5,
+    "value51": {
+        "Translation": {
+            "x": 0.0,
+            "y": 1.0523122549057007,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 1.0523122549057007,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value52": 6,
+    "value53": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.5288694500923157,
+            "z": -6.485724449157715
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 4.559965133666992,
+            "y": 0.4244491755962372,
+            "z": 0.5025947690010071
+        },
+        "Transform": {
+            "value0": {
+                "value0": 4.559965133666992,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.4244491755962372,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.5025947690010071,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.5288694500923157,
+                "value2": -6.485724449157715,
+                "value3": 1.0
+            }
+        }
+    },
+    "value54": 1,
+    "value55": 0,
+    "value56": {
+        "isPrimary": true,
+        "Camera": {
+            "Position": {
+                "x": -18.08465576171875,
+                "y": 12.145739555358887,
+                "z": -13.602232933044434
+            },
+            "Front": {
+                "x": 0.5996783375740051,
+                "y": -0.5771451592445374,
+                "z": 0.5543368458747864
+            },
+            "Up": {
+                "x": 0.423810750246048,
+                "y": 0.8166415691375732,
+                "z": 0.3917665481567383
+            },
+            "Right": {
+                "x": -0.6788007020950317,
+                "y": 0.0,
+                "z": 0.7343226075172424
+            },
+            "WorldUp": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Yaw": 1122.75,
+            "Pitch": -35.25,
+            "Zoom": 45.0,
+            "MovementSpeed": 0.02500000037252903,
+            "MouseSensitivity": 0.25,
+            "ProjectionType": 0,
+            "PerspectiveFOV": 0.7853981852531433,
+            "PerspectiveNearClip": 0.10000000149011612,
+            "PerspectiveFarClip": 100.0,
+            "OrthographicSize": 10.0,
+            "OrthographicNearClip": -1.0,
+            "OrthographicFarClip": 1.0,
+            "AspectRatio": 1.8699780702590943,
+            "BgColor": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            }
+        }
+    },
+    "value57": 0,
+    "value58": 3,
+    "value59": 4,
+    "value60": {
+        "Primitive": 2,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/GroundMaterial.rzmaterial"
+    },
+    "value61": 5,
+    "value62": {
+        "Primitive": 2,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/BoxMaterial.rzmaterial"
+    },
+    "value63": 6,
+    "value64": {
+        "Primitive": 2,
+        "MeshName": "",
+        "MeshPath": "",
+        "MaterialPath": "//Assets/Materials/Box_2Mat.rzmaterial"
+    },
+    "value65": 2,
+    "value66": 1,
+    "value67": {
+        "FilePath": "//Scripts/hello_razix.lua"
+    },
+    "value68": 2,
+    "value69": {
+        "FilePath": "//Scripts/imgui_test.lua"
+    },
+    "value70": 1,
+    "value71": 3,
+    "value72": {
+        "Light": {
+            "type": 0,
+            "position": {
+                "x": 6.263948917388916,
+                "y": 6.837398529052734,
+                "z": 6.2664713859558109
+            },
+            "range": 10.0,
+            "direction": {
+                "value0": 6.263948917388916,
+                "value1": 6.837398529052734,
+                "value2": 6.2664713859558109,
+                "value3": 1.0
+            },
+            "color": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "intensity": 1.0,
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "innerConeAngle": 12.5,
+            "outerConeAngle": 60.0
+        }
+    },
+    "value73": 0
+}

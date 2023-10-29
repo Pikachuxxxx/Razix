@@ -39,7 +39,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZPBRLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZPBRLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
 
@@ -62,18 +62,6 @@ namespace Razix {
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
             //auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
-
-            m_ScreenQuadMesh = Graphics::MeshFactory::CreatePrimitive(Razix::Graphics::MeshPrimitive::ScreenQuad);
-
-            struct PBRPassBindingData
-            {
-                u32 shadowIdx;
-                u32 irradIdx;
-                u32 prefiltIdx;
-                u32 brdfIdx;
-            };
-
-            //m_PBRPassBindingUBO = RZUniformBuffer::Create(sizeof(PBRPassBindingData), nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("PBRPassTextures UBO"));
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRLighting",
@@ -129,107 +117,33 @@ namespace Razix {
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     // Set the Descriptor Set once rendering starts
-                    static bool updatedSets = false;
-                    if (!updatedSets) {
-                        //RZDescriptor descriptor{};
-                        //descriptor.bindingInfo.location.binding = 0;
-                        //descriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        //descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        //descriptor.uniformBuffer       = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(pbrShader)->getBindVars();
 
-                        //RZDescriptor texdescriptor{};
-                        //texdescriptor.bindingInfo.location.binding = 1;
-                        //texdescriptor.bindingInfo.type    = DescriptorType::UNIFORM_BUFFER;
-                        //texdescriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        //texdescriptor.uniformBuffer       = m_PBRPassBindingUBO;
+                        RZDescriptor* descriptor = nullptr;
 
-                        //m_PBRBindingSet = RZDescriptorSet::Create({descriptor, texdescriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings Set"));
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
-                        auto shadowMap = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
-                        RZDescriptor csm_descriptor{};
-                        csm_descriptor.bindingInfo.location.binding = 0;
-                        csm_descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
-                        csm_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
-                        csm_descriptor.texture                      = shadowMap;
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
 
-                        RZDescriptor shadow_data_descriptor{};
-                        shadow_data_descriptor.size                         = sizeof(SimpleShadowPassData);
-                        shadow_data_descriptor.bindingInfo.location.binding = 1;
-                        shadow_data_descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
-                        shadow_data_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
-                        shadow_data_descriptor.uniformBuffer                = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
 
-                        m_ShadowDataSet = RZDescriptorSet::Create({csm_descriptor, shadow_data_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Shadow pass Bindings"));
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(brdfData.lut)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
 
-                        auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
-                        auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
-                        auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
-
-                        // TODO: Enable this only if we use a skybox
-                        RZDescriptor irradianceMap_descriptor{};
-                        irradianceMap_descriptor.bindingInfo.location.binding = 0;
-                        irradianceMap_descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
-                        irradianceMap_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
-                        irradianceMap_descriptor.texture                      = irradianceMap;
-
-                        RZDescriptor prefiltered_descriptor{};
-                        prefiltered_descriptor.bindingInfo.location.binding = 1;
-                        prefiltered_descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
-                        prefiltered_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
-                        prefiltered_descriptor.texture                      = prefilteredMap;
-
-                        RZDescriptor brdflut_descriptor{};
-                        brdflut_descriptor.bindingInfo.location.binding = 2;
-                        brdflut_descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
-                        brdflut_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
-                        brdflut_descriptor.texture                      = brdfLUT;
-
-                        m_PBRDataSet = RZDescriptorSet::Create({irradianceMap_descriptor, prefiltered_descriptor, brdflut_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("PBR data Bindings"));
-#if 0
-
-                        RZDescriptor gbuffer0_descriptor{};
-                        gbuffer0_descriptor.bindingInfo.location.binding = 0;
-                        gbuffer0_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        gbuffer0_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        gbuffer0_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Normal_PosX).getHandle();
-
-                        RZDescriptor gbuffer1_descriptor{};
-                        gbuffer1_descriptor.bindingInfo.location.binding = 1;
-                        gbuffer1_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        gbuffer1_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        gbuffer1_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Albedo_PosY).getHandle();
-
-                        RZDescriptor gbuffer2_descriptor{};
-                        gbuffer2_descriptor.bindingInfo.location.binding = 2;
-                        gbuffer2_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        gbuffer2_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        gbuffer2_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.Emissive_PosZ).getHandle();
-
-                        RZDescriptor gbuffer3_descriptor{};
-                        gbuffer3_descriptor.bindingInfo.location.binding = 3;
-                        gbuffer3_descriptor.bindingInfo.type    = DescriptorType::IMAGE_SAMPLER;
-                        gbuffer3_descriptor.bindingInfo.stage   = ShaderStage::PIXEL;
-                        gbuffer3_descriptor.texture             = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.MetRougAOAlpha).getHandle();
-
-                        m_GBufferDataSet = RZDescriptorSet::Create({gbuffer0_descriptor, gbuffer1_descriptor, gbuffer2_descriptor, gbuffer3_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("GBuffer Bindings"));
-
-#endif
-                        updatedSets = true;
+                        RZResourceManager::Get().getShaderResource(pbrShader)->updateBindVarsHeaps();
                     }
-
-                    auto shadowMap      = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
-                    auto irradianceMap  = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
-                    auto prefilteredMap = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
-                    auto brdfLUT        = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
-
-                    //PBRPassBindingData bindingData{};
-                    //bindingData.shadowIdx  = shadowMap.getIndex();
-                    //bindingData.irradIdx   = irradianceMap.getIndex();
-                    //bindingData.prefiltIdx = prefilteredMap.getIndex();
-                    //bindingData.brdfIdx    = brdfLUT.getIndex();
-
-                    //m_PBRPassBindingUBO->SetData(sizeof(PBRPassBindingData), &bindingData);
 
                     RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 

@@ -129,8 +129,8 @@ namespace Razix {
         std::string    m_ScenePath;                 /* The Path of the scene file                   */
         friend class RZEntity;
 
-        Graphics::RZMesh* m_Cube;
-        Graphics::RZMesh* m_ScreenQuad;
+        Graphics::RZMesh* m_Cube       = nullptr;
+        Graphics::RZMesh* m_ScreenQuad = nullptr;
 
     private:
         template<typename T>

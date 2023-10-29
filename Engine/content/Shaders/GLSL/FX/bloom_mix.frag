@@ -8,7 +8,7 @@
  // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
  #extension GL_ARB_shading_language_420pack : enable
 
- #include <FX/tonemapping.glsl>
+ #include <FX/ShaderInclude.Builtin.Tonemapping.glsl>
 
  //------------------------------------------------------------------------------
  // Vertex Input

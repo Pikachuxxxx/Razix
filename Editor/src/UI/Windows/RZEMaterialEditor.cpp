@@ -35,6 +35,12 @@ namespace Razix {
             connect(ui.emissiveIntensity, SIGNAL(returnPressed()), this, SLOT(on_EmissionIntensity()));
             connect(ui.aoIntensity, SIGNAL(returnPressed()), this, SLOT(on_AOValueSet()));
             connect(ui.aoTexture, SIGNAL(pressed()), this, SLOT(on_AOTextureSelected()));
+
+            ui.UVScaleX->setValidator(new QIntValidator(1, 10000, this));
+            ui.UVScaleY->setValidator(new QIntValidator(1, 10000, this));
+
+            connect(ui.UVScaleX, SIGNAL(textChanged(const QString&)), this, SLOT(OnUVScaleXChanged()));
+            connect(ui.UVScaleY, SIGNAL(textChanged(const QString&)), this, SLOT(OnUVScaleYChanged()));
         }
 
         RZEMaterialEditor::~RZEMaterialEditor()
@@ -48,7 +54,22 @@ namespace Razix {
             // Set the Material Editor Properties
             ui.materialName->setText(material->getName().c_str());
 
-            // TODO: Set texture from MaterialTexturePaths struct
+            const std::string defaultTextureQSS = "image:url(:/rzeditor/select_texture_placeholder.png);";
+
+            QPixmap pixmap(defaultTextureQSS.c_str());
+            QIcon   icon(pixmap);
+            ui.diffuseTexture->setIconSize(QSize(50, 50));
+            ui.diffuseTexture->setIcon(icon);
+            ui.normalTexture->setIconSize(QSize(50, 50));
+            ui.normalTexture->setIcon(icon);
+            ui.metalRoughnessAOMap->setIconSize(QSize(50, 50));
+            ui.metalRoughnessAOMap->setIcon(icon);
+            ui.metallicTexture->setIconSize(QSize(50, 50));
+            ui.metallicTexture->setIcon(icon);
+            ui.roughnessTexture->setIconSize(QSize(50, 50));
+            ui.roughnessTexture->setIcon(icon);
+            ui.aoTexture->setIconSize(QSize(50, 50));
+            ui.aoTexture->setIcon(icon);
 
             // Diffuse stuff
             auto& props    = material->getProperties();
@@ -60,28 +81,36 @@ namespace Razix {
             ui.diffuseColor->setPalette(pal);
             if (props.isUsingAlbedoMap) {
                 QPixmap pixmap(textures.albedo);
-                QIcon   ButtonIcon(pixmap);
-                ui.diffuseTexture->setIcon(ButtonIcon);
-                ui.diffuseTexture->setIconSize(QSize(40, 40));
+                QIcon   icon(textures.albedo);
+                ui.diffuseTexture->setIconSize(QSize(50, 50));
+                ui.diffuseTexture->setIcon(icon);
             }
 
             if (props.isUsingNormalMap) {
-                ui.normalTexture->setIcon(QIcon(QPixmap(textures.normal)));
+                QPixmap pixmap(textures.normal);
+                QIcon   icon(pixmap);
+                ui.normalTexture->setIconSize(QSize(50, 50));
+                ui.normalTexture->setIcon(icon);
             }
 
             if (props.isUsingMetallicMap) {
-                if (props.workflow == 0)
-                    ui.metalRoughnessAOMap->setIcon(QIcon(QPixmap(textures.metallicRoughnessAO)));
-                else
-                    ui.metallicTexture->setIcon(QIcon(QPixmap(textures.metallic)));
+                if (props.workflow == 0) {
+                    auto qssPath = "image:url(\"" + std::string(textures.metallicRoughnessAO) + "\");";
+                    ui.metalRoughnessAOMap->setStyleSheet(qssPath.c_str());
+                } else {
+                    auto qssPath = "image:url(\"" + std::string(textures.metallic) + "\");";
+                    ui.metallicTexture->setStyleSheet(qssPath.c_str());
+                }
             }
 
             if (props.isUsingRoughnessMap) {
-                ui.roughnessTexture->setIcon(QIcon(QPixmap(textures.roughness)));
+                auto qssPath = "image:url(\"" + std::string(textures.roughness) + "\");";
+                ui.roughnessTexture->setStyleSheet(qssPath.c_str());
             }
 
             if (props.isUsingAOMap) {
-                ui.aoTexture->setIcon(QIcon(QPixmap(textures.ao)));
+                auto qssPath = "image:url(\"" + std::string(textures.ao) + "\");";
+                ui.aoTexture->setStyleSheet(qssPath.c_str());
             }
 
             // Specular
@@ -305,6 +334,29 @@ namespace Razix {
             matTextures.ao    = Graphics::RZResourceManager::Get().createTextureFromFile({.name = fileName.toStdString()}, fileName.toStdString());
             m_Material->setTextures(matTextures);
         }
+
+        //---------------------------------------------------------------------------
+
+        void RZEMaterialEditor::OnUVScaleXChanged()
+        {
+            if (!m_Material)
+                return;
+
+            auto matProps      = m_Material->getProperties();
+            matProps.uvScale.x = ui.UVScaleX->text().toInt();
+            m_Material->setProperties(matProps);
+        }
+
+        void RZEMaterialEditor::OnUVScaleYChanged()
+        {
+            if (!m_Material)
+                return;
+
+            auto matProps      = m_Material->getProperties();
+            matProps.uvScale.y = ui.UVScaleY->text().toInt();
+            m_Material->setProperties(matProps);
+        }
+
         //---------------------------------------------------------------------------
     }    // namespace Editor
 }    // namespace Razix

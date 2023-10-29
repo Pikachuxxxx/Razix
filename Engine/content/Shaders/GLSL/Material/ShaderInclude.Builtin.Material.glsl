@@ -25,7 +25,8 @@ layout(set = 1, binding = 0) uniform MaterialData
     float specular;     
     float opacity;            
     float ambientOcclusion;   
-    bool  visible;            
+    vec2 uvScale;
+    bool visible;            
     uint workflow;
 
     bool isUsingAlbedoMap;
@@ -63,6 +64,7 @@ layout(set = 1, binding = 7) uniform sampler2D aoMap;
 // Helper Functions
 vec3 Mat_getAlbedoColor(vec2 uv)
 {
+    uv *= Material.uvScale;
     return vec3(texture(albedoMap, uv));
     //if(Material.isUsingAlbedoMap)
     //    return vec3(texture(albedoMap, uv));
@@ -72,6 +74,7 @@ vec3 Mat_getAlbedoColor(vec2 uv)
 //----------------------------------------------------------------------------
 vec3 Mat_getNormalMapNormals(vec2 uv, vec3 worldPos, vec3 N)
 {
+    uv *= Material.uvScale;
     if(Material.isUsingNormalMap) {
         vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
 
@@ -93,6 +96,7 @@ vec3 Mat_getNormalMapNormals(vec2 uv, vec3 worldPos, vec3 N)
 //----------------------------------------------------------------------------
 float Mat_getMetallicColor(vec2 uv)
 {
+    uv *= Material.uvScale;
     if (Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE)
         return vec3(texture(metallicMap, uv)).r;
     else if(Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED)
@@ -103,6 +107,7 @@ float Mat_getMetallicColor(vec2 uv)
 //----------------------------------------------------------------------------
 float Mat_getRoughnessColor(vec2 uv)
 {
+    uv *= Material.uvScale;
     if(Material.isUsingRoughnessMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE)
         return vec3(texture(roughnessMap, uv)).r;
     else if (Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED)
@@ -113,6 +118,7 @@ float Mat_getRoughnessColor(vec2 uv)
 //----------------------------------------------------------------------------
 vec3 getSpecularColor(vec2 uv)
 {
+    uv *= Material.uvScale;
     if(Material.isUsingSpecular)
         return vec3(texture(specularMap, uv));
     else 
@@ -121,6 +127,7 @@ vec3 getSpecularColor(vec2 uv)
 //----------------------------------------------------------------------------
 float Mat_getAOColor(vec2 uv)
 {
+    uv *= Material.uvScale;
     if(Material.isUsingAOMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE)
         return vec3(texture(aoMap, uv)).r;
     else if (Material.isUsingMetallicMap && Material.workflow == WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED)
@@ -131,6 +138,7 @@ float Mat_getAOColor(vec2 uv)
 //----------------------------------------------------------------------------
 float Mat_getOpacity(vec2 uv)
 {
+    uv *= Material.uvScale;
     if(Material.isUsingAlbedoMap)
         return texture(albedoMap, uv).a;
     else 

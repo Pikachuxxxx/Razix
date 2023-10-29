@@ -21,12 +21,6 @@ namespace Razix {
 
         private:
             RZPipelineHandle m_Pipeline;
-            RZUniformBuffer* m_PBRPassBindingUBO;
-            RZDescriptorSet* m_PBRBindingSet;
-            RZDescriptorSet* m_ShadowDataSet;
-            RZDescriptorSet* m_PBRDataSet;
-
-            RZMesh* m_ScreenQuadMesh = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

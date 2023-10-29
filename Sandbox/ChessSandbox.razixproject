@@ -6,9 +6,9 @@
         "Render API": 1,
         "Width": 1648,
         "Height": 1238,
-        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
+        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox//",
         "Scenes": [
-            "//Scenes/ChessScene.rzscn"
+            "//Scenes/default Scene.rzscn"
         ]
     }
 }
