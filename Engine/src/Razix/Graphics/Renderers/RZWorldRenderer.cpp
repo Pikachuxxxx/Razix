@@ -473,6 +473,7 @@ namespace Razix {
             // Destroy Imported Resources
             RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
             RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
+            RZResourceManager::Get().destroyTexture(m_ColorGradingNeutralLUTHandle);
 
             RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
             RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);

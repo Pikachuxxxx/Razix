@@ -346,7 +346,7 @@ public:
         sizePolicy1.setHeightForWidth(diffuseTexture->sizePolicy().hasHeightForWidth());
         diffuseTexture->setSizePolicy(sizePolicy1);
         diffuseTexture->setMinimumSize(QSize(50, 50));
-        diffuseTexture->setStyleSheet(QString::fromUtf8("image : url(\"C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Colorful Tile/Substance_graph_basecolor.jpg\");"));
+        diffuseTexture->setStyleSheet(QString::fromUtf8("image: url(:/rzeditor/select_texture_placeholder.png);"));
         diffuseTexture->setIconSize(QSize(50, 50));
         diffuseTexture->setFlat(false);
 
@@ -614,6 +614,7 @@ public:
         sizePolicy1.setHeightForWidth(metallicTexture->sizePolicy().hasHeightForWidth());
         metallicTexture->setSizePolicy(sizePolicy1);
         metallicTexture->setMinimumSize(QSize(50, 50));
+        metallicTexture->setAutoFillBackground(false);
         metallicTexture->setStyleSheet(QString::fromUtf8("image: url(:/rzeditor/select_texture_placeholder.png);"));
 
         horizontalLayout_9->addWidget(metallicTexture);

@@ -23,7 +23,7 @@ namespace Razix {
 
         OpenGLShader::OpenGLShader(const std::string& filePath)
         {
-            m_ShaderFilePath = filePath;
+            setShaderFilePath(filePath);
 
             m_Name = Razix::Utilities::GetFileName(filePath);
 

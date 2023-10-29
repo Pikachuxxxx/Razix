@@ -87,8 +87,8 @@ namespace Razix {
                     }
 
                     glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                    float     near_plane = -100.0f, far_plane = 50.0f;
-                    glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+                    float     near_plane = -50.0f, far_plane = 50.0f;
+                    glm::mat4 lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
                     lightProjection[1][1] *= -1;
                     light_data.lightViewProj = lightProjection * lightView;
 

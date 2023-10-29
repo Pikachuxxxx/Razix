@@ -339,6 +339,18 @@ namespace Razix {
         if (m_CurrentState == AppState::Closing)
             return false;
 
+        // Reload shaders and FrameGraph resources
+        if (RZInput::IsKeyPressed(Razix::KeyCode::Key::R)) {
+            RAZIX_CORE_INFO("Reloading FrameGraph...");
+            Graphics::RZShaderLibrary::Get().reloadShadersFromDisk();
+            auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
+            worldRenderer.destroy();
+            Razix::Graphics::FrameGraph::RZFrameGraph::ResetFirstFrame();
+            worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+
+            RAZIX_CORE_INFO("FrameGraph reload Done!");
+        }
+
         // Update the Engine systems
         Update(m_Timestep);
         m_Updates++;
