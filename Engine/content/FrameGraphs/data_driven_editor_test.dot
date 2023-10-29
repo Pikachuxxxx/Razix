@@ -11,9 +11,9 @@ P5 [label=<{ {<B>Pass.Builtin.Code.Debug</B>} | {&#x2605; Refs: 2<BR/> Index: 5}
 P6 [label=<{ {<B>Pass.Builtin.Code.ImGui</B>} | {&#x2605; Refs: 2<BR/> Index: 6} }> style="rounded,filled", fillcolor=orange]
 P7 [label=<{ {<B>Pass.Builtin.Code.FinalComposition</B>} | {&#x2605; Refs: 1<BR/> Index: 7} }> style="rounded,filled", fillcolor=orange]
 
-R0_1 [label=<{ {<B>Texture.Builtin.BrdfLUT</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
-R1_1 [label=<{ {<B>Texture.Builtin.VolumetricCloudsNoise</B><BR/>(128, 128) - RGBA8 [2D]} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
-R2_1 [label=<{ {<B>Texture.Builtin.ColorGradingUnreal_Neutral_LUT16</B><BR/>(256, 16) - RGBA8 [2D]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
+R0_1 [label=<{ {<B>BrdfLUT</B><BR/>(400, 400) - RGBA8 [2D]} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
+R1_1 [label=<{ {<B>VolumetricCloudsNoise</B><BR/>(128, 128) - RGBA8 [2D]} | {Index: 1<BR/>Refs : 1} }> style=filled, fillcolor=lightsteelblue]
+R2_1 [label=<{ {<B>ColorGradingUnreal_Neutral_LUT16</B><BR/>(256, 16) - RGBA8 [2D]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=lightsteelblue]
 R3_1 [label=<{ {<B>EnvironmentMap</B><BR/>(512, 512) - RGBA32F [CubeMap]} | {Index: 3<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
 R4_1 [label=<{ {<B>IrradianceMap</B><BR/>(32, 32) - RGBA32F [CubeMap]} | {Index: 4<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
 R5_1 [label=<{ {<B>PreFilteredMap</B><BR/>(128, 128) - RGBA32F [CubeMap]} | {Index: 5<BR/>Refs : 2} }> style=filled, fillcolor=lightsteelblue]
@@ -29,7 +29,7 @@ R10_3 [label=<{ {<B>SceneHDR</B>   <FONT>v3</FONT><BR/>(2560, 1440) - RGBA32F [2
 R11_3 [label=<{ {<B>SceneDepth</B>   <FONT>v3</FONT><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R10_4 [label=<{ {<B>SceneHDR</B>   <FONT>v4</FONT><BR/>(2560, 1440) - RGBA32F [2D]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R11_4 [label=<{ {<B>SceneDepth</B>   <FONT>v4</FONT><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Present Image</B><BR/>(2560, 1369) - Presentation [2D]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Present Image</B><BR/>(80, 10) - Presentation [2D]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R6_1 } [color=orangered]
 P1 -> { R7_1 } [color=orangered]

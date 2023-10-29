@@ -41,17 +41,17 @@ namespace Razix {
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTextureFromFile({.name = "Texture.Builtin.BrdfLUT", .enableMips = false}, "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png");
+            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTextureFromFile({.name = "BrdfLUT", .enableMips = false}, "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png");
             const auto& BRDFfLUTTextureDesc                  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
 
             // Noise texture LUT
-            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTextureFromFile({.name = "Texture.Builtin.VolumetricCloudsNoise", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png");
+            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTextureFromFile({.name = "VolumetricCloudsNoise", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png");
             const auto& NoiseTextureDesc                                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
 
             // Import the color grading LUT
-            m_ColorGradingNeutralLUTHandle                                     = RZResourceManager::Get().createTextureFromFile({.name = "Texture.Builtin.ColorGradingUnreal_Neutral_LUT16", .wrapping = Wrapping::REPEAT, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .flipY = true}, "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png");
+            m_ColorGradingNeutralLUTHandle                                     = RZResourceManager::Get().createTextureFromFile({.name = "ColorGradingUnreal_Neutral_LUT16", .wrapping = Wrapping::REPEAT, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .flipY = true}, "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png");
             const auto& colorLUTTextureDesc                                    = RZResourceManager::Get().getPool<RZTexture>().get(m_ColorGradingNeutralLUTHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorLUTTextureDesc.name, CAST_TO_FG_TEX_DESC colorLUTTextureDesc, {m_ColorGradingNeutralLUTHandle});
 

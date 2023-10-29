@@ -19,7 +19,7 @@ class MemoryTest : public Razix::RZApplication
 {
 public:
     MemoryTest()
-        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "UnrealSandbox")
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "RendererTest_PBR")
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
