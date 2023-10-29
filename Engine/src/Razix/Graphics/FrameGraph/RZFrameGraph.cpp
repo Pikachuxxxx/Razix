@@ -625,6 +625,8 @@ namespace Razix {
 
             void RZFrameGraph::resize(u32 width, u32 height)
             {
+                m_IsFirstFrame = true;
+
                 // Iterate though all passes and call their ExecuteFunc
                 for (auto &pass: m_PassNodes) {
                     // Only it it's executable and not culled

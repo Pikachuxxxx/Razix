@@ -6,7 +6,7 @@
 // Shadow Filtering 
 // [Source]: https://www.shadertoy.com/view/wtXXR8
 #define RANDOM_ROTATION
-#define ROT_BLEND 0.2 // rot ammount [0, 2] balance noise vs aliasing
+#define ROT_BLEND 0.5 // rot ammount [0, 2] balance noise vs aliasing
 #define MAX_TAPS 16
 #define ITERATIONS 8.0
 #define K_SIZE 0.5
@@ -67,27 +67,12 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
     {
         for(int y = -1; y <= 1; ++y)
         {
-            //// https://gamedev.net/forums/topic/498755-randomly-rotated-pcf-shadows/4253985/
-            //vec2 jitterFactor = frac( uv.xy * float2( 18428.4f, 23614.3f)) * 2.0f - 1.0f;
-
-            //mat2 randRot = mat2(vec2(1, 0), vec2(0, 1));
-            //
-            //float cx = (hash12(uv) * 2. - 1.) * ROT_BLEND;
-            //float sx = 1. - cx * cx;
-            //randRot = mat2(vec2(cx, -sx), vec2(sx, cx));
-            //
-            //float sum = 0.;
-            //float sampleCount = ITERATIONS; 
-            //int iterations = int(ceil(sampleCount));
-            ////for(int i = 0; i < iterations; i++) {
-            //vec2 jitterUV = uv + (((taps[x * 3 + y] * randRot) * K_SIZE) * texelSize);
-    	    //sum += texture(shadowMap, jitterUV).r * min(1.0, sampleCount - float(x * 3 + y));   
-            ////}
-            //sum /= sampleCount;
-    
-            float pcfDepth = texture(shadowMap, uv + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth ? 0.05 : 1.0;        
-            //shadow += currentDepth - bias > sum ? 0.1 : 1.0;        
+            // TODO: https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-17-efficient-soft-edged-shadows-using
+            // [Source] : https://gamedev.net/forums/topic/498755-randomly-rotated-pcf-shadows/4253985/
+            vec2 jitterFactor = fract( uv.xy * vec2( 18428.4f, 23614.3f)) * 2.0f - 1.0f;
+            
+            float pcfDepth = texture(shadowMap, uv + jitterFactor * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth ? 0.0f : 1.0f;        
         }    
     }
     shadow /= 9.0;

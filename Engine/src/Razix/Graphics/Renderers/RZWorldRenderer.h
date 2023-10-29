@@ -5,8 +5,12 @@
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 
+// Passes Data
+#include "Razix/Graphics/Passes/Data/GlobalData.h"
+
 // Passes
 #include "Razix/Graphics/Passes/RZBloomPass.h"
+#include "Razix/Graphics/Passes/RZColorGradingPass.h"
 #include "Razix/Graphics/Passes/RZDeferredLightingPass.h"
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
@@ -14,8 +18,6 @@
 #include "Razix/Graphics/Passes/RZPBRLightingPass.h"
 #include "Razix/Graphics/Passes/RZShadowPass.h"
 #include "Razix/Graphics/Passes/RZSkyboxPass.h"
-
-#include "Razix/Graphics/Passes/Data/GlobalData.h"
 
 // Renderers
 #include "Razix/Graphics/Renderers/RZCascadedShadowsRenderer.h"
@@ -116,6 +118,7 @@ namespace Razix {
             // Frame Graph Import Data
             RZTextureHandle m_BRDFfLUTTextureHandle;
             RZTextureHandle m_NoiseTextureHandle;
+            RZTextureHandle m_ColorGradingNeutralLUTHandle;
             LightProbe      m_GlobalLightProbes{};
             // List of all passes, renderers and data in the frame graph
             RZCascadedShadowsRenderer m_CascadedShadowsRenderer;
@@ -127,6 +130,7 @@ namespace Razix {
             RZSkyboxPass              m_SkyboxPass;
             RZBloomPass               m_BloomPass;
             RZImGuiRenderer           m_ImGuiRenderer;
+            RZColorGradingPass        m_ColorGradingPass;
             RZFinalCompositionPass    m_CompositePass;
 
             // Test only
@@ -138,7 +142,7 @@ namespace Razix {
             bool        m_FrameGraphBuildingInProgress = true;
             std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
             //std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.User.EditorTest.json";
-            bool        m_IsFGFilePathDirty            = false;
+            bool m_IsFGFilePathDirty = false;
 
         private:
             /**

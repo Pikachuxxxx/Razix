@@ -41,13 +41,19 @@ namespace Razix {
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTextureFromFile({.name = "BrdfLUT", .enableMips = false}, "//RazixContent/Textures/brdf_lut.png");
+            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTextureFromFile({.name = "Texture.Builtin.BrdfLUT", .enableMips = false}, "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png");
             const auto& BRDFfLUTTextureDesc                  = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
 
-            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTextureFromFile({.name = "NoiseTexture", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/volumetric_clouds_noise.png");
+            // Noise texture LUT
+            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTextureFromFile({.name = "Texture.Builtin.VolumetricCloudsNoise", .wrapping = Wrapping::REPEAT, .enableMips = false}, "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png");
             const auto& NoiseTextureDesc                                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
+
+            // Import the color grading LUT
+            m_ColorGradingNeutralLUTHandle                                     = RZResourceManager::Get().createTextureFromFile({.name = "Texture.Builtin.ColorGradingUnreal_Neutral_LUT16", .wrapping = Wrapping::REPEAT, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .flipY = true}, "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png");
+            const auto& colorLUTTextureDesc                                    = RZResourceManager::Get().getPool<RZTexture>().get(m_ColorGradingNeutralLUTHandle)->getDescription();
+            m_FrameGraph.getBlackboard().add<ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorLUTTextureDesc.name, CAST_TO_FG_TEX_DESC colorLUTTextureDesc, {m_ColorGradingNeutralLUTHandle});
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
@@ -316,8 +322,6 @@ namespace Razix {
 
                     RZDebugRenderer::Get()->Begin(scene);
 
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
                     //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
                     //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
 
@@ -356,8 +360,8 @@ namespace Razix {
                     builder.read(sceneData.outputHDR);
                     builder.read(sceneData.depth);
 
-                    auto sceneHDR   = builder.write(sceneData.outputHDR);
-                    auto sceneDepth = builder.write(sceneData.depth);
+                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
+                    sceneData.depth     = builder.write(sceneData.depth);
 
                     m_ImGuiRenderer.Init();
                 },
@@ -371,8 +375,7 @@ namespace Razix {
                     //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
 
                     RenderingInfo info{
-                        .resolution       = Resolution::kCustom,
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
+                        .resolution       = Resolution::kWindow,
                         .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
                         .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
                         .resize           = true};
@@ -383,6 +386,16 @@ namespace Razix {
 
                     m_ImGuiRenderer.End();
                 });
+
+            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
+#endif
+
+#if 1
+            //-------------------------------
+            // Color Grading LUT Pass
+            //-------------------------------
+            //m_ColorGradingPass.addPass(m_FrameGraph, scene, settings);
 #endif
 
             //-------------------------------

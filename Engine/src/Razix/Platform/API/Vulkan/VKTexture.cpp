@@ -335,7 +335,7 @@ namespace Razix {
                     u32 bpp;
                     // Width and Height are extracted here
                     // TODO: Support loading floating point Image data
-                    pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Desc.width, &m_Desc.height, &bpp);
+                    pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Desc.width, &m_Desc.height, &bpp, m_Desc.flipY);
                     // Here the format for the texture is extracted based on bits per pixel
                     m_Desc.format = Razix::Graphics::RZTexture::bitsToTextureFormat(4);
                     // Size of the texture

@@ -1,6 +1,6 @@
 /*
  * Razix Shader File 
- * Shader.Builtin.CompositePass.rzsf : Composition pass for presention onto a swapchain image, takes a RT and presents it onto a Screen Quad 
+ * Shader.Builtin.ColorGrading.rzsf : Color Grading pass
  * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
  */
 
@@ -13,6 +13,6 @@
 // Including the default fragment shader
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Composite.frag.spv
+        #include Compiled/SPIRV/Shader.Builtin.ColorGrading.frag.spv
     #endif
 #end

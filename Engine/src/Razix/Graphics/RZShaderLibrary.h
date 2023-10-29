@@ -21,6 +21,7 @@ namespace Razix {
             PBRDeferredLighting,
             GBuffer,
             Composition,
+            ColorGrading,
             DepthPreTest,
             CSM,
             ImGui,

@@ -10,7 +10,7 @@
 
 namespace Razix {
 
-    u8* Utilities::LoadImageData(const std::string& filePath, u32* width, u32* height, u32* bpp)
+    u8* Utilities::LoadImageData(const std::string& filePath, u32* width, u32* height, u32* bpp, bool flipY)
     {
         std::string physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
@@ -19,7 +19,7 @@ namespace Razix {
         int      texWidth = 0, texHeight = 0, texChannels = 0;
         stbi_uc* pixels = nullptr;
 
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(flipY);
         pixels = stbi_load(physicalPath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
         RAZIX_CORE_ASSERT((pixels != nullptr), "Could not load image from : {0}", physicalPath);
