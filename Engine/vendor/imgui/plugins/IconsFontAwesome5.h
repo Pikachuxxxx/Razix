@@ -689,6 +689,7 @@
 #define ICON_FA_PRESCRIPTION_BOTTLE "\xef\x92\x85"	// U+f485
 #define ICON_FA_PRESCRIPTION_BOTTLE_ALT "\xef\x92\x86"	// U+f486
 #define ICON_FA_PRINT "\xef\x80\xaf"	// U+f02f
+#define ICON_FA_PRINT "\xef\x80\xaf"	// U+f02f
 #define ICON_FA_PROCEDURES "\xef\x92\x87"	// U+f487
 #define ICON_FA_PROJECT_DIAGRAM "\xef\x95\x82"	// U+f542
 #define ICON_FA_PUMP_MEDICAL "\xee\x81\xaa"	// U+e06a

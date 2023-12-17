@@ -192,6 +192,16 @@ namespace Razix {
 
                 // TODO: Add was resized
 
+                RAZIX_INLINE u32 getPassNodesSize()
+                {
+                    return m_PassNodes.size();
+                }
+
+                RAZIX_INLINE u32 getResourceNodesSize()
+                {
+                    return m_ResourceNodes.size();
+                }
+
             private:
                 std::vector<RZPassNode>      m_PassNodes;        /* List of all the pass nodes in the frame graph                             */
                 std::vector<RZResourceNode>  m_ResourceNodes;    /* List of the all the resources nodes (including clones) in the frame graph */
