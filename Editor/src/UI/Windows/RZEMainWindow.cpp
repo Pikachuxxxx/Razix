@@ -5,6 +5,7 @@
 
 #include <QComboBox>
 #include <QFileDialog>
+#include <QGraphicsDropShadowEffect>
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
@@ -47,6 +48,8 @@ namespace Razix {
             // itself as the central widget as such the ui must be set up first.
             m_DockManager = new ads::CDockManager(this);
             m_DockManager->setStyleSheet("");
+
+            this->layout()->setContentsMargins(0, 0, 0, 0);
 
             // Qt spdlog console widget
             m_ConsoleLogWidget = new QSpdLog;
@@ -94,6 +97,13 @@ namespace Razix {
             //setWindowFlag(Qt::FramelessWindowHint);
             // Add events to handle moving and resizing
             // Add Custom title bar buttons, labels etc.
+            //setAttribute(Qt::WA_TranslucentBackground);    //enable MainWindow to be transparent
+            //QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect();
+            //effect->setBlurRadius(5);
+            //effect->setOffset(2, 4);
+            //effect->setColor(Qt::black);
+            //ui.centralwidget->setGraphicsEffect(effect);
+            //this->setGraphicsEffect(effect);
 
             // Menu Init
             SetupMenu();
@@ -226,14 +236,17 @@ namespace Razix {
             QPushButton* saveProjectButton = new QPushButton();
             saveProjectButton->setIcon(QIcon(":/rzeditor/save_project.png"));
             saveProjectButton->setIconSize(QSize(20, 20));
+            saveProjectButton->setToolTip("Save the razix project");
             // Open
             QPushButton* openProjectButton = new QPushButton();
             openProjectButton->setIcon(QIcon(":/rzeditor/open_project.png"));
             openProjectButton->setIconSize(QSize(20, 20));
+            openProjectButton->setToolTip("Opens existing razix project");
             // New project
             QPushButton* newProjectButton = new QPushButton();
             newProjectButton->setIcon(QIcon(":/rzeditor/new_project.png"));
             newProjectButton->setIconSize(QSize(20, 20));
+            newProjectButton->setToolTip("Creates new razix project");
 
             m_ProjectSettingsTB->addWidget(saveProjectButton);
             m_ProjectSettingsTB->addWidget(openProjectButton);
@@ -254,14 +267,17 @@ namespace Razix {
             QPushButton* saveButton = new QPushButton();
             saveButton->setIcon(QIcon(":/rzeditor/save_scene.png"));
             saveButton->setIconSize(QSize(20, 20));
+            saveButton->setToolTip("Saves currently active razix scene");
             // Open
             QPushButton* openButton = new QPushButton();
             openButton->setIcon(QIcon(":/rzeditor/open_scene.png"));
             openButton->setIconSize(QSize(20, 20));
+            openButton->setToolTip("opens a razix scene");
             // New project
             QPushButton* newButton = new QPushButton();
             newButton->setIcon(QIcon(":/rzeditor/new_scene.png"));
             newButton->setIconSize(QSize(20, 20));
+            newButton->setToolTip("Creates a new razix scene");
 
             // Load next scene (loads first if it's the last scene in a cyclic order)
             QPushButton* nextSceneBtn = new QPushButton;
@@ -288,31 +304,37 @@ namespace Razix {
             QPushButton* pos = new QPushButton();
             pos->setIcon(QIcon(":/rzeditor/Move_Gizmo.png"));
             pos->setIconSize(QSize(20, 20));
+            pos->setToolTip("use the translate Guizmo to move the object");
 
             QPushButton* rot = new QPushButton();
             rot->setIcon(QIcon(":/rzeditor/Rotate_Gizmo.png"));
             rot->setIconSize(QSize(20, 20));
+            rot->setToolTip("use the rotate Guizmo to rotate the object");
 
             QPushButton* scale = new QPushButton();
             scale->setIcon(QIcon(":/rzeditor/Scale_Gizmo.png"));
             scale->setIconSize(QSize(20, 20));
+            scale->setToolTip("use the scale Guizmo to scale the object");
 
             // Disable Guizmo
             QPushButton* noGuizmo = new QPushButton();
             noGuizmo->setIcon(QIcon(":/rzeditor/No_Gizmo.png"));
             noGuizmo->setIconSize(QSize(20, 20));
+            noGuizmo->setToolTip("Disable Guizmo");
 
             // Use WORLD space for calculating transformations
             World_vs_LocalButton = new QPushButton;
             World_vs_LocalButton->setCheckable(true);
             World_vs_LocalButton->setIcon(QIcon(":/rzeditor/world_icon.png"));
             World_vs_LocalButton->setIconSize(QSize(20, 20));
+            World_vs_LocalButton->setToolTip("Change between world and local Guizmo transformation editing");
 
             // small line edit for (The snap amount can be set in the Editor Settings menu)
             enableSnapBtn = new QPushButton;
             enableSnapBtn->setCheckable(true);
             enableSnapBtn->setIcon(QIcon(":/rzeditor/grid_snap_on.png"));
             enableSnapBtn->setIconSize(QSize(20, 20));
+            enableSnapBtn->setToolTip("Whether or not to enable snapping to grid while editing using Guizmo");
 
             transformTB->addWidget(pos);
             transformTB->addWidget(rot);
@@ -350,6 +372,7 @@ namespace Razix {
             QPushButton* settingsButton = new QPushButton();
             settingsButton->setIcon(QIcon(":/rzeditor/Razix_Settings_Icon.png"));
             settingsButton->setIconSize(QSize(20, 20));
+            settingsButton->setToolTip("Razix Engine settings");
             m_RenderSettingsTB->addWidget(settingsButton);
 
             m_RenderSettingsTB->addSeparator();

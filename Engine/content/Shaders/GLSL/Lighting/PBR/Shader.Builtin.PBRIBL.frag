@@ -1,6 +1,6 @@
 /*
  * Razix Engine GLSL Vertex Shader File
- * Calcualte the Final PBR direct lighting 
+ * Calcualte the Final PBR direct lighting
  */
 #version 450 core
 // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
@@ -54,7 +54,7 @@ layout(set = 4, binding = 2) uniform sampler2D BrdfLUT;
 //    uint brdfLUTIdx;
 //}texs;
 //------------------------------------------------------------------------------
-// Output from Fragment Shader : Final Render targets 
+// Output from Fragment Shader : Final Render targets
 layout(location = 0) out vec4 outSceneColor;
 //------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,16 +63,16 @@ void main()
     vec3 N_Surface = normalize(fs_in.fragNormal);
     vec3 N = normalize(Mat_getNormalMapNormals(fs_in.fragUV, fs_in.fragPos, N_Surface));
     vec3 V = normalize(fs_in.viewPos - fs_in.fragPos);
-    vec3 R = reflect(-V, N); 
+    vec3 R = reflect(-V, N);
 
     vec3 albedo = Mat_getAlbedoColor(fs_in.fragUV);
     float metallic = Mat_getMetallicColor(fs_in.fragUV);
     float roughness = Mat_getRoughnessColor(fs_in.fragUV);
     float ao = Mat_getAOColor(fs_in.fragUV);
 
-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
-    vec3 F0 = vec3(0.04); 
+    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
+    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
+    vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
     // reflectance equation
@@ -108,7 +108,7 @@ void main()
     //vec3 diffuse = irradiance * albedo;
     //
     //const float MAX_REFLECTION_LOD = 4.0;
-    //vec3 prefilteredColor = textureLod(global_textures_cubemap[nonuniformEXT(texs.prefilteredMapIdx)], R,  roughness * MAX_REFLECTION_LOD).rgb;   
+    //vec3 prefilteredColor = textureLod(global_textures_cubemap[nonuniformEXT(texs.prefilteredMapIdx)], R,  roughness * MAX_REFLECTION_LOD).rgb;
     //vec2 envBRDF  = texture(global_textures_2d[nonuniformEXT(texs.brdfLUTIdx)], vec2(max(dot(N, V), 0.0), roughness)).rg;
     //vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
@@ -116,11 +116,11 @@ void main()
     vec3 diffuse = irradiance * albedo;
 
     const float MAX_REFLECTION_LOD = 14.0;
-    vec3 prefilteredColor = textureLod(PreFilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;   
+    vec3 prefilteredColor = textureLod(PreFilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;
     vec2 envBRDF  = texture(BrdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-    vec3 ambient = (kD * diffuse + specular ) * ao; 
+    vec3 ambient = (kD * diffuse + specular ) * ao;
 
     vec3 result = ambient + Lo;
 
@@ -133,7 +133,7 @@ void main()
         //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.ShadowMapIdx)], FragPosLightSpace, N, SceneLightsData.data[0].position);
         shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
 
-    result *= shadow;
+    //result *= shadow;
     //-----------------------------------------------
 
     // Opacity Discard

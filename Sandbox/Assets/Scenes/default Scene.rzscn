@@ -2,17 +2,259 @@
     "Razix Scene": {
         "UUID": "9ea889bf-c2b5-4d6f-8cc9-0d6ab029f371",
         "SceneName": "default Scene",
-        "Total Entities": 0
+        "Total Entities": 3
     },
-    "value0": 0,
+    "value0": 3,
     "value1": 0,
-    "value2": 0,
-    "value3": 0,
-    "value4": 0,
+    "value2": 1,
+    "value3": 2,
+    "value4": 3,
     "value5": 0,
-    "value6": 0,
-    "value7": 0,
-    "value8": 0,
-    "value9": 0,
-    "value10": 0
+    "value6": {
+        "UUID": "a154ddc2-489e-49da-9ef7-5d51e39563d3"
+    },
+    "value7": 1,
+    "value8": {
+        "UUID": "b48b32b1-32d5-45e1-a9e3-ce599f360029"
+    },
+    "value9": 2,
+    "value10": {
+        "UUID": "66e63d46-3cf2-4249-9cd6-31bff1620a84"
+    },
+    "value11": 3,
+    "value12": 0,
+    "value13": {
+        "Tag": "Directional Light"
+    },
+    "value14": 1,
+    "value15": {
+        "Tag": "imgui_script_entity"
+    },
+    "value16": 2,
+    "value17": {
+        "Tag": "Camera"
+    },
+    "value18": 0,
+    "value19": 3,
+    "value20": 0,
+    "value21": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value22": 1,
+    "value23": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value24": 2,
+    "value25": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value26": 1,
+    "value27": 2,
+    "value28": {
+        "isPrimary": true,
+        "Camera": {
+            "Position": {
+                "x": -8.636988639831543,
+                "y": 7.460024833679199,
+                "z": 9.687294006347657
+            },
+            "Front": {
+                "x": 0.5581398010253906,
+                "y": -0.5112931132316589,
+                "z": -0.6534977555274963
+            },
+            "Up": {
+                "x": 0.332058310508728,
+                "y": 0.8594064116477966,
+                "z": -0.3887903690338135
+            },
+            "Right": {
+                "x": 0.7604060173034668,
+                "y": -0.0,
+                "z": 0.649448037147522
+            },
+            "WorldUp": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Yaw": -49.5,
+            "Pitch": -30.75,
+            "Zoom": 45.0,
+            "MovementSpeed": 0.02500000037252903,
+            "MouseSensitivity": 0.25,
+            "ProjectionType": 0,
+            "PerspectiveFOV": 0.7853981852531433,
+            "PerspectiveNearClip": 0.10000000149011612,
+            "PerspectiveFarClip": 100.0,
+            "OrthographicSize": 10.0,
+            "OrthographicNearClip": -1.0,
+            "OrthographicFarClip": 1.0,
+            "AspectRatio": 1.3311793804168702,
+            "BgColor": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            }
+        }
+    },
+    "value29": 0,
+    "value30": 0,
+    "value31": 1,
+    "value32": 1,
+    "value33": {
+        "FilePath": "//Scripts/imgui_test.lua"
+    },
+    "value34": 1,
+    "value35": 0,
+    "value36": {
+        "Light": {
+            "type": 0,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "range": 10.0,
+            "direction": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            },
+            "color": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "intensity": 1.0,
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "innerConeAngle": 12.5,
+            "outerConeAngle": 60.0
+        }
+    },
+    "value37": 0
 }

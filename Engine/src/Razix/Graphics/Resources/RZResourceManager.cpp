@@ -18,10 +18,10 @@ namespace Razix {
             RAZIX_CORE_INFO("[Resource Manager] Starting Up Resource Manager");
 
             // Initialize all the Pools
-            m_TexturePool.init(1024, RZTexture::GetInstanceSize());
-            m_ShaderPool.init(128, RZShader::GetInstanceSize());
-            m_PipelinePool.init(128, RZPipeline::GetInstanceSize());
-            m_UniformBufferPool.init(1024, RZUniformBuffer::GetInstanceSize());
+            m_TexturePool.init(4096, RZTexture::GetInstanceSize());
+            m_ShaderPool.init(512, RZShader::GetInstanceSize());
+            m_PipelinePool.init(512, RZPipeline::GetInstanceSize());
+            m_UniformBufferPool.init(4096, RZUniformBuffer::GetInstanceSize());
         }
 
         void RZResourceManager::ShutDown()

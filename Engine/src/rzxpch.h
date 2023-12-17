@@ -72,5 +72,11 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/RegisterTypes.h>
 
+//-----Graphics-----//
+#ifdef RAZIX_RENDER_API_VULKAN
+    #include <vma/vk_mem_alloc.h>
+    #include <vulkan/vulkan.h>
+#endif
+
 // Disable Warnings
 #pragma warning(disable : 4100)

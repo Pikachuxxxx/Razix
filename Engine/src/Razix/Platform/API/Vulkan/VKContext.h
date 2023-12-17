@@ -46,6 +46,7 @@ namespace Razix {
             inline const VkSurfaceKHR& getSurface() const { return m_Surface; }
             /*  Returns a const pointer to the window handle that the context renders to */
             inline const RZWindow* getWindow() const { return m_Window; }
+   
 
         private:
             RZWindow*                          m_Window;                         /* The Window handle                                    */
@@ -59,6 +60,7 @@ namespace Razix {
             VkDebugUtilsMessengerCreateInfoEXT m_DebugCI;                        /* Debug callback handle creation struct                */
             VkSurfaceKHR                       m_Surface;                        /* The WSI Surface to which Vulkan presents to          */
             rzstl::Ref<VKSwapchain>            m_Swapchain;                      /* Handle to the Razix-Vulkan swapchain abstraction     */
+
         private:
             /* Creates a VkInstance to interface with the Vulkan library */
             void createInstance();

@@ -13,6 +13,8 @@
 
 #include <cereal/archives/json.hpp>
 
+#define DISABLE_MATERIALS_LOADING
+
 #define READ_AND_OFFSET(stream, dest, size, offset) \
     stream.read((char*) dest, size);                \
     offset += size;                                 \
@@ -65,8 +67,8 @@ namespace Razix {
                 READ_AND_OFFSET(f, (char*) &indices[0], sizeof(uint32_t) * mesh_header.index_count, offset);
             }
 
-            // TODO: Load Materials
-            //RAZIX_CORE_TRACE("Loading material : {0}", mesh_header.materialName);
+            // Load Materials
+            RAZIX_CORE_TRACE("Loading material : {0}", mesh_header.materialName);
 
             // Create the Mesh
             mesh = new RZMesh(indices, vertices);
@@ -90,6 +92,10 @@ namespace Razix {
 
         RZMaterial* loadMaterial(const std::string& materialName, const std::string& folderName)
         {
+#ifdef DISABLE_MATERIALS_LOADING
+            return GetDefaultMaterial();
+#else
+
             if (materialName == "DefaultMaterial")
                 return GetDefaultMaterial();
 
@@ -116,6 +122,7 @@ namespace Razix {
             material->createDescriptorSet();
 
             return material;
+#endif
         }
     }    // namespace Graphics
 }    // namespace Razix

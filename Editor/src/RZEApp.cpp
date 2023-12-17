@@ -8,6 +8,7 @@
 
 #include <QApplication>
 #include <QSettings>
+#include <QStyleFactory>
 #include <QThread>
 #include <QVulkanInstance>
 
@@ -226,6 +227,32 @@ int main(int argc, char** argv)
     //QStyle* style = StyleData::availStyles[1].creator();
     //QApplication::setStyle(style);
 
+    // Set Fusion style for editor
+    qrzeditorApp->setStyle(QStyleFactory::create("Fusion"));
+    // modify palette to dark
+    QPalette darkPalette;
+    darkPalette.setColor(QPalette::Window, QColor(15, 15, 15));
+    darkPalette.setColor(QPalette::WindowText, Qt::white);
+    darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(127, 127, 127));
+    darkPalette.setColor(QPalette::Base, QColor(24, 24, 24));
+    darkPalette.setColor(QPalette::AlternateBase, QColor(66, 66, 66));
+    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+    darkPalette.setColor(QPalette::Text, Qt::white);
+    darkPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
+    darkPalette.setColor(QPalette::Dark, QColor(35, 35, 35));
+    darkPalette.setColor(QPalette::Shadow, QColor(20, 20, 20));
+    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
+    darkPalette.setColor(QPalette::ButtonText, Qt::white);
+    darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(127, 127, 127));
+    darkPalette.setColor(QPalette::BrightText, Qt::red);
+    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(80, 80, 80));
+    darkPalette.setColor(QPalette::HighlightedText, Qt::white);
+    darkPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor(127, 127, 127));
+    qrzeditorApp->setPalette(darkPalette);
+
     // UE5 like style from qss
     QFile file(":/rzeditor/styles/ue.qss");
     file.open(QFile::ReadOnly);
@@ -251,6 +278,14 @@ int main(int argc, char** argv)
     mainWindow->setWindowState(Qt::WindowMaximized);
     //mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     mainWindow->setProjectPathDir(projectBrowserDialog->getProjectPath());
+
+    mainWindow->setStyleSheet(R"(
+    QMainWindow::separator {
+      width: 10px;
+      height: 10px;
+      background-color: #F00;
+    }
+  )");
 
     // Register the Qt Consoler Logger Sinks
     Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getConsolerLoggerSink());

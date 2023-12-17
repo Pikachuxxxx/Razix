@@ -6,6 +6,7 @@
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include "Razix/Core/RZApplication.h"
+    #include "Razix/Core/RZEngine.h"
     #include "Razix/Core/RZProfiling.h"
     #include "Razix/Core/RazixVersion.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
@@ -58,6 +59,9 @@ namespace Razix {
             if (RZApplication::Get().getAppType() == AppType::GAME) {
                 SetupDeviceAndSC();
             }
+
+            // https://github.com/jmorton06/Lumos/blob/648688ccae83af69abbb3c2b13f47a72dd56e094/Lumos/Source/Lumos/Platform/Vulkan/VKContext.cpp#L405C13-L414C104
+            // https://github.com/jmorton06/Lumos/blob/2239df7a12625075c12ab6788310db8e4cabdee9/Lumos/Source/Lumos/Platform/Vulkan/VKContext.cpp
         }
 
         void VKContext::Destroy()
@@ -97,6 +101,61 @@ namespace Razix {
         #endif    // RZ_PROFILER_OPTICK
 
     #endif    // RAZIX_DISTRIBUTION
+
+            // Now create the Vulkan Memory Allocator (VMA)
+            //initialize the memory allocator
+            VmaAllocatorCreateInfo allocatorInfo = {};
+            allocatorInfo.physicalDevice         = VKDevice::Get().getPhysicalDevice()->getVulkanPhysicalDevice();
+            allocatorInfo.device                 = VKDevice::Get().getDevice();
+            allocatorInfo.instance               = m_Instance;
+            if (VK_CHECK_RESULT(vmaCreateAllocator(&allocatorInfo, &VKDevice::Get().getVMA())))
+                RAZIX_CORE_ERROR("[VMA] Failed to create VMA allocator!");
+            else
+                RAZIX_CORE_TRACE("[VMA] Succesfully created VMA allocator!");
+
+            //-----------------------------------------------------
+            // Get some memory properties of the selected physical device
+            auto gpuMemProps = VKDevice::Get().getPhysicalDevice()->getMemoryProperties();
+
+            // Calculate total VRAM by summing up memory heap sizes
+            VkDeviceSize totalVRAM = 0;
+            VkDeviceSize totalCPUMappedVRAM = 0;
+            for (uint32_t i = 0; i < gpuMemProps.memoryHeapCount; ++i) {
+                VkMemoryHeap memoryHeap = gpuMemProps.memoryHeaps[i];
+                // Consider only heaps with device-local memory flag
+                if ((memoryHeap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != 0) {
+                    totalVRAM += memoryHeap.size;
+                }
+            }
+
+            // Print total VRAM size
+            RAZIX_CORE_INFO("Total GPU VRAM : {0} Gib", totalVRAM / (f32) (1024 * 1024 * 1024));
+            RZEngine::Get().GetStatistics().TotalGPUMemory = (f32)totalVRAM / (f32) (1024 * 1024 * 1024);
+            
+            // TODO: Use the memory type to find it's corresponding heap and print it's capacity + filter for specific memory types and cross check with total VRAM and mappable VRAM
+
+            //-----------------------------------------------------
+            // Total statistics of VMA
+            VmaTotalStatistics totalStats{};
+            vmaCalculateStatistics(VKDevice::Get().getVMA(), &totalStats);
+            // Print only the total stats
+            VmaBudget* pBudgets = new VmaBudget[gpuMemProps.memoryHeapCount];
+            vmaGetHeapBudgets(VKDevice::Get().getVMA(), pBudgets);
+
+            for (u32 i = 0; i < gpuMemProps.memoryHeapCount; i++) {
+                f32 memory = ((f32) pBudgets[i].budget / (f32) (1024 * 1024 * 1024));
+                RAZIX_CORE_INFO("Heap Idx : {0}, budget : {1} Gib", i, memory);
+            }
+
+        // Get statistics string
+            char* statsString;
+            vmaBuildStatsString(VKDevice::Get().getVMA(), &statsString, VK_TRUE);
+
+            // Print statistics
+            printf("Memory statistics:\n%s\n", statsString);
+
+            // Free the allocated stats string
+            vmaFreeStatsString(VKDevice::Get().getVMA(), statsString);
         }
 
         void VKContext::createInstance()
@@ -247,9 +306,13 @@ namespace Razix {
             // TODO: Formate the message id and stuff for colors etc
 
             // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE!
-            return VK_FALSE;
+            //return VK_FALSE;
 
             //if (!message_severity)
+            //    return VK_FALSE;
+
+            // Disable layout errors!
+            //if (callback_data->messageIdNumber == 1303270965)
             //    return VK_FALSE;
 
             for (sz i = 0; i < callback_data->objectCount; i++) {
@@ -257,26 +320,26 @@ namespace Razix {
                     RAZIX_CORE_ERROR("[VULKAN] OBJECT HANDLE NAME : {0}", callback_data->pObjects[i].pObjectName);
             }
 
-            if (message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
                 std::cout << "\033[1;31m ***************************************************************** \033[0m" << std::endl;
                 std::cout << "\033[1;32m[VULKAN] \033[1;31m - Validation ERROR : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
                 std::cout << "\033[1;31m ***************************************************************** \033[0m" << std::endl;
-            };
+            }
             // Warnings may hint at unexpected / non-spec API usage
-            if (message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
                 std::cout << "\033[1;33m ***************************************************************** \033[0m" << std::endl;
                 std::cout << "\033[1;32m[VULKAN] \033[1;33m - Validation WARNING : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
                 std::cout << "\033[1;33m ***************************************************************** \033[0m" << std::endl;
-            };
+            }
             // Informal messages that may become handy during debugging
-            if (message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
                 std::cout << "\033[1;36m ***************************************************************** \033[0m" << std::endl;
                 std::cout << "\033[1;32m[VULKAN] \033[1;36m - Validation INFO : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
                 std::cout << "\033[1;36m ***************************************************************** \033[0m" << std::endl;
             }
             // Diagnostic info from the Vulkan loader and layers
             // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
-            if (message_severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
                 std::cout << "\033[1;35m*****************************************************************" << std::endl;
                 std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
                 std::cout << "\033[1;35m*****************************************************************" << std::endl;

@@ -21,3 +21,11 @@ build/
 # MacOS files
 .DS_Store
 
+/Sandbox/LargeScenesSandbox.razixproject
+/Sandbox/Assets/Models/BistroExterior.glb
+/Sandbox/Assets/Models/BattleOfTrashGods.gltf
+/Sandbox/Assets/Models/BattleOfTrashGods.bin
+/Sandbox/Assets/Materials/BistroExterior
+/Sandbox/Assets/Materials/BattleOfTrashGods
+/Sandbox/Assets/Cache/Meshes/BistroExterior
+/Sandbox/Assets/Cache/Meshes/BattleOfTrashGods

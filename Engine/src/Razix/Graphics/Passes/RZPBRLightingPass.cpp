@@ -58,7 +58,7 @@ namespace Razix {
 
             auto& frameDataBlock       = framegraph.getBlackboard().get<FrameData>();
             auto& sceneLightsDataBlock = framegraph.getBlackboard().get<SceneLightsData>();
-            auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
+            //auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
             //auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
@@ -90,8 +90,8 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
-                    builder.read(shadowData.shadowMap);
-                    builder.read(shadowData.lightVP);
+        /*            builder.read(shadowData.shadowMap);
+                    builder.read(shadowData.lightVP);*/
                     builder.read(globalLightProbes.environmentMap);
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
@@ -122,13 +122,13 @@ namespace Razix {
 
                         RZDescriptor* descriptor = nullptr;
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap)];
-                        if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
+                        //descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap)];
+                        //if (descriptor)
+                        //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP)];
-                        if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+                        //descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP)];
+                        //if (descriptor)
+                        //    descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
                         descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap)];
                         if (descriptor)

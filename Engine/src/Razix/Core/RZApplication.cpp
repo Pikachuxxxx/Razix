@@ -640,8 +640,8 @@ namespace Razix {
                 ImGui::Indent();
                 {
                     // TODO: Add Average timings (CPU + GPU) and avg FPS
-                    ImGui::Text("FPS                    : %.5d", stats.FramesPerSecond);
-                    ImGui::Text("CPU time               : %5.2f ms", stats.DeltaTime);
+                    ImGui::Text("FPS                        : %.5d", stats.FramesPerSecond);
+                    ImGui::Text("CPU time                   : %5.2f ms", stats.DeltaTime);
 
                     ImGui::Separator();
                     ImGui::Text("API calls");
@@ -654,12 +654,23 @@ namespace Razix {
                         ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
                     }
                     ImGui::Unindent();
+
+                    ImGui::Separator();
+                    ImGui::Text("Memory Usage");
+
+                    ImGui::Indent();
+                    {
+                        ImGui::BulletText("Used VRAM            : %f Gib", stats.GPUMemoryUsed);
+                        ImGui::BulletText("Total VRAM           : %f Gib", stats.TotalGPUMemory);
+                        ImGui::BulletText("Total RAM            : %f Gib", stats.UsedRAM);
+                    }
+                    ImGui::Unindent();
+
+                    ImGui::Separator();
+                    ImGui::Text("Meshes Renderer            : %d", stats.MeshesRendered);
+                    ImGui::Text("Vertices count             : %d", stats.VerticesCount);
                 }
                 ImGui::Unindent();
-
-                ImGui::Separator();
-                ImGui::Text("Meshes Renderer    : %d", stats.MeshesRendered);
-                ImGui::Text("Vertices count     : %d", stats.VerticesCount);
             }
             ImGui::End();
         }

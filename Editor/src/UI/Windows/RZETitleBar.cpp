@@ -19,9 +19,9 @@ namespace Razix {
             setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
             setAttribute(Qt::WA_TranslucentBackground);
             QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect();
-            effect->setBlurRadius(9.0);
-            effect->setColor(QColor(0, 0, 0, 160));
-            effect->setOffset(4.0);
+            effect->setBlurRadius(5);
+            effect->setOffset(2, 4);
+            effect->setColor(Qt::black);
 
             // int     side = 10;
             // QRegion maskedRegion(width() / 2 - side / 2, height() / 2 - side / 2, side, side, QRegion::Ellipse);

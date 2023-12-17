@@ -23,6 +23,8 @@
 
 #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
+#include <entt.hpp>
+
 namespace Razix {
 
     RZScene::RZScene()
@@ -139,7 +141,7 @@ namespace Razix {
         //-----------------------------
 
         if (geometryMode == SceneDrawGeometryMode::SceneGeometry) {
-            auto mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
+            entt::basic_group mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
             for (auto entity: mesh_group) {
                 // Draw the mesh renderer components
                 const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);

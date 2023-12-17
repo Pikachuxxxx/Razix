@@ -14,7 +14,7 @@ ads--CDockContainerWidget {
  * CDockSplitter
  *****************************************************************************/
 ads--CDockContainerWidget > QSplitter {
-	padding: 1 0 1 0;
+	padding: 0 0 0 0;
 }
 
 ads--CDockContainerWidget ads--CDockSplitter::handle {

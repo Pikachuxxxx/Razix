@@ -414,9 +414,9 @@
     "value161": 3,
     "value162": {
         "Translation": {
-            "x": 0.25108587741851809,
-            "y": 9.711782455444336,
-            "z": 7.552366256713867
+            "x": 1.0298973321914673,
+            "y": 13.398427963256836,
+            "z": 3.1038119792938234
         },
         "Rotation": {
             "x": 0.0,
@@ -448,9 +448,9 @@
                 "value3": 0.0
             },
             "value3": {
-                "value0": 0.25108587741851809,
-                "value1": 9.711782455444336,
-                "value2": 7.552366256713867,
+                "value0": 1.0298973321914673,
+                "value1": 13.398427963256836,
+                "value2": 3.1038119792938234,
                 "value3": 1.0
             }
         }
@@ -1605,32 +1605,32 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 9.332601547241211,
-                "y": 2.9654769897460939,
-                "z": 0.34883272647857668
+                "x": -4.096096038818359,
+                "y": 3.5877158641815187,
+                "z": -0.8758402466773987
             },
             "Front": {
-                "x": -0.870370626449585,
-                "y": -0.06975647062063217,
-                "z": -0.4874311089515686
+                "x": -0.8712987303733826,
+                "y": -0.4771587550640106,
+                "z": -0.11470876634120941
             },
             "Up": {
-                "x": -0.06086223945021629,
-                "y": 0.9975640773773193,
-                "z": -0.034084502607584
+                "x": -0.47307655215263369,
+                "y": 0.878817081451416,
+                "z": -0.0622817687690258
             },
             "Right": {
-                "x": 0.4886213541030884,
+                "x": 0.1305263191461563,
                 "y": 0.0,
-                "z": -0.8724959492683411
+                "z": -0.9914448857307434
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -150.75,
-            "Pitch": -4.0,
+            "Yaw": -172.5,
+            "Pitch": -28.5,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -1641,7 +1641,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.3311793804168702,
+            "AspectRatio": 1.8699780702590943,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
@@ -1657,175 +1657,175 @@
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-0.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_0.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value222": 6,
     "value223": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-1.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_3.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value224": 7,
     "value225": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-2.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_1.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value226": 8,
     "value227": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-3.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_4.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value228": 9,
     "value229": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-4.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_5.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value230": 10,
     "value231": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-5.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_6.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value232": 11,
     "value233": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-6.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_7.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value234": 12,
     "value235": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-7.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_8.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value236": 13,
     "value237": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-8.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_9.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value238": 14,
     "value239": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-9.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_10.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value240": 15,
     "value241": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-10.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_11.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value242": 16,
     "value243": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-11.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_12.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value244": 17,
     "value245": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-12.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_2.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value246": 18,
     "value247": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-13.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_13.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value248": 19,
     "value249": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-14.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_14.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value250": 20,
     "value251": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-15.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_15.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value252": 21,
     "value253": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-16.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_16.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value254": 22,
     "value255": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-17.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_17.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value256": 23,
     "value257": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-18.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_18.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value258": 24,
     "value259": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-19.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_19.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value260": 25,
     "value261": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-20.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_20.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value262": 26,
     "value263": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-21.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_21.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value264": 27,
     "value265": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-22.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_22.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value266": 28,
     "value267": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-23.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_23.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value268": 29,
     "value269": {
         "Primitive": -842150451,
         "MeshName": "Sponza",
         "MeshPath": "//Assets/Cache/Meshes/Sponza/Sponza_Mesh_0-24.rzmesh",
-        "MaterialPath": "//Assets/Materials/Material_24.rzmaterial"
+        "MaterialPath": "//Assets/Materials/DefaultMaterial.rzmaterial"
     },
     "value270": 2,
     "value271": 1,
@@ -1842,15 +1842,15 @@
         "Light": {
             "type": 0,
             "position": {
-                "x": 0.25108587741851809,
-                "y": 9.711782455444336,
-                "z": 7.552366256713867
+                "x": 1.0298973321914673,
+                "y": 13.398427963256836,
+                "z": 3.1038119792938234
             },
             "range": 10.0,
             "direction": {
-                "value0": 0.25108587741851809,
-                "value1": 9.711782455444336,
-                "value2": 7.552366256713867,
+                "value0": 1.0298973321914673,
+                "value1": 13.398427963256836,
+                "value2": 3.1038119792938234,
                 "value3": 1.0
             },
             "color": {

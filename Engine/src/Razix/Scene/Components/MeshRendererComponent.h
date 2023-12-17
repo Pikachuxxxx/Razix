@@ -64,7 +64,7 @@ namespace Razix {
             archive(cereal::make_nvp("MaterialPath", materialPath));
             if (!materialPath.empty()) {
                 // Since we have the path to a material file load it, deserialize it and create the material
-                Mesh->getMaterial()->loadFromFile(materialPath);
+                //Mesh->getMaterial()->loadFromFile(materialPath);
             }
         }
 
@@ -79,6 +79,11 @@ namespace Razix {
                 auto matPath = "//Assets/Materials/" + Mesh->getMaterial()->getName() + ".rzmaterial";
                 archive(cereal::make_nvp("MaterialPath", matPath));
                 Mesh->getMaterial()->saveToFile();
+            } else {
+                std::string Dummy = "Dummy";
+                archive(cereal::make_nvp("MeshName", Dummy));
+                archive(cereal::make_nvp("MeshPath", Dummy));
+                archive(cereal::make_nvp("MaterialPath", Dummy));
             }
         }
     };

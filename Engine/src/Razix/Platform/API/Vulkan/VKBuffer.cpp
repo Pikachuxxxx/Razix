@@ -27,10 +27,14 @@ namespace Razix {
         void VKBuffer::destroy()
         {
             if (m_Buffer != VK_NULL_HANDLE) {
+#ifndef RAZIX_USE_VMA
                 if (m_BufferMemory) {
                     vkFreeMemory(VKDevice::Get().getDevice(), m_BufferMemory, nullptr);
                 }
                 vkDestroyBuffer(VKDevice::Get().getDevice(), m_Buffer, nullptr);
+#else
+                vmaDestroyBuffer(VKDevice::Get().getVMA(), m_Buffer, m_VMAAllocation);
+#endif
                 //free(m_Mapped);
             }
         }
@@ -39,8 +43,14 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
+            VkResult res;
             // Map the memory to the mapped buffer
-            VkResult res = vkMapMemory(VKDevice::Get().getDevice(), m_BufferMemory, offset, size, 0, &m_Mapped);
+#ifndef RAZIX_USE_VMA
+            res = vkMapMemory(VKDevice::Get().getDevice(), m_BufferMemory, offset, size, 0, &m_Mapped);
+            RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
+#else
+            res = vmaMapMemory(VKDevice::Get().getVMA(), m_VMAAllocation, &m_Mapped);
+#endif
             RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
         }
 
@@ -49,7 +59,11 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             if (m_Mapped) {
+#ifndef RAZIX_USE_VMA
                 vkUnmapMemory(VKDevice::Get().getDevice(), m_BufferMemory);
+#else
+                vmaUnmapMemory(VKDevice::Get().getVMA(), m_VMAAllocation);
+#endif
                 //free(m_Mapped);
                 //delete m_Mapped;
                 m_Mapped = nullptr;
@@ -60,6 +74,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
+#ifndef RAZIX_USE_VMA
             // Flush only if the buffer exists
             if (m_Buffer) {
                 VkMappedMemoryRange mappedRange = {};
@@ -69,6 +84,9 @@ namespace Razix {
                 mappedRange.size                = size;
                 vkFlushMappedMemoryRanges(VKDevice::Get().getDevice(), 1, &mappedRange);
             }
+#else
+            vmaFlushAllocation(VKDevice::Get().getVMA(), m_VMAAllocation, offset, size);
+#endif
         }
 
         void VKBuffer::setData(u32 size, const void* data)
@@ -102,6 +120,7 @@ namespace Razix {
             bufferInfo.usage              = m_UsageFlags;
             bufferInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
 
+#ifndef RAZIX_USE_VMA
             // Create the buffer
             VK_CHECK_RESULT(vkCreateBuffer(VKDevice::Get().getDevice(), &bufferInfo, nullptr, &m_Buffer));
 
@@ -120,12 +139,29 @@ namespace Razix {
             // Bind the buffer to it's memory
             vkBindBufferMemory(VKDevice::Get().getDevice(), m_Buffer, m_BufferMemory, 0);
 
+            VK_TAG_OBJECT(bufferName + std::string("[Memory]"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) m_BufferMemory);
+#else
+            VmaAllocationInfo allocationInfo{};
+
+            VmaAllocationCreateInfo vmaallocInfo = {};
+            // TODO: make this selection smart or customizable by user
+            vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+            vmaallocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+            //allocate the buffer
+            VK_CHECK_RESULT(vmaCreateBuffer(VKDevice::Get().getVMA(), &bufferInfo, &vmaallocInfo, &m_Buffer, &m_VMAAllocation, &allocationInfo));
+
+    #ifdef RAZIX_DEBUG
+            vmaSetAllocationName(VKDevice::Get().getVMA(), m_VMAAllocation RZ_DEBUG_E_ARG_NAME.c_str());
+    #endif
+            // TODO: Get allocated memory stats from which pool etc. and attach that to RZMemoryManager
+            //Memory::RZMemAllocInfo memAllocInfo{};
+#endif
+
             //! Set the Data
             if (data != nullptr)
                 setData((u32) m_BufferSize, data);
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_BUFFER, (uint64_t) m_Buffer);
-            VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) m_BufferMemory);
         }
     }    // namespace Graphics
 }    // namespace Razix
