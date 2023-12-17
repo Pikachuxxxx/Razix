@@ -41,9 +41,9 @@ namespace Razix {
             u32 IndexedDraws      = 0;    //[x]
             u32 ComputeDispatches = 0;    //[x]
             // Memory stats
-            u32 GPUMemoryUsed  = 0;    //[ ] // Needs VMA kind of allocator
-            u32 TotalGPUMemory = 0;    //[ ] // Needs VMA kind of allocator
-            u32 UsedRAM        = 0;    //[ ] // Needs platform specific implementation
+            f32 GPUMemoryUsed  = 0;    // in Gib [ ] // Needs VMA kind of allocator
+            f32 TotalGPUMemory = 0;    // in Gib [x]
+            f32 UsedRAM        = 0;    // in Gib [ ] // Needs platform specific implementation
             // Resource stats
             u32 MeshesRendered        = 0;    //[x]
             u32 VerticesCount         = 0;

@@ -2,9 +2,10 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
+    #include <vma/vk_mem_alloc.h>
     #include <vulkan/vulkan.h>
 
-#include "Razix/Core/RZDebugConfig.h"
+    #include "Razix/Core/RZDebugConfig.h"
 
 namespace Razix {
     namespace Graphics {
@@ -56,18 +57,25 @@ namespace Razix {
             inline const VkBufferUsageFlags& getUsage() const { return m_UsageFlags; }
             /* Sets the usage of the buffer */
             inline void setUsage(VkBufferUsageFlags flags) { m_UsageFlags = flags; }
-            /* Gets the size of the buffer */
-            inline VkDeviceSize getSize() const { return m_BufferSize; }
             /* Sets the size of the buffer */
             inline void setSize(u32 size) { m_BufferSize = (VkDeviceSize) size; }
+            /* Gets the size of the buffer */
+            inline VkDeviceSize getSize() const { return m_BufferSize; }
+    #ifdef RAZIX_USE_VMA
+            /* Gets the VMA allocation for the buffer */
+            inline VmaAllocation getVMAAllocation() const { return m_VMAAllocation; }
+    #endif
 
         protected:
-            VkBuffer               m_Buffer;              /* handle to the Vulkan buffer          */
-            VkDeviceMemory         m_BufferMemory;        /* Handle to the buffer memory          */
-            VkDeviceSize           m_BufferSize;          /* The size of the buffer               */
-            VkDescriptorBufferInfo m_DesciptorBufferInfo; /* The buffer description info          */
-            VkBufferUsageFlags     m_UsageFlags;          /* Buffer usage description             */
-            void*                  m_Mapped = nullptr;    /* The HOST mapped region of the buffer */
+            VkBuffer m_Buffer; /* handle to the Vulkan GPU buffer handle    */
+    #ifndef RAZIX_USE_VMA
+            VkDeviceMemory m_BufferMemory`; /* Handle to the buffer memory               */
+    #else
+            VmaAllocation m_VMAAllocation; /* Holds the VMA allocation state info       */
+    #endif                                         // RAZIX_USE_VMA
+            VkDeviceSize       m_BufferSize;       /* The size of the buffer                    */
+            VkBufferUsageFlags m_UsageFlags;       /* Buffer usage description                  */
+            void*              m_Mapped = nullptr; /* The HOST mapped region of the buffer      */
         };
 
     }    // namespace Graphics

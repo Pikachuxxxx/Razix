@@ -12,6 +12,8 @@
 
 glm::mat4 Razix::TransformComponent::GetGlobalTransform()
 {
+    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
 #if 0
 glm::quat qPitch = glm::angleAxis(Rotation.x, glm::vec3(1, 0, 0));
     glm::quat qYaw   = glm::angleAxis(Rotation.y, gl m::vec3(0, 1, 0));

@@ -16,6 +16,8 @@ QMainWindow {
   background-color: #151515;
   color: white;
   font-family: "Roboto"; 
+  margin: 0px;
+  padding: 0px;
   }
 
 QMainWindow::separator {
@@ -31,6 +33,21 @@ QWidget {
   background-color: #242424;
   color: white;
   font-family: "Roboto"; }
+
+QSplitter::handle:horizontal:hover {
+background: #89CFF0;
+width: 2.5px;
+}
+
+QSplitter::handle:vertical {
+background: #151515;
+height: 2.5px;
+}
+
+QSplitter::handle:vertical:hover {
+background: #89CFF0;
+height: 2.5px;
+}
 
 QGroupBox{
   background-color: #151515;
@@ -406,7 +423,15 @@ QDockWidget {
       image:url(:/rzeditor/styles/icons/cross-white.png); }
 
 QToolBar {
-    border:1px;
+    border:2px;
+    border-color: #151515;
+    border-style:solid;
+}
+
+QStatusBar {
+    border:2px;
+    border-color: #151515;
+    border-style:solid;
 }
 
 QToolBox::tab {

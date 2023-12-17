@@ -11,6 +11,10 @@
 
     #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
+    // VMA
+    #define VMA_IMPLEMENTATION
+    #include <vma/vk_mem_alloc.h>
+
 namespace Razix {
     namespace Graphics {
 
@@ -201,7 +205,8 @@ namespace Razix {
             device_features.pNext = &indexing_features;
 
             // Enable Geometry Shaders
-            device_features.features.geometryShader = VK_TRUE;
+            device_features.features.geometryShader    = VK_TRUE;
+            device_features.features.sampleRateShading = VK_TRUE;
 
             if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 deviceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -250,7 +255,7 @@ namespace Razix {
             // Create the Query Pools
             // Create timestamp query pool used for GPU timings.
             VkQueryPoolCreateInfo timestamp_pool_info{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr, 0, VK_QUERY_TYPE_TIMESTAMP, k_gpu_time_queries_per_frame * 2u, 0};
-            vkCreateQueryPool(m_Device, &timestamp_pool_info, nullptr, &m_timestamp_query_pool);
+            vkCreateQueryPool(m_Device, &timestamp_pool_info, nullptr, &m_TimestampsQueryPool);
 
             // Create pipeline statistics query pool
             VkQueryPoolCreateInfo statistics_pool_info{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr, 0, VK_QUERY_TYPE_PIPELINE_STATISTICS, 7, 0};
@@ -261,7 +266,7 @@ namespace Razix {
                                                       VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT |
                                                       VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT |
                                                       VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT;
-            vkCreateQueryPool(m_Device, &statistics_pool_info, nullptr, &m_pipeline_stats_query_pool);
+            vkCreateQueryPool(m_Device, &statistics_pool_info, nullptr, &m_PipelineStatsQueryPool);
 
             //------------------------------------------------------------------------------------------------
             // Create the Global Descriptor Pool, used for normal descriptor sets
@@ -393,12 +398,15 @@ namespace Razix {
 
         void VKDevice::destroy()
         {
+            // Destroy VMA
+            vmaDestroyAllocator(m_VMAllocator);
+
             vkDestroyDescriptorPool(m_Device, m_GlobalDescriptorPool, nullptr);
             vkDestroyDescriptorPool(m_Device, m_BindlessDescriptorPool, nullptr);
             vkDestroyDescriptorSetLayout(m_Device, m_BindlessSetLayout, nullptr);
 
-            vkDestroyQueryPool(m_Device, m_pipeline_stats_query_pool, nullptr);
-            vkDestroyQueryPool(m_Device, m_timestamp_query_pool, nullptr);
+            vkDestroyQueryPool(m_Device, m_PipelineStatsQueryPool, nullptr);
+            vkDestroyQueryPool(m_Device, m_TimestampsQueryPool, nullptr);
             // Destroy the single time Command pool
             vkDestroyCommandPool(m_Device, m_CommandPool->getVKPool(), nullptr);
             // Destroy the logical device

@@ -21,6 +21,7 @@ namespace Razix {
         // Texture Utility Static Functions
         //-----------------------------------------------------------------------------------
 
+#ifndef RAZIX_USE_VMA
         void VKTexture::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
         {
             // We pass the image as reference because we need the memory for it as well
@@ -58,6 +59,43 @@ namespace Razix {
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
             VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) imageMemory);
         }
+#else
+        void VKTexture::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            // We pass the image as reference because we need the memory for it as well
+            VkImageCreateInfo imageInfo = {};
+            imageInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+            imageInfo.imageType         = imageType;
+            imageInfo.extent            = {width, height, depth};
+            imageInfo.mipLevels         = mipLevels;
+            imageInfo.format            = format;
+            imageInfo.tiling            = tiling;
+            imageInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
+            imageInfo.usage             = usage;
+            imageInfo.samples           = VK_SAMPLE_COUNT_1_BIT;
+            imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
+            imageInfo.arrayLayers       = arrayLayers;
+            imageInfo.flags             = flags;
+
+            VmaAllocationInfo allocationInfo{};
+
+            VmaAllocationCreateInfo vmaallocInfo = {};
+            // TODO: make this selection smart or customizable by user
+            vmaallocInfo.usage         = VMA_MEMORY_USAGE_AUTO;
+            vmaallocInfo.requiredFlags = properties;
+            //allocate the buffer
+            VK_CHECK_RESULT(vmaCreateImage(VKDevice::Get().getVMA(), &imageInfo, &vmaallocInfo, &image, &vmaAllocation, &allocationInfo));
+
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
+
+    #ifdef RAZIX_DEBUG
+            vmaSetAllocationName(VKDevice::Get().getVMA(), vmaAllocation RZ_DEBUG_E_ARG_NAME.c_str());
+    #endif
+
+            // TODO: Get allocated memory stats from which pool etc. and attach that to RZMemoryManager
+            //Memory::RZMemAllocInfo memAllocInfo{};
+        }
+#endif
 
         VkImageView VKTexture::CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer, u32 baseMipLevel /*= 0*/ RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -229,10 +267,10 @@ namespace Razix {
             m_Desc = desc;
 
             // Build a render target texture here if the data is nullptr
-            if (desc.data == nullptr) {
-                init(desc RZ_DEBUG_E_ARG_NAME);
+            if (m_Desc.data == nullptr) {
+                init(m_Desc RZ_DEBUG_E_ARG_NAME);
             } else {
-                bool loadResult = load(desc RZ_DEBUG_E_ARG_NAME);
+                bool loadResult = load(m_Desc RZ_DEBUG_E_ARG_NAME);
                 RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", desc.name);
             }
         }
@@ -242,13 +280,15 @@ namespace Razix {
             m_Desc        = desc;
             m_VirtualPath = filePath;
 
+            m_Desc.enableMips = true;
+
             // Build a render target texture here if the data is nullptr
-            bool loadResult = load(desc RZ_DEBUG_E_ARG_NAME);
-            RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", desc.name);
+            bool loadResult = load(m_Desc RZ_DEBUG_E_ARG_NAME);
+            RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", m_Desc.name);
         }
 
         VKTexture::VKTexture(VkImage image, VkImageView imageView)
-            : m_Image(image), m_ImageSampler(VK_NULL_HANDLE), m_ImageMemory(VK_NULL_HANDLE)
+            : m_Image(image), m_ImageSampler(VK_NULL_HANDLE)
         {
             m_ImageViews.push_back(imageView);
 
@@ -369,9 +409,13 @@ namespace Razix {
             else if (desc.type == TextureType::Texture_2DArray)
                 flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 
-            // Create the Vulkan Image and it's memory and Bind them together
-            // We use a simple optimal tiling options
+                // Create the Vulkan Image and it's memory and Bind them together
+                // We use a simple optimal tiling options
+#ifndef RAZIX_USE_VMA
             VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+#else
+            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+#endif
 
             //  There are two transitions we need to handle:
             //      1. Undefined -> transfer destination: transfer writes that don't need to wait on anything
@@ -461,9 +505,13 @@ namespace Razix {
             else if (desc.type == TextureType::Texture_2DArray)
                 flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 
-            // Create the Vulkan Image and it's memory and Bind them together
-            // We use a simple optimal tiling options
+// Create the Vulkan Image and it's memory and Bind them together
+// We use a simple optimal tiling options
+#ifndef RAZIX_USE_VMA
             VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+#else
+            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+#endif
 
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_TotalMipLevels, m_Desc.layers);
 
@@ -509,11 +557,15 @@ namespace Razix {
                 if (m_ImageViews[i] != VK_NULL_HANDLE)
                     vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageViews[i], nullptr);
 
+#ifndef RAZIX_USE_VMA
             if (m_Image != VK_NULL_HANDLE)
                 vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
 
             if (m_ImageMemory != VK_NULL_HANDLE)
                 vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+#else
+            vmaDestroyImage(VKDevice::Get().getVMA(), m_Image, m_VMAAllocation);
+#endif
 
             m_ImageViews.clear();
             m_Descriptors.clear();

@@ -31,7 +31,25 @@ namespace Razix {
              * @param image The reference to the image to be created
              * @param imageMemory The reference to the image memory to created and will be bound to
              */
+    #ifndef RAZIX_USE_VMA
             static void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
+    #else
+            /**
+             * Creates a Vulkan Image handle
+             *
+             * @param width The width of the texture
+             * @param height The height of the texture
+             * @param mipLevels Mips to generate
+             * @param format The Vulkan format
+             * @param imageType The image type of Vulkan
+             * @param tiling The tiling to be used for image
+             * @param usage The vulkan image usage
+             * @param properties The properties of the image memory 
+             * @param image The reference to the image to be created
+             * @param vmaAllocation VMA memory allocation handle
+             */
+            static void   CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
+    #endif
 
             /**
              * Creates an ImageView for the Vulkan image
@@ -116,22 +134,32 @@ namespace Razix {
             RAZIX_INLINE VkDescriptorImageInfo getDescriptor() { return m_Descriptors[m_CurrentMipRenderingLevel]; }
             /* Gets the vulkan image object */
             RAZIX_INLINE VkImage getImage() const { return m_Image; };
-            /* Gets the Vulkan image memory handle */
-            RAZIX_INLINE VkDeviceMemory getMemory() const { return m_ImageMemory; }
             /* Gets the image view of the Vulkan image in a particular mip level */
             RAZIX_INLINE VkImageView getImageView() const { return m_ImageViews[m_CurrentMipRenderingLevel]; }
             /* Gets the sampler for the Vulkan image */
             RAZIX_INLINE VkSampler getSampler() const { return m_ImageSampler; }
+    #ifndef RAZIX_USE_VMA
+            /* Gets the Vulkan image memory handle */
+            RAZIX_INLINE VkDeviceMemory getMemory() const { return m_ImageMemory; }
+    #endif
+    #ifdef RAZIX_USE_VMA
+            /* Gets the VMA allocation for the buffer */
+            RAZIX_INLINE VmaAllocation getVMAAllocation() const { return m_VMAAllocation; }
+    #endif
 
         private:
             VkImage                            m_Image           = VK_NULL_HANDLE;            /* Vulkan image handle for the Texture object                                      */
-            VkDeviceMemory                     m_ImageMemory     = VK_NULL_HANDLE;            /* Memory for the Vulkan image                                                     */
             VkSampler                          m_ImageSampler    = VK_NULL_HANDLE;            /* Sampler information used by shaders to sample the texture                       */
             std::vector<VkImageView>           m_ImageViews      = {};                        /* Image views for the image, all faces & mips need a view to look into the image  */
             std::vector<VkDescriptorImageInfo> m_Descriptors     = {};                        /* Descriptors info encapsulation the image, it's views and the sampler            */
             VkImageLayout                      m_ImageLayout     = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                       */
             bool                               m_DeleteImageData = false;                     /* Whether or not to delete image intermediate data                                */
             VkImageAspectFlagBits              m_AspectBit       = VK_IMAGE_ASPECT_NONE;      /* Aspect bit of the image                                                         */
+    #ifndef RAZIX_USE_VMA
+            VkDeviceMemory m_ImageMemory = VK_NULL_HANDLE; /* Handle to the image memory               */
+    #else
+            VmaAllocation m_VMAAllocation = {}; /* Holds the VMA allocation state info       */
+    #endif
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */

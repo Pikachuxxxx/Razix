@@ -263,7 +263,7 @@
     "value78": 3,
     "value79": {
         "Translation": {
-            "x": 0.5455007553100586,
+            "x": -0.2575266361236572,
             "y": 7.430577754974365,
             "z": -2.1240994930267336
         },
@@ -297,7 +297,7 @@
                 "value3": 0.0
             },
             "value3": {
-                "value0": 0.5455007553100586,
+                "value0": -0.2575266361236572,
                 "value1": 7.430577754974365,
                 "value2": -2.1240994930267336,
                 "value3": 1.0
@@ -706,32 +706,32 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 13.718664169311524,
-                "y": 17.96455192565918,
-                "z": -31.179155349731447
+                "x": -18.577640533447267,
+                "y": 15.768359184265137,
+                "z": -21.101318359375
             },
             "Front": {
-                "x": -0.21503330767154694,
-                "y": -0.3461170494556427,
-                "z": 0.9132161140441895
+                "x": 0.5146602392196655,
+                "y": -0.4733196794986725,
+                "z": 0.7149079442024231
             },
             "Up": {
-                "x": -0.07932998239994049,
-                "y": 0.9381914138793945,
-                "z": 0.3369032144546509
+                "x": 0.2765369415283203,
+                "y": 0.8808907866477966,
+                "z": 0.384133905172348
             },
             "Right": {
-                "x": -0.973379373550415,
+                "x": -0.8115738034248352,
                 "y": 0.0,
-                "z": -0.2291998416185379
+                "z": 0.58424973487854
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": 823.25,
-            "Pitch": -20.25,
+            "Yaw": 1494.25,
+            "Pitch": -28.25,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -742,7 +742,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.3311793804168702,
+            "AspectRatio": 1.3123993873596192,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
@@ -758,63 +758,63 @@
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/Ice.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value105": 5,
     "value106": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/HolidayCookie.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value107": 6,
     "value108": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/WoodenSkull.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value109": 7,
     "value110": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/Sofa.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value111": 8,
     "value112": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/Colorful Tiles.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value113": 9,
     "value114": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/Gift.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value115": 10,
     "value116": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/MetalPlates.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value117": 11,
     "value118": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/Pattern.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value119": 12,
     "value120": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/Decorative Tiles.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
     },
     "value121": 3,
     "value122": 1,
@@ -833,15 +833,15 @@
     "value129": 3,
     "value130": {
         "Light": {
-            "type": 1,
+            "type": 0,
             "position": {
-                "x": 0.5455007553100586,
+                "x": -0.2575266361236572,
                 "y": 7.430577754974365,
                 "z": -2.1240994930267336
             },
             "range": 10.0,
             "direction": {
-                "value0": 0.5455007553100586,
+                "value0": -0.2575266361236572,
                 "value1": 7.430577754974365,
                 "value2": -2.1240994930267336,
                 "value3": 1.0
