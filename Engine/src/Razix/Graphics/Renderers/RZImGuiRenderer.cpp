@@ -74,7 +74,7 @@ namespace Razix {
             style.Colors[ImGuiCol_TitleBg]          = ImVec4(1.0f, 0.43f, 0.0f, 1.0f);
             style.Colors[ImGuiCol_TitleBgActive]    = ImVec4(1.0f, 0.43f, 0.0f, 1.0f);
             style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.0f, 0.43f, 0.0f, 0.1f);
-            style.Colors[ImGuiCol_MenuBarBg]        = ImVec4(1.0f, 0.43f, 0.0f, 0.4f);
+            style.Colors[ImGuiCol_MenuBarBg]        = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
             style.Colors[ImGuiCol_Header]           = ImVec4(0.8f, 0.22f, 0.0f, 0.4f);
             style.Colors[ImGuiCol_HeaderActive]     = ImVec4(1.0f, 0.43f, 0.0f, 0.4f);
             style.Colors[ImGuiCol_HeaderHovered]    = ImVec4(1.0f, 0.43f, 0.0f, 0.4f);
@@ -104,7 +104,7 @@ namespace Razix {
             icons_config.PixelSnapH = true;
             std::string trueFontPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/Fonts/" + std::string(FONT_ICON_FILE_NAME_FAS), trueFontPath);
-            io.Fonts->AddFontFromFileTTF(trueFontPath.c_str(), 16.0f, &icons_config, icons_ranges);
+            io.Fonts->AddFontFromFileTTF(trueFontPath.c_str(), 12.0f, &icons_config, icons_ranges);
 
             unsigned char* fontData;
             int            texWidth, texHeight;

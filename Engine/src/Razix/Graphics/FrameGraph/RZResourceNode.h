@@ -18,6 +18,7 @@ namespace Razix {
 
             class RZResourceNode final : public RZGraphNode
             {
+            private:
                 friend class RZFrameGraph;
 
                 /**
@@ -26,6 +27,9 @@ namespace Razix {
                  * Because the resources can be cloned and have multiple instance in the graph they need another ID to point to it's entry point in FG
                  */
                 RZResourceNode(const std::string_view name, u32 id, u32 resourceID, u32 version);
+
+            public:
+                inline u32 getResourceEntryId() const { return m_ResourceEntryID; }
 
             private:
                 const u32   m_ResourceEntryID = 0;                       /* Index to resource entry point (m_resourceRegistry in FrameGraph)                                    */

@@ -33,7 +33,8 @@ namespace Razix {
                 // Since a Framegraph stores a vector of nodes we need to at least enable this
                 RAZIX_DEFAULT_MOVABLE_CLASS(RZGraphNode)
 
-                const std::string& getName() { return m_Name; }
+                inline const std::string& getName() { return m_Name; }
+                inline u32                getID() { return m_ID; }
 
             protected:
                 /**
