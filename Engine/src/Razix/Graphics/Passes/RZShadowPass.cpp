@@ -4,6 +4,7 @@
 #include "RZShadowPass.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -70,6 +71,7 @@ namespace Razix {
                 [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                    RAZIX_TIME_STAMP_BEGIN("Shadow Pass");
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
@@ -123,6 +125,7 @@ namespace Razix {
                     // End Rendering
                     RHI::EndRendering(cmdBuffer);
                     RAZIX_MARK_END();
+                    RAZIX_TIME_STAMP_END();
                 });
         }
 

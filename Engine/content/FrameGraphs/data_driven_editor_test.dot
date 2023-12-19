@@ -29,7 +29,7 @@ R10_3 [label=<{ {<B>SceneHDR</B>   <FONT>v3</FONT><BR/>(2560, 1440) - RGBA32F [2
 R11_3 [label=<{ {<B>SceneDepth</B>   <FONT>v3</FONT><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R10_4 [label=<{ {<B>SceneHDR</B>   <FONT>v4</FONT><BR/>(2560, 1440) - RGBA32F [2D]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R11_4 [label=<{ {<B>SceneDepth</B>   <FONT>v4</FONT><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>Present Image</B><BR/>(2560, 1369) - Presentation [2D]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R12_1 [label=<{ {<B>Present Image</B><BR/>(80, 10) - Presentation [2D]} | {Index: 12<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R6_1 } [color=orangered]
 P1 -> { R7_1 } [color=orangered]

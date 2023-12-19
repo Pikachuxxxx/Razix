@@ -554,121 +554,122 @@ namespace Razix {
 
         OnImGui();
 
-        // Engine ImGui Tools will be rendered here
-        static bool showResourceViewer = false;
-        static bool showBudgets        = false;
-        static bool showMemStats       = true;
-        {
-            RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
-
-            // Main menu for Game view tools
+        if (m_appType == AppType::GAME) {
+            // Engine ImGui Tools will be rendered here
+            static bool showResourceViewer = false;
+            static bool showBudgets        = false;
+            static bool showMemStats       = true;
             {
-                if (ImGui::BeginMainMenuBar()) {
-                    if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
-                        if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", nullptr, showResourceViewer)) {
-                            showResourceViewer = !showResourceViewer;
+                RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
+
+                // Main menu for Game view tools
+                {
+                    if (ImGui::BeginMainMenuBar()) {
+                        if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
+                            if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", nullptr, showResourceViewer)) {
+                                showResourceViewer = !showResourceViewer;
+                            }
+                            if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", nullptr, showBudgets)) {
+                                showBudgets = !showBudgets;
+                            }
+                            if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
+                                showMemStats = !showMemStats;
+                            }
+                            ImGui::EndMenu();
                         }
-                        if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", nullptr, showBudgets)) {
-                            showBudgets = !showBudgets;
-                        }
-                        if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
-                            showMemStats = !showMemStats;
-                        }
-                        ImGui::EndMenu();
+                        ImGui::EndMainMenuBar();
                     }
-                    ImGui::EndMainMenuBar();
                 }
-            }
 
-            // Framegraph resource viewer
-            {
-                if (showResourceViewer) {
+                // Framegraph resource viewer
+                {
+                    if (showResourceViewer) {
 #if 1
 
-                    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    ImGui::SetNextWindowBgAlpha(0.8f);
+                        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+                        ImGui::SetNextWindowBgAlpha(0.8f);
 
-                    if (ImGui::Begin("[Engine Tool] Frame Graph Resources Viewer")) {
-                        // Hacks to rotate text in ImGui. From https://github.com/ocornut/imgui/issues/1286#issue-251214314
-                        int  rotation_start_index;
-                        auto ImRotateStart = [&]() { rotation_start_index = ImGui::GetWindowDrawList()->VtxBuffer.Size; };
-                        auto ImRotateEnd   = [&](float rad, ImVec2 center) {
-                            float s = sin(rad), c = cos(rad);
-                            center = ImRotate(center, s, c) - center;
+                        if (ImGui::Begin("[Engine Tool] Frame Graph Resources Viewer")) {
+                            // Hacks to rotate text in ImGui. From https://github.com/ocornut/imgui/issues/1286#issue-251214314
+                            int  rotation_start_index;
+                            auto ImRotateStart = [&]() { rotation_start_index = ImGui::GetWindowDrawList()->VtxBuffer.Size; };
+                            auto ImRotateEnd   = [&](float rad, ImVec2 center) {
+                                float s = sin(rad), c = cos(rad);
+                                center = ImRotate(center, s, c) - center;
 
-                            auto& buf = ImGui::GetWindowDrawList()->VtxBuffer;
-                            for (int i = rotation_start_index; i < buf.Size; i++)
-                                buf[i].pos = ImRotate(buf[i].pos, s, c) - center;
-                        };
+                                auto& buf = ImGui::GetWindowDrawList()->VtxBuffer;
+                                for (int i = rotation_start_index; i < buf.Size; i++)
+                                    buf[i].pos = ImRotate(buf[i].pos, s, c) - center;
+                            };
 
-                        i32 passIndex     = 0;
-                        i32 resourceIndex = 0;
+                            i32 passIndex     = 0;
+                            i32 resourceIndex = 0;
 
-                        auto passNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNodesSize();
+                            auto passNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNodesSize();
 
-                        float  passNameHeight    = 300.0f;
-                        float  resourceNameWidth = 300.0f;
-                        ImVec2 boxSize           = ImVec2(20.0f, ImGui::GetTextLineHeightWithSpacing());
-                        float  width             = (int) passNodesSize * boxSize.x + resourceNameWidth;
-                        float  height            = 1200;
+                            float  passNameHeight    = 300.0f;
+                            float  resourceNameWidth = 300.0f;
+                            ImVec2 boxSize           = ImVec2(20.0f, ImGui::GetTextLineHeightWithSpacing());
+                            float  width             = (int) passNodesSize * boxSize.x + resourceNameWidth;
+                            float  height            = 1200;
 
-                        ImGui::BeginChild("Table", ImVec2(width, height));
-                        ImDrawList* pCmd = ImGui::GetWindowDrawList();
+                            ImGui::BeginChild("Table", ImVec2(width, height));
+                            ImDrawList* pCmd = ImGui::GetWindowDrawList();
 
-                        ImVec2 cursor      = ImGui::GetCursorScreenPos();
-                        ImVec2 passNamePos = cursor + ImVec2(resourceNameWidth, 0);
+                            ImVec2 cursor      = ImGui::GetCursorScreenPos();
+                            ImVec2 passNamePos = cursor + ImVec2(resourceNameWidth, 0);
 
-                        const Graphics::FrameGraph::RZPassNode* pActivePass = nullptr;
+                            const Graphics::FrameGraph::RZPassNode* pActivePass = nullptr;
 
-                        for (size_t i = 0; i < passNodesSize; i++) {
-                            ImRect itemRect(passNamePos + ImVec2(passIndex * boxSize.x, 0.0f), passNamePos + ImVec2((passIndex + 1) * boxSize.x, passNameHeight));
-                            pCmd->AddLine(itemRect.Max, itemRect.Max + ImVec2(0, height), ImColor(1.0f, 1.0f, 1.0f, 0.2f));
-                            ImRotateStart();
-                            ImVec2 size = ImGui::CalcTextSize("passNode.getName().c_str()");
-                            pCmd->AddText(itemRect.Max - ImVec2(size.x, 0), ImColor(1.0f, 1.0f, 1.0f), "passNode.getName().c_str()");
-                            ImRotateEnd(glm::pi<float>() * 2.2f, itemRect.Max + ImVec2(boxSize.x, 0));
-                            ImGui::ItemAdd(itemRect, passIndex);
-                            bool passActive = ImGui::IsItemHovered();
-                            if (passActive) {
-                                ImGui::BeginTooltip();
-                                ImGui::Text("%s", "passNode.getName().c_str()");
-                                //ImGui::Text("Flags: %s", PassFlagToString(pPass->Flags).c_str());
-                                ImGui::Text("Index: %d", passIndex);
-                                ImGui::EndTooltip();
+                            for (size_t i = 0; i < passNodesSize; i++) {
+                                ImRect itemRect(passNamePos + ImVec2(passIndex * boxSize.x, 0.0f), passNamePos + ImVec2((passIndex + 1) * boxSize.x, passNameHeight));
+                                pCmd->AddLine(itemRect.Max, itemRect.Max + ImVec2(0, height), ImColor(1.0f, 1.0f, 1.0f, 0.2f));
+                                ImRotateStart();
+                                ImVec2 size = ImGui::CalcTextSize("passNode.getName().c_str()");
+                                pCmd->AddText(itemRect.Max - ImVec2(size.x, 0), ImColor(1.0f, 1.0f, 1.0f), "passNode.getName().c_str()");
+                                ImRotateEnd(glm::pi<float>() * 2.2f, itemRect.Max + ImVec2(boxSize.x, 0));
+                                ImGui::ItemAdd(itemRect, passIndex);
+                                bool passActive = ImGui::IsItemHovered();
+                                if (passActive) {
+                                    ImGui::BeginTooltip();
+                                    ImGui::Text("%s", "passNode.getName().c_str()");
+                                    //ImGui::Text("Flags: %s", PassFlagToString(pPass->Flags).c_str());
+                                    ImGui::Text("Index: %d", passIndex);
+                                    ImGui::EndTooltip();
+                                }
+                                ++passIndex;
                             }
-                            ++passIndex;
-                        }
 
-                        cursor += ImVec2(0.0f, passNameHeight);
-                        ImVec2 resourceAccessPos = cursor + ImVec2(resourceNameWidth, 0.0f);
+                            cursor += ImVec2(0.0f, passNameHeight);
+                            ImVec2 resourceAccessPos = cursor + ImVec2(resourceNameWidth, 0.0f);
 
-                        //std::unordered_map<GraphicsResource*, int> resourceToIndex;
-                        //auto resourceNodes = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourcesNodes();
+                            //std::unordered_map<GraphicsResource*, int> resourceToIndex;
+                            //auto resourceNodes = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourcesNodes();
 
-                        auto resourceNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceNodesSize();
+                            auto resourceNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceNodesSize();
 
     #if 1
-                        for (size_t i = 0; i < resourceNodesSize; i++) {
-                            auto idx = i;
-                            //resourceNode.getResourceEntryId();
-                            auto& resourceEntry = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceEntry((Graphics::FrameGraph::RZFrameGraphResource) idx);
+                            for (size_t i = 0; i < resourceNodesSize; i++) {
+                                auto idx = i;
+                                //resourceNode.getResourceEntryId();
+                                auto& resourceEntry = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceEntry((Graphics::FrameGraph::RZFrameGraphResource) idx);
 
-                            if (resourceEntry.isImported())
-                                continue;
+                                if (resourceEntry.isImported())
+                                    continue;
 
-                            //const auto pFirstPass = resourceEntry.getProducerNode();
-                            //const auto pLastPass  = resourceEntry.getLastNode();
-                            // if (pFirstPass == nullptr || pLastPass == nullptr)
-                            //     continue;
+                                //const auto pFirstPass = resourceEntry.getProducerNode();
+                                //const auto pLastPass  = resourceEntry.getLastNode();
+                                // if (pFirstPass == nullptr || pLastPass == nullptr)
+                                //     continue;
 
-                            u32 firstPassOffset = idx;
-                            u32 lastPassOffset  = 0;
+                                u32 firstPassOffset = idx;
+                                u32 lastPassOffset  = 0;
 
-                            ImRect itemRect(resourceAccessPos + ImVec2(firstPassOffset * boxSize.x + 1, idx * boxSize.y + 1), resourceAccessPos + ImVec2((lastPassOffset + 1) * boxSize.x - 1, (idx + 1) * boxSize.y - 1));
-                            ImGui::ItemAdd(itemRect, idx);
-                            bool isHovered = ImGui::IsItemHovered();
+                                ImRect itemRect(resourceAccessPos + ImVec2(firstPassOffset * boxSize.x + 1, idx * boxSize.y + 1), resourceAccessPos + ImVec2((lastPassOffset + 1) * boxSize.x - 1, (idx + 1) * boxSize.y - 1));
+                                ImGui::ItemAdd(itemRect, idx);
+                                bool isHovered = ImGui::IsItemHovered();
 
-                            /*if (isHovered) {
+                                /*if (isHovered) {
                                     ImGui::BeginTooltip();
                                     ImGui::Text("%s", resourceNode.getName());
 
@@ -688,111 +689,137 @@ namespace Razix {
                                     ImGui::EndTooltip();
                                 }*/
 
-                            pCmd->AddRectFilled(itemRect.Min, itemRect.Max, ImColor(1.0f, 0.7f, 0.9f));
+                                pCmd->AddRectFilled(itemRect.Min, itemRect.Max, ImColor(1.0f, 0.7f, 0.9f));
 
-                            ImColor boxColor = ImColor(1.0f, 1.0f, 1.0f, 0.5f);
+                                ImColor boxColor = ImColor(1.0f, 1.0f, 1.0f, 0.5f);
 
-                            //bool isActivePass = false;
-                            //if (pActivePass) {
-                            //    auto it = std::find_if(pActivePass->Accesses.begin(), pActivePass->Accesses.end(), [pResource](const RGPass::ResourceAccess& access) {
-                            //        return access.pResource == pResource;
-                            //    });
-                            //
-                            //    if (it != pActivePass->Accesses.end()) {
-                            //        isActivePass                         = true;
-                            //        const RGPass::ResourceAccess& access = *it;
-                            //        if (ResourceState::HasWriteResourceState(access.Access))
-                            //            boxColor = ImColor(1.0f, 0.5f, 0.1f, 0.8f);
-                            //        else
-                            //            boxColor = ImColor(0.0f, 0.9f, 0.3f, 0.8f);
-                            //    }
-                            //}
+                                //bool isActivePass = false;
+                                //if (pActivePass) {
+                                //    auto it = std::find_if(pActivePass->Accesses.begin(), pActivePass->Accesses.end(), [pResource](const RGPass::ResourceAccess& access) {
+                                //        return access.pResource == pResource;
+                                //    });
+                                //
+                                //    if (it != pActivePass->Accesses.end()) {
+                                //        isActivePass                         = true;
+                                //        const RGPass::ResourceAccess& access = *it;
+                                //        if (ResourceState::HasWriteResourceState(access.Access))
+                                //            boxColor = ImColor(1.0f, 0.5f, 0.1f, 0.8f);
+                                //        else
+                                //            boxColor = ImColor(0.0f, 0.9f, 0.3f, 0.8f);
+                                //    }
+                                //}
 
-                            if (isHovered)
-                                pCmd->AddRectFilled(itemRect.Min, itemRect.Max, boxColor);
-                        }
+                                if (isHovered)
+                                    pCmd->AddRectFilled(itemRect.Min, itemRect.Max, boxColor);
+                            }
     #endif
 
-                        // for (auto& resource: resourceToIndex)
-                        //     pCmd->AddText(ImVec2(cursor.x, cursor.y + resource.second * boxSize.y), ImColor(1.0f, 1.0f, 1.0f), resource.first->GetName());
+                            // for (auto& resource: resourceToIndex)
+                            //     pCmd->AddText(ImVec2(cursor.x, cursor.y + resource.second * boxSize.y), ImColor(1.0f, 1.0f, 1.0f), resource.first->GetName());
 
-                        ImGui::EndChild();
-                    }
-                    ImGui::End();
+                            ImGui::EndChild();
+                        }
+                        ImGui::End();
 #endif
-                    ImGui::PopStyleColor(1);
-                }
-            }
-
-            // Frame Budgets
-            {
-                if (showBudgets) {
-                    if (ImGui::BeginTable("[Engine Tool] Frame Budgets", 3)) {
-                        for (int row = 0; row < 4; row++) {
-                            ImGui::TableNextRow();
-                            for (int column = 0; column < 3; column++) {
-                                ImGui::TableSetColumnIndex(column);
-                                ImGui::Text("Row %d Column %d", row, column);
-                            }
-                        }
-                        ImGui::EndTable();
+                        ImGui::PopStyleColor(1);
                     }
+                }
 
-                    if (ImGui::BeginTable("##table1", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg, ImVec2(45 * 30, 0.0f))) {
-                        for (int row = 0; row < 5; row++) {
-                            ImGui::TableNextRow();
-                            for (int column = 0; column < 3; column++) {
+                // Frame Budgets
+                {
+                    if (showBudgets) {
+                        if (ImGui::Begin("[Engine Tool] Frame Budgets")) {
+                            ImGui::BeginTable("#FrameBudgetsTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg);
+                            {
+                                // Declare columns
+                                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
+                                ImGui::TableSetupColumn("Time (Ms)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
+                                ImGui::TableSetupColumn("Budget (Ms)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
+                                ImGui::TableSetupColumn("Memory (MiB)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
+                                ImGui::TableSetupColumn("Budget (MiB)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
+                                ImGui::TableHeadersRow();
+
+                                ImGui::TableNextRow(ImGuiTableRowFlags_None, 20);
                                 ImGui::TableNextColumn();
-                                ImGui::Text("Cell %d,%d", column, row);
+
+                                if (ImGui::TreeNode("Art")) {
+                                    ImGui::Indent();
+                                    {
+                                        ImGui::TableNextRow(ImGuiTableRowFlags_None, 20);
+                                        ImGui::TableNextColumn();
+
+                                        ImGui::Text("Depth");
+                                        ImGui::TableNextColumn();
+                                        ImGui::Text("2.4");
+                                        ImGui::TableNextColumn();
+                                        ImGui::Text("1.2");
+                                    }
+                                    ImGui::Unindent();
+
+                                    ImGui::TreePop();
+                                }
+                                ImGui::TableSetColumnIndex(0);
+                                ImGui::TableNextColumn();
+                                ImGui::Text("2.4");
+                                ImGui::TableNextColumn();
+                                ImGui::Text("1.2");
+                                //for (int row = 0; row < 4; row++) {
+                                //    ImGui::TableNextRow();
+                                //    for (int column = 0; column < 3; column++) {
+                                //        ImGui::TableSetColumnIndex(column);
+                                //        ImGui::Text("Row %d Column %d", row, column);
+                                //    }
+                                //}
+                                ImGui::EndTable();
                             }
                         }
-                        ImGui::EndTable();
+                        ImGui::End();
                     }
                 }
-            }
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            // Memory Stats
-            {
-                if (showMemStats) {
-                    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-                    ImGui::SetNextWindowBgAlpha(0.0f);    // Transparent background
-                    ImGui::SetNextWindowPos(ImVec2(50, getWindow()->getHeight() - 50), ImGuiCond_Always);
-                    ImGui::Begin("##MemStats", 0, window_flags);
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
-                        ImGui::Text(ICON_FA_MEMORY "  GPU Memory: %4.2f", RZEngine::Get().GetStatistics().TotalGPUMemory);
-                        ImGui::PopStyleColor(1);
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-                        ImGui::Text(ICON_FA_BALANCE_SCALE " Used GPU Memory: %4.2f |", RZEngine::Get().GetStatistics().GPUMemoryUsed);
-                        ImGui::PopStyleColor(1);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+                // Memory Stats
+                {
+                    if (showMemStats) {
+                        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+                        ImGui::SetNextWindowBgAlpha(0.0f);    // Transparent background
+                        ImGui::SetNextWindowPos(ImVec2(50, (f32) getWindow()->getHeight() - 50), ImGuiCond_Always);
+                        ImGui::Begin("##MemStats", 0, window_flags);
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
+                            ImGui::Text(ICON_FA_MEMORY "  GPU Memory: %4.2f", RZEngine::Get().GetStatistics().TotalGPUMemory);
+                            ImGui::PopStyleColor(1);
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+                            ImGui::Text(ICON_FA_BALANCE_SCALE " Used GPU Memory: %4.2f |", RZEngine::Get().GetStatistics().GPUMemoryUsed);
+                            ImGui::PopStyleColor(1);
 
-                        ImGui::SameLine();
-                        auto start = std::chrono::system_clock::now();
-                        // Some computation here
-                        auto        end      = std::chrono::system_clock::now();
-                        std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-                        ImGui::Text(ICON_FA_CLOCK " current date/time : %s ", std::ctime(&end_time));
-                        ImGui::PopStyleColor(1);
+                            ImGui::SameLine();
+                            auto start = std::chrono::system_clock::now();
+                            // Some computation here
+                            auto        end      = std::chrono::system_clock::now();
+                            std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
+                            ImGui::Text(ICON_FA_CLOCK " current date/time : %s ", std::ctime(&end_time));
+                            ImGui::PopStyleColor(1);
 
-                        ImGui::SameLine();
+                            ImGui::SameLine();
 
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-                        std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
-                        ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
-                        ImGui::PopStyleColor(1);
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
+                            std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
+                            ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
+                            ImGui::PopStyleColor(1);
 
-                        ImGui::SameLine();
+                            ImGui::SameLine();
 
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-                        ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", m_ProjectID.prettyString().c_str());
-                        ImGui::PopStyleColor(1);
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
+                            ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", m_ProjectID.prettyString().c_str());
+                            ImGui::PopStyleColor(1);
+                        }
+                        ImGui::End();
                     }
-                    ImGui::End();
                 }
+                ImGui::PopStyleVar(1);
             }
-            ImGui::PopStyleVar(1);
         }
 
         // Guizmo Controls for an Entity
@@ -915,6 +942,20 @@ namespace Razix {
                     ImGui::Text("Vertices count             : %d", stats.VerticesCount);
                 }
                 ImGui::Unindent();
+
+                ImGui::Separator();
+                //ImGui::Text("Pass Timings");
+                if (ImGui::TreeNode("Pass Timings")) {
+                    f32 Totaldt = 0.0f;
+                    for (auto& [name, dt]: stats.PassTimings) {
+                        Totaldt += dt;
+                        ImGui::BulletText("%-22s : %5.2f ms", name.c_str(), dt);
+                    }
+                    ImGui::Separator();
+                    ImGui::BulletText("%-22s : %5.2f ms", "Passes Sum", Totaldt);
+                    ImGui::BulletText("%-22s : %5.2f ms", "Acquire + Flip", stats.DeltaTime - Totaldt);
+                    ImGui::TreePop();
+                }
             }
             ImGui::End();
         }

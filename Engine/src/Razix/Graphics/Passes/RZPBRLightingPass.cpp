@@ -4,6 +4,7 @@
 #include "RZPBRLightingPass.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -105,6 +106,7 @@ namespace Razix {
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                    RAZIX_TIME_STAMP_BEGIN("PBR Lighting Pass");
                     RAZIX_MARK_BEGIN("Pass.Builtin.PBRLighting", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 
                     RenderingInfo info{};
@@ -151,6 +153,7 @@ namespace Razix {
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
+                    RAZIX_TIME_STAMP_END();
                 });
         }
 

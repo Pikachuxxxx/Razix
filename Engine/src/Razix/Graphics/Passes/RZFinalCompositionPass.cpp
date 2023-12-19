@@ -101,6 +101,7 @@ namespace Razix {
                 [=](const CompositeData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
                     RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
@@ -157,6 +158,7 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
 
                     RAZIX_MARK_END();
+                    RAZIX_TIME_STAMP_END();
                 },
                 [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {
                     updatedRT = false;
