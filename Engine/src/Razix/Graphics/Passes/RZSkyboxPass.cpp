@@ -4,6 +4,7 @@
 #include "RZSkyboxPass.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -64,7 +65,7 @@ namespace Razix {
             auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
 
             //framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
-             framegraph.addCallbackPass(
+            framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Skybox",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
@@ -82,22 +83,23 @@ namespace Razix {
                     sceneData.depth     = builder.write(sceneData.depth);
 
 #if ENABLE_DATA_DRIVEN_FG_PASSES
-                    //builder.read(framegraph.getBlackboard().getID("SceneHDR"));
-                    //builder.read(framegraph.getBlackboard().getID("SceneDepth"));
+                //builder.read(framegraph.getBlackboard().getID("SceneHDR"));
+                //builder.read(framegraph.getBlackboard().getID("SceneDepth"));
 
-                    //data.outputHDR = builder.write(framegraph.getBlackboard().getID("SceneHDR"));
-                    //data.depth     = builder.write(framegraph.getBlackboard().getID("SceneDepth"));
+                //data.outputHDR = builder.write(framegraph.getBlackboard().getID("SceneHDR"));
+                //data.depth     = builder.write(framegraph.getBlackboard().getID("SceneDepth"));
 #endif
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                    RAZIX_TIME_STAMP_BEGIN("Skybox Pass");
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
                     RenderingInfo info{};
-                    info.resolution       = Resolution::kCustom;
+                    info.resolution = Resolution::kCustom;
                     //info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
                     //info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
@@ -167,6 +169,7 @@ namespace Razix {
 
                     RHI::EndRendering(cmdBuffer);
                     RAZIX_MARK_END();
+                    RAZIX_TIME_STAMP_END();
                 });
         }
 

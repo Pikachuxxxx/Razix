@@ -289,6 +289,8 @@ namespace Razix {
                     sceneData.depth     = builder.write(sceneData.depth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
+
                     // Origin point
                     RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
 
@@ -344,6 +346,7 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
 
                     RZDebugRenderer::Get()->End();
+                    RAZIX_TIME_STAMP_END();
                 });
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
@@ -366,6 +369,8 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
+
                     m_ImGuiRenderer.Begin(scene);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
@@ -385,6 +390,7 @@ namespace Razix {
                     m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
+                    RAZIX_TIME_STAMP_END();
                 });
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();

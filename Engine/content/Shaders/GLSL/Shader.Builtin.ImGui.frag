@@ -27,8 +27,6 @@ layout(location = 0) out vec4 outFragColor;
 void main()
 {
     vec4 color = fs_in.fragColor * texture(fontSampler, fs_in.fragUV);
-    // Gamma correction
-    //color = pow(color, vec4(1.0/2.2));    
     outFragColor = color;
 }
 //------------------------------------------------------------------------------

@@ -21,6 +21,9 @@
 #include <Lighting/PBR/ShaderInclude.Builtin.BRDF.glsl>
 #include <Lighting/PBR/ShaderInclude.Builtin.PBRDirectLighting.glsl>
 #include <Lighting/ShaderInclude.Builtin.ComputeShadows.glsl>
+//-------------------------------
+// Color Utils (Debug only)
+#include <Utils/ShaderInclude.Builtin.Color.glsl>
 //------------------------------------------------------------------------------
 // Vertex Input
 layout(location = 0) in VSOutput
@@ -140,5 +143,5 @@ void main()
     if(Mat_getOpacity(fs_in.fragUV) < 0.1)
         discard;
 
-    outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
+    outSceneColor = vec4(RandomColorHash(gl_PrimitiveID), Mat_getOpacity(fs_in.fragUV));
 }

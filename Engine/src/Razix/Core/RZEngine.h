@@ -49,6 +49,8 @@ namespace Razix {
             u32 VerticesCount         = 0;
             u32 TexturesInMemory      = 0;
             u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
+            // Pass timings
+            std::unordered_map<std::string, f32> PassTimings; /* Holds references to frame graph pass node Idx and it's CPU execution time */
 
             void reset()
             {
@@ -59,6 +61,7 @@ namespace Razix {
                 ComputeDispatches = 0;
                 GPUMemoryUsed     = 0;
                 UsedRAM           = 0;
+                PassTimings.clear();
             }
         };
 
