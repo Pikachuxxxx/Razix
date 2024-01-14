@@ -86,7 +86,8 @@ project "RazixEditor"
         -- Extensions
         "../Editor/src/Extensions",
         "../Editor/src/Extensions/QtADS",
-        "../Editor/src/Extensions/qspdlog/include"
+        "../Editor/src/Extensions/qspdlog/include",
+        "../Editor/src/Extensions/titlebar"
     }
 
     includedirs
@@ -122,7 +123,8 @@ project "RazixEditor"
         -- Extensions
         "../Editor/src/Extensions",
         "../Editor/src/Extensions/QtADS",
-        "../Editor/src/Extensions/qspdlog/include"
+        "../Editor/src/Extensions/qspdlog/include",
+        "../Editor/src/Extensions/titlebar"
     }
 
     links

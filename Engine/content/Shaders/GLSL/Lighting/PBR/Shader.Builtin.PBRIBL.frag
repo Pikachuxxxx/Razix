@@ -118,7 +118,7 @@ void main()
     vec3 irradiance = texture(IrradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
 
-    const float MAX_REFLECTION_LOD = 14.0;
+    const float MAX_REFLECTION_LOD = 10.0;
     vec3 prefilteredColor = textureLod(PreFilteredMap, R,  roughness * MAX_REFLECTION_LOD).rgb;
     vec2 envBRDF  = texture(BrdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
@@ -143,5 +143,6 @@ void main()
     if(Mat_getOpacity(fs_in.fragUV) < 0.1)
         discard;
 
+    outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
     outSceneColor = vec4(RandomColorHash(gl_PrimitiveID), Mat_getOpacity(fs_in.fragUV));
 }

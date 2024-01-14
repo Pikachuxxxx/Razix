@@ -4,6 +4,7 @@
 
 #include "RZECollapsingHeader.h"
 
+#include <QGraphicsDropShadowEffect>
 #include <QIcon>
 #include <QLabel>
 
@@ -30,6 +31,12 @@ namespace Razix {
 
             // Start in collapsed
             toggleCollapse();
+
+            QGraphicsDropShadowEffect* DropShadowEffect = new QGraphicsDropShadowEffect();
+            DropShadowEffect->setBlurRadius(20);
+            DropShadowEffect->setOffset(1, 2);
+            DropShadowEffect->setColor(Qt::black);
+            this->setGraphicsEffect(DropShadowEffect);
         }
 
         RZECollapsingHeader::~RZECollapsingHeader()

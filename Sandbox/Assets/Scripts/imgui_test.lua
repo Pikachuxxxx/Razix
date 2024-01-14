@@ -1,6 +1,6 @@
 -- ImGui test Lua Script for Razix Engine
 -- This is a test for imgui scripting from lua, currently onle a few imgui elemts and types are available for use the API exposure needs to be improved later
--- Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+-- Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
 
 local value = false
 local range = 0.0

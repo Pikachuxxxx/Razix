@@ -1,7 +1,7 @@
 /*
  * Razix Shader File (Builtin shader)
  * Shader.Builtin.EnvToCubeMap.rzsf : Converts a equirectangular environment map to Cubemap
- * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex

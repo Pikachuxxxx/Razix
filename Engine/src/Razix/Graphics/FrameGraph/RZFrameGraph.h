@@ -169,6 +169,8 @@ namespace Razix {
 
                 /* Tell whether or no the current resource is valid to read/write */
                 bool isValid(RZFrameGraphResource id);
+                /* Gets the pass node */
+                const RZPassNode &getPassNode(u32 idx) const { return m_PassNodes[idx]; }
                 /* Get the resource node for a given frame graph resource */
                 RZResourceNode &getResourceNode(RZFrameGraphResource id);
                 /* Get the resource entry for a given frame graph resource */

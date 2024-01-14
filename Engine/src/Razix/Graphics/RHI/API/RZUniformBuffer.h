@@ -14,8 +14,6 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
-            /* Initializes the uniform buffer */
-            virtual void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
             /* Binds the buffer to the pipeline (relevant for DX and GL) */
             virtual void Bind(/*RZPipeline* pipeline, RZCommandBuffer& cmdBuffer*/) = 0;
             /**

@@ -47,7 +47,7 @@ namespace Razix {
             // parent parameter is a QMainWindow the dock manager registers
             // itself as the central widget as such the ui must be set up first.
             m_DockManager = new ads::CDockManager(this);
-            m_DockManager->setStyleSheet("");
+            //m_DockManager->setStyleSheet("");
 
             this->layout()->setContentsMargins(0, 0, 0, 0);
 

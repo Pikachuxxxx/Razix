@@ -49,9 +49,9 @@ namespace Razix {
                  */
                 bool canExecute() const;
 
-                RAZIX_INLINE const std::vector<RZFrameGraphResource>& getCreatResources() { return m_Creates; }
-                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getInputResources() { return m_Reads; }
-                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getOutputResources() { return m_Writes; }
+                RAZIX_INLINE const std::vector<RZFrameGraphResource>& getCreatResources() const { return m_Creates; }
+                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getInputResources() const { return m_Reads; }
+                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getOutputResources() const { return m_Writes; }
 
             private:
                 std::unique_ptr<IRZFrameGraphPass> m_Exec; /* The execution lambda function to be called for the pass */

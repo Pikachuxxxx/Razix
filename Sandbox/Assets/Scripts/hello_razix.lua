@@ -1,6 +1,6 @@
 --Hello World Lua Script for Razix Engine
 -- This is a simple hello world srcipt that utilizes the Razix Engine's Logging system to log information by the client
--- Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+-- Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
 
 
 function OnStart(entity)

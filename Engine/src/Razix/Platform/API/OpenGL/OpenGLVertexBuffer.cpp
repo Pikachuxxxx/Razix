@@ -18,7 +18,7 @@ namespace Razix {
                     return GL_STATIC_DRAW;
                 case BufferUsage::Dynamic:
                     return GL_DYNAMIC_DRAW;
-                case BufferUsage::Stream:
+                case BufferUsage::PersistentStream:
                     return GL_STREAM_DRAW;
             }
             return 0;

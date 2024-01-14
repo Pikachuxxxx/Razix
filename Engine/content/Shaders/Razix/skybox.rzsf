@@ -1,7 +1,7 @@
 ﻿/*
  * Razix Shader File 
  * Shaders.Builtin.Skybox.rzsf : Render a skybox in the scene
- * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
