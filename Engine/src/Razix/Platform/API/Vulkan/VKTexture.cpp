@@ -592,7 +592,7 @@ namespace Razix {
             // Works only on Texture2D type for now!
 
             VKBuffer m_TransferBuffer;
-            m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+            m_TransferBuffer.setUsageFlags(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
             m_TransferBuffer.setSize(m_Desc.width * m_Desc.height * 4);
             m_TransferBuffer.init(NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
 

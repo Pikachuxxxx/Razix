@@ -13,9 +13,24 @@
 namespace Razix {
     namespace Graphics {
 
-        VKBuffer::VKBuffer(VkBufferUsageFlags usage, u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
-            : m_UsageFlags(usage), m_BufferSize(size)
+        VKBuffer::VKBuffer(BufferUsage usage, u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
+            : m_Usage(usage), m_BufferSize(size)
         {
+            // Based on Usage set some vulkan usage flags
+
+            switch (m_Usage) {
+                case BufferUsage::Static:
+                    break;
+                case BufferUsage::Dynamic:
+                    break;
+                case BufferUsage::PersistentStream:
+                    break;
+                case BufferUsage::Staging:
+                    break;
+                case BufferUsage::IndirectDrawArgs:
+                    break;
+            }
+
             init(data RZ_DEBUG_E_ARG_NAME);
         }
 
@@ -35,6 +50,7 @@ namespace Razix {
 #else
                 vmaDestroyBuffer(VKDevice::Get().getVMA(), m_Buffer, m_VMAAllocation);
 #endif
+                m_Mapped = nullptr;
                 //free(m_Mapped);
             }
         }
@@ -51,7 +67,7 @@ namespace Razix {
 #else
             res = vmaMapMemory(VKDevice::Get().getVMA(), m_VMAAllocation, &m_Mapped);
 #endif
-            RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
+            RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[VMA] Failed to map buffer!");
         }
 
         void VKBuffer::unMap()
@@ -144,7 +160,11 @@ namespace Razix {
             VmaAllocationInfo allocationInfo{};
 
             VmaAllocationCreateInfo vmaallocInfo = {};
-            // TODO: make this selection smart or customizable by user
+
+            //VmaMemoryUsage usage{};
+            //usage = VMA_MEMORY_USAGE_AUTO;
+            //if (m_UsageFlags ==)
+
             vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
             vmaallocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
             //allocate the buffer

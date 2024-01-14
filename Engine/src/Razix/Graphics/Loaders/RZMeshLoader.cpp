@@ -13,7 +13,7 @@
 
 #include <cereal/archives/json.hpp>
 
-#define DISABLE_MATERIALS_LOADING
+#undef DISABLE_MATERIALS_LOADING
 
 #define READ_AND_OFFSET(stream, dest, size, offset) \
     stream.read((char*) dest, size);                \

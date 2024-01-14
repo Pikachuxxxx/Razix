@@ -1,7 +1,7 @@
 ﻿/*
  * Razix Shader File 
  * DeferredTiledLighting.rzsf : Deferred Tiled Lighting + PBR + GI + IBL
- * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex

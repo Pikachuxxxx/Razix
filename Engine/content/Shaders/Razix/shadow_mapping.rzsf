@@ -1,7 +1,7 @@
 /*
  * Razix Shader File (Builtin Shader)
  * Shader.Builtin.ShadowMapping.rzsf : Generate Shadow Depth Map
- * Copyright Razix Engine 2023 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex

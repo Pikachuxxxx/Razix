@@ -17,7 +17,7 @@ namespace Razix {
             m_Usage = usage;
             m_Size  = 0;
 
-            VKBuffer::setUsage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+            VKBuffer::setUsageFlags(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         }
 
         VKVertexBuffer::~VKVertexBuffer() {}

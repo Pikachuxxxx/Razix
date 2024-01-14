@@ -274,6 +274,38 @@ public:                                                  \
  * SFINAE_TYPE_ERASURE_CONCEPT_CHECK
  */
 
+/**
+ * SFINAE ENUM CLASS |/& OPERATOR CHECK
+ */
+#define RAZIX_ENUM_CHECK_FOR_BITWISE_OPS(E)                                     \
+    template<typename T, bool = std::is_enum<T>::value>                         \
+    struct E;                                                                   \
+                                                                                \
+    template<typename T>                                                        \
+    struct E<T, true> : std::false_type                                         \
+    {};                                                                         \
+                                                                                \
+    template<typename T, typename std::enable_if<E<T>::value>::type* = nullptr> \
+    T operator|(T lhs, T rhs)                                                   \
+    {                                                                           \
+        using u_t = typename std::underlying_type<T>::type;                     \
+        return static_cast<T>(static_cast<u_t>(lhs) | static_cast<u_t>(rhs));   \
+    }
+
+/**
+ * Bitwise OR and AND for enum class type
+ */
+#define RAZIX_ENUM_CLASS_BITWISE_COMPATIBLE(E)                                      \
+    E operator|(E a, E b)                                                           \
+    {                                                                               \
+        return static_cast<E>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); \
+    }                                                                               \
+                                                                                    \
+    E operator&(E a, E b)                                                           \
+    {                                                                               \
+        return static_cast<E>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); \
+    }
+
 // Warning push/pop as per compiler convention
 #define RAZIX_WARNING_PUSH()     __pragma(warning(push))
 #define RAZIX_WARNING_POP()      __pragma(warning(pop))

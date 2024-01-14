@@ -41,7 +41,9 @@
 
 #include <cereal/archives/json.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include <entt.hpp>
 
@@ -380,7 +382,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;
@@ -607,11 +609,11 @@ namespace Razix {
 
                             auto passNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNodesSize();
 
-                            float  passNameHeight    = 300.0f;
-                            float  resourceNameWidth = 300.0f;
-                            ImVec2 boxSize           = ImVec2(20.0f, ImGui::GetTextLineHeightWithSpacing());
+                            float  passNameHeight    = 400.0f;
+                            float  resourceNameWidth = 400.0f;
+                            ImVec2 boxSize           = ImVec2(25.0f, ImGui::GetTextLineHeightWithSpacing() * 1.25f);
                             float  width             = (int) passNodesSize * boxSize.x + resourceNameWidth;
-                            float  height            = 1200;
+                            float  height            = 800;
 
                             ImGui::BeginChild("Table", ImVec2(width, height));
                             ImDrawList* pCmd = ImGui::GetWindowDrawList();
@@ -622,19 +624,28 @@ namespace Razix {
                             const Graphics::FrameGraph::RZPassNode* pActivePass = nullptr;
 
                             for (size_t i = 0; i < passNodesSize; i++) {
+                                const auto& passNode         = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNode(i);
+                                const auto& passNodeName     = passNode.getName();
+                                const auto& passNodeGraphIdx = passNode.getID();
+
                                 ImRect itemRect(passNamePos + ImVec2(passIndex * boxSize.x, 0.0f), passNamePos + ImVec2((passIndex + 1) * boxSize.x, passNameHeight));
                                 pCmd->AddLine(itemRect.Max, itemRect.Max + ImVec2(0, height), ImColor(1.0f, 1.0f, 1.0f, 0.2f));
                                 ImRotateStart();
-                                ImVec2 size = ImGui::CalcTextSize("passNode.getName().c_str()");
-                                pCmd->AddText(itemRect.Max - ImVec2(size.x, 0), ImColor(1.0f, 1.0f, 1.0f), "passNode.getName().c_str()");
+                                ImVec2 size = ImGui::CalcTextSize(passNodeName.c_str());
+                                pCmd->AddText(itemRect.Max - ImVec2(size.x, 0), ImColor(1.0f, 1.0f, 1.0f), passNodeName.c_str());
                                 ImRotateEnd(glm::pi<float>() * 2.2f, itemRect.Max + ImVec2(boxSize.x, 0));
                                 ImGui::ItemAdd(itemRect, passIndex);
                                 bool passActive = ImGui::IsItemHovered();
                                 if (passActive) {
                                     ImGui::BeginTooltip();
-                                    ImGui::Text("%s", "passNode.getName().c_str()");
-                                    //ImGui::Text("Flags: %s", PassFlagToString(pPass->Flags).c_str());
-                                    ImGui::Text("Index: %d", passIndex);
+                                    {
+                                        ImGui::Text("Name           : %s", passNodeName.c_str());
+                                        ImGui::Text("Graph ID       : %d", passNodeGraphIdx);
+                                        ImGui::Text("Reads          : %d", passNode.getInputResources().size());
+                                        ImGui::Text("Writes         : %d", passNode.getOutputResources().size());
+                                        ImGui::Text("Standalone     : %s", passNode.isStandAlone() ? "true" : "false");
+                                        ImGui::Text("Data driven    : %s", passNode.isDataDriven() ? "true" : "false");
+                                    }
                                     ImGui::EndTooltip();
                                 }
                                 ++passIndex;
@@ -653,6 +664,7 @@ namespace Razix {
                                 auto idx = i;
                                 //resourceNode.getResourceEntryId();
                                 auto& resourceEntry = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceEntry((Graphics::FrameGraph::RZFrameGraphResource) idx);
+                                //if(resourceEntry.getModel<Graphics::FrameGraph::RZFrameGraphTexture>())
 
                                 if (resourceEntry.isImported())
                                     continue;
@@ -669,27 +681,27 @@ namespace Razix {
                                 ImGui::ItemAdd(itemRect, idx);
                                 bool isHovered = ImGui::IsItemHovered();
 
-                                /*if (isHovered) {
+                                if (isHovered) {
                                     ImGui::BeginTooltip();
-                                    ImGui::Text("%s", resourceNode.getName());
-
-                                    if (pResource->Type == RGResourceType::Texture) {
-                                        const TextureDesc& desc = static_cast<const RGTexture*>(pResource)->Desc;
-                                        ImGui::Text("Res: %dx%dx%d", desc.Width, desc.Height, desc.DepthOrArraySize);
-                                        ImGui::Text("Fmt: %s", RHI::GetFormatInfo(desc.Format).pName);
-                                        ImGui::Text("Mips: %d", desc.Mips);
-                                        ImGui::Text("Size: %s", Math::PrettyPrintDataSize(RHI::GetTextureByteSize(desc.Format, desc.Width, desc.Height, desc.DepthOrArraySize)).c_str());
-                                    } else if (pResource->Type == RGResourceType::Buffer) {
-                                        const BufferDesc& desc = static_cast<const RGBuffer*>(pResource)->Desc;
-                                        ImGui::Text("Size: %s", Math::PrettyPrintDataSize(desc.Size).c_str());
-                                        ImGui::Text("Fmt: %s", RHI::GetFormatInfo(desc.Format).pName);
-                                        ImGui::Text("Stride: %d", desc.ElementSize);
-                                        ImGui::Text("Elements: %d", desc.NumElements());
-                                    }
+                                    //ImGui::Text("%s", resourceNode.getName());
+                                    //
+                                    //if (pResource->Type == RGResourceType::Texture) {
+                                    //    const TextureDesc& desc = static_cast<const RGTexture*>(pResource)->Desc;
+                                    //    ImGui::Text("Res: %dx%dx%d", desc.Width, desc.Height, desc.DepthOrArraySize);
+                                    //    ImGui::Text("Fmt: %s", RHI::GetFormatInfo(desc.Format).pName);
+                                    //    ImGui::Text("Mips: %d", desc.Mips);
+                                    //    ImGui::Text("Size: %s", Math::PrettyPrintDataSize(RHI::GetTextureByteSize(desc.Format, desc.Width, desc.Height, desc.DepthOrArraySize)).c_str());
+                                    //} else if (pResource->Type == RGResourceType::Buffer) {
+                                    //    const BufferDesc& desc = static_cast<const RGBuffer*>(pResource)->Desc;
+                                    //    ImGui::Text("Size: %s", Math::PrettyPrintDataSize(desc.Size).c_str());
+                                    //    ImGui::Text("Fmt: %s", RHI::GetFormatInfo(desc.Format).pName);
+                                    //    ImGui::Text("Stride: %d", desc.ElementSize);
+                                    //    ImGui::Text("Elements: %d", desc.NumElements());
+                                    //}
                                     ImGui::EndTooltip();
-                                }*/
+                                }
 
-                                pCmd->AddRectFilled(itemRect.Min, itemRect.Max, ImColor(1.0f, 0.7f, 0.9f));
+                                pCmd->AddRectFilled(itemRect.Min, itemRect.Max, ImColor(0.5f, 0.6f, 1.0f));
 
                                 ImColor boxColor = ImColor(1.0f, 1.0f, 1.0f, 0.5f);
 
@@ -750,7 +762,11 @@ namespace Razix {
 
                                         ImGui::Text("Depth");
                                         ImGui::TableNextColumn();
-                                        ImGui::Text("2.4");
+                                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0.75, 0, 1));
+                                        {
+                                            ImGui::Text("2.4");
+                                        }
+                                        ImGui::PopStyleColor(1);
                                         ImGui::TableNextColumn();
                                         ImGui::Text("1.2");
                                     }
@@ -879,12 +895,13 @@ namespace Razix {
         //
         //        glm::vec3 pos = trans.Translation;
         //
-        //        glm::vec2 screenPos = pos;
-        //        //glm::project(pos, trans.GetTransform(), scnCam.Camera.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
-        //        ImGui::SetCursorPos({100.0f, 100.0f});
+        //        glm::vec2  screenPos         = pos;
+        //        const auto transformMat      = trans.GetWorldTransform();
+        //        auto       screenSpaceCoords = glm::project(pos, transformMat, scnCam.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
+        //        ImGui::SetCursorPos({screenSpaceCoords.x, screenSpaceCoords.y});
         //        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.7f, 0.7f, 0.0f));
         //
-        //        ImGui::Button(ICON_FA_CAMERA);
+        //        ImGui::Button(ICON_FA_LIGHTBULB);
         //
         //        ImGui::PopStyleColor();
         //    }
@@ -949,11 +966,11 @@ namespace Razix {
                     f32 Totaldt = 0.0f;
                     for (auto& [name, dt]: stats.PassTimings) {
                         Totaldt += dt;
-                        ImGui::BulletText("%-22s : %5.2f ms", name.c_str(), dt);
+                        ImGui::BulletText("%-23s : %5.2f ms", name.c_str(), dt);
                     }
                     ImGui::Separator();
-                    ImGui::BulletText("%-22s : %5.2f ms", "Passes Sum", Totaldt);
-                    ImGui::BulletText("%-22s : %5.2f ms", "Acquire + Flip", stats.DeltaTime - Totaldt);
+                    ImGui::BulletText("%-23s : %5.2f ms", "Passes Sum", Totaldt);
+                    ImGui::BulletText("%-23s : %5.2f ms", "Acquire + Flip", stats.DeltaTime - Totaldt);
                     ImGui::TreePop();
                 }
             }

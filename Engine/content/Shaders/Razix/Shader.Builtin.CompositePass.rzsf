@@ -1,7 +1,7 @@
 /*
  * Razix Shader File 
  * Shader.Builtin.CompositePass.rzsf : Composition pass for presention onto a swapchain image, takes a RT and presents it onto a Screen Quad 
- * Copyright Razix Engine 2022 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex

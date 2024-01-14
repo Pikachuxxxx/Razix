@@ -57,7 +57,7 @@ namespace Razix {
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
-            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
+            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
             m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
             m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
@@ -464,6 +464,7 @@ namespace Razix {
 
                 // Signal on a semaphore for the presentation engine to wait on
                 //Graphics::RHI::SubmitWork();
+
 
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
                 Graphics::RHI::Present(nullptr);

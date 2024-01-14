@@ -23,7 +23,6 @@ namespace Razix {
             VKUniformBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKUniformBuffer() {}
 
-            void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
             void Bind() override {}
             void SetData(u32 size, const void* data) override;
             void Destroy() override;

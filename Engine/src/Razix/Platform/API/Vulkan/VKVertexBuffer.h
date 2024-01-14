@@ -9,7 +9,7 @@
 namespace Razix {
     namespace Graphics {
 
-        class VKVertexBuffer : public RZVertexBuffer, public VKBuffer
+        class VKVertexBuffer final : public RZVertexBuffer, public VKBuffer
         {
         public:
             VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
