@@ -5,6 +5,10 @@
 // clang-format on
 
 #include <Razix.h>
+#include <Razix/Core/RazixVersion.h>
+#include <Razix/Platform/API/Vulkan/VKContext.h>
+
+#include <vulkan/vulkan.h>
 
 #include <QApplication>
 #include <QSettings>
@@ -13,7 +17,6 @@
 #include <QVulkanInstance>
 
 #include "RZEEngineLoop.h"
-
 #include "RZENativeWindow.h"
 #include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 #include "UI/Widgets/RZECollapsingHeader.h"
@@ -25,16 +28,13 @@
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZETitleBar.h"
 #include "UI/Windows/RZEVulkanWindow.h"
-
 #include "UI/Windows/RZEFrameGraphEditor.h"
 
 #include "UI/RZEProjectBrowser.h"
 
-#include "Razix/Platform/API/Vulkan/VKContext.h"
-
 #include "Styles/StyleData.h"
 
-#include <vulkan/vulkan.h>
+
 
 // TOOD: Clean this cluster fuck code!!!
 static QApplication*                    qrzeditorApp         = nullptr;
@@ -266,6 +266,7 @@ int main(int argc, char** argv)
     printf("Project Name : %s \n", projectBrowserDialog->getProjectName().c_str());
     printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
 
+   
     mainWindow = new Editor::RZEAppMainWindow;    // new Razix::Editor::RZEApplicationMainDockWindowCentralWidget;
 #ifdef ENABLE_CUSTOM_TITLE_BAR
     titlebar = new Razix::Editor::RZETitleBar(mainWindow);
@@ -283,6 +284,10 @@ int main(int argc, char** argv)
       background-color: #F00;
     }
   )");
+
+    // Set Title Bar project and engine version
+    mainWindow->getTitleBar()->setProjectName(projectBrowserDialog->getProjectName().c_str());
+    //mainWindow->getTitleBar()->setBuildVersion("Build : V." + Razix::RazixVersion.getVersionString());
 
     // Register the Qt Consoler Logger Sinks
     Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getCentralWidget()->getConsolerLoggerSink());

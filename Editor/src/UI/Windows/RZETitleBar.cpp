@@ -14,15 +14,10 @@
 
 namespace Razix {
     namespace Editor {
-        RZETitleBar::RZETitleBar(QGoodWindow* goodWindow)
-            : QFrame(goodWindow), m_GoodWindow(goodWindow)
+        RZETitleBar::RZETitleBar(QGoodWindow* goodWindow, QWidget* parent)
+            : QFrame(parent), m_GoodWindow(goodWindow)
         {
             ui.setupUi(this);
-            //setAttribute(Qt::WA_TranslucentBackground);
-            QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect();
-            effect->setBlurRadius(5);
-            effect->setOffset(2, 4);
-            effect->setColor(Qt::black);
 
             // TODO: Handle buttons state changed events
             connect(m_GoodWindow, &QGoodWindow::captionButtonStateChanged, this, &RZETitleBar::captionButtonStateChanged);
@@ -33,6 +28,9 @@ namespace Razix {
             connect(ui.minimizeBtn, SIGNAL(clicked()), m_GoodWindow, SLOT(showMinimized()));
             connect(ui.maximizeBtn, SIGNAL(clicked()), m_GoodWindow, SLOT(showMaximized()));
             connect(ui.closeBtn, SIGNAL(clicked()), m_GoodWindow, SLOT(close()));
+
+            ui.ProjectName->setAttribute(Qt::WA_TransparentForMouseEvents);
+            ui.BuildVersion->setAttribute(Qt::WA_TransparentForMouseEvents);
 
             // TODO: QMainWindow title change and Icon change events support
 #if 0 
@@ -52,6 +50,11 @@ namespace Razix {
 
         RZETitleBar::~RZETitleBar()
         {
+        }
+
+        void RZETitleBar::setMenuBar(QMenuBar* menuBar)
+        {
+            ui.menuHolderLayout->addWidget(menuBar);
         }
 
         void RZETitleBar::captionButtonStateChanged(const QGoodWindow::CaptionButtonState& state)

@@ -615,6 +615,7 @@ namespace Razix {
 
     #endif
 
+            m_rze_central_widget->setTitleBarMenu(menu_bar);
 #endif
             qGoodStateHolder->setCurrentThemeDark(QGoodWindow::isSystemThemeDark());
 

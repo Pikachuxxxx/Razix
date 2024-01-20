@@ -143,10 +143,7 @@ namespace Razix {
 
             RZEApplicationMainDockWindowCentralWidget* getCentralWidget() { return m_central_widget; }
 
-            RZEApplicationMainDockWindowCentralWidget* operator->() const
-            {
-                return m_central_widget;
-            }
+            inline RZETitleBar* getTitleBar() { return m_rze_central_widget->getTitleBar(); }
 
         private:
             //Functions

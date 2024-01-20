@@ -22,8 +22,17 @@ namespace Razix {
 
             /** Set the central widget of *QGoodCentralWidget*. */
             void setCentralWidget(QWidget* widget);
-
             void setTitleBarMenu(QMenuBar* menuBar);
+
+            inline RZETitleBar* getTitleBar() { return m_Titlebar; }
+
+        protected:
+            bool eventFilter(QObject* watched, QEvent* event);
+            bool event(QEvent* event);
+
+        private:
+            void updateWindow();
+            void updateWindowLater();
 
         private:
             RZETitleBar* m_Titlebar = nullptr;
