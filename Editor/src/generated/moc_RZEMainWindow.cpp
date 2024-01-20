@@ -8,7 +8,7 @@
 
 #include <memory>
 #include "rzepch.h"
-#include "../UI/Windows/RZEMainWindow.h"
+#include "../UI/Windows/RZEApplicationMainDockWindow.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
@@ -115,10 +115,10 @@ static const uint qt_meta_data_Razix__Editor__RZEMainWindow[] = {
        0        // eod
 };
 
-void Razix::Editor::RZEMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void Razix::Editor::RZEApplicationMainDockWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<RZEMainWindow *>(_o);
+        auto *_t = static_cast<RZEApplicationMainDockWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->OnEntityAddedToScene(); break;
@@ -140,8 +140,8 @@ void Razix::Editor::RZEMainWindow::qt_static_metacall(QObject *_o, QMetaObject::
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (RZEMainWindow::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&RZEMainWindow::OnEntityAddedToScene)) {
+            using _t = void (RZEApplicationMainDockWindow::*)();
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&RZEApplicationMainDockWindow::OnEntityAddedToScene)) {
                 *result = 0;
                 return;
             }
@@ -149,7 +149,7 @@ void Razix::Editor::RZEMainWindow::qt_static_metacall(QObject *_o, QMetaObject::
     }
 }
 
-QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZEMainWindow::staticMetaObject = { {
+QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZEApplicationMainDockWindow::staticMetaObject = { {
     QMetaObject::SuperData::link<QMainWindow::staticMetaObject>(),
     qt_meta_stringdata_Razix__Editor__RZEMainWindow.data,
     qt_meta_data_Razix__Editor__RZEMainWindow,
@@ -159,12 +159,12 @@ QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZEMainWindow::staticMetaObj
 } };
 
 
-const QMetaObject *Razix::Editor::RZEMainWindow::metaObject() const
+const QMetaObject *Razix::Editor::RZEApplicationMainDockWindow::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *Razix::Editor::RZEMainWindow::qt_metacast(const char *_clname)
+void *Razix::Editor::RZEApplicationMainDockWindow::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_Razix__Editor__RZEMainWindow.stringdata0))
@@ -172,7 +172,7 @@ void *Razix::Editor::RZEMainWindow::qt_metacast(const char *_clname)
     return QMainWindow::qt_metacast(_clname);
 }
 
-int Razix::Editor::RZEMainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int Razix::Editor::RZEApplicationMainDockWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QMainWindow::qt_metacall(_c, _id, _a);
     if (_id < 0)
@@ -190,7 +190,7 @@ int Razix::Editor::RZEMainWindow::qt_metacall(QMetaObject::Call _c, int _id, voi
 }
 
 // SIGNAL 0
-void Razix::Editor::RZEMainWindow::OnEntityAddedToScene()
+void Razix::Editor::RZEApplicationMainDockWindow::OnEntityAddedToScene()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
 }

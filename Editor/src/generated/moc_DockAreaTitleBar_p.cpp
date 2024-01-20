@@ -7,8 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "rzepch.h"
-#include "../Extensions/QtADS/DockAreaTitleBar_p.h"
+#include "../../vendor/QtADS/DockAreaTitleBar_p.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)

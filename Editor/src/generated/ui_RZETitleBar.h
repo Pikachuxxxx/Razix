@@ -29,16 +29,16 @@ public:
     QFrame *header;
     QHBoxLayout *horizontalLayout_3;
     QVBoxLayout *verticalLayout_2;
-    QFrame *frame;
+    QFrame *EngineLogo;
     QSpacerItem *horizontalSpacer;
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout_2;
     QLabel *ProjectName;
     QSpacerItem *horizontalSpacer_2;
     QLabel *BuildVersion;
-    QPushButton *minimize;
-    QPushButton *maximize;
-    QPushButton *close;
+    QPushButton *minimizeBtn;
+    QPushButton *maximizeBtn;
+    QPushButton *closeBtn;
     QSpacerItem *verticalSpacer;
     QWidget *body;
     QVBoxLayout *verticalLayout_6;
@@ -79,16 +79,16 @@ public:
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        frame = new QFrame(header);
-        frame->setObjectName(QString::fromUtf8("frame"));
-        frame->setMinimumSize(QSize(64, 64));
-        frame->setMaximumSize(QSize(64, 64));
-        frame->setAutoFillBackground(false);
-        frame->setStyleSheet(QString::fromUtf8("image: url(:/rzeditor/RazixLogo64.png);"));
-        frame->setFrameShape(QFrame::StyledPanel);
-        frame->setFrameShadow(QFrame::Raised);
+        EngineLogo = new QFrame(header);
+        EngineLogo->setObjectName(QString::fromUtf8("EngineLogo"));
+        EngineLogo->setMinimumSize(QSize(64, 64));
+        EngineLogo->setMaximumSize(QSize(64, 64));
+        EngineLogo->setAutoFillBackground(false);
+        EngineLogo->setStyleSheet(QString::fromUtf8("image: url(:/rzeditor/RazixLogo64.png);"));
+        EngineLogo->setFrameShape(QFrame::StyledPanel);
+        EngineLogo->setFrameShadow(QFrame::Raised);
 
-        verticalLayout_2->addWidget(frame);
+        verticalLayout_2->addWidget(EngineLogo);
 
 
         horizontalLayout_3->addLayout(verticalLayout_2);
@@ -108,6 +108,7 @@ public:
         QFont font;
         font.setPointSize(12);
         ProjectName->setFont(font);
+        ProjectName->setToolTipDuration(2);
         ProjectName->setStyleSheet(QString::fromUtf8("#ProjectName{\n"
 "background-color: rgb(16, 16, 16);\n"
 "border-bottom-right-radius: 5px;\n"
@@ -125,33 +126,37 @@ public:
         BuildVersion = new QLabel(header);
         BuildVersion->setObjectName(QString::fromUtf8("BuildVersion"));
         BuildVersion->setFont(font);
+        BuildVersion->setToolTipDuration(2);
         BuildVersion->setMargin(4);
 
         horizontalLayout_2->addWidget(BuildVersion);
 
-        minimize = new QPushButton(header);
-        minimize->setObjectName(QString::fromUtf8("minimize"));
+        minimizeBtn = new QPushButton(header);
+        minimizeBtn->setObjectName(QString::fromUtf8("minimizeBtn"));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/rzeditor/minimize.png"), QSize(), QIcon::Normal, QIcon::Off);
-        minimize->setIcon(icon);
+        minimizeBtn->setIcon(icon);
+        minimizeBtn->setFlat(false);
 
-        horizontalLayout_2->addWidget(minimize);
+        horizontalLayout_2->addWidget(minimizeBtn);
 
-        maximize = new QPushButton(header);
-        maximize->setObjectName(QString::fromUtf8("maximize"));
+        maximizeBtn = new QPushButton(header);
+        maximizeBtn->setObjectName(QString::fromUtf8("maximizeBtn"));
         QIcon icon1;
         icon1.addFile(QString::fromUtf8(":/rzeditor/maximize.png"), QSize(), QIcon::Normal, QIcon::Off);
-        maximize->setIcon(icon1);
+        maximizeBtn->setIcon(icon1);
+        maximizeBtn->setFlat(false);
 
-        horizontalLayout_2->addWidget(maximize);
+        horizontalLayout_2->addWidget(maximizeBtn);
 
-        close = new QPushButton(header);
-        close->setObjectName(QString::fromUtf8("close"));
+        closeBtn = new QPushButton(header);
+        closeBtn->setObjectName(QString::fromUtf8("closeBtn"));
         QIcon icon2;
         icon2.addFile(QString::fromUtf8(":/rzeditor/close.png"), QSize(), QIcon::Normal, QIcon::Off);
-        close->setIcon(icon2);
+        closeBtn->setIcon(icon2);
+        closeBtn->setFlat(false);
 
-        horizontalLayout_2->addWidget(close);
+        horizontalLayout_2->addWidget(closeBtn);
 
 
         verticalLayout->addLayout(horizontalLayout_2);
@@ -185,11 +190,17 @@ public:
     void retranslateUi(QFrame *TitleBar)
     {
         TitleBar->setWindowTitle(QCoreApplication::translate("TitleBar", "RZETitleBar", nullptr));
+#if QT_CONFIG(tooltip)
+        ProjectName->setToolTip(QCoreApplication::translate("TitleBar", "Project Name", nullptr));
+#endif // QT_CONFIG(tooltip)
         ProjectName->setText(QCoreApplication::translate("TitleBar", "ProjectName", nullptr));
+#if QT_CONFIG(tooltip)
+        BuildVersion->setToolTip(QCoreApplication::translate("TitleBar", "Engine Version", nullptr));
+#endif // QT_CONFIG(tooltip)
         BuildVersion->setText(QCoreApplication::translate("TitleBar", "Build : V.0.43.0.Dev", nullptr));
-        minimize->setText(QString());
-        maximize->setText(QString());
-        close->setText(QString());
+        minimizeBtn->setText(QString());
+        maximizeBtn->setText(QString());
+        closeBtn->setText(QString());
     } // retranslateUi
 
 };

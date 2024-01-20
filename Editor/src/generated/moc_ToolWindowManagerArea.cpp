@@ -7,8 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "rzepch.h"
-#include "../Extensions/toolwindowmanager/ToolWindowManagerArea.h"
+#include "../../vendor/toolwindowmanager/ToolWindowManagerArea.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)

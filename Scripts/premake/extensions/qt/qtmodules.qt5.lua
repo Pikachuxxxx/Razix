@@ -89,5 +89,10 @@ premake.extensions.qt.modules.qt5 = {
 		name = "Xml",
 		include = "QtXml",
 		defines = { "QT_XML_LIB" }
+	},
+	winextras = {
+		name = "WinExtras",
+		include = "QtWinExtras",
+		defines = { "QT_WinExtras_LIB" }
 	}
 }

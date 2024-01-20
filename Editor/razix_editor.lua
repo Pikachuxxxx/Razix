@@ -50,46 +50,6 @@ project "RazixEditor"
 
     removefiles { "src/generated/**", ""}
 
-     -- Macos include paths
-    externalincludedirs
-    {
-        "../Engine/src/Razix",
-        "../Engine",
-        "../Editor/src",
-        "../Editor/internal",
-        "../Editor/internal/QtNodeGraph/src",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.tracy}",
-        "%{IncludeDir.optick}",
-        "%{IncludeDir.Jolt}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        -- API related
-        "%{VulkanSDK}/Include",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}",
-        -- Tools Include Dirs
-        "%{ToolIncludeDir.RazixAssetPacker}",
-        -- Extensions
-        "../Editor/src/Extensions",
-        "../Editor/src/Extensions/QtADS",
-        "../Editor/src/Extensions/qspdlog/include",
-        "../Editor/src/Extensions/titlebar"
-    }
-
     includedirs
     {
         "../Engine/src/Razix",
@@ -118,13 +78,17 @@ project "RazixEditor"
         "%{VulkanSDK}/Include",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
+        "%{InternalIncludeDir.RZSTL}",
+        "%{InternalIncludeDir.EASTL}",
+        "%{InternalIncludeDir.EABase}",
         -- Tools Include Dirs
         "%{ToolIncludeDir.RazixAssetPacker}",
-        -- Extensions
-        "../Editor/src/Extensions",
-        "../Editor/src/Extensions/QtADS",
-        "../Editor/src/Extensions/qspdlog/include",
-        "../Editor/src/Extensions/titlebar"
+        -- Editor vendor
+        "%{EditorVendorIncludeDir.editorvendor}",
+        "%{EditorVendorIncludeDir.QGoodWindow}",
+        "%{EditorVendorIncludeDir.qspdlog}",
+        "%{EditorVendorIncludeDir.QtADS}",
+        "%{EditorVendorIncludeDir.toolwindowmanager}",   
     }
 
     links
@@ -147,7 +111,12 @@ project "RazixEditor"
         "RazixMemory",
         "QtNodeGraph",
         -- Razix Tools
-        "RazixAssetPacker"
+        "RazixAssetPacker",
+        -- Editor Vendor
+        "QGoodWindow",
+        "qspdlog",
+        "QtADS",
+        "toolwindowmanager"
     }
 
     libdirs
@@ -243,7 +212,10 @@ project "RazixEditor"
            "RAZIX_CONFIG=" .. outputdir,
            "QT_QTPROPERTYBROWSER_IMPORT",
            -- Editor Vendor
-           "NODE_EDITOR_SHARED"
+           "NODE_EDITOR_SHARED",
+           -- Editor Extensions
+           "QGOODWINDOW",
+           "QT_VERSION_QT5"
        }
        -- https://www.qt.io/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt
        -- buildoptions {"/fsanitize=address", "/fno-omit-frame-pointer"}

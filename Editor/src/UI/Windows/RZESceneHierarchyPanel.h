@@ -2,7 +2,7 @@
 
 #include "generated/ui_RZESceneHierarchyPanel.h"
 
-#include "UI/Windows/RZEMainWindow.h"
+#include "UI/Windows/RZEApplicationMainDockWindow.h"
 
 #include <QFrame>
 #include <QMouseEvent>
@@ -21,7 +21,7 @@ namespace Razix {
         {
             Q_OBJECT
         public:
-            RZESceneHierarchyPanel(RZEMainWindow* mainWindow, QWidget* parent = nullptr);
+            RZESceneHierarchyPanel(RZEApplicationMainDockWindowCentralWidget* mainWindow, QWidget* parent = nullptr);
             ~RZESceneHierarchyPanel();
 
             void populateHierarchy();
@@ -67,7 +67,7 @@ namespace Razix {
         private:
             Ui::SceneHierarchyPanel ui;
             QHeaderView*            header;
-            RZEMainWindow*          m_MainWindow;
+            RZEApplicationMainDockWindowCentralWidget*          m_MainWindow;
         };
     }    // namespace Editor
 }    // namespace Razix

@@ -92,7 +92,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QFrame" name="frame">
+         <widget class="QFrame" name="EngineLogo">
           <property name="minimumSize">
            <size>
             <width>64</width>
@@ -151,6 +151,12 @@
               <pointsize>12</pointsize>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Project Name</string>
+            </property>
+            <property name="toolTipDuration">
+             <number>2</number>
+            </property>
             <property name="styleSheet">
              <string notr="true">#ProjectName{
 background-color: rgb(16, 16, 16);
@@ -187,6 +193,12 @@ border-bottom-left-radius: 5px;
               <pointsize>12</pointsize>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Engine Version</string>
+            </property>
+            <property name="toolTipDuration">
+             <number>2</number>
+            </property>
             <property name="text">
              <string>Build : V.0.43.0.Dev</string>
             </property>
@@ -196,7 +208,7 @@ border-bottom-left-radius: 5px;
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="minimize">
+           <widget class="QPushButton" name="minimizeBtn">
             <property name="text">
              <string/>
             </property>
@@ -204,10 +216,13 @@ border-bottom-left-radius: 5px;
              <iconset resource="../../../Resources/RZEResources.qrc">
               <normaloff>:/rzeditor/minimize.png</normaloff>:/rzeditor/minimize.png</iconset>
             </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="maximize">
+           <widget class="QPushButton" name="maximizeBtn">
             <property name="text">
              <string/>
             </property>
@@ -215,16 +230,22 @@ border-bottom-left-radius: 5px;
              <iconset resource="../../../Resources/RZEResources.qrc">
               <normaloff>:/rzeditor/maximize.png</normaloff>:/rzeditor/maximize.png</iconset>
             </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="close">
+           <widget class="QPushButton" name="closeBtn">
             <property name="text">
              <string/>
             </property>
             <property name="icon">
              <iconset resource="../../../Resources/RZEResources.qrc">
               <normaloff>:/rzeditor/close.png</normaloff>:/rzeditor/close.png</iconset>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
