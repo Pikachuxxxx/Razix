@@ -7,8 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "rzepch.h"
-#include "../Extensions/QtADS/AutoHideTab.h"
+#include "../../vendor/QtADS/AutoHideTab.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)

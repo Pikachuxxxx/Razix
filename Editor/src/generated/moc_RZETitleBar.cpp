@@ -24,7 +24,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZETitleBar_t {
     QByteArrayData data[5];
-    char stringdata0[83];
+    char stringdata0[92];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -34,14 +34,15 @@ struct qt_meta_stringdata_Razix__Editor__RZETitleBar_t {
 static const qt_meta_stringdata_Razix__Editor__RZETitleBar_t qt_meta_stringdata_Razix__Editor__RZETitleBar = {
     {
 QT_MOC_LITERAL(0, 0, 26), // "Razix::Editor::RZETitleBar"
-QT_MOC_LITERAL(1, 27, 16), // "on_close_clicked"
-QT_MOC_LITERAL(2, 44, 0), // ""
-QT_MOC_LITERAL(3, 45, 18), // "on_maximum_clicked"
-QT_MOC_LITERAL(4, 64, 18) // "on_minimum_clicked"
+QT_MOC_LITERAL(1, 27, 25), // "captionButtonStateChanged"
+QT_MOC_LITERAL(2, 53, 0), // ""
+QT_MOC_LITERAL(3, 54, 31), // "QGoodWindow::CaptionButtonState"
+QT_MOC_LITERAL(4, 86, 5) // "state"
 
     },
-    "Razix::Editor::RZETitleBar\0on_close_clicked\0"
-    "\0on_maximum_clicked\0on_minimum_clicked"
+    "Razix::Editor::RZETitleBar\0"
+    "captionButtonStateChanged\0\0"
+    "QGoodWindow::CaptionButtonState\0state"
 };
 #undef QT_MOC_LITERAL
 
@@ -51,7 +52,7 @@ static const uint qt_meta_data_Razix__Editor__RZETitleBar[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       1,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -59,14 +60,10 @@ static const uint qt_meta_data_Razix__Editor__RZETitleBar[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x08 /* Private */,
-       3,    0,   30,    2, 0x08 /* Private */,
-       4,    0,   31,    2, 0x08 /* Private */,
+       1,    1,   19,    2, 0x0a /* Public */,
 
  // slots: parameters
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 3,    4,
 
        0        // eod
 };
@@ -77,13 +74,10 @@ void Razix::Editor::RZETitleBar::qt_static_metacall(QObject *_o, QMetaObject::Ca
         auto *_t = static_cast<RZETitleBar *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->on_close_clicked(); break;
-        case 1: _t->on_maximum_clicked(); break;
-        case 2: _t->on_minimum_clicked(); break;
+        case 0: _t->captionButtonStateChanged((*reinterpret_cast< const QGoodWindow::CaptionButtonState(*)>(_a[1]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 QT_INIT_METAOBJECT const QMetaObject Razix::Editor::RZETitleBar::staticMetaObject = { {
@@ -115,13 +109,13 @@ int Razix::Editor::RZETitleBar::qt_metacall(QMetaObject::Call _c, int _id, void 
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 1)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 1;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 3)
+        if (_id < 1)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 3;
+        _id -= 1;
     }
     return _id;
 }

@@ -24,10 +24,6 @@ namespace Razix {
         {
         }
 
-        void OpenGLUniformBuffer::Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            throw std::logic_error("The method or operation is not implemented.");
-        }
 
         void OpenGLUniformBuffer::Bind()
         {

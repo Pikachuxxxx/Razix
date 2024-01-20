@@ -7,178 +7,92 @@
 #include <QGraphicsDropShadowEffect>
 #include <QMouseEvent>
 
+#include <qgoodwindow.h>
+
 #define GET_X_LPARAM(lp) ((int) (short) LOWORD(lp))
 #define GET_Y_LPARAM(lp) ((int) (short) HIWORD(lp))
 
 namespace Razix {
     namespace Editor {
-        RZETitleBar::RZETitleBar(QWidget* child, QWidget* parent)
-            : QFrame(parent)
+        RZETitleBar::RZETitleBar(QGoodWindow* goodWindow, QWidget* parent)
+            : QFrame(parent), m_GoodWindow(goodWindow)
         {
             ui.setupUi(this);
-            setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
-            setAttribute(Qt::WA_TranslucentBackground);
-            QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect();
-            effect->setBlurRadius(5);
-            effect->setOffset(2, 4);
-            effect->setColor(Qt::black);
 
-            // int     side = 10;
-            // QRegion maskedRegion(width() / 2 - side / 2, height() / 2 - side / 2, side, side, QRegion::Ellipse);
-            // setMask(maskedRegion);
+            // TODO: Handle buttons state changed events
+            connect(m_GoodWindow, &QGoodWindow::captionButtonStateChanged, this, &RZETitleBar::captionButtonStateChanged);
 
-            if (child != nullptr) {
-                ui.body->layout()->addWidget(child);
+            // TODO: Add restore button -> which is to get back to old state when maximized
+            //connect(ui.restoreBtn, SIGNAL(pressed()), m_GoodWindow, SLOT(showNormal()));
 
-                ui.body->setGraphicsEffect(effect);
-                child->setGraphicsEffect(effect);
+            connect(ui.minimizeBtn, SIGNAL(clicked()), m_GoodWindow, SLOT(showMinimized()));
+            connect(ui.maximizeBtn, SIGNAL(clicked()), m_GoodWindow, SLOT(showMaximized()));
+            connect(ui.closeBtn, SIGNAL(clicked()), m_GoodWindow, SLOT(close()));
 
-                m_MainBody = child;
-                m_MainBody->installEventFilter(this);
-                resize(child->size());
-            }
+            ui.ProjectName->setAttribute(Qt::WA_TransparentForMouseEvents);
+            ui.BuildVersion->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-            connect(ui.minimize, SIGNAL(pressed()), this, SLOT(on_minimum_clicked()));
-            connect(ui.maximize, SIGNAL(pressed()), this, SLOT(on_maximum_clicked()));
-            connect(ui.close, SIGNAL(pressed()), this, SLOT(on_close_clicked()));
+            // TODO: QMainWindow title change and Icon change events support
+#if 0 
+             connect(m_gw, &QGoodWindow::windowTitleChanged, m_title_bar, [=](const QString &title){
+                m_title_bar->setTitle(title);
+            });
+
+            connect(m_gw, &QGoodWindow::windowIconChanged, m_title_bar, [=](const QIcon &icon){
+                if (!icon.isNull())
+                {
+                    const int pix_size = 16;
+                    m_title_bar->setIcon(icon.pixmap(pix_size, pix_size));
+                }
+            });
+#endif
         }
 
         RZETitleBar::~RZETitleBar()
         {
-            int subBodies = ui.body->layout()->count();
-            if (subBodies > 0) {
-                for (int i = 0; i < subBodies; i++) {
-                    QWidget* subBody = ui.body->layout()->itemAt(i)->widget();
-                    delete subBody;
-                }
+        }
+
+        void RZETitleBar::setMenuBar(QMenuBar* menuBar)
+        {
+            ui.menuHolderLayout->addWidget(menuBar);
+        }
+
+        void RZETitleBar::captionButtonStateChanged(const QGoodWindow::CaptionButtonState& state)
+        {
+            switch (state) {
+                case QGoodWindow::CaptionButtonState::MinimizeHoverEnter:
+                    break;
+                case QGoodWindow::CaptionButtonState::MinimizeHoverLeave:
+                    break;
+                case QGoodWindow::CaptionButtonState::MinimizePress:
+                    break;
+                case QGoodWindow::CaptionButtonState::MinimizeRelease:
+                    break;
+                case QGoodWindow::CaptionButtonState::MinimizeClicked:
+                    break;
+                case QGoodWindow::CaptionButtonState::MaximizeHoverEnter:
+                    break;
+                case QGoodWindow::CaptionButtonState::MaximizeHoverLeave:
+                    break;
+                case QGoodWindow::CaptionButtonState::MaximizePress:
+                    break;
+                case QGoodWindow::CaptionButtonState::MaximizeRelease:
+                    break;
+                case QGoodWindow::CaptionButtonState::MaximizeClicked:
+                    break;
+                case QGoodWindow::CaptionButtonState::CloseHoverEnter:
+                    break;
+                case QGoodWindow::CaptionButtonState::CloseHoverLeave:
+                    break;
+                case QGoodWindow::CaptionButtonState::ClosePress:
+                    break;
+                case QGoodWindow::CaptionButtonState::CloseRelease:
+                    break;
+                case QGoodWindow::CaptionButtonState::CloseClicked:
+                    break;
+                default:
+                    break;
             }
-        }
-
-        void RZETitleBar::on_close_clicked()
-        {
-            close();
-        }
-
-        void RZETitleBar::on_maximum_clicked()
-        {
-            if (isMaximized()) {
-                showNormal();
-            } else {
-                showMaximized();
-            }
-        }
-
-        void RZETitleBar::on_minimum_clicked()
-        {
-            showMinimized();
-        }
-
-        void RZETitleBar::mousePressEvent(QMouseEvent* event)
-        {
-            if (event->buttons() == Qt::LeftButton) {
-                QWidget* widget = childAt(event->x(), event->y());
-                if (widget == ui.header) {
-                    m_Position.setX(event->x());
-                    m_Position.setY(event->y());
-                }
-            }
-        }
-
-        void RZETitleBar::mouseMoveEvent(QMouseEvent* event)
-        {
-            if (event->buttons() == Qt::LeftButton) {
-                if (m_Position.x() != 0 || m_Position.y() != 0) {
-                    move(event->globalX() - m_Position.x(), event->globalY() - m_Position.y());
-                }
-            }
-        }
-
-        void RZETitleBar::mouseReleaseEvent(QMouseEvent* event)
-        {
-            m_Position.setX(0);
-            m_Position.setY(0);
-        }
-
-        void RZETitleBar::mouseDoubleClickEvent(QMouseEvent* event)
-        {
-            if (event->buttons() == Qt::LeftButton) {
-                QWidget* widget = childAt(event->x(), event->y());
-                if (widget == ui.header) {
-                    isMaximized() ? showNormal() : showMaximized();
-                }
-            }
-        }
-
-        bool RZETitleBar::nativeEvent(const QByteArray& eventType, void* message, long* result)
-        {
-            Q_UNUSED(eventType)
-            MSG* param = static_cast<MSG*>(message);
-            switch (param->message) {
-                case WM_NCHITTEST: {
-                    int nX = GET_X_LPARAM(param->lParam) - geometry().x();
-                    int nY = GET_Y_LPARAM(param->lParam) - geometry().y();
-
-                    if (childAt(nX, nY) != ui.header && childAt(nX, nY) != ui.body) {
-                        return QWidget::nativeEvent(eventType, message, result);
-                    }
-
-                    *result = HTCAPTION;
-
-                    if ((nX > 0) && (nX < borderSize)) {
-                        *result = HTLEFT;
-                    }
-
-                    if ((nX > width() - borderSize) && (nX < width())) {
-                        *result = HTRIGHT;
-                    }
-
-                    if ((nY > 0) && (nY < borderSize)) {
-                        *result = HTTOP;
-                    }
-
-                    if ((nY > height() - borderSize) && (nY < height())) {
-                        *result = HTBOTTOM;
-                    }
-
-                    if ((nX > 0) && (nX < borderSize) && (nY > 0) && (nY < borderSize)) {
-                        *result = HTTOPLEFT;
-                    }
-
-                    if ((nX > width() - borderSize) && (nX < width()) && (nY > 0) && (nY < borderSize)) {
-                        *result = HTTOPRIGHT;
-                    }
-
-                    if ((nX > 0) && (nX < borderSize) && (nY > height() - borderSize) && (nY < height())) {
-                        *result = HTBOTTOMLEFT;
-                    }
-
-                    if ((nX > width() - borderSize) && (nX < width()) && (nY > height() - borderSize) && (nY < height())) {
-                        *result = HTBOTTOMRIGHT;
-                    }
-
-                    return true;
-                }
-            }
-
-            return QWidget::nativeEvent(eventType, message, result);
-        }
-
-        bool RZETitleBar::eventFilter(QObject* obj, QEvent* event)
-        {
-            if (obj == m_MainBody) {
-                if (event->type() == QEvent::HideToParent) {
-                    hide();
-                    return true;
-                }
-                if (event->type() == QEvent::ShowToParent) {
-                    show();
-                    return true;
-                }
-                return QObject::eventFilter(obj, event);
-            } else {
-                return QFrame::eventFilter(obj, event);
-            }
-            return false;
         }
 
     }    // namespace Editor

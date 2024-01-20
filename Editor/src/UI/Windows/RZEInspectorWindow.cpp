@@ -9,7 +9,7 @@
 
 #include "UI/Widgets/RZECollapsingHeader.h"
 
-#include "RZEMainWindow.h"
+#include "RZEApplicationMainDockWindow.h"
 
 namespace Razix {
     namespace Editor {

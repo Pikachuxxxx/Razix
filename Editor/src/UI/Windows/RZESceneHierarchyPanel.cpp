@@ -1,4 +1,4 @@
-\// clang-format off
+// clang-format off
 #include "rzepch.h"
 // clang-format on
 #include "RZESceneHierarchyPanel.h"
@@ -17,7 +17,7 @@
 
 namespace Razix {
     namespace Editor {
-        RZESceneHierarchyPanel::RZESceneHierarchyPanel(RZEMainWindow* mainWindow, QWidget* parent)
+        RZESceneHierarchyPanel::RZESceneHierarchyPanel(RZEApplicationMainDockWindowCentralWidget* mainWindow, QWidget* parent)
             : QFrame(parent), m_MainWindow(mainWindow)
         {
             ui.setupUi(this);

@@ -13,7 +13,6 @@ namespace Razix {
 
             void DestroyResource() override;
 
-            void Init(const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
             void Bind() override;
             void SetData(u32 size, const void* data) override;
             void Destroy() override;

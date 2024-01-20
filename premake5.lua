@@ -1,8 +1,7 @@
 -- Configuration settings
 include 'Scripts/premake/common/premake-config.lua'
-
+-- Engine tool include directories
 include 'Scripts/premake/common/tool_includes.lua'
-
 -- System overrides to support PS4/PS5/PS3 and XBOX ONE/X/SERIES X and other hardware systems
 include 'Scripts/premake/extensions/system-overides.lua'
 
@@ -139,6 +138,14 @@ workspace ( settings.workspace_name )
     -- in-house extension libraries for Razix Editor
     group "Editor/internal"
         include "Editor/internal/QtNodeGraph/QtNodeGraph_razix.lua"
+    group ""
+
+    -- Editor vendors
+    group "Editor/vendor"
+        include "Editor/vendor/QGoodWindow/QGoodWindow.lua"
+        include "Editor/vendor/qspdlog/qspdlog.lua"
+        include "Editor/vendor/QtADS/QtADS.lua"
+        include "Editor/vendor/toolwindowmanager/toolwindowmanager.lua"
     group ""
 
     --------------------------------------------------------------------------------

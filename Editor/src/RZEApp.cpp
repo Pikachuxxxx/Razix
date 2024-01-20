@@ -5,6 +5,10 @@
 // clang-format on
 
 #include <Razix.h>
+#include <Razix/Core/RazixVersion.h>
+#include <Razix/Platform/API/Vulkan/VKContext.h>
+
+#include <vulkan/vulkan.h>
 
 #include <QApplication>
 #include <QSettings>
@@ -13,42 +17,37 @@
 #include <QVulkanInstance>
 
 #include "RZEEngineLoop.h"
-
 #include "RZENativeWindow.h"
 #include "UI/Widgets/ComponentsUI/RZETransformComponentUI.h"
 #include "UI/Widgets/RZECollapsingHeader.h"
 #include "UI/Widgets/RZEViewport.h"
+#include "UI/Windows/RZEApplicationMainDockWindow.h"
 #include "UI/Windows/RZEContentBrowserWindow.h"
 #include "UI/Windows/RZEInspectorWindow.h"
-#include "UI/Windows/RZEMainWindow.h"
 #include "UI/Windows/RZEResourceViewer.h"
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZETitleBar.h"
 #include "UI/Windows/RZEVulkanWindow.h"
-
 #include "UI/Windows/RZEFrameGraphEditor.h"
 
 #include "UI/RZEProjectBrowser.h"
 
-#include "Razix/Platform/API/Vulkan/VKContext.h"
-
 #include "Styles/StyleData.h"
 
-#include <vulkan/vulkan.h>
+
 
 // TOOD: Clean this cluster fuck code!!!
-static QApplication*                    qrzeditorApp = nullptr;
-Razix::Editor::RZEMainWindow*           mainWindow;
-Razix::Editor::RZETitleBar*             titlebar;
-Razix::Editor::RZEInspectorWindow*      inspectorWidget;
-Razix::Editor::RZEViewport*             viewportWidget;
-Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel;
-Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow;
-Razix::Editor::RZEProjectBrowser*       projectBrowserDialog;
-Razix::Editor::RZEMaterialEditor*       materialEditor;
-Razix::Editor::RZEResourceViewer*       resourceViewer;
-
-Razix::Editor::RZEFrameGraphEditor* framegraphEditor;
+static QApplication*                    qrzeditorApp         = nullptr;
+Razix::Editor::RZEAppMainWindow*        mainWindow           = nullptr;    //Razix::Editor::RZEApplicationMainDockWindowCentralWidget*
+Razix::Editor::RZETitleBar*             titlebar             = nullptr;
+Razix::Editor::RZEInspectorWindow*      inspectorWidget      = nullptr;
+Razix::Editor::RZEViewport*             viewportWidget       = nullptr;
+Razix::Editor::RZESceneHierarchyPanel*  sceneHierarchyPanel  = nullptr;
+Razix::Editor::RZEContentBrowserWindow* contentBrowserWindow = nullptr;
+Razix::Editor::RZEProjectBrowser*       projectBrowserDialog = nullptr;
+Razix::Editor::RZEMaterialEditor*       materialEditor       = nullptr;
+Razix::Editor::RZEResourceViewer*       resourceViewer       = nullptr;
+Razix::Editor::RZEFrameGraphEditor*     framegraphEditor     = nullptr;
 
 bool didEngineClose = false;
 
@@ -95,11 +94,11 @@ public:
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             // We defer the content browser until a later stage for the engine to mount VFS
             contentBrowserWindow = new Razix::Editor::RZEContentBrowserWindow;
-            mainWindow->addDockableWidget(contentBrowserWindow, "Content Browser");
+            mainWindow->getCentralWidget()->addDockableWidget(contentBrowserWindow, "Content Browser");
 
             // We defer resource view UI until after the Post-Graphics initialization and API has been initialized
             resourceViewer = new Razix::Editor::RZEResourceViewer;
-            mainWindow->addDockableWidget(resourceViewer, "Resource Viewer");
+            mainWindow->getCentralWidget()->addDockableWidget(resourceViewer, "Resource Viewer");
         });
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
@@ -121,10 +120,8 @@ private:
     {
         // Force Restore the Layout here
         QMetaObject::invokeMethod(qrzeditorApp, [] {
-            mainWindow->restoreLayout();
+            mainWindow->getCentralWidget()->restoreLayout();
             mainWindow->show();
-            if (titlebar)
-                titlebar->show();
         });
 
         RZSceneManager::Get().loadScene(0);
@@ -269,7 +266,8 @@ int main(int argc, char** argv)
     printf("Project Name : %s \n", projectBrowserDialog->getProjectName().c_str());
     printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
 
-    mainWindow = new Razix::Editor::RZEMainWindow;
+   
+    mainWindow = new Editor::RZEAppMainWindow;    // new Razix::Editor::RZEApplicationMainDockWindowCentralWidget;
 #ifdef ENABLE_CUSTOM_TITLE_BAR
     titlebar = new Razix::Editor::RZETitleBar(mainWindow);
 #endif
@@ -277,7 +275,7 @@ int main(int argc, char** argv)
     mainWindow->resize(1280, 720);
     mainWindow->setWindowState(Qt::WindowMaximized);
     //mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    mainWindow->setProjectPathDir(projectBrowserDialog->getProjectPath());
+    mainWindow->getCentralWidget()->setProjectPathDir(projectBrowserDialog->getProjectPath());
 
     mainWindow->setStyleSheet(R"(
     QMainWindow::separator {
@@ -287,15 +285,19 @@ int main(int argc, char** argv)
     }
   )");
 
+    // Set Title Bar project and engine version
+    mainWindow->getTitleBar()->setProjectName(projectBrowserDialog->getProjectName().c_str());
+    //mainWindow->getTitleBar()->setBuildVersion("Build : V." + Razix::RazixVersion.getVersionString());
+
     // Register the Qt Consoler Logger Sinks
-    Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getConsolerLoggerSink());
+    Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getCentralWidget()->getConsolerLoggerSink());
 
     // Init the Windows
     materialEditor = new Razix::Editor::RZEMaterialEditor;
     //mainWindow->getToolWindowManager()->addToolWindow(materialEditor, ToolWindowManager::AreaReference(ToolWindowManager::RightWindowSide));
-    mainWindow->addDockableWidget(materialEditor, "Material Editor");
+    mainWindow->getCentralWidget()->addDockableWidget(materialEditor, "Material Editor");
 
-    sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow);
+    sceneHierarchyPanel = new Razix::Editor::RZESceneHierarchyPanel(mainWindow->getCentralWidget());
 
     inspectorWidget = new Razix::Editor::RZEInspectorWindow(sceneHierarchyPanel);
     viewportWidget  = new Razix::Editor::RZEViewport(sceneHierarchyPanel);
@@ -309,7 +311,7 @@ int main(int argc, char** argv)
     viewportWidget->show();
 
     //mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
-    mainWindow->addDockableWidget(inspectorWidget, "Inspector");
+    mainWindow->getCentralWidget()->addDockableWidget(inspectorWidget, "Inspector");
 
     // Connect the Signal from Inspector window to a slot in Material editor to set the material if a mesh is selected
     QObject::connect(inspectorWidget, &Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected, materialEditor, &Razix::Editor::RZEMaterialEditor::OnSetEditingMaterial);
@@ -326,20 +328,20 @@ int main(int argc, char** argv)
     // vulkanWindowWidget->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
     // Scene Hierarchy
     //mainWindow->getToolWindowManager()->addToolWindow(sceneHierarchyPanel, ToolWindowManager::AreaReference(ToolWindowManager::LeftOf, mainWindow->getToolWindowManager()->areaOf(inspectorWidget), 0.2f));
-    mainWindow->addDockableWidget(sceneHierarchyPanel, "Scene Hierarchy");
+    mainWindow->getCentralWidget()->addDockableWidget(sceneHierarchyPanel, "Scene Hierarchy");
 
     // In order for event filter to work this is fookin important
     qrzeditorApp->installEventFilter(viewportWidget->getVulkanWindow());
 
     //mainWindow->getToolWindowManager()->addToolWindow(viewportWidget, ToolWindowManager::AreaReference(ToolWindowManager::AddTo, mainWindow->getToolWindowManager()->areaOf(inspectorWidget)));
     // FIXME: Add this to right of some other window
-    mainWindow->addDockableWidget(viewportWidget, "Viewport");
+    mainWindow->getCentralWidget()->addDockableWidget(viewportWidget, "Viewport");
 
     viewportWidget->resize(1280, 720);
 
 #if 1
     framegraphEditor = new Razix::Editor::RZEFrameGraphEditor;
-    mainWindow->addDockableWidget(framegraphEditor, "Frame Graph Editor");
+    mainWindow->getCentralWidget()->addDockableWidget(framegraphEditor, "Frame Graph Editor");
 #endif
 
     // Load the engine DLL and Ignite it on a separate thread
@@ -364,7 +366,10 @@ int main(int argc, char** argv)
         didEngineClose = true;
     });
 
-    //engineLoop->launch();
+#if 0
+    mainWindow->getCentralWidget()->restoreLayout();
+    mainWindow->show();
+#endif
     qengineThread->start();
 
     int r = qrzeditorApp->exec();

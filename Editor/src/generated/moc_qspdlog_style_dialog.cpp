@@ -7,8 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "rzepch.h"
-#include "../Extensions/qspdlog/src/qspdlog_style_dialog.hpp"
+#include "../../vendor/qspdlog/src/qspdlog_style_dialog.hpp"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)

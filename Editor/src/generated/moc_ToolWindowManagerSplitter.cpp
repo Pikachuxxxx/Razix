@@ -7,8 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "rzepch.h"
-#include "../Extensions/toolwindowmanager/ToolWindowManagerSplitter.h"
+#include "../../vendor/toolwindowmanager/ToolWindowManagerSplitter.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
