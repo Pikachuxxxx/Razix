@@ -28,7 +28,7 @@ public:
     {
         if (SceneHierarchyPanel->objectName().isEmpty())
             SceneHierarchyPanel->setObjectName(QString::fromUtf8("SceneHierarchyPanel"));
-        SceneHierarchyPanel->resize(273, 767);
+        SceneHierarchyPanel->resize(506, 767);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -65,6 +65,14 @@ public:
         verticalLayout->setSizeConstraint(QLayout::SetMinimumSize);
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         sceneTree = new QTreeWidget(SceneHierarchyPanel);
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/rzeditor/component.png"), QSize(), QIcon::Normal, QIcon::Off);
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/rzeditor/widget_shown.png"), QSize(), QIcon::Normal, QIcon::Off);
+        QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
+        __qtreewidgetitem->setIcon(1, icon1);
+        __qtreewidgetitem->setIcon(0, icon);
+        sceneTree->setHeaderItem(__qtreewidgetitem);
         sceneTree->setObjectName(QString::fromUtf8("sceneTree"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
@@ -107,6 +115,7 @@ public:
     {
         SceneHierarchyPanel->setWindowTitle(QCoreApplication::translate("SceneHierarchyPanel", "Scene Hierarchy Panel", nullptr));
         QTreeWidgetItem *___qtreewidgetitem = sceneTree->headerItem();
+        ___qtreewidgetitem->setText(1, QCoreApplication::translate("SceneHierarchyPanel", "Visibility", nullptr));
         ___qtreewidgetitem->setText(0, QCoreApplication::translate("SceneHierarchyPanel", "Entity List", nullptr));
     } // retranslateUi
 

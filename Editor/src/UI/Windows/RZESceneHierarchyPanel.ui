@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>273</width>
+    <width>506</width>
     <height>767</height>
    </rect>
   </property>
@@ -102,6 +102,19 @@ QTreeWidget::branch:open:has-children:has-siblings  {
      <column>
       <property name="text">
        <string>Entity List</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../../Resources/RZEResources.qrc">
+        <normaloff>:/rzeditor/component.png</normaloff>:/rzeditor/component.png</iconset>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Visibility</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../../Resources/RZEResources.qrc">
+        <normaloff>:/rzeditor/widget_shown.png</normaloff>:/rzeditor/widget_shown.png</iconset>
       </property>
      </column>
     </widget>

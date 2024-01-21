@@ -62,13 +62,14 @@ namespace Razix {
             void on_SaveScene();
             void on_LoadScene();
             void on_NewScene();
-
+            // Transform toolbar
             void on_RenderAPIChanged(int index);
             void set_TranslateGuizmo();
             void set_RotateGuizmo();
             void set_ScaleGuizmo();
             void toggle_WorldLocal();
             void toggle_GridSnap();
+            // GameModes toolbar
 
             void update();
 
@@ -95,9 +96,9 @@ namespace Razix {
             void create_project_tb();
             void create_scene_tb();
             void create_transform_tb();
+            void create_misc_tb();
             void create_shading_modes_tb();
             void create_game_modes_tb();
-            void create_misc_tb();
 
             void SetupMenu();
             //------------------------------

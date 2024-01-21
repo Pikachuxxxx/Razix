@@ -27,6 +27,10 @@ namespace Razix {
             header = ui.sceneTree->header();
             header->setWindowTitle("Empty Scene");
             ui.sceneTree->setHeader(header);
+            ui.sceneTree->setAnimated(true);
+            ui.sceneTree->resizeColumnToContents(0);
+            ui.sceneTree->setColumnWidth(0, 250);
+            header->setStretchLastSection(false);
             // Enable multi selection
             //ui.sceneTree->setSelectionMode(QAbstractItemView::MultiSelection);
 
@@ -73,6 +77,16 @@ namespace Razix {
 
         void RZESceneHierarchyPanel::drawEntityNode(RZEntity parentEntity, RZScene* scene, entt::registry& registry, QTreeWidgetItem* parentItem)
         {
+            //if (parentEntity.HasComponent<MeshRendererComponent>()) {
+            parentItem->setIcon(0, QIcon(":/rzeditor/component.png"));
+            parentItem->setIcon(1, QIcon(":/rzeditor/widget_shown.png"));
+            //} else
+
+            if (parentEntity.HasComponent<LightComponent>())
+                parentItem->setIcon(0, QIcon(":/rzeditor/LightIcon.png"));
+            else if (parentEntity.HasComponent<CameraComponent>())
+                parentItem->setIcon(0, QIcon(":/rzeditor/camera_icon.png"));
+
             auto hierarchyComponent = registry.try_get<HierarchyComponent>(parentEntity);
             bool noChildren         = true;
 
