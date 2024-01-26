@@ -55,13 +55,7 @@ namespace Razix {
              */
             virtual void* GetMappedBuffer() = 0;
             virtual void  Flush()           = 0;
-
-            RAZIX_INLINE bool isBufferMaped() const { return m_Mapped; }
-
-        protected:
-            BufferUsage m_Usage  = BufferUsage::Static;
-            u32         m_Size   = 0;
-            bool        m_Mapped = false;
+            virtual void  Invalidate()      = 0;
         };
 
     }    // namespace Graphics

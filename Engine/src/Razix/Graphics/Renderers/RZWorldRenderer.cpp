@@ -465,7 +465,6 @@ namespace Razix {
                 // Signal on a semaphore for the presentation engine to wait on
                 //Graphics::RHI::SubmitWork();
 
-
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
                 Graphics::RHI::Present(nullptr);
             }
@@ -539,7 +538,7 @@ namespace Razix {
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("FrameData", {"FrameData", sizeof(GPUFrameData)});
+                    data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("FrameData", {"FrameData", sizeof(GPUFrameData), 0, BufferUsage::PersistentStream});
 
                     data.frameData = builder.write(data.frameData);
                 },
@@ -604,7 +603,7 @@ namespace Razix {
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("SceneLightsData", {"SceneLightsData", sizeof(GPULightsData)});
+                    data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("SceneLightsData", {"SceneLightsData", sizeof(GPULightsData), 0, BufferUsage::PersistentStream});
                     data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
                 },
                 [=](const SceneLightsData& data, FrameGraph::RZPassResourceDirectory& resources) {

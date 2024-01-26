@@ -7,10 +7,10 @@ namespace Razix {
         enum class BufferUsage : u32
         {
             Static,           /* GPU only device memory, not CPU accessible, we can copy from GPU<->GPU though ig?, uses a staging buffer to copy any initial data */
-            Dynamic,          /* GPU<->CPU two way mappable, but for not for continuous updates, random updates                                                    */
             PersistentStream, /* GPU<->CPU two way mappable, but for for continuous updates, sequential updates                                                    */
             Staging,          /* Intermediate buffer for copying data from one Host to Device memory, Host visible                                                 */
             IndirectDrawArgs, /* GPU buffer for issuing indirect draw arguments                                                                                    */
+            ReadBack,         /* Buffer to read back from GPU to CPU side                                                                                          */
             COUNT
         };
 
@@ -59,10 +59,10 @@ namespace Razix {
 
         static const char* BufferUsageNames[] = {
             "Static",
-            "Dynamic",
             "PersistentStream",
             "Staging",
-            "IndirectDrawArgs"};
+            "IndirectDrawArgs",
+            "ReadBack"};
 
         // Can't do this because it's enum and we have multiple options
         RAZIX_ENUM_NAMES_ASSERT(BufferUsageNames, BufferUsage);

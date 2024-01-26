@@ -9,13 +9,15 @@ namespace Razix {
         {
         public:
             OpenGLUniformBuffer(const RZBufferDesc& desc);
-            ~OpenGLUniformBuffer();
-
-            void DestroyResource() override;
+            ~OpenGLUniformBuffer() {}
 
             void Bind() override;
             void SetData(u32 size, const void* data) override;
-            void Destroy() override;
+
+            void Flush() override {}
+            void Invalidate() override {}
+
+            void DestroyResource() override;
 
             inline u32 getHandle() { return m_UBO; }
 

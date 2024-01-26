@@ -9,17 +9,11 @@ namespace Razix {
     namespace Graphics {
 
         VKIndexBuffer::VKIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG)
-            : VKBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(u32), data RZ_DEBUG_E_ARG_NAME)
+            : VKBuffer(bufferUsage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(u32), (const void*) data RZ_DEBUG_E_ARG_NAME)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Size       = count * sizeof(u32);
-            m_Usage      = bufferUsage;
             m_IndexCount = count;
-        }
-
-        VKIndexBuffer::~VKIndexBuffer()
-        {
         }
 
         void VKIndexBuffer::Bind(RZCommandBuffer* commandBuffer /*= nullptr*/)
@@ -29,14 +23,13 @@ namespace Razix {
             vkCmdBindIndexBuffer(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
         }
 
-        void VKIndexBuffer::Unbind() {}
-
         void VKIndexBuffer::Destroy()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsBufferMapped) {
-                VKBuffer::flush(m_Size);
+                VKBuffer::invalidate(m_BufferSize);
+                VKBuffer::flush(m_BufferSize);
                 VKBuffer::unMap();
                 m_IsBufferMapped = false;
             }
@@ -55,6 +48,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_IsBufferMapped = true;
             VKBuffer::map(size == 0 ? VK_WHOLE_SIZE : size, offset);
         }
 
@@ -62,6 +56,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_IsBufferMapped = false;
             VKBuffer::unMap();
         }
 
@@ -76,7 +71,15 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VKBuffer::flush();
+            VKBuffer::flush(m_BufferSize);
         }
+
+        void VKIndexBuffer::Invalidate()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            VKBuffer::invalidate(m_BufferSize);
+        }
+
     }    // namespace Graphics
 }    // namespace Razix

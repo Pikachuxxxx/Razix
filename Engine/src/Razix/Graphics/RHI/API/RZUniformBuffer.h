@@ -23,10 +23,9 @@ namespace Razix {
              * @param data The data being stored in the uniform buffer
              */
             virtual void SetData(u32 size, const void* data) = 0;
-            /* Destroys the uniform buffer and frees the buffer and other resources it's holds such as memory etc. */
-            virtual void Destroy() = 0;
+            virtual void Flush()                             = 0;
+            virtual void Invalidate()                        = 0;
 
-            // virtual void GenerateDescriptorSet() = 0;
         protected:
             RZBufferDesc m_Desc;
 

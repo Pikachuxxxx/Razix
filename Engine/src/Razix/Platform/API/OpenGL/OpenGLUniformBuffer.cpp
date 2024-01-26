@@ -20,11 +20,6 @@ namespace Razix {
             //GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_UBO, 0, size);
         }
 
-        OpenGLUniformBuffer::~OpenGLUniformBuffer()
-        {
-        }
-
-
         void OpenGLUniformBuffer::Bind()
         {
             GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, m_UBO));
@@ -37,14 +32,9 @@ namespace Razix {
             GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
         }
 
-        void OpenGLUniformBuffer::Destroy()
-        {
-            GL_CALL(glDeleteBuffers(1, &m_UBO));
-        }
-
         void OpenGLUniformBuffer::DestroyResource()
         {
-            Destroy();
+            GL_CALL(glDeleteBuffers(1, &m_UBO));
         }
     }    // namespace Graphics
 }    // namespace Razix

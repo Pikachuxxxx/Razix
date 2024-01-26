@@ -16,33 +16,33 @@ namespace Razix {
             RZEEngineLoop(int argc, char** argv, QObject* parent = nullptr);
             ~RZEEngineLoop();
 
-        public slots:
-
-            void launch()
-            {
-                EngineMain(argc, argv);
-
-                tickNext();
-            }
-
-        public slots:
-
-            void tick()
-            {
-                // Continue ticking
-                tickNext();
-
-                // Do the work Here
-                Razix::RZApplication::Get().RenderFrame();
-            }
-
-        private:
-            void tickNext()
-            {
-                // Trigger the tick() invokation when the event loop runs next time
-                QMetaObject::invokeMethod(this, "tick", Qt::QueuedConnection);
-            }
-
+            //public slots:
+            //
+            //    void launch()
+            //    {
+            //        EngineMain(argc, argv);
+            //
+            //        tickNext();
+            //    }
+            //
+            //public slots:
+            //
+            //    void tick()
+            //    {
+            //        // Continue ticking
+            //        tickNext();
+            //
+            //        // Do the work Here
+            //        Razix::RZApplication::Get().RenderFrame();
+            //    }
+            //
+            //private:
+            //    void tickNext()
+            //    {
+            //        // Trigger the tick() invokation when the event loop runs next time
+            //        QMetaObject::invokeMethod(this, "tick", Qt::QueuedConnection);
+            //    }
+            //
         private:
             int    argc;
             char** argv;

@@ -10,20 +10,20 @@ namespace Razix {
         {
         public:
             VKIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG);
-            ~VKIndexBuffer();
+            ~VKIndexBuffer() {}
 
             void Bind(RZCommandBuffer* commandBuffer = nullptr) override;
-            void Unbind() override;
-            void Destroy() override;
+            void Unbind() override {}
+
             void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;
 
-            void Map(u32 size = 0, u32 offset = 0) override;
+            void Destroy() override;
 
-            void UnMap() override;
-
+            void  Map(u32 size = 0, u32 offset = 0) override;
+            void  UnMap() override;
+            void  Flush() override;
+            void  Invalidate() override;
             void* GetMappedBuffer() override;
-
-            void Flush() override;
 
         private:
             bool m_IsBufferMapped = false;

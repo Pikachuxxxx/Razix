@@ -55,6 +55,7 @@ namespace Razix {
             m_ConsoleLogWidget = new QSpdLog;
             m_ConsoleLogWidget->setObjectName("Razix Console Log");
             m_ConsoleLogWidget->setMaxEntries(500);
+            m_ConsoleLogWidget->setAutoScrollPolicy(AutoScrollPolicy::AutoScrollPolicyEnabled);
             QSpdLogToolBar* consoleToolBar = new QSpdLogToolBar();
             m_ConsoleLogWidget->registerToolbar(consoleToolBar);
             dynamic_cast<QVBoxLayout*>(m_ConsoleLogWidget->layout())->insertWidget(0, consoleToolBar);
@@ -149,7 +150,7 @@ namespace Razix {
 
         void RZEApplicationMainDockWindowCentralWidget::on_LoadScene()
         {
-            RZSceneManager::Get().loadScene();
+            //RZSceneManager::Get().loadScene();
         }
 
         void RZEApplicationMainDockWindowCentralWidget::on_NewScene()
@@ -223,10 +224,12 @@ namespace Razix {
 
         void RZEApplicationMainDockWindowCentralWidget::SetupToolBars()
         {
-            create_misc_tb();
             create_project_tb();
             create_scene_tb();
             create_transform_tb();
+            create_misc_tb();
+            create_shading_modes_tb();
+            create_game_modes_tb();
         }
 
         void RZEApplicationMainDockWindowCentralWidget::create_project_tb()
@@ -279,14 +282,9 @@ namespace Razix {
             newButton->setIconSize(QSize(20, 20));
             newButton->setToolTip("Creates a new razix scene");
 
-            // Load next scene (loads first if it's the last scene in a cyclic order)
-            QPushButton* nextSceneBtn = new QPushButton;
-            nextSceneBtn->setIcon(QIcon(":/rzeditor/styles/icons/progress-pattern.png"));
-
             m_SceneSettingsTB->addWidget(saveButton);
             m_SceneSettingsTB->addWidget(openButton);
             m_SceneSettingsTB->addWidget(newButton);
-            m_SceneSettingsTB->addWidget(nextSceneBtn);
 
             this->addToolBar(m_SceneSettingsTB);
 
@@ -294,7 +292,7 @@ namespace Razix {
 
             // Connections for Save/Load/Open scene
             connect(saveButton, SIGNAL(clicked()), this, SLOT(on_SaveScene()));
-            connect(nextSceneBtn, SIGNAL(clicked()), this, SLOT(on_LoadScene()));
+            connect(openButton, SIGNAL(clicked()), this, SLOT(on_LoadScene()));
         }
 
         void RZEApplicationMainDockWindowCentralWidget::create_transform_tb()
@@ -360,6 +358,41 @@ namespace Razix {
 
         void RZEApplicationMainDockWindowCentralWidget::create_game_modes_tb()
         {
+            QToolBar* gamemodesTB = new QToolBar(this);
+
+            QPushButton* play = new QPushButton();
+            play->setIcon(QIcon(":/rzeditor/play.png"));
+            play->setIconSize(QSize(20, 20));
+            play->setToolTip("Play the editor scene in Game Mode using Razix Game Framework");
+
+            QPushButton* pause = new QPushButton();
+            pause->setIcon(QIcon(":/rzeditor/pause.png"));
+            pause->setIconSize(QSize(20, 20));
+            pause->setToolTip("Pause the scene running in Game Mode");
+
+            QPushButton* nextFrame = new QPushButton();
+            nextFrame->setIcon(QIcon(":/rzeditor/next_frame.png"));
+            nextFrame->setIconSize(QSize(20, 20));
+            nextFrame->setToolTip("Goes to the next frame while in pause mode");
+
+            // TODO: This is will the checked icon for play button itself, dummy for now
+            QPushButton* stop = new QPushButton();
+            stop->setIcon(QIcon(":/rzeditor/stop.png"));
+            stop->setIconSize(QSize(20, 20));
+            stop->setToolTip("Stops the Game mode simulation");
+
+            gamemodesTB->addWidget(play);
+            gamemodesTB->addWidget(pause);
+            gamemodesTB->addWidget(nextFrame);
+            gamemodesTB->addWidget(stop);
+
+            this->addToolBar(gamemodesTB);
+
+            gamemodesTB->setObjectName("Game Modes Toolbar");
+
+            //connect(play, SIGNAL(checked()), this, SLOT(gm_PlayOrStop()));
+            //connect(pause, SIGNAL(clicked()), this, SLOT(gm_Pause()));
+            //connect(nextFrame, SIGNAL(clicked()), this, SLOT(gm_Play()));
         }
 
         void RZEApplicationMainDockWindowCentralWidget::create_misc_tb()

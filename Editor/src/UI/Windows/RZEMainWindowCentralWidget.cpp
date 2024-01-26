@@ -113,8 +113,6 @@ namespace Razix {
             list.append(m_Titlebar->findChildren<QWidget*>());
 
             for (QWidget* widget: list) {
-                std::cout << widget->objectName().toStdString() << std::endl;
-
                 auto widgetName   = widget->objectName().toStdString();
                 bool isMenuWidget = Razix::Utilities::StartsWith(widgetName, "menu");
 

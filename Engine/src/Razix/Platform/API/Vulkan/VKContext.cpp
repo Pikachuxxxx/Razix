@@ -118,7 +118,7 @@ namespace Razix {
             auto gpuMemProps = VKDevice::Get().getPhysicalDevice()->getMemoryProperties();
 
             // Calculate total VRAM by summing up memory heap sizes
-            VkDeviceSize totalVRAM = 0;
+            VkDeviceSize totalVRAM          = 0;
             VkDeviceSize totalCPUMappedVRAM = 0;
             for (uint32_t i = 0; i < gpuMemProps.memoryHeapCount; ++i) {
                 VkMemoryHeap memoryHeap = gpuMemProps.memoryHeaps[i];
@@ -130,8 +130,8 @@ namespace Razix {
 
             // Print total VRAM size
             RAZIX_CORE_INFO("Total GPU VRAM : {0} Gib", totalVRAM / (f32) (1024 * 1024 * 1024));
-            RZEngine::Get().GetStatistics().TotalGPUMemory = (f32)totalVRAM / (f32) (1024 * 1024 * 1024);
-            
+            RZEngine::Get().GetStatistics().TotalGPUMemory = (f32) totalVRAM / (f32) (1024 * 1024 * 1024);
+
             // TODO: Use the memory type to find it's corresponding heap and print it's capacity + filter for specific memory types and cross check with total VRAM and mappable VRAM
 
             //-----------------------------------------------------
@@ -147,7 +147,7 @@ namespace Razix {
                 RAZIX_CORE_INFO("Heap Idx : {0}, budget : {1} Gib", i, memory);
             }
 
-        // Get statistics string
+            // Get statistics string
             char* statsString;
             vmaBuildStatsString(VKDevice::Get().getVMA(), &statsString, VK_TRUE);
 
@@ -306,7 +306,7 @@ namespace Razix {
             // TODO: Formate the message id and stuff for colors etc
 
             // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE!
-            return VK_FALSE;
+            //return VK_FALSE;
 
             //if (!message_severity)
             //    return VK_FALSE;

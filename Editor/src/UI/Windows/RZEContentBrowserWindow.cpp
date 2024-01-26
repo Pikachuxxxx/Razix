@@ -51,6 +51,5 @@ namespace Razix {
             QString mPath = dirModel->fileInfo(index).absoluteFilePath();
             ui.folderListView->setRootIndex(fileModel->setRootPath(mPath));
         }
-
     }    // namespace Editor
 }    // namespace Razix

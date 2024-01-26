@@ -433,6 +433,13 @@ QToolBar {
     border-style:solid;
 }
 
+QToolTip
+{
+    color: #FFFFFF;
+    background-color:#FF151515;
+    font-size: 16px;
+}
+
 QStatusBar {
     border:2px;
     border-color: #151515;

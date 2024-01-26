@@ -102,6 +102,8 @@ namespace Razix {
         template<typename T>
         std::vector<T> GetComponentsOfType()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+
             std::vector<T> components;
 
 #pragma warning(push)
