@@ -23,18 +23,16 @@
 #include "UI/Widgets/RZEViewport.h"
 #include "UI/Windows/RZEApplicationMainDockWindow.h"
 #include "UI/Windows/RZEContentBrowserWindow.h"
+#include "UI/Windows/RZEFrameGraphEditor.h"
 #include "UI/Windows/RZEInspectorWindow.h"
 #include "UI/Windows/RZEResourceViewer.h"
 #include "UI/Windows/RZESceneHierarchyPanel.h"
 #include "UI/Windows/RZETitleBar.h"
 #include "UI/Windows/RZEVulkanWindow.h"
-#include "UI/Windows/RZEFrameGraphEditor.h"
 
 #include "UI/RZEProjectBrowser.h"
 
 #include "Styles/StyleData.h"
-
-
 
 // TOOD: Clean this cluster fuck code!!!
 static QApplication*                    qrzeditorApp         = nullptr;
@@ -90,6 +88,14 @@ public:
 
         Razix::RZApplication::Get().Init();
 
+        VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
+        Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
+        context->CreateSurface(&surface);
+        context->SetupDeviceAndSC();
+
+        vulkanWindow->getRZNativeWindow()->setWidth(vulkanWindow->width());
+        vulkanWindow->getRZNativeWindow()->setHeight(vulkanWindow->height());
+
         // Add any QT UI after the Application start up
         QMetaObject::invokeMethod(qrzeditorApp, [] {
             // We defer the content browser until a later stage for the engine to mount VFS
@@ -100,14 +106,6 @@ public:
             resourceViewer = new Razix::Editor::RZEResourceViewer;
             mainWindow->getCentralWidget()->addDockableWidget(resourceViewer, "Resource Viewer");
         });
-
-        VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
-        Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
-        context->CreateSurface(&surface);
-        context->SetupDeviceAndSC();
-
-        vulkanWindow->getRZNativeWindow()->setWidth(vulkanWindow->width());
-        vulkanWindow->getRZNativeWindow()->setHeight(vulkanWindow->height());
 
         std::lock_guard<std::mutex> lk(RZApplication::m);
         RZApplication::ready_for_execution = true;
@@ -266,7 +264,6 @@ int main(int argc, char** argv)
     printf("Project Name : %s \n", projectBrowserDialog->getProjectName().c_str());
     printf("Project Path : %s \n", projectBrowserDialog->getProjectPath().c_str());
 
-   
     mainWindow = new Editor::RZEAppMainWindow;    // new Razix::Editor::RZEApplicationMainDockWindowCentralWidget;
 #ifdef ENABLE_CUSTOM_TITLE_BAR
     titlebar = new Razix::Editor::RZETitleBar(mainWindow);
@@ -287,7 +284,7 @@ int main(int argc, char** argv)
 
     // Set Title Bar project and engine version
     mainWindow->getTitleBar()->setProjectName(projectBrowserDialog->getProjectName().c_str());
-    //mainWindow->getTitleBar()->setBuildVersion("Build : V." + Razix::RazixVersion.getVersionString());
+    mainWindow->getTitleBar()->setBuildVersion("Build : V." + Razix::RazixVersion.getVersionString());
 
     // Register the Qt Consoler Logger Sinks
     Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getCentralWidget()->getConsolerLoggerSink());
@@ -308,7 +305,12 @@ int main(int argc, char** argv)
     QIcon razixIcon(":/rzeditor/RazixLogo64.png");
     inspectorWidget->setWindowIcon(razixIcon);
     viewportWidget->setWindowIcon(razixIcon);
+    /**
+     * THIS IS ABSOLUTELY NECESSARY FOR RENDERING TO WORK!
+     */
+    //-----------------------
     viewportWidget->show();
+    //-----------------------
 
     //mainWindow->getToolWindowManager()->addToolWindow(inspectorWidget, ToolWindowManager::AreaReference(ToolWindowManager::LastUsedArea));
     mainWindow->getCentralWidget()->addDockableWidget(inspectorWidget, "Inspector");
@@ -344,39 +346,63 @@ int main(int argc, char** argv)
     mainWindow->getCentralWidget()->addDockableWidget(framegraphEditor, "Frame Graph Editor");
 #endif
 
-    // Load the engine DLL and Ignite it on a separate thread
-    QThread* qengineThread = new QThread;
-
-    //std::thread engineThread(LoadEngineDLL, argc, argv);
-    //engineThread.detach();
-    Razix::Editor::RZEEngineLoop* engineLoop = new Razix::Editor::RZEEngineLoop(argc, argv);
-    engineLoop->moveToThread(qengineThread);
-    viewportWidget->moveToThread(qengineThread);
-    viewportWidget->getVulkanWindow()->moveToThread(qengineThread);
-    QObject::connect(qengineThread, &QThread::started, engineLoop, [&]() {
+    // Load the engine DLL and Ignite it on a separate thread, using a worker Object to execute some work, here RZEEngineLoop is with worker that will run the engine code
+    Razix::Editor::RZEEngineLoop* engineLoop    = new Razix::Editor::RZEEngineLoop(argc, argv);
+    rzstl::UniqueRef<QThread>     qengineThread = rzstl::CreateUniqueRef<QThread>();
+    // Move some objects to be accessed on the threads
+    engineLoop->moveToThread(qengineThread.get());
+    viewportWidget->moveToThread(qengineThread.get());
+    viewportWidget->getVulkanWindow()->moveToThread(qengineThread.get());
+    // Run the thread loop
+    QObject::connect(qengineThread.get(), &QThread::started, engineLoop, [&]() {
+        // Call engine main
         EngineMain(argc, argv);
 
-        // Do the work Here
+        // Engine Main rendering Loop
         while (Razix::RZApplication::Get().RenderFrame()) {}
 
+        // Quit and Save on exit
         Razix::RZApplication::Get().Quit();
         Razix::RZApplication::Get().SaveApp();
 
+        // Engine Exit
         EngineExit();
         didEngineClose = true;
     });
 
-#if 0
-    mainWindow->getCentralWidget()->restoreLayout();
-    mainWindow->show();
-#endif
+    //--------------------------------------------------
+    // Start the Engine on a separate thread than QT app
     qengineThread->start();
+    //--------------------------------------------------
 
+    // Execute the Application
     int r = qrzeditorApp->exec();
 
+    // Now quit and wait until we get out of qthread and sync with main editor UI thread
     qengineThread->quit();
     qengineThread->wait();
-    // Wait for engine to completely close
+
+    // Wait for engine to completely close on this main QT UI thread
     while (!didEngineClose) {}
+
+    // delete the pointer
+    // Delete all the UI objects
+    // TODO: This is temporary, use a better manager class/system, no ptrs allowed in anyway whatsoever (smart too)
+    {
+        qengineThread.reset();
+        delete engineLoop;
+        delete qrzeditorApp;
+        delete mainWindow;
+        delete titlebar;
+        delete inspectorWidget;
+        delete viewportWidget;
+        delete sceneHierarchyPanel;
+        delete contentBrowserWindow;
+        delete projectBrowserDialog;
+        delete materialEditor;
+        delete resourceViewer;
+        delete framegraphEditor;
+    }
+
     return r;
 }

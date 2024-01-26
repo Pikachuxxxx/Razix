@@ -195,7 +195,7 @@ m_IsAnimated = true;
                 0, 1, 2, 2, 3, 0};
 
             // Create the vertex buffer
-            m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::Dynamic RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite"));
+            m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite"));
             RZVertexBufferLayout layout;
             layout.push<glm::vec4>("Position");
             layout.push<glm::vec4>("Color");

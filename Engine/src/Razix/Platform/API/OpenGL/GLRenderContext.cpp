@@ -245,7 +245,7 @@
 
             GL_CALL(glBindBufferRange(GL_UNIFORM_BUFFER, pushConstant.bindingInfo.location.binding, ubo.getHandle(), pushConstant.offset, pushConstant.size));
 
-            ubo.Destroy();
+            //ubo.Destroy();
         }
 
         void GLRenderContext::SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)

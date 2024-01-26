@@ -84,8 +84,8 @@ namespace Razix {
 
             // Create the VBOs and IBOs
             // Points - Create a large enough to hold a large amount of points
-            m_PointVBO = RZVertexBuffer::Create(RENDERER_POINT_BUFFER_SIZE, nullptr, Graphics::BufferUsage::Dynamic RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Points VBO"));
-            m_LineVBO  = RZVertexBuffer::Create(RENDERER_LINE_BUFFER_SIZE, nullptr, Graphics::BufferUsage::Dynamic RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Lines VBO"));
+            m_PointVBO = RZVertexBuffer::Create(RENDERER_POINT_BUFFER_SIZE, nullptr, Graphics::BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Points VBO"));
+            m_LineVBO  = RZVertexBuffer::Create(RENDERER_LINE_BUFFER_SIZE, nullptr, Graphics::BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Lines VBO"));
 
             u32* indices = new u32[MaxPointIndices];
             u32  offset  = 0;

@@ -10,17 +10,9 @@ namespace Razix {
     namespace Graphics {
 
         VKVertexBuffer::VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
-            : VKBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data RZ_DEBUG_E_ARG_NAME)
+            : VKBuffer(usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data RZ_DEBUG_E_ARG_NAME)
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            m_Usage = usage;
-            m_Size  = 0;
-
-            VKBuffer::setUsageFlags(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         }
-
-        VKVertexBuffer::~VKVertexBuffer() {}
 
         void VKVertexBuffer::Bind(RZCommandBuffer* cmdBuffer)
         {
@@ -29,13 +21,6 @@ namespace Razix {
             VkDeviceSize offsets[1] = {0};
             if (cmdBuffer)
                 vkCmdBindVertexBuffers(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &m_Buffer, offsets);
-        }
-
-        void VKVertexBuffer::Unbind()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void VKVertexBuffer::SetData(u32 size, const void* data)
@@ -53,14 +38,13 @@ namespace Razix {
             VKBuffer::resize(size, data RZ_DEBUG_E_ARG_NAME);
         }
 
-        void VKVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout) {}
-
         void VKVertexBuffer::Destroy()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsBufferMapped) {
-                VKBuffer::flush(m_Size);
+                VKBuffer::invalidate(m_BufferSize);
+                VKBuffer::flush(m_BufferSize);
                 VKBuffer::unMap();
                 m_IsBufferMapped = false;
             }
@@ -72,6 +56,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_IsBufferMapped = true;
             VKBuffer::map(size == 0 ? VK_WHOLE_SIZE : size, offset);
         }
 
@@ -79,6 +64,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_IsBufferMapped = false;
             VKBuffer::unMap();
         }
 
@@ -93,7 +79,14 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VKBuffer::flush();
+            VKBuffer::flush(m_BufferSize);
+        }
+
+        void VKVertexBuffer::Invalidate()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            VKBuffer::invalidate(m_BufferSize);
         }
     }    // namespace Graphics
 }    // namespace Razix

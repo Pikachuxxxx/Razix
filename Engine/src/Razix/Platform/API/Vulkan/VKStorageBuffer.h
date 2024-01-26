@@ -6,7 +6,7 @@
 
 namespace Razix {
     namespace Graphics {
-        class VKStorageBuffer : public RZStorageBuffer, public VKBuffer
+        class VKStorageBuffer : public RZStorageBuffer
         {
         public:
             VKStorageBuffer(u32 size, const std::string& name);

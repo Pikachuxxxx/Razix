@@ -25,7 +25,8 @@ namespace Razix {
 
             void Bind() override {}
             void SetData(u32 size, const void* data) override;
-            void Destroy() override;
+            void Flush() override;
+            void Invalidate() override;
 
             void DestroyResource() override;
         };

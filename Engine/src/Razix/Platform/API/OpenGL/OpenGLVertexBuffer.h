@@ -24,11 +24,14 @@ namespace Razix {
             void* GetMappedBuffer() override;
 
             void Flush() override;
+            void Invalidate() override {}
 
         private:
-            u32 m_VAO;
-            u32 m_VBO;
-            void*    m_Mapped;
+            u32         m_VAO;
+            u32         m_VBO;
+            void*       m_Mapped;
+            BufferUsage m_Usage;
+            u32         m_Size;
         };
     }    // namespace Graphics
 }    // namespace Razix

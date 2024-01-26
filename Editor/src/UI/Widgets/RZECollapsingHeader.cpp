@@ -83,7 +83,9 @@ namespace Razix {
                 auto  pixmap = icon.pixmap(20, 20);
                 m_UtilButton = new QPushButton;
                 m_UtilButton->setIcon(icon);
-                Hlayout->addStretch(2);
+                //Hlayout->addStretch(2);
+                auto hSpacer = new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+                Hlayout->addSpacerItem(hSpacer);
                 Hlayout->addWidget(m_UtilButton);
             }
         }
@@ -91,6 +93,7 @@ namespace Razix {
         Arrow::Arrow(bool collapsed, QWidget* parent /*= nullptr*/)
             : QFrame(parent)
         {
+            this->setMinimumSize(24, 24);
             this->setMaximumSize(24, 24);
 
             arrowH = new QPolygonF({QPointF(7.0, 8.0), QPointF(17.0, 8.0), QPointF(12.0, 13.0)});

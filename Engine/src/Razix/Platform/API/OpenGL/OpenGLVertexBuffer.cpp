@@ -16,7 +16,7 @@ namespace Razix {
             switch (usage) {
                 case BufferUsage::Static:
                     return GL_STATIC_DRAW;
-                case BufferUsage::Dynamic:
+                case BufferUsage::Staging:
                     return GL_DYNAMIC_DRAW;
                 case BufferUsage::PersistentStream:
                     return GL_STREAM_DRAW;

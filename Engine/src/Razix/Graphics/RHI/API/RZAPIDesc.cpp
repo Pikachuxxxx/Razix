@@ -316,9 +316,9 @@ namespace Razix {
 
         static std::unordered_map<std::string, Razix::Graphics::BufferUsage> BufferUsageStringMap = {
             {"Static", Razix::Graphics::BufferUsage::Static},
-            {"Dynamic", Razix::Graphics::BufferUsage::Dynamic},
             {"PersistentStream", Razix::Graphics::BufferUsage::PersistentStream},
             {"Staging", Razix::Graphics::BufferUsage::Staging},
+            {"ReadBack", Razix::Graphics::BufferUsage::ReadBack},
             {"IndirectDrawArgs", Razix::Graphics::BufferUsage::IndirectDrawArgs}};
 
         Razix::Graphics::BufferUsage StringToBufferUsage(const std::string& str)

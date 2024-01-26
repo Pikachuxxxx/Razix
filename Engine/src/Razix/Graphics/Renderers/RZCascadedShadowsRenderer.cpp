@@ -110,6 +110,8 @@ namespace Razix {
 
         void RZCascadedShadowsRenderer::updateCascades(RZScene* scene)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             auto dirLight = scene->GetComponentsOfType<LightComponent>();
             m_Cascades    = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, 0.95f, kShadowMapSize);
         }
@@ -118,6 +120,8 @@ namespace Razix {
 
         std::vector<Cascade> RZCascadedShadowsRenderer::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             // [Reference] https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
 
             const f32 clipRange = camera.getPerspectiveFarClip() - camera.getPerspectiveNearClip();
