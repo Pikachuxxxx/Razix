@@ -311,6 +311,8 @@ namespace Razix {
             const RZDescriptorSet* getSceneLightsDataSet() const { return m_SceneLightsDataSet; }
             void                   setSceneLightsDataSet(RZDescriptorSet* set) { m_SceneLightsDataSet = set; }
 
+            virtual void OnImGui() = 0;
+
         protected:
             virtual void InitAPIImpl()                                                                                                                                                       = 0;
             virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                   = 0;

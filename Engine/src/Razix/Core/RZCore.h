@@ -335,6 +335,10 @@ public:                                                  \
 #define Mib(x) x * 1024 * 1024
 #define Kib(x) x * 1024
 
+#define in_Gib(x) (x / (1024 * 1024 * 1024))
+#define in_Mib(x) (x / (1024 * 1024))
+#define in_Kib(x) (x / 1024)
+
 /* Whether or not to use VMA as memory backend */
 #define RAZIX_USE_VMA
 

@@ -21,6 +21,8 @@ namespace Razix {
 
             static VKRenderContext* GetVKRenderer() { return static_cast<VKRenderContext*>(s_APIInstance); }
 
+            void OnImGui() override;
+
         protected:
             void AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override;
             void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores) override;

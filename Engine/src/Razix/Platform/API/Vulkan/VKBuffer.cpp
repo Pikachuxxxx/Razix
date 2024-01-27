@@ -154,7 +154,7 @@ namespace Razix {
                 memcpy(m_AllocInfo.pMappedData, data, size);
             } else if (m_Usage == BufferUsage::Static) {
                 /**
-                * For anything else since we copy only on init we use a staging buffer to copy to the GPU once and for all
+                * For anything else we copy using a staging buffer to copy to the GPU
                 */
                 VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
                 {
@@ -170,6 +170,7 @@ namespace Razix {
 
                     VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
                 }
+                m_TransferBuffer.destroy();
             }
         }
 
@@ -216,7 +217,8 @@ namespace Razix {
 #else
             VmaAllocationCreateInfo vmaallocInfo = {};
             vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-            vmaallocInfo.flags = m_VMAAllocFlags;
+            vmaallocInfo.flags = m_VMAAllocFlags | VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+            vmaallocInfo.priority = 1.0f;
             //allocate the buffer
             VK_CHECK_RESULT(vmaCreateBuffer(VKDevice::Get().getVMA(), &bufferInfo, &vmaallocInfo, &m_Buffer, &m_VMAAllocation, &m_AllocInfo));
 

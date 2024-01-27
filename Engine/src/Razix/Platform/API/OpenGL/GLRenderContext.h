@@ -17,6 +17,8 @@ namespace Razix {
 
             static GLRenderContext* GetGLRenderer() { return static_cast<GLRenderContext*>(s_APIInstance); }
 
+            void OnImGui() override {}
+
         protected:
             void InitAPIImpl() override;
             void AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override {}
