@@ -58,7 +58,7 @@ namespace Razix {
 
             framegraph.getBlackboard().add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
                 "Pass.Builtin.Code.RenderShadows",
-                [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](SimpleShadowPassData& data, FrameGraph::RZPassResourc eBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .wrapping = Wrapping::CLAMP_TO_BORDER, .enableMips = false});
