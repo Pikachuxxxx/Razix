@@ -59,13 +59,12 @@ namespace Razix {
 
             auto& frameDataBlock       = framegraph.getBlackboard().get<FrameData>();
             auto& sceneLightsDataBlock = framegraph.getBlackboard().get<SceneLightsData>();
-            //auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
+            auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
-            //auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
-                "Pass.Builtin.Code.PBRLighting",
+                "Pass.Builtin.Code.PBRForwardLighting",
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
@@ -91,17 +90,12 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
-        /*            builder.read(shadowData.shadowMap);
-                    builder.read(shadowData.lightVP);*/
+                    builder.read(shadowData.shadowMap);
+                    builder.read(shadowData.lightVP);
                     builder.read(globalLightProbes.environmentMap);
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
                     builder.read(brdfData.lut);
-                    //builder.read(gbufferData.Albedo_PosY);
-                    //builder.read(gbufferData.Emissive_PosZ);
-                    //builder.read(gbufferData.Normal_PosX);
-                    //builder.read(gbufferData.MetRougAOAlpha);
-                    //builder.read(gbufferData.Depth);
                 },
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -124,13 +118,13 @@ namespace Razix {
 
                         RZDescriptor* descriptor = nullptr;
 
-                        //descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap)];
-                        //if (descriptor)
-                        //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
-                        //descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP)];
-                        //if (descriptor)
-                        //    descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
                         descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap)];
                         if (descriptor)

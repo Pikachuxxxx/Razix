@@ -178,5 +178,7 @@
         <file>thumbnails/world.png</file>
         <file>thumbnails/xcube.png</file>
         <file>next_frame.png</file>
+        <file>terrain.png</file>
+        <file>terrain_64.png</file>
     </qresource>
 </RCC>

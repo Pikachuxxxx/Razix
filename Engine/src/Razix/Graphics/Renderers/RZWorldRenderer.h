@@ -11,10 +11,10 @@
 // Passes
 #include "Razix/Graphics/Passes/RZBloomPass.h"
 #include "Razix/Graphics/Passes/RZColorGradingPass.h"
-#include "Razix/Graphics/Passes/RZDeferredLightingPass.h"
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
+#include "Razix/Graphics/Passes/RZPBRDeferredLightingPass.h"
 #include "Razix/Graphics/Passes/RZPBRLightingPass.h"
 #include "Razix/Graphics/Passes/RZShadowPass.h"
 #include "Razix/Graphics/Passes/RZSkyboxPass.h"
@@ -125,7 +125,7 @@ namespace Razix {
             RZShadowPass              m_ShadowPass;
             RZGIPass                  m_GIPass;
             RZGBufferPass             m_GBufferPass;
-            RZDeferredLightingPass    m_DeferredPass;
+            RZPBRDeferredLightingPass m_PBRDeferredPass;
             RZPBRLightingPass         m_PBRLightingPass;
             RZSkyboxPass              m_SkyboxPass;
             RZBloomPass               m_BloomPass;

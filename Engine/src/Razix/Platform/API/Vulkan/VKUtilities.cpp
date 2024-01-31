@@ -512,6 +512,8 @@ namespace Razix {
 
             VkCommandBuffer BeginSingleTimeCommandBuffer()
             {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -532,6 +534,8 @@ namespace Razix {
 
             void EndSingleTimeCommandBuffer(VkCommandBuffer commandBuffer)
             {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
                 VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer));
 
                 VkSubmitInfo submitInfo         = {};

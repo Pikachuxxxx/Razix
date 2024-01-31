@@ -30,14 +30,17 @@ layout(location = 2) out vec4 GBuffer2;    // .rgb = Position .a = AO
 //------------------------------------------------------------------------------
 void main()
 {
-    // Since the current GLTF models have a MetallicgRoughNesAO maps we hard code this shit ( GLTF texutes .r = empty (mostly) .g = roughness .b = metallic .a = AO)
-#ifdef FUSED_MRAO
-    vec4 MetallicRoughnessAO = texture(metallicMap, fs_in.fragUV);
-#endif
+    vec3 albedo = Mat_getAlbedoColor(fs_in.fragUV);
+    float metallic = Mat_getMetallicColor(fs_in.fragUV);
+    float roughness = Mat_getRoughnessColor(fs_in.fragUV);
+    float ao = Mat_getAOColor(fs_in.fragUV);
 
     // Write the Normals to the GBuffer0  
-    GBuffer0 = vec4(normalize(fs_in.fragNormal), Mat_getMetallicColor(fs_in.fragUV));
-    GBuffer1 = vec4(Mat_getAlbedoColor(fs_in.fragUV).rgb, Mat_getRoughnessColor(fs_in.fragUV));
-    GBuffer2 = vec4(fs_in.fragPos.rgb, Mat_getAOColor(fs_in.fragUV));
+    vec3 N_Surface = normalize(fs_in.fragNormal);
+    vec3 N = normalize(Mat_getNormalMapNormals(fs_in.fragUV, fs_in.fragPos, N_Surface));
+    GBuffer0 = vec4(N, metallic);
+
+    GBuffer1 = vec4(albedo.rgb, roughness);
+    GBuffer2 = vec4(fs_in.fragPos.rgb, ao);
 }
 //------------------------------------------------------------------------------

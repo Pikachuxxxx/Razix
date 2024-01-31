@@ -81,7 +81,10 @@ namespace Razix {
 
             VmaAllocationCreateInfo vmaallocInfo = {};
             // TODO: make this selection smart or customizable by user
-            vmaallocInfo.usage         = VMA_MEMORY_USAGE_AUTO;
+            vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+            // We will almost never read back from GPU, and we always use s staging buffer to copy to GPU, so it's always Device Local
+            vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT |
+                                 VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
             vmaallocInfo.requiredFlags = properties;
             //allocate the buffer
             VK_CHECK_RESULT(vmaCreateImage(VKDevice::Get().getVMA(), &imageInfo, &vmaallocInfo, &image, &vmaAllocation, &allocationInfo));

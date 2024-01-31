@@ -524,9 +524,9 @@
     "value267": 1,
     "value268": {
         "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
         },
         "Rotation": {
             "x": 0.0,
@@ -618,7 +618,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": -0.0,
+            "y": 0.0,
             "z": 0.0
         },
         "Scale": {
@@ -2466,7 +2466,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": -0.0,
+            "y": 0.0,
             "z": 0.0
         },
         "Scale": {
@@ -2510,7 +2510,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": -0.0,
+            "y": 0.0,
             "z": 0.0
         },
         "Scale": {
@@ -2554,7 +2554,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": -0.0,
+            "y": 0.0,
             "z": 0.0
         },
         "Scale": {
@@ -2598,7 +2598,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": -0.0,
+            "y": 0.0,
             "z": 0.0
         },
         "Scale": {
@@ -2686,7 +2686,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": -0.0,
+            "y": 0.0,
             "z": 0.0
         },
         "Scale": {
@@ -2730,7 +2730,7 @@
         },
         "Rotation": {
             "x": 0.0,
-            "y": -0.0,
+            "y": 0.0,
             "z": 0.0
         },
         "Scale": {
@@ -2771,31 +2771,31 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 2.958278179168701,
-                "y": 6.9536027908325199,
-                "z": 19.10373306274414
+                "x": 1.7949426174163819,
+                "y": 9.982610702514649,
+                "z": 18.062469482421876
             },
             "Front": {
-                "x": -0.10131210833787918,
+                "x": -0.1181194931268692,
                 "y": -0.2461533099412918,
-                "z": -0.9639214873313904
+                "z": -0.9620065093040466
             },
             "Up": {
-                "x": -0.025729993358254434,
-                "y": 0.9692308902740479,
-                "z": -0.24480482935905457
+                "x": -0.029998527839779855,
+                "y": 0.9692309498786926,
+                "z": -0.24431851506233216
             },
             "Right": {
-                "x": 0.9945219159126282,
+                "x": 0.9925461411476135,
                 "y": 0.0,
-                "z": -0.10452833771705628
+                "z": -0.1218692883849144
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": 264.0,
+            "Yaw": -97.0,
             "Pitch": -14.25,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
@@ -2807,7 +2807,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.7777777910232545,
+            "AspectRatio": 1.4964467287063599,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
@@ -2823,343 +2823,343 @@
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.000000_R_0.075000.rzmaterial"
     },
     "value376": 4,
     "value377": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.000000_R_0.142857.rzmaterial"
     },
     "value378": 5,
     "value379": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.000000_R_0.285714.rzmaterial"
     },
     "value380": 6,
     "value381": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.000000_R_0.428571.rzmaterial"
     },
     "value382": 7,
     "value383": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.000000_R_0.571429.rzmaterial"
     },
     "value384": 8,
     "value385": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.000000_R_0.714286.rzmaterial"
     },
     "value386": 9,
     "value387": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.000000_R_0.857143.rzmaterial"
     },
     "value388": 10,
     "value389": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.142857_R_0.075000.rzmaterial"
     },
     "value390": 11,
     "value391": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.142857_R_0.142857.rzmaterial"
     },
     "value392": 12,
     "value393": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.142857_R_0.285714.rzmaterial"
     },
     "value394": 13,
     "value395": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.142857_R_0.428571.rzmaterial"
     },
     "value396": 14,
     "value397": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.142857_R_0.571429.rzmaterial"
     },
     "value398": 15,
     "value399": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.142857_R_0.714286.rzmaterial"
     },
     "value400": 16,
     "value401": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.142857_R_0.857143.rzmaterial"
     },
     "value402": 17,
     "value403": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.285714_R_0.075000.rzmaterial"
     },
     "value404": 18,
     "value405": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.285714_R_0.142857.rzmaterial"
     },
     "value406": 19,
     "value407": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.285714_R_0.285714.rzmaterial"
     },
     "value408": 20,
     "value409": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.285714_R_0.428571.rzmaterial"
     },
     "value410": 21,
     "value411": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.285714_R_0.571429.rzmaterial"
     },
     "value412": 22,
     "value413": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.285714_R_0.714286.rzmaterial"
     },
     "value414": 23,
     "value415": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.285714_R_0.857143.rzmaterial"
     },
     "value416": 24,
     "value417": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.428571_R_0.075000.rzmaterial"
     },
     "value418": 25,
     "value419": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.428571_R_0.142857.rzmaterial"
     },
     "value420": 26,
     "value421": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.428571_R_0.285714.rzmaterial"
     },
     "value422": 27,
     "value423": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.428571_R_0.428571.rzmaterial"
     },
     "value424": 28,
     "value425": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.428571_R_0.571429.rzmaterial"
     },
     "value426": 29,
     "value427": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.428571_R_0.714286.rzmaterial"
     },
     "value428": 30,
     "value429": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.428571_R_0.857143.rzmaterial"
     },
     "value430": 31,
     "value431": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.571429_R_0.075000.rzmaterial"
     },
     "value432": 32,
     "value433": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.571429_R_0.142857.rzmaterial"
     },
     "value434": 33,
     "value435": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.571429_R_0.285714.rzmaterial"
     },
     "value436": 34,
     "value437": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.571429_R_0.428571.rzmaterial"
     },
     "value438": 35,
     "value439": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.571429_R_0.571429.rzmaterial"
     },
     "value440": 36,
     "value441": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.571429_R_0.714286.rzmaterial"
     },
     "value442": 37,
     "value443": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.571429_R_0.857143.rzmaterial"
     },
     "value444": 38,
     "value445": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.714286_R_0.075000.rzmaterial"
     },
     "value446": 39,
     "value447": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.714286_R_0.142857.rzmaterial"
     },
     "value448": 40,
     "value449": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.714286_R_0.285714.rzmaterial"
     },
     "value450": 41,
     "value451": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.714286_R_0.428571.rzmaterial"
     },
     "value452": 42,
     "value453": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.714286_R_0.571429.rzmaterial"
     },
     "value454": 43,
     "value455": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.714286_R_0.714286.rzmaterial"
     },
     "value456": 44,
     "value457": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.714286_R_0.857143.rzmaterial"
     },
     "value458": 45,
     "value459": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.857143_R_0.075000.rzmaterial"
     },
     "value460": 46,
     "value461": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.857143_R_0.142857.rzmaterial"
     },
     "value462": 47,
     "value463": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.857143_R_0.285714.rzmaterial"
     },
     "value464": 48,
     "value465": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.857143_R_0.428571.rzmaterial"
     },
     "value466": 49,
     "value467": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.857143_R_0.571429.rzmaterial"
     },
     "value468": 50,
     "value469": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.857143_R_0.714286.rzmaterial"
     },
     "value470": 51,
     "value471": {
         "Primitive": 4,
         "MeshName": "",
         "MeshPath": "",
-        "MaterialPath": "//Assets/Materials/PBR material.rzmaterial"
+        "MaterialPath": "//Assets/Materials/PBR_Test_Mat_M_0.857143_R_0.857143.rzmaterial"
     },
     "value472": 1,
     "value473": 2,
@@ -3172,15 +3172,15 @@
         "Light": {
             "type": 0,
             "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             },
             "range": 10.0,
             "direction": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 0.0,
+                "value0": 1.0,
+                "value1": 1.0,
+                "value2": 1.0,
                 "value3": 1.0
             },
             "color": {

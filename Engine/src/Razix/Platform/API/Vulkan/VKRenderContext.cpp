@@ -17,6 +17,7 @@
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui/imgui.h>
 
 namespace Razix {
     namespace Graphics {
@@ -29,7 +30,7 @@ namespace Razix {
             if (func != nullptr)
                 func(commandBuffer, pRenderingInfo);
             else
-                RAZIX_CORE_ERROR("CmdBeginRenderingKHR Function not found");
+                RAZIX_CORE_ERROR("VkCmdBeginRenderingKHR Function not found");
         }
 
         static void CmdEndRenderingKHR(VkCommandBuffer commandBuffer)
@@ -38,7 +39,7 @@ namespace Razix {
             if (func != nullptr)
                 func(commandBuffer);
             else
-                RAZIX_CORE_ERROR("CmdEndRenderingKHR Function not found");
+                RAZIX_CORE_ERROR("VkCmdEndRenderingKHR Function not found");
         }
 
         static void CmdPushDescriptorSetKHR(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t set, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
@@ -66,6 +67,52 @@ namespace Razix {
             //m_Context->Release();
         }
 
+        void VKRenderContext::OnImGui()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (ImGui::Begin("RHI [Vulkan]")) {
+                auto m_PhysicalDeviceProperties = VKDevice::Get().getPhysicalDevice()->getProperties();
+
+                ImGui::Text("Vulkan API Version : %d.%d.%d", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.apiVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.apiVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.apiVersion));
+                ImGui::Text("GPU Name           : %s", std::string(m_PhysicalDeviceProperties.deviceName).c_str());
+                ImGui::Text("Vendor ID          : %s", std::to_string(m_PhysicalDeviceProperties.vendorID).c_str());
+                ImGui::Text("Device Type        : %s", std::string(VKDevice::Get().getPhysicalDevice()->getPhysicalDeviceTypeString(m_PhysicalDeviceProperties.deviceType)).c_str());
+                ImGui::Text("Driver Version     : %d.%d.%d", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
+
+                ImGui::Separator();
+
+                auto gpuMemProps = VKDevice::Get().getPhysicalDevice()->getMemoryProperties();
+
+                VmaBudget* pBudgets = new VmaBudget[gpuMemProps.memoryHeapCount];
+                vmaGetHeapBudgets(VKDevice::Get().getVMA(), pBudgets);
+
+                ImGui::Text("Heaps Count : %d", gpuMemProps.memoryHeapCount);
+
+                for (u32 i = 0; i < gpuMemProps.memoryHeapCount; i++) {
+                    auto heapName = "Heap " + std::to_string(i);
+                    if (ImGui::CollapsingHeader(heapName.c_str())) {
+                        ImGui::Text("Idx              : %d", i);
+                        ImGui::Text("Memory Flags     : %d", gpuMemProps.memoryHeaps[i].flags);
+                        ImGui::Text("Heap Size        : %f Gib", in_Gib((float) gpuMemProps.memoryHeaps[i].size));
+                        ImGui::Text("Heap Usage       : %f Gib", in_Gib((float) pBudgets[i].usage));
+                        ImGui::Text("Heap Budget      : %f Gib", in_Gib((float) pBudgets[i].budget));
+                        ImGui::Text("Block Count      : %d", pBudgets[i].statistics.blockCount);
+                        ImGui::Text("Allocation Count : %d", pBudgets[i].statistics.allocationCount);
+                        ImGui::Text("Block Bytes      : %f Gib", in_Gib((float) pBudgets[i].statistics.blockBytes));
+                        ImGui::Text("Allocation Bytes : %f Gib", in_Gib((float) pBudgets[i].statistics.allocationBytes));
+                    }
+                }
+                ImGui::Separator();
+
+                if (ImGui::Button("Calculate full statistics")) {
+                    VmaTotalStatistics totalStats{};
+                    vmaCalculateStatistics(VKDevice::Get().getVMA(), &totalStats);
+                }
+            }
+            ImGui::End();
+        }
+
         void VKRenderContext::InitAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -87,6 +134,16 @@ namespace Razix {
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(VK_NULL_HANDLE);
             m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentImageIndex()];
+
+// Update VMA for Budget Queries
+#ifdef RAZIX_USE_VMA
+    #ifndef RAZIX_DISTRIBUTION    // Only for debugging purposes
+            vmaSetCurrentFrameIndex(VKDevice::Get().getVMA(), RHI::Get().GetSwapchain()->getCurrentImageIndex());
+
+                // Get Heap Statistics
+
+    #endif
+#endif
         }
 
         void VKRenderContext::BeginAPIImpl(RZCommandBuffer* cmdBuffer)
@@ -512,11 +569,12 @@ namespace Razix {
             vkCmdPipelineBarrier(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 0, nullptr, 1, &barrier);
         }
 
-        void VKRenderContext::InsertBufferMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZUniformBuffer* buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+        void VKRenderContext::InsertBufferMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VKUniformBuffer* vkBuffer = static_cast<VKUniformBuffer*>(buffer);
+            RZUniformBuffer* bufferResource = RZResourceManager::Get().getPool<RZUniformBuffer>().get(buffer);
+            VKUniformBuffer* vkBuffer       = static_cast<VKUniformBuffer*>(bufferResource);
 
             VkBufferMemoryBarrier barrier = {};
             barrier.sType                 = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;

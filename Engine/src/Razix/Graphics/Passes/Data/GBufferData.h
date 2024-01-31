@@ -4,10 +4,10 @@
 
 struct GBufferData
 {
-    Razix::Graphics::FrameGraph::RZFrameGraphResource Normal_Metallic;
-    Razix::Graphics::FrameGraph::RZFrameGraphResource Albedo_Roughness;
-    Razix::Graphics::FrameGraph::RZFrameGraphResource Position_AO;
-    Razix::Graphics::FrameGraph::RZFrameGraphResource Depth;
+    Razix::Graphics::FrameGraph::RZFrameGraphResource GBuffer0;
+    Razix::Graphics::FrameGraph::RZFrameGraphResource GBuffer1;
+    Razix::Graphics::FrameGraph::RZFrameGraphResource GBuffer2;
+    Razix::Graphics::FrameGraph::RZFrameGraphResource GBufferDepth;
 };
 
 // Output from Fragment Shader or Output to Framebuffer attachments

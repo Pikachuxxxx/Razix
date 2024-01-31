@@ -64,7 +64,7 @@ namespace Razix {
             archive(cereal::make_nvp("MaterialPath", materialPath));
             if (!materialPath.empty()) {
                 // Since we have the path to a material file load it, deserialize it and create the material
-                //Mesh->getMaterial()->loadFromFile(materialPath);
+                Mesh->getMaterial()->loadFromFile(materialPath);
             }
         }
 

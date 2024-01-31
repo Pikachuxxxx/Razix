@@ -3,13 +3,14 @@
 // clang-format on
 #include "RZFrameGraphTexture.h"
 
-
+#include "Razix/Graphics/FrameGraph/RZFrameGraphResource.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIDesc.h"
-
 #include "Razix/Graphics/RHI/API/RZBindingInfoAccessViews.h"
-
+#include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/RHI.h"
+
+#include "Razix/Graphics/Resources/RZResourceManager.h"
 
 namespace Razix {
     namespace Graphics {
@@ -42,12 +43,17 @@ namespace Razix {
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                // Get the Biding info from the flags
-                DescriptorBindingInfo info = Graphics::DecodeDescriptorBindingInfo(flags);
+                auto& textureResourceDesc = Razix::Graphics::RZResourceManager::Get().getTextureResource(m_TextureHandle)->getDescription();
 
                 // Note: Disabled cause validation layers are not complaining
 
                 //Graphics::RHI::InsertImageMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_TextureHandle, {.startExecutionStage = PipelineStage::kColorAttachmentOutput, .endExecutionStage = PipelineStage::kFragmentShader}, {.srcAccess = MemoryAccessMask::kColorAttachmentReadWriteBit, .dstAccess = MemoryAccessMask::kShaderReadBit, .srcLayout = ImageLayout::kColorAttachmentOptimal, .dstLayout = ImageLayout::kShaderReadOnlyOptimal});
+
+                // Get the Biding info from the flags
+                if (flags != FrameGraph::kFlagsNone)
+                    DescriptorBindingInfo info = Graphics::DecodeDescriptorBindingInfo(flags);
+                else
+                    return;
             }
 
             void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)
@@ -66,6 +72,12 @@ namespace Razix {
                 // Note: Disabled cause validation layers are not complaining
 
                 //Graphics::RHI::InsertImageMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_TextureHandle, {.startExecutionStage = PipelineStage::kTopOfPipe, .endExecutionStage = PipelineStage::kColorAttachmentOutput}, {.srcAccess = MemoryAccessMask::kNone, .dstAccess = MemoryAccessMask::kColorAttachmentReadWriteBit, .srcLayout = ImageLayout::kUndefined, .dstLayout = ImageLayout::kColorAttachmentOptimal});
+
+                // Get the Biding info from the flags
+                if (flags != FrameGraph::kFlagsNone)
+                    DescriptorBindingInfo info = Graphics::DecodeDescriptorBindingInfo(flags);
+                else
+                    return;
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

@@ -131,7 +131,8 @@ namespace Razix {
         //-----------------------------
         // Scene Lighting Data
         if (sceneDrawParams.enableLights) {
-            Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getSceneLightsDataSet(), BindingTable_System::SET_IDX_LIGHTING_DATA);
+            //RAZIX_ASSERT(startSetIdx == BindingTable_System::SET_IDX_LIGHTING_DATA, "[Scene] Binding renderer system lighting data at wrong index!");
+            Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getSceneLightsDataSet(), startSetIdx);
             startSetIdx++;
         }
         //-----------------------------

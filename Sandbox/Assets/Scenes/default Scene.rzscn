@@ -1,43 +1,52 @@
 {
     "Razix Scene": {
-        "UUID": "9ea889bf-c2b5-4d6f-8cc9-0d6ab029f371",
+        "UUID": "99f160ab-c3fd-432c-91a1-5b521a3b02fd",
         "SceneName": "default Scene",
-        "Total Entities": 3
+        "Total Entities": 4
     },
-    "value0": 3,
+    "value0": 4,
     "value1": 0,
     "value2": 1,
     "value3": 2,
     "value4": 3,
-    "value5": 0,
-    "value6": {
-        "UUID": "33363331-3333-3331-2d33-3333352d3333"
+    "value5": 4,
+    "value6": 0,
+    "value7": {
+        "UUID": "64346230-6239-3532-2d65-6530322d3431"
     },
-    "value7": 1,
-    "value8": {
-        "UUID": "33363332-3333-3334-2d33-3333382d3336"
+    "value8": 1,
+    "value9": {
+        "UUID": "65643630-3663-6237-2d37-3461392d3432"
     },
-    "value9": 2,
-    "value10": {
-        "UUID": "33333336-3333-3336-2d33-3633352d3333"
+    "value10": 2,
+    "value11": {
+        "UUID": "30366136-6638-6565-2d38-3361652d3461"
     },
-    "value11": 3,
-    "value12": 0,
+    "value12": 3,
     "value13": {
-        "Tag": "Directional Light"
+        "UUID": "37393965-6131-6266-2d65-3636362d3464"
     },
-    "value14": 1,
-    "value15": {
-        "Tag": "imgui_script_entity"
-    },
-    "value16": 2,
-    "value17": {
+    "value14": 4,
+    "value15": 0,
+    "value16": {
         "Tag": "Camera"
     },
-    "value18": 0,
-    "value19": 3,
-    "value20": 0,
-    "value21": {
+    "value17": 1,
+    "value18": {
+        "Tag": "hello_lua"
+    },
+    "value19": 2,
+    "value20": {
+        "Tag": "imgui_lua"
+    },
+    "value21": 3,
+    "value22": {
+        "Tag": "Directional Light"
+    },
+    "value23": 0,
+    "value24": 4,
+    "value25": 0,
+    "value26": {
         "Translation": {
             "x": 0.0,
             "y": 0.0,
@@ -80,126 +89,170 @@
             }
         }
     },
-    "value22": 1,
-    "value23": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 1.0
-            }
-        }
-    },
-    "value24": 2,
-    "value25": {
-        "Translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "Rotation": {
-            "x": 0.0,
-            "y": -0.0,
-            "z": 0.0
-        },
-        "Scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "Transform": {
-            "value0": {
-                "value0": 1.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value1": {
-                "value0": 0.0,
-                "value1": 1.0,
-                "value2": 0.0,
-                "value3": 0.0
-            },
-            "value2": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 1.0,
-                "value3": 0.0
-            },
-            "value3": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 0.0,
-                "value3": 1.0
-            }
-        }
-    },
-    "value26": 1,
-    "value27": 2,
+    "value27": 1,
     "value28": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value29": 2,
+    "value30": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value31": 3,
+    "value32": {
+        "Translation": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value33": 1,
+    "value34": 0,
+    "value35": {
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": -4.86372184753418,
-                "y": 8.388556480407715,
-                "z": -11.75030517578125
+                "x": 8.35002613067627,
+                "y": 10.898768424987793,
+                "z": 18.69924545288086
             },
             "Front": {
-                "x": 0.48762258887290957,
-                "y": -0.5591928958892822,
-                "z": 0.6704682111740112
+                "x": -0.2046678215265274,
+                "y": -0.4809887707233429,
+                "z": -0.852502703666687
             },
             "Up": {
-                "x": 0.32890555262565615,
-                "y": 0.829037606716156,
-                "z": 0.45223644375801089
+                "x": -0.11228461563587189,
+                "y": 0.8767268061637878,
+                "z": -0.4676990509033203
             },
             "Right": {
-                "x": -0.8087306618690491,
+                "x": 0.9723699688911438,
                 "y": 0.0,
-                "z": 0.5881790518760681
+                "z": -0.233445405960083
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": 107900696.0,
-            "Pitch": -34.0,
+            "Yaw": -103.5,
+            "Pitch": -28.75,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -210,7 +263,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.8699780702590943,
+            "AspectRatio": 1.4396249055862427,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
@@ -219,28 +272,32 @@
             }
         }
     },
-    "value29": 0,
-    "value30": 0,
-    "value31": 1,
-    "value32": 1,
-    "value33": {
+    "value36": 0,
+    "value37": 0,
+    "value38": 2,
+    "value39": 1,
+    "value40": {
+        "FilePath": "//Scripts/hello_razix.lua"
+    },
+    "value41": 2,
+    "value42": {
         "FilePath": "//Scripts/imgui_test.lua"
     },
-    "value34": 1,
-    "value35": 0,
-    "value36": {
+    "value43": 1,
+    "value44": 3,
+    "value45": {
         "Light": {
             "type": 0,
             "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             },
             "range": 10.0,
             "direction": {
-                "value0": 0.0,
-                "value1": 0.0,
-                "value2": 0.0,
+                "value0": 1.0,
+                "value1": 1.0,
+                "value2": 1.0,
                 "value3": 1.0
             },
             "color": {
@@ -256,5 +313,5 @@
             "outerConeAngle": 60.0
         }
     },
-    "value37": 0
+    "value46": 0
 }

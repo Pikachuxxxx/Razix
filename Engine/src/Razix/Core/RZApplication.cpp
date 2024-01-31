@@ -561,6 +561,8 @@ namespace Razix {
             static bool showResourceViewer = false;
             static bool showBudgets        = false;
             static bool showMemStats       = true;
+            static bool showRHIStats       = true;
+
             {
                 RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
 
@@ -576,6 +578,9 @@ namespace Razix {
                             }
                             if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
                                 showMemStats = !showMemStats;
+                            }
+                            if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", nullptr, showRHIStats)) {
+                                showRHIStats = !showRHIStats;
                             }
                             ImGui::EndMenu();
                         }
@@ -837,6 +842,9 @@ namespace Razix {
                 ImGui::PopStyleVar(1);
             }
         }
+
+        // RHI Memory Stats (Available in Editor mode also)
+        Razix::Graphics::RHI::Get().OnImGui();
 
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {

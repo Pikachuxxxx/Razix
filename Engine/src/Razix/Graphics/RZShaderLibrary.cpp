@@ -50,7 +50,7 @@ namespace Razix {
             //loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRLighting.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRIBL, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRIBL.rzsf");
-            loadBuiltInShader(ShaderBuiltin::PBRDeferredLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRDefferedIBL.rzsf");
+            loadBuiltInShader(ShaderBuiltin::PBRDeferredLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRDeferredIBL.rzsf");
             //-------------------------------------------------------------------
             // Post Processing FX
             //loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");

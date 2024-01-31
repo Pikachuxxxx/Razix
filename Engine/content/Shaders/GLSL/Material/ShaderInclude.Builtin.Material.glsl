@@ -65,11 +65,10 @@ layout(set = 1, binding = 7) uniform sampler2D aoMap;
 vec3 Mat_getAlbedoColor(vec2 uv)
 {
     uv *= Material.uvScale;
-    return vec3(texture(albedoMap, uv));
-    //if(Material.isUsingAlbedoMap)
-    //    return vec3(texture(albedoMap, uv));
-    //else 
-    //    return Material.baseColor * Material.emissiveIntensity;
+    if(Material.isUsingAlbedoMap)
+        return vec3(texture(albedoMap, uv));
+    else 
+        return Material.baseColor * Material.emissiveIntensity;
 }
 //----------------------------------------------------------------------------
 vec3 Mat_getNormalMapNormals(vec2 uv, vec3 worldPos, vec3 N)

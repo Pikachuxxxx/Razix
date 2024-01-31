@@ -4,6 +4,7 @@
 #include "RZGBufferPass.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
@@ -36,18 +37,26 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
 
+            /**
+             * GBuffer RT formats
+             * @slot #0 : XYZ = Normal   W = Metallic
+             * @slot #1 : XYZ = Albedo   W = Roughness
+             * @slot #2 : XYZ = Position W = AO
+             * Scene Depth
+             */
+
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
             pipelineInfo.name                = "GBuffer Pipeline";
-            pipelineInfo.cullMode            = Graphics::CullMode::None;
+            pipelineInfo.cullMode            = Graphics::CullMode::Front;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::Triangle;
-            pipelineInfo.transparencyEnabled = true;
+            pipelineInfo.transparencyEnabled = false;    // Deferred Shading historically doesn't support transparency so we disable it
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthTestEnabled    = true;
             // Using 32 bit f32ing point formats to support HDR colors
@@ -62,55 +71,53 @@ namespace Razix {
             auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
 
             framegraph.getBlackboard().add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
-                "GBuffer",
+                "Pass.Builtin.Code.GBuffer",
                 [&](GBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc gbufferTexturesDesc{
-                        .name   = "Normal_Metallic",
+                        .name   = "gBuffer0",
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
                         .type   = TextureType::Texture_2D,
                         .format = TextureFormat::RGBA32F};
 
-                    data.Normal_Metallic = builder.create<FrameGraph::RZFrameGraphTexture>("Normal_Metallic", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.GBuffer0 = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name = "Albedo_Roughness";
+                    gbufferTexturesDesc.name = "gBuffer1";
+                    data.GBuffer1            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.Albedo_Roughness = builder.create<FrameGraph::RZFrameGraphTexture>("Albedo_Roughness", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    gbufferTexturesDesc.name = "gBuffer2";
+                    data.GBuffer2            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name = "Position_AO";
-
-                    data.Position_AO = builder.create<FrameGraph::RZFrameGraphTexture>("Position_AO", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
-
-                    gbufferTexturesDesc.name      = "Depth";
+                    gbufferTexturesDesc.name      = "SceneDepth";
                     gbufferTexturesDesc.format    = TextureFormat::DEPTH32F;
                     gbufferTexturesDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     gbufferTexturesDesc.type      = TextureType::Texture_Depth;
+                    data.GBufferDepth             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.Depth = builder.create<FrameGraph::RZFrameGraphTexture>("Depth", CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
-
-                    data.Normal_Metallic  = builder.write(data.Normal_Metallic);
-                    data.Albedo_Roughness = builder.write(data.Albedo_Roughness);
-                    data.Position_AO      = builder.write(data.Position_AO);
-                    data.Depth            = builder.write(data.Depth);
+                    data.GBuffer0     = builder.write(data.GBuffer0);
+                    data.GBuffer1     = builder.write(data.GBuffer1);
+                    data.GBuffer2     = builder.write(data.GBuffer2);
+                    data.GBufferDepth = builder.write(data.GBufferDepth);
 
                     builder.read(frameDataBlock.frameData);
                 },
                 [=](const GBufferData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                    RAZIX_TIME_STAMP_BEGIN("GBuffer Pass");
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
 
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
                         .colorAttachments = {
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Normal_Metallic).getHandle(), {true, ClearColorPresets::TransparentBlack}},     // location = 0
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Albedo_Roughness).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.Position_AO).getHandle(), {true, ClearColorPresets::TransparentBlack}},         // location = 2
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer1).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer2).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                         },
-                        .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true}},
-                        .resize          = false};
+                        .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}},
+                        .resize          = true};
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
@@ -119,8 +126,9 @@ namespace Razix {
                     // Use scene to draw geometry
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
-                    RAZIX_MARK_END();
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
+                    RAZIX_MARK_END();
+                    RAZIX_TIME_STAMP_END();
                 });
         }
 

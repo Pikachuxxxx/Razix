@@ -239,7 +239,7 @@ namespace Razix {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                 s_APIInstance->InsertImageMemoryBarrierImpl(cmdBuffer, texture, pipelineBarrierInfo, imgBarrierInfo);
             }
-            RAZIX_FORCE_INLINE static void InsertBufferMemoryBarrier(RZCommandBuffer* cmdBuffer, RZUniformBuffer* buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+            RAZIX_FORCE_INLINE static void InsertBufferMemoryBarrier(RZCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Insert Buffer Memory Barrier");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -311,31 +311,33 @@ namespace Razix {
             const RZDescriptorSet* getSceneLightsDataSet() const { return m_SceneLightsDataSet; }
             void                   setSceneLightsDataSet(RZDescriptorSet* set) { m_SceneLightsDataSet = set; }
 
+            virtual void OnImGui() = 0;
+
         protected:
-            virtual void InitAPIImpl()                                                                                                                                                       = 0;
-            virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                   = 0;
-            virtual void BeginAPIImpl(RZCommandBuffer* cmdBuffer)                                                                                                                            = 0;
-            virtual void SubmitImpl(RZCommandBuffer* cmdBuffer)                                                                                                                              = 0;
-            virtual void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                = 0;
-            virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                          = 0;
-            virtual void BindPipelineImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)                                                                                             = 0;
-            virtual void BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                    = 0;
-            virtual void BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)           = 0;
-            virtual void BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)         = 0;
-            virtual void BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                        = 0;
-            virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                     = 0;
-            virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)          = 0;
-            virtual void DestroyAPIImpl()                                                                                                                                                    = 0;
-            virtual void OnResizeAPIImpl(u32 width, u32 height)                                                                                                                              = 0;
-            virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                                        = 0;
-            virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                         = 0;
-            virtual void SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                            = 0;
-            virtual void EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)                                                                                   = 0;
-            virtual void BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                        = 0;
-            virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)                                                                                  = 0;
-            virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                                                                                                        = 0;
-            virtual void InsertImageMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)   = 0;
-            virtual void InsertBufferMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZUniformBuffer* buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) = 0;
+            virtual void InitAPIImpl()                                                                                                                                                            = 0;
+            virtual void AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                        = 0;
+            virtual void BeginAPIImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                 = 0;
+            virtual void SubmitImpl(RZCommandBuffer* cmdBuffer)                                                                                                                                   = 0;
+            virtual void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                     = 0;
+            virtual void PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                               = 0;
+            virtual void BindPipelineImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)                                                                                                  = 0;
+            virtual void BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                         = 0;
+            virtual void BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)                = 0;
+            virtual void BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)              = 0;
+            virtual void BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                             = 0;
+            virtual void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                          = 0;
+            virtual void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)               = 0;
+            virtual void DestroyAPIImpl()                                                                                                                                                         = 0;
+            virtual void OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                   = 0;
+            virtual void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer)                                                                                                                             = 0;
+            virtual void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                              = 0;
+            virtual void SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                                 = 0;
+            virtual void EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)                                                                                        = 0;
+            virtual void BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                             = 0;
+            virtual void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)                                                                                       = 0;
+            virtual void EndRenderingImpl(RZCommandBuffer* cmdBuffer)                                                                                                                             = 0;
+            virtual void InsertImageMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)        = 0;
+            virtual void InsertBufferMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) = 0;
 
             virtual RZSwapchain* GetSwapchainImpl() = 0;
 
