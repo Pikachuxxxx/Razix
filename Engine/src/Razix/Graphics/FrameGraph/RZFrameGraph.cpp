@@ -595,12 +595,10 @@ namespace Razix {
                     // Call pre read and pre write functions on the resource before the execute function
                     // Safety of existence is taken care in the ResourceEntry class
                     for (auto &&[id, flags]: pass.m_Reads) {
-                        if (flags != kFlagsNone)
-                            getResourceEntry(id).getConcept()->preRead(flags);
+                        getResourceEntry(id).getConcept()->preRead(flags);
                     }
                     for (auto &&[id, flags]: pass.m_Writes) {
-                        if (flags != kFlagsNone)
-                            getResourceEntry(id).getConcept()->preWrite(flags);
+                        getResourceEntry(id).getConcept()->preWrite(flags);
                     }
 
                     // call the ExecuteFunc (same for Code and DataDriven passes)

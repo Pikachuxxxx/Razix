@@ -48,7 +48,7 @@ void main()
     // Out from vertex shader
     vs_out.fragPos      = vec3(model_pc_data.model * vec4(inPosition, 1.0));
     vs_out.fragColor    = inColor;
-	vs_out.fragUV = inTexCoord;
+	vs_out.fragUV       = inTexCoord;
     vs_out.fragNormal   = mat3(transpose(inverse(model_pc_data.model))) * inNormal;
     vs_out.fragTangent  = inTangent;
     vs_out.viewPos      = getCameraPosition();

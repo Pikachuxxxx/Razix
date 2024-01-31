@@ -29,7 +29,7 @@ namespace Razix {
             m_Shader = shader;
 
             // Create the uniform buffer first, we hardly change material props that too too frequently to event have it as Staging so it's fine to have it dynamic
-            m_MaterialPropertiesUBO = RZResourceManager::Get().createUniformBuffer({"Material Properties UBO", sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties, BufferUsage::Static});
+            m_MaterialPropertiesUBO = RZResourceManager::Get().createUniformBuffer({"Material Properties UBO", sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties, BufferUsage::Staging});
         }
 
         void RZMaterial::Destroy()

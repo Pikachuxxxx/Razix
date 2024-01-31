@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZPBRLightingPass.h"
+#include "RZPBRDeferredLightingPass.h"
 
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
@@ -40,21 +40,21 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZPBRLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZPBRDeferredLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
         {
-            auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
+            auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRDeferredLighting);
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "PBR Lighting Pipeline";
-            pipelineInfo.cullMode               = Graphics::CullMode::Front;
+            pipelineInfo.name                   = "PBR Deferred Lighting Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = pbrShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
             pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
-            pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& frameDataBlock       = framegraph.getBlackboard().get<FrameData>();
@@ -62,9 +62,10 @@ namespace Razix {
             auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
+            auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
-                "Pass.Builtin.Code.PBRForwardLighting",
+                "Pass.Builtin.Code.PBRDeferredLighting",
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
@@ -77,16 +78,8 @@ namespace Razix {
 
                     data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    textureDesc.name       = "SceneDepth";
-                    textureDesc.format     = TextureFormat::DEPTH32F;
-                    textureDesc.filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                    textureDesc.type       = TextureType::Texture_Depth;
-                    textureDesc.enableMips = false;
-
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
-
                     data.outputHDR = builder.write(data.outputHDR);
-                    data.depth     = builder.write(data.depth);
+                    data.depth     = builder.write(gbufferData.GBufferDepth);
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
@@ -96,17 +89,20 @@ namespace Razix {
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
                     builder.read(brdfData.lut);
+                    builder.read(gbufferData.GBuffer0);
+                    builder.read(gbufferData.GBuffer1);
+                    builder.read(gbufferData.GBuffer2);
+                    //builder.read(gbufferData.GBufferDepth);
                 },
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    RAZIX_TIME_STAMP_BEGIN("PBR Lighting Pass");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.PBRLighting", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+                    RAZIX_TIME_STAMP_BEGIN("Deferred Lighting (PBR)");
+                    RAZIX_MARK_BEGIN("Pass.Builtin.PBRDeferredLighting", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -138,12 +134,37 @@ namespace Razix {
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
 
+                        // Bind the GBuffer textures
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0).getHandle();
+
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1).getHandle();
+
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2)];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
+
                         RZResourceManager::Get().getShaderResource(pbrShader)->updateBindVarsHeaps();
                     }
 
                     RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
-                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
+                    struct PCData
+                    {
+                        glm::vec3 CameraViewPos;
+                    } pcData{};
+                    pcData.CameraViewPos = scene->getSceneCamera().getPosition();
+
+                    RZPushConstant pc;
+                    pc.size        = sizeof(PCData);
+                    pc.data        = &pcData;
+                    pc.shaderStage = ShaderStage::Pixel;
+                    RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
+
+                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
@@ -151,7 +172,7 @@ namespace Razix {
                 });
         }
 
-        void RZPBRLightingPass::destroy()
+        void RZPBRDeferredLightingPass::destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
             //m_PBRBindingSet->Destroy();

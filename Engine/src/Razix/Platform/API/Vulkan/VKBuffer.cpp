@@ -85,8 +85,10 @@ namespace Razix {
             VkResult res;
             // Map the memory to the mapped buffer
 #ifndef RAZIX_USE_VMA
-            res = vkMapMemory(VKDevice::Get().getDevice(), m_BufferMemory, offset, size, 0, &m_Mapped);
-            RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
+            if (!m_Mapped) {
+                res = vkMapMemory(VKDevice::Get().getDevice(), m_BufferMemory, offset, size, 0, &m_Mapped);
+                RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
+            }
 #else
             if (m_Usage == BufferUsage::Staging) {
                 res = vmaMapMemory(VKDevice::Get().getVMA(), m_VMAAllocation, &m_Mapped);
@@ -151,7 +153,12 @@ namespace Razix {
                 map(size, 0);
                 memcpy(m_Mapped, data, size);
             } else if (m_Usage == BufferUsage::PersistentStream) {
+#ifdef RAZIX_USE_VMA
                 memcpy(m_AllocInfo.pMappedData, data, size);
+#else
+                map(size, 0);
+                memcpy(m_Mapped, data, size);
+#endif
             } else if (m_Usage == BufferUsage::Static) {
                 /**
                 * For anything else we copy using a staging buffer to copy to the GPU

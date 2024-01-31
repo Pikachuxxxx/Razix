@@ -3,6 +3,7 @@
 #include <cereal/archives/json.hpp>
 #include <entt.hpp>
 
+#include "Razix/Core/RZProfiling.h"
 #include "Razix/Core/RZUUID.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
@@ -102,8 +103,6 @@ namespace Razix {
         template<typename T>
         std::vector<T> GetComponentsOfType()
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-
             std::vector<T> components;
 
 #pragma warning(push)

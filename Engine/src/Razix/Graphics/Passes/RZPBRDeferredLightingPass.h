@@ -9,11 +9,11 @@ namespace Razix {
 
         // FIXME: The dot artifact is due to Filtering Mode stuff, mips gen + accessing in pre-filtering stage, specular IBL stuff needs to be fixed properly!
 
-        class RZPBRLightingPass : public IRZPass
+        class RZPBRDeferredLightingPass : public IRZPass
         {
         public:
-            RZPBRLightingPass() {}
-            ~RZPBRLightingPass() {}
+            RZPBRDeferredLightingPass() {}
+            ~RZPBRDeferredLightingPass() {}
 
             void addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings) override;
             void destroy() override;

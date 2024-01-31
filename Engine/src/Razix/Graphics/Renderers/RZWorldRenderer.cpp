@@ -55,6 +55,8 @@ namespace Razix {
             const auto& colorLUTTextureDesc                                    = RZResourceManager::Get().getPool<RZTexture>().get(m_ColorGradingNeutralLUTHandle)->getDescription();
             m_FrameGraph.getBlackboard().add<ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorLUTTextureDesc.name, CAST_TO_FG_TEX_DESC colorLUTTextureDesc, {m_ColorGradingNeutralLUTHandle});
 
+            //-----------------------------------------------------------------------------------
+
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
             m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Textures/HDR/newport_loft.hdr");
@@ -62,6 +64,8 @@ namespace Razix {
             m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
             importGlobalLightProbes(m_GlobalLightProbes);
+
+            //-----------------------------------------------------------------------------------
 
             // Cull Lights (Directional + Point) on CPU against camera Frustum First
             // TODO: Get the list of lights in the scene and cull them against the camera frustum and disable ActiveComponent for culled lights, but for now we can just ignore that
@@ -80,6 +84,8 @@ namespace Razix {
             uploadLightsData(scene, settings);
 
             auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+
+            //-----------------------------------------------------------------------------------
 
 #if ENABLE_CODE_DRIVEN_FG_PASSES
 
@@ -114,11 +120,6 @@ namespace Razix {
             //-------------------------------
             // [ ] SSR Pass
             //-------------------------------
-
-            //-------------------------------
-            // GBuffer Pass
-            //-------------------------------
-            //m_GBufferPass.addPass(m_FrameGraph, m_Blackboard, scene, settings);
 
     #if 0
             //-------------------------------
@@ -240,14 +241,27 @@ namespace Razix {
 #endif
 
             //-------------------------------
-            // [Test] Simple Shadow map Pass
+            // [x] Simple Shadow map Pass
             //-------------------------------
             m_ShadowPass.addPass(m_FrameGraph, scene, settings);
 
             //-------------------------------
-            // PBR Pass
+            // [x] GBuffer Pass
             //-------------------------------
+            m_GBufferPass.addPass(m_FrameGraph, scene, settings);
+            GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
+
+            //-------------------------------
+            // [x] PBR Deferred Pass
+            //-------------------------------
+            m_PBRDeferredPass.addPass(m_FrameGraph, scene, settings);
+
+            //-------------------------------
+            // [x] PBR Pass
+            //-------------------------------
+#if ENABLE_FORWARD_RENDERING
             m_PBRLightingPass.addPass(m_FrameGraph, scene, settings);
+#endif
             SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -586,7 +600,7 @@ namespace Razix {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
                         descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
-                        descriptor.bindingInfo.stage            = ShaderStage::Vertex;
+                        descriptor.bindingInfo.stage            = ShaderStage::Vertex;    // Add support for Pixel shader stage as well
                         descriptor.uniformBuffer                = frameDataBufferHandle;
                         auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Graphics::RHI::Get().setFrameDataSet(m_FrameDataSet);

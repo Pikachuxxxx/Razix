@@ -9,11 +9,11 @@
         "Emissive": "",
         "albedoColor": {
             "x": 1.0,
-            "y": 0.6666666865348816,
-            "z": 0.49803921580314639
+            "y": 0.30000001192092898,
+            "z": 0.75
         },
-        "roughnessColor": 0.009999999776482582,
-        "metallicColor": 1.0,
+        "roughnessColor": 0.07500000298023224,
+        "metallicColor": 0.8571428656578064,
         "emissiveColor": 1.0,
         "isUsingAlbedoMap": 0,
         "isUsingMetallicMap": 0,
