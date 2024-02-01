@@ -21,17 +21,19 @@ namespace Razix {
             PBRDeferredLighting,
             GBuffer,
             Composition,
-            ColorGrading,
             DepthPreTest,
             CSM,
-            ImGui,
             EnvToCubemap,
             GenerateIrradianceMap,
             GeneratePreFilteredMap,
-            DebugPoint,
-            DebugLine,
             Sprite,
             SpriteTextured,
+            DebugPoint,
+            DebugLine,
+            ImGui,
+            // Post Processing FX
+            SSAO,
+            ColorGrading,
             BUILTIN_SHADERS_COUNT
         };
 

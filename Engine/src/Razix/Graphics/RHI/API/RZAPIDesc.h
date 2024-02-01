@@ -18,20 +18,21 @@ namespace Razix {
         // TODO: Add checks for data members based on type, ex. Texture_CubeMap must have layers > 1 etc.
         struct RZTextureDesc
         {
-            std::string   name       = "$UNNAMED_TEXTURE_RESOURCE"; /* Name of the texture                                                                      */
-            u32           width      = 0;                           /*  The Width of the texture                                                                */
-            u32           height     = 0;                           /* The Height of the texture                                                                */
-            u32           depth      = 1;                           /* The depth of the texture used only for 3D textures                                       */
-            u32           layers     = 1;                           /* The array Layers of the texture used for Arrays and CubeMaps                             */
-            void*         data       = nullptr;                     /* The Data uses to initialize the Texture with                                             */
-            TextureType   type       = TextureType::Texture_2D;     /* The type of the Texture                                                                  */
-            TextureFormat format     = TextureFormat::RGBA32F;      /* The format of the texture                                                                */
-            Wrapping      wrapping   = Wrapping::REPEAT;            /* Wrap mode of the texture in memory                                                       */
-            Filtering     filtering  = Filtering{};                 /* Filtering mode of the texture                                                            */
-            bool          enableMips = false;                       /* Whether or not to generate mip maps or not for the texture                               */
-            bool          flipX      = false;                       /* Flip the texture on X-axis during load                                                   */
-            bool          flipY      = true;                        /* Flip the texture on Y-axis during load                                                   */
-            u32           dataSize   = sizeof(unsigned char);       /* data size of each pixel, HDR data vs normal pixel data                                   */
+            std::string   name       = "$UNNAMED_TEXTURE_RESOURCE"; /* Name of the texture                                           */
+            u32           width      = 0;                           /*  The Width of the texture                                     */
+            u32           height     = 0;                           /* The Height of the texture                                     */
+            u32           depth      = 1;                           /* The depth of the texture used only for 3D textures            */
+            u32           layers     = 1;                           /* The array Layers of the texture used for Arrays and CubeMaps  */
+            void*         data       = nullptr;                     /* The Data uses to initialize the Texture with                  */
+            u32           size       = 0;                           /* Total size of pixel data used for initialization              */
+            TextureType   type       = TextureType::Texture_2D;     /* The type of the Texture                                       */
+            TextureFormat format     = TextureFormat::RGBA32F;      /* The format of the texture                                     */
+            Wrapping      wrapping   = Wrapping::REPEAT;            /* Wrap mode of the texture in memory                            */
+            Filtering     filtering  = Filtering{};                 /* Filtering mode of the texture                                 */
+            bool          enableMips = false;                       /* Whether or not to generate mip maps or not for the texture    */
+            bool          flipX      = false;                       /* Flip the texture on X-axis during load                        */
+            bool          flipY      = true;                        /* Flip the texture on Y-axis during load                        */
+            u32           dataSize   = sizeof(unsigned char);       /* data size of each pixel, HDR data vs normal pixel data        */
 
             // TODO: move them with below functions or to some util class
 

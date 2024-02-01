@@ -66,7 +66,7 @@ namespace Razix {
         struct ColorGradingLUTData
         {
             FrameGraph::RZFrameGraphResource neutralLUT;
-        };  
+        };
 
         struct ColorGradingData
         {
@@ -74,5 +74,24 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource colorGradedSceneLDR;
         };
 
-    }    // namespace Graphics
+        namespace FX {
+
+            struct SSAOPreBlurData
+            {
+                FrameGraph::RZFrameGraphResource SSAOPreBlurTexture;
+            };
+
+            struct SSAOBlurData
+            {
+                FrameGraph::RZFrameGraphResource SSAOBlurTexture;
+            };
+
+            struct SSAOData
+            {
+                FrameGraph::RZFrameGraphResource SSAONoiseTexture;
+                FrameGraph::RZFrameGraphResource SSAOKernelSamples;
+            };
+
+        }    // namespace FX
+    }        // namespace Graphics
 }    // namespace Razix

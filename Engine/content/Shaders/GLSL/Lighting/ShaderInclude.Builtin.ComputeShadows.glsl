@@ -71,7 +71,7 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
             
             float pcfDepth = texture(shadowMap, uv + jitterFactor * texelSize).r; 
             //float pcfDepth = texture(shadowMap, uv+ vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth ? 0.1f : 1.0f;        
+            shadow += currentDepth - bias > pcfDepth ? 0.0f : 1.0f;        
         }    
     }
     shadow /= 9.0;

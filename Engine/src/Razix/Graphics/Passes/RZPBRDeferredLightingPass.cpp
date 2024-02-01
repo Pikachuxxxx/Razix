@@ -50,9 +50,8 @@ namespace Razix {
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = pbrShader;
-            pipelineInfo.transparencyEnabled    = true;
+            pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
-            pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = false;
             pipelineInfo.depthWriteEnabled      = false;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
@@ -162,7 +161,7 @@ namespace Razix {
                     pc.size        = sizeof(PCData);
                     pc.data        = &pcData;
                     pc.shaderStage = ShaderStage::Pixel;
-                    RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
+                    //RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 

@@ -33,10 +33,10 @@ void main()
 {
 	vs_out.fragLocalPos = inPosition;
     vs_out.fragLocalPos.y = -vs_out.fragLocalPos.y;
-    vs_out.time = FrameData.time;
+    vs_out.time = FrameData.info.time;
 
-    mat4 rotView = mat4(mat3(FrameData.camera.view)); // remove translation from the view matrix
-    vec4 clipPos = FrameData.camera.projection * rotView * vec4(vs_out.fragLocalPos, 1.0);
+    mat4 rotView = mat4(mat3(FrameData.info.camera.view)); // remove translation from the view matrix
+    vec4 clipPos = FrameData.info.camera.projection * rotView * vec4(vs_out.fragLocalPos, 1.0);
 
     gl_Position = clipPos.xyww; // Z = 1 must happen when we do perspective division in clipping phase
 }

@@ -107,10 +107,6 @@ namespace Razix {
             //-------------------------------
 
             //-------------------------------
-            // [ ] SSAO Pass
-            //-------------------------------
-
-            //-------------------------------
             // [...] Deferred Lighting Pass
             //-------------------------------
             m_DeferredPass.setGrid(sceneGrid);
@@ -250,6 +246,11 @@ namespace Razix {
             //-------------------------------
             m_GBufferPass.addPass(m_FrameGraph, scene, settings);
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
+
+            //-------------------------------
+            // [-] SSAO Pass
+            //-------------------------------
+            //m_SSAOPass.addPass(m_FrameGraph, scene, settings);
 
             //-------------------------------
             // [x] PBR Deferred Pass

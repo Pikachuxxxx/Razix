@@ -28,6 +28,5 @@ void main()
     gl_Position = vec4(inPosition.xyz, 1.0);
     // Out from vertex shader
 	vs_out.fragUV = inTexCoord;
-
 }
 //------------------------------------------------------------------------------

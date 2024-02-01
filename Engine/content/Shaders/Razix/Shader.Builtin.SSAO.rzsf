@@ -1,6 +1,6 @@
 /*
  * Razix Shader File 
- * [PBR Deffered Rendering] Uses the PBR model to render the geometry using PBR Deffered IBL
+ * [SSAO] Screen Space Ambient Occlusion
  */
 
 #shader vertex
@@ -11,6 +11,6 @@
 
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.PBRDeferredIBL.frag.spv
+        #include Compiled/SPIRV/Shader.Builtin.SSAO.frag.spv
     #endif
 #end

@@ -3,6 +3,10 @@
 // clang-format on
 #include "RZScene.h"
 
+#if PARALLELIZE_SCENE_RENDERING
+    #include <execution>
+#endif
+
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Scene/RZEntity.h"
@@ -142,12 +146,67 @@ namespace Razix {
         //-----------------------------
 
         if (geometryMode == SceneDrawGeometryMode::SceneGeometry) {
-            entt::basic_group mesh_group = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
+            entt::basic_group mesh_group  = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
+            u32               meshesCount = mesh_group.size();
+
+            if (m_LastMeshesCount != meshesCount)
+                m_LastMeshesCount = meshesCount;
+
+#if PARALLELIZE_SCENE_RENDERING
+            std::for_each(std::execution::par, mesh_group.begin(), mesh_group.end(), [&mesh_group, &sceneDrawParams, &pipeline, &cmdBuffer](entt::entity entity) {
+                const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+
+                if (!mrc.Mesh)
+                    return;
+
+                // Bind push constants, VBO, IBO and draw
+                glm::mat4 transform = mesh_trans.GetGlobalTransform();
+
+                //-----------------------------
+                Graphics::RZPushConstant modelMatrixPC;
+                modelMatrixPC.shaderStage = Graphics::ShaderStage::Vertex;
+                modelMatrixPC.offset      = 0;
+                struct PCD
+                {
+                    glm::mat4 mat;
+                } pcData{};
+                pcData.mat         = transform;
+                modelMatrixPC.size = sizeof(PCD);
+                modelMatrixPC.data = &pcData;
+                if (sceneDrawParams.overridePushConstantData != nullptr) {
+                    modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
+                    modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
+                }
+                Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
+                //-----------------------------
+                Graphics::RZMaterial* mat = nullptr;
+
+                if (sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
+                    mat = mrc.Mesh->getMaterial();
+                    if (!mat)
+                        return;
+                    mat->Bind();
+                    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+                }
+
+                mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
+                mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
+
+                ////-----------------------------
+                //// Material Data
+                //if (sceneDrawParams.enableMaterials)
+                //    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+                ////-----------------------------
+
+                Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
+            });
+
+#else
             for (auto entity: mesh_group) {
                 // Draw the mesh renderer components
                 const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
-                if (!mrc.Mesh)
+                if (!mrc.Mesh || !mrc.receiveShadows)
                     continue;
 
                 // Bind push constants, VBO, IBO and draw
@@ -183,14 +242,9 @@ namespace Razix {
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
                 mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
 
-                ////-----------------------------
-                //// Material Data
-                //if (sceneDrawParams.enableMaterials)
-                //    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
-                ////-----------------------------
-
                 Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
+#endif
         } else if (geometryMode == SceneDrawGeometryMode::Cubemap) {
             if (!m_Cube)
                 m_Cube = Graphics::MeshFactory::CreatePrimitive(Graphics::Cube);

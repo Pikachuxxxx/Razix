@@ -128,10 +128,12 @@ namespace Razix {
         RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
         std::string    m_SceneName = "Razix Scene"; /* The name of the scene                        */
         std::string    m_ScenePath;                 /* The Path of the scene file                   */
-        friend class RZEntity;
+        u32            m_LastMeshesCount = 0;
 
         Graphics::RZMesh* m_Cube       = nullptr;
         Graphics::RZMesh* m_ScreenQuad = nullptr;
+
+        friend class RZEntity;
 
     private:
         template<typename T>

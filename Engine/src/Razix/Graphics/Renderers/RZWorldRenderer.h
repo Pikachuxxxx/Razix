@@ -16,6 +16,7 @@
 #include "Razix/Graphics/Passes/RZGIPass.h"
 #include "Razix/Graphics/Passes/RZPBRDeferredLightingPass.h"
 #include "Razix/Graphics/Passes/RZPBRLightingPass.h"
+#include "Razix/Graphics/Passes/RZSSAOPass.h"
 #include "Razix/Graphics/Passes/RZShadowPass.h"
 #include "Razix/Graphics/Passes/RZSkyboxPass.h"
 
@@ -42,17 +43,19 @@ namespace Razix {
         {
             RendererFeature_None = 0,
 
-            RendererFeature_Shadows  = 1 << 0,
-            RendererFeature_GI       = 1 << 1,
-            RendererFeature_IBL      = 1 << 2,
-            RendererFeature_SSAO     = 1 << 3,
-            RendererFeature_SSR      = 1 << 4,
-            RendererFeature_Bloom    = 1 << 5,
-            RendererFeature_FXAA     = 1 << 6,
-            RendererFeature_Vignette = 1 << 7,
-            RendererFeature_ImGui    = 1 << 8,
+            RendererFeature_Shadows    = 1 << 0,
+            RendererFeature_GI         = 1 << 1,
+            RendererFeature_IBL        = 1 << 2,
+            RendererFeature_SSAO       = 1 << 3,
+            RendererFeature_SSR        = 1 << 4,
+            RendererFeature_Bloom      = 1 << 5,
+            RendererFeature_FXAA       = 1 << 6,
+            RendererFeature_Vignette   = 1 << 7,
+            RendererFeature_ImGui      = 1 << 8,
+            RendererFeature_Deferred   = 1 << 9,
+            RendererFeature_DebugDraws = 1 << 10,
 
-            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui,
+            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_DebugDraws,
 
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };
@@ -125,6 +128,7 @@ namespace Razix {
             RZShadowPass              m_ShadowPass;
             RZGIPass                  m_GIPass;
             RZGBufferPass             m_GBufferPass;
+            RZSSAOPass                m_SSAOPass;
             RZPBRDeferredLightingPass m_PBRDeferredPass;
             RZPBRLightingPass         m_PBRLightingPass;
             RZSkyboxPass              m_SkyboxPass;
@@ -137,7 +141,7 @@ namespace Razix {
             RZForwardRenderer m_ForwardRenderer;
 
             // Other Variables
-            Maths::AABB m_SceneAABB;
+            Maths::AABB m_SceneAABB{};
 
             bool        m_FrameGraphBuildingInProgress = true;
             std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
