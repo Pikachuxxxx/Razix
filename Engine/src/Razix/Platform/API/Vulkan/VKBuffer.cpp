@@ -149,16 +149,12 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
+#ifdef RAZIX_USE_VMA
             if (m_Usage == BufferUsage::Staging) {
                 map(size, 0);
                 memcpy(m_Mapped, data, size);
             } else if (m_Usage == BufferUsage::PersistentStream) {
-#ifdef RAZIX_USE_VMA
                 memcpy(m_AllocInfo.pMappedData, data, size);
-#else
-                map(size, 0);
-                memcpy(m_Mapped, data, size);
-#endif
             } else if (m_Usage == BufferUsage::Static) {
                 /**
                 * For anything else we copy using a staging buffer to copy to the GPU
@@ -179,6 +175,11 @@ namespace Razix {
                 }
                 m_TransferBuffer.destroy();
             }
+#else
+            map(size, 0);
+            memcpy(m_Mapped, data, size);
+            unMap();
+#endif
         }
 
         void VKBuffer::resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)

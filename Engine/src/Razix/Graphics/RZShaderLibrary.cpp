@@ -37,7 +37,6 @@ namespace Razix {
             // Frame Graph Pass Shaders
             // Composite Pass
             loadBuiltInShader(ShaderBuiltin::Composition, "//RazixContent/Shaders/Razix/Shader.Builtin.CompositePass.rzsf");
-            loadBuiltInShader(ShaderBuiltin::ColorGrading, "//RazixContent/Shaders/Razix/Shader.Builtin.ColorGrading.rzsf");
             //-------------------------------------------------------------------
             // Lighting
             loadBuiltInShader(ShaderBuiltin::GBuffer, "//RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf");
@@ -53,6 +52,8 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::PBRDeferredLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRDeferredIBL.rzsf");
             //-------------------------------------------------------------------
             // Post Processing FX
+            loadBuiltInShader(ShaderBuiltin::ColorGrading, "//RazixContent/Shaders/Razix/Shader.Builtin.ColorGrading.rzsf");
+            loadBuiltInShader(ShaderBuiltin::SSAO, "//RazixContent/Shaders/Razix/Shader.Builtin.SSAO.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/bloom_downsample.rzsf");
             //loadShader("//RazixContent/Shaders/Razix/bloom_mix.rzsf");
@@ -95,7 +96,7 @@ namespace Razix {
             for (auto& shader: m_BuiltinShaders) {
                 auto shaderPath = RZResourceManager::Get().getShaderResource(shader.second)->getShaderFilePath();
                 RZResourceManager::Get().destroyShader(shader.second);
-                RZShaderHandle shaderHandle      = RZResourceManager::Get().createShaderFromFile(shader.first, shaderPath);
+                RZShaderHandle shaderHandle    = RZResourceManager::Get().createShaderFromFile(shader.first, shaderPath);
                 m_BuiltinShaders[shader.first] = shaderHandle;
             }
         }

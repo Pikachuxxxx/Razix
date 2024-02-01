@@ -102,6 +102,7 @@ void main()
     // FXAA
     vec3 result = fxaa(fs_in.uv, pcData.screenResolution);
     //vec3 result = sampleColor(fs_in.uv);
+    outFragColor = vec4(result, 1.0f);
 
     
     // Tonemap
@@ -139,6 +140,5 @@ void main()
     // Gamma correction (done automatically by the swapchain)
     //result = pow(result, vec3(1.0/2.2)); 
 
-    outFragColor = vec4(result, texture(renderTarget, fs_in.uv).a);
 }
 //------------------------------------------------------------------------------

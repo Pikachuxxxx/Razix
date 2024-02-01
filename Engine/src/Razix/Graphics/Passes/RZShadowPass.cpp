@@ -69,6 +69,9 @@ namespace Razix {
                     data.lightVP   = builder.write(data.lightVP);
                 },
                 [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                    if (!(settings.renderFeatures & RendererFeature_Shadows))
+                        return;
+
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Shadow Pass");

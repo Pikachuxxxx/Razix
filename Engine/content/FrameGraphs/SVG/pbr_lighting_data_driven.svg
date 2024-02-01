@@ -9,25 +9,25 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 663)">
 <title>FrameGraph</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-663 1733,-663 1733,4 -4,4"/>
-<g id="clust25" class="cluster">
-<title>cluster_3</title>
-</g>
-<g id="clust24" class="cluster">
+<g id="clust23" class="cluster">
 <title>cluster_2</title>
 </g>
-<g id="clust27" class="cluster">
-<title>cluster_5</title>
-</g>
-<g id="clust26" class="cluster">
-<title>cluster_4</title>
-</g>
-<g id="clust22" class="cluster">
+<g id="clust21" class="cluster">
 <title>cluster_0</title>
 </g>
-<g id="clust23" class="cluster">
+<g id="clust25" class="cluster">
+<title>cluster_4</title>
+</g>
+<g id="clust24" class="cluster">
+<title>cluster_3</title>
+</g>
+<g id="clust22" class="cluster">
 <title>cluster_1</title>
 </g>
-<g id="clust28" class="cluster">
+<g id="clust26" class="cluster">
+<title>cluster_5</title>
+</g>
+<g id="clust27" class="cluster">
 <title>cluster_imported_resources</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="234,-503 234,-593 1111,-593 1111,-503 234,-503"/>
 <text text-anchor="start" x="637" y="-578.8" font-family="Helvetica,sans-Serif" font-size="14.00"> </text>
@@ -90,7 +90,7 @@
 <path fill="#ee2c2c" stroke="black" d="M1484.5,-601.5C1484.5,-601.5 1625.5,-601.5 1625.5,-601.5 1631.5,-601.5 1637.5,-607.5 1637.5,-613.5 1637.5,-613.5 1637.5,-630.5 1637.5,-630.5 1637.5,-636.5 1631.5,-642.5 1625.5,-642.5 1625.5,-642.5 1484.5,-642.5 1484.5,-642.5 1478.5,-642.5 1472.5,-636.5 1472.5,-630.5 1472.5,-630.5 1472.5,-613.5 1472.5,-613.5 1472.5,-607.5 1478.5,-601.5 1484.5,-601.5"/>
 <text text-anchor="start" x="1486.5" y="-633.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">Pass.Builtin.RenderShadows</text>
 <polyline fill="none" stroke="black" points="1472.5,-627.5 1637.5,-627.5"/>
-<text text-anchor="start" x="1530" y="-617.5" font-family="Helvetica,sans-Serif" font-size="10.00">★ Refs: 2</text>
+<text text-anchor="start" x="1539.5" y="-617.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs: 2</text>
 <text text-anchor="start" x="1536" y="-606.5" font-family="Helvetica,sans-Serif" font-size="10.00"> Index: 2</text>
 </g>
 <!-- R7_1 -->
@@ -178,79 +178,63 @@
 <!-- R9_2 -->
 <g id="node18" class="node">
 <title>R9_2</title>
-<polygon fill="skyblue" stroke="black" points="333.5,-181.5 333.5,-231.5 490.5,-231.5 490.5,-181.5 333.5,-181.5"/>
-<text text-anchor="start" x="376.5" y="-222.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">SceneHDR</text>
-<text text-anchor="start" x="427.5" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00"> &#160;&#160;</text>
-<text text-anchor="start" x="437.5" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">v2</text>
-<text text-anchor="start" x="347.5" y="-212.5" font-family="Helvetica,sans-Serif" font-size="10.00">(4096, 4096) &#45; RGBA32F [2D]</text>
-<polyline fill="none" stroke="black" points="333.5,-207.5 490.5,-207.5"/>
-<text text-anchor="start" x="394.5" y="-197.5" font-family="Helvetica,sans-Serif" font-size="10.00">Index: 9</text>
-<text text-anchor="start" x="395" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 1</text>
+<polygon fill="skyblue" stroke="black" points="334.5,-181.5 334.5,-231.5 491.5,-231.5 491.5,-181.5 334.5,-181.5"/>
+<text text-anchor="start" x="377.5" y="-222.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">SceneHDR</text>
+<text text-anchor="start" x="428.5" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00"> &#160;&#160;</text>
+<text text-anchor="start" x="438.5" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">v2</text>
+<text text-anchor="start" x="348.5" y="-212.5" font-family="Helvetica,sans-Serif" font-size="10.00">(4096, 4096) &#45; RGBA32F [2D]</text>
+<polyline fill="none" stroke="black" points="334.5,-207.5 491.5,-207.5"/>
+<text text-anchor="start" x="395.5" y="-197.5" font-family="Helvetica,sans-Serif" font-size="10.00">Index: 9</text>
+<text text-anchor="start" x="396" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 1</text>
 </g>
 <!-- P4&#45;&gt;R9_2 -->
 <g id="edge7" class="edge">
 <title>P4&#45;&gt;R9_2</title>
-<path fill="none" stroke="orangered" d="M487.03,-268.51C475.98,-259.53 462.59,-248.64 450.2,-238.56"/>
-<polygon fill="orangered" stroke="orangered" points="452.54,-235.96 442.58,-232.36 448.13,-241.39 452.54,-235.96"/>
+<path fill="none" stroke="orangered" d="M487.28,-268.51C476.34,-259.53 463.08,-248.64 450.82,-238.56"/>
+<polygon fill="orangered" stroke="orangered" points="453.22,-236.01 443.27,-232.37 448.78,-241.42 453.22,-236.01"/>
 </g>
 <!-- R10_2 -->
 <g id="node19" class="node">
 <title>R10_2</title>
-<polygon fill="skyblue" stroke="black" points="509,-181.5 509,-231.5 709,-231.5 709,-181.5 509,-181.5"/>
-<text text-anchor="start" x="570" y="-222.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">SceneDepth</text>
-<text text-anchor="start" x="628" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00"> &#160;&#160;</text>
-<text text-anchor="start" x="638" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">v2</text>
-<text text-anchor="start" x="523" y="-212.5" font-family="Helvetica,sans-Serif" font-size="10.00">(4096, 4096) &#45; BGRA8_UNORM [Depth]</text>
-<polyline fill="none" stroke="black" points="509,-207.5 709,-207.5"/>
-<text text-anchor="start" x="589" y="-197.5" font-family="Helvetica,sans-Serif" font-size="10.00">Index: 10</text>
-<text text-anchor="start" x="592" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 1</text>
+<polygon fill="skyblue" stroke="black" points="510,-181.5 510,-231.5 710,-231.5 710,-181.5 510,-181.5"/>
+<text text-anchor="start" x="571" y="-222.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">SceneDepth</text>
+<text text-anchor="start" x="629" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00"> &#160;&#160;</text>
+<text text-anchor="start" x="639" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">v2</text>
+<text text-anchor="start" x="524" y="-212.5" font-family="Helvetica,sans-Serif" font-size="10.00">(4096, 4096) &#45; BGRA8_UNORM [Depth]</text>
+<polyline fill="none" stroke="black" points="510,-207.5 710,-207.5"/>
+<text text-anchor="start" x="590" y="-197.5" font-family="Helvetica,sans-Serif" font-size="10.00">Index: 10</text>
+<text text-anchor="start" x="593" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 0</text>
 </g>
 <!-- P4&#45;&gt;R10_2 -->
 <g id="edge8" class="edge">
 <title>P4&#45;&gt;R10_2</title>
-<path fill="none" stroke="orangered" d="M534.72,-268.51C545.66,-259.53 558.92,-248.64 571.18,-238.56"/>
-<polygon fill="orangered" stroke="orangered" points="573.22,-241.42 578.73,-232.37 568.78,-236.01 573.22,-241.42"/>
+<path fill="none" stroke="orangered" d="M534.97,-268.51C546.02,-259.53 559.41,-248.64 571.8,-238.56"/>
+<polygon fill="orangered" stroke="orangered" points="573.87,-241.39 579.42,-232.36 569.46,-235.96 573.87,-241.39"/>
 </g>
 <!-- P5 -->
 <g id="node6" class="node">
 <title>P5</title>
-<path fill="orange" stroke="black" d="M424,-103.5C424,-103.5 598,-103.5 598,-103.5 604,-103.5 610,-109.5 610,-115.5 610,-115.5 610,-132.5 610,-132.5 610,-138.5 604,-144.5 598,-144.5 598,-144.5 424,-144.5 424,-144.5 418,-144.5 412,-138.5 412,-132.5 412,-132.5 412,-115.5 412,-115.5 412,-109.5 418,-103.5 424,-103.5"/>
-<text text-anchor="start" x="426" y="-135.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">Pass.Builtin.Code.FinalComposition</text>
-<polyline fill="none" stroke="black" points="412,-129.5 610,-129.5"/>
-<text text-anchor="start" x="486" y="-119.5" font-family="Helvetica,sans-Serif" font-size="10.00">★ Refs: 2</text>
-<text text-anchor="start" x="492" y="-108.5" font-family="Helvetica,sans-Serif" font-size="10.00"> Index: 5</text>
+<path fill="orange" stroke="black" d="M326,-103.5C326,-103.5 500,-103.5 500,-103.5 506,-103.5 512,-109.5 512,-115.5 512,-115.5 512,-132.5 512,-132.5 512,-138.5 506,-144.5 500,-144.5 500,-144.5 326,-144.5 326,-144.5 320,-144.5 314,-138.5 314,-132.5 314,-132.5 314,-115.5 314,-115.5 314,-109.5 320,-103.5 326,-103.5"/>
+<text text-anchor="start" x="328" y="-135.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">Pass.Builtin.Code.FinalComposition</text>
+<polyline fill="none" stroke="black" points="314,-129.5 512,-129.5"/>
+<text text-anchor="start" x="388" y="-119.5" font-family="Helvetica,sans-Serif" font-size="10.00">★ Refs: 1</text>
+<text text-anchor="start" x="394" y="-108.5" font-family="Helvetica,sans-Serif" font-size="10.00"> Index: 5</text>
 </g>
 <!-- R11_1 -->
 <g id="node20" class="node">
 <title>R11_1</title>
-<polygon fill="skyblue" stroke="black" points="329,-16.5 329,-66.5 495,-66.5 495,-16.5 329,-16.5"/>
-<text text-anchor="start" x="377" y="-57.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">Present Image</text>
-<text text-anchor="start" x="343" y="-47.5" font-family="Helvetica,sans-Serif" font-size="10.00">(80, 10) &#45; BGRA8_UNORM [2D]</text>
-<polyline fill="none" stroke="black" points="329,-42.5 495,-42.5"/>
-<text text-anchor="start" x="392" y="-32.5" font-family="Helvetica,sans-Serif" font-size="10.00">Index: 11</text>
-<text text-anchor="start" x="395" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 0</text>
+<polygon fill="skyblue" stroke="black" points="330,-16.5 330,-66.5 496,-66.5 496,-16.5 330,-16.5"/>
+<text text-anchor="start" x="378" y="-57.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">Present Image</text>
+<text text-anchor="start" x="344" y="-47.5" font-family="Helvetica,sans-Serif" font-size="10.00">(80, 10) &#45; BGRA8_UNORM [2D]</text>
+<polyline fill="none" stroke="black" points="330,-42.5 496,-42.5"/>
+<text text-anchor="start" x="393" y="-32.5" font-family="Helvetica,sans-Serif" font-size="10.00">Index: 11</text>
+<text text-anchor="start" x="396" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 0</text>
 </g>
 <!-- P5&#45;&gt;R11_1 -->
 <g id="edge9" class="edge">
 <title>P5&#45;&gt;R11_1</title>
-<path fill="none" stroke="orangered" d="M487.03,-103.51C475.98,-94.53 462.59,-83.64 450.2,-73.56"/>
-<polygon fill="orangered" stroke="orangered" points="452.54,-70.96 442.58,-67.36 448.13,-76.39 452.54,-70.96"/>
-</g>
-<!-- R12_1 -->
-<g id="node21" class="node">
-<title>R12_1</title>
-<polygon fill="skyblue" stroke="black" points="513.5,-16.5 513.5,-66.5 692.5,-66.5 692.5,-16.5 513.5,-16.5"/>
-<text text-anchor="start" x="569" y="-57.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00">Depth Texture</text>
-<text text-anchor="start" x="527.5" y="-47.5" font-family="Helvetica,sans-Serif" font-size="10.00">(80, 10) &#45; BGRA8_UNORM [Depth]</text>
-<polyline fill="none" stroke="black" points="513.5,-42.5 692.5,-42.5"/>
-<text text-anchor="start" x="583" y="-32.5" font-family="Helvetica,sans-Serif" font-size="10.00">Index: 12</text>
-<text text-anchor="start" x="586" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 0</text>
-</g>
-<!-- P5&#45;&gt;R12_1 -->
-<g id="edge10" class="edge">
-<title>P5&#45;&gt;R12_1</title>
-<path fill="none" stroke="orangered" d="M533.27,-103.51C543.44,-94.61 555.74,-83.85 567.16,-73.86"/>
-<polygon fill="orangered" stroke="orangered" points="569.32,-76.62 574.54,-67.4 564.71,-71.36 569.32,-76.62"/>
+<path fill="none" stroke="orangered" d="M413,-103.51C413,-95.75 413,-86.56 413,-77.71"/>
+<polygon fill="orangered" stroke="orangered" points="416.5,-77.92 413,-67.92 409.5,-77.92 416.5,-77.92"/>
 </g>
 <!-- R0_1 -->
 <g id="node7" class="node">
@@ -263,7 +247,7 @@
 <text text-anchor="start" x="1018" y="-516.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 1</text>
 </g>
 <!-- R0_1&#45;&gt;P3 -->
-<g id="edge11" class="edge">
+<g id="edge10" class="edge">
 <title>R0_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M983.22,-511.61C975.21,-508.43 966.96,-505.43 959,-503 904.48,-486.34 841.46,-474.31 792.2,-466.46"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="792.87,-463.03 782.45,-464.94 791.79,-469.94 792.87,-463.03"/>
@@ -289,7 +273,7 @@
 <text text-anchor="start" x="691" y="-516.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 1</text>
 </g>
 <!-- R2_1&#45;&gt;P3 -->
-<g id="edge12" class="edge">
+<g id="edge11" class="edge">
 <title>R2_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M708,-511.78C708,-503.62 708,-494.36 708,-485.72"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="711.5,-486 708,-476 704.5,-486 711.5,-486"/>
@@ -305,7 +289,7 @@
 <text text-anchor="start" x="502" y="-516.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 1</text>
 </g>
 <!-- R3_1&#45;&gt;P3 -->
-<g id="edge13" class="edge">
+<g id="edge12" class="edge">
 <title>R3_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M575.19,-511.57C599.46,-501.23 627.78,-489.17 652.02,-478.84"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="653.27,-482.12 661.1,-474.98 650.52,-475.68 653.27,-482.12"/>
@@ -321,64 +305,58 @@
 <text text-anchor="start" x="313" y="-516.5" font-family="Helvetica,sans-Serif" font-size="10.00">Refs : 1</text>
 </g>
 <!-- R4_1&#45;&gt;P3 -->
-<g id="edge14" class="edge">
+<g id="edge13" class="edge">
 <title>R4_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M397.89,-511.53C407.91,-508.41 418.17,-505.46 428,-503 493.02,-486.74 567.91,-474.22 623.86,-466.05"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="624.25,-469.53 633.65,-464.64 623.26,-462.6 624.25,-469.53"/>
 </g>
 <!-- R5_1&#45;&gt;P3 -->
-<g id="edge15" class="edge">
+<g id="edge14" class="edge">
 <title>R5_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M208.73,-511.52C215.63,-508.18 222.88,-505.16 230,-503 301.44,-481.31 506.75,-466.48 623.74,-459.52"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="623.84,-463.02 633.62,-458.94 623.43,-456.04 623.84,-463.02"/>
 </g>
 <!-- R5_1&#45;&gt;P4 -->
-<g id="edge16" class="edge">
+<g id="edge15" class="edge">
 <title>R5_1&#45;&gt;P4</title>
 <path fill="none" stroke="#9acd32" d="M196,-511.56C240.7,-472.56 333.74,-394.03 420,-338 432.77,-329.7 447.13,-321.61 460.6,-314.5"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="462.08,-317.68 469.35,-309.97 458.86,-311.46 462.08,-317.68"/>
 </g>
 <!-- R6_1&#45;&gt;P3 -->
-<g id="edge17" class="edge">
+<g id="edge16" class="edge">
 <title>R6_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M1157.67,-515.11C1143.9,-510.55 1129.04,-506.14 1115,-503 1004.92,-478.35 875.09,-465.82 792.19,-459.85"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="792.54,-456.37 782.32,-459.16 792.05,-463.35 792.54,-456.37"/>
 </g>
 <!-- R7_1&#45;&gt;P3 -->
-<g id="edge18" class="edge">
+<g id="edge17" class="edge">
 <title>R7_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M1406.51,-511.53C1394.09,-508.22 1381.26,-505.2 1369,-503 1163.9,-466.22 918.2,-457.46 791.98,-455.48"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="792.07,-451.98 782.02,-455.33 791.97,-458.98 792.07,-451.98"/>
 </g>
 <!-- R8_1&#45;&gt;P3 -->
-<g id="edge19" class="edge">
+<g id="edge18" class="edge">
 <title>R8_1&#45;&gt;P3</title>
 <path fill="none" stroke="#9acd32" d="M1613.66,-511.57C1605.99,-508.14 1597.91,-505.07 1590,-503 1440.98,-464 982.68,-456.65 792.29,-455.29"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="792.5,-451.8 782.48,-455.23 792.45,-458.79 792.5,-451.8"/>
 </g>
 <!-- R9_1&#45;&gt;P4 -->
-<g id="edge20" class="edge">
+<g id="edge19" class="edge">
 <title>R9_1&#45;&gt;P4</title>
 <path fill="none" stroke="#9acd32" d="M511,-346.78C511,-338.62 511,-329.36 511,-320.72"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="514.5,-321 511,-311 507.5,-321 514.5,-321"/>
 </g>
 <!-- R10_1&#45;&gt;P4 -->
-<g id="edge21" class="edge">
+<g id="edge20" class="edge">
 <title>R10_1&#45;&gt;P4</title>
 <path fill="none" stroke="#9acd32" d="M649.43,-346.57C624.02,-336.18 594.35,-324.06 569.01,-313.7"/>
 <polygon fill="#9acd32" stroke="#9acd32" points="570.42,-310.5 559.84,-309.96 567.77,-316.98 570.42,-310.5"/>
 </g>
 <!-- R9_2&#45;&gt;P5 -->
-<g id="edge22" class="edge">
+<g id="edge21" class="edge">
 <title>R9_2&#45;&gt;P5</title>
-<path fill="none" stroke="#9acd32" d="M441.44,-181.57C453.06,-172.11 466.47,-161.21 478.39,-151.52"/>
-<polygon fill="#9acd32" stroke="#9acd32" points="480.44,-154.36 485.99,-145.34 476.02,-148.93 480.44,-154.36"/>
-</g>
-<!-- R10_2&#45;&gt;P5 -->
-<g id="edge23" class="edge">
-<title>R10_2&#45;&gt;P5</title>
-<path fill="none" stroke="#9acd32" d="M579.86,-181.57C568.35,-172.11 555.08,-161.21 543.28,-151.52"/>
-<polygon fill="#9acd32" stroke="#9acd32" points="545.72,-148.99 535.77,-145.34 541.27,-154.4 545.72,-148.99"/>
+<path fill="none" stroke="#9acd32" d="M413,-181.78C413,-173.62 413,-164.36 413,-155.72"/>
+<polygon fill="#9acd32" stroke="#9acd32" points="416.5,-156 413,-146 409.5,-156 416.5,-156"/>
 </g>
 </g>
 </svg>

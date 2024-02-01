@@ -7,15 +7,15 @@
 
 #define ORIGIN_UPPER_LEFT 0
 
-vec4 worldToView(vec4 v) { return FrameData.camera.view * v; }
-vec4 viewToWorld(vec4 v) { return FrameData.camera.inversedView * v; }
+vec4 worldToView(vec4 v) { return FrameData.info.camera.view * v; }
+vec4 viewToWorld(vec4 v) { return FrameData.info.camera.inversedView * v; }
 
 vec3 viewToClip(vec4 v) {
-  vec4 clip = FrameData.camera.projection * v;
+  vec4 clip = FrameData.info.camera.projection * v;
   return clip.xyz / clip.w;
 }
 vec3 clipToView(vec4 v) {
-  const vec4 view = FrameData.camera.inversedProjection * v;
+  const vec4 view = FrameData.info.camera.inversedProjection * v;
   return view.xyz / view.w;
 }
 

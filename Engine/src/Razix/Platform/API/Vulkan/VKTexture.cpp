@@ -364,6 +364,8 @@ namespace Razix {
             }
         }
 
+#define BPP 4
+
         bool VKTexture::load(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -372,7 +374,8 @@ namespace Razix {
 
             if (desc.data != nullptr) {
                 pixels = desc.data;
-                m_Size = VkDeviceSize(m_Desc.width * m_Desc.height * 4 * desc.dataSize);
+                m_Size = VkDeviceSize(m_Desc.size);
+                RAZIX_CORE_ASSERT(m_Size, "[Vulkan] Size of pixel data provided is 0! check again");
             } else {
                 if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
                     u32 bpp;
@@ -380,19 +383,17 @@ namespace Razix {
                     // TODO: Support loading floating point Image data
                     pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Desc.width, &m_Desc.height, &bpp, m_Desc.flipY);
                     // Here the format for the texture is extracted based on bits per pixel
-                    m_Desc.format = Razix::Graphics::RZTexture::bitsToTextureFormat(4);
+                    m_Desc.format = Razix::Graphics::RZTexture::bitsToTextureFormat(BPP);
                     // Size of the texture
-                    m_Size = static_cast<u64>(m_Desc.width * m_Desc.height * 4);
+                    m_Size = static_cast<u64>(m_Desc.width * m_Desc.height * BPP * m_Desc.dataSize);
                 }
             }
 
             if (pixels == nullptr)
                 return false;
 
-            VkDeviceSize imageSize = VkDeviceSize(m_Desc.width * m_Desc.height * 4 * desc.dataSize);
-
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
-            VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(imageSize), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
+            VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(m_Size), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
             if (m_DeleteImageData)
                 delete[] pixels;
 
