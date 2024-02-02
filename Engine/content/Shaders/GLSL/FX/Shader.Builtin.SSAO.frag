@@ -52,23 +52,15 @@ void main()
     vec4 P_O = texture(gBuffer2, uv);
 
     // Calculate Normal and fragPos in View Space as SSAO is a screen-space technique where occlusion is calculated from the visible view
-    vec3 fragPosVS  = (fs_in.info.camera.view * vec4(P_O.rgb, 1.0f)).rgb;
-    vec3 N_VS       = normalize((fs_in.info.camera.view * vec4(N_M.rgb, 1.0f)).rgb * 2.0f - 1.0f);
-
-    vec3 V = normalize(viewPos - fragPosVS);
-    vec3 R = reflect(-V, N_VS);
-
-    vec3 albedo     = A_R.rgb;
-    float metallic  = N_M.a;
-    float roughness = A_R.a;
-    float ao        = P_O.a;
+    vec3 fragPosVS  = (vec4(P_O.rgb, 1.0f)).rgb;
+    vec3 N_VS       = (vec4(N_M.rgb, 1.0f)).rgb;
 
     vec2 screenSize = fs_in.info.resolution;
     const vec2 noiseScale = screenSize / 4.0f;
 
-    vec3 randomVec = texture(SSAONoiseTex, uv * noiseScale).rgb;
+    vec3 randomVec = texture(SSAONoiseTex, uv * noiseScale).rgb * 2.0f - 1.0f;
     vec3 tangent   = normalize(randomVec - N_VS * dot(randomVec, N_VS));
-    vec3 bitangent = cross(N_VS, tangent);
+    vec3 bitangent = cross(tangent, N_VS);
     mat3 TBN       = mat3(tangent, bitangent, N_VS); 
 
     // iterate over the sample kernel and calculate occlusion factor
@@ -86,13 +78,11 @@ void main()
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         
         // get sample depth
-        float sampleDepth = -texture(gBuffer2, offset.xy).w; // get depth value of kernel sample
+        float sampleDepth = texture(gBuffer2, offset.xy).z; // get depth value of kernel sample
         
         // range check & accumulate
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPosVS.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
-    occlusion = 1.0 - (occlusion / kernelSize);
-    
-    outSceneColor = vec4(vec3(occlusion), 1.0f);
+    occlusion = 1.0 - (occlusion / kernelSize); 
 }
