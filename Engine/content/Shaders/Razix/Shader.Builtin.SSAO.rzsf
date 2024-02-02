@@ -5,7 +5,7 @@
 
 #shader vertex
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.FrameDataQuad.vert.spv
+        #include Compiled/SPIRV/Shader.Builtin.Quad.vert.spv
     #endif
 #end
 

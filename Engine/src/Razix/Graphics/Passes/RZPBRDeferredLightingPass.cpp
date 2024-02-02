@@ -161,7 +161,7 @@ namespace Razix {
                     pc.size        = sizeof(PCData);
                     pc.data        = &pcData;
                     pc.shaderStage = ShaderStage::Pixel;
-                    //RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
+                    RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 

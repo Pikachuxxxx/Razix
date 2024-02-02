@@ -8,9 +8,6 @@
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
 //------------------------------------------------------------------------------
-#define DISABLE_FRAME_DATA_BINDING
-#include <Common/ShaderInclude.Builtin.FrameData.glsl>
-//-------------------------------
 // Lights Data
 #include <Lighting/ShaderInclude.Builtin.Light.glsl>
 //-------------------------------
@@ -23,30 +20,32 @@
 layout(location = 0) in VSOutput
 {
     vec2 fragUV;
-    FrameInfo info;
 }fs_in;
 //--------------------------------------------------------
 // Push constants
+layout (push_constant) uniform PushConstantData{
+    vec3 camViewPos;
+}pc_data;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-DECLARE_LIGHT_BUFFER(1, 0, SceneLightsData)
+DECLARE_LIGHT_BUFFER(0, 0, SceneLightsData)
 //------------------------------------------------------------------------------
 // @ slot #0 - .rgb = Normal   .a = Metallic
 // @ slot #1 - .rgb = Albedo   .a = Roughness
 // @ slot #2 - .rgb = Position .a = AO
-layout (set = 2, binding = 0) uniform sampler2D gBuffer0; 
-layout (set = 2, binding = 1) uniform sampler2D gBuffer1; 
-layout (set = 2, binding = 2) uniform sampler2D gBuffer2; 
+layout (set = 1, binding = 0) uniform sampler2D gBuffer0; 
+layout (set = 1, binding = 1) uniform sampler2D gBuffer1; 
+layout (set = 1, binding = 2) uniform sampler2D gBuffer2; 
 //--------------------------------------------------------
-layout(set = 3, binding = 0) uniform sampler2D ShadowMap;
-layout(set = 3, binding = 1) uniform ShadowData {
+layout(set = 2, binding = 0) uniform sampler2D ShadowMap;
+layout(set = 2, binding = 1) uniform ShadowData {
     mat4 matrix;
 }LightSpaceMatrix;
 //--------------------------------------------------------
 // IBL maps
-layout(set = 4, binding = 0) uniform samplerCube IrradianceMap;
-layout(set = 4, binding = 1) uniform samplerCube PreFilteredMap;
-layout(set = 4, binding = 2) uniform sampler2D BrdfLUT;
+layout(set = 3, binding = 0) uniform samplerCube IrradianceMap;
+layout(set = 3, binding = 1) uniform samplerCube PreFilteredMap;
+layout(set = 3, binding = 2) uniform sampler2D BrdfLUT;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
@@ -54,7 +53,7 @@ layout(location = 0) out vec4 outSceneColor;
 void main()
 {
     vec2 uv = fs_in.fragUV;
-    vec3 viewPos = getCameraPosition(fs_in.info.camera);
+    vec3 viewPos = pc_data.camViewPos;// getCameraPosition(fs_in.info.camera);
 
     vec4 N_M = texture(gBuffer0, uv);
     vec4 A_R = texture(gBuffer1, uv);

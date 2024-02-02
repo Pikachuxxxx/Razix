@@ -52,7 +52,8 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = ssaoShader;
             pipelineInfo.transparencyEnabled    = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F,
+                Graphics::TextureFormat::RGBA32F};
             pipelineInfo.depthTestEnabled       = false;
             pipelineInfo.depthWriteEnabled      = false;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
@@ -120,18 +121,27 @@ namespace Razix {
                         .type   = TextureType::Texture_2D,
                         .format = TextureFormat::RGBA32F};
                     data.SSAOPreBlurTexture = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    textureDesc.name        = "SSAODebug";
+                    data.SSAODebugTexture   = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+
+                    RZBufferDesc ssaoDataBufferDesc{
+                        .name  = "SSAOData",
+                        .size  = sizeof(SSAOData),
+                        .usage = BufferUsage::PersistentStream};
+                    data.SSAOData = builder.create<FrameGraph::RZFrameGraphBuffer>(ssaoDataBufferDesc.name, CAST_TO_FG_BUF_DESC ssaoDataBufferDesc);
 
                     // For temporary debugging set this as the final output
                     framegraph.getBlackboard().setFinalOutputName(textureDesc.name);
 
                     data.SSAOPreBlurTexture = builder.write(data.SSAOPreBlurTexture);
+                    data.SSAODebugTexture   = builder.write(data.SSAODebugTexture);
+                    data.SSAOData           = builder.write(data.SSAOData);
 
                     builder.read(ssaoData.SSAONoiseTexture);
                     builder.read(ssaoData.SSAOKernelSamples);
                     builder.read(frameDataBlock.frameData);
                     builder.read(gbufferData.GBuffer0);
-                    builder.read(gbufferData.GBuffer1);
-                    builder.read(gbufferData.GBuffer2);
+                    builder.read(gbufferData.GBufferDepth);
                 },
                 [=](const FX::SSAOPreBlurData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -141,7 +151,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.SSAOPreBlurTexture).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.SSAOPreBlurTexture).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.SSAODebugTexture).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -158,24 +169,44 @@ namespace Razix {
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1)];
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBufferDepth)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1).getHandle();
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBufferDepth).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2)];
-                        if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
+                        //descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2)];
+                        //if (descriptor)
+                        //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
 
+                        // SSAO Noise Texture
                         descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAONoiseTexture)];
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAONoiseTexture).getHandle();
 
+                        // SSAO Kernel samples
                         descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(ssaoData.SSAOKernelSamples)];
                         if (descriptor)
                             descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(ssaoData.SSAOKernelSamples).getHandle();
 
+                        // SSAO Data
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.SSAOData)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.SSAOData).getHandle();
+
                         RZResourceManager::Get().getShaderResource(ssaoShader)->updateBindVarsHeaps();
                     }
+
+                    // Update the SSAO Data
+                    SSAOData ssaoData{};
+                    ssaoData.radius           = 1.0f;
+                    ssaoData.bias             = 0.025f;
+                    ssaoData.resolution       = glm::vec2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    auto& cam                 = scene->getSceneCamera();
+                    ssaoData.camViewPos       = cam.getPosition();
+                    ssaoData.viewMatrix       = cam.getViewMatrix();
+                    ssaoData.projectionMatrix = cam.getProjection();
+
+                    auto ssaoDataHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.SSAOData).getHandle();
+                    RZResourceManager::Get().getUniformBufferResource(ssaoDataHandle)->SetData(sizeof(SSAOData), &ssaoData);
 
                     RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
