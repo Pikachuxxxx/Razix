@@ -11,6 +11,7 @@ struct Camera {
     // Implicit padding, 4bytes
 };
 //----------------------------------
+// TODO: Remove this struct
 struct FrameInfo {
     float time;
     float deltaTime;

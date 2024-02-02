@@ -8,7 +8,7 @@ namespace Razix {
 #define SSAO_KERNEL_SIZE 64
 #define SSAO_NOISE_DIM   4
 
-        struct SSAOData
+        struct SSAOParamsData
         {
             float     radius           = 1.0f;
             float     bias             = 0.025f;
@@ -29,7 +29,7 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZPipelineHandle m_Pipeline;
+            RZPipelineHandle m_PreBlurPipeline;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -62,6 +62,7 @@ namespace Razix {
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
             auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
+            //auto& ssaoData             = framegraph.getBlackboard().get<SSAOData>();
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRDeferredLighting",

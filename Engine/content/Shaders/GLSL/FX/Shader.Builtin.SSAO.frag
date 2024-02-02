@@ -16,7 +16,7 @@ const float kInvKernelSize = 1.0 / SSAO_KERNEL_SIZE;
 layout(location = 0) in VSOutput
 {
     vec2 fragUV;
-}fs_in;
+}fs_in; 
 //--------------------------------------------------------
 // Push constants
 //------------------------------------------------------------------------------
@@ -40,19 +40,18 @@ layout (set = 2, binding = 0) uniform SSAOFrameData
     vec3 camViewPos;
     mat4 viewMatrix;
     mat4 projectionMatrix;
-}SSAOData;
+}SSAOParams;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
-layout(location = 0) out vec4 outSceneColor;
-layout(location = 1) out vec4 outSceneColor1;
+layout(location = 0) out float outSceneColor;
 //------------------------------------------------------------------------------
-vec4 viewToClip(vec4 v) { return SSAOData.projectionMatrix * v; }
+vec4 viewToClip(vec4 v) { return SSAOParams.projectionMatrix * v; }
 vec3 viewToNDC(vec4 v) {
   const vec4 P = viewToClip(v);
   return P.xyz / P.w;
 }
 vec3 NDCToView(vec4 v) {
-  const vec4 P = inverse(SSAOData.projectionMatrix) * v;
+  const vec4 P = inverse(SSAOParams.projectionMatrix) * v;
   return P.xyz / P.w;
 }
 //--------------------------------------------------------
@@ -68,7 +67,7 @@ void main()
 {
 
     vec2 uv = fs_in.fragUV;
-    vec3 viewPos = SSAOData.camViewPos;
+    vec3 viewPos = SSAOParams.camViewPos;
 
     const float depth = texture(SceneDepth, uv).r;
     if (depth >= 1.0f) discard;
@@ -81,7 +80,7 @@ void main()
     const vec3 rvec = vec3(texture(SSAONoiseTex, noiseTexCoord).xy, 0.0);
 
     vec3 N = N_M.rgb;
-    N = mat3(SSAOData.viewMatrix) * normalize(N);
+    N = mat3(SSAOParams.viewMatrix) * normalize(N);
     const vec3 T = normalize(rvec - N * dot(rvec, N));
     const vec3 B = cross(N, T);
     const mat3 TBN = mat3(T, B, N); // tangent-space -> view-space
@@ -91,20 +90,18 @@ void main()
     float occlusion = 0.0;
     for (uint i = 0; i < SSAO_KERNEL_SIZE; ++i) {
         vec3 samplePos = TBN * Kernel.samples[i].xyz;
-        samplePos = fragPosViewSpace + samplePos * SSAOData.radius;
+        samplePos = fragPosViewSpace + samplePos * SSAOParams.radius;
         const vec2 offset = viewToNDC(vec4(samplePos, 1.0)).xy * 0.5 + 0.5;
         float sampleDepth = texture(SceneDepth, offset).r;
         sampleDepth = viewPositionFromDepth(sampleDepth, offset).z;
 
         const float rangeCheck =
-        smoothstep(0.0, 1.0, SSAOData.radius / abs(fragPosViewSpace.z - sampleDepth));
+        smoothstep(0.0, 1.0, SSAOParams.radius / abs(fragPosViewSpace.z - sampleDepth));
         occlusion +=
-        (sampleDepth >= samplePos.z + SSAOData.bias ? 1.0 : 0.0) * rangeCheck;
+        (sampleDepth >= samplePos.z + SSAOParams.bias ? 1.0 : 0.0) * rangeCheck;
     }
      // 1.0 = no occlusion, 0.0 = occluded
     occlusion = 1.0 - occlusion * kInvKernelSize;
     
-    outSceneColor = vec4(vec3(occlusion), 1.0f);
-    outSceneColor1 = vec4(vec3(occlusion), 1.0f);
-
+    outSceneColor = occlusion;
 }

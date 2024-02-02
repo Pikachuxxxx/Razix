@@ -33,6 +33,7 @@ namespace Razix {
             ImGui,
             // Post Processing FX
             SSAO,
+            GaussianBlur,
             ColorGrading,
             BUILTIN_SHADERS_COUNT
         };

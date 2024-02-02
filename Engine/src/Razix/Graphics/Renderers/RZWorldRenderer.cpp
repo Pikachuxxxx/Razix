@@ -250,7 +250,7 @@ namespace Razix {
             //-------------------------------
             // [-] SSAO Pass
             //-------------------------------
-            m_SSAOPass.addPass(m_FrameGraph, scene, settings);
+            //m_SSAOPass.addPass(m_FrameGraph, scene, settings);
 
             //-------------------------------
             // [x] PBR Deferred Pass
