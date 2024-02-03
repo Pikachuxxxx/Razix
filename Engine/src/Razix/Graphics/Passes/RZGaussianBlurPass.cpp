@@ -36,8 +36,42 @@
 namespace Razix {
     namespace Graphics {
 
+        struct GaussianBlurOutput
+        {
+            FrameGraph::RZFrameGraphResource blur;
+        };
+
+        struct GaussianBlurPCData
+        {
+            u32       tapFilter;
+            f32       blurRadius;
+            glm::vec2 direction;
+        };
+
         void RZGaussianBlurPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
         {
+            auto gaussiabBlurShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GaussianBlur);
+
+            Graphics::RZPipelineDesc pipelineInfo{};
+            pipelineInfo.name                   = "Gaussian Blur FX Pipeline";
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.shader                 = gaussiabBlurShader;
+            pipelineInfo.transparencyEnabled    = false;
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
+            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
+
+            if (m_IsTwoPass) {
+                /**
+                 * In a two pass Gaussian filter we do a Horizontal and then a Vertical blur on the input texture
+                 */
+                auto blurH      = addBlurPass(framegraph, scene, settings, m_InputTexture, m_BlurRadius, m_FilterTap, GaussianDirection::Horizontal);
+                m_OutputTexture = addBlurPass(framegraph, scene, settings, blurH, m_BlurRadius, m_FilterTap, GaussianDirection::Vertical);
+            } else
+                m_OutputTexture = addBlurPass(framegraph, scene, settings, m_InputTexture, m_BlurRadius, m_FilterTap, m_Direction);
         }
 
         void RZGaussianBlurPass::destroy()
@@ -45,25 +79,76 @@ namespace Razix {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
 
-        FrameGraph::RZFrameGraphResource RZGaussianBlurPass::addBlurPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        FrameGraph::RZFrameGraphResource RZGaussianBlurPass::addBlurPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings, FrameGraph::RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction)
         {
-#if 0
-            // Set the Descriptor Set once rendering starts
-            if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                auto& shaderBindVars = RZResourceManager::Get().getShaderResource(blurShader)->getBindVars();
+            auto gaussiabBlurShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GaussianBlur);
 
-                RZDescriptor* descriptor = nullptr;
+            auto& pass = framegraph.addCallbackPass<GaussianBlurOutput>(
+                "Pass.Builtin.Code.FX.GaussianBlur",
+                [&](GaussianBlurOutput& data, FrameGraph::RZPassResourceBuilder& builder) {
+                    builder.setAsStandAlonePass();
 
-                // Bind the GBuffer textures gBuffer0:Normal and SceneDepth
-                descriptor = shaderBindVars["inputTexture"];
-                if (descriptor)
-                    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0).getHandle();
+                    RZTextureDesc textureDesc{
+                        .name       = "GaussianBlurredTex",
+                        .width      = ResolutionToExtentsMap[Resolution::k1440p].x,
+                        .height     = ResolutionToExtentsMap[Resolution::k1440p].y,
+                        .type       = TextureType::Texture_2D,
+                        .format     = TextureFormat::RGBA32F,
+                        .enableMips = false};
 
-                RZResourceManager::Get().getShaderResource(ssaoShader)->updateBindVarsHeaps();
-            }
-#endif
-            return FrameGraph::RZFrameGraphResource{-1};
+                    data.blur = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+
+                    builder.read(inputTexture);
+                    data.blur = builder.write(data.blur);
+                },
+                [=](const GaussianBlurOutput& data, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    RAZIX_TIME_STAMP_BEGIN("GaussianBlur");
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.GaussianBlur", glm::vec4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
+
+                    RenderingInfo info{};
+                    info.resolution       = Resolution::kCustom;
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.blur).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.resize           = true;
+
+                    RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
+
+                    // Set the Descriptor Set once rendering starts
+                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(gaussiabBlurShader)->getBindVars();
+
+                        RZDescriptor* descriptor = nullptr;
+
+                        descriptor = shaderBindVars["inputTexture"];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(inputTexture).getHandle();
+
+                        RZResourceManager::Get().getShaderResource(gaussiabBlurShader)->updateBindVarsHeaps();
+                    }
+
+                    RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
+
+                    GaussianBlurPCData pcData{};
+                    pcData.blurRadius = blurRadius;
+                    pcData.direction  = direction == GaussianDirection::Horizontal ? glm::vec2(1, 0) : glm::vec2(0, 1);
+                    pcData.tapFilter  = (u32) filterTap;
+
+                    RZPushConstant pc;
+                    pc.size        = sizeof(GaussianBlurPCData);
+                    pc.data        = &pcData;
+                    pc.shaderStage = ShaderStage::Pixel;
+                    RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
+
+                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
+
+                    RHI::EndRendering(RHI::GetCurrentCommandBuffer());
+                    RAZIX_MARK_END();
+                    RAZIX_TIME_STAMP_END();
+                });
+
+            return pass.blur;
         }
-
     }    // namespace Graphics
 }    // namespace Razix

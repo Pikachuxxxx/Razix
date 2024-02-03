@@ -248,20 +248,32 @@ namespace Razix {
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
             //-------------------------------
-            // [-] SSAO Pass
+            // [x] SSAO Pass
             //-------------------------------
-            //m_SSAOPass.addPass(m_FrameGraph, scene, settings);
+            settings.renderFeatures |= RendererFeature_SSAO;
+            m_SSAOPass.addPass(m_FrameGraph, scene, settings);
+
+            //-------------------------------
+            // Gaussian Blur Pass - SSAO
+            //-------------------------------
+            auto& ssaoData = m_FrameGraph.getBlackboard().get<FX::SSAOData>();
+            m_GaussianBlurPass.setTwoPassFilter(false);
+            m_GaussianBlurPass.setBlurRadius(1.0f);
+            m_GaussianBlurPass.setFilterTap(GaussianTap::Five);
+            m_GaussianBlurPass.setInputTexture(ssaoData.SSAOPreBlurTexture);
+            m_GaussianBlurPass.addPass(m_FrameGraph, scene, settings);
+            ssaoData.SSAOSceneTexture = m_GaussianBlurPass.getOutputTexture();
 
             //-------------------------------
             // [x] PBR Deferred Pass
             //-------------------------------
-            m_PBRDeferredPass.addPass(m_FrameGraph, scene, settings);
+            //m_PBRDeferredPass.addPass(m_FrameGraph, scene, settings);
 
             //-------------------------------
             // [x] PBR Pass
             //-------------------------------
-#if ENABLE_FORWARD_RENDERING
             m_PBRLightingPass.addPass(m_FrameGraph, scene, settings);
+#if ENABLE_FORWARD_RENDERING
 #endif
             SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 

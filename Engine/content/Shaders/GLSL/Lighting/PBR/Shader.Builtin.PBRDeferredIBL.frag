@@ -46,6 +46,8 @@ layout(set = 2, binding = 1) uniform ShadowData {
 layout(set = 3, binding = 0) uniform samplerCube IrradianceMap;
 layout(set = 3, binding = 1) uniform samplerCube PreFilteredMap;
 layout(set = 3, binding = 2) uniform sampler2D BrdfLUT;
+//--------------------------------------------------------
+layout(set = 4, binding = 0) uniform sampler2D SSAOSceneTexture;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
@@ -68,7 +70,7 @@ void main()
     vec3 albedo     = A_R.rgb;
     float metallic  = N_M.a;
     float roughness = A_R.a;
-    float ao        = P_O.a;
+    float ao        = texture(SSAOSceneTexture, uv).r;
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -113,7 +115,7 @@ void main()
     vec2 envBRDF  = texture(BrdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-    vec3 ambient = (kD * diffuse + specular ) * ao;
+    vec3 ambient = (kD * diffuse + specular) * ao;
 
     vec3 result = ambient + Lo;
 

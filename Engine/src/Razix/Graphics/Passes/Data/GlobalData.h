@@ -78,6 +78,7 @@ namespace Razix {
 
             struct SSAOData
             {
+                FrameGraph::RZFrameGraphResource SSAOPreBlurTexture;
                 FrameGraph::RZFrameGraphResource SSAOSceneTexture;
                 FrameGraph::RZFrameGraphResource SSAOParams;
             };

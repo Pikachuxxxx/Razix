@@ -53,10 +53,10 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    //float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005); 
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
+    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005); 
+    //float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
     
-    //float shadow = currentDepth - bias > closestDepth  ? 0.1 : 1.0;  
+    //float shadow = currentDepth - bias > closestDepth  ? 0.0 : 1.0;  
     
     // PCF - percentage closer filtering
     float shadow = 0.0;
@@ -69,8 +69,8 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
             // [Source] : https://gamedev.net/forums/topic/498755-randomly-rotated-pcf-shadows/4253985/
             vec2 jitterFactor = fract( uv.xy * vec2( 18428.4f, 23614.3f)) * 2.0f - 1.0f;
             
-            float pcfDepth = texture(shadowMap, uv + jitterFactor * texelSize).r; 
-            //float pcfDepth = texture(shadowMap, uv+ vec2(x, y) * texelSize).r; 
+            //float pcfDepth = texture(shadowMap, uv + jitterFactor * texelSize).r; 
+            float pcfDepth = texture(shadowMap, uv + vec2(x, y) * texelSize).r; 
             shadow += currentDepth - bias > pcfDepth ? 0.0f : 1.0f;        
         }    
     }
@@ -78,7 +78,7 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
     
     // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
     if(projCoords.z > 1.0)
-        shadow = 0.0;
+      shadow = 0.0;
     
     return shadow;
 #endif
