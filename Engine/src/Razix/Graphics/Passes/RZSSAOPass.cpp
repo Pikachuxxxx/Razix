@@ -183,7 +183,7 @@ namespace Razix {
                         RZResourceManager::Get().getShaderResource(ssaoShader)->updateBindVarsHeaps();
                     }
 
-                    if (settings.renderFeatures & RendererFeature_SSAO) {
+                    if (settings.renderFeatures & RendererFeature_SSAO || enableSSAO) {
                         // Update the SSAO Data
                         SSAOParamsData ssaoData{};
                         ssaoData.radius     = 1.0f;

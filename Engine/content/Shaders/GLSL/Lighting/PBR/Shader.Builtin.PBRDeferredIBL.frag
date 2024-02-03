@@ -70,7 +70,7 @@ void main()
     vec3 albedo     = A_R.rgb;
     float metallic  = N_M.a;
     float roughness = A_R.a;
-    float ao        = texture(SSAOSceneTexture, uv).r;
+    float ao        = P_O.a * texture(SSAOSceneTexture, uv).r;
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -105,7 +105,6 @@ void main()
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
-
 
     vec3 irradiance = texture(IrradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;

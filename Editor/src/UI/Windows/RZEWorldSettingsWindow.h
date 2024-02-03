@@ -25,6 +25,10 @@ namespace Razix {
             void On_SetFilterRadius();
             void On_SetStrength();
 
+            // Enable Renderer settings
+            void OnSSAOEnabled();
+            void OnImGuiEnabled();
+
         private:
             Ui::WorldSettings ui;
         };
