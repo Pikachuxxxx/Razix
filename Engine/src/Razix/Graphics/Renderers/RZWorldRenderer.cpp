@@ -30,7 +30,7 @@
 #include "Razix/Scene/RZScene.h"
 
 #define ENABLE_CODE_DRIVEN_FG_PASSES 0
-#define ENABLE_DATA_DRIVEN_FG_PASSES 0
+#define ENABLE_FORWARD_RENDERING     0
 
 namespace Razix {
     namespace Graphics {
@@ -247,15 +247,32 @@ namespace Razix {
             m_GBufferPass.addPass(m_FrameGraph, scene, settings);
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
+#if !ENABLE_FORWARD_RENDERING
             //-------------------------------
-            // [-] SSAO Pass
+            // [x] SSAO Pass
             //-------------------------------
-            //m_SSAOPass.addPass(m_FrameGraph, scene, settings);
+            settings.renderFeatures |= RendererFeature_SSAO;
+            settings.renderFeatures &= ~RendererFeature_SSAO;
+            if (settings.renderFeatures & RendererFeature_SSAO)
+                settings.renderFeatures |= RendererFeature_SSAO;
+            m_SSAOPass.addPass(m_FrameGraph, scene, settings);
+
+            //-------------------------------
+            // Gaussian Blur Pass - SSAO
+            //-------------------------------
+            auto& ssaoData = m_FrameGraph.getBlackboard().get<FX::SSAOData>();
+            m_GaussianBlurPass.setTwoPassFilter(false);
+            m_GaussianBlurPass.setBlurRadius(1.0f);
+            m_GaussianBlurPass.setFilterTap(GaussianTap::Five);
+            m_GaussianBlurPass.setInputTexture(ssaoData.SSAOPreBlurTexture);
+            m_GaussianBlurPass.addPass(m_FrameGraph, scene, settings);
+            ssaoData.SSAOSceneTexture = m_GaussianBlurPass.getOutputTexture();
 
             //-------------------------------
             // [x] PBR Deferred Pass
             //-------------------------------
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, settings);
+#endif
 
             //-------------------------------
             // [x] PBR Pass
@@ -383,7 +400,7 @@ namespace Razix {
 
                     m_ImGuiRenderer.Init();
                 },
-                [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+                [&](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
                     m_ImGuiRenderer.Begin(scene);
@@ -402,7 +419,8 @@ namespace Razix {
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
-                    m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
+                    if (settings.renderFeatures & RendererFeature_ImGui)
+                        m_ImGuiRenderer.Draw(Graphics::RHI::GetCurrentCommandBuffer());
 
                     m_ImGuiRenderer.End();
                     RAZIX_TIME_STAMP_END();
@@ -456,6 +474,7 @@ namespace Razix {
             m_CascadedShadowsRenderer.updateCascades(scene);
             m_SkyboxPass.useProceduralSkybox(settings.useProceduralSkybox);
             m_CompositePass.setTonemapMode(settings.tonemapMode);
+            m_SSAOPass.enableSSAO = settings.renderFeatures & RendererFeature_SSAO;
 
             // Main Frame Graph World Rendering Loop
             {

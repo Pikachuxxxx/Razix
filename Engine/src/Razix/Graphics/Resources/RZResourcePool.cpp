@@ -40,7 +40,7 @@ namespace Razix {
                 }
             }
 
-            RAZIX_CORE_ASSERT(m_UsedIndices == 0, "[Pool Allocator] Pool still has used indices");
+             RAZIX_CORE_ASSERT(m_UsedIndices == 0, "[Pool Allocator] Pool still has used indices");
 
             Memory::RZFree(m_MemoryChunk);
         }

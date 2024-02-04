@@ -76,22 +76,18 @@ namespace Razix {
 
         namespace FX {
 
-            struct SSAOPreBlurData
+            struct SSAOData
             {
                 FrameGraph::RZFrameGraphResource SSAOPreBlurTexture;
+                FrameGraph::RZFrameGraphResource SSAOSceneTexture;
+                FrameGraph::RZFrameGraphResource SSAOParams;
             };
 
-            struct SSAOBlurData
-            {
-                FrameGraph::RZFrameGraphResource SSAOBlurTexture;
-            };
-
-            struct SSAOData
+            struct SSAOImportData
             {
                 FrameGraph::RZFrameGraphResource SSAONoiseTexture;
                 FrameGraph::RZFrameGraphResource SSAOKernelSamples;
             };
-
         }    // namespace FX
     }        // namespace Graphics
 }    // namespace Razix

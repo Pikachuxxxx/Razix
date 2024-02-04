@@ -52,15 +52,15 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = ssaoShader;
             pipelineInfo.transparencyEnabled    = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::R32F};
             pipelineInfo.depthTestEnabled       = false;
             pipelineInfo.depthWriteEnabled      = false;
-            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
+            m_PreBlurPipeline                   = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
             auto& gbufferData    = framegraph.getBlackboard().get<GBufferData>();
 
-            auto& ssaoData = framegraph.getBlackboard().add<FX::SSAOData>();
+            auto& ssaoData = framegraph.getBlackboard().add<FX::SSAOImportData>();
 
             // Generate some data to pass to SSAO shader
             std::default_random_engine            rndEngine((unsigned) time(nullptr));
@@ -107,41 +107,44 @@ namespace Razix {
             ssaoData.SSAONoiseTexture = framegraph.import <FrameGraph::RZFrameGraphTexture>(noiseTextureDesc.name, CAST_TO_FG_TEX_DESC noiseTextureDesc, {ssaoNoiseTexture});
 
             framegraph.getBlackboard()
-                .add<FX::SSAOPreBlurData>() = framegraph.addCallbackPass<FX::SSAOPreBlurData>(
+                .add<FX::SSAOData>() = framegraph.addCallbackPass<FX::SSAOData>(
                 "Pass.Builtin.Code.FX.SSAO",
-                [&](FX::SSAOPreBlurData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](FX::SSAOData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     // We use a single channel f32 texture
                     RZTextureDesc textureDesc{
-                        .name   = "SSAOScene",
+                        .name   = "SSAOPreBlurTexture",
                         .width  = ResolutionToExtentsMap[Resolution::k1440p].x,
                         .height = ResolutionToExtentsMap[Resolution::k1440p].y,
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA32F};
+                        .format = TextureFormat::R32F};
                     data.SSAOPreBlurTexture = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    // For temporary debugging set this as the final output
-                    framegraph.getBlackboard().setFinalOutputName(textureDesc.name);
+                    RZBufferDesc ssaoDataBufferDesc{
+                        .name  = "SSAOParams",
+                        .size  = sizeof(SSAOParamsData),
+                        .usage = BufferUsage::PersistentStream};
+                    data.SSAOParams = builder.create<FrameGraph::RZFrameGraphBuffer>(ssaoDataBufferDesc.name, CAST_TO_FG_BUF_DESC ssaoDataBufferDesc);
 
                     data.SSAOPreBlurTexture = builder.write(data.SSAOPreBlurTexture);
+                    data.SSAOParams         = builder.write(data.SSAOParams);
 
                     builder.read(ssaoData.SSAONoiseTexture);
                     builder.read(ssaoData.SSAOKernelSamples);
                     builder.read(frameDataBlock.frameData);
                     builder.read(gbufferData.GBuffer0);
-                    builder.read(gbufferData.GBuffer1);
-                    builder.read(gbufferData.GBuffer2);
+                    builder.read(gbufferData.GBufferDepth);
                 },
-                [=](const FX::SSAOPreBlurData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const FX::SSAOData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("SSAO");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.FX.SSAO", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.SSAO", glm::vec4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.SSAOPreBlurTexture).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.SSAOPreBlurTexture).getHandle(), {true, ClearColorPresets::OpaqueWhite}}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -153,33 +156,52 @@ namespace Razix {
 
                         RZDescriptor* descriptor = nullptr;
 
-                        // Bind the GBuffer textures
+                        // Bind the GBuffer textures gBuffer0:Normal and SceneDepth
                         descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0)];
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1)];
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBufferDepth)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1).getHandle();
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBufferDepth).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2)];
-                        if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
-
+                        // SSAO Noise Texture
                         descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAONoiseTexture)];
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAONoiseTexture).getHandle();
 
+                        // SSAO Kernel samples
                         descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(ssaoData.SSAOKernelSamples)];
                         if (descriptor)
                             descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(ssaoData.SSAOKernelSamples).getHandle();
 
+                        // SSAO Params
+                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.SSAOParams)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.SSAOParams).getHandle();
+
                         RZResourceManager::Get().getShaderResource(ssaoShader)->updateBindVarsHeaps();
                     }
 
-                    RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
+                    if (settings.renderFeatures & RendererFeature_SSAO || enableSSAO) {
+                        // Update the SSAO Data
+                        SSAOParamsData ssaoData{};
+                        ssaoData.radius     = 1.0f;
+                        ssaoData.bias       = 0.025f;
+                        ssaoData.resolution = glm::vec2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                        auto& cam           = scene->getSceneCamera();
+                        // TODO: Bind FrameData @ slot 0
+                        ssaoData.camViewPos       = cam.getPosition();
+                        ssaoData.viewMatrix       = cam.getViewMatrix();
+                        ssaoData.projectionMatrix = cam.getProjection();
 
-                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
+                        auto ssaoDataHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.SSAOParams).getHandle();
+                        RZResourceManager::Get().getUniformBufferResource(ssaoDataHandle)->SetData(sizeof(SSAOParamsData), &ssaoData);
+
+                        RHI::BindPipeline(m_PreBlurPipeline, RHI::GetCurrentCommandBuffer());
+
+                        scene->drawScene(m_PreBlurPipeline, SceneDrawGeometryMode::ScreenQuad);
+                    }
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
@@ -189,7 +211,7 @@ namespace Razix {
 
         void RZSSAOPass::destroy()
         {
-            RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            RZResourceManager::Get().destroyPipeline(m_PreBlurPipeline);
         }
     }    // namespace Graphics
 }    // namespace Razix

@@ -46,6 +46,9 @@
         <property name="text">
          <string>Use Procedural Skybox</string>
         </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -306,16 +309,12 @@ border-width:2px;</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Flags</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="checkBox_7">
         <property name="text">
          <string>Overdraw vis mode</string>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -324,12 +323,18 @@ border-width:2px;</string>
         <property name="text">
          <string>Unlit mode</string>
         </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="checkBox_9">
         <property name="text">
          <string>Show UV coords</string>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -361,6 +366,13 @@ border-width:2px;</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Flags</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="checkBox_2">
         <property name="text">
          <string>GI</string>
@@ -368,7 +380,7 @@ border-width:2px;</string>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="Shadows">
         <property name="text">
          <string>Shadows</string>
         </property>
@@ -378,7 +390,7 @@ border-width:2px;</string>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_3">
+       <widget class="QCheckBox" name="ImGui">
         <property name="text">
          <string>ImGui</string>
         </property>
@@ -388,9 +400,12 @@ border-width:2px;</string>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_4">
+       <widget class="QCheckBox" name="SSAO">
         <property name="text">
          <string>SSAO</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

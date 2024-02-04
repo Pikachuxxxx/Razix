@@ -53,17 +53,17 @@ public:
     QFrame *line_4;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_4;
-    QLabel *label_2;
     QCheckBox *checkBox_7;
     QCheckBox *checkBox_8;
     QCheckBox *checkBox_9;
     QFrame *line_5;
     QGroupBox *groupBox_4;
     QVBoxLayout *verticalLayout_5;
+    QLabel *label_2;
     QCheckBox *checkBox_2;
-    QCheckBox *checkBox;
-    QCheckBox *checkBox_3;
-    QCheckBox *checkBox_4;
+    QCheckBox *Shadows;
+    QCheckBox *ImGui;
+    QCheckBox *SSAO;
     QCheckBox *checkBox_5;
     QCheckBox *checkBox_6;
     QSpacerItem *verticalSpacer;
@@ -100,6 +100,7 @@ public:
         verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
         useProcSkyboxChkBox = new QCheckBox(groupBox_5);
         useProcSkyboxChkBox->setObjectName(QString::fromUtf8("useProcSkyboxChkBox"));
+        useProcSkyboxChkBox->setChecked(false);
 
         verticalLayout_6->addWidget(useProcSkyboxChkBox);
 
@@ -247,23 +248,21 @@ public:
         verticalLayout_4->setSpacing(6);
         verticalLayout_4->setContentsMargins(11, 11, 11, 11);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        label_2 = new QLabel(groupBox_3);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-
-        verticalLayout_4->addWidget(label_2);
-
         checkBox_7 = new QCheckBox(groupBox_3);
         checkBox_7->setObjectName(QString::fromUtf8("checkBox_7"));
+        checkBox_7->setAutoExclusive(true);
 
         verticalLayout_4->addWidget(checkBox_7);
 
         checkBox_8 = new QCheckBox(groupBox_3);
         checkBox_8->setObjectName(QString::fromUtf8("checkBox_8"));
+        checkBox_8->setAutoExclusive(true);
 
         verticalLayout_4->addWidget(checkBox_8);
 
         checkBox_9 = new QCheckBox(groupBox_3);
         checkBox_9->setObjectName(QString::fromUtf8("checkBox_9"));
+        checkBox_9->setAutoExclusive(true);
 
         verticalLayout_4->addWidget(checkBox_9);
 
@@ -287,27 +286,33 @@ public:
         verticalLayout_5->setSpacing(6);
         verticalLayout_5->setContentsMargins(11, 11, 11, 11);
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        label_2 = new QLabel(groupBox_4);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        verticalLayout_5->addWidget(label_2);
+
         checkBox_2 = new QCheckBox(groupBox_4);
         checkBox_2->setObjectName(QString::fromUtf8("checkBox_2"));
 
         verticalLayout_5->addWidget(checkBox_2);
 
-        checkBox = new QCheckBox(groupBox_4);
-        checkBox->setObjectName(QString::fromUtf8("checkBox"));
-        checkBox->setChecked(true);
+        Shadows = new QCheckBox(groupBox_4);
+        Shadows->setObjectName(QString::fromUtf8("Shadows"));
+        Shadows->setChecked(true);
 
-        verticalLayout_5->addWidget(checkBox);
+        verticalLayout_5->addWidget(Shadows);
 
-        checkBox_3 = new QCheckBox(groupBox_4);
-        checkBox_3->setObjectName(QString::fromUtf8("checkBox_3"));
-        checkBox_3->setChecked(true);
+        ImGui = new QCheckBox(groupBox_4);
+        ImGui->setObjectName(QString::fromUtf8("ImGui"));
+        ImGui->setChecked(true);
 
-        verticalLayout_5->addWidget(checkBox_3);
+        verticalLayout_5->addWidget(ImGui);
 
-        checkBox_4 = new QCheckBox(groupBox_4);
-        checkBox_4->setObjectName(QString::fromUtf8("checkBox_4"));
+        SSAO = new QCheckBox(groupBox_4);
+        SSAO->setObjectName(QString::fromUtf8("SSAO"));
+        SSAO->setChecked(true);
 
-        verticalLayout_5->addWidget(checkBox_4);
+        verticalLayout_5->addWidget(SSAO);
 
         checkBox_5 = new QCheckBox(groupBox_4);
         checkBox_5->setObjectName(QString::fromUtf8("checkBox_5"));
@@ -354,15 +359,15 @@ public:
         tonemapMode->setItemText(8, QCoreApplication::translate("WorldSettings", "None", nullptr));
 
         groupBox_3->setTitle(QCoreApplication::translate("WorldSettings", "Debug Mode Flags", nullptr));
-        label_2->setText(QCoreApplication::translate("WorldSettings", "Flags", nullptr));
         checkBox_7->setText(QCoreApplication::translate("WorldSettings", "Overdraw vis mode", nullptr));
         checkBox_8->setText(QCoreApplication::translate("WorldSettings", "Unlit mode", nullptr));
         checkBox_9->setText(QCoreApplication::translate("WorldSettings", "Show UV coords", nullptr));
         groupBox_4->setTitle(QCoreApplication::translate("WorldSettings", "Renderer Features (Passes List)", nullptr));
+        label_2->setText(QCoreApplication::translate("WorldSettings", "Flags", nullptr));
         checkBox_2->setText(QCoreApplication::translate("WorldSettings", "GI", nullptr));
-        checkBox->setText(QCoreApplication::translate("WorldSettings", "Shadows", nullptr));
-        checkBox_3->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
-        checkBox_4->setText(QCoreApplication::translate("WorldSettings", "SSAO", nullptr));
+        Shadows->setText(QCoreApplication::translate("WorldSettings", "Shadows", nullptr));
+        ImGui->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
+        SSAO->setText(QCoreApplication::translate("WorldSettings", "SSAO", nullptr));
         checkBox_5->setText(QCoreApplication::translate("WorldSettings", "SSR", nullptr));
         checkBox_6->setText(QCoreApplication::translate("WorldSettings", "Bloom", nullptr));
     } // retranslateUi

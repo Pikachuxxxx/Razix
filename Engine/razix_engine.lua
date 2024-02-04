@@ -25,7 +25,7 @@ group "Engine/content"
             "content/Shaders/PSSL/**.hs",
             -- Cg
             "content/Shaders/CG/**.cg",
-            -- Razix Shader Files
+            -- Razix Shader File
             "content/Shaders/Razix/**.rzsf"
         }
     filter "system:windows"

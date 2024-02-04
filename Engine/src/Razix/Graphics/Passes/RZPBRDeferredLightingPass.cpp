@@ -62,6 +62,7 @@ namespace Razix {
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
             auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
+            auto& ssaoData             = framegraph.getBlackboard().get<FX::SSAOData>();
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRDeferredLighting",
@@ -91,7 +92,7 @@ namespace Razix {
                     builder.read(gbufferData.GBuffer0);
                     builder.read(gbufferData.GBuffer1);
                     builder.read(gbufferData.GBuffer2);
-                    //builder.read(gbufferData.GBufferDepth);
+                    builder.read(ssaoData.SSAOSceneTexture);
                 },
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -146,6 +147,11 @@ namespace Razix {
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
 
+                        // Scene SSAO Texture
+                        descriptor = shaderBindVars["SSAOSceneTexture"];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAOSceneTexture).getHandle();
+
                         RZResourceManager::Get().getShaderResource(pbrShader)->updateBindVarsHeaps();
                     }
 
@@ -161,7 +167,7 @@ namespace Razix {
                     pc.size        = sizeof(PCData);
                     pc.data        = &pcData;
                     pc.shaderStage = ShaderStage::Pixel;
-                    //RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
+                    RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 

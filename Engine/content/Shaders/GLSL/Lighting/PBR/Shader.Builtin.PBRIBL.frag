@@ -136,7 +136,7 @@ void main()
         //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.ShadowMapIdx)], FragPosLightSpace, N, SceneLightsData.data[0].position);
         shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
 
-    //result *= shadow;
+    result *= shadow;
     //-----------------------------------------------
 
     // Opacity Discard

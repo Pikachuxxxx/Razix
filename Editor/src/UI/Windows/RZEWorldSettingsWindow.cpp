@@ -19,6 +19,9 @@ namespace Razix {
             connect(ui.strength, SIGNAL(returnPressed()), this, SLOT(On_SetStrength()));
 
             connect(ui.tonemapMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnToneMapModeChanged()));
+
+            connect(ui.SSAO, SIGNAL(clicked(bool)), this, SLOT(OnSSAOEnabled()));
+            connect(ui.ImGui, SIGNAL(clicked(bool)), this, SLOT(OnImGuiEnabled()));
         }
 
         RZEWorldSettingsWindow::~RZEWorldSettingsWindow()
@@ -48,5 +51,24 @@ namespace Razix {
             auto& settings                = Razix::RZEngine::Get().getWorldSettings();
             settings.bloomConfig.strength = ui.strength->text().toFloat();
         }
+
+        void RZEWorldSettingsWindow::OnSSAOEnabled()
+        {
+            auto& settings = Razix::RZEngine::Get().getWorldSettings();
+            if (ui.SSAO->isChecked())
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_SSAO;
+            else
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_SSAO;
+        }
+
+        void RZEWorldSettingsWindow::OnImGuiEnabled()
+        {
+            auto& settings = Razix::RZEngine::Get().getWorldSettings();
+            if (ui.ImGui->isChecked())
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_ImGui;
+            else
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_ImGui;
+        }
+
     }    // namespace Editor
 }    // namespace Razix

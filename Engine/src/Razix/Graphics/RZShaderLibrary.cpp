@@ -71,6 +71,9 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::Sprite, "//RazixContent/Shaders/Razix/Shader.Builtin.Sprite.rzsf");
             loadBuiltInShader(ShaderBuiltin::SpriteTextured, "//RazixContent/Shaders/Razix/Shader.Builtin.SpriteTextured.rzsf");
             //-------------------------------------------------------------------
+            // Utility Shaders aka Math
+            loadBuiltInShader(ShaderBuiltin::GaussianBlur, "//RazixContent/Shaders/Razix/Shader.Builtin.GaussianBlur.rzsf");
+            //-------------------------------------------------------------------
         }
 
         void RZShaderLibrary::ShutDown()

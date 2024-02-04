@@ -8,6 +8,17 @@ namespace Razix {
 #define SSAO_KERNEL_SIZE 64
 #define SSAO_NOISE_DIM   4
 
+        struct SSAOParamsData
+        {
+            float     radius           = 1.0f;
+            float     bias             = 0.025f;
+            glm::vec2 resolution       = {};
+            glm::vec3 camViewPos       = {};
+            float     _padding         = 0.0f;
+            glm::mat4 viewMatrix       = {};
+            glm::mat4 projectionMatrix = {};
+        };
+
         class RZSSAOPass : public IRZPass
         {
         public:
@@ -17,8 +28,10 @@ namespace Razix {
             void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings) override;
             void destroy() override;
 
+            bool enableSSAO = true;
+
         private:
-            RZPipelineHandle m_Pipeline;
+            RZPipelineHandle m_PreBlurPipeline;
         };
     }    // namespace Graphics
 }    // namespace Razix

@@ -8,91 +8,100 @@
 // This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
 #extension GL_ARB_shading_language_420pack : enable
 //------------------------------------------------------------------------------
-#define DISABLE_FRAME_DATA_BINDING
-#include <Common/ShaderInclude.Builtin.FrameData.glsl>
-//------------------------------------------------------------------------------
 // Constants and Defines
-int kernelSize = 64;
-float radius = 0.5;
-float bias = 0.025;
+#define SSAO_KERNEL_SIZE 64
+const float kInvKernelSize = 1.0 / SSAO_KERNEL_SIZE;
 //------------------------------------------------------------------------------
 // Vertex Input
 layout(location = 0) in VSOutput
 {
     vec2 fragUV;
-    FrameInfo info;
-}fs_in;
+}fs_in; 
 //--------------------------------------------------------
 // Push constants
 //------------------------------------------------------------------------------
 // @ slot #0 - .rgb = Normal   .a = Metallic
 // @ slot #1 - .rgb = Albedo   .a = Roughness
 // @ slot #2 - .rgb = Position .a = AO
-layout (set = 1, binding = 0) uniform sampler2D gBuffer0; 
-layout (set = 1, binding = 1) uniform sampler2D gBuffer1; 
-layout (set = 1, binding = 2) uniform sampler2D gBuffer2; 
+layout (set = 0, binding = 0) uniform sampler2D gBuffer0; 
+layout (set = 0, binding = 1) uniform sampler2D SceneDepth; 
 //--------------------------------------------------------
-const int SSAO_KERNEL_SIZE = 64;
-layout (set = 2, binding = 0) uniform KernelSamples
+layout (set = 1, binding = 0) uniform KernelSamples
 {
     vec4 samples[SSAO_KERNEL_SIZE];
 }Kernel;
-layout (set = 2, binding = 1) uniform sampler2D SSAONoiseTex; 
+layout (set = 1, binding = 1) uniform sampler2D SSAONoiseTex; 
+//--------------------------------------------------------
+layout (set = 2, binding = 0) uniform SSAOFrameData
+{
+    float radius;
+    float bias;
+    vec2 resolution; 
+    vec3 camViewPos;
+    mat4 viewMatrix;
+    mat4 projectionMatrix;
+}SSAOParams;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
-layout(location = 0) out vec4 outSceneColor;
+layout(location = 0) out float outSceneColor;
 //------------------------------------------------------------------------------
+vec4 viewToClip(vec4 v) { return SSAOParams.projectionMatrix * v; }
+vec3 viewToNDC(vec4 v) {
+  const vec4 P = viewToClip(v);
+  return P.xyz / P.w;
+}
+vec3 NDCToView(vec4 v) {
+  const vec4 P = inverse(SSAOParams.projectionMatrix) * v;
+  return P.xyz / P.w;
+}
+//--------------------------------------------------------
+// @param z in NDC
+// @param uv in range: [0..1]
+vec3 viewPositionFromDepth(float z, vec2 uv) {
+  // https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy/46118945#46118945
+  const vec4 ndc = vec4(uv * 2.0 - 1.0, z, 1.0);
+  return NDCToView(ndc);
+}
+//--------------------------------------------------------
 void main()
 {
+
     vec2 uv = fs_in.fragUV;
-    vec3 viewPos = getCameraPosition(fs_in.info.camera);
+    vec3 viewPos = SSAOParams.camViewPos;
+
+    const float depth = texture(SceneDepth, uv).r;
+    if (depth >= 1.0f) discard;
 
     vec4 N_M = texture(gBuffer0, uv);
-    vec4 A_R = texture(gBuffer1, uv);
-    vec4 P_O = texture(gBuffer2, uv);
 
-    // Calculate Normal and fragPos in View Space as SSAO is a screen-space technique where occlusion is calculated from the visible view
-    vec3 fragPosVS  = (fs_in.info.camera.view * vec4(P_O.rgb, 1.0f)).rgb;
-    vec3 N_VS       = normalize((fs_in.info.camera.view * vec4(N_M.rgb, 1.0f)).rgb * 2.0f - 1.0f);
+    const vec2 gBufferSize = textureSize(SceneDepth, 0);
+    const vec2 noiseSize = textureSize(SSAONoiseTex, 0);
+    const vec2 noiseTexCoord = (gBufferSize / noiseSize) * uv;
+    const vec3 rvec = vec3(texture(SSAONoiseTex, noiseTexCoord).xy, 0.0);
 
-    vec3 V = normalize(viewPos - fragPosVS);
-    vec3 R = reflect(-V, N_VS);
-
-    vec3 albedo     = A_R.rgb;
-    float metallic  = N_M.a;
-    float roughness = A_R.a;
-    float ao        = P_O.a;
-
-    vec2 screenSize = fs_in.info.resolution;
-    const vec2 noiseScale = screenSize / 4.0f;
-
-    vec3 randomVec = texture(SSAONoiseTex, uv * noiseScale).rgb;
-    vec3 tangent   = normalize(randomVec - N_VS * dot(randomVec, N_VS));
-    vec3 bitangent = cross(N_VS, tangent);
-    mat3 TBN       = mat3(tangent, bitangent, N_VS); 
-
-    // iterate over the sample kernel and calculate occlusion factor
-    float occlusion = 0.0;
-    for(int i = 0; i < kernelSize; ++i)
-    {
-        // get sample position
-        vec3 samplePos = TBN * Kernel.samples[i].xyz; // from tangent to view-space
-        samplePos = fragPosVS + samplePos * radius; 
-        
-        // project sample position (to sample texture) (to get position on screen/texture)
-        vec4 offset = vec4(samplePos, 1.0);
-        offset = fs_in.info.camera.projection * offset; // from view to clip-space
-        offset.xyz /= offset.w; // perspective divide
-        offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
-        
-        // get sample depth
-        float sampleDepth = -texture(gBuffer2, offset.xy).w; // get depth value of kernel sample
-        
-        // range check & accumulate
-        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPosVS.z - sampleDepth));
-        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
-    }
-    occlusion = 1.0 - (occlusion / kernelSize);
+    vec3 N = N_M.rgb;
+    N = mat3(SSAOParams.viewMatrix) * normalize(N);
+    const vec3 T = normalize(rvec - N * dot(rvec, N));
+    const vec3 B = cross(N, T);
+    const mat3 TBN = mat3(T, B, N); // tangent-space -> view-space
     
-    outSceneColor = vec4(vec3(occlusion), 1.0f);
+    const vec3 fragPosViewSpace = viewPositionFromDepth(depth, uv);
+    
+    float occlusion = 0.0;
+    for (uint i = 0; i < SSAO_KERNEL_SIZE; ++i) {
+        vec3 samplePos = TBN * Kernel.samples[i].xyz;
+        samplePos = fragPosViewSpace + samplePos * SSAOParams.radius;
+        const vec2 offset = viewToNDC(vec4(samplePos, 1.0)).xy * 0.5 + 0.5;
+        float sampleDepth = texture(SceneDepth, offset).r;
+        sampleDepth = viewPositionFromDepth(sampleDepth, offset).z;
+
+        const float rangeCheck =
+        smoothstep(0.0, 1.0, SSAOParams.radius / abs(fragPosViewSpace.z - sampleDepth));
+        occlusion +=
+        (sampleDepth >= samplePos.z + SSAOParams.bias ? 1.0 : 0.0) * rangeCheck;
+    }
+     // 1.0 = no occlusion, 0.0 = occluded
+    occlusion = 1.0 - occlusion * kInvKernelSize;
+    
+    outSceneColor = occlusion;
 }
