@@ -54,7 +54,7 @@ namespace Razix {
                 return m_UniformBufferPool;
             }
 
-            /* GPU Resource Allocation functions */
+            /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             RZTextureHandle createTexture(const RZTextureDesc& desc);
             RZTextureHandle createTextureFromFile(const RZTextureDesc& desc, const std::string& filePath);

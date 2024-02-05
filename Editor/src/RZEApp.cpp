@@ -198,16 +198,6 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new RazixEditorApp(projectBrowserDialog->getProjectPath(), projectBrowserDialog->getProjectName());
 }
 
-// TODO: move the ifdef for platforms defined in EntryPoint to here and to Sandbox
-HINSTANCE razixDll;
-
-void LoadEngineDLL(int argc, char** argv)
-{
-    razixDll = LoadLibrary(L"Razix.dll");
-    EngineMain(argc, argv);
-    didEngineClose = true;
-}
-
 int main(int argc, char** argv)
 {
     // Initialize the QT Editor Application
@@ -348,13 +338,13 @@ int main(int argc, char** argv)
 
     // Load the engine DLL and Ignite it on a separate thread, using a worker Object to execute some work, here RZEEngineLoop is with worker that will run the engine code
     Razix::Editor::RZEEngineLoop* engineLoop    = new Razix::Editor::RZEEngineLoop(argc, argv);
-    rzstl::UniqueRef<QThread>     qengineThread = rzstl::CreateUniqueRef<QThread>();
+    QThread*                      qengineThread = new QThread();
     // Move some objects to be accessed on the threads
-    engineLoop->moveToThread(qengineThread.get());
-    viewportWidget->moveToThread(qengineThread.get());
-    viewportWidget->getVulkanWindow()->moveToThread(qengineThread.get());
+    engineLoop->moveToThread(qengineThread);
+    viewportWidget->moveToThread(qengineThread);
+    viewportWidget->getVulkanWindow()->moveToThread(qengineThread);
     // Run the thread loop
-    QObject::connect(qengineThread.get(), &QThread::started, engineLoop, [&]() {
+    QObject::connect(qengineThread, &QThread::started, engineLoop, [&]() {
         // Call engine main
         EngineMain(argc, argv);
 
@@ -389,7 +379,7 @@ int main(int argc, char** argv)
     // Delete all the UI objects
     // TODO: This is temporary, use a better manager class/system, no ptrs allowed in anyway whatsoever (smart too)
     {
-        qengineThread.reset();
+        delete qengineThread;
         delete engineLoop;
         delete qrzeditorApp;
         delete mainWindow;

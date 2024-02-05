@@ -54,8 +54,8 @@ namespace Razix {
             // Qt spdlog console widget
             m_ConsoleLogWidget = new QSpdLog;
             m_ConsoleLogWidget->setObjectName("Razix Console Log");
-            m_ConsoleLogWidget->setMaxEntries(500);
-            m_ConsoleLogWidget->setAutoScrollPolicy(AutoScrollPolicy::AutoScrollPolicyEnabled);
+            m_ConsoleLogWidget->setMaxEntries(100);
+            //m_ConsoleLogWidget->setAutoScrollPolicy(AutoScrollPolicy::AutoScrollPolicyEnabled);
             QSpdLogToolBar* consoleToolBar = new QSpdLogToolBar();
             m_ConsoleLogWidget->registerToolbar(consoleToolBar);
             dynamic_cast<QVBoxLayout*>(m_ConsoleLogWidget->layout())->insertWidget(0, consoleToolBar);
