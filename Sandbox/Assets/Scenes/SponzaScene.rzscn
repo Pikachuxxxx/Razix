@@ -1629,8 +1629,8 @@
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": -313.0,
-            "Pitch": -54.5,
+            "Yaw": -2120.25,
+            "Pitch": -34.25,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -1641,7 +1641,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.8881431818008423,
+            "AspectRatio": 1.8699780702590943,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,

@@ -140,7 +140,7 @@ project "RazixEditor"
 	-- will return an error since it won't be able to find the path
 	-- to your Qt installation.
 	--
-	qtpath "C:/Qt/Qt_msvc_dir/msvc2017_64"
+	qtpath "C:/Qt/5.15.2/msvc2019_64/"
 
     --
 	-- Setup which Qt modules will be used. This also apply to the
@@ -157,7 +157,7 @@ project "RazixEditor"
 	--
 	qtprefix "Qt5"
 
-    qtbinpath "C:/Qt/Qt_msvc_dir/msvc2017_64/bin"
+    qtbinpath "C:/Qt/5.15.2/msvc2019_64/bin"
 
     qtgenerateddir "%{prj.location}/../Editor/src/generated"
 

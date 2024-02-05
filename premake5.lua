@@ -28,6 +28,17 @@ set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m"
 os.execute(set_env)
 os.execute(set_env_tools)
 
+
+-- QT SDK - 5.15.2
+QTDIR = os.getenv("QTDIR")
+
+if (QTDIR == nil or QTDIR == '') then
+    print("QTDIR Enviroment variable is not found! Please check your development environment settings")
+    os.exit()
+else
+    print("QTDIR found at : " .. QTDIR)
+end
+
 -- Using the command line to get the selected architecture
 Arch = ""
 
