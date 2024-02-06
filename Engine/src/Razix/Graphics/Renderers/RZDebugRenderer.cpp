@@ -407,23 +407,38 @@ namespace Razix {
             // Directional
             if (light->getType() == LightType::DIRECTIONAL) {
                 glm::vec3 offset(0.0f, 0.1f, 0.0f);
-                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f) + offset, colour);
-                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f) - offset, colour);
-
-                DrawLine(glm::vec3(light->getPosition()), glm::vec3(light->getPosition() + (light->getDirection()) * 2.0f), colour);
+                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(light->getPosition() * 2.0f) + offset, colour);
+                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(light->getPosition() * 2.0f) - offset, colour);
+                DrawLine(glm::vec3(light->getPosition()), glm::vec3(light->getPosition() * 2.0f), colour);
                 //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
             }
             //// Spot
             //else if (light->Type < 1.1f) {
             //    DrawCone(20, 4, light->getAngle(), light->getIntensity(), light->getPosition(), rotation, colour);
             //}
-            //// Point
-            //else {
-            //    DrawSphere(light->Radius * 0.5f, light->getPosition(), colour);
-            //}
             else if (light->getType() == LightType::Point) {
                 DrawSphere(light->getRadius() * 0.5f, light->getPosition(), colour);
             }
+        }
+
+        void RZDebugRenderer::DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            const auto* vertices = frustum.getVertices();
+
+            RZDebugRenderer::DrawLine(vertices[0], vertices[1], colour);
+            RZDebugRenderer::DrawLine(vertices[1], vertices[2], colour);
+            RZDebugRenderer::DrawLine(vertices[2], vertices[3], colour);
+            RZDebugRenderer::DrawLine(vertices[3], vertices[0], colour);
+            RZDebugRenderer::DrawLine(vertices[4], vertices[5], colour);
+            RZDebugRenderer::DrawLine(vertices[5], vertices[6], colour);
+            RZDebugRenderer::DrawLine(vertices[6], vertices[7], colour);
+            RZDebugRenderer::DrawLine(vertices[7], vertices[4], colour);
+            RZDebugRenderer::DrawLine(vertices[0], vertices[4], colour);
+            RZDebugRenderer::DrawLine(vertices[1], vertices[5], colour);
+            RZDebugRenderer::DrawLine(vertices[2], vertices[6], colour);
+            RZDebugRenderer::DrawLine(vertices[3], vertices[7], colour);
         }
 
         void RZDebugRenderer::DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)

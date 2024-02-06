@@ -18,8 +18,6 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource lightVPMatrices; /* The light view proj matrices to look at all sides of the cubemap   */
         };
 
-        constexpr u32 kShadowMapSize = 2048;
-
         // TODO: Implement this https://www.fabiensanglard.net/shadowmappingPCF/index.php
 
         class RZShadowPass : public IRZPass

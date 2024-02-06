@@ -6,13 +6,13 @@ namespace Razix {
         static const unsigned NUM_FRUSTUM_PLANES   = 6;
         static const unsigned NUM_FRUSTUM_VERTICES = 8;
 
-        class Frustum
+        class RZFrustum
         {
         public:
-            Frustum()  = default;
-            ~Frustum() = default;
+            RZFrustum()  = default;
+            ~RZFrustum() = default;
 
-            //void build(f32 fov, f32 aspectRatio, f32 zoom, f32 farz, glm::mat3x4);
+            void build(glm::mat4 VP);
 
             bool IsInside(const glm::vec3& point) const
             {
@@ -24,11 +24,11 @@ namespace Razix {
                 return true;
             }
 
-            glm::vec3* getVertices() { return vertices_; }
+            const glm::vec3* getVertices() const { return m_Vertices; }
 
         private:
             //Plane     m_Planes[NUM_FRUSTUM_PLANES];
-            glm::vec3 vertices_[NUM_FRUSTUM_VERTICES];
+            glm::vec3 m_Vertices[NUM_FRUSTUM_VERTICES];
         };
     }    // namespace Maths
 }    // namespace Razix

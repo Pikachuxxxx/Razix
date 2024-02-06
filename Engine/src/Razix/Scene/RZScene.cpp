@@ -8,23 +8,19 @@
 #endif
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
-
-#include "Razix/Scene/RZEntity.h"
+#include "Razix/Core/RZApplication.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
-
-#include "Razix/Graphics/RZMesh.h"
-#include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Scene/RZEntity.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
-
-#include "Razix/Graphics/RHI/RHI.h"
-
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
-
+#include "Razix/Graphics/RHI/RHI.h"
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
 #include <entt.hpp>
@@ -42,6 +38,8 @@ namespace Razix {
 
         m_Registry.on_construct<HierarchyComponent>().connect<&HierarchyComponent::OnConstruct>();
         m_Registry.on_destroy<HierarchyComponent>().connect<&HierarchyComponent::OnDestroy>();
+
+        m_EditorModeCamera.setPosition({0, -10, 25});
     }
 
     RZScene::RZScene(std::string sceneName)
@@ -373,10 +371,20 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        auto view = m_Registry.view<CameraComponent>();
-        for (auto& entity: view) {
-            // check it it's primary and only then return only a single camera component
-            return view.get<CameraComponent>(entity).Camera;
+        /**
+         * In Game mode we return the camera component from the Scene ECS hierarchy,
+         * but in Editor mode we will have a Editor Camera and return that
+         */
+
+        if (RZApplication::Get().getAppType() == AppType::EDITOR) {
+            m_EditorModeCamera.setPerspectiveFarClip(10000);
+            return m_EditorModeCamera;
+        } else {
+            auto view = m_Registry.view<CameraComponent>();
+            for (auto& entity: view) {
+                // check it it's primary and only then return only a single camera component
+                return view.get<CameraComponent>(entity).Camera;
+            }
         }
         // This will cause a not all control paths return a value warning, it's fine cause it doesn't make the engine to run without a camera!
     }

@@ -3,6 +3,8 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Graphics/Cameras/Camera3D.h"
 
+#include "Razix/Maths/RZFrustum.h"
+
 #include <glm/glm.hpp>
 
 namespace Razix {
@@ -87,6 +89,8 @@ namespace Razix {
 
         RAZIX_INLINE const glm::vec4& getBgColor() const { return m_BgColor; }
         RAZIX_INLINE void             setBgColor(const glm::vec4& color) { m_BgColor = color; }
+
+        RAZIX_INLINE const Maths::RZFrustum& getFrustum() const { return m_CameraFrustum; }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -206,5 +210,7 @@ namespace Razix {
         f32 m_AspectRatio = 0.0f;
 
         glm::vec4 m_BgColor = glm::vec4(0.0f);
+
+        Maths::RZFrustum m_CameraFrustum;
     };
 }    // namespace Razix

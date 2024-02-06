@@ -29,10 +29,7 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::ProceduralSkybox, "//RazixContent/Shaders/Razix/Shader.Builtin.ProceduralSkybox.rzsf");
             //-------------------------------------------------------------------
             // Renderer related shaders
-            //loadShader("//RazixContent/Shaders/Razix/grid.rzsf");
             loadBuiltInShader(ShaderBuiltin::ImGui, "//RazixContent/Shaders/Razix/Shader.Builtin.ImGui.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/sprite.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/sprite_textured.rzsf");
             //-------------------------------------------------------------------
             // Frame Graph Pass Shaders
             // Composite Pass
@@ -40,13 +37,8 @@ namespace Razix {
             //-------------------------------------------------------------------
             // Lighting
             loadBuiltInShader(ShaderBuiltin::GBuffer, "//RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/cascaded_shadow_maps.rzsf");
             loadBuiltInShader(ShaderBuiltin::DepthPreTest, "//RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/RSM.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/lpv_radiance_injection.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/lpv_radiance_propagation.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/gbuffer_pass.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/DeferredTiledLighting.rzsf");
+            loadBuiltInShader(ShaderBuiltin::CSM, "//RazixContent/Shaders/Razix/Shader.Builtin.CSM.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRLighting.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRIBL, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRIBL.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRDeferredLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRDeferredIBL.rzsf");
@@ -54,9 +46,7 @@ namespace Razix {
             // Post Processing FX
             loadBuiltInShader(ShaderBuiltin::ColorGrading, "//RazixContent/Shaders/Razix/Shader.Builtin.ColorGrading.rzsf");
             loadBuiltInShader(ShaderBuiltin::SSAO, "//RazixContent/Shaders/Razix/Shader.Builtin.SSAO.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/bloom_upsample.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/bloom_downsample.rzsf");
-            //loadShader("//RazixContent/Shaders/Razix/bloom_mix.rzsf");
+
             //-------------------------------------------------------------------
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap

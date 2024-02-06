@@ -26,9 +26,6 @@
 #include "Razix/Scene/Components/CameraComponent.h"
 #include "Razix/Scene/Components/LightComponent.h"
 
-#include "Razix/Graphics/Renderers/RZForwardRenderer.h"
-#include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
-
 #include "Razix/Scene/Components/TransformComponent.h"
 
 #include <backends/imgui_impl_glfw.h>
@@ -848,14 +845,17 @@ namespace Razix {
 
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {
-            auto           currentScene = RZSceneManager::Get().getCurrentScene();
-            auto&          registry     = currentScene->getRegistry();
-            auto           cameraView   = registry.view<CameraComponent>();
-            RZSceneCamera* cam          = nullptr;
-            if (!cameraView.empty()) {
-                // By using front we get the one and only or the first one in the list of camera entities
-                cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
-            }
+            auto currentScene = RZSceneManager::Get().getCurrentScene();
+            //auto&          registry     = currentScene->getRegistry();
+            //auto           cameraView   = registry.view<CameraComponent>();
+            //RZSceneCamera* cam          = nullptr;
+            //if (!cameraView.empty()) {
+            //    // By using front we get the one and only or the first one in the list of camera entities
+            //    cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
+            //}
+
+            auto& cam = currentScene->getSceneCamera();
+
             // Guizmo Editing Here
             TransformComponent& tc = m_GuizmoEntity.GetComponent<TransformComponent>();
 #if 1
@@ -865,7 +865,7 @@ namespace Razix {
             //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));
 
             // https://github.com/CedricGuillemet/ImGuizmo/issues/237
-            ImGuizmo::Manipulate(glm::value_ptr(cam->getViewMatrix()), glm::value_ptr(cam->getProjectionRaw()), m_GuizmoOperation, m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
+            ImGuizmo::Manipulate(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), m_GuizmoOperation, m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
 
             // TODO: Add snap options and control them from editor
             f32 matrixTranslation[3], matrixRotation[3], matrixScale[3];

@@ -33,8 +33,6 @@
 
 #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Graphics/Renderers/RZCascadedShadowsRenderer.h"
-
 namespace Razix {
 
     //-----------------------------------------------------------------------------------
@@ -51,10 +49,10 @@ namespace Razix {
 
     namespace Graphics {
 
-        void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
         {
             // Use this to get the Reflective shadow map cascade
-            auto rsmLightViewProj = RZCascadedShadowsRenderer::buildCascades(scene->getSceneCamera(), glm::vec3(1.0f), 1, 1.0f, kRSMResolution)[0].viewProjMatrix;
+            glm::mat4 rsmLightViewProj;
 
             // RSM pass
             ReflectiveShadowMapData RSM = addRSMPass(framegraph, scene, rsmLightViewProj, glm::vec3(3.0f));
@@ -85,7 +83,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD;
         }
 
-        ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
+        ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
         {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
