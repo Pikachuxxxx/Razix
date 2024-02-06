@@ -12,6 +12,8 @@
 namespace Razix {
     namespace Graphics {
 
+        // TODO: Just as we generate one image view per mip do the same per each layer
+
         /* Vulkan implementation of the RZTexture2D class */
         class VKTexture final : public RZTexture
         {

@@ -2,7 +2,7 @@
 
 #include "Razix/Graphics/FrameGraph/RZFrameGraphResource.h"
 
-struct ShadowMapData
+struct CSMData
 {
     Razix::Graphics::FrameGraph::RZFrameGraphResource cascadedShadowMaps;
     Razix::Graphics::FrameGraph::RZFrameGraphResource viewProjMatrices;
@@ -23,14 +23,14 @@ const glm::mat4 kBiasMatrix
 };
 // clang-format on
 
-struct CasdacesUBOData
+struct CascadesMatrixData
 {
-    glm::vec4 splitDepth;    // This is glm::vec4 cause of max cascades is 4
+    f32       splitDepth[kNumCascades];    // This is glm::vec4 cause of max cascades is 4
     glm::mat4 viewProjMatrices[kNumCascades];
 };
 
 struct alignas(16) Cascade
 {
-    f32     splitDepth;
+    f32       splitDepth;
     glm::mat4 viewProjMatrix;
 };

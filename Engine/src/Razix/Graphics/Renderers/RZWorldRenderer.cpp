@@ -3,30 +3,30 @@
 // clang-format on
 #include "RZWorldRenderer.h"
 
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Core/OS/RZVirtualFileSystem.h"
-
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
-#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
-
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
-#include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
-
-#include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Graphics/Lighting/RZImageBasedLightingProbesManager.h"
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
 #include "Razix/Graphics/Passes/Data/FrameBlockData.h"
 
+#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+
 #include "Razix/Graphics/Renderers/RZDebugRenderer.h"
+#include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
+
 #include "Razix/Scene/RZScene.h"
 
 #define ENABLE_CODE_DRIVEN_FG_PASSES 0
@@ -242,6 +242,11 @@ namespace Razix {
             m_ShadowPass.addPass(m_FrameGraph, scene, settings);
 
             //-------------------------------
+            // [ ] CSM PAss
+            //-------------------------------
+            m_CSMPass.addPass(m_FrameGraph, scene, settings);
+
+            //-------------------------------
             // [x] GBuffer Pass
             //-------------------------------
             m_GBufferPass.addPass(m_FrameGraph, scene, settings);
@@ -337,8 +342,13 @@ namespace Razix {
                     // Draw all lights in the scene
                     auto lights = scene->GetComponentsOfType<LightComponent>();
                     for (auto& lightComponent: lights) {
-                        if (lightComponent.light.getType() == LightType::Point)
-                            RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
+                        RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
+                    }
+
+                    // Draw all camera frustums
+                    auto cameras = scene->GetComponentsOfType<CameraComponent>();
+                    for (auto& camComponents: cameras) {
+                        RZDebugRenderer::DrawFrustum(camComponents.Camera.getFrustum(), glm::vec4(0.2f, 0.85f, 0.1f, 1.0f));
                     }
 
                     // Draw AABBs for all the Meshes in the Scene
@@ -471,7 +481,7 @@ namespace Razix {
                 return;
 
             // Update calls passes
-            m_CascadedShadowsRenderer.updateCascades(scene);
+            m_CSMPass.updateCascades(scene);
             m_SkyboxPass.useProceduralSkybox(settings.useProceduralSkybox);
             m_CompositePass.setTonemapMode(settings.tonemapMode);
             m_SSAOPass.enableSSAO = settings.renderFeatures & RendererFeature_SSAO;

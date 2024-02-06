@@ -10,6 +10,7 @@
 
 // Passes
 #include "Razix/Graphics/Passes/RZBloomPass.h"
+#include "Razix/Graphics/Passes/RZCSMPass.h"
 #include "Razix/Graphics/Passes/RZColorGradingPass.h"
 #include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
@@ -22,8 +23,6 @@
 #include "Razix/Graphics/Passes/RZSkyboxPass.h"
 
 // Renderers
-#include "Razix/Graphics/Renderers/RZCascadedShadowsRenderer.h"
-#include "Razix/Graphics/Renderers/RZForwardRenderer.h"
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
 
 #include "Razix/Maths/RZGrid.h"
@@ -34,7 +33,7 @@ namespace Razix {
     class RZCascadedShadowsRenderer;
 
     namespace Maths {
-        class Frustum;
+        class RZFrustum;
     }
 
     namespace Graphics {
@@ -125,8 +124,8 @@ namespace Razix {
             RZTextureHandle m_ColorGradingNeutralLUTHandle;
             LightProbe      m_GlobalLightProbes{};
             // List of all passes, renderers and data in the frame graph
-            RZCascadedShadowsRenderer m_CascadedShadowsRenderer;
             RZShadowPass              m_ShadowPass;
+            RZCSMPass                 m_CSMPass;
             RZGIPass                  m_GIPass;
             RZGBufferPass             m_GBufferPass;
             RZSSAOPass                m_SSAOPass;
@@ -138,9 +137,6 @@ namespace Razix {
             RZImGuiRenderer           m_ImGuiRenderer;
             RZColorGradingPass        m_ColorGradingPass;
             RZFinalCompositionPass    m_CompositePass;
-
-            // Test only
-            RZForwardRenderer m_ForwardRenderer;
 
             // Other Variables
             Maths::AABB m_SceneAABB{};
@@ -160,7 +156,7 @@ namespace Razix {
             /**
              * Culls the scene lights against the Main Camera frustum
              */
-            void cullLights(Maths::Frustum& frustum);
+            void cullLights(Maths::RZFrustum& frustum);
             void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
             void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
         };

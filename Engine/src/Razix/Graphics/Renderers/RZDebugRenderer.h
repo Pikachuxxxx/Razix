@@ -10,7 +10,7 @@
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Maths/AABB.h"
-#include "Razix/Maths/Frustum.h"
+#include "Razix/Maths/RZFrustum.h"
 
 namespace Razix {
     namespace Graphics {
@@ -100,8 +100,6 @@ namespace Razix {
 
             //-------------------------------------------------------------
 
-            //Note: Functions appended with 'FG' (no depth testing) will always be rendered in the foreground. This can be useful for debugging things inside objects.
-
             //Draw Point (very small circle)
             static void DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour);
             static void DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -124,7 +122,7 @@ namespace Razix {
             static void DrawGrid(u32 dimension, const glm::vec4& colour);
 
             static void DrawLight(Graphics::RZLight* light, const glm::vec4& colour);
-            static void DrawFrustum(const Maths::Frustum& frustum, const glm::vec4& colour);
+            static void DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour);
             static void DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
             static void DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
 

@@ -75,5 +75,7 @@ namespace Razix {
 
             m_Projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
         }
+
+        m_CameraFrustum.build(m_Projection * getViewMatrix());
     }
 }    // namespace Razix

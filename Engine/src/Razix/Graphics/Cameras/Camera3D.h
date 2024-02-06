@@ -123,7 +123,7 @@ namespace Razix {
         private:
             // Camera Attributes
             glm::vec3 Position;
-            glm::vec3 Front;
+            glm::vec3 Front = {-0.1, -0.18, -0.88};
             glm::vec3 Up;
             glm::vec3 Right;
             glm::vec3 WorldUp;

@@ -129,6 +129,7 @@ namespace Razix {
         std::string    m_SceneName = "Razix Scene"; /* The name of the scene                        */
         std::string    m_ScenePath;                 /* The Path of the scene file                   */
         u32            m_LastMeshesCount = 0;
+        RZSceneCamera  m_EditorModeCamera;
 
         Graphics::RZMesh* m_Cube       = nullptr;
         Graphics::RZMesh* m_ScreenQuad = nullptr;
