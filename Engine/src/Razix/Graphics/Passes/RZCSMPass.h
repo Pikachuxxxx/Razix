@@ -39,7 +39,7 @@ namespace Razix {
             std::vector<Cascade> m_Cascades;
 
         private:
-            FrameGraph::RZFrameGraphResource addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, FrameGraph::RZFrameGraphResource cascadeShadowMap, u32 cascadeIdx);
+            CascadeSubPassData addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, CascadeSubPassData subpassData, u32 cascadeIdx);
         };
     }    // namespace Graphics
 }    // namespace Razix

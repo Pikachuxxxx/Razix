@@ -25,7 +25,7 @@ layout(set = 0, binding = 0) uniform ViewProjectionArrayUBO
 {
     mat4 mat;
     int layer;
-} VPArray;
+} VPLayer;
 layout (push_constant) uniform ModelPushConstantData{
     mat4 model;
 }model_pc_data;
@@ -37,6 +37,6 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    gl_Layer = VPArray.layer;
-    gl_Position = VPArray.mat * model_pc_data.model * vec4(inPosition, 1.0f);
+    gl_Layer = VPLayer.layer;
+    gl_Position = VPLayer.mat * model_pc_data.model * vec4(inPosition, 1.0f);
 }

@@ -45,29 +45,29 @@ namespace Razix {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::CSM);
 
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "SSAO FX Pipeline";
-            pipelineInfo.cullMode               = Graphics::CullMode::Back;
-            pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
-            pipelineInfo.shader                 = shader;
-            pipelineInfo.transparencyEnabled    = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::DEPTH32F};
-            pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
-            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
+            pipelineInfo.name                = "Pipeline.CSM";
+            pipelineInfo.cullMode            = Graphics::CullMode::Back;
+            pipelineInfo.depthBiasEnabled    = false;
+            pipelineInfo.drawType            = Graphics::DrawType::Triangle;
+            pipelineInfo.shader              = shader;
+            pipelineInfo.transparencyEnabled = false;
+            pipelineInfo.depthFormat         = {Graphics::TextureFormat::DEPTH32F};
+            pipelineInfo.depthTestEnabled    = true;
+            pipelineInfo.depthWriteEnabled   = true;
+            m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
             auto& csmData        = framegraph.getBlackboard().add<CSMData>();
 
-            FrameGraph::RZFrameGraphResource cascaseShadowMaps{-1};
-            for (u32 i = 0; i < m_Cascades.size(); i++) {
-                cascaseShadowMaps = addCascadePass(framegraph, scene, cascaseShadowMaps, i);
-            }
-            csmData.cascadedShadowMaps = cascaseShadowMaps;
-
             // Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
             auto dirLight = scene->GetComponentsOfType<LightComponent>();
             m_Cascades    = buildCascades(scene->getSceneCamera(), dirLight[0].light.getPosition(), kNumCascades, 0.95f, kShadowMapSize);
+
+            CascadeSubPassData cascadeSubpassData{-1};
+            for (u32 i = 0; i < m_Cascades.size(); i++) {
+                cascadeSubpassData = addCascadePass(framegraph, scene, cascadeSubpassData, i);
+            }
+            csmData.cascadedShadowMaps = cascadeSubpassData.cascadeOutput;
 
             // Since the above texture passes are cascaded we do an extra pass to constantly update the data into a buffer after all the cascade calculations are done whilst filling the TextureArray2D
             framegraph.addCallbackPass(
@@ -249,7 +249,7 @@ namespace Razix {
             i32       layer    = 0;
         };
 
-        Razix::Graphics::FrameGraph::RZFrameGraphResource RZCSMPass::addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, FrameGraph::RZFrameGraphResource cascadeShadowMap, u32 cascadeIdx)
+        CascadeSubPassData RZCSMPass::addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, CascadeSubPassData subpassData, u32 cascadeIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -260,15 +260,14 @@ namespace Razix {
 
                     // Create the resource only on first pass, render to the same resource again and again
                     if (cascadeIdx == 0) {
-                        cascadeShadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", {.name = "CascadedShadowMapArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F});
-
-                        data.vpLayer = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", {.name = "VPArray", .size = sizeof(LightVPLayerData), .data = nullptr, .usage = BufferUsage::PersistentStream});
+                        subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", {.name = "CascadedShadowMapArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_2DArray, .format = TextureFormat::DEPTH32F});
+                        subpassData.vpLayer       = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", {.name = "VPLayer", .size = sizeof(LightVPLayerData), .data = nullptr, .usage = BufferUsage::PersistentStream});
                     }
 
-                    data.cascadeOutput = builder.write(cascadeShadowMap);
-                    data.vpLayer       = builder.write(data.vpLayer);
+                    data.cascadeOutput = builder.write(subpassData.cascadeOutput);
+                    data.vpLayer       = builder.write(subpassData.vpLayer);
                 },
-                [&](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     //if (!(settings.renderFeatures & RendererFeature_Shadows))
                     //    return;
 
@@ -300,7 +299,7 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
                     info.resolution      = Resolution::kCustom;
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOutput).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOutput).getHandle(), {cascadeIdx == 0 ? true : false, ClearColorPresets::DepthOneToZero}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!
@@ -321,7 +320,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
 
-            return pass.cascadeOutput;
+            return pass;
         }
     }    // namespace Graphics
 }    // namespace Razix

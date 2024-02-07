@@ -407,9 +407,10 @@ namespace Razix {
             // Directional
             if (light->getType() == LightType::DIRECTIONAL) {
                 glm::vec3 offset(0.0f, 0.1f, 0.0f);
-                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(light->getPosition() * 2.0f) + offset, colour);
-                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(light->getPosition() * 2.0f) - offset, colour);
-                DrawLine(glm::vec3(light->getPosition()), glm::vec3(light->getPosition() * 2.0f), colour);
+                auto      lightPos = glm::normalize(-light->getPosition());
+                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(lightPos * 2.0f) + offset, colour);
+                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(lightPos * 2.0f) - offset, colour);
+                DrawLine(glm::vec3(light->getPosition()), glm::vec3(lightPos * 2.0f), colour);
                 //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
             }
             //// Spot
