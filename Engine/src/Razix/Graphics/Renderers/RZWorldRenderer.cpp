@@ -257,7 +257,7 @@ namespace Razix {
             // [x] SSAO Pass
             //-------------------------------
             settings.renderFeatures |= RendererFeature_SSAO;
-            settings.renderFeatures &= ~RendererFeature_SSAO;
+            //settings.renderFeatures &= ~RendererFeature_SSAO;
             if (settings.renderFeatures & RendererFeature_SSAO)
                 settings.renderFeatures |= RendererFeature_SSAO;
             m_SSAOPass.addPass(m_FrameGraph, scene, settings);

@@ -8,6 +8,8 @@ namespace Razix {
     class RZSceneCamera;
     namespace Graphics {
 
+        class RZDescriptorSet;
+
         using FrustumCorners = std::array<glm::vec3, 8>;
 
         struct CascadeSubPassData
@@ -35,8 +37,9 @@ namespace Razix {
             static glm::mat4            buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist);
 
         private:
-            RZPipelineHandle     m_Pipeline;
-            std::vector<Cascade> m_Cascades;
+            RZPipelineHandle     m_Pipeline                  = {};
+            std::vector<Cascade> m_Cascades                  = {};
+            RZDescriptorSet*     m_CascadeSets[kNumCascades] = {};
 
         private:
             CascadeSubPassData addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, CascadeSubPassData subpassData, u32 cascadeIdx);

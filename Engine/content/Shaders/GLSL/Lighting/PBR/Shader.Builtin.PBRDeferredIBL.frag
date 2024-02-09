@@ -15,6 +15,9 @@
 #include <Lighting/PBR/ShaderInclude.Builtin.BRDF.glsl>
 #include <Lighting/PBR/ShaderInclude.Builtin.PBRDirectLighting.glsl>
 #include <Lighting/ShaderInclude.Builtin.ComputeShadows.glsl>
+//-------------------------------
+// Color Utils (Debug only)
+#include <Utils/ShaderInclude.Builtin.Color.glsl>
 //------------------------------------------------------------------------------
 // Vertex Input
 layout(location = 0) in VSOutput
@@ -25,6 +28,8 @@ layout(location = 0) in VSOutput
 // Push constants
 layout (push_constant) uniform PushConstantData{
     vec3 camViewPos;
+    bool visCascades;
+    mat4 viewMatrix;
 }pc_data;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
@@ -37,10 +42,17 @@ layout (set = 1, binding = 0) uniform sampler2D gBuffer0;
 layout (set = 1, binding = 1) uniform sampler2D gBuffer1; 
 layout (set = 1, binding = 2) uniform sampler2D gBuffer2; 
 //--------------------------------------------------------
-layout(set = 2, binding = 0) uniform sampler2D ShadowMap;
+// Simple shadow mapping
+//layout(set = 2, binding = 0) uniform sampler2D ShadowMap;
+//layout(set = 2, binding = 1) uniform ShadowData {
+//    mat4 matrix;
+//}LightSpaceMatrix;
+// CSM
+layout(set = 2, binding = 0) uniform sampler2DArray CSMArray;
 layout(set = 2, binding = 1) uniform ShadowData {
-    mat4 matrix;
-}LightSpaceMatrix;
+    vec4 splitDepth;
+    mat4 matrix[SHADOW_MAP_CASCADE_COUNT];
+}CSMMatrices;
 //--------------------------------------------------------
 // IBL maps
 layout(set = 3, binding = 0) uniform samplerCube IrradianceMap;
@@ -62,6 +74,7 @@ void main()
     vec4 P_O = texture(gBuffer2, uv);
 
     vec3 fragPos     = P_O.rgb;
+    vec3 viewSpaceFragPos = vec3(pc_data.viewMatrix * vec4(fragPos, 1.0f));
 
     vec3 N = normalize(N_M.rgb);
     vec3 V = normalize(viewPos - fragPos);
@@ -70,7 +83,8 @@ void main()
     vec3 albedo     = A_R.rgb;
     float metallic  = N_M.a;
     float roughness = A_R.a;
-    float ao        = P_O.a * texture(SSAOSceneTexture, uv).r;
+    float sceneAO = texture(SSAOSceneTexture, uv).r;
+    float ao        = P_O.a * sceneAO;
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -120,14 +134,51 @@ void main()
 
     //-----------------------------------------------
     // Shadow map calculation
-    vec4 FragPosLightSpace = LightSpaceMatrix.matrix * vec4(fragPos, 1.0);
-    float shadow = 1.0f;
-    // FIXME: We assume the first light is the Directional Light and only use that
-    if(SceneLightsData.data[0].type == LightType_Directional)
-        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
+    //vec4 FragPosLightSpace = LightSpaceMatrix.matrix * vec4(fragPos, 1.0);
+    //float shadow = 1.0f;
+    //// FIXME: We assume the first light is the Directional Light and only use that
+    //if(SceneLightsData.data[0].type == LightType_Directional)
+    //    shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
+    //
+    //result *= shadow;
+    //-----------------------------------------------
+    // CSM Calculation
+    // Get cascade index for the current fragment's view position
+	uint cascadeIndex = 3;
+	for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
+		if(abs(viewSpaceFragPos.z) < CSMMatrices.splitDepth[i]) {	
+			cascadeIndex = i;
+            break;
+		}
+	}
 
+    vec4 FragPosLightSpace = CSMMatrices.matrix[cascadeIndex] * vec4(fragPos, 1.0);
+
+    float shadow = 1.0f;
+    if(SceneLightsData.data[0].type == LightType_Directional)
+        shadow = DirectionalCSMShadowCalculation(CSMArray, cascadeIndex, FragPosLightSpace, N, SceneLightsData.data[0].position);
+    
     result *= shadow;
     //-----------------------------------------------
+    //outSceneColor = vec4(result, 1.0f);
+    outSceneColor = vec4(vec3(0.5f) * shadow * sceneAO, 1.0f);
+    if(!pc_data.visCascades)
+        return;
+    switch(cascadeIndex) {
+		case 0 : 
+			outSceneColor.rgb *= vec3(1.0f, 0.25f, 0.25f);
+			break;
+		case 1 : 
+			outSceneColor.rgb *= vec3(0.25f, 1.0f, 0.25f);
+			break;
+		case 2 : 
+			outSceneColor.rgb *= vec3(0.25f, 0.25f, 1.0f);
+			break;
+		case 3 : 
+			outSceneColor.rgb *= vec3(1.0f, 1.0f, 0.25f);
+			break;
+	}
 
-    outSceneColor = vec4(result, 1.0f);
+    //outSceneColor = vec4(viewSpaceFragPos.xy, abs(viewSpaceFragPos.z), 1.0f);
+    //outSceneColor = vec4(RandomColorHash(cascadeIndex), 1.0f);
 }

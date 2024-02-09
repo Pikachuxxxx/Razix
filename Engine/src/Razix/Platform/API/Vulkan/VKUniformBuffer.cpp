@@ -18,7 +18,12 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            //u32 align       = VKDevice::Get().getPhysicalDevice()->getProperties().limits.nonCoherentAtomSize;
+            //u32 alignedSize = Razix::Memory::RZMemAlign(size, align);
             VKBuffer::setData(size, data);
+            //invalidate(alignedSize);
+            //flush(alignedSize);
+            //VKBuffer::unMap();
         }
 
         void VKUniformBuffer::DestroyResource()

@@ -377,7 +377,7 @@ namespace Razix {
          */
 
         if (RZApplication::Get().getAppType() == AppType::EDITOR) {
-            m_EditorModeCamera.setPerspectiveFarClip(10000);
+            //m_EditorModeCamera.setPerspectiveFarClip(10000);
             return m_EditorModeCamera;
         } else {
             auto view = m_Registry.view<CameraComponent>();

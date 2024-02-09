@@ -16,6 +16,10 @@ namespace Razix {
         VKBuffer::VKBuffer(BufferUsage usage, VkBufferUsageFlags usageFlags, u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
             : m_Usage(usage), m_UsageFlags(usageFlags), m_BufferSize(size)
         {
+            //u32 align       = VKDevice::Get().getPhysicalDevice()->getProperties().limits.nonCoherentAtomSize;
+            //u32 alignedSize = Razix::Memory::RZMemAlign(size, align);
+            //m_BufferSize    = alignedSize;
+
             // Based on Usage set some vulkan usage flags
             // [Source] : https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/usage_patterns.html#usage_patterns_advanced_data_uploading
 
@@ -116,6 +120,8 @@ namespace Razix {
         void VKBuffer::flush(VkDeviceSize size /*= VK_WHOLE_SIZE*/, VkDeviceSize offset /*= 0*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+            if (!size)
+                size = VK_WHOLE_SIZE;
 
 #ifndef RAZIX_USE_VMA
             VkMappedMemoryRange mappedRange = {};
@@ -132,6 +138,8 @@ namespace Razix {
         void VKBuffer::invalidate(VkDeviceSize size /*= VK_WHOLE_SIZE*/, VkDeviceSize offset /*= 0*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+            if (!size)
+                size = VK_WHOLE_SIZE;
 
 #ifndef RAZIX_USE_VMA
             VkMappedMemoryRange mappedRange = {};
@@ -149,7 +157,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-#ifdef RAZIX_USE_VMA
+#if RAZIX_USE_VMA
             if (m_Usage == BufferUsage::Staging) {
                 map(size, 0);
                 memcpy(m_Mapped, data, size);
@@ -178,7 +186,6 @@ namespace Razix {
 #else
             map(size, 0);
             memcpy(m_Mapped, data, size);
-            unMap();
 #endif
         }
 
@@ -224,9 +231,9 @@ namespace Razix {
             VK_TAG_OBJECT(bufferName + std::string("[Memory]"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) m_BufferMemory);
 #else
             VmaAllocationCreateInfo vmaallocInfo = {};
-            vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-            vmaallocInfo.flags = m_VMAAllocFlags | VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
-            vmaallocInfo.priority = 1.0f;
+            vmaallocInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
+            vmaallocInfo.flags                   = m_VMAAllocFlags | VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+            vmaallocInfo.priority                = 1.0f;
             //allocate the buffer
             VK_CHECK_RESULT(vmaCreateBuffer(VKDevice::Get().getVMA(), &bufferInfo, &vmaallocInfo, &m_Buffer, &m_VMAAllocation, &m_AllocInfo));
 
@@ -246,7 +253,7 @@ namespace Razix {
 
         void* VKBuffer::getMappedRegion()
         {
-#ifdef RAZIX_USE_VMA
+#if RAZIX_USE_VMA
             //m_VMAAllocation->GetMappedData();
             if (m_Usage == BufferUsage::PersistentStream)
                 return m_AllocInfo.pMappedData;

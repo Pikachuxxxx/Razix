@@ -59,6 +59,7 @@ namespace Razix {
             auto& frameDataBlock       = framegraph.getBlackboard().get<FrameData>();
             auto& sceneLightsDataBlock = framegraph.getBlackboard().get<SceneLightsData>();
             auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
+            auto& csmData              = framegraph.getBlackboard().get<CSMData>();
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
             auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
@@ -85,6 +86,8 @@ namespace Razix {
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
                     builder.read(shadowData.shadowMap);
                     builder.read(shadowData.lightVP);
+                    builder.read(csmData.cascadedShadowMaps);
+                    builder.read(csmData.viewProjMatrices);
                     builder.read(globalLightProbes.environmentMap);
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
@@ -152,6 +155,16 @@ namespace Razix {
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAOSceneTexture).getHandle();
 
+                        // CSM Array Texture
+                        descriptor = shaderBindVars["CSMArray"];
+                        if (descriptor)
+                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(csmData.cascadedShadowMaps).getHandle();
+
+                        // CSM Matrices
+                        descriptor = shaderBindVars["CSMMatrices"];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(csmData.viewProjMatrices).getHandle();
+
                         RZResourceManager::Get().getShaderResource(pbrShader)->updateBindVarsHeaps();
                     }
 
@@ -160,8 +173,13 @@ namespace Razix {
                     struct PCData
                     {
                         glm::vec3 CameraViewPos;
+                        bool      visCascades = true;
+                        bool      _padding[3] = {0, 0, 0};
+                        glm::mat4 camView;
                     } pcData{};
                     pcData.CameraViewPos = scene->getSceneCamera().getPosition();
+                    pcData.visCascades   = false;
+                    pcData.camView       = scene->getSceneCamera().getViewMatrix();
 
                     RZPushConstant pc;
                     pc.size        = sizeof(PCData);

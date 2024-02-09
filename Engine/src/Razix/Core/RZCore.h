@@ -340,7 +340,7 @@ public:                                                  \
 #define in_Kib(x) (x / 1024)
 
 /* Whether or not to use VMA as memory backend */
-#undef RAZIX_USE_VMA
+#define RAZIX_USE_VMA 1
 
 /****************************************************************************************************
  *                                         Vendor Settings                                          * 

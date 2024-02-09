@@ -136,7 +136,7 @@ namespace Razix {
             m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentImageIndex()];
 
 // Update VMA for Budget Queries
-#ifdef RAZIX_USE_VMA
+#if RAZIX_USE_VMA
     #ifndef RAZIX_DISTRIBUTION    // Only for debugging purposes
             vmaSetCurrentFrameIndex(VKDevice::Get().getVMA(), RHI::Get().GetSwapchain()->getCurrentImageIndex());
 
