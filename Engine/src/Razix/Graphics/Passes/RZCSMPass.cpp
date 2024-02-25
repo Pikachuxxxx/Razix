@@ -109,7 +109,7 @@ namespace Razix {
             //}
             //m_Cascades = buildCascades(cam, -dirLight[0].light.getPosition(), kNumCascades, 0.75f, kShadowMapSize);
 
-            m_Cascades = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, 0.95f, kShadowMapSize);
+            m_Cascades = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, kSplitLambda, kShadowMapSize);
         }
 
         std::vector<Cascade> RZCSMPass::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
@@ -250,7 +250,7 @@ namespace Razix {
             auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -(maxExtents - minExtents).z, (maxExtents - minExtents).z);
             //projection            = glm::mat4(1.0f);
             //if (maxExtents.z != 0)
-            //    projection = glm::perspective(90.0f, (maxExtents.x - minExtents.x) / (maxExtents.y - minExtents.y), minExtents.z, maxExtents.z);
+            //    projection = glm::perspective(60.0f, (maxExtents.x - minExtents.x) / (maxExtents.y - minExtents.y), minExtents.z, maxExtents.z);
 
             if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
                 projection[1][1] *= -1;

@@ -451,8 +451,14 @@ namespace Razix {
             //
             if (ImGui::Begin("FrameGraph Debug ")) {
                 if (ImGui::CollapsingHeader("PBR Deferred Lighting")) {
-                    ImGui::SliderFloat("biasScale :", &m_PBRDeferredPass.biasScale, 0.0001, 0.1);
-                    ImGui::SliderFloat("mxScale :", &m_PBRDeferredPass.maxBias, 0.0001, 0.1);
+                    ImGui::SliderFloat("biasScale :", &m_PBRDeferredPass.biasScale, 0.0001f, 0.1f);
+                    ImGui::SliderFloat("mxScale :", &m_PBRDeferredPass.maxBias, 0.0001f, 0.1f);
+                    static bool visCascades = false;
+                    ImGui::Checkbox("Vis Cascaded :", &visCascades);
+                    if (visCascades)
+                        RZEngine::Get().getWorldSettings().debugFlags |= RendererDebugFlag_VisCSMCascades;
+                    else
+                        RZEngine::Get().getWorldSettings().debugFlags &= ~RendererDebugFlag_VisCSMCascades;
                 }
             }
             ImGui::End();
