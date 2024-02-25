@@ -166,9 +166,10 @@ void main()
     
     result *= shadow;
     //-----------------------------------------------
-    outSceneColor = vec4(abs(viewSpaceFragPos.z), abs(viewSpaceFragPos.z) , abs(viewSpaceFragPos.z), 1.0f);
+    outSceneColor = vec4(result, 1.0f);
+    //outSceneColor = vec4(abs(viewSpaceFragPos.z), abs(viewSpaceFragPos.z) , abs(viewSpaceFragPos.z), 1.0f);
     //outSceneColor = vec4(sceneAO, sceneAO, sceneAO, 1.0f);
-    outSceneColor = vec4(vec3(0.5f) * shadow * sceneAO, 1.0f);
+    //outSceneColor = vec4(vec3(0.5f) * shadow * sceneAO, 1.0f);
     if(!pc_data.visCascades)
         return;
     switch(cascadeIndex) {
