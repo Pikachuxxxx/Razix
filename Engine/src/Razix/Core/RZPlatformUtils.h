@@ -2,21 +2,19 @@
 
 namespace Razix {
 
-    enum class Endianess
-    {
-        LITTLE,
-        BIG
-    };
-
     /**
      * Platform Utility methods to get information about the current platform and it's environment configuration
      */
-    class RAZIX_API PlatformUtils : public RZRoot
-    {
-    public:
-        PlatformUtils()  = default;
-        ~PlatformUtils() = default;
+    namespace PlatformUtils {
 
-        static Endianess GetEndianess();
-    };
+        enum class Endianess
+        {
+            LITTLE,
+            BIG
+        };
+
+        Endianess GetEndianess();
+        void      SetThreadName(std::thread& thread, const std::string& name);
+
+    }    // namespace PlatformUtils
 }    // namespace Razix

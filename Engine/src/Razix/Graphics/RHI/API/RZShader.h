@@ -111,6 +111,7 @@ namespace Razix {
             RAZIX_INLINE std::vector<RZPushConstant>& getPushConstants() { return m_PushConstants; }
             /* Gets the scene draw parameters */
             RAZIX_INLINE const SceneDrawParams& getSceneDrawParams() { return m_SceneParams; }
+            RAZIX_INLINE void                   overrideSceneDrawParams(SceneDrawParams& sceneDrawParams) { m_SceneParams = sceneDrawParams; }
             /* Gets the bind variables for shader */
             RAZIX_INLINE ShaderBindVars& getBindVars() { return m_BindVars; }
             RAZIX_INLINE void            setBindVars(ShaderBindVars& vars) { m_BindVars = vars; }

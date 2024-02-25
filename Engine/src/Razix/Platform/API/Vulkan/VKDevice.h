@@ -66,12 +66,12 @@ namespace Razix {
             u32         getMemoryTypeIndex(u32 typeBits, VkMemoryPropertyFlags properties) const;
             std::string getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
 
-            inline VkPhysicalDevice                 getVulkanPhysicalDevice() const { return m_PhysicalDevice; }
-            inline QueueFamilyIndices               getQueueFamilyIndices() const { return m_QueueFamilyIndices; }
-            inline int32_t                          getGraphicsQueueFamilyIndex() const { return m_QueueFamilyIndices.Graphics; }
-            inline int32_t                          getPresentQueueFamilyIndex() const { return m_QueueFamilyIndices.Present; }
-            inline VkPhysicalDeviceProperties       getProperties() const { return m_PhysicalDeviceProperties; };
-            inline VkPhysicalDeviceMemoryProperties getMemoryProperties() const { return m_MemoryProperties; }
+            RAZIX_INLINE VkPhysicalDevice                 getVulkanPhysicalDevice() const { return m_PhysicalDevice; }
+            RAZIX_INLINE QueueFamilyIndices               getQueueFamilyIndices() const { return m_QueueFamilyIndices; }
+            RAZIX_INLINE int32_t                          getGraphicsQueueFamilyIndex() const { return m_QueueFamilyIndices.Graphics; }
+            RAZIX_INLINE int32_t                          getPresentQueueFamilyIndex() const { return m_QueueFamilyIndices.Present; }
+            RAZIX_INLINE VkPhysicalDeviceProperties       getProperties() const { return m_PhysicalDeviceProperties; };
+            RAZIX_INLINE VkPhysicalDeviceMemoryProperties getMemoryProperties() const { return m_MemoryProperties; }
 
         private:
             QueueFamilyIndices                   m_QueueFamilyIndices;
@@ -100,20 +100,20 @@ namespace Razix {
             bool init();
             void destroy();
 
-            inline VkDevice                            getDevice() const { return m_Device; };
-            inline VkPhysicalDevice                    getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
-            inline const rzstl::Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
-            inline VkQueue                             getGraphicsQueue() const { return m_GraphicsQueue; };
-            inline VkQueue                             getPresentQueue() const { return m_PresentQueue; };
-            inline const rzstl::Ref<VKCommandPool>&    getCommandPool() const { return m_CommandPool; }
-            inline VkQueryPool                         getPipelineStatsQueryPool() const { return m_PipelineStatsQueryPool; }
-            inline VkDescriptorPool                    getGlobalDescriptorPool() const { return m_GlobalDescriptorPool; }
-            inline VkDescriptorPool                    getBindlessDescriptorPool() const { return m_BindlessDescriptorPool; }
-            inline VkDescriptorSet                     getBindlessDescriptorSet() const { return m_BindlessDescriptorSet; }
-            inline VkDescriptorSetLayout               getBindlessSetLayout() const { return m_BindlessSetLayout; }
-            inline bool                                isBindlessSupported() const { return m_IsBindlessSupported; }
+            RAZIX_INLINE const rzstl::Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
+            RAZIX_INLINE const rzstl::Ref<VKCommandPool>& getCommandPool() const { return m_CommandPool; }
+            RAZIX_INLINE VkDevice                         getDevice() const { return m_Device; };
+            RAZIX_INLINE VkPhysicalDevice                 getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
+            RAZIX_INLINE VkQueue                          getGraphicsQueue() const { return m_GraphicsQueue; };
+            RAZIX_INLINE VkQueue                          getPresentQueue() const { return m_PresentQueue; };
+            RAZIX_INLINE VkQueryPool                      getPipelineStatsQueryPool() const { return m_PipelineStatsQueryPool; }
+            RAZIX_INLINE VkDescriptorPool                 getGlobalDescriptorPool() const { return m_GlobalDescriptorPool; }
+            RAZIX_INLINE VkDescriptorPool                 getBindlessDescriptorPool() const { return m_BindlessDescriptorPool; }
+            RAZIX_INLINE VkDescriptorSet                  getBindlessDescriptorSet() const { return m_BindlessDescriptorSet; }
+            RAZIX_INLINE VkDescriptorSetLayout            getBindlessSetLayout() const { return m_BindlessSetLayout; }
+            RAZIX_INLINE bool                             isBindlessSupported() const { return m_IsBindlessSupported; }
             /* Gets the Vulkan Memory Allocator */
-            inline VmaAllocator& getVMA() { return m_VMAllocator; }
+            RAZIX_INLINE VmaAllocator& getVMA() { return m_VMAllocator; }
 
         private:
             VkDevice                     m_Device                 = VK_NULL_HANDLE; /* Vulkan handle to abstracted device                                               */

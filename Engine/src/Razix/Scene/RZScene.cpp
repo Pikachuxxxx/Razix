@@ -63,12 +63,15 @@ namespace Razix {
         // Update the Hierarchy Transformations
         // First update only those entities without and Hierarchy Component
         auto nonHierarchyTransformsView = m_Registry.view<TransformComponent>(entt::exclude<HierarchyComponent>);
-        for (auto& entity: nonHierarchyTransformsView)
+        for (auto& entity: nonHierarchyTransformsView) {
+            RAZIX_PROFILE_SCOPEC("Update Entities without children", RZ_PROFILE_COLOR_SCENE);
             m_Registry.get<TransformComponent>(entity).SetWorldTransform(glm::mat4(1.0f));
+        }
 
         // Now Recursively update the Entities with children
         auto hierarchyView = m_Registry.view<HierarchyComponent>();
         for (auto& entity: hierarchyView) {
+            RAZIX_PROFILE_SCOPEC("Recursively update Entities with children", RZ_PROFILE_COLOR_SCENE);
             const auto hierarchy = m_Registry.try_get<HierarchyComponent>(entity);
             // Update only the children, always start from root parent to child and update recursively
             if (hierarchy && hierarchy->Parent == entt::null) {
@@ -99,6 +102,7 @@ namespace Razix {
 
             entt::entity child = hierarchy->First;
             while (child != entt::null) {
+                RAZIX_PROFILE_SCOPEC("Recursively update the entity child transform", RZ_PROFILE_COLOR_SCENE);
                 auto hierarchyComponent = m_Registry.try_get<HierarchyComponent>(child);
                 auto next               = hierarchyComponent ? hierarchyComponent->Next : entt::null;
                 updateTransform(child);
@@ -144,6 +148,8 @@ namespace Razix {
         //-----------------------------
 
         if (geometryMode == SceneDrawGeometryMode::SceneGeometry) {
+            RAZIX_PROFILE_SCOPEC("Draw Scene Geometry", RZ_PROFILE_COLOR_SCENE);
+
             entt::basic_group mesh_group  = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
             u32               meshesCount = mesh_group.size();
 
@@ -201,6 +207,7 @@ namespace Razix {
 
 #else
             for (auto entity: mesh_group) {
+                RAZIX_PROFILE_SCOPEC("Draw Mesh Group", RZ_PROFILE_COLOR_SCENE);
                 // Draw the mesh renderer components
                 const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
@@ -376,16 +383,16 @@ namespace Razix {
          * but in Editor mode we will have a Editor Camera and return that
          */
 
-        if (RZApplication::Get().getAppType() == AppType::EDITOR) {
-            m_EditorModeCamera.setPerspectiveFarClip(10000);
-            return m_EditorModeCamera;
-        } else {
-            auto view = m_Registry.view<CameraComponent>();
-            for (auto& entity: view) {
-                // check it it's primary and only then return only a single camera component
-                return view.get<CameraComponent>(entity).Camera;
-            }
+        //if (RZApplication::Get().getAppType() == AppType::EDITOR) {
+        //    m_EditorModeCamera.setPerspectiveFarClip(1000);
+        //    return m_EditorModeCamera;
+        //} else {
+        auto view = m_Registry.view<CameraComponent>();
+        for (auto& entity: view) {
+            // check it it's primary and only then return only a single camera component
+            return view.get<CameraComponent>(entity).Camera;
         }
+        //}
         // This will cause a not all control paths return a value warning, it's fine cause it doesn't make the engine to run without a camera!
     }
 

@@ -28,6 +28,7 @@ namespace Razix {
             // Enable Renderer settings
             void OnSSAOEnabled();
             void OnImGuiEnabled();
+            void OnShadowsEnabled();
 
         private:
             Ui::WorldSettings ui;

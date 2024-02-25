@@ -52,15 +52,15 @@ namespace Razix {
             this->layout()->setContentsMargins(0, 0, 0, 0);
 
             // Qt spdlog console widget
-            m_ConsoleLogWidget = new QSpdLog;
-            m_ConsoleLogWidget->setObjectName("Razix Console Log");
-            m_ConsoleLogWidget->setMaxEntries(100);
-            //m_ConsoleLogWidget->setAutoScrollPolicy(AutoScrollPolicy::AutoScrollPolicyEnabled);
-            QSpdLogToolBar* consoleToolBar = new QSpdLogToolBar();
-            m_ConsoleLogWidget->registerToolbar(consoleToolBar);
-            dynamic_cast<QVBoxLayout*>(m_ConsoleLogWidget->layout())->insertWidget(0, consoleToolBar);
+            //m_ConsoleLogWidget = new QSpdLog;
+            //m_ConsoleLogWidget->setObjectName("Razix Console Log");
+            //m_ConsoleLogWidget->setMaxEntries(100);
+            ////m_ConsoleLogWidget->setAutoScrollPolicy(AutoScrollPolicy::AutoScrollPolicyEnabled);
+            //QSpdLogToolBar* consoleToolBar = new QSpdLogToolBar();
+            //m_ConsoleLogWidget->registerToolbar(consoleToolBar);
+            //dynamic_cast<QVBoxLayout*>(m_ConsoleLogWidget->layout())->insertWidget(0, consoleToolBar);
 
-            addDockableWidget(m_ConsoleLogWidget, "Console Log");
+            //addDockableWidget(m_ConsoleLogWidget, "Console Log");
 
             // Set this to every window that one wished to save/restore the state with the LayoutToolWindowManager
             setObjectName(this->windowTitle());
@@ -466,7 +466,9 @@ namespace Razix {
                 auto scene                                                        = RZSceneManager::Get().getCurrentScene();
                 auto childEntity                                                  = scene->createEntity(childNode.name);
                 childEntity.GetComponent<Razix::TransformComponent>().Translation = childNode.translation;
-                auto& hc                                                          = childEntity.AddComponent<Razix::HierarchyComponent>(parentEntity);
+                childEntity.GetComponent<Razix::TransformComponent>().Scale       = childNode.scale;
+                //childEntity.GetComponent<Razix::TransformComponent>().Rotation    = childNode.rotation;
+                auto& hc = childEntity.AddComponent<Razix::HierarchyComponent>(parentEntity);
                 hc.OnConstruct(scene->getRegistry(), childEntity);
 
                 // TODO: Add a progress bar (test running on a separate thread)

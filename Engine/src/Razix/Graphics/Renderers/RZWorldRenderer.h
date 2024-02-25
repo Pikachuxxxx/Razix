@@ -54,10 +54,17 @@ namespace Razix {
             RendererFeature_ImGui      = 1 << 8,
             RendererFeature_Deferred   = 1 << 9,
             RendererFeature_DebugDraws = 1 << 10,
+            RendererFeature_CSM        = 1 << 11,
 
             RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_DebugDraws,
 
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
+        };
+
+        enum RendererDebugFlags : u32
+        {
+            RendererDebugFlag_None           = 0,
+            RendererDebugFlag_VisCSMCascades = 1 << 0
         };
 
         enum TonemapMode : u32
@@ -110,6 +117,9 @@ namespace Razix {
             /* Destroy frame graph passes and it's resources */
             void destroy();
 
+            /* ImGui rendering for the world renderer */
+            void OnImGui();
+
             // Getters/Setters
             FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
@@ -126,17 +136,16 @@ namespace Razix {
             // List of all passes, renderers and data in the frame graph
             RZShadowPass              m_ShadowPass;
             RZCSMPass                 m_CSMPass;
-            RZGIPass                  m_GIPass;
             RZGBufferPass             m_GBufferPass;
             RZSSAOPass                m_SSAOPass;
             RZPBRDeferredLightingPass m_PBRDeferredPass;
             RZPBRLightingPass         m_PBRLightingPass;
             RZSkyboxPass              m_SkyboxPass;
             RZGaussianBlurPass        m_GaussianBlurPass;
-            RZBloomPass               m_BloomPass;
             RZImGuiRenderer           m_ImGuiRenderer;
-            RZColorGradingPass        m_ColorGradingPass;
             RZFinalCompositionPass    m_CompositePass;
+
+            //RZColorGradingPass        m_ColorGradingPass;
 
             // Other Variables
             Maths::AABB m_SceneAABB{};

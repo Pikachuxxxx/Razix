@@ -1,6 +1,6 @@
 {
     "$MATERIAL": {
-        "Name": "",
+        "Name": "Decorative Tiles",
         "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Decorative Tile/Tiles_Decorative_06_basecolor.jpg",
         "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Decorative Tile/Tiles_Decorative_06_normal.jpg",
         "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Decorative Tile/Tiles_Decorative_06_metallic.jpg",

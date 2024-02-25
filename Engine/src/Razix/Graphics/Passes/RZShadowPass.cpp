@@ -47,7 +47,7 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                = "Shadow Pass Pipeline";
+            pipelineInfo.name                = "Pipeline.Shadows";
             pipelineInfo.cullMode            = Graphics::CullMode::Back;
             pipelineInfo.drawType            = Graphics::DrawType::Triangle;
             pipelineInfo.shader              = shader;
@@ -61,7 +61,7 @@ namespace Razix {
                 [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .wrapping = Wrapping::CLAMP_TO_BORDER, .enableMips = false});
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .wrapping = Wrapping::CLAMP_TO_BORDER, .filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST}, .enableMips = false});
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData), 0, BufferUsage::PersistentStream});
 
@@ -69,8 +69,7 @@ namespace Razix {
                     data.lightVP   = builder.write(data.lightVP);
                 },
                 [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
-                    if (!(settings.renderFeatures & RendererFeature_Shadows))
-                        return;
+                    auto& worldSettings = RZEngine::Get().getWorldSettings();
 
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -93,7 +92,9 @@ namespace Razix {
 
                     glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                     float     near_plane = -50.0f, far_plane = 50.0f;
-                    glm::mat4 lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
+                    //glm::mat4 lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
+                    glm::mat4 lightProjection = glm::perspective(60.0f, 1.0f, 0.1f, 100.0f);
+                    //(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
                     lightProjection[1][1] *= -1;
                     light_data.lightViewProj = lightProjection * lightView;
 
@@ -123,7 +124,8 @@ namespace Razix {
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
-                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
+                    if (worldSettings.renderFeatures & RendererFeature_Shadows)
+                        scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     // End Rendering
                     RHI::EndRendering(cmdBuffer);

@@ -144,7 +144,7 @@ namespace Razix {
             /* Gets the Vulkan image memory handle */
             RAZIX_INLINE VkDeviceMemory getMemory() const { return m_ImageMemory; }
     #endif
-    #ifdef RAZIX_USE_VMA
+    #if RAZIX_USE_VMA
             /* Gets the VMA allocation for the buffer */
             RAZIX_INLINE VmaAllocation getVMAAllocation() const { return m_VMAAllocation; }
     #endif

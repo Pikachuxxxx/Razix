@@ -123,6 +123,7 @@ namespace Razix {
 
             static void DrawLight(Graphics::RZLight* light, const glm::vec4& colour);
             static void DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour);
+            static void DrawFrustum(const glm::mat4& mat, const glm::vec4& colour);
             static void DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
             static void DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
 

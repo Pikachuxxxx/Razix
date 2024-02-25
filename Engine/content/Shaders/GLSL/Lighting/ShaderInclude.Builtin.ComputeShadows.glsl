@@ -2,7 +2,9 @@
 #define _SHADOW_CALC_GLSL_
 //------------------------------------------------------------------------------
 // Simple Shadow Map calculation
-// https://github.com/opengl-tutorials/ogl/blob/master/tutorial16_shadowmaps/ShadowMapping.fragmentshader
+// MAYBE TRY THIS LATER: https://github.com/opengl-tutorials/ogl/blob/master/tutorial16_shadowmaps/ShadowMapping.fragmentshader
+
+#define SHADOW_MAP_CASCADE_COUNT 4
 
 const mat4 kBiasMatrix = mat4(
 0.5, 0.0, 0.0, 0.0,
@@ -11,24 +13,40 @@ const mat4 kBiasMatrix = mat4(
 0.5, 0.5, 0.5, 1.0
 );
 
-vec2 poissonDisk[16] = vec2[]( 
-   vec2( -0.94201624, -0.39906216 ), 
-   vec2( 0.94558609, -0.76890725 ), 
-   vec2( -0.094184101, -0.92938870 ), 
-   vec2( 0.34495938, 0.29387760 ), 
-   vec2( -0.91588581, 0.45771432 ), 
-   vec2( -0.81544232, -0.87912464 ), 
-   vec2( -0.38277543, 0.27676845 ), 
-   vec2( 0.97484398, 0.75648379 ), 
-   vec2( 0.44323325, -0.97511554 ), 
-   vec2( 0.53742981, -0.47373420 ), 
-   vec2( -0.26496911, -0.41893023 ), 
-   vec2( 0.79197514, 0.19090188 ), 
-   vec2( -0.24188840, 0.99706507 ), 
-   vec2( -0.81409955, 0.91437590 ), 
-   vec2( 0.19984126, 0.78641367 ), 
-   vec2( 0.14383161, -0.14100790 ) 
-);
+float textureProj(sampler2DArray shadowMap, vec4 shadowCoord, vec2 offset, uint cascadeIndex)
+{
+	float shadow = 1.0;
+	float bias = 0.005;
+
+	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
+		float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
+		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
+			shadow = 0.1;
+		}
+	}
+	return shadow;
+}
+
+float filterPCF(sampler2DArray shadowMap,vec4 sc, uint cascadeIndex)
+{
+	ivec2 texDim = textureSize(shadowMap, 0).xy;
+	float scale = 0.75;
+	float dx = scale * 1.0 / float(texDim.x);
+	float dy = scale * 1.0 / float(texDim.y);
+
+	float shadowFactor = 0.0;
+	int count = 0;
+	int range = 1;
+	
+	for (int x = -range; x <= range; x++) {
+		for (int y = -range; y <= range; y++) {
+			shadowFactor += textureProj(shadowMap, sc, vec2(dx*x, dy*y), cascadeIndex);
+			count++;
+		}
+	}
+	return shadowFactor / count;
+}
+
 
 // Returns a random number based on a vec3 and an int.
 float random(vec3 seed, int i){
@@ -37,7 +55,7 @@ float random(vec3 seed, int i){
 	return fract(sin(dot_product) * 43758.5453);
 }
 
-float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
+float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, vec3 normal, vec3 lightDir, float dt)
 {
 
 #if 1
@@ -53,10 +71,12 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float bias = max(0.0008 * (1.0 - dot(normal, lightDir)), 0.0005); 
-    //float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
+    float bias = max(0.0001 * (1.0 - dot(normal, lightDir)), 0.0001); 
+    //float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);  
     
-    //float shadow = currentDepth - bias > closestDepth  ? 0.0 : 1.0;  
+    // 1 represents it's in shadow
+
+    //float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;  
     
     // PCF - percentage closer filtering
     float shadow = 0.0;
@@ -67,11 +87,11 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
         {
             // TODO: https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-17-efficient-soft-edged-shadows-using
             // [Source] : https://gamedev.net/forums/topic/498755-randomly-rotated-pcf-shadows/4253985/
-            vec2 jitterFactor = fract( uv.xy * vec2( 18428.4f, 23614.3f)) * 2.0f - 1.0f;
+            vec2 jitterFactor = fract( uv.xy * vec2( 18428.4f * dt, 23614.3f * dt)) * 2.0f - 1.0f;
             
             //float pcfDepth = texture(shadowMap, uv + jitterFactor * texelSize).r; 
-            float pcfDepth = texture(shadowMap, uv + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth ? 0.0f : 1.0f;        
+            float pcfDepth = texture(shadowMap, uv + jitterFactor * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth ? 0.9f : 0.0f;        
         }    
     }
     shadow /= 9.0;
@@ -80,7 +100,8 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
     if(projCoords.z > 1.0)
       shadow = 0.0;
     
-    return shadow;
+    // light contribution is 0 when it's in shadow
+    return (1.0f - shadow);
 #endif
 
 
@@ -117,4 +138,60 @@ float DirectionalShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace, 
 #endif
 }
 //------------------------------------------------------------------------------
+// CSM calculation
+float DirectionalCSMShadowCalculation(sampler2DArray shadowMap, uint cascadeIdx, vec4 fragPosLightSpace, vec3 normal, vec3 lightDir, float splitDist, float dt, float biasScale, float maxBias)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    vec3 transformed_projCoords = projCoords * 0.5 + 0.5;
+    vec2 uv = transformed_projCoords.xy;
+    
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, vec3(uv, cascadeIdx)).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float bias = max(biasScale * (1.0 - dot(normal, lightDir)), maxBias); 
+    if (cascadeIdx == uint(SHADOW_MAP_CASCADE_COUNT - 1))
+    {
+        bias *= 1 / (100.0f * 0.5f);
+    }
+    else
+    {
+        bias *= 1 / (splitDist * 0.5f);
+    }
+    // 1 represents it's in shadow
+    //float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;  
+    
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    //if(projCoords.z > 1.0)
+    //  shadow = 0.0;
+
+    // PCF - percentage closer filtering
+    float shadow = 0.0;
+    vec3 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            // TODO: https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-17-efficient-soft-edged-shadows-using
+            // [Source] : https://gamedev.net/forums/topic/498755-randomly-rotated-pcf-shadows/4253985/
+            vec2 jitterFactor = fract( uv.xy * vec2( 18428.4f * dt, 23614.3f * dt)) * 2.0f - 1.0f;
+            
+            //float pcfDepth = texture(shadowMap, uv + jitterFactor * texelSize).r; 
+            float pcfDepth = texture(shadowMap, vec3(uv + jitterFactor * texelSize.xy, cascadeIdx)).r; 
+            shadow += currentDepth - bias > pcfDepth ? 0.9f : 0.0f;        
+        }    
+    }
+    shadow /= 9.0;
+
+    if(projCoords.z > 1.0)
+    {
+        shadow = 0.0;
+    }
+    
+    // light contribution is 0 when it's in shadow
+    return (1.0f - shadow);
+}
 #endif

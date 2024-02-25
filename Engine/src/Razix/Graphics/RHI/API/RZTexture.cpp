@@ -99,11 +99,10 @@ namespace Razix {
             descriptor.bindingInfo.count            = 1;
             descriptor.bindingInfo.stage            = ShaderStage::Pixel;
             descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
-            //descriptor.texture             = (RZTexture2D*) this;
+            descriptor.texture                      = this->m_Handle;
 
-            std::vector<RZDescriptor> descriptors = {descriptor};
-
-            m_DescriptorSet = Graphics::RZDescriptorSet::Create(descriptors RZ_DEBUG_NAME_TAG_STR_E_ARG(descriptor.name));
+            if (!m_DescriptorSet)
+                m_DescriptorSet = Graphics::RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG(descriptor.name));
         }
     }    // namespace Graphics
 }    // namespace Razix

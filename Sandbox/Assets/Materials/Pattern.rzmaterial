@@ -1,6 +1,6 @@
 {
     "$MATERIAL": {
-        "Name": "",
+        "Name": "Pattern",
         "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Pattern/Substance_graph_basecolor.jpg",
         "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Pattern/Substance_graph_normal.jpg",
         "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Pattern/Substance_graph_metallic.jpg",

@@ -22,6 +22,7 @@ namespace Razix {
 
             connect(ui.SSAO, SIGNAL(clicked(bool)), this, SLOT(OnSSAOEnabled()));
             connect(ui.ImGui, SIGNAL(clicked(bool)), this, SLOT(OnImGuiEnabled()));
+            connect(ui.Shadows, SIGNAL(clicked(bool)), this, SLOT(OnShadowsEnabled()));
         }
 
         RZEWorldSettingsWindow::~RZEWorldSettingsWindow()
@@ -70,5 +71,13 @@ namespace Razix {
                 settings.renderFeatures &= ~Razix::Graphics::RendererFeature_ImGui;
         }
 
+        void RZEWorldSettingsWindow::OnShadowsEnabled()
+        {
+            auto& settings = Razix::RZEngine::Get().getWorldSettings();
+            if (ui.Shadows->isChecked())
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_Shadows;
+            else
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Shadows;
+        }
     }    // namespace Editor
 }    // namespace Razix

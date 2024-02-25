@@ -12,13 +12,15 @@ namespace Razix {
 
         static const u32 k_invalid_index = 0xffffffff;
 
-        void RZResourcePool::init(u32 poolSize, u32 resourceSize)
+        void RZResourcePool::init(u32 poolSize, u32 resourceSize, u32 alignment)
         {
             m_PoolSize     = poolSize;
             m_ResourceSize = resourceSize;
 
             // Group allocate ( resource size + u32 )
-            m_MemoryChunk = (u8*) Memory::RZMalloc(poolSize * (resourceSize + sizeof(u32)), 16);
+            m_MemoryChunk = (u8*) Memory::RZMalloc(poolSize * (resourceSize + sizeof(u32)), alignment);
+
+            //TracyAlloc(m_MemoryChunk, poolSize * (resourceSize + sizeof(u32)));
 
             // Allocate and add free indices
             m_FreeIndices     = (u32*) (m_MemoryChunk + poolSize * resourceSize);
@@ -40,7 +42,9 @@ namespace Razix {
                 }
             }
 
-             RAZIX_CORE_ASSERT(m_UsedIndices == 0, "[Pool Allocator] Pool still has used indices");
+            RAZIX_CORE_ASSERT(m_UsedIndices == 0, "[Pool Allocator] Pool still has used indices");
+
+            //TracyFree(m_MemoryChunk);
 
             Memory::RZFree(m_MemoryChunk);
         }

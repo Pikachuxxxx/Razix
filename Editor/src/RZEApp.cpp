@@ -277,7 +277,7 @@ int main(int argc, char** argv)
     mainWindow->getTitleBar()->setBuildVersion("Build : V." + Razix::RazixVersion.getVersionString());
 
     // Register the Qt Consoler Logger Sinks
-    Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getCentralWidget()->getConsolerLoggerSink());
+    //Razix::Debug::RZLog::RegisterCoreLoggerSink(mainWindow->getCentralWidget()->getConsolerLoggerSink());
 
     // Init the Windows
     materialEditor = new Razix::Editor::RZEMaterialEditor;

@@ -63,7 +63,7 @@ namespace Razix {
             inline VkDeviceSize getSize() const { return m_BufferSize; }
             /* Gets the buffer high-level usage type */
             inline const BufferUsage& getUsage() const { return m_Usage; }
-    #ifdef RAZIX_USE_VMA
+    #if RAZIX_USE_VMA
             /* Gets the VMA allocation for the buffer */
             inline VmaAllocation getVMAAllocation() const { return m_VMAAllocation; }
     #endif

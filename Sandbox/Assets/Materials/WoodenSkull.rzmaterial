@@ -1,6 +1,6 @@
 {
     "$MATERIAL": {
-        "Name": "",
+        "Name": "WoodenSkull",
         "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Wooden Skull/Skull_Mandala_basecolor.jpg",
         "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Wooden Skull/Skull_Mandala_normal.jpg",
         "Metallic": "",

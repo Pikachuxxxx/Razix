@@ -20,6 +20,8 @@ class MemoryTest : public Razix::RZApplication
 public:
     MemoryTest()
         : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
+    //: RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
+
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing

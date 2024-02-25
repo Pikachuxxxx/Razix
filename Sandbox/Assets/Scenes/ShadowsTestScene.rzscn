@@ -1,0 +1,1449 @@
+{
+    "Razix Scene": {
+        "UUID": "6c992be6-9d6c-4e70-a3ea-06c51ad10b10",
+        "SceneName": "default Scene",
+        "Total Entities": 21
+    },
+    "value0": 21,
+    "value1": 0,
+    "value2": 1,
+    "value3": 2,
+    "value4": 3,
+    "value5": 4,
+    "value6": 5,
+    "value7": 6,
+    "value8": 7,
+    "value9": 8,
+    "value10": 9,
+    "value11": 10,
+    "value12": 11,
+    "value13": 12,
+    "value14": 13,
+    "value15": 14,
+    "value16": 15,
+    "value17": 16,
+    "value18": 17,
+    "value19": 18,
+    "value20": 19,
+    "value21": 20,
+    "value22": 21,
+    "value23": 0,
+    "value24": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value25": 1,
+    "value26": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value27": 2,
+    "value28": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value29": 3,
+    "value30": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value31": 4,
+    "value32": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value33": 5,
+    "value34": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value35": 6,
+    "value36": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value37": 7,
+    "value38": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value39": 8,
+    "value40": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value41": 9,
+    "value42": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value43": 10,
+    "value44": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value45": 11,
+    "value46": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value47": 12,
+    "value48": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value49": 13,
+    "value50": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value51": 14,
+    "value52": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value53": 15,
+    "value54": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value55": 16,
+    "value56": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value57": 17,
+    "value58": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value59": 18,
+    "value60": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value61": 19,
+    "value62": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value63": 20,
+    "value64": {
+        "UUID": "33333333-3333-3333-2d33-3333332d3333"
+    },
+    "value65": 21,
+    "value66": 0,
+    "value67": {
+        "Tag": "Camera"
+    },
+    "value68": 1,
+    "value69": {
+        "Tag": "hello_lua"
+    },
+    "value70": 2,
+    "value71": {
+        "Tag": "imgui_lua"
+    },
+    "value72": 3,
+    "value73": {
+        "Tag": "Directional Light"
+    },
+    "value74": 4,
+    "value75": {
+        "Tag": "RazixTestScene_Shadows"
+    },
+    "value76": 5,
+    "value77": {
+        "Tag": "SM_Primitive.Cube_Ground"
+    },
+    "value78": 6,
+    "value79": {
+        "Tag": "SM_Primitive.Cube_Pillar"
+    },
+    "value80": 7,
+    "value81": {
+        "Tag": "SM_Suzanne"
+    },
+    "value82": 8,
+    "value83": {
+        "Tag": "SM_IcosphereFront"
+    },
+    "value84": 9,
+    "value85": {
+        "Tag": "SM_IcosphereBack"
+    },
+    "value86": 10,
+    "value87": {
+        "Tag": "SM_Primitive.Cube_InclinedPillarFront"
+    },
+    "value88": 11,
+    "value89": {
+        "Tag": "SM_Primitive.Cube_InclinedPillarRight"
+    },
+    "value90": 12,
+    "value91": {
+        "Tag": "Torus"
+    },
+    "value92": 13,
+    "value93": {
+        "Tag": "SM_Primitive.Cube_PillarTorusBackLeft"
+    },
+    "value94": 14,
+    "value95": {
+        "Tag": "SM_Primitive.Cube_PillarTorusBackRight"
+    },
+    "value96": 15,
+    "value97": {
+        "Tag": "SM_Primitive.Cube_PillarTorusFront"
+    },
+    "value98": 16,
+    "value99": {
+        "Tag": "SM_Primitive.Cylinder_0"
+    },
+    "value100": 17,
+    "value101": {
+        "Tag": "SM_Primitive.Cylinder_1"
+    },
+    "value102": 18,
+    "value103": {
+        "Tag": "SM_Primitive.Cylinder_2"
+    },
+    "value104": 19,
+    "value105": {
+        "Tag": "SM_Primitive.Cylinder_3"
+    },
+    "value106": 20,
+    "value107": {
+        "Tag": "SM_Primitive.Cylinder_4"
+    },
+    "value108": 0,
+    "value109": 21,
+    "value110": 0,
+    "value111": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value112": 1,
+    "value113": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value114": 2,
+    "value115": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value116": 3,
+    "value117": {
+        "Translation": {
+            "x": 6.376439094543457,
+            "y": 9.245360374450684,
+            "z": 13.611464500427246
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 6.376439094543457,
+                "value1": 9.245360374450684,
+                "value2": 13.611464500427246,
+                "value3": 1.0
+            }
+        }
+    },
+    "value118": 4,
+    "value119": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value120": 5,
+    "value121": {
+        "Translation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 10.0,
+            "y": 0.10000002384185791,
+            "z": 10.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 10.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.10000002384185791,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 10.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value122": 6,
+    "value123": {
+        "Translation": {
+            "x": 0.0,
+            "y": 1.909316062927246,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.125,
+            "y": 1.875,
+            "z": 0.125
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.125,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.875,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.125,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 1.909316062927246,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value124": 7,
+    "value125": {
+        "Translation": {
+            "x": 0.0,
+            "y": 3.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.0,
+                "value1": 3.0,
+                "value2": 0.0,
+                "value3": 1.0
+            }
+        }
+    },
+    "value126": 8,
+    "value127": {
+        "Translation": {
+            "x": 3.7523324489593508,
+            "y": 2.2900338172912599,
+            "z": 5.993238925933838
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 3.7523324489593508,
+                "value1": 2.2900338172912599,
+                "value2": 5.993238925933838,
+                "value3": 1.0
+            }
+        }
+    },
+    "value128": 9,
+    "value129": {
+        "Translation": {
+            "x": 2.0254085063934328,
+            "y": 2.2900338172912599,
+            "z": -5.8447418212890629
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.3497508764266968,
+            "y": 1.3497508764266968,
+            "z": 1.3497508764266968
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.3497508764266968,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.3497508764266968,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.3497508764266968,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 2.0254085063934328,
+                "value1": 2.2900338172912599,
+                "value2": -5.8447418212890629,
+                "value3": 1.0
+            }
+        }
+    },
+    "value130": 10,
+    "value131": {
+        "Translation": {
+            "x": -6.218582630157471,
+            "y": 1.909316062927246,
+            "z": 5.57904052734375
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.625,
+            "y": 1.875,
+            "z": 0.625
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.625,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.875,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.625,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -6.218582630157471,
+                "value1": 1.909316062927246,
+                "value2": 5.57904052734375,
+                "value3": 1.0
+            }
+        }
+    },
+    "value132": 11,
+    "value133": {
+        "Translation": {
+            "x": 6.5954508781433109,
+            "y": 1.9093159437179566,
+            "z": 0.15846490859985352
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.625,
+            "y": 1.875,
+            "z": 0.625
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.625,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.875,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.625,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 6.5954508781433109,
+                "value1": 1.9093159437179566,
+                "value2": 0.15846490859985352,
+                "value3": 1.0
+            }
+        }
+    },
+    "value134": 12,
+    "value135": {
+        "Translation": {
+            "x": -5.011244773864746,
+            "y": 1.905174732208252,
+            "z": -5.5146403312683109
+        },
+        "Rotation": {
+            "x": 0.4222099184989929,
+            "y": 0.40849465131759646,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.9999984502792359,
+            "y": 1.9999991655349732,
+            "z": 1.9999980926513672
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.8354382514953614,
+                "value1": 0.0,
+                "value2": -0.7944560050964356,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.3255501389503479,
+                "value1": 1.8243705034255982,
+                "value2": 0.7521212100982666,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.7246911525726318,
+                "value1": -0.8195538520812988,
+                "value2": 1.6742600202560425,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -5.011244773864746,
+                "value1": 1.905174732208252,
+                "value2": -5.5146403312683109,
+                "value3": 1.0
+            }
+        }
+    },
+    "value136": 13,
+    "value137": {
+        "Translation": {
+            "x": -6.803183078765869,
+            "y": 1.4407328367233277,
+            "z": -6.3566203117370609
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.125,
+            "y": 1.5,
+            "z": 0.125
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.125,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.5,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.125,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -6.803183078765869,
+                "value1": 1.4407328367233277,
+                "value2": -6.3566203117370609,
+                "value3": 1.0
+            }
+        }
+    },
+    "value138": 14,
+    "value139": {
+        "Translation": {
+            "x": -4.630234241485596,
+            "y": 1.0525333881378174,
+            "z": -7.459752559661865
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.125,
+            "y": 1.5,
+            "z": 0.125
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.125,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.5,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.125,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -4.630234241485596,
+                "value1": 1.0525333881378174,
+                "value2": -7.459752559661865,
+                "value3": 1.0
+            }
+        }
+    },
+    "value140": 15,
+    "value141": {
+        "Translation": {
+            "x": -4.441143035888672,
+            "y": 0.45889872312545779,
+            "z": -3.832761764526367
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.125,
+            "y": 0.6058868765830994,
+            "z": 0.125
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.125,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.6058868765830994,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.125,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -4.441143035888672,
+                "value1": 0.45889872312545779,
+                "value2": -3.832761764526367,
+                "value3": 1.0
+            }
+        }
+    },
+    "value142": 16,
+    "value143": {
+        "Translation": {
+            "x": -0.7790399789810181,
+            "y": 1.0,
+            "z": 0.21015313267707826
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -0.7790399789810181,
+                "value1": 1.0,
+                "value2": 0.21015313267707826,
+                "value3": 1.0
+            }
+        }
+    },
+    "value144": 17,
+    "value145": {
+        "Translation": {
+            "x": 0.5496824979782105,
+            "y": 0.9999999403953552,
+            "z": 1.0442290306091309
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.9999999403953552,
+            "y": 1.0,
+            "z": 0.9999999403953552
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.9999999403953552,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 1.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.9999999403953552,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.5496824979782105,
+                "value1": 0.9999999403953552,
+                "value2": 1.0442290306091309,
+                "value3": 1.0
+            }
+        }
+    },
+    "value146": 18,
+    "value147": {
+        "Translation": {
+            "x": -0.5083657503128052,
+            "y": 0.554046630859375,
+            "z": 1.0288195610046387
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 0.482991099357605,
+            "z": 1.0
+        },
+        "Transform": {
+            "value0": {
+                "value0": 1.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.482991099357605,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": -0.5083657503128052,
+                "value1": 0.554046630859375,
+                "value2": 1.0288195610046387,
+                "value3": 1.0
+            }
+        }
+    },
+    "value148": 19,
+    "value149": {
+        "Translation": {
+            "x": 0.6025604009628296,
+            "y": 0.702258288860321,
+            "z": 0.18359947204589845
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.9999999403953552,
+            "y": 0.6761875152587891,
+            "z": 0.9999999403953552
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.9999999403953552,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.6761875152587891,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.9999999403953552,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.6025604009628296,
+                "value1": 0.702258288860321,
+                "value2": 0.18359947204589845,
+                "value3": 1.0
+            }
+        }
+    },
+    "value150": 20,
+    "value151": {
+        "Translation": {
+            "x": 0.26910871267318728,
+            "y": 0.3556478023529053,
+            "z": 0.5832587480545044
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 0.9999999403953552,
+            "y": 0.6761875152587891,
+            "z": 0.9999999403953552
+        },
+        "Transform": {
+            "value0": {
+                "value0": 0.9999999403953552,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value1": {
+                "value0": 0.0,
+                "value1": 0.6761875152587891,
+                "value2": 0.0,
+                "value3": 0.0
+            },
+            "value2": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.9999999403953552,
+                "value3": 0.0
+            },
+            "value3": {
+                "value0": 0.26910871267318728,
+                "value1": 0.3556478023529053,
+                "value2": 0.5832587480545044,
+                "value3": 1.0
+            }
+        }
+    },
+    "value152": 1,
+    "value153": 0,
+    "value154": {
+        "isPrimary": true,
+        "Camera": {
+            "Position": {
+                "x": 10.513076782226563,
+                "y": 20.689056396484376,
+                "z": 21.631126403808595
+            },
+            "Front": {
+                "x": -0.32584577798843386,
+                "y": -0.6087614893913269,
+                "z": -0.7233492136001587
+            },
+            "Up": {
+                "x": -0.2500302493572235,
+                "y": 0.7933533191680908,
+                "z": -0.5550453662872315
+            },
+            "Right": {
+                "x": 0.9117616415023804,
+                "y": 0.0,
+                "z": -0.4107195734977722
+            },
+            "WorldUp": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "Yaw": 965.75,
+            "Pitch": -37.5,
+            "Zoom": 45.0,
+            "MovementSpeed": 0.02500000037252903,
+            "MouseSensitivity": 0.25,
+            "ProjectionType": 0,
+            "PerspectiveFOV": 0.7853981852531433,
+            "PerspectiveNearClip": 0.10000000149011612,
+            "PerspectiveFarClip": 100.0,
+            "OrthographicSize": 10.0,
+            "OrthographicNearClip": -1.0,
+            "OrthographicFarClip": 1.0,
+            "AspectRatio": 1.375732183456421,
+            "BgColor": {
+                "value0": 0.0,
+                "value1": 0.0,
+                "value2": 0.0,
+                "value3": 0.0
+            }
+        }
+    },
+    "value155": 0,
+    "value156": 16,
+    "value157": 5,
+    "value158": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_Ground.rzmesh",
+        "MaterialPath": "//Assets/Materials/Mat_RazixTestScene_Shadows_6.rzmaterial"
+    },
+    "value159": 6,
+    "value160": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_Pillar.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value161": 7,
+    "value162": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Suzanne.rzmesh",
+        "MaterialPath": "//Assets/Materials/MAT_Gold.rzmaterial"
+    },
+    "value163": 8,
+    "value164": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_IcosphereFront.rzmesh",
+        "MaterialPath": "//Assets/Materials/MAT_RoughRed.rzmaterial"
+    },
+    "value165": 9,
+    "value166": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_IcosphereBack.rzmesh",
+        "MaterialPath": "//Assets/Materials/MAT_MetalRods.rzmaterial"
+    },
+    "value167": 10,
+    "value168": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_InclinedPillarFront.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Metalblue.rzmaterial"
+    },
+    "value169": 11,
+    "value170": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_InclinedPillarRight.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Pink.rzmaterial"
+    },
+    "value171": 12,
+    "value172": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_Torus.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Metalblue.rzmaterial"
+    },
+    "value173": 13,
+    "value174": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_PillarTorusBackLeft.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value175": 14,
+    "value176": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_PillarTorusBackRight.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value177": 15,
+    "value178": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_PillarTorusFront.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value179": 16,
+    "value180": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cylinder_0.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value181": 17,
+    "value182": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cylinder_1.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value183": 18,
+    "value184": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cylinder_2.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value185": 19,
+    "value186": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cylinder_3.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value187": 20,
+    "value188": {
+        "Primitive": -842150451,
+        "MeshName": "RazixTestScene_Shadows",
+        "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cylinder_4.rzmesh",
+        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+    },
+    "value189": 2,
+    "value190": 1,
+    "value191": {
+        "FilePath": "//Scripts/hello_razix.lua"
+    },
+    "value192": 2,
+    "value193": {
+        "FilePath": "//Scripts/imgui_test.lua"
+    },
+    "value194": 1,
+    "value195": 3,
+    "value196": {
+        "Light": {
+            "type": 0,
+            "position": {
+                "x": 6.376439094543457,
+                "y": 9.245360374450684,
+                "z": 13.611464500427246
+            },
+            "range": 10.0,
+            "direction": {
+                "value0": 6.376439094543457,
+                "value1": 9.245360374450684,
+                "value2": 13.611464500427246,
+                "value3": 1.0
+            },
+            "color": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "intensity": 1.0,
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "innerConeAngle": 12.5,
+            "outerConeAngle": 60.0
+        }
+    },
+    "value197": 17,
+    "value198": 4,
+    "value199": {
+        "First": 5,
+        "Next": 1048575,
+        "Previous": 1048575,
+        "Parent": 1048575
+    },
+    "value200": 5,
+    "value201": {
+        "First": 1048575,
+        "Next": 6,
+        "Previous": 1048575,
+        "Parent": 4
+    },
+    "value202": 6,
+    "value203": {
+        "First": 1048575,
+        "Next": 7,
+        "Previous": 5,
+        "Parent": 4
+    },
+    "value204": 7,
+    "value205": {
+        "First": 1048575,
+        "Next": 8,
+        "Previous": 6,
+        "Parent": 4
+    },
+    "value206": 8,
+    "value207": {
+        "First": 1048575,
+        "Next": 9,
+        "Previous": 7,
+        "Parent": 4
+    },
+    "value208": 9,
+    "value209": {
+        "First": 1048575,
+        "Next": 10,
+        "Previous": 8,
+        "Parent": 4
+    },
+    "value210": 10,
+    "value211": {
+        "First": 1048575,
+        "Next": 11,
+        "Previous": 9,
+        "Parent": 4
+    },
+    "value212": 11,
+    "value213": {
+        "First": 1048575,
+        "Next": 12,
+        "Previous": 10,
+        "Parent": 4
+    },
+    "value214": 12,
+    "value215": {
+        "First": 1048575,
+        "Next": 13,
+        "Previous": 11,
+        "Parent": 4
+    },
+    "value216": 13,
+    "value217": {
+        "First": 1048575,
+        "Next": 14,
+        "Previous": 12,
+        "Parent": 4
+    },
+    "value218": 14,
+    "value219": {
+        "First": 1048575,
+        "Next": 15,
+        "Previous": 13,
+        "Parent": 4
+    },
+    "value220": 15,
+    "value221": {
+        "First": 1048575,
+        "Next": 16,
+        "Previous": 14,
+        "Parent": 4
+    },
+    "value222": 16,
+    "value223": {
+        "First": 1048575,
+        "Next": 17,
+        "Previous": 15,
+        "Parent": 4
+    },
+    "value224": 17,
+    "value225": {
+        "First": 1048575,
+        "Next": 18,
+        "Previous": 16,
+        "Parent": 4
+    },
+    "value226": 18,
+    "value227": {
+        "First": 1048575,
+        "Next": 19,
+        "Previous": 17,
+        "Parent": 4
+    },
+    "value228": 19,
+    "value229": {
+        "First": 1048575,
+        "Next": 20,
+        "Previous": 18,
+        "Parent": 4
+    },
+    "value230": 20,
+    "value231": {
+        "First": 1048575,
+        "Next": 1048575,
+        "Previous": 19,
+        "Parent": 4
+    }
+}

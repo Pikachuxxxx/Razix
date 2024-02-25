@@ -276,7 +276,8 @@ namespace Razix {
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create surface!");
                 else
                     RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface!");
-            } else {
+            } else {    // Editor Instance
+
                 // if the app type is editor create a custom surface based on the OS
     #ifdef RAZIX_PLATFORM_WINDOWS
                 //HWND*                       hwndPtr = (HWND*) window;

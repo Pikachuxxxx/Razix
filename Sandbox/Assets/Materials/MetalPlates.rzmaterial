@@ -1,6 +1,6 @@
 {
     "$MATERIAL": {
-        "Name": "",
+        "Name": "MetalPlates",
         "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Metal Plates/Stylized_26_MetallicPlates_basecolor.jpg",
         "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Metal Plates/Stylized_26_MetallicPlates_normal.jpg",
         "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Metal Plates/Stylized_26_MetallicPlates_metallic.jpg",

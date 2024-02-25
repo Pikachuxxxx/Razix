@@ -1,6 +1,6 @@
 {
     "$MATERIAL": {
-        "Name": "",
+        "Name": "HolidayCookie",
         "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Holiday Cookies/Holidays_Cookies_basecolor.jpg",
         "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Holiday Cookies/Holidays_Cookies_normal.jpg",
         "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Holiday Cookies/Holidays_Cookies_metallic.jpg",

@@ -1,6 +1,6 @@
 {
     "$MATERIAL": {
-        "Name": "",
+        "Name": "Sofa",
         "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Sofa/d_Diffuse.jpg",
         "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Sofa/n_Normal.jpg",
         "Metallic": "",

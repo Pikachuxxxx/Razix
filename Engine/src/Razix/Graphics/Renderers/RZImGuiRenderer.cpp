@@ -140,8 +140,8 @@ namespace Razix {
                 return;
             }
 
-            m_ImGuiVBO = RZVertexBuffer::Create(Mib(4), nullptr, BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
-            m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, Mib(4) * 6, BufferUsage::PersistentStream);
+            m_ImGuiVBO = RZVertexBuffer::Create(Mib(16), nullptr, BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("VB_ImGUi"));
+            m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("IB_ImGui") nullptr, Mib(16) * 6, BufferUsage::PersistentStream);
         }
 
         void RZImGuiRenderer::Begin(RZScene* scene)

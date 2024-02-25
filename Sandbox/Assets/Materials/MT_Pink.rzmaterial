@@ -1,0 +1,25 @@
+{
+    "$MATERIAL": {
+        "Name": "MT_Pink",
+        "Albedo": "",
+        "Normal": "",
+        "Metallic": "",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 0.8001416921615601,
+            "y": 0.16896146535873414,
+            "z": 0.530933141708374
+        },
+        "roughnessColor": 0.800000011920929,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

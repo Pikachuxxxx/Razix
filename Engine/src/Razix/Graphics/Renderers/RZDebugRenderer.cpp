@@ -407,9 +407,10 @@ namespace Razix {
             // Directional
             if (light->getType() == LightType::DIRECTIONAL) {
                 glm::vec3 offset(0.0f, 0.1f, 0.0f);
-                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(light->getPosition() * 2.0f) + offset, colour);
-                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(light->getPosition() * 2.0f) - offset, colour);
-                DrawLine(glm::vec3(light->getPosition()), glm::vec3(light->getPosition() * 2.0f), colour);
+                auto      lightPos = glm::normalize(-light->getPosition());
+                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(lightPos * 2.0f) + offset, colour);
+                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(lightPos * 2.0f) - offset, colour);
+                DrawLine(glm::vec3(light->getPosition()), glm::vec3(lightPos * 2.0f), colour);
                 //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
             }
             //// Spot
@@ -424,6 +425,29 @@ namespace Razix {
         void RZDebugRenderer::DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            const auto* vertices = frustum.getVertices();
+
+            RZDebugRenderer::DrawLine(vertices[0], vertices[1], colour);
+            RZDebugRenderer::DrawLine(vertices[1], vertices[2], colour);
+            RZDebugRenderer::DrawLine(vertices[2], vertices[3], colour);
+            RZDebugRenderer::DrawLine(vertices[3], vertices[0], colour);
+            RZDebugRenderer::DrawLine(vertices[4], vertices[5], colour);
+            RZDebugRenderer::DrawLine(vertices[5], vertices[6], colour);
+            RZDebugRenderer::DrawLine(vertices[6], vertices[7], colour);
+            RZDebugRenderer::DrawLine(vertices[7], vertices[4], colour);
+            RZDebugRenderer::DrawLine(vertices[0], vertices[4], colour);
+            RZDebugRenderer::DrawLine(vertices[1], vertices[5], colour);
+            RZDebugRenderer::DrawLine(vertices[2], vertices[6], colour);
+            RZDebugRenderer::DrawLine(vertices[3], vertices[7], colour);
+        }
+
+        void RZDebugRenderer::DrawFrustum(const glm::mat4& mat, const glm::vec4& colour)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            auto frustum = Maths::RZFrustum();
+            frustum.build(mat);
 
             const auto* vertices = frustum.getVertices();
 

@@ -4,6 +4,8 @@
 
 #include "Internal/RazixMemory/include/Allocators/RZHeapAllocator.h"
 
+#include <tracy/Tracy.hpp>
+
 // [Source] : https://github.com/PacktPublishing/Mastering-Graphics-Programming-with-Vulkan/blob/2ad4e94a0e003d37dd3dbef46cc033a483f133d6/source/raptor/foundation/data_structures.hpp
 
 namespace Razix {
@@ -21,7 +23,7 @@ namespace Razix {
             RZResourcePool()  = default;
             ~RZResourcePool() = default;
 
-            void init(u32 poolSize, u32 resourceSize);
+            void init(u32 poolSize, u32 resourceSize, u32 alignment = 16);
             void destroy();
             void freePool();
 
@@ -43,7 +45,7 @@ namespace Razix {
         template<typename T>
         struct RZResourcePoolTyped final : public RZResourcePool
         {
-            void init(u32 pool_size, u32 resource_size);
+            void init(u32 pool_size, u32 resource_size, u32 alignment = 16);
             void shutdown();
 
             void printResources();
@@ -72,9 +74,9 @@ namespace Razix {
         }
 
         template<typename T>
-        inline void RZResourcePoolTyped<T>::init(u32 pool_size, u32 resource_size)
+        inline void RZResourcePoolTyped<T>::init(u32 pool_size, u32 resource_size, u32 alignment)
         {
-            RZResourcePool::init(pool_size, resource_size);
+            RZResourcePool::init(pool_size, resource_size, alignment);
         }
 
         template<typename T>
@@ -91,6 +93,7 @@ namespace Razix {
             handle.setGeneration(++index);
             if (index != u32_max) {
                 T* resource = getInternal(handle);
+                TracyAlloc(resource, m_ResourceSize);
                 return resource;
             }
 
@@ -103,6 +106,7 @@ namespace Razix {
             T* resource = getInternal(handle);
             resource->DestroyResource();
             handle.setGeneration(0);
+            TracyFree(resource);
             RZResourcePool::releaseResource(handle.getIndex());
         }
 

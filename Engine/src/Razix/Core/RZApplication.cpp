@@ -548,6 +548,8 @@ namespace Razix {
 
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
+        RZEngine::Get().getWorldRenderer().OnImGui();
+
         if (RZSceneManager::Get().getCurrentScene())
             RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentScene());
 

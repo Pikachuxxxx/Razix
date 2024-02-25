@@ -87,7 +87,11 @@ namespace Razix {
 
             /* Generates the descriptor set for the texture */
             void             generateDescriptorSet();
-            RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
+            RZDescriptorSet* getDescriptorSet()
+            {
+                if (!m_DescriptorSet) generateDescriptorSet();
+                return m_DescriptorSet;
+            }
 
             u32  getCurrentMipLevel() { return m_CurrentMipRenderingLevel; }
             void setCurrentMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
@@ -104,7 +108,7 @@ namespace Razix {
         protected:
             std::string      m_VirtualPath;                     /* The virtual path of the texture                             */
             uint64_t         m_Size;                            /* The size of the texture resource                            */
-            RZDescriptorSet* m_DescriptorSet;                   /* Descriptor set for the image                                */
+            RZDescriptorSet* m_DescriptorSet = nullptr;         /* Descriptor set for the image                                */
             RZTextureDesc    m_Desc;                            /* Texture properties and create desc                          */
             u32              m_TotalMipLevels           = 1;    /* Total Mips, Calculated by a formula except for RZCubeMap    */
             u32              m_CurrentMipRenderingLevel = 0;    /* Current mip level to which we are rendering to (as RT)      */

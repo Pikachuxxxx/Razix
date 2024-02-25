@@ -54,7 +54,7 @@ namespace Razix {
             u32  width, height, bpp;
             f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .size = (width * height * 4 * sizeof(float)), .format = TextureFormat::RGBA32F, .wrapping = Wrapping::CLAMP_TO_EDGE, .enableMips = false, .dataSize = sizeof(float)});
+            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .size = (width * height * 4 * sizeof(float)), .format = TextureFormat::RGBA32F, .wrapping = Wrapping::CLAMP_TO_EDGE, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .dataSize = sizeof(float)});
 
             std::vector<RZDescriptorSet*>      envMapSets;
             std::vector<RZUniformBufferHandle> UBOs;
@@ -99,7 +99,7 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "Env map pipeline";
+            pipelineInfo.name                   = "Pipeline.EnvMapGen";
             pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = shaderHandle;
@@ -110,7 +110,7 @@ namespace Razix {
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
-            RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Env Map",
+            RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture({.name = "Texture.Imported.HDR.EnvMap",
                 .width                                                                    = dim,
                 .height                                                                   = dim,
                 .layers                                                                   = 6,
@@ -166,7 +166,7 @@ namespace Razix {
             }
             RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
 
-            // Generate mip maps from first mip face
+            // TODO!!: Generate mip maps from first mip face
             //RZTexture* envCubeMap = RZResourceManager::Get().getPool<RZTexture>().get(cubeMapHandle);
             //envCubeMap->GenerateMips();
 
@@ -190,6 +190,8 @@ namespace Razix {
                 .layers                                                                         = 6,
                 .type                                                                           = TextureType::Texture_CubeMap,
                 .format                                                                         = TextureFormat::RGBA32F,
+                .wrapping                                                                       = Wrapping::CLAMP_TO_EDGE,
+                .filtering                                                                      = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR},
                 .enableMips                                                                     = false});
 
             // Load the shader for converting plain cubemap to irradiance map by convolution
@@ -236,7 +238,7 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "Irradiance Pipeline";
+            pipelineInfo.name                   = "Pipeline.Irradiance";
             pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = cubemapConvolutionShaderHandle;
@@ -304,14 +306,15 @@ namespace Razix {
         {
             u32 dim = 128;
 
-            RZTextureHandle preFilteredMapHandle = RZResourceManager::Get().createTexture({.name = "Pre Filtered Map",
+            RZTextureHandle preFilteredMapHandle = RZResourceManager::Get().createTexture({.name = "Pipeline.PreFilteredMap",
                 .width                                                                           = dim,
                 .height                                                                          = dim,
                 .layers                                                                          = 6,
                 .type                                                                            = TextureType::Texture_CubeMap,
                 .format                                                                          = TextureFormat::RGBA32F,
-                //.filtering                                                                       = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                .enableMips = true});
+                .wrapping                                                                        = Wrapping::CLAMP_TO_EDGE,
+                .filtering                                                                       = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR},
+                .enableMips                                                                      = true});
 
             RZTexture* preFilteredMap = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
 
@@ -369,7 +372,7 @@ namespace Razix {
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "Pre Filtered Map Pipeline";
+            pipelineInfo.name                   = "Pipeline.PreFilteredMap";
             pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = cubemapConvolutionShader;

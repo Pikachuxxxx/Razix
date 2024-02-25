@@ -122,18 +122,16 @@ namespace Razix {
         void setTargetFrameRate(const f32& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
 
         // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
-        Graphics::RZWorldRenderer& getWorldRenderer() { return m_WorldRenderer; }
-        //RZSceneManager&                getSceneManager() { return m_SceneManagerSystem; }
-        Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        Graphics::RZShaderLibrary&     getShaderLibrary() { return m_ShaderLibrary; }
-
-        Graphics::RZRendererSettings& getWorldSettings() { return m_WorldSettings; }
-        void                          setWorldSettings(const Graphics::RZRendererSettings& settings) { m_WorldSettings = settings; }
+        RAZIX_INLINE Graphics::RZWorldRenderer& getWorldRenderer() { return m_WorldRenderer; }
+        RAZIX_INLINE Graphics::RZRendererSettings& getWorldSettings() { return m_WorldSettings; }
+        RAZIX_INLINE void                          setWorldSettings(const Graphics::RZRendererSettings& settings) { m_WorldSettings = settings; }
+        RAZIX_INLINE Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
+        RAZIX_INLINE Graphics::RZShaderLibrary& getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
         Stats                        m_Stats;                                /* Current frame basic statistics	                                */
         f32                          m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
-        std::string                  m_EngineInstallationDir;
-        Graphics::RZRendererSettings m_WorldSettings;
+        std::string                  m_EngineInstallationDir;                /* Where was the engine installed                                  */
+        Graphics::RZRendererSettings m_WorldSettings;                        /* World Renderer Settings                                         */
     };
 }    // namespace Razix

@@ -44,15 +44,15 @@ namespace Razix {
 
             /**
              * GBuffer RT formats
-             * @slot #0 : XYZ = Normal   W = Metallic
-             * @slot #1 : XYZ = Albedo   W = Roughness
-             * @slot #2 : XYZ = Position W = AO
+             * @slot #0 : XYZ = Normal          W = Metallic
+             * @slot #1 : XYZ = Albedo          W = Roughness
+             * @slot #2 : XYZ = World Position  W = AO (tex, not SSAO)
              * Scene Depth
              */
 
             // Create the Pipeline
             Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                = "GBuffer Pipeline";
+            pipelineInfo.name                = "Pipeline.GBuffer ";
             pipelineInfo.cullMode            = Graphics::CullMode::Front;
             pipelineInfo.shader              = shader;
             pipelineInfo.drawType            = Graphics::DrawType::Triangle;

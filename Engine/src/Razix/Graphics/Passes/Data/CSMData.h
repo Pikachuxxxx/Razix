@@ -13,6 +13,8 @@ constexpr u32 kNumCascades   = 4;
 
 static_assert(kNumCascades <= 4);
 
+constexpr f32 kSplitLambda = 0.81f;
+
 // clang-format off
 const glm::mat4 kBiasMatrix
 {
@@ -23,14 +25,14 @@ const glm::mat4 kBiasMatrix
 };
 // clang-format on
 
-struct CascadesMatrixData
+struct alignas(4) CascadesMatrixData
 {
-    f32       splitDepth[kNumCascades];    // This is glm::vec4 cause of max cascades is 4
-    glm::mat4 viewProjMatrices[kNumCascades];
+    glm::vec4 splitDepth                     = {};
+    glm::mat4 viewProjMatrices[kNumCascades] = {};
 };
 
 struct alignas(16) Cascade
 {
-    f32       splitDepth;
-    glm::mat4 viewProjMatrix;
+    f32       splitDepth     = 0.0f;
+    glm::mat4 viewProjMatrix = glm::mat4(1.0f);
 };
