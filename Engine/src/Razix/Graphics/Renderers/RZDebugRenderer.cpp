@@ -442,6 +442,29 @@ namespace Razix {
             RZDebugRenderer::DrawLine(vertices[3], vertices[7], colour);
         }
 
+        void RZDebugRenderer::DrawFrustum(const glm::mat4& mat, const glm::vec4& colour)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            auto frustum = Maths::RZFrustum();
+            frustum.build(mat);
+
+            const auto* vertices = frustum.getVertices();
+
+            RZDebugRenderer::DrawLine(vertices[0], vertices[1], colour);
+            RZDebugRenderer::DrawLine(vertices[1], vertices[2], colour);
+            RZDebugRenderer::DrawLine(vertices[2], vertices[3], colour);
+            RZDebugRenderer::DrawLine(vertices[3], vertices[0], colour);
+            RZDebugRenderer::DrawLine(vertices[4], vertices[5], colour);
+            RZDebugRenderer::DrawLine(vertices[5], vertices[6], colour);
+            RZDebugRenderer::DrawLine(vertices[6], vertices[7], colour);
+            RZDebugRenderer::DrawLine(vertices[7], vertices[4], colour);
+            RZDebugRenderer::DrawLine(vertices[0], vertices[4], colour);
+            RZDebugRenderer::DrawLine(vertices[1], vertices[5], colour);
+            RZDebugRenderer::DrawLine(vertices[2], vertices[6], colour);
+            RZDebugRenderer::DrawLine(vertices[3], vertices[7], colour);
+        }
+
         void RZDebugRenderer::DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

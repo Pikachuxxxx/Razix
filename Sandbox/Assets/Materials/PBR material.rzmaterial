@@ -1,6 +1,6 @@
 {
     "$MATERIAL": {
-        "Name": "",
+        "Name": "PBR material",
         "Albedo": "",
         "Normal": "",
         "Metallic": "",

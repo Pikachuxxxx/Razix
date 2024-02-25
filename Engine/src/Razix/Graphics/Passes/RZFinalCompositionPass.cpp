@@ -102,7 +102,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
-                    RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
+                    RAZIX_MARK_BEGIN("Final Composition + Tonemapping", glm::vec4(0.5f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 

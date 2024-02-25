@@ -410,8 +410,11 @@ namespace Razix {
             VkImageCreateFlags flags{0};
             if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
                 flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            else if (desc.type == TextureType::Texture_2DArray)
-                flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+                // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
+                // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
+                // This makes is so that you can use a sampler2DArray with a 3D image.
+                //else if (desc.type == TextureType::Texture_2DArray)
+                //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 
                 // Create the Vulkan Image and it's memory and Bind them together
                 // We use a simple optimal tiling options
@@ -506,8 +509,11 @@ namespace Razix {
             VkImageCreateFlags flags{0};
             if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
                 flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            else if (desc.type == TextureType::Texture_2DArray)
-                flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+                // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
+                // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
+                // This makes is so that you can use a sampler2DArray with a 3D image.
+                //else if (desc.type == TextureType::Texture_2DArray)
+                //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 
 // Create the Vulkan Image and it's memory and Bind them together
 // We use a simple optimal tiling options

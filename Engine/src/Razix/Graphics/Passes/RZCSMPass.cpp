@@ -60,12 +60,8 @@ namespace Razix {
             auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
             auto& csmData        = framegraph.getBlackboard().add<CSMData>();
 
-            // Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
-            auto dirLight = scene->GetComponentsOfType<LightComponent>();
-            m_Cascades    = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, 0.94f, kShadowMapSize);
-
             CascadeSubPassData cascadeSubpassData{-1};
-            for (u32 i = 0; i < m_Cascades.size(); i++) {
+            for (u32 i = 0; i < kNumCascades; i++) {
                 cascadeSubpassData = addCascadePass(framegraph, scene, cascadeSubpassData, i);
             }
             csmData.cascadedShadowMaps = cascadeSubpassData.cascadeOutput;
@@ -76,7 +72,7 @@ namespace Razix {
                 [&](CSMData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                     // Create the final cascaded VP data here after rendering the depth texture array, in fact this pass can be parallelized before the we render the depth maps
-                    data.viewProjMatrices = builder.create<FrameGraph::RZFrameGraphBuffer>("CascadesMatrixData", {.name = "CascadesMatrixData", .size = sizeof(CascadesMatrixData), .data = nullptr, .usage = BufferUsage::PersistentStream});
+                    data.viewProjMatrices = builder.create<FrameGraph::RZFrameGraphBuffer>("CB_CascadesMatrixData", {.name = "CB_CascadesMatrixData", .size = sizeof(CascadesMatrixData), .data = nullptr, .usage = BufferUsage::PersistentStream});
 
                     data.viewProjMatrices = builder.write(data.viewProjMatrices);
                 },
@@ -111,9 +107,9 @@ namespace Razix {
             //    // By using front we get the one and only or the first one in the list of camera entities
             //    cam = cameraView.get<CameraComponent>(cameraView.front()).Camera;
             //}
-            //m_Cascades = buildCascades(cam, dirLight[0].light.getPosition(), kNumCascades, 0.95f, kShadowMapSize);
+            //m_Cascades = buildCascades(cam, -dirLight[0].light.getPosition(), kNumCascades, 0.75f, kShadowMapSize);
 
-            m_Cascades = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, 0.94f, kShadowMapSize);
+            m_Cascades = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, 0.95f, kShadowMapSize);
         }
 
         std::vector<Cascade> RZCSMPass::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
@@ -122,7 +118,10 @@ namespace Razix {
 
             // [Reference] https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
 
-            const f32 clipRange = camera.getPerspectiveFarClip() - camera.getPerspectiveNearClip();
+            const f32 nearClip  = camera.getPerspectiveNearClip();
+            const f32 farClip   = camera.getPerspectiveFarClip();
+            const f32 clipRange = farClip - nearClip;
+
             // Get the cascade splits
             const auto cascadeSplits  = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
             const auto invViewProjRaw = glm::inverse(camera.getProjectionRaw() * camera.getViewMatrix());
@@ -135,8 +134,8 @@ namespace Razix {
                 const auto splitDist = cascadeSplits[i];
 
                 cascades[i] = {
-                    (camera.getPerspectiveNearClip() + splitDist * clipRange) * 1.0f,    // -1.0f is causing a flip
-                    buildDirLightMatrix(invViewProjRaw, dirLightDirection, shadowMapSize, splitDist, lastSplitDist),
+                    (camera.getPerspectiveNearClip() + splitDist * clipRange),    // -1.0f is causing a flip
+                    buildDirLightMatrix(invViewProj, dirLightDirection, shadowMapSize, splitDist, lastSplitDist),
                 };
                 lastSplitDist = splitDist;
             }
@@ -248,9 +247,13 @@ namespace Razix {
 
             const auto eye        = center - glm::normalize(lightDirection) * -minExtents.z;
             const auto view       = glm::lookAt(eye, center, {0.0f, 1.0f, 0.0f});
-            auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, (maxExtents - minExtents).z);
-            //if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-            //    projection[1][1] *= -1;
+            auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -(maxExtents - minExtents).z, (maxExtents - minExtents).z);
+            //projection            = glm::mat4(1.0f);
+            //if (maxExtents.z != 0)
+            //    projection = glm::perspective(90.0f, (maxExtents.x - minExtents.x) / (maxExtents.y - minExtents.y), minExtents.z, maxExtents.z);
+
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+                projection[1][1] *= -1;
 
             eliminateShimmering(projection, view, shadowMapSize);
             return projection * view;
@@ -275,7 +278,7 @@ namespace Razix {
 
                     // Create the resource only on first pass, render to the same resource again and again
                     if (cascadeIdx == 0) {
-                        subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", {.name = "CascadedShadowMapArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_2DArray, .format = TextureFormat::DEPTH32F});
+                        subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", {.name = "CascadedShadowMapArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_2DArray, .format = TextureFormat::DEPTH32F, .wrapping = Wrapping::CLAMP_TO_BORDER});
                     }
                     subpassData.vpLayer = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", {.name = "VPLayer", .size = sizeof(LightVPLayerData), .data = nullptr, .usage = BufferUsage::PersistentStream});
 
@@ -296,9 +299,8 @@ namespace Razix {
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
-                        auto descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.vpLayer)];
-                        if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
+                        auto descriptor           = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.vpLayer)];
+                        descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
                         m_CascadeSets[cascadeIdx] = RZDescriptorSet::Create({*descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM VPLayer # " + std::to_string(cascadeIdx)));
                     }
 
@@ -313,7 +315,8 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
                     info.resolution      = Resolution::kCustom;
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOutput).getHandle(), {cascadeIdx == 0 ? true : false, ClearColorPresets::DepthOneToZero}};
+                    m_CSMArrayHandle     = resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOutput).getHandle();
+                    info.depthAttachment = {m_CSMArrayHandle, {cascadeIdx == 0 ? true : false, ClearColorPresets::DepthOneToZero}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!

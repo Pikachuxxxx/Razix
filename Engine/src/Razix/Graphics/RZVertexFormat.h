@@ -30,7 +30,7 @@ namespace Razix {
             glm::vec3 Tangent;
 
             RZVertex()
-                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), UV(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)){}
+                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), UV(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)) {}
 
             bool operator==(const RZVertex& other) const
             {
@@ -54,3 +54,14 @@ namespace Razix {
 
     }    // namespace Graphics
 }    // namespace Razix
+
+namespace std {
+    template<>
+    struct hash<Razix::Graphics::RZVertex>
+    {
+        sz operator()(Razix::Graphics::RZVertex const& vertex) const
+        {
+            return ((hash<glm::vec3>()(vertex.Position) ^ (hash<glm::vec2>()(vertex.UV) << 1) ^ (hash<glm::vec4>()(vertex.Color) << 1) ^ (hash<glm::vec3>()(vertex.Normal) << 1) ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
+        }
+    };
+}    // namespace std

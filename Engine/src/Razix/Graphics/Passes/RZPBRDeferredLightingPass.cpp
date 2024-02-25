@@ -170,17 +170,27 @@ namespace Razix {
 
                     RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
+                    auto worldSettings = RZEngine::Get().getWorldSettings();
+
                     struct PCData
                     {
                         glm::vec3 CameraViewPos;
                         bool      visCascades = true;
                         bool      _padding[3] = {0, 0, 0};
                         glm::mat4 camView;
+                        f32       dt;
+                        f32       biasScale = 0.005f;
+                        f32       maxBias   = 0.0005f;
                     } pcData{};
                     pcData.CameraViewPos = scene->getSceneCamera().getPosition();
-                    pcData.visCascades   = false;
-                    pcData.camView       = scene->getSceneCamera().getViewMatrix();
-
+                    if (worldSettings.debugFlags & RendererDebugFlag_VisCSMCascades)
+                        pcData.visCascades = true;
+                    else
+                        pcData.visCascades = false;
+                    pcData.camView   = scene->getSceneCamera().getViewMatrix();
+                    pcData.dt        = RZEngine::Get().GetStatistics().DeltaTime;
+                    pcData.biasScale = biasScale;
+                    pcData.maxBias   = maxBias;
                     RZPushConstant pc;
                     pc.size        = sizeof(PCData);
                     pc.data        = &pcData;

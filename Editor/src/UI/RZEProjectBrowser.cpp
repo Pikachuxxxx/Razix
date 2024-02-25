@@ -31,8 +31,9 @@ namespace Razix {
 
             // Add a default project for debugging
             ui.projects_history_list->addItem(QString("C:/Dev/Game Engines/Razix/Sandbox/RendererTest_PBR.razixproject"));
+            ui.projects_history_list->addItem(QString("C:/Dev/Game Engines/Razix/Sandbox/ShadowsSandbox.razixproject"));
             m_ProjectPath = "C:/Dev/Game Engines/Razix/Sandbox";
-            m_ProjectName = "RendererTest_PBR";
+            m_ProjectName = "ShadowsSandbox";
         }
 
         RZEProjectBrowser::~RZEProjectBrowser()

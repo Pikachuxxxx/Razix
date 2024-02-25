@@ -30,6 +30,9 @@ layout (push_constant) uniform PushConstantData{
     vec3 camViewPos;
     bool visCascades;
     mat4 viewMatrix;
+    float dt;
+    float biasScale;
+    float maxBias;
 }pc_data;
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
@@ -43,13 +46,13 @@ layout (set = 1, binding = 1) uniform sampler2D gBuffer1;
 layout (set = 1, binding = 2) uniform sampler2D gBuffer2; 
 //--------------------------------------------------------
 // Simple shadow mapping
-//layout(set = 2, binding = 0) uniform sampler2D ShadowMap;
-//layout(set = 2, binding = 1) uniform ShadowData {
-//    mat4 matrix;
-//}LightSpaceMatrix;
-// CSM
-layout(set = 2, binding = 0) uniform sampler2DArray CSMArray;
+layout(set = 2, binding = 0) uniform sampler2D ShadowMap;
 layout(set = 2, binding = 1) uniform ShadowData {
+    mat4 matrix;
+}LightSpaceMatrix;
+// CSM
+layout(set = 2, binding = 2) uniform sampler2DArray CSMArray;
+layout(set = 2, binding = 3) uniform ShadowCSMData {
     vec4 splitDepth;
     mat4 matrix[SHADOW_MAP_CASCADE_COUNT];
 }CSMMatrices;
@@ -97,7 +100,7 @@ void main()
     for(int i = 0; i < SceneLightsData.numLights; ++i)
     {
         LightData light = SceneLightsData.data[i];
-
+         
         vec3 L = vec3(0.0f);
         float attenuation = 0.0f;
 
@@ -134,17 +137,20 @@ void main()
 
     //-----------------------------------------------
     // Shadow map calculation
-    //vec4 FragPosLightSpace = LightSpaceMatrix.matrix * vec4(fragPos, 1.0);
-    //float shadow = 1.0f;
-    //// FIXME: We assume the first light is the Directional Light and only use that
-    //if(SceneLightsData.data[0].type == LightType_Directional)
-    //    shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
-    //
+    vec4 FragPosLightSpace = LightSpaceMatrix.matrix * vec4(fragPos, 1.0);
+    float shadow = 1.0f;
+    // FIXME: We assume the first light is the Directional Light and only use that
+    if(SceneLightsData.data[0].type == LightType_Directional)
+        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
+    
     //result *= shadow;
+    outSceneColor = vec4(result, 1.0f);
+    //return;
     //-----------------------------------------------
+    #if 1
     // CSM Calculation
     // Get cascade index for the current fragment's view position
-	uint cascadeIndex = 3;
+	uint cascadeIndex = SHADOW_MAP_CASCADE_COUNT - 1;
 	for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
 		if(abs(viewSpaceFragPos.z) < CSMMatrices.splitDepth[i]) {	
 			cascadeIndex = i;
@@ -152,15 +158,16 @@ void main()
 		}
 	}
 
-    vec4 FragPosLightSpace = CSMMatrices.matrix[cascadeIndex] * vec4(fragPos, 1.0);
+    FragPosLightSpace = CSMMatrices.matrix[cascadeIndex] * vec4(fragPos, 1.0);
 
-    float shadow = 1.0f;
+    shadow = 1.0f;
     if(SceneLightsData.data[0].type == LightType_Directional)
-        shadow = DirectionalCSMShadowCalculation(CSMArray, cascadeIndex, FragPosLightSpace, N, SceneLightsData.data[0].position);
+        shadow = DirectionalCSMShadowCalculation(CSMArray, cascadeIndex, FragPosLightSpace, N, SceneLightsData.data[0].position, CSMMatrices.splitDepth[cascadeIndex], pc_data.dt, pc_data.biasScale, pc_data.maxBias);
     
     result *= shadow;
     //-----------------------------------------------
-    //outSceneColor = vec4(result, 1.0f);
+    outSceneColor = vec4(abs(viewSpaceFragPos.z), abs(viewSpaceFragPos.z) , abs(viewSpaceFragPos.z), 1.0f);
+    //outSceneColor = vec4(sceneAO, sceneAO, sceneAO, 1.0f);
     outSceneColor = vec4(vec3(0.5f) * shadow * sceneAO, 1.0f);
     if(!pc_data.visCascades)
         return;
@@ -178,7 +185,7 @@ void main()
 			outSceneColor.rgb *= vec3(1.0f, 1.0f, 0.25f);
 			break;
 	}
-
+    #endif
     //outSceneColor = vec4(viewSpaceFragPos.xy, abs(viewSpaceFragPos.z), 1.0f);
     //outSceneColor = vec4(RandomColorHash(cascadeIndex), 1.0f);
 }

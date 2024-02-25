@@ -4,8 +4,8 @@
         "Engine Version": "0.43.0",
         "Project ID": "8aa98530-3ff9-45d6-b836-71b96473ba7b",
         "Render API": 1,
-        "Width": 1920,
-        "Height": 991,
+        "Width": 2560,
+        "Height": 1351,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox//",
         "Scenes": [
             "//Scenes/SponzaScene.rzscn"

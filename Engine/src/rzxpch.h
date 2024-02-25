@@ -80,3 +80,4 @@
 
 // Disable Warnings
 #pragma warning(disable : 4100)
+#pragma warning(disable : 4996)    // some spdlog stuff

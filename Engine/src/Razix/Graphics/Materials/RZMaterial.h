@@ -5,6 +5,8 @@
 namespace Razix {
     namespace Graphics {
 
+        constexpr cstr kMaterialAssetFilePrefix = "MT_";
+
         /* Not an interface yet, this is a hard coded PBR material as of this iteration of the engine */
         class RAZIX_API RZMaterial
         {
@@ -21,8 +23,8 @@ namespace Razix {
             static void            ReleaseDefaultTexture();
             static RZTextureHandle GetDefaultTexture() { return s_DefaultTexture; }
             /* Static Getter and setter for the material workflow */
-            WorkFlow          getWorkflow() { return m_Workflow; }
-            RAZIX_INLINE void setWorkflow(WorkFlow workflow) { m_Workflow = workflow; }
+            WorkFlow          getWorkflow() { return (Graphics::WorkFlow) m_MaterialData.m_MaterialProperties.workflow; }
+            RAZIX_INLINE void setWorkflow(WorkFlow workflow) { m_MaterialData.m_MaterialProperties.workflow = (u32) workflow; }
 
             /* Overrides the default material properties and textures by loading the material file and de-serializing it */
             void loadFromFile(const std::string& path);
@@ -30,7 +32,7 @@ namespace Razix {
             void loadMaterialTexturesFromFiles(MaterialTexturePaths paths);
             void createDescriptorSet();
 
-            RAZIX_INLINE MaterialTextures& getTextures() { return m_MaterialTextures; }
+            RAZIX_INLINE MaterialTextures& getTextures() { return m_MaterialData.m_MaterialTextures; }
             void                           setTextures(MaterialTextures& textures);
 
             RAZIX_INLINE const MaterialProperties& getProperties() const { return m_MaterialData.m_MaterialProperties; }
@@ -44,8 +46,8 @@ namespace Razix {
             RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }
             RAZIX_INLINE void  setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
 
-            RAZIX_INLINE const std::string& getName() { return m_Name; }
-            RAZIX_INLINE void               setName(const std::string& name) { m_Name = name; }
+            RAZIX_INLINE std::string getName() { return m_MaterialData.m_Name; }
+            void                     setName(const std::string& name);
 
             RAZIX_INLINE RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
 
@@ -54,13 +56,10 @@ namespace Razix {
 
             static RZTextureHandle s_DefaultTexture;
             MaterialData           m_MaterialData;
-            MaterialTextures       m_MaterialTextures;
-            std::string            m_Name                  = "PBR material";
             RZShaderHandle         m_Shader                = {};
             RZDescriptorSet*       m_DescriptorSet         = nullptr;
             RZUniformBufferHandle  m_MaterialPropertiesUBO = {};
             bool                   m_TexturesUpdated       = false;
-            WorkFlow               m_Workflow              = WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE;
         };
 
         static RZMaterial* DefaultMaterial = nullptr;

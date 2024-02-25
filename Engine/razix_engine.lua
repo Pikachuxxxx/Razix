@@ -2,7 +2,7 @@
 include 'Scripts/premake/common/vendor_includes.lua'
 -- Internal libraies include dirs
 include 'Scripts/premake/common/internal_includes.lua'
-
+------------------------------------------------------------------------------
 -- Shaders a separate project to build as cache
 group "Engine/content"
     project "Shaders"
@@ -41,7 +41,7 @@ group "Engine/content"
             buildcommands 'glslc.exe -I "%{wks.location}/../Engine/content/Shaders/GLSL" "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
             buildoutputs "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"
 group""
-
+------------------------------------------------------------------------------
 -- Frame Graph resources data for editing in VS
 group "Engine/content"
     project "FrameGraphs"
@@ -58,9 +58,8 @@ group "Engine/content"
         filter { "files:**.json"}
             flags { "ExcludeFromBuild" }
 
-group""
-
-
+group"" 
+------------------------------------------------------------------------------
 group "Engine"
 -- Razix project
 project "Razix"
@@ -177,7 +176,9 @@ project "Razix"
     filter { "files:vendor/**"}
         warnings "Off"
 
+    -------------------------------------
     -- Razix Project settings for Windows
+    -------------------------------------
     filter "system:windows"
         cppdialect "C++20"
         staticruntime "off"
@@ -228,7 +229,8 @@ project "Razix"
             "TRACY_ENABLE",
             -- build options
             "_DISABLE_VECTOR_ANNOTATION",
-            "_DISABLE_STRING_ANNOTATION"
+            "_DISABLE_STRING_ANNOTATION",
+            "_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS"
         }
 
         -- Windows specific source files for compilation

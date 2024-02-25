@@ -198,6 +198,8 @@ namespace Razix {
         f32                       m_GuizmoSnapAmount = 0.0f;
         Graphics::RZGPUProfiler   m_GPUProfiler;
         bool                      m_EnableGuizmoEditing = false;
+        std::mutex                m_RenderThreadMutex;
+        std::thread               m_RenderThread;
 
     private:
         /* Starts the application */

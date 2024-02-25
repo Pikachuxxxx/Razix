@@ -29,6 +29,9 @@ namespace Razix {
 
             void updateCascades(Razix::RZScene* scene);
 
+            RAZIX_INLINE RZTextureHandle getCSMArrayTex() const { return m_CSMArrayHandle; }
+            RAZIX_INLINE const auto&     getCascades() const { return m_Cascades; }
+
             static std::vector<Cascade> buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize);
             static std::vector<f32>     buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange);
             static FrustumCorners       buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist);
@@ -40,6 +43,7 @@ namespace Razix {
             RZPipelineHandle     m_Pipeline                  = {};
             std::vector<Cascade> m_Cascades                  = {};
             RZDescriptorSet*     m_CascadeSets[kNumCascades] = {};
+            RZTextureHandle      m_CSMArrayHandle;
 
         private:
             CascadeSubPassData addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, CascadeSubPassData subpassData, u32 cascadeIdx);

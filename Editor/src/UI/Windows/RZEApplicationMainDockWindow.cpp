@@ -466,7 +466,9 @@ namespace Razix {
                 auto scene                                                        = RZSceneManager::Get().getCurrentScene();
                 auto childEntity                                                  = scene->createEntity(childNode.name);
                 childEntity.GetComponent<Razix::TransformComponent>().Translation = childNode.translation;
-                auto& hc                                                          = childEntity.AddComponent<Razix::HierarchyComponent>(parentEntity);
+                childEntity.GetComponent<Razix::TransformComponent>().Scale       = childNode.scale;
+                //childEntity.GetComponent<Razix::TransformComponent>().Rotation    = childNode.rotation;
+                auto& hc = childEntity.AddComponent<Razix::HierarchyComponent>(parentEntity);
                 hc.OnConstruct(scene->getRegistry(), childEntity);
 
                 // TODO: Add a progress bar (test running on a separate thread)

@@ -13,6 +13,8 @@ constexpr u32 kNumCascades   = 4;
 
 static_assert(kNumCascades <= 4);
 
+constexpr f32 kSplitLambda = 0.81f;
+
 // clang-format off
 const glm::mat4 kBiasMatrix
 {

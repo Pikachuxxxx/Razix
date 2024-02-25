@@ -96,9 +96,10 @@ namespace Razix {
 #if 1
         struct MaterialData
         {
-            char                 m_Name[250]            = {};
+            char                 m_Name[250]            = "MT_PBR.Lit.Default";
             MaterialProperties   m_MaterialProperties   = {};
             MaterialTexturePaths m_MaterialTexturePaths = {};
+            MaterialTextures     m_MaterialTextures;
 
             // NOTE: This probably won't be used, we will use binary files instead
             template<typename Archive>
