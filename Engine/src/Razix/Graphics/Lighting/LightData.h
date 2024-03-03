@@ -12,7 +12,7 @@ enum LightType : u32
     FLASH    // Not Supported!
 };
 
-struct RAZIX_MEM_ALIGN LightData
+struct RAZIX_MEM_ALIGN_16 LightData
 {
     alignas(16) glm::vec3 position  = glm::vec3(1.0f);
     alignas(4) f32 range            = 10.0f;

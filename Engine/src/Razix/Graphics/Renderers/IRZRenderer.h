@@ -34,7 +34,7 @@ namespace Razix {
         /**
          * Provides the Interface for Implementing renderers in Razix engine
          */
-        class RAZIX_MEM_ALIGN RAZIX_API IRZRenderer : public RZRoot
+        class RAZIX_MEM_ALIGN_16 RAZIX_API IRZRenderer : public RZRoot
         {
         public:
             IRZRenderer() = default;

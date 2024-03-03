@@ -19,9 +19,8 @@ namespace Razix {
          * A class that manages Textures/Image resources for the Engine
          * @brief It manages creation and conversion of Image resources, also stores in a custom Engine Format depending on how it's being used
          */
-        // TODO!!!: All will be under RZTexture and will use the TextureType struct to identify the type of the Texture
-        // We will use a common set of functions under RZTexture to create various textures and of course the API ones can still be split
-        // into different classes derived from RZTexture
+        // All will be under RZTexture and will use the TextureType struct to identify the type of the Texture
+        // We will use a common set of functions under RZTexture to create various textures
         // TODO: Calculate size properly for manually set texture data
         // TODO: Add support and Utility functions for sRGB textures
         // TODO: Hide CreateXXX Functions and Replace all pointers with Handles!!!
@@ -32,7 +31,6 @@ namespace Razix {
             RZTexture() {}
             /* Virtual destructor enables the API implementation to delete it's resources */
             RAZIX_VIRTUAL_DESCTURCTOR(RZTexture)
-
             RAZIX_NONCOPYABLE_CLASS(RZTexture)
 
             GET_INSTANCE_SIZE;
@@ -65,26 +63,34 @@ namespace Razix {
 
             virtual void UploadToBindlessSet() {}
 
-            const RZTextureDesc& getDescription() const { return m_Desc; }
-
+            /* Gets the texture creation desc */
+            RAZIX_FORCE_INLINE const RZTextureDesc& getDescription() const { return m_Desc; }
             /* Returns the name of the texture resource */
-            std::string getName() const { return m_Desc.name; }
+            RAZIX_FORCE_INLINE std::string getName() const { return m_Desc.name; }
             /* returns the width of the texture */
-            u32 getWidth() const { return m_Desc.width; }
+            RAZIX_FORCE_INLINE u32 getWidth() const { return m_Desc.width; }
             /* returns the height of the texture */
-            u32 getHeight() const { return m_Desc.height; }
+            RAZIX_FORCE_INLINE u32 getHeight() const { return m_Desc.height; }
             /* Gets the size of the texture resource */
-            uint64_t getSize() const { return m_Size; }
+            RAZIX_FORCE_INLINE uint64_t getSize() const { return m_Size; }
             /* Returns the type of the texture */
-            TextureType getType() const { return m_Desc.type; }
-            void        setType(TextureType type) { m_Desc.type = type; }
+            RAZIX_FORCE_INLINE TextureType getType() const { return m_Desc.type; }
+            RAZIX_FORCE_INLINE void        setType(TextureType type) { m_Desc.type = type; }
             /* Returns the internal format of the texture */
-            TextureFormat getFormat() const { return m_Desc.format; }
+            RAZIX_FORCE_INLINE TextureFormat getFormat() const { return m_Desc.format; }
             /* Returns the virtual path of the texture resource */
-            std::string getPath() const { return m_VirtualPath; }
-            Filtering   getFilterMode() { return m_Desc.filtering; }
-            Wrapping    getWrapMode() { return m_Desc.wrapping; }
+            RAZIX_FORCE_INLINE std::string getPath() const { return m_VirtualPath; }
+            RAZIX_FORCE_INLINE Filtering   getFilterMode() { return m_Desc.filtering; }
+            RAZIX_FORCE_INLINE Wrapping    getWrapMode() { return m_Desc.wrapping; }
+            RAZIX_FORCE_INLINE u32         getCurrentMipLevel() { return m_CurrentMipRenderingLevel; }
+            RAZIX_FORCE_INLINE void        setCurrentMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
+            RAZIX_FORCE_INLINE u32         getCurrentArrayLayer() { return m_BaseArrayLayer; }
+            RAZIX_FORCE_INLINE void        setCurrentArrayLayer(u32 idx) { m_BaseArrayLayer = idx; }
+            RAZIX_FORCE_INLINE u32         getLayersCount() { return m_Desc.layers; }
+            RAZIX_FORCE_INLINE u32         getMipsCount() { return m_TotalMipLevels; }
+            RAZIX_INLINE bool              isRT() const { return m_IsRenderTexture; }
 
+            // TODO: Add function to SetCurrentArrayAccessIdx kinda thing
             /* Generates the descriptor set for the texture */
             void             generateDescriptorSet();
             RZDescriptorSet* getDescriptorSet()
@@ -92,18 +98,6 @@ namespace Razix {
                 if (!m_DescriptorSet) generateDescriptorSet();
                 return m_DescriptorSet;
             }
-
-            u32  getCurrentMipLevel() { return m_CurrentMipRenderingLevel; }
-            void setCurrentMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
-
-            u32  getCurrentArrayLayer() { return m_BaseArrayLayer; }
-            void setCurrentArrayLayer(u32 idx) { m_BaseArrayLayer = idx; }
-
-            u32 getLayersCount() { return m_Desc.layers; }
-            u32 getMipsCount() { return m_TotalMipLevels; }
-            // TODO: Add function to SetCurrentArrayAccessIdx kinda thing
-
-            RAZIX_INLINE bool isRT() const { return m_IsRenderTexture; }
 
         protected:
             std::string      m_VirtualPath;                     /* The virtual path of the texture                             */

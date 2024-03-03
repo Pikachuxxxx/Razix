@@ -35,7 +35,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         /* Descriptor binding location in the shader (set/space, binding) */
-        struct RAZIX_MEM_ALIGN BindingLocation
+        struct RAZIX_MEM_ALIGN_16 BindingLocation
         {
             u32 set     = 0;
             u32 binding = 0;
@@ -49,7 +49,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         /* Descriptor Binding layout describes the binding and set information of the shader uniform variable, to which shader stages the variable is accessible from */
-        struct RAZIX_MEM_ALIGN DescriptorBindingInfo
+        struct RAZIX_MEM_ALIGN_16 DescriptorBindingInfo
         {
             DescriptorType  type;          /* The type of the Descriptor, either a buffer or an texture image that is being consumed in the shader     */
             ShaderStage     stage;         /* The shader stage to which the descriptor is bound to                                                     */
@@ -97,7 +97,7 @@ namespace Razix {
         };
 
         /* Gives information for the attachment Info */
-        struct RAZIX_MEM_ALIGN AttachmentInfo
+        struct RAZIX_MEM_ALIGN_16 AttachmentInfo
         {
             bool              clear      = true;                                /* Whether or not to clear the particular attachment              */
             ClearColorPresets clearColor = ClearColorPresets::TransparentBlack; /* Clear color with which the attachment is cleared               */

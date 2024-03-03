@@ -51,7 +51,7 @@ namespace Razix {
         };
 
         /* Vertex Input binding information describes the input layout format of the Vertex data sent to the Input Assembly and input variable binding and location for input shader variable */
-        struct RAZIX_MEM_ALIGN RZVertexInputBindingInfo
+        struct RAZIX_MEM_ALIGN_16 RZVertexInputBindingInfo
         {
             u32               binding  = 0; /* Binding slot to which the input shader variable is bound to  */
             u32               location = 0; /* Location ID of the input shader variable                     */
@@ -60,7 +60,7 @@ namespace Razix {
         };
 
         /* Information about the uniform buffer members */
-        struct RAZIX_MEM_ALIGN RZShaderBufferMemberInfo
+        struct RAZIX_MEM_ALIGN_16 RZShaderBufferMemberInfo
         {
             std::string    name;         /* The name of the member variable                                      */
             std::string    fullName;     /* The complete name of the member including uniform buffer as prefix   */
@@ -72,7 +72,7 @@ namespace Razix {
 
         // TODO: Add support for texture arrays
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
-        struct RAZIX_MEM_ALIGN RZDescriptor
+        struct RAZIX_MEM_ALIGN_16 RZDescriptor
         {
             std::string                           typeName = "DESCRIPTOR_UNNAMED";
             std::string                           name;
@@ -86,7 +86,7 @@ namespace Razix {
             u32 offset = 0;    //? I don't think this is needed
         };
 
-        struct RAZIX_MEM_ALIGN RZPushConstant
+        struct RAZIX_MEM_ALIGN_16 RZPushConstant
         {
             std::string                           typeName = "PUSH_CONSTANT_UNNAMED";
             std::string                           name;

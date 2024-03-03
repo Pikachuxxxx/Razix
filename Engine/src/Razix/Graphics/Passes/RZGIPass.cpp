@@ -161,8 +161,6 @@ namespace Razix {
                         std::string RenderPassName = "RSM Pass";
                     } checkpointData;
 
-                    RHI::SetCmdCheckpoint(cmdBuffer, &checkpointData);
-
                     RAZIX_MARK_BEGIN("ReflectiveShadowMap", glm::vec4(.23f, .45f, .76f, 1.0f))
 
                     RenderingInfo info{};
@@ -329,8 +327,6 @@ namespace Razix {
                         std::string RenderPassName = "Radiance Injection Pass";
                     } checkpointData;
 
-                    RHI::SetCmdCheckpoint(cmdBuffer, &checkpointData);
-
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 
     #if 1
@@ -465,8 +461,6 @@ namespace Razix {
                     {
                         std::string RenderPassName = "Radiance Propagation Pass";
                     } checkpointData;
-
-                    RHI::SetCmdCheckpoint(cmdBuffer, &checkpointData);
 
                     RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
 

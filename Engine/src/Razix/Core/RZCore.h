@@ -11,9 +11,9 @@
 
     // 16-byte Memory alignment for the Windows OS/Engine
     // Well I mean we might choose different alignments on different platforms so this is set per platform explicitly
-    #define MEM_ALIGNMENT 16
+    #define MEM_DEF_ALIGNMENT_16 16
     //#define RAZIX_MEM_ALIGN __declspec(align(MEM_ALIGNMENT))) // This is MSVC pre c++11 extension
-    #define RAZIX_MEM_ALIGN alignas(MEM_ALIGNMENT)    // This is from std c++ that is supposed to be available everywhere
+    #define RAZIX_MEM_ALIGN_16 alignas(MEM_DEF_ALIGNMENT_16)    // This is from std c++ that is supposed to be available everywhere
 
     // Symbols Export settings for Engine
     #ifdef RAZIX_BUILD_DLL
@@ -29,12 +29,23 @@
     #define RAZIX_HIDDEN
 
 #else
+    #define MEM_DEF_ALIGNMENT_16 16
+
     #define RAZXI_API           __attribute__((visibility("default")))
     #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
     #define RAZIX_DEBUG_BREAK() raise(SIGTRAP);
-    #define RAZIX_MEM_ALIGN     alignas(MEM_ALIGNMENT)
+    #define RAZIX_MEM_ALIGN_16  alignas(MEM_ALIGNMENT)
 
 #endif
+
+#define razix_virtual            virtual
+#define razix_engine_api_virtual RAZIX_API virtual
+#define razix_override           override
+#define razix_public             public
+#define razix_protected          protected
+#define razix_private            private
+#define razix_volatile           volatile
+#define razix_noexcept           noexcept
 
 /****************************************************************************************************
  *                              Settings based on Configuration                                     *
@@ -97,6 +108,14 @@
 #define RAZIX_STRINGIZE(s)    STRINGIZE2(s)
 #define RAZIX_ENGINE_ROOT_DIR STRINGIZE(RAZIX_ROOT_DIR)
 
+// Concatenate two preprocessor tokens, indirectly to allow for use of macros like __LINE__
+#define RZ_CONCATENATE(a, b)  CONCATENATE2(a, b)
+#define RZ_CONCATENATE2(a, b) a##b
+
+// pragma messages with more information
+//#define TODO(x)         message( __FILE__ "(" CORE_TO_STRING(__LINE__) ") : TODO: " x )
+#define RZ_TODO(x) message("TODO: " x)
+
 // Function Bind macro
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::RZApplication::x, this, std::placeholders::_1)
 
@@ -134,13 +153,13 @@ public:                                                  \
     type_identifier(const type_identifier&)            = delete; \
     type_identifier& operator=(const type_identifier&) = delete;
 
-#define RAZIX_NONMOVABLE_CLASS(type_identifier)                      \
+#define RAZIX_IMMOVABLE_CLASS(type_identifier)                       \
     type_identifier(type_identifier&&) noexcept            = delete; \
     type_identifier& operator=(type_identifier&&) noexcept = delete;
 
-#define RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(type_identifier) \
-    RAZIX_NONCOPYABLE_CLASS(type_identifier)                \
-    RAZIX_NONMOVABLE_CLASS(type_identifier)
+#define RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier) \
+    RAZIX_NONCOPYABLE_CLASS(type_identifier)               \
+    RAZIX_IMMOVABLE_CLASS(type_identifier)
 
 // Make the Class/Struct Object Copyable/Assignable Explicit default declaration
 #define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
@@ -157,7 +176,7 @@ public:                                                  \
 
 // Deprecation error macros
 #ifdef _MSC_VER
-    #define RAZIX_DEPRECATED(msg_str) __declspec(deprecated("This symbol is deprecated by Razix Engine. Details: " msg_str))
+    #define RAZIX_DEPRECATED(msg_str) __declspec(deprecated("[Razix Deprecated!] This symbol is deprecated by Razix Engine. Details: " msg_str))
 #elif defined(__clang__)
     #define RAZIX_DEPRECATED(msg_str) __attribute__((deprecated(msg_str)))
 #elif defined(__GNUC__)
@@ -175,6 +194,8 @@ public:                                                  \
 
 // NO discard values for functions
 #define RAZIX_NO_DISCARD [[nodiscard]]
+// Marks a variable as unused (to avoid a compile warning)
+#define UNREFERENCED_VARIABLE(P) (void) (P)
 
 // Functions Calling Conventions for Razix Engine depending on the OS and compiler configuration
 // On Windows we use __cdecl by default however __stdcall might be necessary for interop API with Razix Engine and C#
@@ -311,8 +332,74 @@ public:                                                  \
 #define RAZIX_WARNING_POP()      __pragma(warning(pop))
 #define RAZIX_WARNING_DISABLE(x) __pragma warning(disable \
                                                   : x)
-
 #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+
+/**
+ * Alignment Macros
+ */
+#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) -1)) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+
+#define RZ_ALIGN_64K(n) ((((size_t) (n)) + 0xffff) & ~0xffff)
+
+#define RZ_ALIGN_4096(n) ALIGN_ARB(n, 4096)
+
+#define RZ_ALIGN_512(n) ((((size_t) (n)) + 511) & ~511)
+#define RZ_ALIGN_256(n) ((((size_t) (n)) + 255) & ~255)
+#define RZ_ALIGN_128(n) ((((size_t) (n)) + 127) & ~127)
+#define RZ_ALIGN_64(n)  ((((size_t) (n)) + 63) & ~63)
+#define RZ_ALIGN_32(n)  ((((size_t) (n)) + 31) & ~31)
+#define RZ_ALIGN_16(n)  ((((size_t) (n)) + 15) & ~15)
+#define RZ_ALIGN_8(n)   ((((size_t) (n)) + 7) & ~7)
+#define RZ_ALIGN_4(n)   ((((size_t) (n)) + 3) & ~3)
+#define RZ_ALIGN_2(n)   ((((size_t) (n)) + 1) & ~1)
+
+#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) -1)) == 0)    // 'a' needs to be a power of 2
+
+#define RZ_IS_ALIGNED_512(n) (((size_t) (n) &511) == 0)
+#define RZ_IS_ALIGNED_256(n) (((size_t) (n) &255) == 0)
+#define RZ_IS_ALIGNED_128(n) (((size_t) (n) &127) == 0)
+#define RZ_IS_ALIGNED_64(n)  (((size_t) (n) &63) == 0)
+#define RZ_IS_ALIGNED_32(n)  (((size_t) (n) &31) == 0)
+#define RZ_IS_ALIGNED_16(n)  (((size_t) (n) &15) == 0)
+#define RZ_IS_ALIGNED_8(n)   (((size_t) (n) &7) == 0)
+#define RZ_IS_ALIGNED_4(n)   (((size_t) (n) &3) == 0)
+#define RZ_IS_ALIGNED_2(n)   (((size_t) (n) &1) == 0)
+
+#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+
+#define RZ_ALIGN_DOWN_512(n) (size_t(n) & ~511)
+#define RZ_ALIGN_DOWN_256(n) (size_t(n) & ~255)
+#define RZ_ALIGN_DOWN_128(n) (size_t(n) & ~127)
+#define RZ_ALIGN_DOWN_64(n)  (size_t(n) & ~63)
+#define RZ_ALIGN_DOWN_32(n)  (size_t(n) & ~31)
+#define RZ_ALIGN_DOWN_16(n)  (size_t(n) & ~15)
+#define RZ_ALIGN_DOWN_8(n)   (size_t(n) & ~7)
+#define RZ_ALIGN_DOWN_4(n)   (size_t(n) & ~3)
+#define RZ_ALIGN_DOWN_2(n)   (size_t(n) & ~1)
+
+// Align a struct as specified
+#define RZ_ALIGN_TO(a) __declspec(align(a))
+#define RZ_ALIGN_AS(a) alignas(a)
+
+// A macro to call a member function pointer
+#define RAZIX_CALL_MEMBER_FUNC(object, member_func) ((object)->*(member_func))
+
+// Macro to define DestroyResource for IRZResource clean up in a common way in the entire engine
+#define RAZIX_CLEANUP_RESOURCE            razix_virtual void DestroyResource() razix_override;
+#define RAZIX_CLEANUP_RESOURCE_IMPL(type) void type::DestroyResource()
+#define RAZIX_CLEANUP_RESOURCE_IMPL_BEGIN(type) \
+    void type::DestroyResource()                \
+    {
+#define RAZIX_CLEANUP_RESOURCE_IMPL_END }
+
+// Virtual Functions (Pascal Case)
+#define RAZIX_VIRTUAL(type, func, ...)      razix_virtual type func(__VA_ARGS__);
+#define RAZIX_PURE_VIRTUAL(type, func, ...) razix_virtual type func(__VA_ARGS__) = 0;
+
+#define RAZIX_VIRTUAL_OVERRIDE(type, func, ...) razix_virtual type func(__VA_ARGS__) razix_override;
+#define RAZIX_VIRTUAL_OVERRIDE_FINAL(type, func, ...) \
+    razix_virtual type func(__VA_ARGS__)              \
+    final              razix_override;
 
 // TODO: Add Safe memory delete and unloading macros
 /****************************************************************************************************
@@ -321,7 +408,7 @@ public:                                                  \
 
 /* Triple buffering is enabled by default */
 #define RAZIX_ENABLE_TRIPLE_BUFFERING
-/* The total number of images that the swapchan can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
+/* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
 #ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
     /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
     #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
