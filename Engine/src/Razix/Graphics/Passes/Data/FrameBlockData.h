@@ -31,4 +31,5 @@ struct GPUFrameData
     GPUCameraFrameData camera;
     u32                renderFeatures;
     u32                debugFlags;
+    glm::vec2          jitterTAA;
 };

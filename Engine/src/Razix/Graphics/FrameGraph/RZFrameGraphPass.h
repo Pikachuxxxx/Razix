@@ -50,7 +50,7 @@ namespace Razix {
                 IRZFrameGraphPass() {}
                 RAZIX_VIRTUAL_DESCTURCTOR(IRZFrameGraphPass)
 
-                RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(IRZFrameGraphPass)
+                RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(IRZFrameGraphPass)
 
                 virtual void operator()(RZPassNode &node, RZPassResourceDirectory &resources)  = 0;
                 virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;

@@ -21,7 +21,6 @@ namespace Razix {
         // Texture Utility Static Functions
         //-----------------------------------------------------------------------------------
 
-#ifndef RAZIX_USE_VMA
         void VKTexture::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
         {
             // We pass the image as reference because we need the memory for it as well
@@ -59,7 +58,6 @@ namespace Razix {
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
             VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) imageMemory);
         }
-#else
         void VKTexture::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
         {
             // We pass the image as reference because we need the memory for it as well
@@ -81,6 +79,7 @@ namespace Razix {
 
             VmaAllocationCreateInfo vmaallocInfo = {};
             // TODO: make this selection smart or customizable by user
+            //RZ_TODO("Make this selection smart or customizable by user");
             vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
             // We will almost never read back from GPU, and we always use s staging buffer to copy to GPU, so it's always Device Local
             vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT |
@@ -91,14 +90,15 @@ namespace Razix {
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
 
-    #ifdef RAZIX_DEBUG
+#ifdef RAZIX_DEBUG
             vmaSetAllocationName(VKDevice::Get().getVMA(), vmaAllocation RZ_DEBUG_E_ARG_NAME.c_str());
-    #endif
+#endif
 
             // TODO: Get allocated memory stats from which pool etc. and attach that to RZMemoryManager
             //Memory::RZMemAllocInfo memAllocInfo{};
         }
-#endif
+
+        //-----------------------------------------------------------------------------------
 
         VkImageView VKTexture::CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer, u32 baseMipLevel /*= 0*/ RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -121,6 +121,8 @@ namespace Razix {
 
             return imageView;
         }
+
+        //-----------------------------------------------------------------------------------
 
         VkSampler VKTexture::CreateImageSampler(VkFilter magFilter /*= VK_FILTER_LINEAR*/, VkFilter minFilter /*= VK_FILTER_LINEAR*/, f32 minLod /*= 0.0f*/, f32 maxLod /*= 1.0f*/, bool anisotropyEnable /*= false*/, f32 maxAnisotropy /*= 1.0f*/, VkSamplerAddressMode modeU /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeV /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeW /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/ RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -149,6 +151,8 @@ namespace Razix {
 
             return sampler;
         }
+
+        //-----------------------------------------------------------------------------------
 
         void VKTexture::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers /* = 1*/)
         {
@@ -300,6 +304,35 @@ namespace Razix {
 
             updateDescriptor();
         }
+
+        //-------------------------------------------------------------------------------------------
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKTexture)
+        {
+            if (m_Desc.type == TextureType::Texture_SwapchainImage)
+                return;
+
+            if (m_ImageSampler != VK_NULL_HANDLE)
+                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
+
+            for (u32 i = 0; i < m_ImageViews.size(); i++)
+                if (m_ImageViews[i] != VK_NULL_HANDLE)
+                    vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageViews[i], nullptr);
+
+#ifndef RAZIX_USE_VMA
+            if (m_Image != VK_NULL_HANDLE)
+                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
+
+            if (m_ImageMemory != VK_NULL_HANDLE)
+                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+#else
+            vmaDestroyImage(VKDevice::Get().getVMA(), m_Image, m_VMAAllocation);
+#endif
+
+            m_ImageViews.clear();
+            m_Descriptors.clear();
+            m_CurrentMipRenderingLevel = 0;
+        }
+        //-------------------------------------------------------------------------------------------
 
         void VKTexture::UploadToBindlessSet()
         {
@@ -553,33 +586,6 @@ namespace Razix {
             m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
             updateDescriptor();
-        }
-
-        void VKTexture::DestroyResource()
-        {
-            if (m_Desc.type == TextureType::Texture_SwapchainImage)
-                return;
-
-            if (m_ImageSampler != VK_NULL_HANDLE)
-                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
-
-            for (u32 i = 0; i < m_ImageViews.size(); i++)
-                if (m_ImageViews[i] != VK_NULL_HANDLE)
-                    vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageViews[i], nullptr);
-
-#ifndef RAZIX_USE_VMA
-            if (m_Image != VK_NULL_HANDLE)
-                vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
-
-            if (m_ImageMemory != VK_NULL_HANDLE)
-                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
-#else
-            vmaDestroyImage(VKDevice::Get().getVMA(), m_Image, m_VMAAllocation);
-#endif
-
-            m_ImageViews.clear();
-            m_Descriptors.clear();
-            m_CurrentMipRenderingLevel = 0;
         }
 
         void VKTexture::Resize(u32 width, u32 height)

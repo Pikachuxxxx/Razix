@@ -19,6 +19,7 @@ struct FrameInfo {
     Camera camera;
     uint renderFeatures;
     uint debugFlags;
+    vec2 jitterTAA;
 };
 //----------------------------------
 #ifndef DISABLE_FRAME_DATA_BINDING
@@ -33,7 +34,7 @@ const uint RendererFeature_SSAO       = 1 << 3;
 const uint RendererFeature_SSR        = 1 << 4;
 const uint RendererFeature_Bloom      = 1 << 5;
 const uint RendererFeature_FXAA       = 1 << 6;
-const uint RendererFeature_Vignette   = 1 << 7;
+const uint RendererFeature_TAA        = 1 << 7;
 const uint RendererFeature_ImGui      = 1 << 8;
 const uint RendererFeature_Deferred   = 1 << 9;
 const uint RendererFeature_DebugDraws = 1 << 10;
@@ -53,5 +54,20 @@ bool hasDebugFlags(uint f) { return (FrameData.info.debugFlags & f) == f; }
 #endif
 
 vec3 getCameraPosition(Camera cam) { return cam.inversedView[3].xyz; }
+
+vec4 getProjectionViewSpacePosition(vec4 pos)
+{
+    mat4 jitterMatrix = mat4(
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        FrameData.info.jitterTAA.x, FrameData.info.jitterTAA.y, 0.0, 1.0  // translation 
+    );
+
+    mat4 jitterProj = FrameData.info.camera.projection * jitterMatrix;
+
+    // Final position of the vertices
+    return jitterProj * FrameData.info.camera.view * pos;
+}
 
 #endif

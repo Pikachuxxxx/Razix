@@ -57,6 +57,8 @@ namespace Razix {
 
             void SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height) override;
 
+            void CopyTextureResourceImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle) override;
+
         private:
             OpenGLContext* m_Context; /* Reference to the opengl context, we store it to avoid multiple calls */
         };

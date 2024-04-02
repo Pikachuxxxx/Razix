@@ -49,7 +49,7 @@ namespace Razix {
             public:
                 RZFrameGraph() {}
                 /* We don't want dangling frame graph resources and nodes */
-                RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZFrameGraph)
+                RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZFrameGraph)
 
                 // TODO: Add OnUpdate and OnResize to the frame graph callback functions
 
@@ -243,8 +243,8 @@ namespace Razix {
                 /* Deleting public empty constructor as the members variables are references and we don't want to have dangling framegraph and also not let the user, but instead the fg creates it */
                 RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZPassResourceBuilder)
 
-                /* Since FrameGraph is RAZIX_NONCOPYABLE_NONMOVABLE_CLASS, and we hold references to it, it's better we do the same */
-                RAZIX_NONCOPYABLE_NONMOVABLE_CLASS(RZPassResourceBuilder)
+                /* Since FrameGraph is RAZIX_NONCOPYABLE_IMMOVABLE_CLASS, and we hold references to it, it's better we do the same */
+                RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZPassResourceBuilder)
 
                 /**
                  * Used to declare for creating the resource using the resource description

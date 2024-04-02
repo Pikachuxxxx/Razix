@@ -51,6 +51,8 @@ namespace Razix {
                 RAZIX_CORE_ERROR("vkCmdPushDescriptorSetKHR Function not found");
         }
 
+        //--------------------------------------------------------------------------------------
+
         VKRenderContext::VKRenderContext(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -60,11 +62,6 @@ namespace Razix {
             m_Height        = height;
             m_PrevWidth     = width;
             m_PrevHeight    = height;
-        }
-
-        VKRenderContext::~VKRenderContext()
-        {
-            //m_Context->Release();
         }
 
         void VKRenderContext::OnImGui()
@@ -395,17 +392,6 @@ namespace Razix {
             CmdEndRenderingKHR(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer());
         }
 
-        void VKRenderContext::SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData)
-        {
-#if 0
-            RAZIX_CORE_WARN("Marker Data set : {0} at memory location : {1}", *static_cast<std::string*>(markerData), markerData);
-
-            auto func = (PFN_vkCmdSetCheckpointNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdSetCheckpointNV");
-            if (func != nullptr)
-                func(static_cast<VKCommandBuffer*>(cmdbuffer)->getBuffer(), markerData);
-#endif
-        }
-
         void VKRenderContext::BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -589,6 +575,27 @@ namespace Razix {
             vkCmdPipelineBarrier(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 1, &barrier, 0, nullptr);
         }
 
+        void VKRenderContext::CopyTextureResourceImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTexture)
+        {
+            auto srcTextureResource = RZResourceManager::Get().getTextureResource(srcTexture);
+            auto vkSrcTexture       = static_cast<VKTexture*>(srcTextureResource);
+
+            auto dstTextureResource = RZResourceManager::Get().getTextureResource(dstTexture);
+            auto vkDstTexture       = static_cast<VKTexture*>(dstTextureResource);
+
+            // TODO: Supports all kinds of texture type copies
+            VkImageCopy imageCopyRegion               = {};
+            imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.srcSubresource.layerCount = 1;
+            imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.dstSubresource.layerCount = 1;
+            imageCopyRegion.extent.width              = vkSrcTexture->getWidth();
+            imageCopyRegion.extent.height             = vkSrcTexture->getHeight();
+            imageCopyRegion.extent.depth              = 1;
+
+            vkCmdCopyImage(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), vkSrcTexture->getImage(), vkSrcTexture->getLayout(), vkDstTexture->getImage(), vkDstTexture->getLayout(), 1, &imageCopyRegion);
+        }
+
         void VKRenderContext::SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
@@ -604,6 +611,15 @@ namespace Razix {
             viewport.maxDepth   = 1.0f;
 
             vkCmdSetViewport(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &viewport);
+        }
+
+        void VKRenderContext::SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData)
+        {
+            RAZIX_CORE_WARN("Marker Data set : {0} at memory location : {1}", *static_cast<std::string*>(markerData), markerData);
+
+            auto func = (PFN_vkCmdSetCheckpointNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdSetCheckpointNV");
+            if (func != nullptr)
+                func(static_cast<VKCommandBuffer*>(cmdbuffer)->getBuffer(), markerData);
         }
     }    // namespace Graphics
 }    // namespace Razix

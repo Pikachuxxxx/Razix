@@ -10,7 +10,7 @@ namespace Razix {
         class RZFramebuffer;
 
         /* Gives information about the type of texture that is attached to the framebuffer render pass */
-        struct RAZIX_MEM_ALIGN RenderPassAttachmentInfo
+        struct RAZIX_MEM_ALIGN_16 RenderPassAttachmentInfo
         {
             TextureType   type;         /* The type of the attachment                                                                                               */
             TextureFormat format;       /* The format of the attachment                                                                                             */
@@ -19,7 +19,7 @@ namespace Razix {
         };
 
         /* Info to create a render pass */
-        struct RAZIX_MEM_ALIGN RenderPassInfo
+        struct RAZIX_MEM_ALIGN_16 RenderPassInfo
         {
             std::string     name;            /* Name of the renderpass                               */
             RenderPassAttachmentInfo* attachmentInfos; /* Attachments and their info                           */
@@ -34,7 +34,7 @@ namespace Razix {
         };
 
         /* Render Pass describes how the framebuffer is interpreted, provides multiple passes for transformations and attachments and helps with post-processing */
-        class RAZIX_MEM_ALIGN RAZIX_API RZRenderPass : public RZRoot
+        class RAZIX_MEM_ALIGN_16 RAZIX_API RZRenderPass : public RZRoot
         {
         public:
             RZRenderPass() = default;

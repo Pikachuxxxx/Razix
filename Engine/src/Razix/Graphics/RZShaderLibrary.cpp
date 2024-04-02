@@ -37,6 +37,7 @@ namespace Razix {
             //-------------------------------------------------------------------
             // Lighting
             loadBuiltInShader(ShaderBuiltin::GBuffer, "//RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf");
+            //loadBuiltInShader(ShaderBuiltin::DeferredDecals, "//RazixContent/Shaders/Razix/Shader.Builtin.DeferredDecals.rzsf");
             loadBuiltInShader(ShaderBuiltin::DepthPreTest, "//RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::CSM, "//RazixContent/Shaders/Razix/Shader.Builtin.CSM.rzsf");
             loadBuiltInShader(ShaderBuiltin::PBRLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.PBRLighting.rzsf");
@@ -46,14 +47,15 @@ namespace Razix {
             // Post Processing FX
             loadBuiltInShader(ShaderBuiltin::ColorGrading, "//RazixContent/Shaders/Razix/Shader.Builtin.ColorGrading.rzsf");
             loadBuiltInShader(ShaderBuiltin::SSAO, "//RazixContent/Shaders/Razix/Shader.Builtin.SSAO.rzsf");
-
+            loadBuiltInShader(ShaderBuiltin::GaussianBlur, "//RazixContent/Shaders/Razix/Shader.Builtin.GaussianBlur.rzsf");
+            loadBuiltInShader(ShaderBuiltin::TAAResolve, "//RazixContent/Shaders/Razix/Shader.Builtin.TAAResolve.rzsf");
             //-------------------------------------------------------------------
             // Utility Shaders (Graphics + Compute)
             // Env to CubeMap
             loadBuiltInShader(ShaderBuiltin::EnvToCubemap, "//RazixContent/Shaders/Razix/Shader.Builtin.EnvToCubeMap.rzsf");
             loadBuiltInShader(ShaderBuiltin::GenerateIrradianceMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GenerateIrradianceMap.rzsf");
             loadBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GeneratePreFilteredMap.rzsf");
-            //-------------------------------------------------------------------
+            //------------------------------------------------------------------
             // Debug Shaders
             loadBuiltInShader(ShaderBuiltin::DebugPoint, "//RazixContent/Shaders/Razix/Shader.Builtin.DebugPoint.rzsf");
             loadBuiltInShader(ShaderBuiltin::DebugLine, "//RazixContent/Shaders/Razix/Shader.Builtin.DebugLine.rzsf");
@@ -62,7 +64,6 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::SpriteTextured, "//RazixContent/Shaders/Razix/Shader.Builtin.SpriteTextured.rzsf");
             //-------------------------------------------------------------------
             // Utility Shaders aka Math
-            loadBuiltInShader(ShaderBuiltin::GaussianBlur, "//RazixContent/Shaders/Razix/Shader.Builtin.GaussianBlur.rzsf");
             //-------------------------------------------------------------------
         }
 

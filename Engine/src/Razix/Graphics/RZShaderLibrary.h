@@ -20,6 +20,7 @@ namespace Razix {
             PBRIBL,
             PBRDeferredLighting,
             GBuffer,
+            DeferredDecals,
             Composition,
             DepthPreTest,
             CSM,
@@ -35,7 +36,8 @@ namespace Razix {
             SSAO,
             GaussianBlur,
             ColorGrading,
-            BUILTIN_SHADERS_COUNT
+            TAAResolve,
+            COUNT
         };
 
         /**

@@ -13,55 +13,50 @@ namespace Razix {
 
         const u32 kMAX_DESCRIPTORS_BINDABLE_PER_FRAME = 16;
 
-        class VKRenderContext : public RHI
+        class VKRenderContext final : public RHI
         {
         public:
             VKRenderContext(u32 width, u32 height);
-            ~VKRenderContext();
+            ~VKRenderContext() {}
 
             static VKRenderContext* GetVKRenderer() { return static_cast<VKRenderContext*>(s_APIInstance); }
 
-            void OnImGui() override;
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, OnImGui)
 
         protected:
-            void AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override;
-            void SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores) override;
-
-            void InitAPIImpl() override;
-            void BeginAPIImpl(RZCommandBuffer* cmdBuffer) override;
-            void SubmitImpl(RZCommandBuffer* cmdBuffer) override;
-            void PresentAPIImpl(RZSemaphore* waitSemaphore) override;
-            void BindPipelineImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer) override;
-            void BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx) override;
-            void BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx) override;
-            void DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT) override;
-            void DrawIndexedAPIImpl(RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0) override;
-            void DestroyAPIImpl() override;
-
-            void OnResizeAPIImpl(u32 width, u32 height) override;
-
-            RZSwapchain* GetSwapchainImpl() override;
-
-            void BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant) override;
-            void SetDepthBiasImpl(RZCommandBuffer* cmdBuffer) override;
-            void BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx) override;
-            void SetScissorRectImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height) override;
-            void EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer) override;
-            void BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors) override;
-
-            void BeginRenderingImpl(RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo) override;
-            void EndRenderingImpl(RZCommandBuffer* cmdBuffer) override;
-
-            void SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData) override;
-
-            void InsertImageMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo) override;
-            void InsertBufferMemoryBarrierImpl(RZCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) override;
-
-            void SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height) override;
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, InitAPIImpl)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, AcquireImageAPIImpl, RZSemaphore* signalSemaphore)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, SubmitWorkImpl, std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BeginAPIImpl, RZCommandBuffer* cmdBuffer)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, SubmitImpl, RZCommandBuffer* cmdBuffer)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, PresentAPIImpl, RZSemaphore* waitSemaphore)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BindPipelineImpl, RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BindDescriptorSetAPImpl, RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BindUserDescriptorSetsAPImpl, RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, DrawAPIImpl, RZCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, DrawIndexedAPIImpl, RZCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, DestroyAPIImpl)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, OnResizeAPIImpl, u32 width, u32 height)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BindPushConstantsAPIImpl, RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, SetViewportImpl, RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, SetDepthBiasImpl, RZCommandBuffer* cmdBuffer)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BindUserDescriptorSetsAPImpl, RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, SetScissorRectImpl, RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, EnableBindlessTexturesImpl, RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BindPushDescriptorsImpl, RZPipelineHandle pipeline, RZCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, BeginRenderingImpl, RZCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, EndRenderingImpl, RZCommandBuffer* cmdBuffer)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, InsertImageMemoryBarrierImpl, RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, InsertBufferMemoryBarrierImpl, RZCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, CopyTextureResourceImpl, RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(RZSwapchain*, GetSwapchainImpl)
 
         private:
             VKContext*      m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
             VkDescriptorSet m_DescriptorSetPool[kMAX_DESCRIPTORS_BINDABLE_PER_FRAME];
+
+        private:
+            void SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData);
         };
     }    // namespace Graphics
 }    // namespace Razix
