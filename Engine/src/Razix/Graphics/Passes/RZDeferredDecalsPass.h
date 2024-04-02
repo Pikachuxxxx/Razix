@@ -9,6 +9,7 @@
 namespace Razix {
     namespace Graphics {
 
+        // [Source] : https://www.gamedevs.org/uploads/screenspace-decals-space-marine.pdf
         class RZDeferredDecalsPass : public IRZPass
         {
         public:

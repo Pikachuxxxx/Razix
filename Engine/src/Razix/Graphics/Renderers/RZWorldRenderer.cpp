@@ -28,6 +28,8 @@
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
+#include "Razix/Maths/HaltonSeq.h"
+
 #include "Razix/Scene/Components/RZComponents.h"
 
 #include "Razix/Scene/RZScene.h"
@@ -73,6 +75,15 @@ namespace Razix {
             m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
             importGlobalLightProbes(m_GlobalLightProbes);
+
+            //-----------------------------------------------------------------------------------
+            // Misc Variables
+
+            for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
+                // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
+                m_TAAJitterHaltonSamples[i].x = (HaltonSequence(i + 1, 2) - 0.5) * 0.025;    // Centering the jitter around (0,0)
+                m_TAAJitterHaltonSamples[i].y = (HaltonSequence(i + 1, 3) - 0.5) * 0.025;
+            }
 
             //-----------------------------------------------------------------------------------
 
@@ -145,7 +156,6 @@ namespace Razix {
             //-------------------------------
             // PBR Deferred Pass
             //-------------------------------
-            settings.debugFlags |= RendererDebugFlag_VisCSMCascades;
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, settings);
 #endif
 
@@ -361,6 +371,8 @@ namespace Razix {
 
         void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+            m_FrameCount++;
+
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsFGFilePathDirty) {
@@ -406,6 +418,8 @@ namespace Razix {
 
         void RZWorldRenderer::destroy()
         {
+            m_FrameCount = 0;
+
             // Wait for rendering to be done before halting
             Graphics::RZGraphicsContext::GetContext()->Wait();
 
@@ -512,6 +526,7 @@ namespace Razix {
                     gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     gpuData.debugFlags     = settings.debugFlags;
                     gpuData.renderFeatures = settings.renderFeatures;
+                    gpuData.jitterTAA      = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
 
                     auto& sceneCam = scene->getSceneCamera();
 

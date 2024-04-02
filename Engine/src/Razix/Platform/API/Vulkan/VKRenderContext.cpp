@@ -575,6 +575,27 @@ namespace Razix {
             vkCmdPipelineBarrier(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 1, &barrier, 0, nullptr);
         }
 
+        void VKRenderContext::CopyTextureResourceImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTexture)
+        {
+            auto srcTextureResource = RZResourceManager::Get().getTextureResource(srcTexture);
+            auto vkSrcTexture       = static_cast<VKTexture*>(srcTextureResource);
+
+            auto dstTextureResource = RZResourceManager::Get().getTextureResource(dstTexture);
+            auto vkDstTexture       = static_cast<VKTexture*>(dstTextureResource);
+
+            // TODO: Supports all kinds of texture type copies
+            VkImageCopy imageCopyRegion               = {};
+            imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.srcSubresource.layerCount = 1;
+            imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.dstSubresource.layerCount = 1;
+            imageCopyRegion.extent.width              = vkSrcTexture->getWidth();
+            imageCopyRegion.extent.height             = vkSrcTexture->getHeight();
+            imageCopyRegion.extent.depth              = 1;
+
+            vkCmdCopyImage(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), vkSrcTexture->getImage(), vkSrcTexture->getLayout(), vkDstTexture->getImage(), vkDstTexture->getLayout(), 1, &imageCopyRegion);
+        }
+
         void VKRenderContext::SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);

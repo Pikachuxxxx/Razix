@@ -38,15 +38,6 @@
 
 #endif
 
-#define razix_virtual            virtual
-#define razix_engine_api_virtual RAZIX_API virtual
-#define razix_override           override
-#define razix_public             public
-#define razix_protected          protected
-#define razix_private            private
-#define razix_volatile           volatile
-#define razix_noexcept           noexcept
-
 /****************************************************************************************************
  *                              Settings based on Configuration                                     *
  ****************************************************************************************************/
@@ -385,7 +376,7 @@ public:                                                  \
 #define RAZIX_CALL_MEMBER_FUNC(object, member_func) ((object)->*(member_func))
 
 // Macro to define DestroyResource for IRZResource clean up in a common way in the entire engine
-#define RAZIX_CLEANUP_RESOURCE            razix_virtual void DestroyResource() razix_override;
+#define RAZIX_CLEANUP_RESOURCE            virtual void DestroyResource() override;
 #define RAZIX_CLEANUP_RESOURCE_IMPL(type) void type::DestroyResource()
 #define RAZIX_CLEANUP_RESOURCE_IMPL_BEGIN(type) \
     void type::DestroyResource()                \
@@ -393,13 +384,13 @@ public:                                                  \
 #define RAZIX_CLEANUP_RESOURCE_IMPL_END }
 
 // Virtual Functions (Pascal Case)
-#define RAZIX_VIRTUAL(type, func, ...)      razix_virtual type func(__VA_ARGS__);
-#define RAZIX_PURE_VIRTUAL(type, func, ...) razix_virtual type func(__VA_ARGS__) = 0;
+#define RAZIX_VIRTUAL(type, func, ...)      virtual type func(__VA_ARGS__);
+#define RAZIX_PURE_VIRTUAL(type, func, ...) virtual type func(__VA_ARGS__) = 0;
 
-#define RAZIX_VIRTUAL_OVERRIDE(type, func, ...) razix_virtual type func(__VA_ARGS__) razix_override;
+#define RAZIX_VIRTUAL_OVERRIDE(type, func, ...) virtual type func(__VA_ARGS__) override;
 #define RAZIX_VIRTUAL_OVERRIDE_FINAL(type, func, ...) \
-    razix_virtual type func(__VA_ARGS__)              \
-    final              razix_override;
+    virtual type func(__VA_ARGS__)                    \
+    final        override;
 
 // TODO: Add Safe memory delete and unloading macros
 /****************************************************************************************************

@@ -27,6 +27,10 @@
 
 #include "Razix/Maths/RZGrid.h"
 
+// TODO: https://miketuritzin.com/post/hierarchical-depth-buffers/
+// TODO: https://www.jeremyong.com/cpp/2021/05/20/graphics-pipelines-for-young-bloods/
+// https://www.elopezr.com/temporal-aa-and-the-quest-for-the-holy-trail/
+
 namespace Razix {
     // Forward Declarations
     class RZScene;
@@ -35,6 +39,8 @@ namespace Razix {
     namespace Maths {
         class RZFrustum;
     }
+
+#define NUM_HALTON_SAMPLES_TAA_JITTER 16
 
     namespace Graphics {
 
@@ -50,13 +56,13 @@ namespace Razix {
             RendererFeature_SSR        = 1 << 4,
             RendererFeature_Bloom      = 1 << 5,
             RendererFeature_FXAA       = 1 << 6,
-            RendererFeature_Vignette   = 1 << 7,
+            RendererFeature_TAA        = 1 << 7,
             RendererFeature_ImGui      = 1 << 8,
             RendererFeature_Deferred   = 1 << 9,
             RendererFeature_DebugDraws = 1 << 10,
             RendererFeature_CSM        = 1 << 11,
 
-            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_DebugDraws,
+            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_DebugDraws | RendererFeature_TAA,
 
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };
@@ -78,6 +84,13 @@ namespace Razix {
             Uncharted2,
             Unreal,
             None
+        };
+
+        enum SceneSamplingPattern : u32
+        {
+            Normal,
+            Halton,
+            Stratified
         };
 
         struct RZRendererSettings
@@ -148,7 +161,9 @@ namespace Razix {
             //RZColorGradingPass        m_ColorGradingPass;
 
             // Other Variables
+            u32         m_FrameCount = 0;
             Maths::AABB m_SceneAABB{};
+            glm::vec2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER];
 
             bool        m_FrameGraphBuildingInProgress = true;
             std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";

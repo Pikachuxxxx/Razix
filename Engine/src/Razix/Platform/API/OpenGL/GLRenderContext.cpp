@@ -193,6 +193,11 @@
             glViewport(x, y, width, height);
         }
 
+        void GLRenderContext::CopyTextureResourceImpl(RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
+        }
+
         void GLRenderContext::DrawAPIImpl(RZCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

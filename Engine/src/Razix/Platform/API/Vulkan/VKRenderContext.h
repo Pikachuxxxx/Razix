@@ -48,6 +48,7 @@ namespace Razix {
             RAZIX_VIRTUAL_OVERRIDE_FINAL(void, EndRenderingImpl, RZCommandBuffer* cmdBuffer)
             RAZIX_VIRTUAL_OVERRIDE_FINAL(void, InsertImageMemoryBarrierImpl, RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
             RAZIX_VIRTUAL_OVERRIDE_FINAL(void, InsertBufferMemoryBarrierImpl, RZCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+            RAZIX_VIRTUAL_OVERRIDE_FINAL(void, CopyTextureResourceImpl, RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
             RAZIX_VIRTUAL_OVERRIDE_FINAL(RZSwapchain*, GetSwapchainImpl)
 
         private:

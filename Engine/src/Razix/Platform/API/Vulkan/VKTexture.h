@@ -102,20 +102,20 @@ namespace Razix {
             //---------------------------------------
 
             /* Binds the texture object to the given slot */
-            void Bind(u32 slot) razix_override {}
+            void Bind(u32 slot) override {}
             /* Unbinds the texture object to the given slot */
-            void Unbind(u32 slot) razix_override {}
+            void Unbind(u32 slot) override {}
             /* Resize the texture mostly useful for RTs and DRTs */
-            void Resize(u32 width, u32 height) razix_override;
+            void Resize(u32 width, u32 height) override;
             /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
-            void* GetAPIHandlePtr() const razix_override { return (void*) &m_Descriptors[m_CurrentMipRenderingLevel]; }
+            void* GetAPIHandlePtr() const override { return (void*) &m_Descriptors[m_CurrentMipRenderingLevel]; }
             // TODO: Add support for reading z/array layer
             /* Reads the pixels from the Image (supports only 2D as of now!) in a particular mip */
-            int32_t      ReadPixels(u32 x, u32 y) razix_override;
-            virtual void GenerateMips() razix_override;
+            int32_t      ReadPixels(u32 x, u32 y) override;
+            virtual void GenerateMips() override;
 
             /* Updates into the global bindless pool */
-            void UploadToBindlessSet() razix_override;
+            void UploadToBindlessSet() override;
             /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
             RAZIX_INLINE void updateDescriptor();
             /* Gets the layout of the image ex. depth or optimal etc. */

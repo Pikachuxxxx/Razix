@@ -276,6 +276,14 @@ namespace Razix {
 
                 //s_APIInstance->InsertPipelineBarrierImpl(cmdBuffer, texture, pipelineBarrierInfo);
             }
+            /* Copies the texture resource from source to destination */
+            RAZIX_FORCE_INLINE static void CopyTextureResource(RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("Copy Texture Resource");
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                return s_APIInstance->CopyTextureResourceImpl(cmdBuffer, dstTexture, srcTextureHandle);
+            }
             /* Sets Hardware depth bias value */
             RAZIX_FORCE_INLINE static void SetDepthBias(RZCommandBuffer* cmdBuffer)
             {
@@ -317,8 +325,7 @@ namespace Razix {
                 return s_APIInstance->m_CurrentCommandBuffer;
             }
 
-            /* OnImGui UI rendering for RHI */
-            RAZIX_PURE_VIRTUAL(void, OnImGui)
+
 
             /* Gets the frame data descriptor set */
             RAZIX_FORCE_INLINE const RZDescriptorSet* getFrameDataSet() const { return m_FrameDataSet; }
@@ -335,6 +342,9 @@ namespace Razix {
             /* Set the command buffer to record command onto */
             RAZIX_DEPRECATED("SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
             RAZIX_FORCE_INLINE static void SetCmdBuffer(RZCommandBuffer* cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
+
+            /* OnImGui UI rendering for RHI */
+            RAZIX_PURE_VIRTUAL(void, OnImGui)
 
         protected:
             RAZIX_PURE_VIRTUAL(void, InitAPIImpl)
@@ -361,6 +371,7 @@ namespace Razix {
             RAZIX_PURE_VIRTUAL(void, EndRenderingImpl, RZCommandBuffer* cmdBuffer)
             RAZIX_PURE_VIRTUAL(void, InsertImageMemoryBarrierImpl, RZCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
             RAZIX_PURE_VIRTUAL(void, InsertBufferMemoryBarrierImpl, RZCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+            RAZIX_PURE_VIRTUAL(void, CopyTextureResourceImpl, RZCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
             RAZIX_PURE_VIRTUAL(RZSwapchain*, GetSwapchainImpl);
 
         protected:

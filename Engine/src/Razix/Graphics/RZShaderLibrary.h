@@ -36,7 +36,8 @@ namespace Razix {
             SSAO,
             GaussianBlur,
             ColorGrading,
-            BUILTIN_SHADERS_COUNT
+            TAAResolve,
+            COUNT
         };
 
         /**
