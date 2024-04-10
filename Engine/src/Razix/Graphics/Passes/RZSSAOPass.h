@@ -28,8 +28,6 @@ namespace Razix {
             void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings) override;
             void destroy() override;
 
-            bool enableSSAO = true;
-
         private:
             RZPipelineHandle m_PreBlurPipeline;
         };

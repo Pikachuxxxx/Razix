@@ -29,9 +29,6 @@ layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 {
     mat4 mat;
 } DecalVP;
-layout (push_constant) uniform ModelPushConstantData{
-    mat4 model;
-}model_pc_data;
 //------------------------------------------------------------------------------
 layout(location = 0) out VSOutput
 {

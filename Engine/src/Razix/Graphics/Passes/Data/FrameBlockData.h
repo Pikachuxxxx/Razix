@@ -17,6 +17,7 @@ struct GPUCameraFrameData
     alignas(16) glm::mat4 inversedProjection;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 inversedView;
+    alignas(16) glm::mat4 prevViewProj;
     alignas(4) f32 fov;
     alignas(4) f32 nearPlane;
     alignas(4) f32 farPlane;
@@ -32,4 +33,5 @@ struct GPUFrameData
     u32                renderFeatures;
     u32                debugFlags;
     glm::vec2          jitterTAA;
+    glm::vec2          previousJitterTAA;
 };

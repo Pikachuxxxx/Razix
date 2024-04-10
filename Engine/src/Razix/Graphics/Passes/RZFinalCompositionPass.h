@@ -29,14 +29,11 @@ namespace Razix {
             void addPass(FrameGraph::RZFrameGraph& framegraph, RZScene* scene, RZRendererSettings& settings) override;
             void destroy() override;
 
-            RAZIX_INLINE void setTonemapMode(TonemapMode mode) { m_TonemapMode = mode; }
-
         private:
             RZMesh*                    m_ScreenQuadMesh = nullptr;
             RZPipelineHandle           m_Pipeline;
             Graphics::RZDescriptorSet* m_DescriptorSets;
             bool                       updatedRT = false;
-            TonemapMode                m_TonemapMode;
         };
     }    // namespace Graphics
 }    // namespace Razix

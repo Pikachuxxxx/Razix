@@ -99,11 +99,10 @@ vec3 fxaa(vec2 p, vec2 RES)
 //------------------------------------------------------------------------------
 void main()
 {
-    // FXAA
-    vec3 result = fxaa(fs_in.uv, pcData.screenResolution);
-    //vec3 result = sampleColor(fs_in.uv);
-    outFragColor = vec4(result, 1.0f);
+    vec3 result = sampleColor(fs_in.uv);
 
+    // FXAA
+    result = fxaa(fs_in.uv, pcData.screenResolution);
     
     // Tonemap
     switch(pcData.toneMapMode)
@@ -137,8 +136,9 @@ void main()
             break;
     }
 
+    outFragColor = vec4(result, 1.0f);
+
     // Gamma correction (done automatically by the swapchain)
     //result = pow(result, vec3(1.0/2.2)); 
-
 }
 //------------------------------------------------------------------------------

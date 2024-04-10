@@ -134,7 +134,7 @@ void main()
     // FIXME: We assume the first light is the Directional Light and only use that
     if(SceneLightsData.data[0].type == LightType_Directional)
         //shadow = DirectionalShadowCalculation(global_textures_2d[nonuniformEXT(texs.ShadowMapIdx)], FragPosLightSpace, N, SceneLightsData.data[0].position);
-        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
+        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position, 0.0f);
 
     result *= shadow;
     //-----------------------------------------------

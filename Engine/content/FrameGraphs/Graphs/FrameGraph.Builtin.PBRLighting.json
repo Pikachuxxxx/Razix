@@ -71,7 +71,7 @@
                     "type": "Texture",
                     "name": "SceneHDR",
                     "texture_type": "Texture_2D",
-                    "format": "RGBA32F",
+                    "format": "RGBA16F",
                     "width": 4096,
                     "height": 4096,
                     "attachment_info": {

@@ -36,6 +36,12 @@ namespace Razix {
                         case TextureFormat::R32F:
                             return VK_FORMAT_R32_SFLOAT;
                             break;
+                        case TextureFormat::RG8:
+                            return VK_FORMAT_R8G8_SRGB;
+                            break;
+                        case TextureFormat::RG16F:
+                            return VK_FORMAT_R16G16_SFLOAT;
+                            break;
                         case TextureFormat::RGB8:
                             return VK_FORMAT_R8G8B8_SRGB;
                             break;
@@ -46,6 +52,9 @@ namespace Razix {
                             return VK_FORMAT_R16G16B16_SFLOAT;
                             break;
                         case TextureFormat::RGBA16:
+                            return VK_FORMAT_R16G16B16A16_SFLOAT;
+                            break;
+                        case TextureFormat::RGBA16F:
                             return VK_FORMAT_R16G16B16A16_SFLOAT;
                             break;
                         case TextureFormat::RGB32:
@@ -101,8 +110,11 @@ namespace Razix {
                             return VK_FORMAT_R32_SFLOAT;
                             break;
                         case TextureFormat::RG8:
-                            return VK_FORMAT_R8G8_UNORM;
+                            return VK_FORMAT_R8G8_UINT;
                             break;
+                        case TextureFormat::RG16F:
+                            return VK_FORMAT_R16G16_SFLOAT;
+                            break;;
                         case TextureFormat::RGB8:
                             return VK_FORMAT_R8G8B8_UNORM;
                             break;
@@ -114,6 +126,9 @@ namespace Razix {
                             break;
                         case TextureFormat::RGBA16:
                             return VK_FORMAT_R16G16B16A16_UNORM;
+                            break;
+                        case TextureFormat::RGBA16F:
+                            return VK_FORMAT_R16G16B16A16_SFLOAT;
                             break;
                         case TextureFormat::RGB32:
                             return VK_FORMAT_R32G32B32_SFLOAT;
@@ -133,7 +148,7 @@ namespace Razix {
                         case TextureFormat::BGRA8_UNORM:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case TextureFormat::SCREEN: // Is always sRGB
+                        case TextureFormat::SCREEN:    // Is always sRGB
                             return VK_FORMAT_B8G8R8A8_SRGB;
                             break;
                         case TextureFormat::DEPTH16_UNORM:

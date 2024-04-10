@@ -21,6 +21,7 @@
 #include "Razix/Graphics/Passes/RZSSAOPass.h"
 #include "Razix/Graphics/Passes/RZShadowPass.h"
 #include "Razix/Graphics/Passes/RZSkyboxPass.h"
+#include "Razix/Graphics/Passes/RZTAAResolvePass.h"
 
 // Renderers
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
@@ -73,6 +74,13 @@ namespace Razix {
             RendererDebugFlag_VisCSMCascades = 1 << 0
         };
 
+        enum Antialising
+        {
+            NoAA = 0,    // Render as-is
+            FXAA,        // Fast sampled anti-aliasing
+            TAA          // Temporal anti-aliasing
+        };
+
         enum TonemapMode : u32
         {
             ACES,
@@ -107,6 +115,7 @@ namespace Razix {
             } globalIlluminationConfig;
             u32         debugFlags{0u};
             TonemapMode tonemapMode         = ACES;
+            Antialising aaMode              = NoAA;
             bool        useProceduralSkybox = false;
         };
 
@@ -129,6 +138,9 @@ namespace Razix {
             void drawFrame(RZRendererSettings& settings, Razix::RZScene* scene);
             /* Destroy frame graph passes and it's resources */
             void destroy();
+
+            /* On Update for world renderer passes */
+            void OnUpdate(RZTimestep dt);
 
             /* ImGui rendering for the world renderer */
             void OnImGui();
@@ -156,6 +168,7 @@ namespace Razix {
             RZSkyboxPass              m_SkyboxPass;
             RZGaussianBlurPass        m_GaussianBlurPass;
             RZImGuiRenderer           m_ImGuiRenderer;
+            RZTAAResolvePass          m_TAAResolvePass;
             RZFinalCompositionPass    m_CompositePass;
 
             //RZColorGradingPass        m_ColorGradingPass;
@@ -164,6 +177,9 @@ namespace Razix {
             u32         m_FrameCount = 0;
             Maths::AABB m_SceneAABB{};
             glm::vec2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER];
+            glm::mat4   m_PreviousViewProj;
+            glm::vec2   m_Jitter;
+            glm::vec2   m_PreviousJitter;
 
             bool        m_FrameGraphBuildingInProgress = true;
             std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";

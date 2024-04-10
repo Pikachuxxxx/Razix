@@ -28,6 +28,8 @@ namespace Razix {
         Graphics::RZMesh*       Mesh;
         Graphics::MeshPrimitive primitive;
 
+        glm::mat4 PreviousWorldTransform;    // Run-time variable for storing the previous frame world matrix
+
         bool enableBoundingBoxes = false;
         bool receiveShadows      = true;
 

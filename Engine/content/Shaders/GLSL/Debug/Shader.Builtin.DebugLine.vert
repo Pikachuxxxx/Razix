@@ -30,8 +30,7 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    //gl_Position = FrameData.info.camera.projection * FrameData.info.camera.view * vec4(inPosition.xyz, 1.0);
-    gl_Position = getProjectionViewSpacePosition(vec4(inPosition.xyz, 1.0));
+    gl_Position = FrameData.info.camera.projection * FrameData.info.camera.view * vec4(inPosition.xyz, 1.0);
 
     // Out from vertex shader
     vs_out.fragColor    = inColor;

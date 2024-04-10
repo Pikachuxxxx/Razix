@@ -24,7 +24,7 @@
         },
         "depth_format": "DEPTH32F",
         "color_formats": [
-            "RGBA32F"
+            "RGBA16F"
         ]
     },
     "scene_params": {

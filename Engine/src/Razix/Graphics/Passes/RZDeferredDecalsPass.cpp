@@ -32,7 +32,7 @@ namespace Razix {
                 // Build the pipeline here for this pass
                 .name                   = "ColorGrading.Pipeline",
                 .shader                 = shader,
-                .colorAttachmentFormats = {TextureFormat::RGBA32F},
+                .colorAttachmentFormats = {TextureFormat::RGBA16F},
                 .cullMode               = Graphics::CullMode::None,
                 .drawType               = Graphics::DrawType::Triangle,
                 .transparencyEnabled    = false,
@@ -40,12 +40,12 @@ namespace Razix {
 
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto& colorGradingLUTData = framegraph.getBlackboard().get<ColorGradingLUTData>();
+            auto& colorGradingLUTData = framegraph.getBlackboard().get<FX::ColorGradingLUTData>();
             auto& sceneData           = framegraph.getBlackboard().get<SceneData>();
 
-            framegraph.getBlackboard().add<ColorGradingData>() = framegraph.addCallbackPass<ColorGradingData>(
+            framegraph.getBlackboard().add<FX::ColorGradingData>() = framegraph.addCallbackPass<FX::ColorGradingData>(
                 "Pass.Builtin.Code.LUTColorGrading",
-                [&](ColorGradingData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](FX::ColorGradingData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc colorGradedImageDesc{
@@ -53,17 +53,17 @@ namespace Razix {
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA32F};
+                        .format = TextureFormat::RGBA16F};
 
                     data.colorGradedSceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(colorGradedImageDesc.name, CAST_TO_FG_TEX_DESC colorGradedImageDesc);
 
-                    builder.read(sceneData.outputHDR);
-                    builder.read(sceneData.depth);
+                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.sceneDepth);
                     builder.read(colorGradingLUTData.neutralLUT);
 
                     data.colorGradedSceneHDR = builder.write(data.colorGradedSceneHDR);
                 },
-                [=](const ColorGradingData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const FX::ColorGradingData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.LUTColorGrading", Utilities::GenerateHashedColor4(29u));
 
@@ -87,7 +87,7 @@ namespace Razix {
 
                         auto scene_descriptor = shaderBindVars["SceneHDRSource"];
                         if (scene_descriptor)
-                            scene_descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                            scene_descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
 
                         auto lut_descriptor = shaderBindVars["NeutralLUT"];
                         if (lut_descriptor)

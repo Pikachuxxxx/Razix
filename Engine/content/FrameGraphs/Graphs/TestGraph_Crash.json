@@ -72,7 +72,7 @@
                     "depth": 1,
                     "layers": 1,
                     "texture_type": "Texture_2D",
-                    "format": "RGBA32F",
+                    "format": "RGBA16F",
                     "wrapping": "CLAMP_TO_EDGE",
                     "filtering": {
                         "min": "LINEAR",

@@ -101,10 +101,12 @@ namespace Razix {
                 [=](const CompositeData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
+                    RAZIX_TIME_STAMP_BEGIN("Final Composition Pass");
                     RAZIX_MARK_BEGIN("Final Composition + Tonemapping", glm::vec4(0.5f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+
+                    auto& worldSettings = Razix::RZEngine::Get().getWorldSettings();
 
                     // Update the Descriptor Set with the new texture once
 
@@ -143,7 +145,7 @@ namespace Razix {
                         u32       tonemapMode;
                         glm::vec2 screenRes;
                     } pcData{};
-                    pcData.tonemapMode = m_TonemapMode;
+                    pcData.tonemapMode = worldSettings.tonemapMode;
                     pcData.screenRes   = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
 
                     RZPushConstant pc;
@@ -166,7 +168,7 @@ namespace Razix {
                     //for (auto& setInfo: setInfos) {
                     //    for (auto& descriptor: setInfo.second) {
                     //        // change the layout to be in Shader Read Only Optimal
-                    //        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
+                    //        descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
                     //    }
                     //    m_DescriptorSets->UpdateSet(setInfo.second);
                     //}

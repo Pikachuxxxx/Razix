@@ -25,7 +25,8 @@ layout(set = 0, binding = 0) uniform ViewProjectionUniformBufferObject
 
 // The model push constant
 layout (push_constant) uniform ModelPushConstantData{
-    mat4 model;
+    mat4 worldTransform;
+    mat4 previousWorldTransform;
 }model_pc_data;
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
@@ -44,7 +45,7 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = view_proj_ubo.proj * view_proj_ubo.view * model_pc_data.model * vec4(inPosition, 1.0);//vec4(inPosition, 1.0);//view_proj_ubo.proj * view_proj_ubo.view *//
+    gl_Position = view_proj_ubo.proj * view_proj_ubo.view * model_pc_data.worldTransform * vec4(inPosition, 1.0);//vec4(inPosition, 1.0);//view_proj_ubo.proj * view_proj_ubo.view *//
 
     // Out from vertex shader
     vs_out.fragColor    = inColor;

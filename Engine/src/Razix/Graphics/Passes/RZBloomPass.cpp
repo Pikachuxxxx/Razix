@@ -50,7 +50,7 @@ namespace Razix {
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.depthTestEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F};
 
             pipelineInfo.shader = upsamplingShader;
             m_UpsamplePipeline  = RZResourceManager::Get().createPipeline(pipelineInfo);
@@ -65,7 +65,7 @@ namespace Razix {
             // Do a bunch of Down Sampling and Up Samplings on the scene Texture
             // Start with down sampling, use the Source texture as the first mip
             BloomMip sourceMip{-1};
-            sourceMip.mip  = forwardSceneData.outputHDR;
+            sourceMip.mip  = forwardSceneData.sceneHDR;
             sourceMip.size = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
             for (u32 i = 0; i < NUM_BLOOM_MIPS; ++i)
                 sourceMip = downsample(framegraph, sourceMip, scene, i);
@@ -121,7 +121,7 @@ namespace Razix {
                         .width  = static_cast<u32>(bloomSourceMip.size.x),
                         .height = static_cast<u32>(bloomSourceMip.size.y),
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA32F,
+                        .format = TextureFormat::RGBA16F,
                     };
 
                     data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
@@ -240,7 +240,7 @@ namespace Razix {
                         .width  = static_cast<u32>(bloomSourceMip.size.x),
                         .height = static_cast<u32>(bloomSourceMip.size.y),
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA32F,
+                        .format = TextureFormat::RGBA16F,
                     };
 
                     data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
@@ -367,8 +367,8 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     builder.read(bloomData.bloomTexture);
-                    builder.read(forwardSceneData.outputHDR);
-                    builder.read(forwardSceneData.outputLDR);
+                    builder.read(forwardSceneData.sceneHDR);
+                    builder.read(forwardSceneData.sceneLDR);
 
                     //data.ldrOutput = builder.write(data.ldrOutput);
                 },
@@ -387,7 +387,7 @@ namespace Razix {
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.location.binding == 0)
-                                    descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputHDR).getHandle();
+                                    descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.sceneHDR).getHandle();
                                 else if (descriptor.bindingInfo.location.binding == 1)
                                     descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomData.bloomTexture).getHandle();
                             }
@@ -399,7 +399,7 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.outputLDR).getHandle(), {true, ClearColorPresets::OpaqueBlack}}},
+                        .colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.sceneLDR).getHandle(), {true, ClearColorPresets::OpaqueBlack}}},
                         .resize           = true};
                     RHI::BeginRendering(cmdBuf, info);
 

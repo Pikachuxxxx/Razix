@@ -28,6 +28,9 @@ namespace Razix {
                 case Razix::Graphics::TextureFormat::RG8:
                     return "RG8";
                     break;
+                case Razix::Graphics::TextureFormat::RG16F:
+                    return "RG16F";
+                    break;
                 case Razix::Graphics::TextureFormat::RGB8:
                     return "RGB8";
                     break;
@@ -39,6 +42,9 @@ namespace Razix {
                     break;
                 case Razix::Graphics::TextureFormat::RGBA16:
                     return "RGBA16";
+                    break;
+                case Razix::Graphics::TextureFormat::RGBA16F:
+                    return "RGBA16F";
                     break;
                 case Razix::Graphics::TextureFormat::RGB32:
                     return "RGB32";
@@ -121,10 +127,12 @@ namespace Razix {
             {"R32_UINT", Graphics::TextureFormat::R32_UINT},
             {"R32F", Graphics::TextureFormat::R32F},
             {"RG8", Graphics::TextureFormat::RG8},
+            {"RG16F", Graphics::TextureFormat::RG16F},
             {"RGB8", Graphics::TextureFormat::RGB8},
             {"RGBA8", Graphics::TextureFormat::RGBA8},
             {"RGB16", Graphics::TextureFormat::RGB16},
             {"RGBA16", Graphics::TextureFormat::RGBA16},
+            {"RGBA16F", Graphics::TextureFormat::RGBA16F},
             {"RGB32", Graphics::TextureFormat::RGB32},
             {"RGBA32", Graphics::TextureFormat::RGBA32},
             {"RGB", Graphics::TextureFormat::RGB},

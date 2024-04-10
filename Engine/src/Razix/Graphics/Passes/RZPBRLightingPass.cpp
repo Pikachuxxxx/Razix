@@ -51,7 +51,7 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = pbrShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F};
             pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;
@@ -73,9 +73,9 @@ namespace Razix {
                         .width  = ResolutionToExtentsMap[Resolution::k1440p].x,
                         .height = ResolutionToExtentsMap[Resolution::k1440p].y,
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA32F};
+                        .format = TextureFormat::RGBA16F};
 
-                    data.outputHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
                     textureDesc.name       = "SceneDepth";
                     textureDesc.format     = TextureFormat::DEPTH32F;
@@ -83,10 +83,10 @@ namespace Razix {
                     textureDesc.type       = TextureType::Texture_Depth;
                     textureDesc.enableMips = false;
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    data.sceneDepth = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    data.outputHDR = builder.write(data.outputHDR);
-                    data.depth     = builder.write(data.depth);
+                    data.sceneHDR = builder.write(data.sceneHDR);
+                    data.sceneDepth     = builder.write(data.sceneDepth);
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
@@ -105,8 +105,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 

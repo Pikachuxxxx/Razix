@@ -61,9 +61,11 @@ namespace Razix {
             pipelineInfo.depthTestEnabled    = true;
             // Using 32 bit f32ing point formats to support HDR colors
             pipelineInfo.colorAttachmentFormats = {
-                Graphics::TextureFormat::RGBA32F,
-                Graphics::TextureFormat::RGBA32F,
-                Graphics::TextureFormat::RGBA32F};
+                Graphics::TextureFormat::RGBA16F,
+                Graphics::TextureFormat::RGBA16F,
+                Graphics::TextureFormat::RGBA16F,
+                Graphics::TextureFormat::RG16F,
+            };
             pipelineInfo.depthFormat = Graphics::TextureFormat::DEPTH32F;
 
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
@@ -80,7 +82,7 @@ namespace Razix {
                         .width  = RZApplication::Get().getWindow()->getWidth(),
                         .height = RZApplication::Get().getWindow()->getHeight(),
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA32F};
+                        .format = TextureFormat::RGBA16F};
 
                     data.GBuffer0 = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
@@ -90,16 +92,21 @@ namespace Razix {
                     gbufferTexturesDesc.name = "gBuffer2";
                     data.GBuffer2            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
+                    gbufferTexturesDesc.name   = "VelocityBuffer";
+                    gbufferTexturesDesc.format = TextureFormat::RG16F;
+                    data.VelocityBuffer        = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+
                     gbufferTexturesDesc.name      = "SceneDepth";
                     gbufferTexturesDesc.format    = TextureFormat::DEPTH32F;
                     gbufferTexturesDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     gbufferTexturesDesc.type      = TextureType::Texture_Depth;
                     data.GBufferDepth             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.GBuffer0     = builder.write(data.GBuffer0);
-                    data.GBuffer1     = builder.write(data.GBuffer1);
-                    data.GBuffer2     = builder.write(data.GBuffer2);
-                    data.GBufferDepth = builder.write(data.GBufferDepth);
+                    data.GBuffer0       = builder.write(data.GBuffer0);
+                    data.GBuffer1       = builder.write(data.GBuffer1);
+                    data.GBuffer2       = builder.write(data.GBuffer2);
+                    data.VelocityBuffer = builder.write(data.VelocityBuffer);
+                    data.GBufferDepth   = builder.write(data.GBufferDepth);
 
                     builder.read(frameDataBlock.frameData);
                 },
@@ -115,6 +122,7 @@ namespace Razix {
                             {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                             {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer1).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                             {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer2).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                         },
                         .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}},
                         .resize          = true};

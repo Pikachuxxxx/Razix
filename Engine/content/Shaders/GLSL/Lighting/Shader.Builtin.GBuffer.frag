@@ -21,12 +21,15 @@ layout(location = 0) in VSOutput
     vec3 fragNormal;
     vec3 fragTangent;
     vec3 viewPos;
+    vec4 currentNDC; // current clip space position
+    vec4 prevNDC; // previous clip space position
 }fs_in;
 //------------------------------------------------------------------------------ 
 // Output from Fragment Shader or Output to Framebuffer attachments
 layout(location = 0) out vec4 GBuffer0;    // .rgb = Normal   .a = Metallic
 layout(location = 1) out vec4 GBuffer1;    // .rgb = Albedo   .a = Roughness
 layout(location = 2) out vec4 GBuffer2;    // .rgb = Position .a = AO
+layout(location = 3) out vec2 VelocityBuffer;    // .rgb = Position .a = AO
 //------------------------------------------------------------------------------
 void main()
 {
@@ -42,5 +45,7 @@ void main()
 
     GBuffer1 = vec4(albedo.rgb, roughness);
     GBuffer2 = vec4(fs_in.fragPos.rgb, ao);
+
+    VelocityBuffer = vec2(fs_in.currentNDC.xy - fs_in.prevNDC.xy);
 }
 //------------------------------------------------------------------------------

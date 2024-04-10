@@ -21,7 +21,8 @@ layout(location = 4) in vec3 inTangent;
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
 layout (push_constant) uniform ModelPushConstantData{
-    mat4 model;
+    mat4 worldTransform;
+    mat4 previousWorldTransform;
 }model_pc_data;
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
@@ -33,6 +34,8 @@ layout(location = 0) out VSOutput
     vec3 fragNormal;
     vec3 fragTangent; 
     vec3 viewPos;
+    vec4 currentNDC; // current clip space position
+    vec4 prevNDC; // previous clip space position
 }vs_out;
   
 out gl_PerVertex
@@ -43,14 +46,16 @@ out gl_PerVertex
 void main()
 {
     // Final position of the vertices
-    gl_Position = getProjectionViewSpacePosition(model_pc_data.model * vec4(inPosition, 1.0));
+    gl_Position = FrameData.info.camera.projection * FrameData.info.camera.view * model_pc_data.worldTransform * vec4(inPosition, 1.0);
 
     // Out from vertex shader
-    vs_out.fragPos      = vec3(model_pc_data.model * vec4(inPosition, 1.0));
+    vs_out.fragPos      = vec3(model_pc_data.worldTransform * vec4(inPosition, 1.0));
     vs_out.fragColor    = inColor;
-	vs_out.fragUV       = inTexCoord;
-    vs_out.fragNormal   = mat3(transpose(inverse(model_pc_data.model))) * inNormal;
+    vs_out.fragUV       = inTexCoord;
+    vs_out.fragNormal   = mat3(transpose(inverse(model_pc_data.worldTransform))) * inNormal;
     vs_out.fragTangent  = inTangent;
     vs_out.viewPos      = getCameraPosition();
+    vs_out.currentNDC   = gl_Position;
+    vs_out.prevNDC      = FrameData.info.camera.prevViewProj * model_pc_data.previousWorldTransform * vec4(inPosition, 1.0f);
 }
 //------------------------------------------------------------------------------

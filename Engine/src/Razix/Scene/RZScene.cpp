@@ -62,7 +62,7 @@ namespace Razix {
 
         // Update the Hierarchy Transformations
         // First update only those entities without and Hierarchy Component
-        auto nonHierarchyTransformsView = m_Registry.view<TransformComponent>(entt::exclude<HierarchyComponent>);
+        entt::basic_group nonHierarchyTransformsView = m_Registry.group<TransformComponent>(entt::exclude<HierarchyComponent>);
         for (auto& entity: nonHierarchyTransformsView) {
             RAZIX_PROFILE_SCOPEC("Update Entities without children", RZ_PROFILE_COLOR_SCENE);
             m_Registry.get<TransformComponent>(entity).SetWorldTransform(glm::mat4(1.0f));
@@ -221,18 +221,27 @@ namespace Razix {
                 Graphics::RZPushConstant modelMatrixPC;
                 modelMatrixPC.shaderStage = Graphics::ShaderStage::Vertex;
                 modelMatrixPC.offset      = 0;
+
                 struct PCD
                 {
-                    glm::mat4 mat;
+                    glm::mat4 worldTransform;
+                    glm::mat4 previousWorldTransform;
                 } pcData{};
-                pcData.mat         = transform;
-                modelMatrixPC.size = sizeof(PCD);
-                modelMatrixPC.data = &pcData;
+                pcData.worldTransform = transform;
+                pcData.worldTransform = mrc.PreviousWorldTransform;
+                modelMatrixPC.size    = sizeof(PCD);
+                modelMatrixPC.data    = &pcData;
                 if (sceneDrawParams.overridePushConstantData != nullptr) {
                     modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
                     modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
                 }
                 Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
+
+                // Now this is uploaded to the GPU update the previous world matrix
+                {
+                    mrc.PreviousWorldTransform = transform;
+                }
+
                 //-----------------------------
                 Graphics::RZMaterial* mat = nullptr;
 

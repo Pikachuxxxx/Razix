@@ -177,7 +177,7 @@ namespace Razix {
             // To track if there is any issue with instance creation we supply the pNext with the `VkDebugUtilsMessengerCreateInfoEXT`
             m_DebugCI                 = {};
             m_DebugCI.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            m_DebugCI.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+            m_DebugCI.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | */VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
             m_DebugCI.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             m_DebugCI.pfnUserCallback = debugCallback;
 
@@ -307,7 +307,7 @@ namespace Razix {
             // TODO: Formate the message id and stuff for colors etc
 
             // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE!
-            return VK_FALSE;
+            //return VK_FALSE;
 
             //if (!message_severity)
             //    return VK_FALSE;
