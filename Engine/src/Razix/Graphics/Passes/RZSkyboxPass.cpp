@@ -48,7 +48,7 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = skyboxShader;
             pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F};
             pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = false;
@@ -76,17 +76,17 @@ namespace Razix {
                     builder.read(lightProbesData.specularPreFilteredMap);
                     builder.read(volumetricData.noiseTexture);
 
-                    builder.read(sceneData.outputHDR);
-                    builder.read(sceneData.depth);
+                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.sceneDepth);
 
-                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
-                    sceneData.depth     = builder.write(sceneData.depth);
+                    sceneData.sceneHDR = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth     = builder.write(sceneData.sceneDepth);
 
 #if ENABLE_DATA_DRIVEN_FG_PASSES
                 //builder.read(framegraph.getBlackboard().getID("SceneHDR"));
                 //builder.read(framegraph.getBlackboard().getID("SceneDepth"));
 
-                //data.outputHDR = builder.write(framegraph.getBlackboard().getID("SceneHDR"));
+                //data.sceneHDR = builder.write(framegraph.getBlackboard().getID("SceneHDR"));
                 //data.depth     = builder.write(framegraph.getBlackboard().getID("SceneDepth"));
 #endif
                 },
@@ -100,18 +100,20 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution = Resolution::kCustom;
-                    //info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
+                    //info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
                     //info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
+                    auto& worldSettings = Razix::RZEngine::Get().getWorldSettings();
+
                     // Set the Descriptor Set once rendering starts
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        if (!m_UseProceduralSkybox) {
+                        if (!worldSettings.useProceduralSkybox) {
                             auto& shaderBindVars = Graphics::RZResourceManager::Get().getShaderResource(skyboxShader)->getBindVars();
                             auto  descriptor     = shaderBindVars["environmentMap"];
                             if (descriptor)
@@ -128,7 +130,7 @@ namespace Razix {
                         }
                     }
 
-                    if (!m_UseProceduralSkybox) {
+                    if (!worldSettings.useProceduralSkybox) {
                         //u32            envMapIdx = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle().getIndex();
                         //RZPushConstant pc;
                         //pc.data        = &envMapIdx;

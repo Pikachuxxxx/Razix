@@ -140,8 +140,9 @@ namespace Razix {
                 return;
             }
 
-            m_ImGuiVBO = RZVertexBuffer::Create(Mib(16), nullptr, BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("VB_ImGUi"));
-            m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("IB_ImGui") nullptr, Mib(16) * 6, BufferUsage::PersistentStream);
+            constexpr u32 maxSize = 32_Mib;
+            m_ImGuiVBO  = RZVertexBuffer::Create(maxSize, nullptr, BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("VB.ImGUi"));
+            m_ImGuiIBO  = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("IB.ImGui") nullptr, maxSize * 6, BufferUsage::PersistentStream);
         }
 
         void RZImGuiRenderer::Begin(RZScene* scene)
@@ -197,8 +198,8 @@ namespace Razix {
                 idxDst += cmd_list->IdxBuffer.Size;
             }
 
-            m_ImGuiVBO->UnMap();
-            m_ImGuiIBO->UnMap();
+            //m_ImGuiVBO->UnMap();
+            //m_ImGuiIBO->UnMap();
         }
 
         void RZImGuiRenderer::Draw(RZCommandBuffer* cmdBuffer)
@@ -322,7 +323,7 @@ namespace Razix {
             pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F};
             pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.depthWriteEnabled      = true;

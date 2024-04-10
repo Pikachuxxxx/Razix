@@ -6,6 +6,7 @@ struct Camera {
     mat4 inversedProjection;
     mat4 view;
     mat4 inversedView;
+    mat4 prevViewProj;
     float fov;
     float near, far;
     // Implicit padding, 4bytes
@@ -20,6 +21,7 @@ struct FrameInfo {
     uint renderFeatures;
     uint debugFlags;
     vec2 jitterTAA;
+    vec2 previousJitterTAA;
 };
 //----------------------------------
 #ifndef DISABLE_FRAME_DATA_BINDING

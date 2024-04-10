@@ -29,5 +29,5 @@ void main()
     vec4 currentColor = texture(CurrentTexture, uv);
     vec4 previousColor = texture(HistoryTexture, uv);
  
-    outAccumulationColor = mix(currentColor, previousColor, 0.9f);
+    outAccumulationColor = currentColor * 0.1f + previousColor * 0.9f;
 }

@@ -99,7 +99,7 @@ namespace Razix {
                 .data       = ssaoNoise.data(),
                 .size       = static_cast<u32>(ssaoNoise.size()) * sizeof(glm::vec4),
                 .type       = TextureType::Texture_2D,
-                .format     = TextureFormat::RGBA32F,
+                .format     = TextureFormat::RGBA16F,
                 .wrapping   = Wrapping::REPEAT,
                 .enableMips = false,
                 .dataSize   = sizeof(float)};
@@ -183,7 +183,9 @@ namespace Razix {
                         RZResourceManager::Get().getShaderResource(ssaoShader)->updateBindVarsHeaps();
                     }
 
-                    if (settings.renderFeatures & RendererFeature_SSAO || enableSSAO) {
+                    auto& worldSettings = Razix::RZEngine::Get().getWorldSettings();
+
+                    if (worldSettings.renderFeatures & RendererFeature_SSAO) {
                         // Update the SSAO Data
                         SSAOParamsData ssaoData{};
                         ssaoData.radius     = 1.0f;

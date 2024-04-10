@@ -593,7 +593,7 @@ namespace Razix {
             imageCopyRegion.extent.height             = vkSrcTexture->getHeight();
             imageCopyRegion.extent.depth              = 1;
 
-            vkCmdCopyImage(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), vkSrcTexture->getImage(), vkSrcTexture->getLayout(), vkDstTexture->getImage(), vkDstTexture->getLayout(), 1, &imageCopyRegion);
+            vkCmdCopyImage(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
         }
 
         void VKRenderContext::SetViewportImpl(RZCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)

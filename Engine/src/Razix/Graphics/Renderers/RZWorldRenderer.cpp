@@ -62,9 +62,9 @@ namespace Razix {
             m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
 
             // Import the color grading LUT
-            m_ColorGradingNeutralLUTHandle                                     = RZResourceManager::Get().createTextureFromFile({.name = "ColorGradingUnreal_Neutral_LUT16", .wrapping = Wrapping::REPEAT, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .flipY = true}, "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png");
-            const auto& colorLUTTextureDesc                                    = RZResourceManager::Get().getPool<RZTexture>().get(m_ColorGradingNeutralLUTHandle)->getDescription();
-            m_FrameGraph.getBlackboard().add<ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorLUTTextureDesc.name, CAST_TO_FG_TEX_DESC colorLUTTextureDesc, {m_ColorGradingNeutralLUTHandle});
+            m_ColorGradingNeutralLUTHandle                                         = RZResourceManager::Get().createTextureFromFile({.name = "ColorGradingUnreal_Neutral_LUT16", .wrapping = Wrapping::REPEAT, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .flipY = true}, "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png");
+            const auto& colorLUTTextureDesc                                        = RZResourceManager::Get().getPool<RZTexture>().get(m_ColorGradingNeutralLUTHandle)->getDescription();
+            m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorLUTTextureDesc.name, CAST_TO_FG_TEX_DESC colorLUTTextureDesc, {m_ColorGradingNeutralLUTHandle});
 
             //-----------------------------------------------------------------------------------
 
@@ -81,8 +81,10 @@ namespace Razix {
 
             for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
                 // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
-                m_TAAJitterHaltonSamples[i].x = (HaltonSequence(i + 1, 2) - 0.5) * 0.025;    // Centering the jitter around (0,0)
-                m_TAAJitterHaltonSamples[i].y = (HaltonSequence(i + 1, 3) - 0.5) * 0.025;
+                m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (HaltonSequence(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
+                m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (HaltonSequence(i + 1, 3) - 1.0f);
+                m_TAAJitterHaltonSamples[i].x /= RZApplication::Get().getWindow()->getWidth();
+                m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getWidth();
             }
 
             //-----------------------------------------------------------------------------------
@@ -199,11 +201,11 @@ namespace Razix {
                     // or register the Scene RTs similar to FinalOutputTarget to get this working safely
 
                     builder.read(frameDataBlock.frameData);
-                    builder.read(sceneData.outputHDR);
-                    builder.read(sceneData.depth);
+                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.sceneDepth);
 
-                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
-                    sceneData.depth     = builder.write(sceneData.depth);
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
@@ -272,8 +274,8 @@ namespace Razix {
                     //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
                     //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
 
                     RenderingInfo info{
                         .resolution       = Resolution::kCustom,
@@ -305,11 +307,11 @@ namespace Razix {
                 [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    builder.read(sceneData.outputHDR);
-                    builder.read(sceneData.depth);
+                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.sceneDepth);
 
-                    sceneData.outputHDR = builder.write(sceneData.outputHDR);
-                    sceneData.depth     = builder.write(sceneData.depth);
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
 
                     m_ImGuiRenderer.Init();
                 },
@@ -318,8 +320,8 @@ namespace Razix {
 
                     m_ImGuiRenderer.Begin(scene);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.outputHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.depth).getHandle();
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
 
                     //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
                     //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
@@ -349,6 +351,13 @@ namespace Razix {
             //-------------------------------
             //m_ColorGradingPass.addPass(m_FrameGraph, scene, settings);
 #endif
+            // FXAA: https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
+
+            //-------------------------------
+            // TAA Resolve Pass
+            //-------------------------------
+            //m_TAAResolvePass.addPass(m_FrameGraph, scene, settings);
+            //sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
             // Final Image Presentation
@@ -387,9 +396,6 @@ namespace Razix {
 
             // Update calls passes
             m_CSMPass.updateCascades(scene);
-            m_SkyboxPass.useProceduralSkybox(settings.useProceduralSkybox);
-            m_CompositePass.setTonemapMode(settings.tonemapMode);
-            m_SSAOPass.enableSSAO = settings.renderFeatures & RendererFeature_SSAO;
 
             // Main Frame Graph World Rendering Loop
             {
@@ -455,6 +461,10 @@ namespace Razix {
 
             // Wait for GPU to be done
             Graphics::RZGraphicsContext::GetContext()->Wait();
+        }
+
+        void RZWorldRenderer::OnUpdate(RZTimestep dt)
+        {
         }
 
         void RZWorldRenderer::OnImGui()
@@ -526,7 +536,10 @@ namespace Razix {
                     gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     gpuData.debugFlags     = settings.debugFlags;
                     gpuData.renderFeatures = settings.renderFeatures;
-                    gpuData.jitterTAA      = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
+
+                    m_Jitter                  = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
+                    gpuData.jitterTAA         = m_Jitter;
+                    gpuData.previousJitterTAA = m_PreviousJitter;
 
                     auto& sceneCam = scene->getSceneCamera();
 
@@ -540,10 +553,22 @@ namespace Razix {
                     glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -far_plane * 2.0f, far_plane);
 #endif
 
-                    gpuData.camera.projection         = sceneCam.getProjection();
+                    // clang-format off
+                    glm::mat4 jitterMatrix = glm::mat4(
+                        1.0, 0.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        gpuData.jitterTAA.x, gpuData.jitterTAA.y, 0.0, 1.0    // translation
+                    );
+                    // clang-format on
+
+                    auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
+
+                    gpuData.camera.projection         = jitteredProjMatrix;
                     gpuData.camera.inversedProjection = glm::inverse(gpuData.camera.projection);
                     gpuData.camera.view               = sceneCam.getViewMatrix();
                     gpuData.camera.inversedView       = glm::inverse(gpuData.camera.view);
+                    gpuData.camera.prevViewProj       = m_PreviousViewProj;
                     gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
                     gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
                     gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
@@ -551,6 +576,12 @@ namespace Razix {
                     // update and upload the UBO
                     auto frameDataBufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(frameDataBufferHandle)->SetData(sizeof(GPUFrameData), &gpuData);
+
+                    // Since upload is done update the variables to store the previous data
+                    {
+                        m_PreviousJitter   = m_Jitter;
+                        m_PreviousViewProj = gpuData.camera.projection * gpuData.camera.view;
+                    }
 
                     // This is for when we hot-reload the frame graph
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {

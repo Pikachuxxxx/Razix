@@ -358,7 +358,7 @@ namespace Razix {
         {
             auto formatsComboBox = new QComboBox();
             formatsComboBox->addItems(m_FormatsStringList);
-            formatsComboBox->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA32F);    // Default format = RGBA32F
+            formatsComboBox->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA16F);    // Default format = RGBA32F
 
             m_ColorFormatsComboBoxSignalMapper->setMapping(formatsComboBox, ui.color_formats_layout->rowCount());
 
@@ -928,7 +928,7 @@ namespace Razix {
             connect(ui.textureFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFormatSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::TextureFormat::COUNT; i++)
                 ui.textureFormat->addItem(Razix::Graphics::TextureFormatNames[i]);
-            ui.textureFormat->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA32F);
+            ui.textureFormat->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA16F);
 
             connect(ui.wrapMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureWrapModeSelected()));
             for (u32 i = 0; i < (u32) Razix::Graphics::Wrapping::COUNT; i++)

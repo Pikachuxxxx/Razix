@@ -9,7 +9,7 @@ group "Engine/content"
         kind "Utility"
 
         files
-        {
+        { 
             -- Shader files
             -- GLSL
             "content/Shaders/GLSL/**.glsl",
@@ -166,13 +166,18 @@ project "Razix"
         "RZSTL"
     }
 
+    flags 
+    { 
+        "FatalWarnings" -- Treat all warnings as errors
+    }
+
     -- Disable PCH for vendors
     filter 'files:vendor/**.cpp'
         flags  { 'NoPCH' }
     filter 'files:vendor/**.c'
         flags  { 'NoPCH' }
 
-     -- Disable warning for vendor
+    -- Disable warning for vendor
     filter { "files:vendor/**"}
         warnings "Off"
 
@@ -200,7 +205,8 @@ project "Razix"
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
         {
-            "/MP", "/bigobj", "/Zi"
+            "/MP", "/bigobj", "/Zi", 
+            "/WX" -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 
         linkoptions
@@ -220,7 +226,7 @@ project "Razix"
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_DIRECTX11",
             "RAZIX_RENDER_API_DIRECTX12",
-            -- Windows / Vidual Studio
+            -- Windows / Visual Studio
             "WIN32_LEAN_AND_MEAN",
             "_CRT_SECURE_NO_WARNINGS",
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",

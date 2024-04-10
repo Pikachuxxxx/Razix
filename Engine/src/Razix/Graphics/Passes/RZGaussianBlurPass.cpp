@@ -59,7 +59,7 @@ namespace Razix {
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
             pipelineInfo.shader                 = gaussiabBlurShader;
             pipelineInfo.transparencyEnabled    = false;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F};
             pipelineInfo.depthTestEnabled       = false;
             pipelineInfo.depthWriteEnabled      = false;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
@@ -93,7 +93,7 @@ namespace Razix {
                         .width      = ResolutionToExtentsMap[Resolution::k1440p].x,
                         .height     = ResolutionToExtentsMap[Resolution::k1440p].y,
                         .type       = TextureType::Texture_2D,
-                        .format     = TextureFormat::RGBA32F,
+                        .format     = TextureFormat::RGBA16F,
                         .enableMips = false};
 
                     data.blur = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);

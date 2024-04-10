@@ -124,7 +124,7 @@ namespace Razix {
                 ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource import(const std::string_view name, typename T::Desc &&desc, T &&resource)
                 {
                     // same as createResource but we pass an actual resource instead of empty constructor to ResourceEntry
-                    const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
+                    const uint32_t resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
                     m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kResourceInitialVersion, true});    // Non-empty T constructor
                     // Create the node for this resource in the graph
                     RZFrameGraphResource id = createResourceNode(name, resourceId).m_ID;

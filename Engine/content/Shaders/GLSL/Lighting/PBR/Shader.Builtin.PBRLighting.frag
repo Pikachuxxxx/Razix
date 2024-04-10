@@ -89,7 +89,7 @@ void main()
     float shadow = 1.0f;
     // FIXME: We assume the first light is the Directiona Light and only use that
     if(SceneLightsData.data[0].type == LightType_Directional)
-        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position);
+        shadow = DirectionalShadowCalculation(ShadowMap, FragPosLightSpace, N, SceneLightsData.data[0].position, 0.0f);
 
     result *= shadow;
     //-----------------------------------------------

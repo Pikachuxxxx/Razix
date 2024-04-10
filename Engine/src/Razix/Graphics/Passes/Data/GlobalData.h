@@ -31,9 +31,9 @@ namespace Razix {
 
         struct SceneData
         {
-            FrameGraph::RZFrameGraphResource outputHDR;
-            FrameGraph::RZFrameGraphResource outputLDR;
-            FrameGraph::RZFrameGraphResource depth;
+            FrameGraph::RZFrameGraphResource sceneHDR;
+            FrameGraph::RZFrameGraphResource sceneLDR;
+            FrameGraph::RZFrameGraphResource sceneDepth;
         };
 
         struct SceneLightsData
@@ -60,20 +60,6 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource lightVP;
         };
 
-        /**
-         * Color Grading LUT
-         */
-        struct ColorGradingLUTData
-        {
-            FrameGraph::RZFrameGraphResource neutralLUT;
-        };
-
-        struct ColorGradingData
-        {
-            FrameGraph::RZFrameGraphResource colorGradedSceneHDR;
-            FrameGraph::RZFrameGraphResource colorGradedSceneLDR;
-        };
-
         namespace FX {
 
             struct SSAOData
@@ -87,6 +73,27 @@ namespace Razix {
             {
                 FrameGraph::RZFrameGraphResource SSAONoiseTexture;
                 FrameGraph::RZFrameGraphResource SSAOKernelSamples;
+            };
+
+            /**
+             * Color Grading LUT
+             */
+            struct ColorGradingLUTData
+            {
+                FrameGraph::RZFrameGraphResource neutralLUT;
+            };
+
+            struct ColorGradingData
+            {
+                FrameGraph::RZFrameGraphResource colorGradedSceneHDR;
+                FrameGraph::RZFrameGraphResource colorGradedSceneLDR;
+            };
+
+            struct TAAResolveData
+            {
+                FrameGraph::RZFrameGraphResource sourceTexture;
+                FrameGraph::RZFrameGraphResource historyTexture;
+                FrameGraph::RZFrameGraphResource accumulationTexture;
             };
         }    // namespace FX
     }        // namespace Graphics

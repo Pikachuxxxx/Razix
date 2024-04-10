@@ -13,7 +13,7 @@
         "polygon_mode": "Fill",
         "draw_type": "Triangle",
         "depth_format": "DEPTH32F",
-        "color_formats": [ "RGBA32F" ],
+        "color_formats": [ "RGBA16F" ],
         "color_blend": {
             "src": "SrcAlpha",
             "dst": "OneMinusSrcAlpha",

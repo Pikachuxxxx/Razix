@@ -16,11 +16,13 @@
  */
 static d32 HaltonSequence(u32 index, u32 base)
 {
-    d32 fraction = 1, result = 0;
+    float f = 1.0f;
+    float r = 0.0f;
+
     while (index > 0) {
-        fraction = fraction / base;
-        result   = result + fraction * (index % base);
-        index    = index / base;
+        f /= static_cast<float>(base);
+        r     = r + f * static_cast<float>(index % base);
+        index = static_cast<UINT>(floorf(static_cast<float>(index) / static_cast<float>(base)));
     }
-    return result;
+    return r;
 }

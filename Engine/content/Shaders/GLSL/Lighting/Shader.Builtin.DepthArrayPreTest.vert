@@ -27,7 +27,8 @@ layout(set = 0, binding = 0) uniform ViewProjectionArrayUBO
     int layer;
 } VPLayer;
 layout (push_constant) uniform ModelPushConstantData{
-    mat4 model;
+    mat4 worldTransform;
+    mat4 previousWorldTransform;
 }model_pc_data;
  //------------------------------------------------------------------------------ 
 out gl_PerVertex
@@ -38,5 +39,5 @@ out gl_PerVertex
 void main()
 {
     gl_Layer = VPLayer.layer;
-    gl_Position = VPLayer.mat * model_pc_data.model * vec4(inPosition, 1.0f);
+    gl_Position = VPLayer.mat * model_pc_data.worldTransform * vec4(inPosition, 1.0f);
 }

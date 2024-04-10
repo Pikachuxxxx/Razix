@@ -32,7 +32,7 @@ namespace Razix {
             //    // Build the pipeline here for this pass
             //    .name                   = "ColorGrading.Pipeline",
             //    .shader                 = shader,
-            //    .colorAttachmentFormats = {TextureFormat::RGBA32F},
+            //    .colorAttachmentFormats = {TextureFormat::RGBA16F},
             //    .cullMode               = Graphics::CullMode::None,
             //    .drawType               = Graphics::DrawType::Triangle,
             //    .transparencyEnabled    = false,

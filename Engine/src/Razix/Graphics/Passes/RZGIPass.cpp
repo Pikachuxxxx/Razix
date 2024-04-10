@@ -104,9 +104,9 @@ namespace Razix {
             pipelineInfo.depthBiasEnabled    = false;
             // worldPos, normal, flux, Depth
             pipelineInfo.colorAttachmentFormats = {
-                Graphics::TextureFormat::RGBA32F,
-                Graphics::TextureFormat::RGBA32F,
-                Graphics::TextureFormat::RGBA32F};
+                Graphics::TextureFormat::RGBA16F,
+                Graphics::TextureFormat::RGBA16F,
+                Graphics::TextureFormat::RGBA16F};
             pipelineInfo.depthFormat = Graphics::TextureFormat::DEPTH32F;
 
             m_RSMPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
@@ -123,7 +123,7 @@ namespace Razix {
                         .width  = kRSMResolution,
                         .height = kRSMResolution,
                         .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA32F};
+                        .format = TextureFormat::RGBA16F};
 
                     // Create the output RTs
                     data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", CAST_TO_FG_TEX_DESC textureDesc);
@@ -281,7 +281,7 @@ namespace Razix {
             pipelineInfo.alphaSrc = BlendFactor::One;
             pipelineInfo.alphaDst = BlendFactor::One;
             // Depth, worldPos, normal, flux
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F, Graphics::TextureFormat::RGBA16F, Graphics::TextureFormat::RGBA16F};
 
             m_RIPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
@@ -302,7 +302,7 @@ namespace Razix {
                         .height = grid.size.y,
                         .layers = grid.size.z,
                         .type   = TextureType::Texture_3D,
-                        .format = TextureFormat::RGBA32F};
+                        .format = TextureFormat::RGBA16F};
 
                     // Create the resource for this pass
                     data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
@@ -419,7 +419,7 @@ namespace Razix {
             pipelineInfo.alphaSrc = BlendFactor::One;
             pipelineInfo.alphaDst = BlendFactor::One;
             // Depth, worldPos, normal, flux
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F, Graphics::TextureFormat::RGBA32F};
+            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F, Graphics::TextureFormat::RGBA16F, Graphics::TextureFormat::RGBA16F};
 
             m_RPropagationPipeline = RZResourceManager::Get().createPipeline((pipelineInfo));
 
@@ -438,7 +438,7 @@ namespace Razix {
                         .height = grid.size.y,
                         .layers = grid.size.z,
                         .type   = TextureType::Texture_3D,
-                        .format = TextureFormat::RGBA32F};
+                        .format = TextureFormat::RGBA16F};
 
                     // Create the resource for this pass
                     data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);

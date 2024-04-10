@@ -326,7 +326,7 @@ public:                                                  \
 #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
 
 /**
- * Alignment Macros
+ * Memory Related stuff & Alignment Macros
  */
 #define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) -1)) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
 
@@ -372,6 +372,45 @@ public:                                                  \
 #define RZ_ALIGN_TO(a) __declspec(align(a))
 #define RZ_ALIGN_AS(a) alignas(a)
 
+#define Gib(x) x * 1024 * 1024 * 1024
+#define Mib(x) x * 1024 * 1024
+#define Kib(x) x * 1024
+
+#define in_Gib(x) (x / (1024 * 1024 * 1024))
+#define in_Mib(x) (x / (1024 * 1024))
+#define in_Kib(x) (x / 1024)
+
+// Operator overload for quick expression without using macros
+constexpr size_t operator""_Gib(unsigned long long int x)
+{
+    return x * 1024 * 1024 * 1024;
+}
+
+constexpr size_t operator""_Mib(unsigned long long int x)
+{
+    return x * 1024 * 1024;
+}
+
+constexpr size_t operator""_Kib(unsigned long long int x)
+{
+    return x * 1024;
+}
+
+constexpr float operator""_inGib(unsigned long long int x)
+{
+    return (float) x / (1024.0f * 1024.0f * 1024.0f);
+}
+
+constexpr float operator""_inMib(unsigned long long int x)
+{
+    return (float) x / (1024.0f * 1024.0f);
+}
+
+constexpr float operator""_inKib(unsigned long long int x)
+{
+    return (float) x / 1024.0f;
+}
+
 // A macro to call a member function pointer
 #define RAZIX_CALL_MEMBER_FUNC(object, member_func) ((object)->*(member_func))
 
@@ -408,14 +447,6 @@ public:                                                  \
 #elif
     #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
 #endif
-
-#define Gib(x) x * 1024 * 1024 * 1024
-#define Mib(x) x * 1024 * 1024
-#define Kib(x) x * 1024
-
-#define in_Gib(x) (x / (1024 * 1024 * 1024))
-#define in_Mib(x) (x / (1024 * 1024))
-#define in_Kib(x) (x / 1024)
 
 /* Whether or not to use VMA as memory backend */
 #define RAZIX_USE_VMA 1
