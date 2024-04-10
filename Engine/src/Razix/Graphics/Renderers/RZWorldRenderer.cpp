@@ -473,7 +473,7 @@ namespace Razix {
             //auto texResource = RZResourceManager::Get().getTextureResource(texHandle);
             //texResource->setCurrentArrayLayer(0);
             //
-            if (ImGui::Begin("FrameGraph Debug ")) {
+            if (ImGui::Begin("FrameGraph Debug")) {
                 if (ImGui::CollapsingHeader("PBR Deferred Lighting")) {
                     ImGui::SliderFloat("biasScale :", &m_PBRDeferredPass.biasScale, 0.0001f, 0.1f);
                     ImGui::SliderFloat("mxScale :", &m_PBRDeferredPass.maxBias, 0.0001f, 0.1f);
@@ -483,6 +483,16 @@ namespace Razix {
                         RZEngine::Get().getWorldSettings().debugFlags |= RendererDebugFlag_VisCSMCascades;
                     else
                         RZEngine::Get().getWorldSettings().debugFlags &= ~RendererDebugFlag_VisCSMCascades;
+                }
+
+                if (ImGui::CollapsingHeader("Debug Texture Pool View (All)")) {
+                    auto& texturePool = RZResourceManager::Get().getPool<RZTexture>();
+
+                    for (auto& textureHandle: texturePool.getHandles()) {
+                        auto textureResource = RZResourceManager::Get().getTextureResource(textureHandle);
+                        ImGui::Image(textureResource->getDescriptorSet(), ImVec2(100, 100));
+                        ImGui::Text(textureResource->getDescription().name.c_str());
+                    }
                 }
             }
             ImGui::End();

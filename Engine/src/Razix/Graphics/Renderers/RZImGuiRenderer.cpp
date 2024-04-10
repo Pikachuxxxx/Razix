@@ -140,9 +140,9 @@ namespace Razix {
                 return;
             }
 
-            constexpr u32 maxSize = 32_Mib;
-            m_ImGuiVBO  = RZVertexBuffer::Create(maxSize, nullptr, BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("VB.ImGUi"));
-            m_ImGuiIBO  = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("IB.ImGui") nullptr, maxSize * 6, BufferUsage::PersistentStream);
+            constexpr u32 maxSize = 64_Mib;
+            m_ImGuiVBO            = RZVertexBuffer::Create(maxSize, nullptr, BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("VB.ImGUi"));
+            m_ImGuiIBO            = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("IB.ImGui") nullptr, maxSize * 6, BufferUsage::PersistentStream);
         }
 
         void RZImGuiRenderer::Begin(RZScene* scene)
@@ -198,8 +198,8 @@ namespace Razix {
                 idxDst += cmd_list->IdxBuffer.Size;
             }
 
-            //m_ImGuiVBO->UnMap();
-            //m_ImGuiIBO->UnMap();
+            m_ImGuiVBO->UnMap();
+            m_ImGuiIBO->UnMap();
         }
 
         void RZImGuiRenderer::Draw(RZCommandBuffer* cmdBuffer)
