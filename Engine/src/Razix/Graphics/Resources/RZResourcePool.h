@@ -57,6 +57,8 @@ namespace Razix {
             // TODO: Figure out how to offer both version and make it safe
             T* get(RZHandle<T> handle) const;
 
+            std::vector<RZHandle<T>> getHandles();
+
         private:
             T* getInternal(RZHandle<T>& handle);
 
@@ -71,6 +73,19 @@ namespace Razix {
                     RAZIX_CORE_TRACE("\tResource id={0}, name={1}\n", m_FreeIndices[i], ((IRZResource<T>*) accessResource(i))->getName().c_str());
                 }
             }
+        }
+
+        template<typename T>
+        std::vector<RZHandle<T>> RZResourcePoolTyped<T>::getHandles()
+        {
+            std::vector<RZHandle<T>> handles;
+
+            if (m_FreeIndicesHead != 0) {
+                for (u32 i = 0; i < m_FreeIndicesHead; ++i) {
+                    handles.push_back(((IRZResource<T>*) accessResource(i))->getHandle());
+                }
+            }
+            return handles;
         }
 
         template<typename T>
