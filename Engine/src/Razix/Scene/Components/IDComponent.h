@@ -28,7 +28,7 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("UUID", UUID.prettyString()));
+            archive(cereal::make_nvp("UUID", UUID.bytes()));
         }
     };
 }    // namespace Razix

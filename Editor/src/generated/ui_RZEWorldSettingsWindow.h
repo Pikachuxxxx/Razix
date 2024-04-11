@@ -29,10 +29,22 @@ class Ui_WorldSettings
 public:
     QVBoxLayout *verticalLayout;
     QLabel *label_3;
-    QGroupBox *groupBox_5;
-    QVBoxLayout *verticalLayout_6;
     QCheckBox *useProcSkyboxChkBox;
-    QFrame *line_6;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *label;
+    QFrame *line_3;
+    QComboBox *tonemapMode;
+    QSpacerItem *horizontalSpacer_2;
+    QHBoxLayout *horizontalLayout_3;
+    QLabel *label_4;
+    QFrame *line_4;
+    QComboBox *aaMode;
+    QSpacerItem *horizontalSpacer_3;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *label_5;
+    QFrame *line_5;
+    QComboBox *sceneSamplingPattern;
+    QSpacerItem *horizontalSpacer_4;
     QGroupBox *groupBox;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout_2;
@@ -43,36 +55,29 @@ public:
     QLineEdit *filterRadius;
     QLineEdit *strength;
     QSpacerItem *horizontalSpacer;
-    QFrame *line_2;
-    QGroupBox *groupBox_2;
-    QHBoxLayout *horizontalLayout_2;
-    QLabel *label;
-    QFrame *line_3;
-    QComboBox *tonemapMode;
-    QSpacerItem *horizontalSpacer_2;
-    QFrame *line_4;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_4;
     QCheckBox *checkBox_7;
     QCheckBox *checkBox_8;
     QCheckBox *checkBox_9;
-    QFrame *line_5;
     QGroupBox *groupBox_4;
     QVBoxLayout *verticalLayout_5;
     QLabel *label_2;
     QCheckBox *checkBox_2;
     QCheckBox *Shadows;
-    QCheckBox *ImGui;
+    QCheckBox *Skybox;
     QCheckBox *SSAO;
-    QCheckBox *checkBox_5;
-    QCheckBox *checkBox_6;
+    QCheckBox *ImGui;
+    QCheckBox *FXAA;
+    QCheckBox *TAA;
+    QCheckBox *Tonemapping;
     QSpacerItem *verticalSpacer;
 
     void setupUi(QWidget *WorldSettings)
     {
         if (WorldSettings->objectName().isEmpty())
             WorldSettings->setObjectName(QString::fromUtf8("WorldSettings"));
-        WorldSettings->resize(290, 759);
+        WorldSettings->resize(839, 770);
         verticalLayout = new QVBoxLayout(WorldSettings);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -88,59 +93,145 @@ public:
 
         verticalLayout->addWidget(label_3);
 
-        groupBox_5 = new QGroupBox(WorldSettings);
-        groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
-        QFont font1;
-        font1.setFamily(QString::fromUtf8("Fira Code Light"));
-        font1.setPointSize(10);
-        groupBox_5->setFont(font1);
-        verticalLayout_6 = new QVBoxLayout(groupBox_5);
-        verticalLayout_6->setSpacing(6);
-        verticalLayout_6->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
-        useProcSkyboxChkBox = new QCheckBox(groupBox_5);
+        useProcSkyboxChkBox = new QCheckBox(WorldSettings);
         useProcSkyboxChkBox->setObjectName(QString::fromUtf8("useProcSkyboxChkBox"));
+        QFont font1;
+        font1.setPointSize(10);
+        useProcSkyboxChkBox->setFont(font1);
         useProcSkyboxChkBox->setChecked(false);
 
-        verticalLayout_6->addWidget(useProcSkyboxChkBox);
+        verticalLayout->addWidget(useProcSkyboxChkBox);
+
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setSpacing(6);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        label = new QLabel(WorldSettings);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setMinimumSize(QSize(200, 0));
+        label->setMaximumSize(QSize(200, 16777215));
+        label->setFont(font1);
+
+        horizontalLayout_2->addWidget(label);
+
+        line_3 = new QFrame(WorldSettings);
+        line_3->setObjectName(QString::fromUtf8("line_3"));
+        line_3->setFrameShape(QFrame::VLine);
+        line_3->setFrameShadow(QFrame::Sunken);
+
+        horizontalLayout_2->addWidget(line_3);
+
+        tonemapMode = new QComboBox(WorldSettings);
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->addItem(QString());
+        tonemapMode->setObjectName(QString::fromUtf8("tonemapMode"));
+
+        horizontalLayout_2->addWidget(tonemapMode);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer_2);
 
 
-        verticalLayout->addWidget(groupBox_5);
+        verticalLayout->addLayout(horizontalLayout_2);
 
-        line_6 = new QFrame(WorldSettings);
-        line_6->setObjectName(QString::fromUtf8("line_6"));
-        line_6->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
-"border-style:solid;\n"
-"border-width:2px;"));
-        line_6->setFrameShadow(QFrame::Plain);
-        line_6->setLineWidth(1);
-        line_6->setFrameShape(QFrame::HLine);
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setSpacing(6);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        label_4 = new QLabel(WorldSettings);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setMinimumSize(QSize(200, 0));
+        label_4->setMaximumSize(QSize(200, 16777215));
+        label_4->setFont(font1);
 
-        verticalLayout->addWidget(line_6);
+        horizontalLayout_3->addWidget(label_4);
+
+        line_4 = new QFrame(WorldSettings);
+        line_4->setObjectName(QString::fromUtf8("line_4"));
+        line_4->setFrameShape(QFrame::VLine);
+        line_4->setFrameShadow(QFrame::Sunken);
+
+        horizontalLayout_3->addWidget(line_4);
+
+        aaMode = new QComboBox(WorldSettings);
+        aaMode->addItem(QString());
+        aaMode->addItem(QString());
+        aaMode->addItem(QString());
+        aaMode->setObjectName(QString::fromUtf8("aaMode"));
+
+        horizontalLayout_3->addWidget(aaMode);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_3);
+
+
+        verticalLayout->addLayout(horizontalLayout_3);
+
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setSpacing(6);
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        label_5 = new QLabel(WorldSettings);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+        label_5->setMinimumSize(QSize(200, 0));
+        label_5->setMaximumSize(QSize(200, 16777215));
+        label_5->setFont(font1);
+
+        horizontalLayout_4->addWidget(label_5);
+
+        line_5 = new QFrame(WorldSettings);
+        line_5->setObjectName(QString::fromUtf8("line_5"));
+        line_5->setFrameShape(QFrame::VLine);
+        line_5->setFrameShadow(QFrame::Sunken);
+
+        horizontalLayout_4->addWidget(line_5);
+
+        sceneSamplingPattern = new QComboBox(WorldSettings);
+        sceneSamplingPattern->addItem(QString());
+        sceneSamplingPattern->addItem(QString());
+        sceneSamplingPattern->addItem(QString());
+        sceneSamplingPattern->setObjectName(QString::fromUtf8("sceneSamplingPattern"));
+
+        horizontalLayout_4->addWidget(sceneSamplingPattern);
+
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_4);
+
+
+        verticalLayout->addLayout(horizontalLayout_4);
 
         groupBox = new QGroupBox(WorldSettings);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setFont(font1);
+        QFont font2;
+        font2.setFamily(QString::fromUtf8("Fira Code Light"));
+        font2.setPointSize(10);
+        groupBox->setFont(font2);
         horizontalLayout = new QHBoxLayout(groupBox);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setContentsMargins(0, -1, -1, -1);
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         filterRadiusLbl = new QLabel(groupBox);
         filterRadiusLbl->setObjectName(QString::fromUtf8("filterRadiusLbl"));
-        filterRadiusLbl->setMinimumSize(QSize(100, 0));
+        filterRadiusLbl->setMinimumSize(QSize(200, 0));
         filterRadiusLbl->setMaximumSize(QSize(200, 16777215));
-        QFont font2;
-        font2.setPointSize(8);
         filterRadiusLbl->setFont(font2);
 
         verticalLayout_2->addWidget(filterRadiusLbl);
 
         strengthLbl = new QLabel(groupBox);
         strengthLbl->setObjectName(QString::fromUtf8("strengthLbl"));
-        strengthLbl->setMinimumSize(QSize(100, 0));
+        strengthLbl->setMinimumSize(QSize(200, 0));
         strengthLbl->setMaximumSize(QSize(200, 16777215));
         strengthLbl->setFont(font2);
 
@@ -179,71 +270,9 @@ public:
 
         verticalLayout->addWidget(groupBox);
 
-        line_2 = new QFrame(WorldSettings);
-        line_2->setObjectName(QString::fromUtf8("line_2"));
-        line_2->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
-"border-style:solid;\n"
-"border-width:2px;"));
-        line_2->setFrameShape(QFrame::HLine);
-        line_2->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout->addWidget(line_2);
-
-        groupBox_2 = new QGroupBox(WorldSettings);
-        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setFont(font1);
-        horizontalLayout_2 = new QHBoxLayout(groupBox_2);
-        horizontalLayout_2->setSpacing(6);
-        horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        label = new QLabel(groupBox_2);
-        label->setObjectName(QString::fromUtf8("label"));
-        label->setMinimumSize(QSize(100, 0));
-        label->setMaximumSize(QSize(100, 16777215));
-
-        horizontalLayout_2->addWidget(label);
-
-        line_3 = new QFrame(groupBox_2);
-        line_3->setObjectName(QString::fromUtf8("line_3"));
-        line_3->setFrameShape(QFrame::VLine);
-        line_3->setFrameShadow(QFrame::Sunken);
-
-        horizontalLayout_2->addWidget(line_3);
-
-        tonemapMode = new QComboBox(groupBox_2);
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->addItem(QString());
-        tonemapMode->setObjectName(QString::fromUtf8("tonemapMode"));
-
-        horizontalLayout_2->addWidget(tonemapMode);
-
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_2->addItem(horizontalSpacer_2);
-
-
-        verticalLayout->addWidget(groupBox_2);
-
-        line_4 = new QFrame(WorldSettings);
-        line_4->setObjectName(QString::fromUtf8("line_4"));
-        line_4->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
-"border-style:solid;\n"
-"border-width:2px;"));
-        line_4->setFrameShape(QFrame::HLine);
-        line_4->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout->addWidget(line_4);
-
         groupBox_3 = new QGroupBox(WorldSettings);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setFont(font1);
+        groupBox_3->setFont(font2);
         verticalLayout_4 = new QVBoxLayout(groupBox_3);
         verticalLayout_4->setSpacing(6);
         verticalLayout_4->setContentsMargins(11, 11, 11, 11);
@@ -269,19 +298,9 @@ public:
 
         verticalLayout->addWidget(groupBox_3);
 
-        line_5 = new QFrame(WorldSettings);
-        line_5->setObjectName(QString::fromUtf8("line_5"));
-        line_5->setStyleSheet(QString::fromUtf8("border-color:#000000;\n"
-"border-style:solid;\n"
-"border-width:2px;"));
-        line_5->setFrameShape(QFrame::HLine);
-        line_5->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout->addWidget(line_5);
-
         groupBox_4 = new QGroupBox(WorldSettings);
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
-        groupBox_4->setFont(font1);
+        groupBox_4->setFont(font2);
         verticalLayout_5 = new QVBoxLayout(groupBox_4);
         verticalLayout_5->setSpacing(6);
         verticalLayout_5->setContentsMargins(11, 11, 11, 11);
@@ -302,11 +321,11 @@ public:
 
         verticalLayout_5->addWidget(Shadows);
 
-        ImGui = new QCheckBox(groupBox_4);
-        ImGui->setObjectName(QString::fromUtf8("ImGui"));
-        ImGui->setChecked(true);
+        Skybox = new QCheckBox(groupBox_4);
+        Skybox->setObjectName(QString::fromUtf8("Skybox"));
+        Skybox->setChecked(true);
 
-        verticalLayout_5->addWidget(ImGui);
+        verticalLayout_5->addWidget(Skybox);
 
         SSAO = new QCheckBox(groupBox_4);
         SSAO->setObjectName(QString::fromUtf8("SSAO"));
@@ -314,16 +333,36 @@ public:
 
         verticalLayout_5->addWidget(SSAO);
 
-        checkBox_5 = new QCheckBox(groupBox_4);
-        checkBox_5->setObjectName(QString::fromUtf8("checkBox_5"));
+        ImGui = new QCheckBox(groupBox_4);
+        ImGui->setObjectName(QString::fromUtf8("ImGui"));
+        ImGui->setChecked(true);
 
-        verticalLayout_5->addWidget(checkBox_5);
+        verticalLayout_5->addWidget(ImGui);
 
-        checkBox_6 = new QCheckBox(groupBox_4);
-        checkBox_6->setObjectName(QString::fromUtf8("checkBox_6"));
+        FXAA = new QCheckBox(groupBox_4);
+        FXAA->setObjectName(QString::fromUtf8("FXAA"));
 
-        verticalLayout_5->addWidget(checkBox_6);
+        verticalLayout_5->addWidget(FXAA);
 
+        TAA = new QCheckBox(groupBox_4);
+        TAA->setObjectName(QString::fromUtf8("TAA"));
+
+        verticalLayout_5->addWidget(TAA);
+
+        Tonemapping = new QCheckBox(groupBox_4);
+        Tonemapping->setObjectName(QString::fromUtf8("Tonemapping"));
+
+        verticalLayout_5->addWidget(Tonemapping);
+
+        Skybox->raise();
+        label_2->raise();
+        checkBox_2->raise();
+        Shadows->raise();
+        SSAO->raise();
+        FXAA->raise();
+        TAA->raise();
+        Tonemapping->raise();
+        ImGui->raise();
 
         verticalLayout->addWidget(groupBox_4);
 
@@ -341,12 +380,7 @@ public:
     {
         WorldSettings->setWindowTitle(QCoreApplication::translate("WorldSettings", "World Settings", nullptr));
         label_3->setText(QCoreApplication::translate("WorldSettings", "World Settings", nullptr));
-        groupBox_5->setTitle(QCoreApplication::translate("WorldSettings", "Environment Settings", nullptr));
         useProcSkyboxChkBox->setText(QCoreApplication::translate("WorldSettings", "Use Procedural Skybox", nullptr));
-        groupBox->setTitle(QCoreApplication::translate("WorldSettings", "Bloom Settings", nullptr));
-        filterRadiusLbl->setText(QCoreApplication::translate("WorldSettings", "filterRadius", nullptr));
-        strengthLbl->setText(QCoreApplication::translate("WorldSettings", "strength", nullptr));
-        groupBox_2->setTitle(QCoreApplication::translate("WorldSettings", "ToneMap Settings", nullptr));
         label->setText(QCoreApplication::translate("WorldSettings", "Tonemap Mode", nullptr));
         tonemapMode->setItemText(0, QCoreApplication::translate("WorldSettings", "ACES", nullptr));
         tonemapMode->setItemText(1, QCoreApplication::translate("WorldSettings", "Filmic", nullptr));
@@ -358,18 +392,33 @@ public:
         tonemapMode->setItemText(7, QCoreApplication::translate("WorldSettings", "Unreal", nullptr));
         tonemapMode->setItemText(8, QCoreApplication::translate("WorldSettings", "None", nullptr));
 
+        label_4->setText(QCoreApplication::translate("WorldSettings", "Anti-Aliasing", nullptr));
+        aaMode->setItemText(0, QCoreApplication::translate("WorldSettings", "NoAA", nullptr));
+        aaMode->setItemText(1, QCoreApplication::translate("WorldSettings", "FXAA", nullptr));
+        aaMode->setItemText(2, QCoreApplication::translate("WorldSettings", "TAA", nullptr));
+
+        label_5->setText(QCoreApplication::translate("WorldSettings", "Scene Sampling pattern", nullptr));
+        sceneSamplingPattern->setItemText(0, QCoreApplication::translate("WorldSettings", "Halton", nullptr));
+        sceneSamplingPattern->setItemText(1, QCoreApplication::translate("WorldSettings", "Normal", nullptr));
+        sceneSamplingPattern->setItemText(2, QCoreApplication::translate("WorldSettings", "Stratified", nullptr));
+
+        groupBox->setTitle(QCoreApplication::translate("WorldSettings", "Bloom Settings", nullptr));
+        filterRadiusLbl->setText(QCoreApplication::translate("WorldSettings", "filterRadius", nullptr));
+        strengthLbl->setText(QCoreApplication::translate("WorldSettings", "strength", nullptr));
         groupBox_3->setTitle(QCoreApplication::translate("WorldSettings", "Debug Mode Flags", nullptr));
-        checkBox_7->setText(QCoreApplication::translate("WorldSettings", "Overdraw vis mode", nullptr));
-        checkBox_8->setText(QCoreApplication::translate("WorldSettings", "Unlit mode", nullptr));
+        checkBox_7->setText(QCoreApplication::translate("WorldSettings", "Quad Overdraw", nullptr));
+        checkBox_8->setText(QCoreApplication::translate("WorldSettings", "Unlit Shading", nullptr));
         checkBox_9->setText(QCoreApplication::translate("WorldSettings", "Show UV coords", nullptr));
         groupBox_4->setTitle(QCoreApplication::translate("WorldSettings", "Renderer Features (Passes List)", nullptr));
         label_2->setText(QCoreApplication::translate("WorldSettings", "Flags", nullptr));
-        checkBox_2->setText(QCoreApplication::translate("WorldSettings", "GI", nullptr));
+        checkBox_2->setText(QCoreApplication::translate("WorldSettings", "HiZ depth pre-pass", nullptr));
         Shadows->setText(QCoreApplication::translate("WorldSettings", "Shadows", nullptr));
-        ImGui->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
+        Skybox->setText(QCoreApplication::translate("WorldSettings", "Skybox", nullptr));
         SSAO->setText(QCoreApplication::translate("WorldSettings", "SSAO", nullptr));
-        checkBox_5->setText(QCoreApplication::translate("WorldSettings", "SSR", nullptr));
-        checkBox_6->setText(QCoreApplication::translate("WorldSettings", "Bloom", nullptr));
+        ImGui->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
+        FXAA->setText(QCoreApplication::translate("WorldSettings", "FXAA", nullptr));
+        TAA->setText(QCoreApplication::translate("WorldSettings", "TAA", nullptr));
+        Tonemapping->setText(QCoreApplication::translate("WorldSettings", "Tonemapping", nullptr));
     } // retranslateUi
 
 };

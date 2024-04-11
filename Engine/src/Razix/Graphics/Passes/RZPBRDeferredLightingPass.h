@@ -12,6 +12,7 @@ namespace Razix {
         class RZPBRDeferredLightingPass : public IRZPass
         {
         public:
+            // TODO: Move these to light component settings, all shadow related settings must be under the LightRendererComponent
             f32 biasScale = 0.1f;
             f32 maxBias   = 0.005f;
 

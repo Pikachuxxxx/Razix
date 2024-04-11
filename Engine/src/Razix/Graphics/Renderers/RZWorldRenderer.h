@@ -62,16 +62,22 @@ namespace Razix {
             RendererFeature_Deferred   = 1 << 9,
             RendererFeature_DebugDraws = 1 << 10,
             RendererFeature_CSM        = 1 << 11,
+            RendererFeature_Skybox     = 1 << 12,
 
-            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_DebugDraws | RendererFeature_TAA,
+            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_Skybox | RendererFeature_DebugDraws | RendererFeature_TAA,
 
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };
 
         enum RendererDebugFlags : u32
         {
-            RendererDebugFlag_None           = 0,
-            RendererDebugFlag_VisCSMCascades = 1 << 0
+            RendererDebugFlag_None            = 0,
+            RendererDebugFlag_VisCSMCascades  = 1 << 0,
+            RendererDebugFlag_VisSSAO         = 1 << 1,
+            RendererDebugFlag_VisPreTonemap   = 1 << 2,
+            RendererDebugFlag_VisQuadOverDraw = 1 << 3,
+            RendererDebugFlag_VisUVs          = 1 << 4,
+            RendererDebugFlag_VisAlbedo       = 1 << 4
         };
 
         enum Antialising
@@ -113,10 +119,11 @@ namespace Razix {
             {
                 int32_t numPropagations{6};
             } globalIlluminationConfig;
-            u32         debugFlags{0u};
-            TonemapMode tonemapMode         = ACES;
-            Antialising aaMode              = NoAA;
-            bool        useProceduralSkybox = false;
+            u32                  debugFlags{0u};
+            TonemapMode          tonemapMode         = ACES;
+            Antialising          aaMode              = NoAA;
+            SceneSamplingPattern samplingPattern     = Halton;
+            bool                 useProceduralSkybox = false;
         };
 
         /**
