@@ -79,8 +79,8 @@ namespace Razix {
                     builder.read(sceneData.sceneHDR);
                     builder.read(sceneData.sceneDepth);
 
-                    sceneData.sceneHDR = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth     = builder.write(sceneData.sceneDepth);
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
 
 #if ENABLE_DATA_DRIVEN_FG_PASSES
                 //builder.read(framegraph.getBlackboard().getID("SceneHDR"));
@@ -92,6 +92,11 @@ namespace Razix {
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    auto& worldSettings = RZEngine::Get().getWorldSettings();
+
+                    if (!(worldSettings.renderFeatures & RendererFeature_Skybox))
+                        return;
 
                     RAZIX_TIME_STAMP_BEGIN("Skybox Pass");
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
@@ -108,8 +113,6 @@ namespace Razix {
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
-
-                    auto& worldSettings = Razix::RZEngine::Get().getWorldSettings();
 
                     // Set the Descriptor Set once rendering starts
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {

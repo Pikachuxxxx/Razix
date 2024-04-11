@@ -437,7 +437,7 @@ namespace Razix {
         RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
         archive(cereal::make_nvp("Project Name", m_ProjectName));
         archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
-        archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
+        archive(cereal::make_nvp("Project ID", m_ProjectID.bytes()));
         archive(cereal::make_nvp("Render API", (u32) Graphics::RZGraphicsContext::GetRenderAPI()));
         archive(cereal::make_nvp("Width", m_Window->getWidth()));
         archive(cereal::make_nvp("Height", m_Window->getHeight()));

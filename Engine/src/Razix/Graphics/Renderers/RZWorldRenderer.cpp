@@ -84,7 +84,7 @@ namespace Razix {
                 m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (HaltonSequence(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
                 m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (HaltonSequence(i + 1, 3) - 1.0f);
                 m_TAAJitterHaltonSamples[i].x /= RZApplication::Get().getWindow()->getWidth();
-                m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getWidth();
+                m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getHeight();
             }
 
             //-----------------------------------------------------------------------------------
@@ -547,8 +547,11 @@ namespace Razix {
                     gpuData.debugFlags     = settings.debugFlags;
                     gpuData.renderFeatures = settings.renderFeatures;
 
-                    m_Jitter                  = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
-                    gpuData.jitterTAA         = m_Jitter;
+                    m_Jitter = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
+                    // Based on scene sampling pattern set the apt jitter
+                    if (RZEngine::Get().getWorldSettings().samplingPattern == Halton)
+                        gpuData.jitterTAA = m_Jitter;
+
                     gpuData.previousJitterTAA = m_PreviousJitter;
 
                     auto& sceneCam = scene->getSceneCamera();

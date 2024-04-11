@@ -69,9 +69,12 @@ namespace Razix {
                     data.lightVP   = builder.write(data.lightVP);
                 },
                 [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
                     auto& worldSettings = RZEngine::Get().getWorldSettings();
 
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+                    if (!(worldSettings.renderFeatures & RendererFeature_Shadows))
+                        return;
 
                     RAZIX_TIME_STAMP_BEGIN("Shadow Pass");
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", glm::vec4(0.65, 0.73, 0.22f, 1.0f));

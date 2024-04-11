@@ -17,18 +17,22 @@ namespace Razix {
         public slots:
             // Environment Settings
             void On_UseProceduralSkybox();
-
             // Tonemap Mode
             void OnToneMapModeChanged();
+            // AA
+            void OnAAModeChanged();
+            // Scene Sampling pattern
+            void OnSceneSamplingPatternChanged();
 
             // Bloom Settings
-            void On_SetFilterRadius();
-            void On_SetStrength();
+            void OnSetFilterRadius();
+            void OnSetStrength();
 
             // Enable Renderer settings
+            void OnShadowsEnabled();
+            void OnSkyboxEnabled();
             void OnSSAOEnabled();
             void OnImGuiEnabled();
-            void OnShadowsEnabled();
 
         private:
             Ui::WorldSettings ui;

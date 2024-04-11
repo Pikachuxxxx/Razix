@@ -286,10 +286,11 @@ namespace Razix {
                     data.vpLayer       = builder.write(subpassData.vpLayer);
                 },
                 [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
-                    //if (!(settings.renderFeatures & RendererFeature_Shadows))
-                    //    return;
-
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    auto& worldSettings = RZEngine::Get().getWorldSettings();
+                    if (!(worldSettings.renderFeatures & RendererFeature_Shadows))
+                        return;
 
                     RAZIX_TIME_STAMP_BEGIN("CSM Pass # " + std::to_string(cascadeIdx));
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx), glm::vec4(0.35, 0.44, 0.96f, 1.0f));

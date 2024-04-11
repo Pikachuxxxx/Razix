@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>799</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -67,7 +67,6 @@
      <string>Graphics</string>
     </property>
     <addaction name="actionLighting_Settings"/>
-    <addaction name="actionEnvironment_Settings"/>
     <addaction name="actionDebug_Modes"/>
    </widget>
    <widget class="QMenu" name="menuCreate">

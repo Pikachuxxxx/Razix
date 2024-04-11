@@ -212,7 +212,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 799, 21));
+        menubar->setGeometry(QRect(0, 0, 799, 26));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuEdit = new QMenu(menubar);
@@ -249,7 +249,6 @@ public:
         menuEdit->addAction(actionProject_Settings);
         menuEdit->addAction(actionEngine_Settings);
         menuGraphics->addAction(actionLighting_Settings);
-        menuGraphics->addAction(actionEnvironment_Settings);
         menuGraphics->addAction(actionDebug_Modes);
         menuCreate->addAction(actionEntity);
         menuCreate->addAction(actionLua_Script);
