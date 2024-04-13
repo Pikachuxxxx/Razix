@@ -67,10 +67,10 @@ public:
     QCheckBox *Shadows;
     QCheckBox *Skybox;
     QCheckBox *SSAO;
-    QCheckBox *ImGui;
-    QCheckBox *FXAA;
     QCheckBox *TAA;
     QCheckBox *Tonemapping;
+    QCheckBox *FXAA;
+    QCheckBox *ImGui;
     QSpacerItem *verticalSpacer;
 
     void setupUi(QWidget *WorldSettings)
@@ -333,17 +333,6 @@ public:
 
         verticalLayout_5->addWidget(SSAO);
 
-        ImGui = new QCheckBox(groupBox_4);
-        ImGui->setObjectName(QString::fromUtf8("ImGui"));
-        ImGui->setChecked(true);
-
-        verticalLayout_5->addWidget(ImGui);
-
-        FXAA = new QCheckBox(groupBox_4);
-        FXAA->setObjectName(QString::fromUtf8("FXAA"));
-
-        verticalLayout_5->addWidget(FXAA);
-
         TAA = new QCheckBox(groupBox_4);
         TAA->setObjectName(QString::fromUtf8("TAA"));
 
@@ -354,14 +343,25 @@ public:
 
         verticalLayout_5->addWidget(Tonemapping);
 
+        FXAA = new QCheckBox(groupBox_4);
+        FXAA->setObjectName(QString::fromUtf8("FXAA"));
+
+        verticalLayout_5->addWidget(FXAA);
+
+        ImGui = new QCheckBox(groupBox_4);
+        ImGui->setObjectName(QString::fromUtf8("ImGui"));
+        ImGui->setChecked(true);
+
+        verticalLayout_5->addWidget(ImGui);
+
         Skybox->raise();
         label_2->raise();
         checkBox_2->raise();
         Shadows->raise();
         SSAO->raise();
+        Tonemapping->raise();
         FXAA->raise();
         TAA->raise();
-        Tonemapping->raise();
         ImGui->raise();
 
         verticalLayout->addWidget(groupBox_4);
@@ -398,8 +398,8 @@ public:
         aaMode->setItemText(2, QCoreApplication::translate("WorldSettings", "TAA", nullptr));
 
         label_5->setText(QCoreApplication::translate("WorldSettings", "Scene Sampling pattern", nullptr));
-        sceneSamplingPattern->setItemText(0, QCoreApplication::translate("WorldSettings", "Halton", nullptr));
-        sceneSamplingPattern->setItemText(1, QCoreApplication::translate("WorldSettings", "Normal", nullptr));
+        sceneSamplingPattern->setItemText(0, QCoreApplication::translate("WorldSettings", "Normal", nullptr));
+        sceneSamplingPattern->setItemText(1, QCoreApplication::translate("WorldSettings", "Halton", nullptr));
         sceneSamplingPattern->setItemText(2, QCoreApplication::translate("WorldSettings", "Stratified", nullptr));
 
         groupBox->setTitle(QCoreApplication::translate("WorldSettings", "Bloom Settings", nullptr));
@@ -415,10 +415,10 @@ public:
         Shadows->setText(QCoreApplication::translate("WorldSettings", "Shadows", nullptr));
         Skybox->setText(QCoreApplication::translate("WorldSettings", "Skybox", nullptr));
         SSAO->setText(QCoreApplication::translate("WorldSettings", "SSAO", nullptr));
-        ImGui->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
-        FXAA->setText(QCoreApplication::translate("WorldSettings", "FXAA", nullptr));
         TAA->setText(QCoreApplication::translate("WorldSettings", "TAA", nullptr));
         Tonemapping->setText(QCoreApplication::translate("WorldSettings", "Tonemapping", nullptr));
+        FXAA->setText(QCoreApplication::translate("WorldSettings", "FXAA", nullptr));
+        ImGui->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
     } // retranslateUi
 
 };

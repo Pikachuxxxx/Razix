@@ -70,6 +70,9 @@ namespace Razix {
 
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
+            pipelineInfo.polygonMode = PolygonMode::Line;
+            m_WireframePipeline      = RZResourceManager::Get().createPipeline(pipelineInfo);
+
             auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
 
             framegraph.getBlackboard().add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
@@ -129,10 +132,18 @@ namespace Razix {
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-                    RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
+                    const auto& worldSettings = RZEngine::Get().getWorldSettings();
+
+                    RZPipelineHandle pipeline;
+                    if (worldSettings.debugFlags & RendererDebugFlag_VisWireframe)
+                        pipeline = m_WireframePipeline;
+                    else
+                        pipeline = m_Pipeline;
+
+                    RHI ::BindPipeline(pipeline, RHI::GetCurrentCommandBuffer());
 
                     // Use scene to draw geometry
-                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
+                    scene->drawScene(pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();
@@ -143,6 +154,7 @@ namespace Razix {
         void RZGBufferPass::destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            RZResourceManager::Get().destroyPipeline(m_WireframePipeline);
         }
     }    // namespace Graphics
 }    // namespace Razix

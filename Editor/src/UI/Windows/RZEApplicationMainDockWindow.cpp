@@ -204,6 +204,29 @@ namespace Razix {
             }
         }
 
+        void RZEApplicationMainDockWindowCentralWidget::set_LitMode()
+        {
+            auto& worldSettings = RZEngine::Get().getWorldSettings();
+            // Remove other shading mode flags before setting this
+            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisWireframe | Graphics::RendererDebugFlag_VisQuadOverDraw);
+        }
+
+        void RZEApplicationMainDockWindowCentralWidget::set_WireframeMode()
+        {
+            auto& worldSettings = RZEngine::Get().getWorldSettings();
+            // Remove other shading mode flags before setting this
+            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisQuadOverDraw);
+            worldSettings.debugFlags |= Graphics::RendererDebugFlag_VisWireframe;
+        }
+
+        void RZEApplicationMainDockWindowCentralWidget::set_QuadoverdrawMode()
+        {
+            auto& worldSettings = RZEngine::Get().getWorldSettings();
+            // Remove other shading mode flags before setting this
+            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisWireframe);
+            worldSettings.debugFlags |= Graphics::RendererDebugFlag_VisQuadOverDraw;
+        }
+
         //-----------------------------------------------------------------------------------------------
         void RZEApplicationMainDockWindowCentralWidget::update()
         {
@@ -224,12 +247,40 @@ namespace Razix {
 
         void RZEApplicationMainDockWindowCentralWidget::SetupToolBars()
         {
+            create_misc_tb();
             create_project_tb();
             create_scene_tb();
             create_transform_tb();
-            create_misc_tb();
-            create_shading_modes_tb();
             create_game_modes_tb();
+            create_shading_modes_tb();
+        }
+
+        void RZEApplicationMainDockWindowCentralWidget::create_misc_tb()
+        {
+            // Render API combo box
+            QToolBar* m_RenderSettingsTB = new QToolBar(this);
+
+            // Engine/Editor Settings
+            // TODO: Add button for various settings windows (Engine/Editor/Rendering/Lighting etc)
+            QPushButton* settingsButton = new QPushButton();
+            settingsButton->setIcon(QIcon(":/rzeditor/Razix_Settings_Icon.png"));
+            settingsButton->setIconSize(QSize(20, 20));
+            settingsButton->setToolTip("Razix Engine settings");
+            m_RenderSettingsTB->addWidget(settingsButton);
+
+            m_RenderSettingsTB->addSeparator();
+
+            QStringList commands = {"Vulkan", "D3D12", "OpenGL", "Metal"};
+            QComboBox*  combo    = new QComboBox(this);
+            combo->addItems(commands);
+            m_RenderSettingsTB->addWidget(combo);
+
+            this->addToolBar(m_RenderSettingsTB);
+
+            m_RenderSettingsTB->setObjectName("Render Settings Toolbar");
+
+            // Connection for the selection
+            connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_RenderAPIChanged(int)));
         }
 
         void RZEApplicationMainDockWindowCentralWidget::create_project_tb()
@@ -352,10 +403,6 @@ namespace Razix {
             connect(enableSnapBtn, SIGNAL(pressed()), this, SLOT(toggle_GridSnap()));
         }
 
-        void RZEApplicationMainDockWindowCentralWidget::create_shading_modes_tb()
-        {
-        }
-
         void RZEApplicationMainDockWindowCentralWidget::create_game_modes_tb()
         {
             QToolBar* gamemodesTB = new QToolBar(this);
@@ -395,32 +442,37 @@ namespace Razix {
             //connect(nextFrame, SIGNAL(clicked()), this, SLOT(gm_Play()));
         }
 
-        void RZEApplicationMainDockWindowCentralWidget::create_misc_tb()
+        void RZEApplicationMainDockWindowCentralWidget::create_shading_modes_tb()
         {
-            // Render API combo box
-            QToolBar* m_RenderSettingsTB = new QToolBar(this);
+            QToolBar* shadingmodesTB = new QToolBar(this);
 
-            // Engine/Editor Settings
-            // TODO: Add button for various settings windows (Engine/Editor/Rendering/Lighting etc)
-            QPushButton* settingsButton = new QPushButton();
-            settingsButton->setIcon(QIcon(":/rzeditor/Razix_Settings_Icon.png"));
-            settingsButton->setIconSize(QSize(20, 20));
-            settingsButton->setToolTip("Razix Engine settings");
-            m_RenderSettingsTB->addWidget(settingsButton);
+            QPushButton* lit = new QPushButton();
+            lit->setIcon(QIcon(":/rzeditor/toolbar/shading_modes/lit_shading.PNG"));
+            lit->setIconSize(QSize(20, 20));
+            lit->setToolTip("Uses default lit shader for the entire scene");
 
-            m_RenderSettingsTB->addSeparator();
+            QPushButton* wireframe = new QPushButton();
+            wireframe->setIcon(QIcon(":/rzeditor/toolbar/shading_modes/wireframe.PNG"));
+            wireframe->setIconSize(QSize(20, 20));
+            wireframe->setToolTip("Draw only wireframe of the scene");
 
-            QStringList commands = {"Vulkan", "D3D12", "OpenGL", "Metal"};
-            QComboBox*  combo    = new QComboBox(this);
-            combo->addItems(commands);
-            m_RenderSettingsTB->addWidget(combo);
+            QPushButton* quadoverdraw = new QPushButton();
+            quadoverdraw->setIcon(QIcon(":/rzeditor/toolbar/shading_modes/quad_overdraw.PNG"));
+            quadoverdraw->setIconSize(QSize(20, 20));
+            quadoverdraw->setToolTip("Visualize the quadoverdraw of the scene");
 
-            this->addToolBar(m_RenderSettingsTB);
+            shadingmodesTB->addWidget(lit);
+            shadingmodesTB->addWidget(wireframe);
+            shadingmodesTB->addWidget(quadoverdraw);
 
-            m_RenderSettingsTB->setObjectName("Render Settings Toolbar");
+            this->addToolBar(shadingmodesTB);
 
-            // Connection for the selection
-            connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_RenderAPIChanged(int)));
+            shadingmodesTB->setex
+            shadingmodesTB->setObjectName("Shading Modes Toolbar");
+
+            connect(lit, SIGNAL(clicked()), this, SLOT(set_LitMode()));
+            connect(wireframe, SIGNAL(clicked()), this, SLOT(set_WireframeMode()));
+            connect(quadoverdraw, SIGNAL(clicked()), this, SLOT(set_QuadoverdrawMode()));
         }
 
         void RZEApplicationMainDockWindowCentralWidget::SetupMenu()

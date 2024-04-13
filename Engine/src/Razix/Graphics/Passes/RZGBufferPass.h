@@ -18,11 +18,12 @@ namespace Razix {
             RZGBufferPass() = default;
             ~RZGBufferPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings) override;
             void destroy() override;
 
         private:
             RZPipelineHandle m_Pipeline;
+            RZPipelineHandle m_WireframePipeline;
         };
     }    // namespace Graphics
 }    // namespace Razix

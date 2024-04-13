@@ -70,6 +70,10 @@ namespace Razix {
             void toggle_WorldLocal();
             void toggle_GridSnap();
             // GameModes toolbar
+            // ShadingModes toolbar
+            void set_LitMode();
+            void set_WireframeMode();
+            void set_QuadoverdrawMode();
 
             void update();
 
@@ -93,12 +97,12 @@ namespace Razix {
         private:
             void SetupToolBars();
             // Toolbar settings
+            void create_misc_tb();
             void create_project_tb();
             void create_scene_tb();
             void create_transform_tb();
-            void create_misc_tb();
-            void create_shading_modes_tb();
             void create_game_modes_tb();
+            void create_shading_modes_tb();
 
             void SetupMenu();
             //------------------------------

@@ -26,6 +26,9 @@ namespace Razix {
             connect(ui.Skybox, SIGNAL(clicked(bool)), this, SLOT(OnSkyboxEnabled()));
             connect(ui.SSAO, SIGNAL(clicked(bool)), this, SLOT(OnSSAOEnabled()));
             connect(ui.ImGui, SIGNAL(clicked(bool)), this, SLOT(OnImGuiEnabled()));
+
+            // Set the default scene sampling pattern to Halton mode
+            ui.sceneSamplingPattern->setCurrentIndex((u32) Razix::Graphics::SceneSamplingPattern::Halton);
         }
 
         RZEWorldSettingsWindow::~RZEWorldSettingsWindow()
