@@ -467,7 +467,6 @@ namespace Razix {
 
             this->addToolBar(shadingmodesTB);
 
-            shadingmodesTB->setex
             shadingmodesTB->setObjectName("Shading Modes Toolbar");
 
             connect(lit, SIGNAL(clicked()), this, SLOT(set_LitMode()));

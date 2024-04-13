@@ -17,7 +17,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 # Features
 - Support for Windows, Linux, macOS.
 - Support for OpenGL, Vulkan & DirectX 12.
-- **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  
+- **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  
     - **Uses Custom [Node Graph Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
 
 | Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_design_demo_5.png" width="400"> |  
@@ -61,7 +61,7 @@ More information will be update on creating PRs and other ways to contribute to 
 Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Screenshots/Demos
-<img src="./Branding/DemoImages/ReleaseNotes/Razix_Editor_TitleBar_Demo.png">
+<img src="./Branding/DemoImages/ReleaseNotes/Razix Engine Editor 4_13_2024 7_14_21 PM.png">
 
 # Architecture
 
