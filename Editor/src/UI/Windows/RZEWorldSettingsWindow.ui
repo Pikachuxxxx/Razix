@@ -245,12 +245,12 @@
       <widget class="QComboBox" name="sceneSamplingPattern">
        <item>
         <property name="text">
-         <string>Halton</string>
+         <string>Normal</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Normal</string>
+         <string>Halton</string>
         </property>
        </item>
        <item>
@@ -479,23 +479,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="ImGui">
-        <property name="text">
-         <string>ImGui</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="FXAA">
-        <property name="text">
-         <string>FXAA</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="TAA">
         <property name="text">
          <string>TAA</string>
@@ -509,15 +492,32 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="FXAA">
+        <property name="text">
+         <string>FXAA</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="ImGui">
+        <property name="text">
+         <string>ImGui</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
      <zorder>Skybox</zorder>
      <zorder>label_2</zorder>
      <zorder>checkBox_2</zorder>
      <zorder>Shadows</zorder>
      <zorder>SSAO</zorder>
+     <zorder>Tonemapping</zorder>
      <zorder>FXAA</zorder>
      <zorder>TAA</zorder>
-     <zorder>Tonemapping</zorder>
      <zorder>ImGui</zorder>
     </widget>
    </item>

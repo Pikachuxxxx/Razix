@@ -28,14 +28,36 @@
 
 #include "Razix/Maths/RZGrid.h"
 
-// TODO: https://miketuritzin.com/post/hierarchical-depth-buffers/
-// TODO: https://www.jeremyong.com/cpp/2021/05/20/graphics-pipelines-for-young-bloods/
-// https://www.elopezr.com/temporal-aa-and-the-quest-for-the-holy-trail/
+// TODO: [HiZ] https://miketuritzin.com/post/hierarchical-depth-buffers/
+// TODO: [Random] https://www.jeremyong.com/cpp/2021/05/20/graphics-pipelines-for-young-bloods/
+// TODO: [TAA] https://www.elopezr.com/temporal-aa-and-the-quest-for-the-holy-trail/
+// TODO: [FXAA] https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
+
+/*
+Format: For FXAA, you generally want to use a format that matches your final output format, which is typically an 8-bit per channel format like RGBA8. This is because FXAA operates on the LDR image after tone mapping.
+
+Texture Sampler Settings:
+
+Filtering: Use bilinear filtering. FXAA operates on the assumption that the texture is sampled with bilinear filtering.
+Wrap Mode: Typically, clamp-to-edge is used, as you usually don't want to wrap around the edges of the screen.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+TAA works on the high dynamic range (HDR) image to leverage the additional color and brightness information available before it is compressed by the tone mapping process.
+
+As for the format and texture sampler settings for TAA:
+
+Format: For TAA, you usually want to use a floating-point format for the intermediate render targets to preserve the HDR information. Formats like RGBA16F or RGBA32F are commonly used.
+
+Texture Sampler Settings:
+
+Filtering: Use bilinear filtering. TAA relies on interpolating between pixels, so bilinear filtering is a good choice.
+Wrap Mode: Clamp-to-edge is typically used to avoid wrapping around the edges of the screen.
+*/
 
 namespace Razix {
     // Forward Declarations
     class RZScene;
-    class RZCascadedShadowsRenderer;
 
     namespace Maths {
         class RZFrustum;
@@ -72,12 +94,13 @@ namespace Razix {
         enum RendererDebugFlags : u32
         {
             RendererDebugFlag_None            = 0,
-            RendererDebugFlag_VisCSMCascades  = 1 << 0,
+            RendererDebugFlag_VisWireframe    = 1 << 0,
             RendererDebugFlag_VisSSAO         = 1 << 1,
             RendererDebugFlag_VisPreTonemap   = 1 << 2,
             RendererDebugFlag_VisQuadOverDraw = 1 << 3,
             RendererDebugFlag_VisUVs          = 1 << 4,
-            RendererDebugFlag_VisAlbedo       = 1 << 4
+            RendererDebugFlag_VisAlbedo       = 1 << 5,
+            RendererDebugFlag_VisCSMCascades  = 1 << 6,
         };
 
         enum Antialising

@@ -351,7 +351,6 @@ namespace Razix {
             //-------------------------------
             //m_ColorGradingPass.addPass(m_FrameGraph, scene, settings);
 #endif
-            // FXAA: https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
 
             //-------------------------------
             // TAA Resolve Pass

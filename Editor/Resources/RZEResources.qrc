@@ -180,5 +180,8 @@
         <file>next_frame.png</file>
         <file>terrain.png</file>
         <file>terrain_64.png</file>
+        <file>toolbar/shading_modes/lit_shading.PNG</file>
+        <file>toolbar/shading_modes/quad_overdraw.PNG</file>
+        <file>toolbar/shading_modes/wireframe.PNG</file>
     </qresource>
 </RCC>
