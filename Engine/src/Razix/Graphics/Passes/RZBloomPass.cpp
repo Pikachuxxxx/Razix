@@ -33,7 +33,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             SceneData forwardSceneData = framegraph.getBlackboard().get<SceneData>();
 
@@ -83,7 +83,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD;
         }
 
-        BloomMip RZBloomPass::upsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings& settings)
+        BloomMip RZBloomPass::upsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings* settings)
         {
             const auto name = "Bloom Upsample pass #" + std::to_string(mipindex);
 
@@ -180,7 +180,7 @@ namespace Razix {
                     {
                         f32 filterRadius;
                     } pcData{};
-                    pcData.filterRadius = RZEngine::Get().getWorldSettings().bloomConfig.radius;
+                    pcData.filterRadius = settings->bloomConfig.radius;
                     upsampleData.data   = &pcData;
                     upsampleData.size   = sizeof(PCD);
 
@@ -321,7 +321,7 @@ namespace Razix {
             return mip;
         }
 
-        void RZBloomPass::mixScene(FrameGraph::RZFrameGraph& framegraph,  Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZBloomPass::mixScene(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
                 auto cmdBuffer = RZCommandBuffer::Create();
@@ -419,7 +419,7 @@ namespace Razix {
                         u32   toneMapMode;
                     } pcData{};
                     pcData.bloomStrength = RZEngine::Get().getWorldSettings().bloomConfig.strength;
-                    pcData.toneMapMode   = settings.tonemapMode;
+                    pcData.toneMapMode   = settings->tonemapMode;
                     bloomData.data       = &pcData;
                     bloomData.size       = sizeof(PCD);
 

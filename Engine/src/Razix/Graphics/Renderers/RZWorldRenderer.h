@@ -12,7 +12,7 @@
 #include "Razix/Graphics/Passes/RZBloomPass.h"
 #include "Razix/Graphics/Passes/RZCSMPass.h"
 #include "Razix/Graphics/Passes/RZColorGradingPass.h"
-#include "Razix/Graphics/Passes/RZFinalCompositionPass.h"
+#include "Razix/Graphics/Passes/RZCompositionPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
 #include "Razix/Graphics/Passes/RZGaussianBlurPass.h"
@@ -34,25 +34,25 @@
 // TODO: [FXAA] https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
 
 /*
-Format: For FXAA, you generally want to use a format that matches your final output format, which is typically an 8-bit per channel format like RGBA8. This is because FXAA operates on the LDR image after tone mapping.
+    Format: For FXAA, you generally want to use a format that matches your final output format, which is typically an 8-bit per channel format like RGBA8. This is because FXAA operates on the LDR image after tone mapping.
 
-Texture Sampler Settings:
+    Texture Sampler Settings:
 
-Filtering: Use bilinear filtering. FXAA operates on the assumption that the texture is sampled with bilinear filtering.
-Wrap Mode: Typically, clamp-to-edge is used, as you usually don't want to wrap around the edges of the screen.
+    Filtering: Use bilinear filtering. FXAA operates on the assumption that the texture is sampled with bilinear filtering.
+    Wrap Mode: Typically, clamp-to-edge is used, as you usually don't want to wrap around the edges of the screen.
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-TAA works on the high dynamic range (HDR) image to leverage the additional color and brightness information available before it is compressed by the tone mapping process.
+    TAA works on the high dynamic range (HDR) image to leverage the additional color and brightness information available before it is compressed by the tone mapping process.
 
-As for the format and texture sampler settings for TAA:
+    As for the format and texture sampler settings for TAA:
 
-Format: For TAA, you usually want to use a floating-point format for the intermediate render targets to preserve the HDR information. Formats like RGBA16F or RGBA32F are commonly used.
+    Format: For TAA, you usually want to use a floating-point format for the intermediate render targets to preserve the HDR information. Formats like RGBA16F or RGBA32F are commonly used.
 
-Texture Sampler Settings:
+    Texture Sampler Settings:
 
-Filtering: Use bilinear filtering. TAA relies on interpolating between pixels, so bilinear filtering is a good choice.
-Wrap Mode: Clamp-to-edge is typically used to avoid wrapping around the edges of the screen.
+    Filtering: Use bilinear filtering. TAA relies on interpolating between pixels, so bilinear filtering is a good choice.
+    Wrap Mode: Clamp-to-edge is typically used to avoid wrapping around the edges of the screen.
 */
 
 namespace Razix {
@@ -199,7 +199,7 @@ namespace Razix {
             RZGaussianBlurPass        m_GaussianBlurPass;
             RZImGuiRenderer           m_ImGuiRenderer;
             RZTAAResolvePass          m_TAAResolvePass;
-            RZFinalCompositionPass    m_CompositePass;
+            RZCompositionPass    m_CompositePass;
 
             //RZColorGradingPass        m_ColorGradingPass;
 

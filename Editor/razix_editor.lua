@@ -174,7 +174,8 @@ project "RazixEditor"
 
     disablewarnings
     {
-        "4141"
+        4141,
+        4996 -- spdlog fmt error
     }
 
     -- Disable warning for vendor

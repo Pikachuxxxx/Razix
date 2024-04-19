@@ -20,20 +20,17 @@ namespace Razix {
         /**
          * Final composition pass of all the render targets which will submit to the GPU for presentation
          */
-        class RZFinalCompositionPass final : public IRZPass
+        class RZCompositionPass final : public IRZPass
         {
         public:
-            RZFinalCompositionPass() = default;
-            ~RZFinalCompositionPass() {}
+            RZCompositionPass() = default;
+            ~RZCompositionPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, RZScene* scene, RZRendererSettings& settings) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 
         private:
-            RZMesh*                    m_ScreenQuadMesh = nullptr;
-            RZPipelineHandle           m_Pipeline;
-            Graphics::RZDescriptorSet* m_DescriptorSets;
-            bool                       updatedRT = false;
+            RZPipelineHandle m_Pipeline;
         };
     }    // namespace Graphics
 }    // namespace Razix

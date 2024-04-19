@@ -41,7 +41,7 @@ namespace Razix {
             return a + f * (b - a);
         }
 
-        void RZSSAOPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZSSAOPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto ssaoShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::SSAO);
 
@@ -139,6 +139,8 @@ namespace Razix {
                 [=](const FX::SSAOData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                    RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_SSAO);
+
                     RAZIX_TIME_STAMP_BEGIN("SSAO");
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.SSAO", glm::vec4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
 
@@ -183,27 +185,23 @@ namespace Razix {
                         RZResourceManager::Get().getShaderResource(ssaoShader)->updateBindVarsHeaps();
                     }
 
-                    auto& worldSettings = Razix::RZEngine::Get().getWorldSettings();
+                    // Update the SSAO Data
+                    SSAOParamsData ssaoData{};
+                    ssaoData.radius     = 1.0f;
+                    ssaoData.bias       = 0.025f;
+                    ssaoData.resolution = glm::vec2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    auto& cam           = scene->getSceneCamera();
+                    // TODO: Bind FrameData @ slot 0
+                    ssaoData.camViewPos       = cam.getPosition();
+                    ssaoData.viewMatrix       = cam.getViewMatrix();
+                    ssaoData.projectionMatrix = cam.getProjection();
 
-                    if (worldSettings.renderFeatures & RendererFeature_SSAO) {
-                        // Update the SSAO Data
-                        SSAOParamsData ssaoData{};
-                        ssaoData.radius     = 1.0f;
-                        ssaoData.bias       = 0.025f;
-                        ssaoData.resolution = glm::vec2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
-                        auto& cam           = scene->getSceneCamera();
-                        // TODO: Bind FrameData @ slot 0
-                        ssaoData.camViewPos       = cam.getPosition();
-                        ssaoData.viewMatrix       = cam.getViewMatrix();
-                        ssaoData.projectionMatrix = cam.getProjection();
+                    auto ssaoDataHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.SSAOParams).getHandle();
+                    RZResourceManager::Get().getUniformBufferResource(ssaoDataHandle)->SetData(sizeof(SSAOParamsData), &ssaoData);
 
-                        auto ssaoDataHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.SSAOParams).getHandle();
-                        RZResourceManager::Get().getUniformBufferResource(ssaoDataHandle)->SetData(sizeof(SSAOParamsData), &ssaoData);
+                    RHI::BindPipeline(m_PreBlurPipeline, RHI::GetCurrentCommandBuffer());
 
-                        RHI::BindPipeline(m_PreBlurPipeline, RHI::GetCurrentCommandBuffer());
-
-                        scene->drawScene(m_PreBlurPipeline, SceneDrawGeometryMode::ScreenQuad);
-                    }
+                    scene->drawScene(m_PreBlurPipeline, SceneDrawGeometryMode::ScreenQuad);
 
                     RHI::EndRendering(RHI::GetCurrentCommandBuffer());
                     RAZIX_MARK_END();

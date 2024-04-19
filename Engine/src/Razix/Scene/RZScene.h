@@ -134,7 +134,6 @@ namespace Razix {
         RZSceneCamera  m_EditorModeCamera;
 
         Graphics::RZMesh* m_Cube       = nullptr;
-        Graphics::RZMesh* m_ScreenQuad = nullptr;
 
         friend class RZEntity;
 

@@ -21,7 +21,7 @@ layout(location = 0) in VSOutput
 
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-layout(set = 0, binding = 0) uniform sampler2D renderTarget;
+layout(set = 0, binding = 0) uniform sampler2D CompositionTarget;
 
 layout (push_constant) uniform ToneMapperMode
 {
@@ -47,7 +47,7 @@ float LinearizeDepth(float depth)
 vec3 sampleColor(vec2 p)
 {
     //vec3 col = texture(global_textures_2d[nonuniformEXT(tex.idx)], p).rgb;
-    vec3 col = texture(renderTarget, p).rgb;
+    vec3 col = texture(CompositionTarget, p).rgb;
     return col;
 }
 

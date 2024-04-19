@@ -13,6 +13,6 @@
 // Including the default fragment shader
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Composite.frag.spv
+        #include Compiled/SPIRV/Shader.Builtin.Composition.frag.spv
     #endif
 #end

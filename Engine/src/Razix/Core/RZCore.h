@@ -116,6 +116,17 @@
 
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)
+#define RETURN_IF_BIT_NOT_SET(val, b) \
+    if ((val & b) != b) return;
+#define RETURN_IF_BIT_SET(val, b) \
+    if ((val & b) == b) return;
+#define CONTINUE_IF_BIT_NOT_SET(val, b) \
+    if ((val & b) != b) continue;
+#define CONTINUE_IF_BIT_SET(val, b) \
+    if ((val & b) == b) continue;
+
+#define IS_BIT_NOT_SET(val, b) (val & b) != b
+#define IS_BIT_SET(val, b)     (val & b) == b
 
 // Convert hex to character
 #define HEX2CHR(m_hex) ((m_hex >= '0' && m_hex <= '9') ? (m_hex - '0') : ((m_hex >= 'A' && m_hex <= 'F') ? (10 + m_hex - 'A') : ((m_hex >= 'a' && m_hex <= 'f') ? (10 + m_hex - 'a') : 0)))

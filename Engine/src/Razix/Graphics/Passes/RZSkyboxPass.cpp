@@ -36,7 +36,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZSkyboxPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZSkyboxPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto skyboxShader           = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Skybox);
             auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ProceduralSkybox);
@@ -93,10 +93,7 @@ namespace Razix {
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto& worldSettings = RZEngine::Get().getWorldSettings();
-
-                    if (!(worldSettings.renderFeatures & RendererFeature_Skybox))
-                        return;
+                    RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Skybox);
 
                     RAZIX_TIME_STAMP_BEGIN("Skybox Pass");
                     RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
@@ -116,7 +113,7 @@ namespace Razix {
 
                     // Set the Descriptor Set once rendering starts
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        if (!worldSettings.useProceduralSkybox) {
+                        if (!settings->useProceduralSkybox) {
                             auto& shaderBindVars = Graphics::RZResourceManager::Get().getShaderResource(skyboxShader)->getBindVars();
                             auto  descriptor     = shaderBindVars["environmentMap"];
                             if (descriptor)
@@ -133,7 +130,7 @@ namespace Razix {
                         }
                     }
 
-                    if (!worldSettings.useProceduralSkybox) {
+                    if (!settings->useProceduralSkybox) {
                         //u32            envMapIdx = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle().getIndex();
                         //RZPushConstant pc;
                         //pc.data        = &envMapIdx;

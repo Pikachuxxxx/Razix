@@ -37,7 +37,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
@@ -132,10 +132,8 @@ namespace Razix {
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-                    const auto& worldSettings = RZEngine::Get().getWorldSettings();
-
                     RZPipelineHandle pipeline;
-                    if (worldSettings.debugFlags & RendererDebugFlag_VisWireframe)
+                    if (IS_BIT_SET(settings->debugFlags, RendererDebugFlag_VisWireframe))
                         pipeline = m_WireframePipeline;
                     else
                         pipeline = m_Pipeline;

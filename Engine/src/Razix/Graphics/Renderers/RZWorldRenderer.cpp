@@ -121,17 +121,17 @@ namespace Razix {
             //-------------------------------
             // Simple Shadow map Pass
             //-------------------------------
-            m_ShadowPass.addPass(m_FrameGraph, scene, settings);
+            m_ShadowPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // [ ] CSM PAss
             //-------------------------------
-            m_CSMPass.addPass(m_FrameGraph, scene, settings);
+            m_CSMPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // GBuffer Pass
             //-------------------------------
-            m_GBufferPass.addPass(m_FrameGraph, scene, settings);
+            m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
 #if !ENABLE_FORWARD_RENDERING
@@ -142,7 +142,7 @@ namespace Razix {
             //settings.renderFeatures &= ~RendererFeature_SSAO;
             if (settings.renderFeatures & RendererFeature_SSAO)
                 settings.renderFeatures |= RendererFeature_SSAO;
-            m_SSAOPass.addPass(m_FrameGraph, scene, settings);
+            m_SSAOPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // Gaussian Blur Pass - SSAO
@@ -152,13 +152,13 @@ namespace Razix {
             m_GaussianBlurPass.setBlurRadius(1.0f);
             m_GaussianBlurPass.setFilterTap(GaussianTap::Five);
             m_GaussianBlurPass.setInputTexture(ssaoData.SSAOPreBlurTexture);
-            m_GaussianBlurPass.addPass(m_FrameGraph, scene, settings);
+            m_GaussianBlurPass.addPass(m_FrameGraph, scene, &settings);
             ssaoData.SSAOSceneTexture = m_GaussianBlurPass.getOutputTexture();
 
             //-------------------------------
             // PBR Deferred Pass
             //-------------------------------
-            m_PBRDeferredPass.addPass(m_FrameGraph, scene, settings);
+            m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
 #endif
 
             //-------------------------------
@@ -172,7 +172,7 @@ namespace Razix {
             //-------------------------------
             // Skybox Pass
             //-------------------------------
-            m_SkyboxPass.addPass(m_FrameGraph, scene, settings);
+            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             /**
@@ -361,7 +361,7 @@ namespace Razix {
             //-------------------------------
             // Final Image Presentation
             //-------------------------------
-            m_CompositePass.addPass(m_FrameGraph, scene, settings);
+            m_CompositePass.addPass(m_FrameGraph, scene, &settings);
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");
@@ -386,7 +386,7 @@ namespace Razix {
             if (m_IsFGFilePathDirty) {
                 destroy();
                 FrameGraph::RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+                buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
                 m_IsFGFilePathDirty = false;
             }
 

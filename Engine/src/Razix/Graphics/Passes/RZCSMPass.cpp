@@ -38,7 +38,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZCSMPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZCSMPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             /**
              * In CSM we render to a TextureArray Depth map, we select the render layer using gl_Layer or API (setCurrentArrayLayer), but the shaders remain the same as normal shadow map generation
@@ -62,7 +62,7 @@ namespace Razix {
 
             CascadeSubPassData cascadeSubpassData{-1};
             for (u32 i = 0; i < kNumCascades; i++) {
-                cascadeSubpassData = addCascadePass(framegraph, scene, cascadeSubpassData, i);
+                cascadeSubpassData = addCascadePass(framegraph, scene, settings, cascadeSubpassData, i);
             }
             csmData.cascadedShadowMaps = cascadeSubpassData.cascadeOutput;
 
@@ -265,7 +265,7 @@ namespace Razix {
             i32       layer    = 0;
         };
 
-        CascadeSubPassData RZCSMPass::addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, CascadeSubPassData subpassData, u32 cascadeIdx)
+        CascadeSubPassData RZCSMPass::addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -288,9 +288,7 @@ namespace Razix {
                 [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto& worldSettings = RZEngine::Get().getWorldSettings();
-                    if (!(worldSettings.renderFeatures & RendererFeature_Shadows))
-                        return;
+                    RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
                     RAZIX_TIME_STAMP_BEGIN("CSM Pass # " + std::to_string(cascadeIdx));
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx), glm::vec4(0.35, 0.44, 0.96f, 1.0f));

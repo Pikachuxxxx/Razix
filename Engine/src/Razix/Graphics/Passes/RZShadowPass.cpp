@@ -39,7 +39,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
@@ -71,10 +71,7 @@ namespace Razix {
                 [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto& worldSettings = RZEngine::Get().getWorldSettings();
-
-                    if (!(worldSettings.renderFeatures & RendererFeature_Shadows))
-                        return;
+                    RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
                     RAZIX_TIME_STAMP_BEGIN("Shadow Pass");
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
@@ -127,7 +124,7 @@ namespace Razix {
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
-                    if (worldSettings.renderFeatures & RendererFeature_Shadows)
+                    if (IS_BIT_SET(settings->renderFeatures, RendererFeature_Shadows))
                         scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     // End Rendering
