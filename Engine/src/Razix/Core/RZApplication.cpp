@@ -553,10 +553,11 @@ namespace Razix {
         // Client side
         OnImGui();
 
+        auto currentScene = RZSceneManager::Get().getCurrentScene();
+
         // Engine App GUI
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {
-            auto currentScene = RZSceneManager::Get().getCurrentScene();
             //auto&          registry     = currentScene->getRegistry();
             //auto           cameraView   = registry.view<CameraComponent>();
             //RZSceneCamera* cam          = nullptr;
@@ -601,19 +602,26 @@ namespace Razix {
         // convert it to screen space and render a non-clickable ImGui::Button with the FontIcon as image
 
         // Icons for Components
-        {
-            auto& registry = RZSceneManager::Get().getCurrentScene()->getRegistry();
-            auto& scnCam   = RZSceneManager::Get().getCurrentScene()->getSceneCamera();
-            auto  group    = registry.group<LightComponent>(entt::get<TransformComponent>);
+#if 0
+ {
+            auto& registry   = RZSceneManager::Get().getCurrentScene()->getRegistry();
+            auto& scnCam     = RZSceneManager::Get().getCurrentScene()->getSceneCamera();
+            auto  LightGroup = registry.group<LightComponent>(entt::get<TransformComponent>);
 
-            for (auto entity: group) {
-                const auto& [component, trans] = group.template get<LightComponent, TransformComponent>(entity);
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs;
+            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.0f);    // Transparent background
+            ImGui::SetNextWindowSize(ImVec2((f32) getWindow()->getWidth(), (f32) getWindow()->getHeight()));
+            ImGui::Begin("Icons", 0, window_flags);
+
+            for (auto entity: LightGroup) {
+                const auto& [component, trans] = LightGroup.template get<LightComponent, TransformComponent>(entity);
 
                 glm::vec3 pos = trans.Translation;
 
                 glm::vec2  screenPos         = pos;
                 const auto transformMat      = trans.GetWorldTransform();
-                auto       screenSpaceCoords = glm::project(pos, transformMat, scnCam.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
+                auto       screenSpaceCoords = glm::project(pos, scnCam.getViewMatrix() * transformMat, scnCam.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
                 ImGui::SetCursorPos({screenSpaceCoords.x, screenSpaceCoords.y});
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.7f, 0.7f, 0.0f));
 
@@ -621,7 +629,25 @@ namespace Razix {
 
                 ImGui::PopStyleColor();
             }
+
+            auto entities = currentScene->GetComponentsOfType<TransformComponent>();
+            for (auto& entity: entities) {
+                glm::vec3 pos = entity.Translation;
+
+                glm::vec2 screenPos         = pos;
+                auto      transformMat      = entity.GetWorldTransform();
+                auto      screenSpaceCoords = glm::project(pos, scnCam.getViewMatrix() * transformMat, scnCam.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
+                ImGui::SetCursorPos({screenSpaceCoords.x, screenSpaceCoords.y});
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.7f, 0.7f, 0.0f));
+
+                ImGui::Button(ICON_FA_CANNABIS);
+
+                ImGui::PopStyleColor();
+            }
+
+            ImGui::End();
         }
+#endif
 
         // Engine Stats
         {
