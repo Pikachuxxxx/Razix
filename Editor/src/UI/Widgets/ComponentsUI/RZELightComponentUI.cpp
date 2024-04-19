@@ -17,15 +17,18 @@ namespace Razix {
         {
             ui.setupUi(this);
 
-            //connect(ui.light_color, SIGNAL(pressed()), this, SLOT(on_light_color_pressed()));
-            connect(ui.lightTypeGroup, SIGNAL(buttonClicked(int)), this, SLOT(on_light_type_selected(int)));
+            connect(ui.LightColor, SIGNAL(pressed()), this, SLOT(OnLightColorChanged()));
+            connect(ui.lightTypeGroup, SIGNAL(buttonClicked(int)), this, SLOT(OnLightTypeChanged(int)));
+
+            connect(ui.Intensity, SIGNAL(returnPressed()), this, SLOT(OnLightIntensityChanged()));
+            connect(ui.Radius, SIGNAL(returnPressed()), this, SLOT(OnLightRadiusChanged()));
 
             ui.lightTypeGroup->setId(ui.Directional_rb, 0);
             ui.lightTypeGroup->setId(ui.Point_rb, 1);
             ui.lightTypeGroup->setId(ui.Spot_rb, 2);
 
             // Default to yellow
-            ui.light_color->setStyleSheet("background-color: rgba(255, 255, 255, 255)");
+            ui.LightColor->setStyleSheet("background-color: rgba(255, 255, 255, 255)");
         }
 
         RZELightComponentUI::~RZELightComponentUI()
@@ -35,27 +38,40 @@ namespace Razix {
         void RZELightComponentUI::setEditingEntity(RZEntity entity)
         {
             m_Entity = entity;
+
+            auto& lc = m_Entity.GetComponent<LightComponent>();
+            ui.Intensity->setText(std::to_string(lc.light.getIntensity()).c_str());
+            ui.Radius->setText(std::to_string(lc.light.getRadius()).c_str());
         }
 
-        void RZELightComponentUI::on_light_color_pressed()
+        void RZELightComponentUI::OnLightColorChanged()
         {
             QColor color = QColorDialog::getColor(m_Color);
             m_Color      = color;
 
-            ui.light_color->setStyleSheet("background-color: " + color.name());
+            ui.LightColor->setStyleSheet("background-color: " + color.name());
 
             auto& lc = m_Entity.GetComponent<LightComponent>();
-
-            std::cout << glm::to_string(glm::vec3(color.redF(), color.greenF(), color.blueF())) << std::endl;
-
             lc.light.setColor(glm::vec3(color.redF(), color.greenF(), color.blueF()));
         }
 
-        void RZELightComponentUI::on_light_type_selected(int idx)
+        void RZELightComponentUI::OnLightIntensityChanged()
+        {
+            auto& lc = m_Entity.GetComponent<LightComponent>();
+            lc.light.setIntensity(ui.Intensity->text().toFloat());
+        }
+
+        void RZELightComponentUI::OnLightRadiusChanged()
+        {
+            auto& lc = m_Entity.GetComponent<LightComponent>();
+            lc.light.setRadius(ui.Radius->text().toFloat());
+        }
+
+        void RZELightComponentUI::OnLightTypeChanged(int idx)
         {
             auto& lc = m_Entity.GetComponent<LightComponent>();
 
-            lc.light.setType((LightType)(idx));
+            lc.light.setType((LightType) (idx));
         }
     }    // namespace Editor
 }    // namespace Razix
