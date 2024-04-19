@@ -77,7 +77,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Composition Pass");
-                    RAZIX_MARK_BEGIN("Final Composition + Tonemapping", glm::vec4(0.5f));
+                    RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -96,27 +96,13 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
-                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::TransparentBlack}}};
+                        {Graphics::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
                     info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
                     // Bind pipeline and stuff
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
-
-                    struct PCData
-                    {
-                        u32       tonemapMode;
-                        glm::vec2 screenRes;
-                    } pcData{};
-                    pcData.tonemapMode = settings->tonemapMode;
-                    pcData.screenRes   = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-
-                    RZPushConstant pc;
-                    pc.size        = sizeof(u32);
-                    pc.data        = &pcData;
-                    pc.shaderStage = ShaderStage::Pixel;
-                    RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 

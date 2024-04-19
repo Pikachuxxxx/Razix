@@ -1,18 +1,18 @@
 #pragma once
 
-#include "generated/ui_RZEWorldSettingsWindow.h"
+#include "generated/ui_RZERendererSettingsUIWindow.h"
 #include <QWidget>
 
 namespace Razix {
     namespace Editor {
 
-        class RZEWorldSettingsWindow : public QWidget
+        class RZERendererSettingsUIWindow : public QWidget
         {
             Q_OBJECT
 
         public:
-            RZEWorldSettingsWindow(QWidget *parent = nullptr);
-            ~RZEWorldSettingsWindow();
+            RZERendererSettingsUIWindow(QWidget *parent = nullptr);
+            ~RZERendererSettingsUIWindow();
 
         public slots:
             // Environment Settings
@@ -28,11 +28,15 @@ namespace Razix {
             void OnSetFilterRadius();
             void OnSetStrength();
 
+            // Debug Flags
+            void OnDebugVisCSM();
+
             // Enable Renderer settings
             void OnShadowsEnabled();
             void OnSkyboxEnabled();
             void OnSSAOEnabled();
             void OnImGuiEnabled();
+            void OnTonemapEnabled();
 
         private:
             Ui::WorldSettings ui;

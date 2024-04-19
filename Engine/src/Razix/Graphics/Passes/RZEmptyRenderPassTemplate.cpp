@@ -4,6 +4,7 @@
 #include "RZEmptyRenderPassTemplate.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZPipeline.h"

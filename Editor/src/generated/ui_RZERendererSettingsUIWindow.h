@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'RZEWorldSettingsWindow.ui'
+** Form generated from reading UI file 'RZERendererSettingsUIWindow.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.15.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UI_RZEWORLDSETTINGSWINDOW_H
-#define UI_RZEWORLDSETTINGSWINDOW_H
+#ifndef UI_RZERENDERERSETTINGSUIWINDOW_H
+#define UI_RZERENDERERSETTINGSUIWINDOW_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -60,6 +60,7 @@ public:
     QCheckBox *checkBox_7;
     QCheckBox *checkBox_8;
     QCheckBox *checkBox_9;
+    QCheckBox *debugflag_visCSM;
     QGroupBox *groupBox_4;
     QVBoxLayout *verticalLayout_5;
     QLabel *label_2;
@@ -68,7 +69,7 @@ public:
     QCheckBox *Skybox;
     QCheckBox *SSAO;
     QCheckBox *TAA;
-    QCheckBox *Tonemapping;
+    QCheckBox *enableTonemapping;
     QCheckBox *FXAA;
     QCheckBox *ImGui;
     QSpacerItem *verticalSpacer;
@@ -77,7 +78,7 @@ public:
     {
         if (WorldSettings->objectName().isEmpty())
             WorldSettings->setObjectName(QString::fromUtf8("WorldSettings"));
-        WorldSettings->resize(839, 770);
+        WorldSettings->resize(839, 795);
         verticalLayout = new QVBoxLayout(WorldSettings);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -295,6 +296,11 @@ public:
 
         verticalLayout_4->addWidget(checkBox_9);
 
+        debugflag_visCSM = new QCheckBox(groupBox_3);
+        debugflag_visCSM->setObjectName(QString::fromUtf8("debugflag_visCSM"));
+
+        verticalLayout_4->addWidget(debugflag_visCSM);
+
 
         verticalLayout->addWidget(groupBox_3);
 
@@ -338,10 +344,11 @@ public:
 
         verticalLayout_5->addWidget(TAA);
 
-        Tonemapping = new QCheckBox(groupBox_4);
-        Tonemapping->setObjectName(QString::fromUtf8("Tonemapping"));
+        enableTonemapping = new QCheckBox(groupBox_4);
+        enableTonemapping->setObjectName(QString::fromUtf8("enableTonemapping"));
+        enableTonemapping->setChecked(true);
 
-        verticalLayout_5->addWidget(Tonemapping);
+        verticalLayout_5->addWidget(enableTonemapping);
 
         FXAA = new QCheckBox(groupBox_4);
         FXAA->setObjectName(QString::fromUtf8("FXAA"));
@@ -359,7 +366,7 @@ public:
         checkBox_2->raise();
         Shadows->raise();
         SSAO->raise();
-        Tonemapping->raise();
+        enableTonemapping->raise();
         FXAA->raise();
         TAA->raise();
         ImGui->raise();
@@ -409,6 +416,7 @@ public:
         checkBox_7->setText(QCoreApplication::translate("WorldSettings", "Quad Overdraw", nullptr));
         checkBox_8->setText(QCoreApplication::translate("WorldSettings", "Unlit Shading", nullptr));
         checkBox_9->setText(QCoreApplication::translate("WorldSettings", "Show UV coords", nullptr));
+        debugflag_visCSM->setText(QCoreApplication::translate("WorldSettings", "Vis CSM Cascades", nullptr));
         groupBox_4->setTitle(QCoreApplication::translate("WorldSettings", "Renderer Features (Passes List)", nullptr));
         label_2->setText(QCoreApplication::translate("WorldSettings", "Flags", nullptr));
         checkBox_2->setText(QCoreApplication::translate("WorldSettings", "HiZ depth pre-pass", nullptr));
@@ -416,7 +424,7 @@ public:
         Skybox->setText(QCoreApplication::translate("WorldSettings", "Skybox", nullptr));
         SSAO->setText(QCoreApplication::translate("WorldSettings", "SSAO", nullptr));
         TAA->setText(QCoreApplication::translate("WorldSettings", "TAA", nullptr));
-        Tonemapping->setText(QCoreApplication::translate("WorldSettings", "Tonemapping", nullptr));
+        enableTonemapping->setText(QCoreApplication::translate("WorldSettings", "Tonemapping", nullptr));
         FXAA->setText(QCoreApplication::translate("WorldSettings", "FXAA", nullptr));
         ImGui->setText(QCoreApplication::translate("WorldSettings", "ImGui", nullptr));
     } // retranslateUi
@@ -429,4 +437,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // UI_RZEWORLDSETTINGSWINDOW_H
+#endif // UI_RZERENDERERSETTINGSUIWINDOW_H

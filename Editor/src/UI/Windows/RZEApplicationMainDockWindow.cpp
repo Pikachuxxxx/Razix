@@ -502,7 +502,6 @@ namespace Razix {
         {
             // Create an entity
             auto entity = RZSceneManager::Get().getCurrentScene()->createEntity("Entity");
-            //entity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Cube);
             // Update the scene hierarchy panel to re-draw
             emit OnEntityAddedToScene();
         }
@@ -618,7 +617,7 @@ namespace Razix {
             connect(ui.actionMaterial_Editor, &QAction::triggered, this, &RZEApplicationMainDockWindowCentralWidget::Windows_MaterialEditor);
 
             // Create the m_WorldSettingsWindow and connect it
-            m_WorldSettingsWindow = new RZEWorldSettingsWindow;
+            m_WorldSettingsWindow = new RZERendererSettingsUIWindow;
             // Register it with the DockManager
             addDockableWidget(m_WorldSettingsWindow, "World Settings");
             //m_WorldSettingsWindow->hide();

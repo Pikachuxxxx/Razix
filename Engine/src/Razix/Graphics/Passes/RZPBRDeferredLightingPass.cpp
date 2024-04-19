@@ -105,7 +105,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::OpaqueBlack}}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -181,7 +181,7 @@ namespace Razix {
                         f32       maxBias   = 0.0005f;
                     } pcData{};
                     pcData.CameraViewPos = scene->getSceneCamera().getPosition();
-                    if (IS_BIT_SET(settings->renderFeatures, RendererDebugFlag_VisCSMCascades))
+                    if (IS_BIT_SET(settings->debugFlags, RendererDebugFlag_VisCSMCascades))
                         pcData.visCascades = true;
                     else
                         pcData.visCascades = false;

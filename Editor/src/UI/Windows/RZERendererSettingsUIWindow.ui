@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>839</width>
-    <height>770</height>
+    <height>795</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -419,6 +419,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="debugflag_visCSM">
+        <property name="text">
+         <string>Vis CSM Cascades</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -486,9 +493,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="Tonemapping">
+       <widget class="QCheckBox" name="enableTonemapping">
         <property name="text">
          <string>Tonemapping</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -515,7 +525,7 @@
      <zorder>checkBox_2</zorder>
      <zorder>Shadows</zorder>
      <zorder>SSAO</zorder>
-     <zorder>Tonemapping</zorder>
+     <zorder>enableTonemapping</zorder>
      <zorder>FXAA</zorder>
      <zorder>TAA</zorder>
      <zorder>ImGui</zorder>

@@ -37,6 +37,7 @@ namespace Razix {
             GaussianBlur,
             ColorGrading,
             TAAResolve,
+            Tonemap,
             COUNT
         };
 
