@@ -84,7 +84,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            f32 velocity = this->MovementSpeed * (f32) deltaTime;
+            f32 velocity = this->MovementSpeed * static_cast<f32>(deltaTime);
 
             // TODO: Use lerp here to smoothly move the camera
 
@@ -105,8 +105,8 @@ namespace Razix {
 
             TargetMovement = TargetMovement + (CameraMovement * velocity);
 
-            this->Position = TargetMovement;
-            //lerp3(this->Position, TargetMovement, 0.9f, deltaTime);
+            //this->Position = TargetMovement;
+            this->Position = lerp3(this->Position, TargetMovement, 0.9f, static_cast<f32>(deltaTime));
         }
 
         void Camera3D::processMouseMovement(f32 xoffset, f32 yoffset, bool constrainPitch /*= true*/)

@@ -180,23 +180,25 @@ namespace Razix {
             //-------------------------------
             // [] Color Grading LUT Pass
             //-------------------------------
-            //m_ColorGradingPass.addPass(m_FrameGraph, scene, settings);
+            //m_ColorGradingPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // [] TAA Resolve Pass
             //-------------------------------
-            //m_TAAResolvePass.addPass(m_FrameGraph, scene, settings);
+            //m_TAAResolvePass.addPass(m_FrameGraph, scene, &settings);
             //sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
+            //-------------------------------
+            // [] FXAA Pass
+            //-------------------------------
+            m_FXAAPass.addPass(m_FrameGraph, scene, &settings);
+            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
             // [] Tonemapping Pass
             //-------------------------------
             m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
-            // [] FXAA Pass
-            //-------------------------------
 
             /**
              * These code driven passes only work with the Render Targets names SceneHDR and SceneDepth, 

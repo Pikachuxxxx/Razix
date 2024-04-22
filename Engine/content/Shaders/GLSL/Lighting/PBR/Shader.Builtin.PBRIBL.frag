@@ -22,7 +22,7 @@
 #include <Lighting/PBR/ShaderInclude.Builtin.PBRDirectLighting.glsl>
 #include <Lighting/ShaderInclude.Builtin.ComputeShadows.glsl>
 //-------------------------------
-// Color Utils (Debug only)
+// Color Utils
 #include <Utils/ShaderInclude.Builtin.Color.glsl>
 //------------------------------------------------------------------------------
 // Vertex Input
