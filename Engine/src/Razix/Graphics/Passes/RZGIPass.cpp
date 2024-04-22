@@ -49,7 +49,7 @@ namespace Razix {
 
     namespace Graphics {
 
-        void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Use this to get the Reflective shadow map cascade
             glm::mat4 rsmLightViewProj;

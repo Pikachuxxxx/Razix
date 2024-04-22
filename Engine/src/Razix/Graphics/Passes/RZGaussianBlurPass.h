@@ -31,7 +31,7 @@ namespace Razix {
             RZGaussianBlurPass() {}
             ~RZGaussianBlurPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings) override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 
             RAZIX_INLINE FrameGraph::RZFrameGraphResource getOutputTexture() { return m_OutputTexture; }
@@ -53,7 +53,7 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource m_OutputTexture = {-1};
 
         private:
-            FrameGraph::RZFrameGraphResource addBlurPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings, FrameGraph::RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction);
+            FrameGraph::RZFrameGraphResource addBlurPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, FrameGraph::RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction);
         };
     }    // namespace Graphics
 }    // namespace Razix

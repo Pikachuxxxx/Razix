@@ -34,8 +34,6 @@ void main()
 {
     //vec3 envColor = texture(global_textures_cubemap[nonuniformEXT(tex.idx)], fs_in.fragLocalPos).rgb;  
     vec3 envColor = texture(environmentMap, fs_in.fragLocalPos).rgb;  
-    // gamma correction (already done in swapchain)
-    //envColor = pow(envColor, vec3(1.0/2.2)); 
     
     outSceneColor = vec4(envColor, 1.0);
 }

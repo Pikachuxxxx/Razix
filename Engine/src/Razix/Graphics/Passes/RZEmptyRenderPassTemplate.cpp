@@ -4,6 +4,7 @@
 #include "RZEmptyRenderPassTemplate.h"
 
 #include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
@@ -23,7 +24,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZEmptyRenderPassTemplate::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZEmptyRenderPassTemplate::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
             //auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::);

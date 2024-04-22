@@ -114,7 +114,7 @@ void main()
             attenuation = 1.0 / (distance * distance);
         }
 
-        Lo += CalculateRadiance(L, V, N, F0, albedo, metallic, roughness, light.color, attenuation);
+        Lo += CalculateRadiance(L, V, N, F0, albedo, metallic, roughness, light.color * light.intensity, attenuation);
     }
 
     // ambient lighting (we now use IBL as the ambient term)

@@ -24,7 +24,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZTAAResolvePass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZTAAResolvePass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
 #if 0
             // Create the shader and the pipeline

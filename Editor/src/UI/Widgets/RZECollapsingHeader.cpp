@@ -46,8 +46,7 @@ namespace Razix {
         RZEHeaderFrame::RZEHeaderFrame(QString& headerTitle, QIcon* icon /*= nullptr*/, bool isCollapsed /*= true*/, bool enableUtilButton /*= true*/, QWidget* parent /*= nullptr*/)
             : QFrame(parent)
         {
-            this->setMaximumHeight(20);
-            //this->move(QPoint(24, 0));
+            this->setMaximumHeight(30);
             this->setStyleSheet("border:0px solid rgb(81, 81, 81); background-color: rgb(31, 31, 31); ");
 
             auto Hlayout = new QHBoxLayout(this);
@@ -57,12 +56,11 @@ namespace Razix {
             arrow = new Arrow(this);
             Hlayout->addWidget(arrow);
 
-            auto pixmap = icon->pixmap(20, 20);
-
             if (icon != nullptr) {
                 auto iconLbl = new QLabel();
-                iconLbl->setMaximumHeight(20);
-                iconLbl->setMaximumWidth(20);
+                auto pixmap  = icon->pixmap(30, 30);
+                iconLbl->setMaximumHeight(30);
+                iconLbl->setMaximumWidth(30);
                 //iconLbl->move(QPoint(24, 0));
                 iconLbl->setStyleSheet("border:0px");
                 iconLbl->setPixmap(pixmap);
@@ -71,7 +69,7 @@ namespace Razix {
             }
 
             auto title = new QLabel(headerTitle);
-            title->setMinimumHeight(20);
+            title->setMinimumHeight(30);
             //title->move(QPoint(24, 0));
             title->setStyleSheet("border:0px");
 
@@ -80,11 +78,12 @@ namespace Razix {
             // Add a + button that can be used to add more components
             if (enableUtilButton) {
                 QIcon icon(":/rzeditor/Add_icon.png");
-                auto  pixmap = icon.pixmap(20, 20);
+                auto  pixmap = icon.pixmap(30, 30);
                 m_UtilButton = new QPushButton;
+                m_UtilButton->setFixedSize(30, 30);
                 m_UtilButton->setIcon(icon);
                 //Hlayout->addStretch(2);
-                auto hSpacer = new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+                auto hSpacer = new QSpacerItem(0, 30, QSizePolicy::Expanding, QSizePolicy::Minimum);
                 Hlayout->addSpacerItem(hSpacer);
                 Hlayout->addWidget(m_UtilButton);
             }

@@ -40,7 +40,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZPBRDeferredLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZPBRDeferredLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRDeferredLighting);
 
@@ -105,7 +105,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::OpaqueBlack}}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -170,8 +170,6 @@ namespace Razix {
 
                     RHI::BindPipeline(m_Pipeline, RHI::GetCurrentCommandBuffer());
 
-                    const auto& worldSettings = RZEngine::Get().getWorldSettings();
-
                     struct PCData
                     {
                         glm::vec3 CameraViewPos;
@@ -183,7 +181,7 @@ namespace Razix {
                         f32       maxBias   = 0.0005f;
                     } pcData{};
                     pcData.CameraViewPos = scene->getSceneCamera().getPosition();
-                    if (worldSettings.debugFlags & RendererDebugFlag_VisCSMCascades)
+                    if (IS_BIT_SET(settings->debugFlags, RendererDebugFlag_VisCSMCascades))
                         pcData.visCascades = true;
                     else
                         pcData.visCascades = false;

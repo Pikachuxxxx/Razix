@@ -136,12 +136,6 @@ void main()
     }
 
     prefilteredColor = prefilteredColor / totalWeight;
-     
-    // Tonemapping
-    //vec3 color = ACES(prefilteredColor);
-
-    // Gamma correction
-    //color = pow(prefilteredColor, vec3(1.0/2.2));
 
     outFragColor = vec4(prefilteredColor, 1.0);
 }

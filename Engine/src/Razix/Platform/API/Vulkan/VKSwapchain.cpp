@@ -163,7 +163,7 @@ namespace Razix {
             // Get the right color space
             // Get the right image format for the swapchain images to present mode
             for (const auto& format: m_SwapSurfaceProperties.formats) {
-                if (format.format == VK_FORMAT_B8G8R8A8_SRGB /*VK_FORMAT_B8G8R8A8_UNORM*/ && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+                if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                     m_ColorFormat = format.format;
                     return format;
                 }

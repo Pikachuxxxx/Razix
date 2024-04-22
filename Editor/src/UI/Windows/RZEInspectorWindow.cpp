@@ -20,8 +20,8 @@ namespace Razix {
 
             setObjectName(this->windowTitle());
 
-            ui.scrollLayout->setSpacing(5);
-            ui.scrollLayout->setMargin(0);
+            ui.scrollLayout->setSpacing(6);
+            ui.scrollLayout->setMargin(6);
 
             ui.UUIDLbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
 

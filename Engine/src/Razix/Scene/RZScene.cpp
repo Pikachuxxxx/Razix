@@ -271,15 +271,7 @@ namespace Razix {
             Graphics::RHI::DrawIndexed(cmdBuffer, m_Cube->getIndexCount());
 
         } else if (geometryMode == SceneDrawGeometryMode::ScreenQuad) {
-            if (!m_ScreenQuad)
-                m_ScreenQuad = Graphics::MeshFactory::CreatePrimitive(Graphics::ScreenQuad);
-
-            m_ScreenQuad->getVertexBuffer()->Bind(cmdBuffer);
-            m_ScreenQuad->getIndexBuffer()->Bind(cmdBuffer);
-
-            // TODO: Bind mat and desc sets and PCs
-
-            Graphics::RHI::DrawIndexed(cmdBuffer, m_ScreenQuad->getIndexCount());
+            Graphics::RHI::Draw(cmdBuffer, 3);
 
         } else if (geometryMode == SceneDrawGeometryMode::UI) {
             // If we ever have engine UI system other than ImGui we handle it's drawing here

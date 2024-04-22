@@ -51,7 +51,7 @@ public:
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         scrollArea = new QScrollArea(InspectorWindow);
         scrollArea->setObjectName(QString::fromUtf8("scrollArea"));
-        scrollArea->setStyleSheet(QString::fromUtf8("background-color: #151515;"));
+        scrollArea->setStyleSheet(QString::fromUtf8(""));
         scrollArea->setFrameShape(QFrame::NoFrame);
         scrollArea->setFrameShadow(QFrame::Sunken);
         scrollArea->setLineWidth(1);
@@ -60,9 +60,9 @@ public:
         scrollWidget->setObjectName(QString::fromUtf8("scrollWidget"));
         scrollWidget->setGeometry(QRect(0, 0, 469, 311));
         scrollLayout = new QVBoxLayout(scrollWidget);
-        scrollLayout->setSpacing(5);
+        scrollLayout->setSpacing(6);
         scrollLayout->setObjectName(QString::fromUtf8("scrollLayout"));
-        scrollLayout->setContentsMargins(0, 0, 0, 0);
+        scrollLayout->setContentsMargins(6, 6, 6, 6);
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(-1, 5, -1, 5);

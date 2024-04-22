@@ -14,7 +14,7 @@
 
 #include "UI/Windows/RZEMainWindowCentralWidget.h"
 #include "UI/Windows/RZEMaterialEditor.h"
-#include "UI/Windows/RZEWorldSettingsWindow.h"
+#include "UI/Windows/RZERendererSettingsUIWindow.h"
 
 #include "Razix/Core/RZApplication.h"
 
@@ -89,7 +89,7 @@ namespace Razix {
             QPushButton* enableSnapBtn;
 
             // Windows
-            RZEWorldSettingsWindow* m_WorldSettingsWindow;
+            RZERendererSettingsUIWindow* m_WorldSettingsWindow;
             QSpdLog*                m_ConsoleLogWidget;
 
             std::string m_ProjectPathDir;

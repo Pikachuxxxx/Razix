@@ -147,6 +147,8 @@ namespace Razix {
         inline WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
         /* Gets the application render loop timer */
         inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
+        /* Get Project UUID */
+        inline RZUUID RAZIX_CALL getProjectUUID() { return m_ProjectID; }
 
         void setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
         void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }

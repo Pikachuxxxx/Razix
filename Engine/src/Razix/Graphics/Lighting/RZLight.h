@@ -31,6 +31,9 @@ namespace Razix {
             RAZIX_INLINE f32 getRadius() { return m_LightData.range; }
             void             setRadius(f32 radius) { m_LightData.range = radius; }
 
+            RAZIX_INLINE f32 getIntensity() { return m_LightData.intensity; }
+            void             setIntensity(f32 value) { m_LightData.intensity = value; }
+
             RAZIX_INLINE const glm::vec3& getPosition() const { return m_LightData.position; }
 
             template<class Archive>

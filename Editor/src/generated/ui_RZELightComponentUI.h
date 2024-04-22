@@ -37,20 +37,24 @@ public:
     QSpacerItem *horizontalSpacer;
     QFormLayout *formLayout;
     QLabel *label;
+    QPushButton *LightColor;
+    QLabel *label_3;
     QLabel *label_2;
-    QLineEdit *RadiusLineEdit;
-    QPushButton *light_color;
+    QLineEdit *Radius;
+    QLineEdit *Intensity;
     QButtonGroup *lightTypeGroup;
 
     void setupUi(QWidget *LightComponent)
     {
         if (LightComponent->objectName().isEmpty())
             LightComponent->setObjectName(QString::fromUtf8("LightComponent"));
-        LightComponent->resize(245, 122);
+        LightComponent->resize(473, 187);
         verticalLayout_2 = new QVBoxLayout(LightComponent);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         groupBox = new QGroupBox(LightComponent);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setMinimumSize(QSize(0, 50));
+        groupBox->setMaximumSize(QSize(16777215, 50));
         groupBox->setFlat(false);
         horizontalLayout = new QHBoxLayout(groupBox);
         horizontalLayout->setSpacing(0);
@@ -92,21 +96,31 @@ public:
 
         formLayout->setWidget(1, QFormLayout::LabelRole, label);
 
+        LightColor = new QPushButton(LightComponent);
+        LightColor->setObjectName(QString::fromUtf8("LightColor"));
+        LightColor->setFlat(false);
+
+        formLayout->setWidget(1, QFormLayout::FieldRole, LightColor);
+
+        label_3 = new QLabel(LightComponent);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+
+        formLayout->setWidget(0, QFormLayout::LabelRole, label_3);
+
         label_2 = new QLabel(LightComponent);
         label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        formLayout->setWidget(3, QFormLayout::LabelRole, label_2);
+        formLayout->setWidget(2, QFormLayout::LabelRole, label_2);
 
-        RadiusLineEdit = new QLineEdit(LightComponent);
-        RadiusLineEdit->setObjectName(QString::fromUtf8("RadiusLineEdit"));
+        Radius = new QLineEdit(LightComponent);
+        Radius->setObjectName(QString::fromUtf8("Radius"));
 
-        formLayout->setWidget(3, QFormLayout::FieldRole, RadiusLineEdit);
+        formLayout->setWidget(2, QFormLayout::FieldRole, Radius);
 
-        light_color = new QPushButton(LightComponent);
-        light_color->setObjectName(QString::fromUtf8("light_color"));
-        light_color->setFlat(false);
+        Intensity = new QLineEdit(LightComponent);
+        Intensity->setObjectName(QString::fromUtf8("Intensity"));
 
-        formLayout->setWidget(1, QFormLayout::FieldRole, light_color);
+        formLayout->setWidget(0, QFormLayout::FieldRole, Intensity);
 
 
         verticalLayout_2->addLayout(formLayout);
@@ -125,8 +139,9 @@ public:
         Point_rb->setText(QCoreApplication::translate("LightComponent", "Point", nullptr));
         Spot_rb->setText(QCoreApplication::translate("LightComponent", "Spot", nullptr));
         label->setText(QCoreApplication::translate("LightComponent", "Color", nullptr));
+        LightColor->setText(QString());
+        label_3->setText(QCoreApplication::translate("LightComponent", "Intensity", nullptr));
         label_2->setText(QCoreApplication::translate("LightComponent", "Radius", nullptr));
-        light_color->setText(QString());
     } // retranslateUi
 
 };

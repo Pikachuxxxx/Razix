@@ -23,7 +23,7 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZColorGradingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings& settings)
+        void RZColorGradingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
             auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ColorGrading);
