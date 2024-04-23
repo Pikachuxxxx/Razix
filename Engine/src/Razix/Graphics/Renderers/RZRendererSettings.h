@@ -24,7 +24,7 @@ namespace Razix {
             RendererFeature_Skybox     = 1 << 12,
             RendererFeature_Tonemap    = 1 << 13,
 
-            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_Skybox | RendererFeature_DebugDraws | RendererFeature_TAA | RendererFeature_Tonemap,
+            RendererFeature_Default = RendererFeature_Shadows | RendererFeature_ImGui | RendererFeature_IBL | RendererFeature_Deferred | RendererFeature_Skybox | RendererFeature_DebugDraws | RendererFeature_FXAA | RendererFeature_Tonemap,
 
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };

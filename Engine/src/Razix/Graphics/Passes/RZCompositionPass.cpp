@@ -39,7 +39,7 @@ namespace Razix {
                 // Build the pipeline here for this pass
                 .name                   = "Pipeline.Composition",
                 .shader                 = compositionShader,
-                .colorAttachmentFormats = {TextureFormat::SCREEN},
+                .colorAttachmentFormats = {TextureFormat::BGRA8_UNORM},
                 .cullMode               = Graphics::CullMode::None,
                 .drawType               = Graphics::DrawType::Triangle,
                 .transparencyEnabled    = false,
@@ -52,32 +52,20 @@ namespace Razix {
             // Get the final output
             FrameGraph::RZFrameGraphResource FinalOutputRenderTarget = framegraph.getBlackboard().getFinalOutputID();
 #if 1
-            framegraph.getBlackboard().add<CompositeData>() = framegraph.addCallbackPass<CompositeData>(
-                "Pass.Builtin.Code.FinalComposition",
-                [&](CompositeData& data, FrameGraph::RZPassResourceBuilder& builder) {
+            framegraph.addCallbackPass(
+                "Pass.Builtin.Code.Composition",
+                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
-
-                    RZTextureDesc presentImageDesc{
-                        .name   = "Present Image",
-                        .width  = RZApplication::Get().getWindow()->getWidth(),
-                        .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::SCREEN};
-
-                    data.presentationTarget = builder.create<FrameGraph::RZFrameGraphTexture>("Present Image", CAST_TO_FG_TEX_DESC presentImageDesc);
-
-                    // Writes from this pass
-                    data.presentationTarget = builder.write(data.presentationTarget);
 
                     // Read the Final RT from where ever it's given from
                     builder.read(FinalOutputRenderTarget);
                 },
-                [=](const CompositeData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Composition Pass");
-                    RAZIX_MARK_BEGIN("Final Composition", glm::vec4(0.5f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.Composition", glm::vec4(0.5f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 

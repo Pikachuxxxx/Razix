@@ -12,7 +12,7 @@ namespace Razix {
 
         public:
             RZERendererSettingsUIWindow(QWidget *parent = nullptr);
-            ~RZERendererSettingsUIWindow();
+            ~RZERendererSettingsUIWindow() {}
 
         public slots:
             // Environment Settings
@@ -36,6 +36,7 @@ namespace Razix {
             void OnSkyboxEnabled();
             void OnSSAOEnabled();
             void OnImGuiEnabled();
+            void OnFXAAEnabled();
             void OnTonemapEnabled();
 
         private:
