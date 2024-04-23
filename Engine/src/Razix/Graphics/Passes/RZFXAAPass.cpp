@@ -26,66 +26,42 @@ namespace Razix {
 
         void RZFXAAPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
-#if 0
             // Create the shader and the pipeline
-            auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::TAAResolve);
+            auto fxaaShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::FXAA);
 
-            RZPipelineDesc pipelineInfo{
-                // Build the pipeline here for this pass
-                .name                   = "TAAResolve.Pipeline",
-                .shader                 = shader,
-                .colorAttachmentFormats = {TextureFormat::RGBA16F},
-                .cullMode               = Graphics::CullMode::None,
-                .drawType               = Graphics::DrawType::Triangle,
-                .transparencyEnabled    = false,
-                .depthBiasEnabled       = false};
+            RZPipelineDesc pipelineInfo{};
+            pipelineInfo.name                   = "Pipeline.FXAA";
+            pipelineInfo.shader                 = fxaaShader;
+            pipelineInfo.colorAttachmentFormats = {TextureFormat::RGBA16F};
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.transparencyEnabled    = false;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.depthTestEnabled       = false;
+
+            m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& sceneData = framegraph.getBlackboard().get<SceneData>();
 
-            m_Pipeline                                           = RZResourceManager::Get().createPipeline(pipelineInfo);
-            framegraph.getBlackboard().add<FX::TAAResolveData>() = framegraph.addCallbackPass<FX::TAAResolveData>(
-                "Pass.Builtin.Code.TAAResolve",
+            framegraph.addCallbackPass<FX::TAAResolveData>(
+                "Pass.Builtin.Code.FXAA",
                 [&](FX::TAAResolveData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    // Accumulation texture after TAA Resolve
-                    RZTextureDesc accumalationTexDesc{
-                        .name   = "RT.Scene.Accumulation",
-                        .width  = RZApplication::Get().getWindow()->getWidth(),
-                        .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA16F};
-
-                    // Set this as the final composition target to apply tone mapping onto
-                    sceneData.accumalationTexture = builder.create<FrameGraph::RZFrameGraphTexture>(accumalationTexDesc.name, CAST_TO_FG_TEX_DESC accumalationTexDesc);
-                    framegraph.getBlackboard().setFinalOutputName(accumalationTexDesc.name);
-
-                    sceneData.accumalationTexture = builder.write(sceneData.accumalationTexture);
-
-                    RZTextureDesc historyTexDesc{
-                        .name   = "RT.Scene.History",
-                        .width  = RZApplication::Get().getWindow()->getWidth(),
-                        .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA16F};
-
-                    sceneData.historyTexture = builder.create<FrameGraph::RZFrameGraphTexture>(historyTexDesc.name, CAST_TO_FG_TEX_DESC historyTexDesc);
-
-                    sceneData.historyTexture = builder.write(sceneData.historyTexture);
-
                     builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
-
-                    data = sceneData;
+                    sceneData.sceneHDR = builder.write(sceneData.sceneHDR);
                 },
                 [=](const FX::TAAResolveData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                    RAZIX_TIME_STAMP_BEGIN("TAA Resolve");
-                    RAZIX_MARK_BEGIN("TAA Resolve", Utilities::GenerateHashedColor4(96u));
+
+                    RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_FXAA);
+
+                    RAZIX_TIME_STAMP_BEGIN("FXAA");
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FXAA", Utilities::GenerateHashedColor4(46u));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    auto accumulationRT = resources.get<FrameGraph::RZFrameGraphTexture>(data.accumalationTexture).getHandle();
+                    auto accumulationRT = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
 
                     RenderingInfo info{
                         .resolution       = Resolution::kWindow,
@@ -99,31 +75,30 @@ namespace Razix {
 
                     // Update descriptors on first frame
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
+                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(fxaaShader)->getBindVars();
 
-                        // Bind the current Scene Texture and History Texture from last frame
-                        auto currentTexDescriptor = shaderBindVars["CurrentTexture"];
+                        auto currentTexDescriptor = shaderBindVars["SceneTexture"];
                         if (currentTexDescriptor)
                             currentTexDescriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
 
-                        auto historyTexDescriptor = shaderBindVars["HistoryTexture"];
-                        if (historyTexDescriptor)
-                            historyTexDescriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(data.historyTexture).getHandle();
-
-                        RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
+                        RZResourceManager::Get().getShaderResource(fxaaShader)->updateBindVarsHeaps();
                     }
+
+                    // Push constant data for sending in the tone map mode
+                    auto           res = glm::vec2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    RZPushConstant pc;
+                    pc.size        = sizeof(glm::vec2);
+                    pc.data        = &(res);
+                    pc.shaderStage = ShaderStage::Pixel;
+                    RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 
                     RHI::EndRendering(cmdBuffer);
 
-                    // Since we used the scene texture now copy it to the History Scene texture
-                    RHI::CopyTextureResource(RHI::GetCurrentCommandBuffer(), resources.get<FrameGraph::RZFrameGraphTexture>(data.historyTexture).getHandle(), resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle());
-
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();
                 });
-#endif
         }
 
         void RZFXAAPass::destroy()

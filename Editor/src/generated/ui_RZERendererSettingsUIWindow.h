@@ -352,6 +352,7 @@ public:
 
         FXAA = new QCheckBox(groupBox_4);
         FXAA->setObjectName(QString::fromUtf8("FXAA"));
+        FXAA->setChecked(true);
 
         verticalLayout_5->addWidget(FXAA);
 

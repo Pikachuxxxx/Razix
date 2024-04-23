@@ -11,12 +11,6 @@ namespace Razix {
         class RZMesh;
         class RZDescriptorSet;
 
-        struct CompositeData
-        {
-            FrameGraph::RZFrameGraphResource presentationTarget;    // Not an actual resource unlike RTs or Textures
-            FrameGraph::RZFrameGraphResource depthTexture;
-        };
-
         /**
          * Final composition pass of all the render targets which will submit to the GPU for presentation
          */

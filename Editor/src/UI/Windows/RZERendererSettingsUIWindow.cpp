@@ -28,15 +28,14 @@ namespace Razix {
             connect(ui.Skybox, SIGNAL(clicked(bool)), this, SLOT(OnSkyboxEnabled()));
             connect(ui.SSAO, SIGNAL(clicked(bool)), this, SLOT(OnSSAOEnabled()));
             connect(ui.ImGui, SIGNAL(clicked(bool)), this, SLOT(OnImGuiEnabled()));
+            connect(ui.FXAA, SIGNAL(clicked(bool)), this, SLOT(OnFXAAEnabled()));
             connect(ui.enableTonemapping, SIGNAL(clicked(bool)), this, SLOT(OnTonemapEnabled()));
 
             // Set the default scene sampling pattern to Halton mode
             ui.sceneSamplingPattern->setCurrentIndex((u32) Razix::Graphics::SceneSamplingPattern::Halton);
         }
 
-        RZERendererSettingsUIWindow::~RZERendererSettingsUIWindow()
-        {
-        }
+        //-------------------------------------------------------------------------------------------
 
         void RZERendererSettingsUIWindow::On_UseProceduralSkybox()
         {
@@ -87,6 +86,24 @@ namespace Razix {
 
         //-------------------------------------------------------------------------------------------
 
+        void RZERendererSettingsUIWindow::OnShadowsEnabled()
+        {
+            auto& settings = Razix::RZEngine::Get().getWorldSettings();
+            if (ui.Shadows->isChecked())
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_Shadows;
+            else
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Shadows;
+        }
+
+        void RZERendererSettingsUIWindow::OnSkyboxEnabled()
+        {
+            auto& settings = Razix::RZEngine::Get().getWorldSettings();
+            if (ui.Skybox->isChecked())
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_Skybox;
+            else
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Skybox;
+        }
+
         void RZERendererSettingsUIWindow::OnSSAOEnabled()
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
@@ -105,22 +122,13 @@ namespace Razix {
                 settings.renderFeatures &= ~Razix::Graphics::RendererFeature_ImGui;
         }
 
-        void RZERendererSettingsUIWindow::OnShadowsEnabled()
+        void RZERendererSettingsUIWindow::OnFXAAEnabled()
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
-            if (ui.Shadows->isChecked())
-                settings.renderFeatures |= Razix::Graphics::RendererFeature_Shadows;
+            if (ui.FXAA->isChecked())
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_FXAA;
             else
-                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Shadows;
-        }
-
-        void RZERendererSettingsUIWindow::OnSkyboxEnabled()
-        {
-            auto& settings = Razix::RZEngine::Get().getWorldSettings();
-            if (ui.Skybox->isChecked())
-                settings.renderFeatures |= Razix::Graphics::RendererFeature_Skybox;
-            else
-                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Skybox;
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_FXAA;
         }
 
         void RZERendererSettingsUIWindow::OnTonemapEnabled()

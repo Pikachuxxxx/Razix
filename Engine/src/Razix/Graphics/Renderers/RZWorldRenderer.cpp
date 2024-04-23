@@ -189,15 +189,15 @@ namespace Razix {
             //sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
-            // [] FXAA Pass
-            //-------------------------------
-            m_FXAAPass.addPass(m_FrameGraph, scene, &settings);
-            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
             // [] Tonemapping Pass
             //-------------------------------
             m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
+            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
+            //-------------------------------
+            // [] FXAA Pass
+            //-------------------------------
+            m_FXAAPass.addPass(m_FrameGraph, scene, &settings);
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             /**

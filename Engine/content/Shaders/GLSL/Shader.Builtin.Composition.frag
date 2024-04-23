@@ -11,6 +11,8 @@
 // Bindless Textures
 //#define ENABLE_BINDLESS 1
 //#include <Common/ShaderInclude.Builtin.BindlessResources.glsl>
+// Color Utils
+#include <Utils/ShaderInclude.Builtin.Color.glsl>
 //------------------------------------------------------------------------------
 // VersampleColor Input
 layout(location = 0) in VSOutput
@@ -26,9 +28,9 @@ layout(location = 0) out vec4 outFragColor;
 //------------------------------------------------------------------------------
 void main()
 {
-    vec3 result = texture(CompositionTarget, fs_in.uv).rgb;
-    outFragColor = vec4(result, 1.0f);
-    // Gamma correction (done automatically by the swapchain)
-    //result = pow(result, vec3(1.0/2.2)); 
+    vec4 result = texture(CompositionTarget, fs_in.uv);
+
+    // Gamma correction to sRGB
+    outFragColor = LinearTosRGB(result);
 }
 //------------------------------------------------------------------------------

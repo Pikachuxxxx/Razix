@@ -71,11 +71,13 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc textureDesc{
-                        .name   = "SceneHDR",
-                        .width  = ResolutionToExtentsMap[Resolution::k1440p].x,
-                        .height = ResolutionToExtentsMap[Resolution::k1440p].y,
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA16F};
+                        .name      = "SceneHDR",
+                        .width     = ResolutionToExtentsMap[Resolution::k1440p].x,
+                        .height    = ResolutionToExtentsMap[Resolution::k1440p].y,
+                        .type      = TextureType::Texture_2D,
+                        .format    = TextureFormat::RGBA16F,
+                        .wrapping  = Wrapping::CLAMP_TO_EDGE,
+                        .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}};
 
                     data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 

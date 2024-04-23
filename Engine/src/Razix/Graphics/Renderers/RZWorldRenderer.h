@@ -13,6 +13,7 @@
 #include "Razix/Graphics/Passes/RZCSMPass.h"
 #include "Razix/Graphics/Passes/RZColorGradingPass.h"
 #include "Razix/Graphics/Passes/RZCompositionPass.h"
+#include "Razix/Graphics/Passes/RZFXAAPass.h"
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
 #include "Razix/Graphics/Passes/RZGaussianBlurPass.h"
@@ -118,6 +119,7 @@ namespace Razix {
             RZGaussianBlurPass        m_GaussianBlurPass;
             RZImGuiRenderer           m_ImGuiRenderer;
             RZTAAResolvePass          m_TAAResolvePass;
+            RZFXAAPass                m_FXAAPass;
             RZToneMapPass             m_TonemapPass;
             RZCompositionPass         m_CompositePass;
 
