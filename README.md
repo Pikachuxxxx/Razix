@@ -38,6 +38,20 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 
 - Data drive pipeline architecture - **WIP**
 - Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
+- **WorldRenderer** Passes
+	- Lighting and shadows 
+		- Directional lights with CSM (Cascaded Shadow Mapping)
+		- Point lights
+		- Spot lights
+	- Deferred PBR 
+	- IBL
+	- Skybox (HDR & Procedural)
+	- SSAO
+	- Debug Drawing
+	- ImGUi
+	- Tonemapping
+	- FXAA
+	- TAA (WIP)
 
 
 # Tools
