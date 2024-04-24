@@ -38,6 +38,7 @@ void main()
     const vec2 uv2 = fs_in.uv;
     const vec4 uv = vec4(uv2, uv2 - (texelSize * (0.5 + FXAA_SUBPIX_SHIFT)));
 
+    // 1st stage - Find edge
     const vec3 rgbNW = textureLod(SceneTexture, uv.zw, 0.0).xyz;
     const vec3 rgbNE = textureLod(SceneTexture, uv.zw + vec2(1.0, 0.0) * texelSize.xy, 0.0).xyz;
     const vec3 rgbSW = textureLod(SceneTexture, uv.zw + vec2(0.0, 1.0) * texelSize.xy, 0.0).xyz;
@@ -62,6 +63,7 @@ void main()
 
     dir = min(vec2(FXAA_SPAN_MAX, FXAA_SPAN_MAX), max(vec2(-FXAA_SPAN_MAX, -FXAA_SPAN_MAX), dir * rcpDirMin)) * texelSize.xy;
 
+    // 2nd stage - Blur
     const vec3 rgbA = (1.0 / 2.0) *
     (textureLod(SceneTexture, uv.xy + dir * (1.0 / 3.0 - 0.5), 0.0).xyz +
     textureLod(SceneTexture, uv.xy + dir * (2.0 / 3.0 - 0.5), 0.0).xyz);
