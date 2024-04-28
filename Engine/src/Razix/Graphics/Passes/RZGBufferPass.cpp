@@ -24,7 +24,7 @@
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
-#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
+#include "Razix/Graphics/Passes/Data/FrameData.h"
 
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"
 

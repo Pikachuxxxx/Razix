@@ -23,7 +23,7 @@
 #include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
-#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
+#include "Razix/Graphics/Passes/Data/FrameData.h"
 #include "Razix/Graphics/Passes/Data/GlobalData.h"
 
 #include "Razix/Graphics/Resources/RZFrameGraphBuffer.h"

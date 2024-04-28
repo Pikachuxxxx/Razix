@@ -5,6 +5,8 @@
 namespace Razix {
 
     class RZScene;
+    class RZWorld;
+    class RZSceneView;
 
     namespace Graphics {
 
@@ -21,7 +23,10 @@ namespace Razix {
          */
         namespace Pompeius {
 
-            Drawables BuildDrawables(RZScene* scene);
+            RZSceneView* ExtractSceneViews(RZScene* scene);
+            RZWorld*     BuildRazixWorld(RZScene* scenes, RZSceneView* views);
+            Drawables    BuildDrawables(RZWorld* world);
+            Batches      BuildBatches(Drawables* drawables);
 
         }    // namespace Pompeius
     }        // namespace Graphics

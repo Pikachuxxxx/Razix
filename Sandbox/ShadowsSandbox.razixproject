@@ -2,10 +2,10 @@
     "Razix Application": {
         "Project Name": "ShadowsSandbox",
         "Engine Version": "0.43.0",
-        "Project ID": "\u0005¶ÒS·ŠW¢mwwwmw§ª",
+        "Project ID": "Ö¹ÒS·ŠW¢mwwwmw§ª",
         "Render API": 1,
-        "Width": 1893,
-        "Height": 1195,
+        "Width": 3202,
+        "Height": 1186,
         "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
         "Scenes": [
             "//Scenes/ShadowsTestScene.rzscn"
