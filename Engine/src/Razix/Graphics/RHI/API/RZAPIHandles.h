@@ -17,6 +17,7 @@ namespace Razix {
         class RZCommandBuffer;
         class RZDescriptorSet;
         class RZMesh;
+        class RZDecal;
 
         // Handles for Engine API types (Graphics)
         using RZTextureHandle       = RZHandle<Graphics::RZTexture>;
@@ -31,6 +32,7 @@ namespace Razix {
 
         using RZMaterialHandle = RZHandle<Graphics::RZMaterial>;
         using RZMeshHandle     = RZHandle<Graphics::RZMesh>;
+        using RZDecalHandle    = RZHandle<Graphics::RZDecal>;
 
         using RZNullHandle = RZHandle<void>;
 

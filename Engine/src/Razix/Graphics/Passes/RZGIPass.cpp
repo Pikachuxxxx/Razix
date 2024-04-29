@@ -27,7 +27,7 @@
 
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
+#include "Razix/Graphics/Passes/Data/FrameData.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 

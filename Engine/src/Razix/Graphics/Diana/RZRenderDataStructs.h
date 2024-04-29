@@ -32,6 +32,8 @@ namespace Razix {
             RZPipelineHandle     pso;
         };
 
+        using Batches = std::vector<Batch>;
+
         /**
          * DrawData is use for Bindless Rendering 
          */

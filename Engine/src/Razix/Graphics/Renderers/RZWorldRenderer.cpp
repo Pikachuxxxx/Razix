@@ -18,7 +18,7 @@
 #include "Razix/Graphics/Lighting/RZImageBasedLightingProbesManager.h"
 
 #include "Razix/Graphics/Passes/Data/BRDFData.h"
-#include "Razix/Graphics/Passes/Data/FrameBlockData.h"
+#include "Razix/Graphics/Passes/Data/FrameData.h"
 
 #include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
