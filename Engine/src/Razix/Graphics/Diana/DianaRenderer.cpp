@@ -1,11 +1,11 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "PompeiusRenderer.h"
+#include "DianaRenderer.h"
 
 namespace Razix {
     namespace Graphics {
-        namespace Pompeius {
+        namespace Diana {
 
             Razix::RZSceneView* ExtractSceneViews(RZScene* scene)
             {
@@ -29,6 +29,6 @@ namespace Razix {
                 return b;
             }
 
-        }    // namespace Pompeius
+        }    // namespace Diana
     }        // namespace Graphics
 }    // namespace Razix
