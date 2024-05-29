@@ -130,12 +130,12 @@ namespace Razix {
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(VK_NULL_HANDLE);
-            m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentImageIndex()];
+            m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentBackBufferImageIndex()];
 
 // Update VMA for Budget Queries
 #if RAZIX_USE_VMA
     #ifndef RAZIX_DISTRIBUTION    // Only for debugging purposes
-            vmaSetCurrentFrameIndex(VKDevice::Get().getVMA(), RHI::Get().GetSwapchain()->getCurrentImageIndex());
+            vmaSetCurrentFrameIndex(VKDevice::Get().getVMA(), RHI::Get().GetSwapchain()->getCurrentBackBufferImageIndex());
 
                 // Get Heap Statistics
 

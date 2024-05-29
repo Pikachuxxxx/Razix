@@ -16,9 +16,7 @@ namespace Razix {
         // Forward declaration
         class VKFence;
 
-    #define MAX_SWAPCHAIN_BUFFERS 3
-
-        struct FrameSyncData
+        struct FrameSyncData_VK
         {
             VkSemaphore         imageAvailableSemaphore = VK_NULL_HANDLE;
             VkSemaphore         renderingDoneSemaphore  = VK_NULL_HANDLE;
@@ -36,11 +34,9 @@ namespace Razix {
                 std::vector<VkPresentModeKHR>   presentModes;
             };
 
-            u32 getCurrentImageIndex() override { return m_CurrentBuffer; }
-
         public:
             VKSwapchain(u32 width, u32 height);
-            ~VKSwapchain();
+            ~VKSwapchain() {}
 
             void  Init(u32 width, u32 height) override;
             void  Destroy() override;
@@ -60,33 +56,29 @@ namespace Razix {
             void submitGraphicsAndFlip(CommandQueue& commandQueue);
             void submitCompute();
 
-            RZTextureHandle GetImage(u32 index) override { return m_SwapchainImageTextures[index]; }
-            RZTextureHandle GetCurrentImage() override { return m_SwapchainImageTextures[m_AcquireImageIndex]; }
-            sz              GetSwapchainImageCount() override { return m_SwapchainImageCount; }
-            FrameSyncData&  getCurrentFrameSyncData()
+            RZTextureHandle   GetImage(u32 index) override { return m_SwapchainImageTextures[index]; }
+            RZTextureHandle   GetCurrentImage() override { return m_SwapchainImageTextures[m_AcquiredBackBufferImageIndex]; }
+            sz                GetSwapchainImageCount() override { return m_SwapchainImageCount; }
+            FrameSyncData_VK& getCurrentFrameSyncDataVK()
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                RAZIX_ASSERT(m_CurrentBuffer < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
-                return m_Frames[m_CurrentBuffer];
+                RAZIX_ASSERT(m_CurrentSubmittedBackBufferIndex < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
+                return m_FramesSyncData[m_CurrentSubmittedBackBufferIndex];
             }
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
             VkSwapchainKHR         getSwapchain() const { return m_Swapchain; }
 
         private:
-            VkSwapchainKHR               m_Swapchain             = VK_NULL_HANDLE; /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos   */
-            VkSwapchainKHR               m_OldSwapChain          = VK_NULL_HANDLE; /* Caching old swapchain, requires when we need to re-create swapchain                               */
-            SwapSurfaceProperties        m_SwapSurfaceProperties = {};             /* Swapchain surface properties                                                                      */
-            VkSurfaceFormatKHR           m_SurfaceFormat;                          /* Selected Swapchain image format and color space of the swapchain image                            */
-            VkPresentModeKHR             m_PresentMode;                            /* The presentation mode for the swapchain images                                                    */
-            VkExtent2D                   m_SwapchainExtent;                        /* The extent of the swapchain images                                                                */
-            u32                          m_SwapchainImageCount;                    /* Total number of swapchain images being used                                                       */
-            std::vector<RZTextureHandle> m_SwapchainImageTextures;                 /* Swapchain images stored as engine 2D texture                                                      */
-            u32                          m_AcquireImageIndex;                      /* Currently acquired image index of the swapchain that is being rendered to                         */
-            VkFormat                     m_ColorFormat;                            /* Color format of the screen                                                                        */
-            FrameSyncData                m_Frames[MAX_SWAPCHAIN_BUFFERS];          /* Frame sync primitives                                                                             */
-            u32                          m_CurrentBuffer = 0;                      /* Index of the current buffer being submitted for execution                                         */
-            bool                         m_IsResized     = false;                  /* has the swapchain been resized since the last time it was created                                 */
-            bool                         m_IsResizing    = false;                  /* is the swapchain in the process of resizing                                                       */
+            VkSwapchainKHR               m_Swapchain                             = VK_NULL_HANDLE; /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos   */
+            VkSwapchainKHR               m_OldSwapChain                          = VK_NULL_HANDLE; /* Caching old swapchain, requires when we need to re-create swapchain                               */
+            SwapSurfaceProperties        m_SwapSurfaceProperties                 = {};             /* Swapchain surface properties                                                                      */
+            VkSurfaceFormatKHR           m_SurfaceFormat                         = {};             /* Selected Swapchain image format and color space of the swapchain image                            */
+            VkPresentModeKHR             m_PresentMode                           = {};             /* The presentation mode for the swapchain images                                                    */
+            VkExtent2D                   m_SwapchainExtent                       = {};             /* The extent of the swapchain images                                                                */
+            u32                          m_SwapchainImageCount                   = {};             /* Total number of swapchain images being used                                                       */
+            std::vector<RZTextureHandle> m_SwapchainImageTextures                = {};             /* Swapchain images stored as engine 2D texture                                                      */
+            VkFormat                     m_ColorFormat                           = {};             /* Color format of the screen                                                                        */
+            FrameSyncData_VK             m_FramesSyncData[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};             /* Frame sync primitives                                                                             */
 
         private:
             /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */

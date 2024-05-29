@@ -76,9 +76,6 @@ namespace Razix {
                     builder.read(lightProbesData.specularPreFilteredMap);
                     builder.read(volumetricData.noiseTexture);
 
-                    builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
-
                     sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
                     sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
 
@@ -101,12 +98,9 @@ namespace Razix {
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
                     RenderingInfo info{};
-                    info.resolution = Resolution::kCustom;
-                    //info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
-                    //info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
+                    info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -131,13 +125,6 @@ namespace Razix {
                     }
 
                     if (!settings->useProceduralSkybox) {
-                        //u32            envMapIdx = resources.get<FrameGraph::RZFrameGraphTexture>(lightProbesData.environmentMap).getHandle().getIndex();
-                        //RZPushConstant pc;
-                        //pc.data        = &envMapIdx;
-                        //pc.size        = sizeof(u32);
-                        //pc.shaderStage = ShaderStage::PIXEL;
-                        //
-                        //RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
                         Graphics::RHI::BindPipeline(m_Pipeline, cmdBuffer);
                         scene->drawScene(m_Pipeline, SceneDrawGeometryMode::Cubemap);
                     } else {

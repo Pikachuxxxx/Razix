@@ -1,10 +1,8 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZDecal.h"
-
+#include "RZEngineSystemsRegistry.h"
 
 namespace Razix {
-    namespace Graphics {
-	}
+
 }

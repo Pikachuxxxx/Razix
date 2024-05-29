@@ -17,10 +17,21 @@ namespace Razix {
             OPENGL = 0,
             VULKAN = 1,
             D3D11  = 2,
-            D3D12  = 3,    // Not Supported yet!
+            D3D12  = 3,    // WIP
             GXM    = 4,    // Not Supported yet! (PSVita)
             GCM    = 5     // Not Supported yet! (PS3)
         };
+
+        typedef struct GraphicsFeaturesSettings
+        {
+            bool EnableVSync         = false; /* No V-Sync by default we don't cap the frame rate */
+            bool TesselateTerrain    = true;
+            bool EnableBindless      = true;
+            u32  MaxBindlessTextures = 4096;
+        } GraphicsFeaturesSettings;
+
+        /* Global instance for Graphics Device level features */
+        static const GraphicsFeaturesSettings g_GraphicsFeaturesSettings{};
 
         /**
          * The Graphics Context that manages the context of the underlying graphics API

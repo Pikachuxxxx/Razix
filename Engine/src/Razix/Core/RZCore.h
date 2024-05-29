@@ -433,15 +433,6 @@ constexpr float operator""_inKib(unsigned long long int x)
     {
 #define RAZIX_CLEANUP_RESOURCE_IMPL_END }
 
-// Virtual Functions (Pascal Case)
-#define RAZIX_VIRTUAL(type, func, ...)      virtual type func(__VA_ARGS__);
-#define RAZIX_PURE_VIRTUAL(type, func, ...) virtual type func(__VA_ARGS__) = 0;
-
-#define RAZIX_VIRTUAL_OVERRIDE(type, func, ...) virtual type func(__VA_ARGS__) override;
-#define RAZIX_VIRTUAL_OVERRIDE_FINAL(type, func, ...) \
-    virtual type func(__VA_ARGS__)                    \
-    final        override;
-
 // TODO: Add Safe memory delete and unloading macros
 /****************************************************************************************************
  *                                         Graphics Settings                                        *

@@ -137,7 +137,7 @@ namespace Razix {
                      * Since the resource is cloned and we maintain different version of it, the same resource is handled to us every time we ask it
                      */
 
-                    auto cmdBuf = upsamplebBloomGpuResources[mipindex].cmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = upsamplebBloomGpuResources[mipindex].cmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentBackBufferImageIndex()];
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
@@ -256,7 +256,7 @@ namespace Razix {
                      * Since the resource is cloned and we maintain different version of it, the same resource is handled to us every time we ask it
                      */
 
-                    auto cmdBuf = downsamplebBloomGpuResources[mipindex].cmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = downsamplebBloomGpuResources[mipindex].cmdBuffers[Graphics::RHI::GetSwapchain()->getCurrentBackBufferImageIndex()];
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
@@ -375,7 +375,7 @@ namespace Razix {
                 [=](const TonemapData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuf = bloomSceneMixGpuResources.cmdBuffers[RHI::GetSwapchain()->getCurrentImageIndex()];
+                    auto cmdBuf = bloomSceneMixGpuResources.cmdBuffers[RHI::GetSwapchain()->getCurrentBackBufferImageIndex()];
 
                     RHI::Begin(cmdBuf);
                     RAZIX_MARK_BEGIN("Bloom Mix Tonemap", glm::vec4(0.05, 0.83, 0.66f, 1.0f));

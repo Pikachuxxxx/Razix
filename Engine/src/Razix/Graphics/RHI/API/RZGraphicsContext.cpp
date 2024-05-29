@@ -34,6 +34,11 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            if (s_Context) {
+                RAZIX_CORE_WARN("[Graphics Context] Attempting to create context again! Ignoring call.");
+                return;
+            }
+
             // Initialize the Resource Manager here!
             Graphics::RZResourceManager::Get().StartUp();
 
@@ -52,13 +57,21 @@ namespace Razix {
             // Shutdown the Resource System
             Graphics::RZResourceManager::Get().ShutDown();
 
-            s_Context->Destroy();
-            //delete s_Context; // This is causing unnecessary crashes
+            if (s_Context) {
+                s_Context->Destroy();
+                delete s_Context;    // This is causing unnecessary crashes
+                s_Context = nullptr;
+            }
         }
 
         RZGraphicsContext* RZGraphicsContext::GetContext()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (!s_Context) {
+                RAZIX_CORE_WARN("[Graphics Context] Trying to get context before it has been created. Returning nullptr!");
+                return nullptr;
+            }
 
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL: return static_cast<OpenGLContext*>(s_Context); break;
@@ -68,6 +81,7 @@ namespace Razix {
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return s_Context; break;
             }
+            RAZIX_CORE_ASSERT(s_Context, "[Graphics Context] Failed to get context!")
             return nullptr;
         }
 
