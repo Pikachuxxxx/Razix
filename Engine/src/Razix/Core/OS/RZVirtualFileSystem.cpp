@@ -15,9 +15,9 @@ namespace Razix {
     void RZVirtualFileSystem::StartUp()
     {
         // Instance is automatically created once the system is Started Up
-        RAZIX_CORE_INFO("[Virtual File System] Starting Up Virtual File Sytem");
+        RAZIX_CORE_INFO("[Virtual File System] Starting Up Virtual File System...");
 
-        Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
+        Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION: Starting VFS...");
 
         // Static Initialization load basic paths + root paths in consoles
         //  1.1. Mount engine specific Paths

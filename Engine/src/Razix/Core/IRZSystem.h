@@ -29,7 +29,7 @@ namespace Razix {
          */
         virtual void OnUpdate(const RZTimestep& dt) = 0;
         /* ImGui behavior for the engine system */
-        virtual void OnImGui() = 0;
+        virtual void OnImGui() {}
 
         /* Returns the name of the system for debugging purpose */
         inline const std::string& GetName() const { return m_SystemName; }

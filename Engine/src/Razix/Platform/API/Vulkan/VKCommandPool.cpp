@@ -32,7 +32,6 @@ namespace Razix {
         {
             vkDestroyCommandPool(VKDevice::Get().getDevice(), m_CmdPool, nullptr);
         }
-
     }    // namespace Graphics
 }    // namespace Razix
 #endif

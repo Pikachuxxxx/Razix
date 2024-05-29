@@ -24,8 +24,6 @@ namespace Razix {
             RZTextureHandle GetImage(u32 index) override { return {}; }
             sz              GetSwapchainImageCount() override { return 1; }
 
-            u32 getCurrentImageIndex() override { return 0; }
-
         private:
             u32                  m_Width;
             u32                  m_Height;

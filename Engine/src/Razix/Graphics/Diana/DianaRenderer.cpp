@@ -7,11 +7,6 @@ namespace Razix {
     namespace Graphics {
         namespace Diana {
 
-            Razix::RZSceneView* ExtractSceneViews(RZScene* scene)
-            {
-                return nullptr;
-            }
-
             Razix::RZWorld* BuildRazixWorld(RZScene* scenes, RZSceneView* views)
             {
                 return nullptr;
@@ -29,6 +24,20 @@ namespace Razix {
                 return b;
             }
 
+            Razix::RZSceneView* ExtractSceneViews(RZScene* scene)
+            {
+                return nullptr;
+            }
+
+            Razix::Graphics::DrawData* ExtractBatchDrawData(Batch* batch)
+            {
+                return nullptr;
+            }
+
+            Razix::Graphics::DrawData* ExtractDrawableDrawData(Drawable* drawable)
+            {
+                return nullptr;
+            }
         }    // namespace Diana
     }        // namespace Graphics
 }    // namespace Razix

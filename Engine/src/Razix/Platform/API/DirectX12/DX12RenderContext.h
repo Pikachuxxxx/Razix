@@ -2,24 +2,20 @@
 
 #include "Razix/Graphics/RHI/RHI.h"
 
-#include "Razix/Platform/API/Vulkan/VKContext.h"
+#ifdef RAZIX_RENDER_API_DIRECTX12
 
-/**
- * Now what is happening is when we acquire a image for the first renderer it will  
- */
+    #include "Razix/Platform/API/DirectX12/DX12Context.h"
 
 namespace Razix {
     namespace Graphics {
 
-        const u32 kMAX_DESCRIPTORS_BINDABLE_PER_FRAME = 16;
-
-        class VKRenderContext final : public RHI
+        class DX12RenderContext : public RHI
         {
         public:
-            VKRenderContext(u32 width, u32 height);
-            ~VKRenderContext() {}
+            DX12RenderContext(u32 width, u32 height);
+            ~DX12RenderContext() {}
 
-            static VKRenderContext* GetVKRenderer() { return static_cast<VKRenderContext*>(s_APIInstance); }
+            static DX12RenderContext* GetVKRenderer() { return static_cast<DX12RenderContext*>(s_APIInstance); }
 
             void OnImGui() override;
 
@@ -52,11 +48,9 @@ namespace Razix {
             RZSwapchain* GetSwapchainImpl() override;
 
         private:
-            VKContext*      m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
-            VkDescriptorSet m_DescriptorSetPool[kMAX_DESCRIPTORS_BINDABLE_PER_FRAME];
-
-        private:
-            void SetCmdCheckpointImpl(RZCommandBuffer* cmdbuffer, void* markerData);
+            DX12Context* m_Context = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix
+
+#endif

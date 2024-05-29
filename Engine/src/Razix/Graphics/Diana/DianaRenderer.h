@@ -20,13 +20,19 @@ namespace Razix {
          * high-level scene data and low-level rendering APIs. Diana's commitment to optimization and performance is akin to Princess Diana's dedication to making a positive impact.
          * Diana serves as a compassionate and capable intermediary in the world of rendering technology. 
          * By embodying the qualities of Princess Diana - grace, compassion, and innovation.
+         *              OR 
+         * I JUST FUCKING LOVE PRINCESS DIANA! I'M SO MADLY IN LOVE WITH HER!!!
+         * I just wanna user her name somehow
          */
         namespace Diana {
 
+            RZWorld*  BuildRazixWorld(RZScene* scenes, RZSceneView* views);
+            Drawables BuildDrawables(RZWorld* world);
+            Batches   BuildBatches(Drawables* drawables);
+
             RZSceneView* ExtractSceneViews(RZScene* scene);
-            RZWorld*     BuildRazixWorld(RZScene* scenes, RZSceneView* views);
-            Drawables    BuildDrawables(RZWorld* world);
-            Batches      BuildBatches(Drawables* drawables);
+            DrawData*    ExtractBatchDrawData(Batch* batch);
+            DrawData*    ExtractDrawableDrawData(Drawable* drawable);
         }    // namespace Diana
     }        // namespace Graphics
 }    // namespace Razix

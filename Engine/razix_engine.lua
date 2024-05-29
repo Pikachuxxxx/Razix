@@ -286,6 +286,8 @@ project "Razix"
             "vulkan-1",
             "d3d11",
             "d3d12",
+            "dxgi",
+            "dxguid",
             "D3DCompiler"
         }
 

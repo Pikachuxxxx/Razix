@@ -16,9 +16,8 @@ namespace Razix {
         void RZShaderLibrary::StartUp()
         {
             // Instance is automatically created once the system is Started Up
-            RAZIX_CORE_INFO("[Shader Library] Starting Up Shader Library to laod shaders");
-            //Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION : Starting VFS...");
-            Razix::RZSplashScreen::Get().setLogString("Shader Library ...");
+            RAZIX_CORE_INFO("[Shader Library] Starting Up Shader Library to load shaders");
+            Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION: Starting Shader Library...");
 
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
             // pre-load some shaders

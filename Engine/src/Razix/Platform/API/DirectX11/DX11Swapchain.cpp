@@ -41,13 +41,6 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
             return NULL;
         }
-
-        u32 DX11Swapchain::getCurrentImageIndex()
-        {
-            RAZIX_UNIMPLEMENTED_METHOD
-            return 0;
-        }
-
     }    // namespace Graphics
 }    // namespace Razix
 #endif

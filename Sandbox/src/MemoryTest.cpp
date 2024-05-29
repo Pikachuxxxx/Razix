@@ -23,13 +23,13 @@ public:
         : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
 
     {
-        //-------------------------------------------------------------------------------------
-        // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
-        //-------------------------------------------------------------------------------------
-
         Razix::RZInput::SelectGLFWInputManager();
         Razix::RZApplication::Get().Init();
+
+        //-------------------------------------------------------------------------------------
+        // Override the Graphics API here! for testing
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::D3D12);
+        //-------------------------------------------------------------------------------------
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------

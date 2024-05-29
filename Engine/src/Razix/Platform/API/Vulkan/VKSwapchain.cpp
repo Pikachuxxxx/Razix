@@ -32,10 +32,6 @@ namespace Razix {
             Init(m_Width, m_Height);
         }
 
-        VKSwapchain::~VKSwapchain()
-        {
-        }
-
         void VKSwapchain::Init(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -85,7 +81,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Delete the frame data
-            for (auto& frame: m_Frames) {
+            for (auto& frame: m_FramesSyncData) {
                 //frame.mainCommandBuffer->Reset();
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.imageAvailableSemaphore, nullptr);
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderingDoneSemaphore, nullptr);
@@ -162,6 +158,8 @@ namespace Razix {
 
             // Get the right color space
             // Get the right image format for the swapchain images to present mode
+            //            if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+
             for (const auto& format: m_SwapSurfaceProperties.formats) {
                 if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                     m_ColorFormat = format.format;
@@ -175,12 +173,15 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            if (g_GraphicsFeaturesSettings.EnableVSync)
+                return VK_PRESENT_MODE_FIFO_KHR;    // VSync
+
             // Choose the right kind of image presentation mode for the  swapchain images
             for (const auto& presentMode: m_SwapSurfaceProperties.presentModes) {
                 if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
                     return presentMode;
             }
-            return VK_PRESENT_MODE_FIFO_KHR;
+            return VK_PRESENT_MODE_FIFO_KHR;    // VSync
         }
 
         VkExtent2D VKSwapchain::chooseSwapExtent()
@@ -313,17 +314,17 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                if (!m_Frames[i].renderFence) {
+                if (!m_FramesSyncData[i].renderFence) {
                     VkSemaphoreCreateInfo semaphoreInfo = {};
                     semaphoreInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
                     semaphoreInfo.pNext                 = nullptr;
 
-                    if (m_Frames[i].imageAvailableSemaphore == VK_NULL_HANDLE)
-                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].imageAvailableSemaphore));
-                    if (m_Frames[i].renderingDoneSemaphore == VK_NULL_HANDLE)
-                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_Frames[i].renderingDoneSemaphore));
+                    if (m_FramesSyncData[i].imageAvailableSemaphore == VK_NULL_HANDLE)
+                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_FramesSyncData[i].imageAvailableSemaphore));
+                    if (m_FramesSyncData[i].renderingDoneSemaphore == VK_NULL_HANDLE)
+                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_FramesSyncData[i].renderingDoneSemaphore));
 
-                    m_Frames[i].renderFence = rzstl::CreateRef<VKFence>(true);
+                    m_FramesSyncData[i].renderFence = rzstl::CreateRef<VKFence>(true);
                 }
             }
         }
@@ -336,10 +337,10 @@ namespace Razix {
                 return;
 
             {
-                auto& frameData = getCurrentFrameSyncData();
+                auto& frameData = getCurrentFrameSyncDataVK();
                 frameData.renderFence->wait();
 
-                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
+                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
                     VK_CHECK_RESULT(result);
 
@@ -379,7 +380,7 @@ namespace Razix {
                             m_SwapchainImageTextures.push_back(handle);
                         }
 
-                        result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquireImageIndex);
+                        result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
                         VK_CHECK_RESULT(result);
                         frameData.renderFence->reset();
                     }
@@ -399,7 +400,7 @@ namespace Razix {
                 return;
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto& frameData = getCurrentFrameSyncData();
+            auto& frameData = getCurrentFrameSyncDataVK();
 
             frameData.renderFence->wait();
 
@@ -469,7 +470,7 @@ namespace Razix {
             present.pNext              = VK_NULL_HANDLE;
             present.swapchainCount     = 1;
             present.pSwapchains        = &m_Swapchain;
-            present.pImageIndices      = &m_AcquireImageIndex;
+            present.pImageIndices      = &m_AcquiredBackBufferImageIndex;
             present.waitSemaphoreCount = 1;
             present.pWaitSemaphores    = &waitSemaphore;
             present.pResults           = VK_NULL_HANDLE;
@@ -506,7 +507,7 @@ namespace Razix {
             // Submit and Flip the Graphics Queue
             VkResult result;
 
-            auto& frameData = getCurrentFrameSyncData();
+            auto& frameData = getCurrentFrameSyncDataVK();
 
             //----------------------------------------------------------
             // SUBMITING CMD BUFFERS
@@ -549,7 +550,7 @@ namespace Razix {
             presentInfo.pNext              = VK_NULL_HANDLE;
             presentInfo.swapchainCount     = 1;
             presentInfo.pSwapchains        = &m_Swapchain;
-            presentInfo.pImageIndices      = &m_AcquireImageIndex;
+            presentInfo.pImageIndices      = &m_AcquiredBackBufferImageIndex;
             presentInfo.waitSemaphoreCount = 1;
             presentInfo.pWaitSemaphores    = &frameData.renderingDoneSemaphore;
             presentInfo.pResults           = VK_NULL_HANDLE;
@@ -564,8 +565,7 @@ namespace Razix {
             else
                 VK_CHECK_RESULT(result);
 
-            m_CurrentBuffer = (m_CurrentBuffer + 1) % m_SwapchainImageCount;
+            m_CurrentSubmittedBackBufferIndex = (m_CurrentSubmittedBackBufferIndex + 1) % m_SwapchainImageCount;
         }
-
     }    // namespace Graphics
 }    // namespace Razix

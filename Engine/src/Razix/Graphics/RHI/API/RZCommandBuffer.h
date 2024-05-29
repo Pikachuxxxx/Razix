@@ -13,6 +13,8 @@ namespace Razix {
             Submitted
         };
 
+        // FIXME: Allocate command buffer from separate command pool per back buffer framws
+
         /* Command buffer to which the draw and other command are recorded to and used with */
         class RAZIX_API RZCommandBuffer : public RZRoot
         {
@@ -43,10 +45,10 @@ namespace Razix {
             virtual void Reset() = 0;
 
             virtual void*      getAPIBuffer() { return nullptr; }
-            CommandBufferState getState() { return m_State; }
+            CommandBufferState getState() const { return m_State; }
 
         protected:
-            CommandBufferState m_State;
+            CommandBufferState m_State = CommandBufferState::Idle;
         };
 
     }    // namespace Graphics

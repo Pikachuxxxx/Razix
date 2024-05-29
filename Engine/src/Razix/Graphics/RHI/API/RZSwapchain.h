@@ -44,20 +44,23 @@ namespace Razix {
             virtual RZTextureHandle GetCurrentImage() = 0;
             /* Gets the count of total number of images in the swapchain */
             virtual sz GetSwapchainImageCount() = 0;
-            /* Gets the index of the current image that is ready for rendering */
-            virtual inline u32 getCurrentImageIndex() = 0;
 
             /* Gets the width of the swapchain */
             inline u32 getWidth() { return m_Width; }
             /* Gets the height of the swapchain */
             inline u32 getHeight() { return m_Height; }
+            /* Gets the index of the current image that is ready for rendering */
+            inline u32 getCurrentBackBufferImageIndex() { return m_CurrentSubmittedBackBufferIndex; };
 
             virtual void* GetAPIHandle() = 0;
 
         protected:
-            u32 m_Width;                 /* The width of the swapchain extent */
-            u32 m_Height;                /* The height of the swapchain extent */
-            u32 m_CurrentImageIndex = 0; /* The current image that is ready for rendering  */
+            u32  m_Width                           = 0;     /* The width of the swapchain extent                                            */
+            u32  m_Height                          = 0;     /* The height of the swapchain extent                                           */
+            u32  m_AcquiredBackBufferImageIndex    = 0;     /* Currently acquired image index of the swapchain that is being rendered to    */
+            u32  m_CurrentSubmittedBackBufferIndex = 0;     /* Index of the current buffer being submitted for execution                    */
+            bool m_IsResized                       = false; /* has the swapchain been resized since the last time it was created            */
+            bool m_IsResizing                      = false; /* is the swapchain in the process of resizing                                  */
         };
 
     }    // namespace Graphics
