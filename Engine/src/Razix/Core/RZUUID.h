@@ -96,6 +96,7 @@ namespace Razix {
          * @param s The string representation of the UUID
          */
         static RZUUID FromStrFactory(const std::string& s);
+        static RZUUID FromPrettyStrFactory(const std::string& s);
         /**
          * Creates a RZUUID raw character bytes
          * 
@@ -168,6 +169,8 @@ namespace Razix {
          * Uses SIMD via Intel's AVX2 instruction set.
          */
         static __m128i inline stringTom128i(cstr mem);
+
+        static const std::string prettyStringToBytes(const std::string& prettyStr);
     };
 }    // namespace Razix
 

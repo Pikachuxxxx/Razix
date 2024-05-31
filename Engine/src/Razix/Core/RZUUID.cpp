@@ -6,13 +6,13 @@
 
 // Only use simde if we use clang on windows --> soon to use only 256b-it AVX as PS5 doesn't support avx-512
 
-#ifdef __clang__ 
+#ifdef __clang__
     #define SIMDE_ENABLE_NATIVE_ALIASES
     #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
-    
+
+    #include <simde/x86/avx.h>     // AVX
+    #include <simde/x86/avx2.h>    // AVX
     #include <simde/x86/sse4.1.h>
-    #include <simde/x86/avx.h>  // AVX
-    #include <simde/x86/avx2.h>  // AVX
 #endif
 
 namespace Razix {
@@ -96,7 +96,6 @@ namespace Razix {
 
     RZUUID::RZUUID()
     {
-
         /**
          * Section 4.4 
          * 
@@ -165,6 +164,12 @@ namespace Razix {
     RZUUID RZUUID::FromStrFactory(cstr raw)
     {
         return RZUUID(stringTom128i(raw));
+    }
+
+    RZUUID RZUUID::FromPrettyStrFactory(const std::string& s)
+    {
+        auto bytes = prettyStringToBytes(s);
+        return FromStrFactory(bytes.c_str());
     }
 
     std::string RZUUID::bytes() const
@@ -293,5 +298,27 @@ namespace Razix {
         a                = _mm256_permute4x64_epi64(a, 0b00001000);
 
         return _mm256_castsi256_si128(a);
+    }
+
+    const std::string RZUUID::prettyStringToBytes(const std::string& prettyStr)
+    {
+        if (prettyStr.size() != 36) {
+            RAZIX_CORE_ERROR("Invalid pretty string length");
+        }
+
+        std::string bytes;
+        bytes.reserve(16);
+
+        for (size_t i = 0; i < prettyStr.size(); ++i) {
+            if (prettyStr[i] == '-') continue;
+            if (!isxdigit(prettyStr[i])) {
+                RAZIX_CORE_ERROR("Invalid character in pretty string");
+            }
+
+            char hexByte[3] = {prettyStr[i], prettyStr[++i], '\0'};
+            bytes.push_back(static_cast<char>(std::strtol(hexByte, nullptr, 16)));
+        }
+
+        return bytes;
     }
 }    // namespace Razix
