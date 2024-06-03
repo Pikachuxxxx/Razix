@@ -12,7 +12,6 @@
     #define GLFW_EXPOSE_NATIVE_WIN32
     #include <GLFW/glfw3native.h>
 
-    #include <dxgi1_4.h>
     #include <dxgi1_6.h>
 
 // Windows Runtime Library. Needed for Microsoft::WRL::ComPtr<> template class.

@@ -7,10 +7,17 @@
 namespace Razix {
     namespace Graphics {
 
-        //class RAZIX_API RenderSystem : public Razix::IRZSystem
-        //{
-        //public:
-        //};
+        class RAZIX_API RZRenderSystem : public Razix::IRZSystem<RZRenderSystem>
+        {
+        public:
+            RZRenderSystem() {}
+            ~RZRenderSystem() {}
+
+            void StartUp() override;
+            void Shutdown() override;
+
+            void OnUpdate(const RZTimestep& dt) override;
+        };
 
     }    // namespace Graphics
 }    // namespace Razix
