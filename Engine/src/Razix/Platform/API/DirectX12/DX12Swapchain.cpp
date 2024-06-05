@@ -35,12 +35,8 @@ namespace Razix {
             if (SUCCEEDED(CreateDXGIFactory1(IID_PPV_ARGS(&factory4)))) {
                 ComPtr<IDXGIFactory5> factory5;
                 if (SUCCEEDED(factory4.As(&factory5))) {
-                    if (FAILED(factory5->CheckFeatureSupport(
-                            DXGI_FEATURE_PRESENT_ALLOW_TEARING,
-                            &allowTearing,
-                            sizeof(allowTearing)))) {
+                    if (FAILED(factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing))))
                         allowTearing = FALSE;
-                    }
                 }
             }
 
@@ -102,20 +98,18 @@ namespace Razix {
 
             // Clean up intermediate resources.
             swapchain1->Release();
-            //delete swapchain1;
-            //swapchain1 = nullptr;
+            swapchain1 = nullptr;
 
-            //dxgiFactory4->Release();
-            //delete dxgiFactory4;
-            //dxgiFactory4 = nullptr;
+            dxgiFactory4->Release();
+            dxgiFactory4 = nullptr;
         }
 
         void DX12Swapchain::Destroy()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             if (m_Swapchain) {
                 m_Swapchain->Release();
-                delete m_Swapchain;
                 m_Swapchain = nullptr;
             }
         }
