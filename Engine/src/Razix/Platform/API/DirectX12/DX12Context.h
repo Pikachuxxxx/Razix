@@ -37,6 +37,8 @@ namespace Razix {
             RAZIX_INLINE ID3D12CommandQueue*     getGraphicsQueue() { return m_GraphicsQueue; }
             /*  Returns a const pointer to the window handle that the context renders to */
             RAZIX_INLINE const RZWindow* getWindow() const { return m_Window; }
+            /* Gets the handle to the device */
+            RAZIX_INLINE ID3D12Device10* getDevice() { return m_Device; }
 
         private:
             RZWindow*       m_Window = nullptr; /* The Window handle                 */

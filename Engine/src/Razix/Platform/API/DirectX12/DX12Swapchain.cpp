@@ -7,6 +7,7 @@
 
     #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
+    #include "Razix/Platform/API/DirectX12/DX12Texture.h"
 
     #include <GLFW/glfw3.h>
     #define GLFW_EXPOSE_NATIVE_WIN32
@@ -102,6 +103,43 @@ namespace Razix {
 
             dxgiFactory4->Release();
             dxgiFactory4 = nullptr;
+
+            // Create the RTV descriptor heap to point to the swapchain resources in GPU heap
+            D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+            desc.NumDescriptors             = RAZIX_MAX_SWAP_IMAGES_COUNT;
+            desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+            CHECK_HRESULT(DX12Context::Get()->getDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_SwapchainRTVHeap)));
+            m_RTVDescriptorSize = DX12Context::Get()->getDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+            // Extract the back buffers from the swapchain
+            // To iterate the descriptors in a descriptor heap, a handle to the first descriptor in the heap is retrieved
+            D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = m_SwapchainRTVHeap->GetCPUDescriptorHandleForHeapStart();
+
+            for (u32 i = 0; i < m_BackbuffersCount; ++i) {
+                ID3D12Resource* backBuffer = nullptr;
+                // Get the resources from swapchain itself, the Heap memory for these swapchain textures are managed internally
+                // When we call CreateSwapChainForHwnd that will take care of it.
+                // ResizeBuffers will take care of re-allocating new heap and destroying old stuff etc.
+                CHECK_HRESULT(m_Swapchain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+
+                // A NULL description is used to create a default descriptor for the resource
+                // In this case, the resource's internal description is used to create the RTV
+                // Since the Resource is allocated from swapchain and not by user it has the required internal desc
+                DX12Context::Get()->getDevice()->CreateRenderTargetView(backBuffer, nullptr, rtvStartHandle);
+
+                rtvStartHandle.ptr += m_RTVDescriptorSize;
+
+                // Create engine resource with this handle
+                RZHandle<RZTexture> handle;
+                void*               where = RZResourceManager::Get().getPool<RZTexture>().obtain(handle);
+
+                new (where) DX12Texture(backBuffer);
+                IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+                resource->setHandle(handle);
+                resource->setName("Swapchain Image");
+
+                m_SwapchainImageTextures.push_back(handle);
+            }
         }
 
         void DX12Swapchain::Destroy()
