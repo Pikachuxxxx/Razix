@@ -7,8 +7,6 @@
 
     #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
 
-    #include <dxgi1_6.h>
-
 // Windows Runtime Library. Needed for Microsoft::WRL::ComPtr<> template class.
     #include <wrl.h>
 using namespace Microsoft::WRL;
@@ -54,6 +52,21 @@ namespace Razix {
             return dxgiAdapter4;
         }
 
+        std::string DriverVersionToString(LARGE_INTEGER driverVersion)
+        {
+            char driverVersionString[128];
+            snprintf(driverVersionString, sizeof(driverVersionString), "%u.%u.%u.%u", HIWORD(driverVersion.HighPart), LOWORD(driverVersion.HighPart), HIWORD(driverVersion.LowPart), LOWORD(driverVersion.LowPart));
+            return std::string(driverVersionString);
+        }
+
+        std::string WCharToString(const WCHAR* wcharStr)
+        {
+            int         bufferSize = WideCharToMultiByte(CP_UTF8, 0, wcharStr, -1, nullptr, 0, nullptr, nullptr);
+            std::string str(bufferSize, 0);
+            WideCharToMultiByte(CP_UTF8, 0, wcharStr, -1, &str[0], bufferSize, nullptr, nullptr);
+            return str;
+        }
+
         //--------------------------------------------------------------------------------------
 
         DX12Context::DX12Context(RZWindow* windowHandle)
@@ -80,8 +93,26 @@ namespace Razix {
     #endif
 
             // Get all the GPUs and choose the Discrete one + DirectX >= 12.2.
+            auto m_PhysicalGPUAdapter = GetAdapter(g_UseWarp);
             D3D12CreateDevice(GetAdapter(g_UseWarp).Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_Device));
 
+            // Print the GPU adapter details
+            DXGI_ADAPTER_DESC1 desc;
+            m_PhysicalGPUAdapter->GetDesc1(&desc);
+
+            RAZIX_CORE_INFO("[D3D12] GPU Name: {0}", WCharToString(desc.Description));
+            RAZIX_CORE_INFO("[D3D12] Vendor ID: {0}", desc.VendorId);
+            RAZIX_CORE_INFO("[D3D12] Device ID: {0}", desc.DeviceId);
+            RAZIX_CORE_INFO("[D3D12] Subsystem ID: {0}", desc.SubSysId);
+            RAZIX_CORE_INFO("[D3D12] Revision: {0}", desc.Revision);
+            RAZIX_CORE_INFO("[D3D12] Dedicated Video Memory: {0}", desc.DedicatedVideoMemory);
+            RAZIX_CORE_INFO("[D3D12] Dedicated System Memory: {0}", desc.DedicatedSystemMemory);
+            RAZIX_CORE_INFO("[D3D12] Shared System Memory: {0}", desc.SharedSystemMemory);
+            LARGE_INTEGER driverVersion;
+            if (CHECK_HRESULT(m_PhysicalGPUAdapter->CheckInterfaceSupport(__uuidof(IDXGIDevice), &driverVersion))) {
+                std::string driverVersionStr = DriverVersionToString(driverVersion);
+                RAZIX_CORE_INFO("[D3D12] Driver Version: {0}", driverVersionStr);
+            }
     #if RAZIX_DEBUG
             // Create validation layer (Message filtering and severity breakpoint, similar to VK)
             if (CHECK_HRESULT(m_Device->QueryInterface(IID_PPV_ARGS(&m_DebugValidation)))) {
@@ -133,11 +164,15 @@ namespace Razix {
             // Create the swapchain
             m_Swapchain = rzstl::CreateUniqueRef<DX12Swapchain>(m_Window->getWidth(), m_Window->getHeight());
 
+            // Create Graphics command pool
+            for (u32 i = 0; i < 3; i++)
+                CHECK_HRESULT(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocators[i])));
+
             D3D12_TAG_OBJECT("Device", m_Device);
+            D3D12_TAG_OBJECT("Graphics Queue", m_GraphicsQueue);
             D3D12_TAG_OBJECT("Graphics Command Pool #0", m_CommandAllocators[0]);
             D3D12_TAG_OBJECT("Graphics Command Pool #1", m_CommandAllocators[1]);
             D3D12_TAG_OBJECT("Graphics Command Pool #2", m_CommandAllocators[2]);
-            D3D12_TAG_OBJECT("Graphics Queue", m_GraphicsQueue);
         }
 
         void DX12Context::Destroy()
@@ -145,7 +180,6 @@ namespace Razix {
     #if RAZIX_DEBUG
             if (m_DXGIDebug) {
                 RAZIX_CORE_WARN("[D3D12] Reporting Live Objects...");
-                OutputDebugStringW(L"[Razix] [D3D12] Reporting Live Objects...");
                 m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
             }
 

@@ -1,19 +1,32 @@
 #pragma once
 
-#define CHECK_HRESULT(x) Razix::Graphics::D3D12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
+#ifdef RAZIX_RENDER_API_DIRECTX12
+
+    #include <d3d12.h>
+
+    #define CHECK_HRESULT(x) Razix::Graphics::D3D12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
 namespace Razix {
     namespace Graphics {
         namespace D3D12Utilities {
 
-#ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_DISTRIBUTION
 
-    #define D3D12_TAG_OBJECT(name, handle) handle->SetName(L##name);
-#else
+        #define D3D12_TAG_OBJECT(name, handle) handle->SetName(L##name);
+    #else
 
-    #define D3D12_TAG_OBJECT(name, handle)
+        #define D3D12_TAG_OBJECT(name, handle)
 
-#endif
+    #endif
+            /**
+             * Transition the D3D12 resource from on state to another
+             */
+            void TransitionResource(ID3D12GraphicsCommandList2* commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
+
+            /**
+             * Function to get the offset CPU descriptor handle pointer from the start of the heap 
+             */
+            void GetCPUDescriptorOffsetHandle(_Out_ D3D12_CPU_DESCRIPTOR_HANDLE& handle, INT offsetInDescriptors, UINT descriptorIncrementSize);
 
             //-----------------------------------------------------------------------------------
             // HRESULT enums and their error descriptions map
@@ -46,3 +59,5 @@ namespace Razix {
         }    // namespace D3D12Utilities
     }        // namespace Graphics
 }    // namespace Razix
+
+#endif
