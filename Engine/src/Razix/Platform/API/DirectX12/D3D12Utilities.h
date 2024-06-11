@@ -6,6 +6,15 @@ namespace Razix {
     namespace Graphics {
         namespace D3D12Utilities {
 
+#ifndef RAZIX_DISTRIBUTION
+
+    #define D3D12_TAG_OBJECT(name, handle) handle->SetName(L##name);
+#else
+
+    #define D3D12_TAG_OBJECT(name, handle)
+
+#endif
+
             //-----------------------------------------------------------------------------------
             // HRESULT enums and their error descriptions map
             static std::unordered_map<HRESULT, std::string> ErrorDescriptions = {

@@ -383,43 +383,43 @@ public:                                                  \
 #define RZ_ALIGN_TO(a) __declspec(align(a))
 #define RZ_ALIGN_AS(a) alignas(a)
 
-#define Gib(x) x * 1024 * 1024 * 1024
-#define Mib(x) x * 1024 * 1024
-#define Kib(x) x * 1024
+#define Gib(x) x * (1 << 30)
+#define Mib(x) x * (1 << 20)
+#define Kib(x) x * (1 << 10)
 
-#define in_Gib(x) (x / (1024 * 1024 * 1024))
-#define in_Mib(x) (x / (1024 * 1024))
+#define in_Gib(x) (x / (1 << 30))
+#define in_Mib(x) (x / (1 << 20))
 #define in_Kib(x) (x / 1024)
 
 // Operator overload for quick expression without using macros
 constexpr size_t operator""_Gib(unsigned long long int x)
 {
-    return x * 1024 * 1024 * 1024;
+    return x * 1 << 30;
 }
 
 constexpr size_t operator""_Mib(unsigned long long int x)
 {
-    return x * 1024 * 1024;
+    return x * 1 << 20;
 }
 
 constexpr size_t operator""_Kib(unsigned long long int x)
 {
-    return x * 1024;
+    return x * 1 << 10;
 }
 
 constexpr float operator""_inGib(unsigned long long int x)
 {
-    return (float) x / (1024.0f * 1024.0f * 1024.0f);
+    return (float) x / (1 << 30);
 }
 
 constexpr float operator""_inMib(unsigned long long int x)
 {
-    return (float) x / (1024.0f * 1024.0f);
+    return (float) x / (1 << 20);
 }
 
 constexpr float operator""_inKib(unsigned long long int x)
 {
-    return (float) x / 1024.0f;
+    return (float) x / (1 << 10);
 }
 
 // A macro to call a member function pointer

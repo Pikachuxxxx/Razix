@@ -6,21 +6,19 @@
 #include <QPainter>
 #include <QPen>
 
+static constexpr u32 mem = Kib(1);
+
 namespace Razix {
     namespace Editor {
 
-#define Gib_Convert(x) x / (1024 * 1024 * 1024)
-#define Mib_Convert(x) x / (1024 * 1024)
-#define Kib_Convert(x) x / (1024)
-
         static std::string MemBytesToString(u32 memoryInBytes)
         {
-            if (memoryInBytes / (1024 * 1024 * 1024) > 1)
-                return std::to_string(Gib_Convert(memoryInBytes)) + " Gib";
-            else if (memoryInBytes / (1024 * 1024) > 1)
-                return std::to_string(Mib_Convert(memoryInBytes)) + " Mib";
-            if (memoryInBytes / (1024) > 1)
-                return std::to_string(Kib_Convert(memoryInBytes)) + " Kib";
+            if (memoryInBytes / 1_Gib > 1)
+                return std::to_string(Gib(memoryInBytes)) + " Gib";
+            else if (memoryInBytes / 1_Mib > 1)
+                return std::to_string(Mib(memoryInBytes)) + " Mib";
+            if (memoryInBytes / 1_Kib > 1)
+                return std::to_string(Kib(memoryInBytes)) + " Kib";
             else
                 return std::to_string(memoryInBytes) + " bytes";
         }

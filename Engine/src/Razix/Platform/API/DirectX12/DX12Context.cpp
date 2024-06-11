@@ -132,6 +132,12 @@ namespace Razix {
 
             // Create the swapchain
             m_Swapchain = rzstl::CreateUniqueRef<DX12Swapchain>(m_Window->getWidth(), m_Window->getHeight());
+
+            D3D12_TAG_OBJECT("Device", m_Device);
+            D3D12_TAG_OBJECT("Graphics Command Pool #0", m_CommandAllocators[0]);
+            D3D12_TAG_OBJECT("Graphics Command Pool #1", m_CommandAllocators[1]);
+            D3D12_TAG_OBJECT("Graphics Command Pool #2", m_CommandAllocators[2]);
+            D3D12_TAG_OBJECT("Graphics Queue", m_GraphicsQueue);
         }
 
         void DX12Context::Destroy()

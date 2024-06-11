@@ -11,6 +11,8 @@
     #include <d3d12.h>
     #include <dxgi1_5.h>
 
+    #include "Razix/Platform/API/DirectX12/DX12Fence.h"
+
 namespace Razix {
     namespace Graphics {
 
@@ -19,9 +21,7 @@ namespace Razix {
 
         struct FrameSyncData_DX12
         {
-            u32          fenceValue       = 0;
-            HANDLE       renderFenceEvent = INVALID_HANDLE_VALUE;
-            ID3D12Fence* renderFence      = nullptr;
+            rzstl::UniqueRef<DX12Fence> renderFence;
         };
 
         class DX12Swapchain : public RZSwapchain
@@ -49,12 +49,14 @@ namespace Razix {
 
         private:
             IDXGISwapChain4*             m_Swapchain                                   = nullptr;
-            u32                          m_SwapchainImageCount                         = 0;    /* Total number of swapchain images being used  */
-            std::vector<RZTextureHandle> m_SwapchainImageTextures                      = {};   /* Swapchain images stored as engine 2D texture */
-            FrameSyncData_DX12           m_FramesSyncData[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};   /* Frame sync primitives                        */
-            HWND                         m_HWNDHandle                                  = NULL; /* Windows Handle */
-
-        private:
+            u32                          m_SwapchainImageCount                         = 0;                           /* Total number of swapchain images being used  */
+            std::vector<RZTextureHandle> m_SwapchainImageTextures                      = {};                          /* Swapchain images stored as engine 2D texture */
+            FrameSyncData_DX12           m_FramesSyncData[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};                          /* Frame sync primitives                        */
+            HWND                         m_HWNDHandle                                  = NULL;                        /* Windows Handle */
+            ID3D12DescriptorHeap*        m_SwapchainRTVHeap                            = nullptr;                     /* Descriptor Heap from which the swapchain back buffers are allocated from */
+            u32                          m_RTVDescriptorSize                           = 0;                           /* Size of the descriptor in the heap */
+            const u32                    m_BackbuffersCount                            = RAZIX_MAX_SWAP_IMAGES_COUNT; /* Number of swapchain back buffers  */
+            u32                          m_CurrentBackBufferIndex                      = 0;                           /* Current index of the swapchain backb uffer to render onto */
         };
 
     }    // namespace Graphics
