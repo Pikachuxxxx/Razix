@@ -36,7 +36,7 @@ namespace Razix {
             RZPipelineHandle m_HDRBloomMixPipeline;
             struct BloomPassGPUResources
             {
-                std::vector<RZCommandBuffer*> cmdBuffers;
+                std::vector<RZDrawCommandBuffer*> cmdBuffers;
                 std::vector<RZDescriptorSet*> bloomDescSet;
             };
             BloomPassGPUResources downsamplebBloomGpuResources[NUM_BLOOM_MIPS];

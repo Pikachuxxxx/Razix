@@ -11,7 +11,7 @@
 
 #include "Razix/Graphics/Renderers/RZWorldRenderer.h"
 
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
@@ -95,7 +95,7 @@ namespace Razix {
             };
 
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
-                auto cmdBuffer = RZCommandBuffer::Create();
+                auto cmdBuffer = RZDrawCommandBuffer::Create();
                 cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Bloom Upsample cmd buffer [mip idx :" + std::to_string(mipindex) + "]"));
                 upsamplebBloomGpuResources[mipindex].cmdBuffers.push_back(cmdBuffer);
             }
@@ -214,7 +214,7 @@ namespace Razix {
             };
 
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
-                auto cmdBuffer = RZCommandBuffer::Create();
+                auto cmdBuffer = RZDrawCommandBuffer::Create();
                 cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Bloom Downsample cmd buffer [mip idx :" + std::to_string(mipindex) + "]"));
                 downsamplebBloomGpuResources[mipindex].cmdBuffers.push_back(cmdBuffer);
             }
@@ -324,7 +324,7 @@ namespace Razix {
         void RZBloomPass::mixScene(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
-                auto cmdBuffer = RZCommandBuffer::Create();
+                auto cmdBuffer = RZDrawCommandBuffer::Create();
                 cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Bloom Scene Mix cmd buffer"));
                 bloomSceneMixGpuResources.cmdBuffers.push_back(cmdBuffer);
             }

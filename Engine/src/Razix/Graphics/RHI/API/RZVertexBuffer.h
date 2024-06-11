@@ -12,7 +12,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Forward declaring for reducing coupling */
-        class RZCommandBuffer;
+        class RZDrawCommandBuffer;
 
         /* Vertex buffer that contains the vertex data that will be used to render geometry */
         class RAZIX_API RZVertexBuffer : public RZRoot
@@ -34,7 +34,7 @@ namespace Razix {
              * 
              * @param The Command Buffer that will be used to bind/draw with
              */
-            virtual void Bind(RZCommandBuffer* cmdBuffer) = 0;
+            virtual void Bind(RZDrawCommandBuffer* cmdBuffer) = 0;
             /* Unbinds the vertex buffer */
             virtual void Unbind() = 0;
             /* Sets the data with some offset */

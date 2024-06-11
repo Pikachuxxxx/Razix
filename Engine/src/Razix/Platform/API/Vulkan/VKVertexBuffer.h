@@ -4,7 +4,7 @@
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include "Razix/Platform/API/Vulkan/VKBuffer.h"
-    #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 
 namespace Razix {
     namespace Graphics {
@@ -15,7 +15,7 @@ namespace Razix {
             VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKVertexBuffer() {}
 
-            void Bind(RZCommandBuffer* cmdBuffer) override;
+            void Bind(RZDrawCommandBuffer* cmdBuffer) override;
             void Unbind() override {}
 
             void SetData(u32 size, const void* data) override;

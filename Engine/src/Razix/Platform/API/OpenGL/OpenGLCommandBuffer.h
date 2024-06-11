@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 
 namespace Razix {
     namespace Graphics {
 
-        class OpenGLCommandBuffer : public RZCommandBuffer
+        class OpenGLCommandBuffer : public RZDrawCommandBuffer
         {
         public:
             OpenGLCommandBuffer();

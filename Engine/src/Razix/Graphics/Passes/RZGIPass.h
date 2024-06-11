@@ -29,9 +29,9 @@ namespace Razix {
             RZPipelineHandle              m_RPropagationPipeline;
             Graphics::RZDescriptorSet*    m_MVPDescriptorSet;
             Graphics::RZDescriptorSet*    m_RIDescriptorSet;
-            std::vector<RZCommandBuffer*> m_RSMCmdBuffers;
-            std::vector<RZCommandBuffer*> m_RadianceInjectionCmdBuffers;
-            std::vector<RZCommandBuffer*> m_RadiancePropagationCmdBuffers;
+            std::vector<RZDrawCommandBuffer*> m_RSMCmdBuffers;
+            std::vector<RZDrawCommandBuffer*> m_RadianceInjectionCmdBuffers;
+            std::vector<RZDrawCommandBuffer*> m_RadiancePropagationCmdBuffers;
             RadianceInjectionUBOData      radianceInjectionData;
             RZUniformBufferHandle         m_RadianceInjectionUBO;
             RadiancePropagationUBOData    radiancePropagationData;

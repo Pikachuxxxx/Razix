@@ -6,7 +6,7 @@
 #include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
@@ -68,7 +68,7 @@ namespace Razix {
             // Create command buffers
             m_RadiancePropagationCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
             for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
-                m_RadiancePropagationCmdBuffers[i] = RZCommandBuffer::Create();
+                m_RadiancePropagationCmdBuffers[i] = RZDrawCommandBuffer::Create();
                 m_RadiancePropagationCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Radiance Propagation Command Buffers"));
             }
 
@@ -90,7 +90,7 @@ namespace Razix {
             // Create the command buffers
             m_RSMCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
             for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
-                m_RSMCmdBuffers[i] = RZCommandBuffer::Create();
+                m_RSMCmdBuffers[i] = RZDrawCommandBuffer::Create();
                 m_RSMCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("RSM pass Command Buffers"));
             }
 
@@ -261,7 +261,7 @@ namespace Razix {
             // Create command buffers
             m_RadianceInjectionCmdBuffers.resize(RAZIX_MAX_SWAP_IMAGES_COUNT);
             for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++) {
-                m_RadianceInjectionCmdBuffers[i] = RZCommandBuffer::Create();
+                m_RadianceInjectionCmdBuffers[i] = RZDrawCommandBuffer::Create();
                 m_RadianceInjectionCmdBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Radiance Injection Command Buffers"));
             }
 

@@ -34,6 +34,8 @@ namespace Razix {
 
             static DX12Context* Get() { return static_cast<DX12Context*>(s_Context); }
 
+            rzstl::UniqueRef<DX12Swapchain>& getSwapchain() { return m_Swapchain; }
+
             RAZIX_INLINE ID3D12CommandAllocator* getCommandPool(i32 frameIdx) { return m_CommandAllocators[frameIdx]; }
             RAZIX_INLINE ID3D12CommandQueue*     getGraphicsQueue() { return m_GraphicsQueue; }
             /*  Returns a const pointer to the window handle that the context renders to */

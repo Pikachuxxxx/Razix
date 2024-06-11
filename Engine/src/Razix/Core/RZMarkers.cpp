@@ -8,7 +8,7 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
-    #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #endif
 
 void BeginMarker(const std::string& name, glm::vec4 color)
@@ -20,7 +20,7 @@ void BeginMarker(const std::string& name, glm::vec4 color)
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
         case Razix::Graphics::RenderAPI::VULKAN:
-            Razix::Graphics::VKUtilities::CmdBeginDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKCommandBuffer*>(cmdBuf)->getBuffer(), name, color);
+            Razix::Graphics::VKUtilities::CmdBeginDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKDrawCommandBuffer*>(cmdBuf)->getBuffer(), name, color);
             break;
         case Razix::Graphics::RenderAPI::D3D12: break;
     }
@@ -37,7 +37,7 @@ void InsertMarker(const std::string& name, glm::vec4 color)
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
         case Razix::Graphics::RenderAPI::VULKAN:
-            Razix::Graphics::VKUtilities::CmdInsertDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKCommandBuffer*>(cmdBuf)->getBuffer(), name, color);
+            Razix::Graphics::VKUtilities::CmdInsertDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKDrawCommandBuffer*>(cmdBuf)->getBuffer(), name, color);
             break;
         case Razix::Graphics::RenderAPI::D3D12: break;
     }
@@ -54,7 +54,7 @@ void EndMarker()
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
         case Razix::Graphics::RenderAPI::VULKAN:
-            Razix::Graphics::VKUtilities::CmdEndDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKCommandBuffer*>(cmdBuf)->getBuffer());
+            Razix::Graphics::VKUtilities::CmdEndDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKDrawCommandBuffer*>(cmdBuf)->getBuffer());
             break;
         case Razix::Graphics::RenderAPI::D3D12: break;
     }

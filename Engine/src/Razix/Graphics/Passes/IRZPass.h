@@ -11,7 +11,7 @@ namespace Razix {
 
         struct RZRendererSettings;
 
-        class RZCommandBuffer;
+        class RZDrawCommandBuffer;
         class RZPipeline;
         class RZRenderPass;
         class RZFramebuffer;

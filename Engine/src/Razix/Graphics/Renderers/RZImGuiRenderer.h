@@ -13,7 +13,7 @@ namespace Razix {
 
     namespace Graphics {
 
-        class RZCommandBuffer;
+        class RZDrawCommandBuffer;
         class RZVertexBuffer;
         class RZIndexBuffer;
         class RZPipeline;
@@ -51,7 +51,7 @@ namespace Razix {
 
             void Begin(RZScene* scene) override;
 
-            void Draw(RZCommandBuffer* cmdBuffer) override;
+            void Draw(RZDrawCommandBuffer* cmdBuffer) override;
 
             void End() override;
 

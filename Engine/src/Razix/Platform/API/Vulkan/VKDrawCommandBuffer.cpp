@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "VKCommandBuffer.h"
+#include "VKDrawCommandBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
@@ -9,7 +9,7 @@
 namespace Razix {
     namespace Graphics {
 
-        VKCommandBuffer::VKCommandBuffer()
+        VKDrawCommandBuffer::VKDrawCommandBuffer()
             : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE)
 
         {
@@ -18,17 +18,17 @@ namespace Razix {
             m_State = CommandBufferState::Idle;
         }
 
-        VKCommandBuffer::VKCommandBuffer(VkCommandBuffer vulkanHandle)
+        VKDrawCommandBuffer::VKDrawCommandBuffer(VkCommandBuffer vulkanHandle)
             : m_CommandBuffer(vulkanHandle)
         {
         }
 
-        VKCommandBuffer::~VKCommandBuffer()
+        VKDrawCommandBuffer::~VKDrawCommandBuffer()
         {
             //Reset();
         }
 
-        void VKCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
+        void VKDrawCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -64,7 +64,7 @@ namespace Razix {
         //    VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t) m_CommandBuffer)
         //}
 
-        void VKCommandBuffer::BeginRecording()
+        void VKDrawCommandBuffer::BeginRecording()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -75,7 +75,7 @@ namespace Razix {
             VK_CHECK_RESULT(vkBeginCommandBuffer(m_CommandBuffer, &beginCI));
         }
 
-        void VKCommandBuffer::EndRecording()
+        void VKDrawCommandBuffer::EndRecording()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -84,7 +84,7 @@ namespace Razix {
             m_State = CommandBufferState::Ended;
         }
 
-        void VKCommandBuffer::Execute()
+        void VKDrawCommandBuffer::Execute()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -105,7 +105,7 @@ namespace Razix {
             m_State = CommandBufferState::Submitted;
         }
 
-        void VKCommandBuffer::Reset()
+        void VKDrawCommandBuffer::Reset()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 

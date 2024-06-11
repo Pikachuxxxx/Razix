@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
@@ -9,12 +9,12 @@
 namespace Razix {
     namespace Graphics {
 
-        class VKCommandBuffer : public RZCommandBuffer
+        class VKDrawCommandBuffer : public RZDrawCommandBuffer
         {
         public:
-            VKCommandBuffer();
-            VKCommandBuffer(VkCommandBuffer vulkanHandle);
-            ~VKCommandBuffer();
+            VKDrawCommandBuffer();
+            VKDrawCommandBuffer(VkCommandBuffer vulkanHandle);
+            ~VKDrawCommandBuffer();
 
             void Init(RZ_DEBUG_NAME_TAG_S_ARG) override;
             //void Init(VkCommandPool cmdPool = VK_NULL_HANDLE NAME_TAG);

@@ -9,7 +9,7 @@ namespace Razix {
         class RZMaterial;
         class RZVertexBuffer;
         class RZIndexBuffer;
-        class RZCommandBuffer;
+        class RZDrawCommandBuffer;
 
         /**
          * The submesh that will be drawn as a part of actual mesh, this gives info to draw part of the VB & IB
@@ -70,7 +70,7 @@ namespace Razix {
             static void GenerateTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount);
             static void GenerateTangentsAndBiTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 numIndices);
 
-            void Draw(RZCommandBuffer* cmdBuf);
+            void Draw(RZDrawCommandBuffer* cmdBuf);
 
             void Destroy();
 

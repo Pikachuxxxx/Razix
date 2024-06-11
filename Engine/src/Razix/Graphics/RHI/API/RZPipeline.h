@@ -7,7 +7,7 @@ namespace Razix {
 
         // Forward decelerations to reduce include files complexity
         struct RZPipelineDesc;
-        class RZCommandBuffer;
+        class RZDrawCommandBuffer;
 
         /**
          * NOTE:- The problem is though VK_EXT_dynamic_rendering eliminated render passes and framebuffers it still needs some before hand info while creating pipeline
@@ -26,7 +26,7 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
-            virtual void Bind(RZCommandBuffer* commandBuffer) = 0;
+            virtual void Bind(RZDrawCommandBuffer* commandBuffer) = 0;
 
             RAZIX_INLINE RZPipelineDesc getDesc() { return m_Desc; }
 

@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZCommandBuffer.h"
+#include "RZDrawCommandBuffer.h"
 
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
@@ -10,32 +10,32 @@
 #endif
 
 #ifdef RAZIX_RENDER_API_VULKAN
-    #include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+    #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 #endif
 
 namespace Razix {
     namespace Graphics {
 
-        RZCommandBuffer* RZCommandBuffer::BeginSingleTimeCommandBuffer()
+        RZDrawCommandBuffer* RZDrawCommandBuffer::BeginSingleTimeCommandBuffer()
         {
             auto             vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
-            VKCommandBuffer* cmdBuffer   = new VKCommandBuffer(vkCmdBuffer);
-            return (RZCommandBuffer*) cmdBuffer;
+            VKDrawCommandBuffer* cmdBuffer   = new VKDrawCommandBuffer(vkCmdBuffer);
+            return (RZDrawCommandBuffer*) cmdBuffer;
         }
 
-        void RZCommandBuffer::EndSingleTimeCommandBuffer(RZCommandBuffer* cmdBuffer)
+        void RZDrawCommandBuffer::EndSingleTimeCommandBuffer(RZDrawCommandBuffer* cmdBuffer)
         {
-            return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer());
+            return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBuffer)->getBuffer());
         }
 
-        RZCommandBuffer* RZCommandBuffer::Create()
+        RZDrawCommandBuffer* RZDrawCommandBuffer::Create()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLCommandBuffer(); break;
-                case Razix::Graphics::RenderAPI::VULKAN: return new VKCommandBuffer(); break;
+                case Razix::Graphics::RenderAPI::VULKAN: return new VKDrawCommandBuffer(); break;
                 case Razix::Graphics::RenderAPI::D3D11:
                 case Razix::Graphics::RenderAPI::D3D12:
                 case Razix::Graphics::RenderAPI::GXM:

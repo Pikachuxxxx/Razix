@@ -5,7 +5,7 @@
 
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
@@ -122,7 +122,7 @@ namespace Razix {
             u32 layerCount = 6;
 
             // Begin rendering
-            auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();
             {
                 RHI::SetCmdBuffer(cmdBuffer);
 
@@ -162,7 +162,7 @@ namespace Razix {
 
                 RHI::EndRendering(cmdBuffer);
                 RAZIX_MARK_END()
-                RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
+                RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
             RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
 
@@ -252,7 +252,7 @@ namespace Razix {
             u32 layerCount = 6;
 
             // Begin rendering
-            auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();
             {
                 RHI::SetCmdBuffer(cmdBuffer);
 
@@ -289,7 +289,7 @@ namespace Razix {
                 RHI::EndRendering(cmdBuffer);
 
                 RAZIX_MARK_END()
-                RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
+                RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
 
             for (sz i = 0; i < envMapSets.size(); i++) {
@@ -387,7 +387,7 @@ namespace Razix {
             u32 maxMipLevels = RZTexture::calculateMipMapCount(dim, dim);
 
             // Begin rendering
-            auto cmdBuffer = RZCommandBuffer::BeginSingleTimeCommandBuffer();
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();
             {
                 RHI::SetCmdBuffer(cmdBuffer);
 
@@ -436,7 +436,7 @@ namespace Razix {
                 }
 
                 RAZIX_MARK_END()
-                RZCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
+                RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
             preFilteredMap->setCurrentMipLevel(0);
 

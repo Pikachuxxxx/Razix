@@ -233,7 +233,7 @@ for (int i = 0; i < vertexCount; i++) {
 #endif
         }
 
-        void RZMesh::Draw(RZCommandBuffer* cmdBuf)
+        void RZMesh::Draw(RZDrawCommandBuffer* cmdBuf)
         {
             m_VertexBuffer->Bind(cmdBuf);
             m_IndexBuffer->Bind(cmdBuf);

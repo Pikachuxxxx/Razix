@@ -16,22 +16,22 @@ namespace Razix {
         // FIXME: Allocate command buffer from separate command pool per back buffer framws
 
         /* Command buffer to which the draw and other command are recorded to and used with */
-        class RAZIX_API RZCommandBuffer : public RZRoot
+        class RAZIX_API RZDrawCommandBuffer : public RZRoot
         {
         public:
-            RZCommandBuffer()          = default;
-            virtual ~RZCommandBuffer() = default;
+            RZDrawCommandBuffer()          = default;
+            virtual ~RZDrawCommandBuffer() = default;
 
-            static RZCommandBuffer* BeginSingleTimeCommandBuffer();
+            static RZDrawCommandBuffer* BeginSingleTimeCommandBuffer();
 
-            static void EndSingleTimeCommandBuffer(RZCommandBuffer* cmdBuffer);
+            static void EndSingleTimeCommandBuffer(RZDrawCommandBuffer* cmdBuffer);
 
             /**
              * Creates a command buffer to record draw command onto and bind pipeline and it's resources while drawing
              * 
              * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
              */
-            static RZCommandBuffer* Create();
+            static RZDrawCommandBuffer* Create();
 
             /* Initializes the command buffer and creates them */
             virtual void Init(RZ_DEBUG_NAME_TAG_S_ARG) = 0;

@@ -56,7 +56,6 @@ namespace Razix {
             ID3D12DescriptorHeap*        m_SwapchainRTVHeap                            = nullptr;                     /* Descriptor Heap from which the swapchain back buffers are allocated from */
             u32                          m_RTVDescriptorSize                           = 0;                           /* Size of the descriptor in the heap */
             const u32                    m_BackbuffersCount                            = RAZIX_MAX_SWAP_IMAGES_COUNT; /* Number of swapchain back buffers  */
-            u32                          m_CurrentBackBufferIndex                      = 0;                           /* Current index of the swapchain backb uffer to render onto */
         };
 
     }    // namespace Graphics

@@ -1,0 +1,32 @@
+#pragma once
+
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
+
+#ifdef RAZIX_RENDER_API_DIRECTX12
+
+    #include <d3d12.h>
+
+namespace Razix {
+    namespace Graphics {
+
+        class DX12DrawCommandBuffer : public RZDrawCommandBuffer
+        {
+        public:
+            DX12DrawCommandBuffer();
+            DX12DrawCommandBuffer(ID3D12GraphicsCommandList2* commandList);
+            ~DX12DrawCommandBuffer();
+
+            void Init(RZ_DEBUG_NAME_TAG_S_ARG) override;
+            void BeginRecording() override;
+            void EndRecording() override;
+            void Execute() override;
+            void Reset() override;
+
+            void* getAPIBuffer() override { return (void*) &m_CommandList; }
+
+        private:
+            ID3D12GraphicsCommandList2* m_CommandList = nullptr; /* Handle to the DX12 command buffer that will be executed by the GPU */
+        };
+    }    // namespace Graphics
+}    // namespace Razix
+#endif
