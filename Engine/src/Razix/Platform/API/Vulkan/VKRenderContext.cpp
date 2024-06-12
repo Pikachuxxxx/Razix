@@ -6,10 +6,10 @@
 #include "Razix/Core/RZEngine.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
-#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDescriptorSet.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKPipeline.h"
 #include "Razix/Platform/API/Vulkan/VKSemaphore.h"
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
@@ -114,10 +114,11 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_DrawCommandBuffers.resize(MAX_SWAPCHAIN_BUFFERS);
+            m_DrawCommandBuffers.set_capacity(MAX_SWAPCHAIN_BUFFERS);
             for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_DrawCommandBuffers[i] = Graphics::RZDrawCommandBuffer::Create();
-                m_DrawCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Command Buffers #" + std::to_string(i)));
+                auto commandBuffer = Graphics::RZDrawCommandBuffer::Create();
+                commandBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Draw Command Buffer: #" + std::to_string(i)));
+                m_DrawCommandBuffers.push_back(commandBuffer);
             }
 
             // Cache the reference to the Vulkan context to avoid frequent calling
@@ -130,7 +131,9 @@ namespace Razix {
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(VK_NULL_HANDLE);
-            m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentBackBufferImageIndex()];
+            //m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentBackBufferImageIndex()];
+            m_CurrentCommandBuffer = m_DrawCommandBuffers.front();
+            m_DrawCommandBuffers.pop_front();
 
 // Update VMA for Budget Queries
 #if RAZIX_USE_VMA
@@ -458,7 +461,7 @@ namespace Razix {
             CmdPushDescriptorSetKHR(static_cast<VKDrawCommandBuffer*>(cmdBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
-        void VKRenderContext::DrawAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 count, DataType   /*= DataType::UNSIGNED_INT*/)
+        void VKRenderContext::DrawAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 count, DataType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

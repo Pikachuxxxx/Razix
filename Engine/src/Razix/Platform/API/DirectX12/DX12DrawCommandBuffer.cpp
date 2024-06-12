@@ -33,7 +33,7 @@ namespace Razix {
 
             auto device = DX12Context::Get()->getDevice();
 
-            auto commandAllocator = DX12Context::Get()->getCommandPool(0);
+            auto commandAllocator = DX12Context::Get()->getCommandPool();
             CHECK_HRESULT(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, nullptr, IID_PPV_ARGS(&m_CommandList)));
             CHECK_HRESULT(m_CommandList->Close());
         }
@@ -43,8 +43,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Reset the Command Allocator and Command List using the apt one for the current in-flight frame index
-            auto acquiredBackBufferIndex = DX12Context::Get()->getSwapchain()->getAcquiredBackBufferImageIndex();
-            auto commandAllocator        = DX12Context::Get()->getCommandPool(acquiredBackBufferIndex);
+            auto commandAllocator = DX12Context::Get()->getCommandPool();
             CHECK_HRESULT(commandAllocator->Reset());
             CHECK_HRESULT(m_CommandList->Reset(commandAllocator, nullptr));
             // Associate the command allocator with the command list so that it can be
@@ -77,8 +76,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto acquiredBackBufferIndex = DX12Context::Get()->getSwapchain()->getAcquiredBackBufferImageIndex();
-            auto commandAllocator        = DX12Context::Get()->getCommandPool(acquiredBackBufferIndex);
+            auto commandAllocator = DX12Context::Get()->getCommandPool();
             CHECK_HRESULT(commandAllocator->Reset());
             CHECK_HRESULT(m_CommandList->Reset(commandAllocator, nullptr));
         }

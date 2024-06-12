@@ -162,6 +162,24 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }
 
+        u32 DX12Swapchain::acquireBackBuffer()
+        {
+            m_AcquiredBackBufferImageIndex = m_Swapchain->GetCurrentBackBufferIndex();
+            // Wait on previous frame command using this resource to be finished
+
+            auto& frameSync = getCurrentFrameSyncDataD3D12();
+            frameSync.renderFence->wait(0xffffff);
+
+            return m_AcquiredBackBufferImageIndex;
+        }
+
+        void DX12Swapchain::present()
+        {
+            u32 syncInterval = g_GraphicsFeaturesSettings.EnableVSync ? 1 : 0;
+            u32 presentFlags = !g_GraphicsFeaturesSettings.EnableVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+            CHECK_HRESULT(m_Swapchain->Present(syncInterval, presentFlags));
+        }
+
         //--------------------------------------------------------------------------------------
 
     }    // namespace Graphics

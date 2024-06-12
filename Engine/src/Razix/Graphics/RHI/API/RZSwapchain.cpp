@@ -10,13 +10,18 @@
 #endif
 
 #ifdef RAZIX_RENDER_API_VULKAN
-    #include "Razix/Platform/API/Vulkan/VKContext.h"    
+    #include "Razix/Platform/API/Vulkan/VKContext.h"
     #include "Razix/Platform/API/Vulkan/VKSwapchain.h"
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX11
     #include "Razix/Platform/API/DirectX11/DX11Context.h"
     #include "Razix/Platform/API/DirectX11/DX11Swapchain.h"
+#endif
+
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Platform/API/DirectX12/DX12Context.h"
+    #include "Razix/Platform/API/DirectX12/DX12Swapchain.h"
 #endif
 
 namespace Razix {
@@ -30,7 +35,7 @@ namespace Razix {
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLSwapchain(width, height); break;
                 case Razix::Graphics::RenderAPI::VULKAN: return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get());    //return new VKSwapchain(width, height); break;
                 case Razix::Graphics::RenderAPI::D3D11: return DX11Context::Get()->getSwapchain(); break;
-                case Razix::Graphics::RenderAPI::D3D12:
+                case Razix::Graphics::RenderAPI::D3D12: return static_cast<RZSwapchain*>(DX12Context::Get()->getSwapchain().get());
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;

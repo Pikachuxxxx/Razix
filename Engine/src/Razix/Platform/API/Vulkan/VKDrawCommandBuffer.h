@@ -25,10 +25,6 @@ namespace Razix {
 
             void* getAPIBuffer() override { return (void*) &m_CommandBuffer; }
 
-            /*
-            void Draw(u32 verticexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) override;
-            void DrawIndexed(u32 indexCount, u32 instanceCount, u32 firstIndex, int32_t vertexOffset, u32 firstInstance) override;
-            */
             VkCommandBuffer getBuffer() const { return m_CommandBuffer; }
 
         private:

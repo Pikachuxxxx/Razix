@@ -3,7 +3,13 @@
 // clang-format on
 #include "DX12RenderContext.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Platform/API/DirectX12/DX12Context.h"
+#include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
+#include "Razix/Platform/API/DirectX12/DX12Fence.h"
+#include "Razix/Platform/API/DirectX12/DX12Swapchain.h"
+#include "Razix/Platform/API/DirectX12/DX12Texture.h"
 
 #include <imgui/imgui.h>
 
@@ -40,7 +46,12 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Create the Draw/Compute Command buffers
-
+            m_DrawCommandBuffers.set_capacity(MAX_SWAPCHAIN_BUFFERS);
+            for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                auto commandBuffer = Graphics::RZDrawCommandBuffer::Create();
+                commandBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Draw Command Buffer: #" + std::to_string(i)));
+                m_DrawCommandBuffers.push_back(commandBuffer);
+            }
 
             // Cache the reference to the Vulkan context to avoid frequent calling
             m_Context = DX12Context::Get();
@@ -48,6 +59,8 @@ namespace Razix {
 
         void DX12RenderContext::AcquireImageAPIImpl(RZSemaphore* signalSemaphore)
         {
+            m_CurrentCommandBuffer = m_DrawCommandBuffers.front();
+            m_DrawCommandBuffers.pop_front();
         }
 
         void DX12RenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
@@ -116,10 +129,22 @@ namespace Razix {
 
         void DX12RenderContext::DrawAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RZEngine::Get().GetStatistics().NumDrawCalls++;
+            RZEngine::Get().GetStatistics().Draws++;
+            auto commandList = static_cast<DX12DrawCommandBuffer*>(cmdBuffer)->getD3DCommandList();
+            commandList->DrawInstanced(count, 1, 0, 0);
         }
 
         void DX12RenderContext::DrawIndexedAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount /*= 1*/, u32 firstIndex /*= 0*/, int32_t vertexOffset /*= 0*/, u32 firstInstance /*= 0*/)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RZEngine::Get().GetStatistics().NumDrawCalls++;
+            RZEngine::Get().GetStatistics().IndexedDraws++;
+            auto commandList = static_cast<DX12DrawCommandBuffer*>(cmdBuffer)->getD3DCommandList();
+            commandList->DrawIndexedInstanced(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
         void DX12RenderContext::DestroyAPIImpl()

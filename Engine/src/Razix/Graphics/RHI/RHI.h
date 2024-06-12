@@ -345,12 +345,12 @@ namespace Razix {
             virtual void OnImGui() = 0;
 
         protected:
-            virtual void         InitAPIImpl()                                                                                                                                                            = 0;
-            virtual void         AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                        = 0;
+            virtual void         InitAPIImpl()                                                                                                                                                                = 0;
+            virtual void         AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                            = 0;
             virtual void         BeginAPIImpl(RZDrawCommandBuffer* cmdBuffer)                                                                                                                                 = 0;
             virtual void         SubmitImpl(RZDrawCommandBuffer* cmdBuffer)                                                                                                                                   = 0;
-            virtual void         SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                     = 0;
-            virtual void         PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                               = 0;
+            virtual void         SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                         = 0;
+            virtual void         PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                                   = 0;
             virtual void         BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer)                                                                                                  = 0;
             virtual void         BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                         = 0;
             virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)                = 0;
@@ -358,8 +358,8 @@ namespace Razix {
             virtual void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                             = 0;
             virtual void         DrawAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                          = 0;
             virtual void         DrawIndexedAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)               = 0;
-            virtual void         DestroyAPIImpl()                                                                                                                                                         = 0;
-            virtual void         OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                   = 0;
+            virtual void         DestroyAPIImpl()                                                                                                                                                             = 0;
+            virtual void         OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                       = 0;
             virtual void         SetDepthBiasImpl(RZDrawCommandBuffer* cmdBuffer)                                                                                                                             = 0;
             virtual void         SetScissorRectImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                              = 0;
             virtual void         SetViewportImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                                 = 0;
@@ -370,21 +370,21 @@ namespace Razix {
             virtual void         InsertImageMemoryBarrierImpl(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)        = 0;
             virtual void         InsertBufferMemoryBarrierImpl(RZDrawCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) = 0;
             virtual void         CopyTextureResourceImpl(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)                                                        = 0;
-            virtual RZSwapchain* GetSwapchainImpl()                                                                                                                                                       = 0;
+            virtual RZSwapchain* GetSwapchainImpl()                                                                                                                                                           = 0;
 
         protected:
             static RHI* s_APIInstance;
 
-            std::string                   m_RendererTitle; /* The name of the renderer API that is being used */
-            u32                           m_Width      = 0;
-            u32                           m_Height     = 0;
-            u32                           m_PrevWidth  = 0;
-            u32                           m_PrevHeight = 0;
-            CommandQueue                  m_CommandQueue; /* The queue of recorded commands that needs execution */
-            RZDrawCommandBuffer*              m_CurrentCommandBuffer = nullptr;
-            std::vector<RZDrawCommandBuffer*> m_DrawCommandBuffers;
-            RZDescriptorSet*              m_FrameDataSet       = nullptr;
-            RZDescriptorSet*              m_SceneLightsDataSet = nullptr;
+            std::string                              m_RendererTitle; /* The name of the renderer API that is being used */
+            u32                                      m_Width      = 0;
+            u32                                      m_Height     = 0;
+            u32                                      m_PrevWidth  = 0;
+            u32                                      m_PrevHeight = 0;
+            CommandQueue                             m_CommandQueue; /* The queue of recorded commands that needs execution */
+            RZDrawCommandBuffer*                     m_CurrentCommandBuffer = nullptr;
+            rzstl::ring_buffer<RZDrawCommandBuffer*> m_DrawCommandBuffers;
+            RZDescriptorSet*                         m_FrameDataSet       = nullptr;
+            RZDescriptorSet*                         m_SceneLightsDataSet = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix
