@@ -54,7 +54,7 @@ namespace Razix {
             /**
              * Draw by binding the necessary resources
              */
-            virtual void Draw(RZCommandBuffer* cmdBuffer) = 0;
+            virtual void Draw(RZDrawCommandBuffer* cmdBuffer) = 0;
             /**
              * Ends the rendering for the frame
              */

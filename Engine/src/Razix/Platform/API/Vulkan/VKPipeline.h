@@ -14,7 +14,7 @@ namespace Razix {
 
             ~VKPipeline() {}
 
-            void Bind(RZCommandBuffer* commandBuffer) override;
+            void Bind(RZDrawCommandBuffer* commandBuffer) override;
 
             void init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
 

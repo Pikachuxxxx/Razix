@@ -76,7 +76,7 @@ namespace Razix {
             swapChainDesc.Stereo                = FALSE;
             swapChainDesc.SampleDesc            = {1, 0};
             swapChainDesc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-            swapChainDesc.BufferCount           = RAZIX_MAX_FRAMES_IN_FLIGHT;
+            swapChainDesc.BufferCount           = RAZIX_MAX_SWAP_IMAGES_COUNT;
             swapChainDesc.Scaling               = DXGI_SCALING_STRETCH;
             swapChainDesc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
             swapChainDesc.AlphaMode             = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -160,6 +160,24 @@ namespace Razix {
         void DX12Swapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+        }
+
+        u32 DX12Swapchain::acquireBackBuffer()
+        {
+            m_AcquiredBackBufferImageIndex = m_Swapchain->GetCurrentBackBufferIndex();
+            // Wait on previous frame command using this resource to be finished
+
+            auto& frameSync = getCurrentFrameSyncDataD3D12();
+            frameSync.renderFence->wait(0xffffff);
+
+            return m_AcquiredBackBufferImageIndex;
+        }
+
+        void DX12Swapchain::present()
+        {
+            u32 syncInterval = g_GraphicsFeaturesSettings.EnableVSync ? 1 : 0;
+            u32 presentFlags = !g_GraphicsFeaturesSettings.EnableVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+            CHECK_HRESULT(m_Swapchain->Present(syncInterval, presentFlags));
         }
 
         //--------------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZMarkers.h"
 
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZFramebuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
@@ -197,7 +197,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::Draw(RZCommandBuffer* cmdBuffer)
+        void RZDebugRenderer::Draw(RZDrawCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

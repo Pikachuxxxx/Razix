@@ -14,7 +14,7 @@
 #include "Razix/Scene/RZEntity.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
-#include "Razix/Graphics/RHI/API/RZCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"

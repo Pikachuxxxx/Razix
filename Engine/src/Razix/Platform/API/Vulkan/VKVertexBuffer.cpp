@@ -4,7 +4,7 @@
 #include "VKVertexBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
-#include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 
 namespace Razix {
     namespace Graphics {
@@ -14,13 +14,13 @@ namespace Razix {
         {
         }
 
-        void VKVertexBuffer::Bind(RZCommandBuffer* cmdBuffer)
+        void VKVertexBuffer::Bind(RZDrawCommandBuffer* cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             VkDeviceSize offsets[1] = {0};
             if (cmdBuffer)
-                vkCmdBindVertexBuffers(static_cast<VKCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &m_Buffer, offsets);
+                vkCmdBindVertexBuffers(static_cast<VKDrawCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &m_Buffer, offsets);
         }
 
         void VKVertexBuffer::SetData(u32 size, const void* data)

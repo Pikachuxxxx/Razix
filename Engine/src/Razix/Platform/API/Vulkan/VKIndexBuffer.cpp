@@ -3,7 +3,7 @@
 // clang-format on
 #include "VKIndexBuffer.h"
 
-#include "Razix/Platform/API/Vulkan/VKCommandBuffer.h"
+#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 
 namespace Razix {
     namespace Graphics {
@@ -16,11 +16,11 @@ namespace Razix {
             m_IndexCount = count;
         }
 
-        void VKIndexBuffer::Bind(RZCommandBuffer* commandBuffer /*= nullptr*/)
+        void VKIndexBuffer::Bind(RZDrawCommandBuffer* commandBuffer /*= nullptr*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkCmdBindIndexBuffer(static_cast<VKCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(static_cast<VKDrawCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
         }
 
         void VKIndexBuffer::Destroy()

@@ -11,7 +11,7 @@ namespace Razix {
             OpenGLPipeline(const RZPipelineDesc& pipelineInfo);
             ~OpenGLPipeline() {}
 
-            void Bind(RZCommandBuffer* commandBuffer) override;
+            void Bind(RZDrawCommandBuffer* commandBuffer) override;
 
             RAZIX_INLINE RZShaderHandle getShaderHandle() { return m_Desc.shader; }
 

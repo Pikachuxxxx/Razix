@@ -13,25 +13,29 @@ namespace Razix {
             Submitted
         };
 
-        // FIXME: Allocate command buffer from separate command pool per back buffer framws
-
-        /* Command buffer to which the draw and other command are recorded to and used with */
-        class RAZIX_API RZCommandBuffer : public RZRoot
+        /**
+         * Command buffer to which the draw and other command are recorded to and used with
+         * Note: Command Buffers needs command pool to be allocated from, except for single time 
+         * command buffers. The Device can store the command allocators in ring buffer and uses that 
+         * to allocate the command buffers to a ring buffer as the needed for multiple and
+         * multi-threaded recording usage etc. in future.
+         */
+        class RAZIX_API RZDrawCommandBuffer : public RZRoot
         {
         public:
-            RZCommandBuffer()          = default;
-            virtual ~RZCommandBuffer() = default;
+            RZDrawCommandBuffer()          = default;
+            virtual ~RZDrawCommandBuffer() = default;
 
-            static RZCommandBuffer* BeginSingleTimeCommandBuffer();
+            static RZDrawCommandBuffer* BeginSingleTimeCommandBuffer();
 
-            static void EndSingleTimeCommandBuffer(RZCommandBuffer* cmdBuffer);
+            static void EndSingleTimeCommandBuffer(RZDrawCommandBuffer* cmdBuffer);
 
             /**
              * Creates a command buffer to record draw command onto and bind pipeline and it's resources while drawing
              * 
              * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
              */
-            static RZCommandBuffer* Create();
+            static RZDrawCommandBuffer* Create();
 
             /* Initializes the command buffer and creates them */
             virtual void Init(RZ_DEBUG_NAME_TAG_S_ARG) = 0;

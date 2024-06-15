@@ -60,8 +60,11 @@ namespace Razix {
                 SetupDeviceAndSC();
             }
 
-            // https://github.com/jmorton06/Lumos/blob/648688ccae83af69abbb3c2b13f47a72dd56e094/Lumos/Source/Lumos/Platform/Vulkan/VKContext.cpp#L405C13-L414C104
-            // https://github.com/jmorton06/Lumos/blob/2239df7a12625075c12ab6788310db8e4cabdee9/Lumos/Source/Lumos/Platform/Vulkan/VKContext.cpp
+            // Create the command pools for allocating per in-flight command buffers
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES; i++) {
+                auto commandPool = rzstl::CreateRef<VKCommandPool>(VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+                m_GraphicsCommandPools.push_back(commandPool);
+            }
         }
 
         void VKContext::Destroy()
@@ -70,6 +73,9 @@ namespace Razix {
             m_Swapchain->Destroy();
             // Destroy the logical device
             VKDevice::Get().destroy();
+            // Destroy the graphics command pools
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES; i++)
+                m_GraphicsCommandPools[i]->destroy();
             // Destroy the surface
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
             // Destroy the debug manager
@@ -89,7 +95,7 @@ namespace Razix {
             VKDevice::Get().init();
 
             // Create the swapchain (will be auto initialized)
-            m_Swapchain = rzstl::CreateRef<VKSwapchain>(m_Window->getWidth(), m_Window->getHeight());
+            m_Swapchain = rzstl::CreateUniqueRef<VKSwapchain>(m_Window->getWidth(), m_Window->getHeight());
 
     #ifndef RAZIX_DISTRIBUTION
         #if RZ_PROFILER_OPTICK
@@ -177,7 +183,7 @@ namespace Razix {
             // To track if there is any issue with instance creation we supply the pNext with the `VkDebugUtilsMessengerCreateInfoEXT`
             m_DebugCI                 = {};
             m_DebugCI.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            m_DebugCI.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | */VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+            m_DebugCI.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | */ VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
             m_DebugCI.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             m_DebugCI.pfnUserCallback = debugCallback;
 
@@ -207,7 +213,7 @@ namespace Razix {
             }
         }
 
-        std::vector<cstr> VKContext::getRequiredLayers()
+        std::vector<cstr> VKContext::getRequiredLayers() const
         {
             std::vector<cstr> layers;
             if (m_EnabledValidationLayer) {
@@ -216,7 +222,7 @@ namespace Razix {
             return layers;
         }
 
-        std::vector<cstr> VKContext::getRequiredExtensions()
+        std::vector<cstr> VKContext::getRequiredExtensions() const
         {
             // First we are sending in the list of desired extensions by GLFW to interface with the WPI
             u32   glfwExtensionsCount = 0;

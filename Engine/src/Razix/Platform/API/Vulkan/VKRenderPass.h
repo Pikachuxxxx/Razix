@@ -18,9 +18,9 @@ namespace Razix {
             ~VKRenderPass();
 
             /* Begins the Vulkan render pass */
-            void BeginRenderPass(RZCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height) override;
+            void BeginRenderPass(RZDrawCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height) override;
             /* Ends the Vulkan render pass on the command buffer */
-            void EndRenderPass(RZCommandBuffer* commandBuffer) override;
+            void EndRenderPass(RZDrawCommandBuffer* commandBuffer) override;
             /* Adds any attachments to the render pass */
             void AddAttachment() override;
 

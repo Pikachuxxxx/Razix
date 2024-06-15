@@ -7,6 +7,7 @@
     #include "Razix/Platform/API/DirectX12/DX12Swapchain.h"
 
     #include <d3d12.h>
+    #include <dxgi1_6.h>
 
     #ifdef RAZIX_DEBUG
         #include <d3d12sdklayers.h>
@@ -33,7 +34,9 @@ namespace Razix {
 
             static DX12Context* Get() { return static_cast<DX12Context*>(s_Context); }
 
-            RAZIX_INLINE ID3D12CommandAllocator* getCommandPool(i32 frameIdx) { return m_CommandAllocators[frameIdx]; }
+            rzstl::UniqueRef<DX12Swapchain>& getSwapchain() { return m_Swapchain; }
+
+            RAZIX_INLINE ID3D12CommandAllocator* getGraphicsCommandPool() { return m_GraphicsCommandAllocators.front(); }
             RAZIX_INLINE ID3D12CommandQueue*     getGraphicsQueue() { return m_GraphicsQueue; }
             /*  Returns a const pointer to the window handle that the context renders to */
             RAZIX_INLINE const RZWindow* getWindow() const { return m_Window; }
@@ -45,14 +48,14 @@ namespace Razix {
             ID3D12Device10* m_Device = nullptr; /* D3D12 handle to the GPU device    */
     #ifdef RAZIX_DEBUG
             ID3D12Debug6* m_D3D12Debug = nullptr; /* D3D12 error handle    */
-            IDXGIDebug1*  m_DXGIDebug  = nullptr; /* Dxgi debugging handle */
+            IDXGIDebug1*  m_DXGIDebug  = nullptr; /* DXGI debugging handle */
             // TODO: Replace with ID3D12InfoQueue1 and add callback function similar to Vulkan
             // https://microsoft.github.io/DirectX-Specs/d3d/MessageCallback.html
             ID3D12InfoQueue* m_DebugValidation = nullptr; /* Debug validation to break on severity and filter messages  */
     #endif
-            ID3D12CommandAllocator*         m_CommandAllocators[RAZIX_MAX_SWAP_IMAGES_COUNT] = {}; /* Command buffer allocator per swap image */
-            ID3D12CommandQueue*             m_GraphicsQueue;
-            rzstl::UniqueRef<DX12Swapchain> m_Swapchain; /* Handle to the Razix-DX12 swapchain abstraction     */
+            rzstl::ring_buffer<ID3D12CommandAllocator*> m_GraphicsCommandAllocators; /* Command buffer allocator, one in-flight frame per render thread */
+            ID3D12CommandQueue*                         m_GraphicsQueue;             /* GPU queue to submit draw/grpahcis related command lists */
+            rzstl::UniqueRef<DX12Swapchain>             m_Swapchain;                 /* Handle to the Razix-DX12 swapchain abstraction     */
         };
     }    // namespace Graphics
 }    // namespace Razix

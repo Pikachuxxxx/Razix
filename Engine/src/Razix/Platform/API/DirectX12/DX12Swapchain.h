@@ -36,11 +36,14 @@ namespace Razix {
             void  OnResize(u32 width, u32 height) override;
             void* GetAPIHandle() override { return &m_Swapchain; }
 
+            u32  acquireBackBuffer();
+            void present();
+
             RZTextureHandle GetImage(u32 index) override { return m_SwapchainImageTextures[index]; }
             RZTextureHandle GetCurrentImage() override { return m_SwapchainImageTextures[m_AcquiredBackBufferImageIndex]; }
             sz              GetSwapchainImageCount() override { return m_SwapchainImageCount; }
 
-            const FrameSyncData_DX12& getCurrentFrameSyncDataVK() const
+            const FrameSyncData_DX12& getCurrentFrameSyncDataD3D12() const
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                 RAZIX_ASSERT(m_CurrentSubmittedBackBufferIndex < m_SwapchainImageCount, "[D3D12] Incorrect swapchain buffer index");
@@ -56,7 +59,6 @@ namespace Razix {
             ID3D12DescriptorHeap*        m_SwapchainRTVHeap                            = nullptr;                     /* Descriptor Heap from which the swapchain back buffers are allocated from */
             u32                          m_RTVDescriptorSize                           = 0;                           /* Size of the descriptor in the heap */
             const u32                    m_BackbuffersCount                            = RAZIX_MAX_SWAP_IMAGES_COUNT; /* Number of swapchain back buffers  */
-            u32                          m_CurrentBackBufferIndex                      = 0;                           /* Current index of the swapchain backb uffer to render onto */
         };
 
     }    // namespace Graphics

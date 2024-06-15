@@ -11,8 +11,8 @@ namespace Razix {
     namespace Graphics {
 
         /* Forward decelerations */
-        class RZTexture;       /* The texture2D to which the swap images are stored as */
-        class RZCommandBuffer; /* The command buffer that will be submitted for execution */
+        class RZTexture;           /* The texture2D to which the swap images are stored as */
+        class RZDrawCommandBuffer; /* The command buffer that will be submitted for execution */
 
         /* The swapchain that consists of multiple render targets and framebuffer attachments to render to the surface */
         class RAZIX_API RZSwapchain : public RZRoot
@@ -49,6 +49,8 @@ namespace Razix {
             inline u32 getWidth() { return m_Width; }
             /* Gets the height of the swapchain */
             inline u32 getHeight() { return m_Height; }
+            /* Gets the index of the acquired back buffer to render onto */
+            inline u32 getAcquiredBackBufferImageIndex() { return m_AcquiredBackBufferImageIndex; };
             /* Gets the index of the current image that is ready for rendering */
             inline u32 getCurrentBackBufferImageIndex() { return m_CurrentSubmittedBackBufferIndex; };
 
