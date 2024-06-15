@@ -33,8 +33,9 @@ namespace Razix {
 
             auto device = DX12Context::Get()->getDevice();
 
-            auto commandAllocator = DX12Context::Get()->getCommandPool();
-            CHECK_HRESULT(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, nullptr, IID_PPV_ARGS(&m_CommandList)));
+            // Get the command allocator from the ring buffer pool
+            m_CommandAllocator = DX12Context::Get()->getGraphicsCommandPool();
+            CHECK_HRESULT(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator, nullptr, IID_PPV_ARGS(&m_CommandList)));
             CHECK_HRESULT(m_CommandList->Close());
         }
 
@@ -43,12 +44,8 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Reset the Command Allocator and Command List using the apt one for the current in-flight frame index
-            auto commandAllocator = DX12Context::Get()->getCommandPool();
-            CHECK_HRESULT(commandAllocator->Reset());
-            CHECK_HRESULT(m_CommandList->Reset(commandAllocator, nullptr));
-            // Associate the command allocator with the command list so that it can be
-            // retrieved when the command list is executed.
-            CHECK_HRESULT(m_CommandList->SetPrivateDataInterface(__uuidof(ID3D12CommandAllocator), commandAllocator));
+            CHECK_HRESULT(m_CommandAllocator->Reset());
+            CHECK_HRESULT(m_CommandList->Reset(m_CommandAllocator, nullptr));
         }
 
         void DX12DrawCommandBuffer::EndRecording()
@@ -62,10 +59,6 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            ID3D12CommandAllocator* commandAllocator = nullptr;
-            UINT                    dataSize         = sizeof(commandAllocator);
-            CHECK_HRESULT(m_CommandList->GetPrivateData(__uuidof(ID3D12CommandAllocator), &dataSize, &commandAllocator));
-
             ID3D12CommandList* const ppCommandLists[] = {
                 m_CommandList};
 
@@ -76,9 +69,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto commandAllocator = DX12Context::Get()->getCommandPool();
-            CHECK_HRESULT(commandAllocator->Reset());
-            CHECK_HRESULT(m_CommandList->Reset(commandAllocator, nullptr));
+            CHECK_HRESULT(m_CommandAllocator->Reset());
+            CHECK_HRESULT(m_CommandList->Reset(m_CommandAllocator, nullptr));
         }
 
     }    // namespace Graphics

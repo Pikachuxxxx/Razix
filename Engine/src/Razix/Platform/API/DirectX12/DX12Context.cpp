@@ -164,12 +164,15 @@ namespace Razix {
             // Create the swapchain
             m_Swapchain = rzstl::CreateUniqueRef<DX12Swapchain>(m_Window->getWidth(), m_Window->getHeight());
 
-            // Create Graphics command pool
-            CHECK_HRESULT(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator)));
+            // Create Graphics command pools per in-flight frames
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES; ++i)
+                CHECK_HRESULT(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_GraphicsCommandAllocators[i])));
 
             D3D12_TAG_OBJECT("Device", m_Device);
             D3D12_TAG_OBJECT("Graphics Queue", m_GraphicsQueue);
-            D3D12_TAG_OBJECT("Graphics Command Pool", m_CommandAllocator);
+            D3D12_TAG_OBJECT("Graphics Command Pool #0", m_GraphicsCommandAllocators[0]);
+            D3D12_TAG_OBJECT("Graphics Command Pool #1", m_GraphicsCommandAllocators[1]);
+            D3D12_TAG_OBJECT("Graphics Command Pool #2", m_GraphicsCommandAllocators[2]);
         }
 
         void DX12Context::Destroy()

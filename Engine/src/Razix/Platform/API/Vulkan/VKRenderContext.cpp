@@ -134,6 +134,7 @@ namespace Razix {
             //m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentBackBufferImageIndex()];
             m_CurrentCommandBuffer = m_DrawCommandBuffers.front();
             m_DrawCommandBuffers.pop_front();
+            m_DrawCommandBuffers.push_back(m_CurrentCommandBuffer);
 
 // Update VMA for Budget Queries
 #if RAZIX_USE_VMA

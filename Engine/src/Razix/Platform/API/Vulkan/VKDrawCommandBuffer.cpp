@@ -3,7 +3,7 @@
 // clang-format on
 #include "VKDrawCommandBuffer.h"
 
-#include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
@@ -13,19 +13,11 @@ namespace Razix {
             : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE)
 
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            m_State = CommandBufferState::Idle;
         }
 
         VKDrawCommandBuffer::VKDrawCommandBuffer(VkCommandBuffer vulkanHandle)
-            : m_CommandBuffer(vulkanHandle)
+            : m_CommandBuffer(vulkanHandle), m_CommandPool(VK_NULL_HANDLE)
         {
-        }
-
-        VKDrawCommandBuffer::~VKDrawCommandBuffer()
-        {
-            //Reset();
         }
 
         void VKDrawCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
@@ -34,7 +26,7 @@ namespace Razix {
 
             VkCommandBufferAllocateInfo cmdBufferCI = {};
 
-            m_CommandPool = VKDevice::Get().getCommandPool()->getVKPool();
+            m_CommandPool = VKContext::Get()->getGraphicsCommandPool()->getVKPool();
 
             cmdBufferCI.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             cmdBufferCI.commandBufferCount = 1;
@@ -45,24 +37,6 @@ namespace Razix {
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t) m_CommandBuffer)
         }
-
-        //void VKCommandBuffer::Init(VkCommandPool cmdPool /*= VK_NULL_HANDLE*/)
-        //{
-        //    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-        //
-        //    VkCommandBufferAllocateInfo cmdBufferCI = {};
-        //
-        //    m_CommandPool = cmdPool;
-        //
-        //    cmdBufferCI.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        //    cmdBufferCI.commandBufferCount = 1;
-        //    cmdBufferCI.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        //    cmdBufferCI.commandPool        = m_CommandPool;
-        //
-        //    VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &cmdBufferCI, &m_CommandBuffer));
-        //
-        //    VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t) m_CommandBuffer)
-        //}
 
         void VKDrawCommandBuffer::BeginRecording()
         {
@@ -112,16 +86,5 @@ namespace Razix {
             vkFreeCommandBuffers(VKDevice::Get().getDevice(), m_CommandPool, 1, &m_CommandBuffer);
         }
 
-        /*
-        void VKCommandBuffer::Draw(u32 verticexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance)
-        {
-            vkCmdDraw(m_CommandBuffer, verticexCount, instanceCount, firstInstance, firstInstance);
-        } 
-
-        void VKCommandBuffer::DrawIndexed(u32 indexCount, u32 instanceCount, u32 firstIndex, int32_t vertexOffset, u32 firstInstance)
-        {
-            vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstInstance, vertexOffset, firstInstance);
-        }
-        */
     }    // namespace Graphics
 }    // namespace Razix

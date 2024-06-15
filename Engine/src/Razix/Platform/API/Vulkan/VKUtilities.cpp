@@ -532,7 +532,7 @@ namespace Razix {
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocInfo.commandPool                 = VKDevice::Get().getCommandPool()->getVKPool();
+                allocInfo.commandPool                 = VKDevice::Get().getSingleTimeGraphicsCommandPool()->getVKPool();
                 allocInfo.commandBufferCount          = 1;
 
                 VkCommandBuffer commandBuffer;
@@ -566,7 +566,7 @@ namespace Razix {
                 VK_CHECK_RESULT(vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE));
                 VK_CHECK_RESULT(vkQueueWaitIdle(VKDevice::Get().getGraphicsQueue()));
 
-                vkFreeCommandBuffers(VKDevice::Get().getDevice(), VKDevice::Get().getCommandPool()->getVKPool(), 1, &commandBuffer);
+                vkFreeCommandBuffers(VKDevice::Get().getDevice(), VKDevice::Get().getSingleTimeGraphicsCommandPool()->getVKPool(), 1, &commandBuffer);
             }
 
             //-----------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ namespace Razix {
         static const u32 kMAX_BINDLESS_RESOURCES      = 1024; /* Max Bindless resources that can be allocated by the engine */
 
         /* The actual handle to the Physical GPU being used to process the application */
-        class VKPhysicalDevice : public RZRoot
+        class VKPhysicalDevice
         {
         public:
             struct QueueFamilyIndices
@@ -100,8 +100,10 @@ namespace Razix {
             bool init();
             void destroy();
 
+            /* Gets the actual physical device GPU adapter */
             RAZIX_INLINE const rzstl::Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
-            RAZIX_INLINE const rzstl::Ref<VKCommandPool>& getCommandPool() const { return m_CommandPool; }
+            /* Get the graphics command pool for single time command buffers. DON'T USE THIS FOR FRAME RELATED OPERATIONS. */
+            RAZIX_INLINE const rzstl::Ref<VKCommandPool>& getSingleTimeGraphicsCommandPool() const { return m_CommandPool; }
             RAZIX_INLINE VkDevice                         getDevice() const { return m_Device; };
             RAZIX_INLINE VkPhysicalDevice                 getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
             RAZIX_INLINE VkQueue                          getGraphicsQueue() const { return m_GraphicsQueue; };

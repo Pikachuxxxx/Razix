@@ -11,7 +11,7 @@ namespace Razix {
      * @note [Design Suggested in Game Engine Architecture by Jason Gregory at p.199-201]
      */
     template<class T>
-    class RZSingleton : public RZRoot
+    class RZSingleton
     {
     public:
         /* Gets the reference to the Singleton Object */

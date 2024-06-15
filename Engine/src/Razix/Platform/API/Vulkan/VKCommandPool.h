@@ -11,6 +11,7 @@ namespace Razix {
         class VKCommandPool
         {
         public:
+            VKCommandPool() {}
             /**
              * Constructor for vulkan command buffer
              * 
@@ -30,7 +31,7 @@ namespace Razix {
             const VkCommandPool& getVKPool() const { return m_CmdPool; }
 
         private:
-            VkCommandPool m_CmdPool; /* Handle to vulkan command pool */
+            VkCommandPool m_CmdPool = VK_NULL_HANDLE; /* Handle to vulkan command pool */
         };
     }    // namespace Graphics
 }    // namespace Razix

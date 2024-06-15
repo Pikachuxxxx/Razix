@@ -2,6 +2,8 @@
 
 #include <tracy/Tracy.hpp>
 
+#include "RZSTL/ring_buffer.h"
+
 #include "Razix/Core/RZProfiling.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"

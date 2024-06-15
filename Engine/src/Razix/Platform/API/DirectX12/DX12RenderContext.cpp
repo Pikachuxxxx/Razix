@@ -59,6 +59,8 @@ namespace Razix {
 
         void DX12RenderContext::AcquireImageAPIImpl(RZSemaphore* signalSemaphore)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_CurrentCommandBuffer = m_DrawCommandBuffers.front();
             m_DrawCommandBuffers.pop_front();
         }
@@ -92,10 +94,6 @@ namespace Razix {
         }
 
         void DX12RenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
-        {
-        }
-
-        void DX12RenderContext::SetScissorRectImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
         {
         }
 
@@ -161,15 +159,49 @@ namespace Razix {
 
         void DX12RenderContext::SetViewportImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RAZIX_ASSERT(width != 0 || height != 0, "Viewport Width or Height cannot be zero!");
+
+            D3D12_VIEWPORT viewport = {};
+            viewport.TopLeftX       = static_cast<f32>(x);
+            viewport.TopLeftY       = static_cast<f32>(y);
+            viewport.Width          = static_cast<f32>(width);
+            viewport.Height         = static_cast<f32>(height);
+            viewport.MinDepth       = 0.0f;
+            viewport.MaxDepth       = 1.0f;
+
+            auto commandList = static_cast<DX12DrawCommandBuffer*>(cmdBuffer)->getD3DCommandList();
+            commandList->RSSetViewports(1, &viewport);
+        }
+
+        void DX12RenderContext::SetScissorRectImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RAZIX_ASSERT(width != 0 || height != 0, "Scissor Rect Width or Height cannot be zero!");
+
+            D3D12_RECT scissor = {};
+            scissor.left       = x;
+            scissor.top        = y;
+            scissor.right      = width;
+            scissor.bottom     = height;
+
+            auto commandList = static_cast<DX12DrawCommandBuffer*>(cmdBuffer)->getD3DCommandList();
+            commandList->RSSetScissorRects(1, &scissor);
         }
 
         void DX12RenderContext::SetDepthBiasImpl(RZDrawCommandBuffer* cmdBuffer)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
         }
 
         Razix::Graphics::RZSwapchain* DX12RenderContext::GetSwapchainImpl()
         {
-            return nullptr;
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            return static_cast<RZSwapchain*>(DX12Context::Get()->getSwapchain().get());
         }
 
     }    // namespace Graphics
