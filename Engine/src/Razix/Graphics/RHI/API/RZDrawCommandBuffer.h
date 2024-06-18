@@ -18,9 +18,9 @@ namespace Razix {
         /**
          * Command buffer to which the draw and other command are recorded to and used with
          * Note: Command Buffers needs command pool to be allocated from, except for single time 
-         * command buffers. The Device can store the command allocators in ring buffer and uses that 
-         * to allocate the command buffers to a ring buffer as the needed for multiple and
-         * multi-threaded recording usage etc. in future.
+         * command buffers. The RHI can store the command allocators in ring buffer and uses that 
+         * to allocate the command buffers to a ring buffer internally within the command allocator class
+         * as the needed per in-flight frame per thread recording usage etc.
          */
         class RAZIX_API RZDrawCommandBuffer : public RZRoot
         {
@@ -55,7 +55,7 @@ namespace Razix {
              * 
              * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
              */
-            static RZDrawCommandBuffer* Create(RZCommandAllocatorPool* pool);
+            static void Create(RZCommandAllocatorPool* pool);
 
             friend class RZResourceManager;
         };
