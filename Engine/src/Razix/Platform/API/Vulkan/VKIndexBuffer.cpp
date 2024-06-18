@@ -20,7 +20,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkCmdBindIndexBuffer(static_cast<VKDrawCommandBuffer*>(commandBuffer)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            vkCmdBindIndexBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
         }
 
         void VKIndexBuffer::Destroy()

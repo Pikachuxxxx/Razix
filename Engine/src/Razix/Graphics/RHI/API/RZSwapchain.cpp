@@ -32,10 +32,19 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLSwapchain(width, height); break;
+#endif
+
+#ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Graphics::RenderAPI::VULKAN: return static_cast<RZSwapchain*>(VKContext::Get()->getSwapchain().get());    //return new VKSwapchain(width, height); break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX11
                 case Razix::Graphics::RenderAPI::D3D11: return DX11Context::Get()->getSwapchain(); break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12: return static_cast<RZSwapchain*>(DX12Context::Get()->getSwapchain().get());
+#endif
                 case Razix::Graphics::RenderAPI::GXM:
                 case Razix::Graphics::RenderAPI::GCM:
                 default: return nullptr; break;

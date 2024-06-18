@@ -10,7 +10,7 @@
 #endif
 
 #ifdef RAZIX_RENDER_API_OPENGL
-#include "Razix/Platform/API/OpenGL/OpenGLStorageBuffer.h"
+    #include "Razix/Platform/API/OpenGL/OpenGLStorageBuffer.h"
 #endif
 
 namespace Razix {
@@ -21,12 +21,15 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: return new OpenGLStorageBuffer(size, name); break;
+#endif
+#ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Graphics::RenderAPI::VULKAN: return new VKStorageBuffer(size, name); break;
-                case Razix::Graphics::RenderAPI::D3D11:
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12:
-                case Razix::Graphics::RenderAPI::GXM:
-                case Razix::Graphics::RenderAPI::GCM:
+#endif
                 default: return nullptr; break;
             }
         }

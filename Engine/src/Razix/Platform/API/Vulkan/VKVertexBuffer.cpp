@@ -18,9 +18,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VkDeviceSize offsets[1] = {0};
-            if (cmdBuffer)
-                vkCmdBindVertexBuffers(static_cast<VKDrawCommandBuffer*>(cmdBuffer)->getBuffer(), 0, 1, &m_Buffer, offsets);
+            VkDeviceSize offsets[1]        = {0};
+            auto         cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            vkCmdBindVertexBuffers(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), 0, 1, &m_Buffer, offsets);
         }
 
         void VKVertexBuffer::SetData(u32 size, const void* data)

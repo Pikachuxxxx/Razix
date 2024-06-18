@@ -15,7 +15,7 @@ namespace Razix {
         OpenGLSwapchain::OpenGLSwapchain(u32 width, u32 height)
             : m_Width(width), m_Height(height) 
         {
-            m_DummyCmdBuffer = new OpenGLCommandBuffer();
+            //m_DummyCmdBuffer = new OpenGLCommandBuffer();
         }
 
         void OpenGLSwapchain::Flip()

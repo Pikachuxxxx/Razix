@@ -28,7 +28,6 @@ namespace Razix {
             u32                  m_Width;
             u32                  m_Height;
             u32                  m_CurrentImageIndex = 0;
-            OpenGLCommandBuffer* m_DummyCmdBuffer;
         };
     }    // namespace Graphics
 }    // namespace Razix

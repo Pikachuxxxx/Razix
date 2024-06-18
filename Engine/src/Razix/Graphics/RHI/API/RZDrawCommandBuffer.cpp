@@ -21,26 +21,25 @@
 namespace Razix {
     namespace Graphics {
 
-        u32 RZDrawCommandBuffer::GetInstanceSize()
-        {
-            switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
-                case Razix::Graphics::RenderAPI::VULKAN: return sizeof(RZDrawCommandBuffer); break;
-                case Razix::Graphics::RenderAPI::D3D12: return sizeof(RZDrawCommandBuffer); break;
-                default: return sizeof(RZCommandAllocatorPool); break;
-            }
-        }
+        GET_INSTANCE_SIZE_IMPL(DrawCommandBuffer)
 
-        RZDrawCommandBuffer* RZDrawCommandBuffer::BeginSingleTimeCommandBuffer()
+        RZDrawCommandBufferHandle RZDrawCommandBuffer::BeginSingleTimeCommandBuffer()
         {
-            auto                 vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
-            void*                where       = Memory::RZMalloc(sizeof(VKDrawCommandBuffer));
-            VKDrawCommandBuffer* cmdBuffer   = new (where) VKDrawCommandBuffer(vkCmdBuffer);
-            return (RZDrawCommandBuffer*) cmdBuffer;
+            auto vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+
+            RZHandle<RZDrawCommandBuffer>     handle;
+            void*                             where     = RZResourceManager::Get().getPool<RZDrawCommandBuffer>().obtain(handle);
+            VKDrawCommandBuffer*              cmdBuffer = new (where) VKDrawCommandBuffer(vkCmdBuffer);
+            IRZResource<RZDrawCommandBuffer>* resource  = (IRZResource<RZDrawCommandBuffer>*) where;
+            resource->setName("Single Time Command Buffer");
+            resource->setHandle(handle);
+            return handle;
         }
 
         void RZDrawCommandBuffer::EndSingleTimeCommandBuffer(RZDrawCommandBufferHandle cmdBuffer)
         {
-            return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBuffer)->getBuffer());
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
         }
 
         void RZDrawCommandBuffer::Create(void* where, RZCommandAllocatorPoolHandle pool)
@@ -51,9 +50,15 @@ namespace Razix {
             auto poolApiHandle = RZResourceManager::Get().getCommandAllocator(pool)->getAPIHandle();
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: new (where) OpenGLCommandBuffer(); break;
+#endif
+#ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Graphics::RenderAPI::VULKAN: new (where) VKDrawCommandBuffer(*(VkCommandPool*) (poolApiHandle)); break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12: new (where) DX12DrawCommandBuffer((ID3D12CommandAllocator*) poolApiHandle); break;
+#endif
                 default: break;
             }
         }

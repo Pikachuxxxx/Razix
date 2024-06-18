@@ -34,9 +34,15 @@ namespace Razix {
             RAZIX_CORE_INFO("\t Backend API : {0}", Graphics::RZGraphicsContext::GetRenderAPIString());
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: s_APIInstance = new GLRenderContext(width, height); break;
+#endif
+#ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Graphics::RenderAPI::VULKAN: s_APIInstance = new VKRenderContext(width, height); break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12: s_APIInstance = new DX12RenderContext(width, height); break;
+#endif
                 default: s_APIInstance = nullptr; break;
             }
         }

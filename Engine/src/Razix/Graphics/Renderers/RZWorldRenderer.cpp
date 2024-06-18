@@ -29,6 +29,7 @@
 #include "Razix/Graphics/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Maths/HaltonSeq.h"
+#include "Razix/Maths/RZGrid.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 
@@ -39,6 +40,15 @@
 #include <imgui_internal.h>
 
 namespace Razix {
+
+    Maths::RZGrid::RZGrid(const Maths::AABB& _aabb)
+        : aabb{_aabb}
+    {
+        const auto extent = aabb.getExtent();
+        cellSize          = max3(extent) / kLPVResolution;
+        size              = glm::uvec3{extent / cellSize + 0.5f};
+    }
+
     namespace Graphics {
 
         /**

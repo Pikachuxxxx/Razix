@@ -27,7 +27,7 @@ namespace Razix {
             static RZIndexBuffer* Create(RZ_DEBUG_NAME_TAG_F_ARG u32* data, u32 count, BufferUsage bufferUsage = BufferUsage::Static);
 
             /* Binds the Index buffer to the pipeline and the command buffer that is recorded and binded with */
-            virtual void Bind(RZDrawCommandBufferHandle cmdBuffer = nullptr) = 0;
+            virtual void Bind(RZDrawCommandBufferHandle cmdBuffer = {}) = 0;
             /* Unbinds the index buffer */
             virtual void Unbind() = 0;
             /* Destroys the buffer and it's resources allocated by the underlying API */

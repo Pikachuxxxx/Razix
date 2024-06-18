@@ -11,7 +11,7 @@
 #include "Razix/Events/RZMouseEvent.h"
 #include "Razix/Utilities/LoadImage.h"
 
-#ifdef RAZIX_RENDER_API_OPENGL
+#if defined RAZIX_RENDER_API_OPENGL || RAZIX_RENDER_API_VULKAN
 // clang-format off
     #include <glad/glad.h>
     #include <GLFW/glfw3.h>

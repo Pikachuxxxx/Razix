@@ -7,14 +7,18 @@
 
 #include "Razix/Graphics/Resources/RZResourceManager.h"
 
-#include "Razix/Platform/API/OpenGL/OpenGLDescriptorSet.h"
-#include "Razix/Platform/API/OpenGL/OpenGLPipeline.h"
-#include "Razix/Platform/API/OpenGL/OpenGLShader.h"
-#include "Razix/Platform/API/OpenGL/OpenGLUniformBuffer.h"
-#include "Razix/Platform/API/OpenGL/OpenGLUtilities.h"
+#include "Razix/Graphics/RHI/API/RZCommandPool.h"
 
-#include <glad/glad.h>
-#include <glfw/glfw3.h>
+#ifdef RAZIX_RENDER_API_OPENGL
+
+    #include "Razix/Platform/API/OpenGL/OpenGLDescriptorSet.h"
+    #include "Razix/Platform/API/OpenGL/OpenGLPipeline.h"
+    #include "Razix/Platform/API/OpenGL/OpenGLShader.h"
+    #include "Razix/Platform/API/OpenGL/OpenGLUniformBuffer.h"
+    #include "Razix/Platform/API/OpenGL/OpenGLUtilities.h"
+
+    #include <glad/glad.h>
+    #include <glfw/glfw3.h>
 
     namespace Razix
 {
@@ -28,10 +32,12 @@
             m_Width         = width;
             m_Height        = height;
 
-            m_DrawCommandBuffers.resize(MAX_SWAPCHAIN_BUFFERS);
             for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                m_DrawCommandBuffers[i] = Graphics::RZDrawCommandBuffer::Create();
-                m_DrawCommandBuffers[i]->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Command Buffers #" + std::to_string(i)));
+                auto pool                  = RZResourceManager::Get().createCommandAllocator(PoolType::kGraphics);
+                m_CommandPool[i]           = pool;
+                m_DrawCommandBuffers[i]    = RZResourceManager::Get().createDrawCommandBuffer(pool);
+                auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_DrawCommandBuffers[i]);
+                commandBufferResource->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Draw Command Buffer: #" + std::to_string(i)));
             }
         }
 
@@ -259,3 +265,5 @@
         }
     }    // namespace Graphics
 }    // namespace Razix
+
+#endif

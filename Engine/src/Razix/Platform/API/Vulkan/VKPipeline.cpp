@@ -3,8 +3,8 @@
 // clang-format on
 #include "VKPipeline.h"
 
-#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKShader.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -24,7 +24,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(commandBuffer)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
         }
 
         void VKPipeline::init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)

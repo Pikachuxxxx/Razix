@@ -35,19 +35,9 @@
 
 namespace Razix {
 
-    //-----------------------------------------------------------------------------------
-    // RZGrid
-    //-----------------------------------------------------------------------------------
-
-    Maths::RZGrid::RZGrid(const Maths::AABB& _aabb)
-        : aabb{_aabb}
-    {
-        const auto extent = aabb.getExtent();
-        cellSize          = max3(extent) / kLPVResolution;
-        size              = glm::uvec3{extent / cellSize + 0.5f};
-    }
-
     namespace Graphics {
+
+#if 0
 
         void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
@@ -176,7 +166,7 @@ namespace Razix {
 
                     RHI::BeginRendering(cmdBuffer, info);
 
-#if 1
+    #if 1
                     // Bind the pipeline
                     RHI::BindPipeline(m_RSMPipeline, cmdBuffer);
 
@@ -236,7 +226,7 @@ namespace Razix {
                         Graphics::RHI::DrawIndexed(Graphics::RHI::GetCurrentCommandBuffer(), mrc.Mesh->getIndexCount());
                     }
                 // MESHES ///////////////////////////////////////////////////////////////////////////////////////////
-#endif
+    #endif
 
                     RAZIX_MARK_END();
                     RHI::EndRendering(cmdBuffer);
@@ -318,7 +308,7 @@ namespace Razix {
                 [=](const LightPropagationVolumesData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-#if 1
+    #if 1
                     auto cmdBuffer = m_RadianceInjectionCmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
                     RHI::Begin(cmdBuffer);
 
@@ -329,7 +319,7 @@ namespace Razix {
 
                     RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
 
-    #if 1
+        #if 1
                     static bool setsCreated = false;
                     if (!setsCreated) {
                         auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();
@@ -355,7 +345,7 @@ namespace Razix {
                         }
                         setsCreated = true;
                     }
-    #endif
+        #endif
 
                     RenderingInfo info{};
                     info.extent           = {grid.size.x, grid.size.y};
@@ -391,7 +381,7 @@ namespace Razix {
 
                     RHI::Submit(cmdBuffer);
                     RHI::SubmitWork({}, {});
-#endif
+    #endif
                 });
             return data;
         }
@@ -521,6 +511,8 @@ namespace Razix {
                     RHI::SubmitWork({}, {});
                 });
             return data;
-        }
+}
+
+#endif
     }    // namespace Graphics
 }    // namespace Razix

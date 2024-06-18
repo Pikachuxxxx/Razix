@@ -10,11 +10,11 @@ namespace Razix {
             kCopy
         };
 
-        class RZCommandAllocatorPool : public IRZResource<RZCommandAllocatorPool>
+        class RZCommandPool : public IRZResource<RZCommandPool>
         {
         public:
-            RZCommandAllocatorPool()          = default;
-            virtual ~RZCommandAllocatorPool() = default;
+            RZCommandPool()          = default;
+            virtual ~RZCommandPool() = default;
 
             GET_INSTANCE_SIZE;
 

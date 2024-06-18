@@ -522,8 +522,10 @@ namespace Razix {
         if (!ctx)
             return;
 
+#ifdef RAZIX_RENDER_API_OPENGL
         if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
+#endif
 
         // TODO: Well GLFW needs to be removed at some point and we need to use native functions
         if (RZApplication::Get().getAppType() == AppType::GAME)

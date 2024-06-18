@@ -31,6 +31,8 @@ namespace Razix {
             // Get the command allocator from the ring buffer pool
             CHECK_HRESULT(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator, nullptr, IID_PPV_ARGS(&m_CommandList)));
             CHECK_HRESULT(m_CommandList->Close());
+
+            D3D12_TAG_OBJECT(m_CommandList, "Draw Command List");
         }
 
         void DX12DrawCommandBuffer::BeginRecording()

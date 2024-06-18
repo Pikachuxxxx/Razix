@@ -20,6 +20,8 @@
 namespace Razix {
     namespace Graphics {
 
+        class DX12Shader
+        {};
         GET_INSTANCE_SIZE_IMPL(Shader)
 
         void RZShader::Create(void* where, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
@@ -27,12 +29,15 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: new (where) OpenGLShader(filePath); break;
+#endif
+#ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Graphics::RenderAPI::VULKAN: new (where) VKShader(filePath RZ_DEBUG_E_ARG_NAME); break;
-                case Razix::Graphics::RenderAPI::D3D11:
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12:
-                case Razix::Graphics::RenderAPI::GXM:
-                case Razix::Graphics::RenderAPI::GCM:
+#endif
                 default: break;
             }
         }

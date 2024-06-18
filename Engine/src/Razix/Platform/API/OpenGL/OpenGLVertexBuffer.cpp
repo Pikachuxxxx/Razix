@@ -69,7 +69,7 @@ namespace Razix {
 
         void OpenGLVertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout)
         {
-            Bind(nullptr);
+            Bind();
 
             auto& elements = layout.getElements();
 
@@ -86,7 +86,7 @@ namespace Razix {
 
         void OpenGLVertexBuffer::Map(u32 size /*= 0*/, u32 offset /*= 0*/)
         {
-            Bind(nullptr);
+            Bind();
 
             m_Mapped = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
             RAZIX_CORE_ASSERT(m_Mapped != nullptr, "[OPENGL] cannot map buffer")
@@ -94,7 +94,7 @@ namespace Razix {
 
         void OpenGLVertexBuffer::UnMap()
         {
-            Bind(nullptr);
+            Bind();
 
             glUnmapBuffer(GL_ARRAY_BUFFER);
         }

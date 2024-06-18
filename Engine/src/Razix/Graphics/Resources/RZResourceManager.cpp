@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZResourceManager.h"
 
-#include "Razix/Graphics/RHI/API/RZCommandAllocatorPool.h"
+#include "Razix/Graphics/RHI/API/RZCommandPool.h"
 #include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
@@ -44,7 +44,7 @@ namespace Razix {
             m_ShaderPool.init(512, RZShader::GetInstanceSize());
             m_PipelinePool.init(512, RZPipeline::GetInstanceSize());
             m_UniformBufferPool.init(4096, RZUniformBuffer::GetInstanceSize());
-            m_CommandAllocatorsPool.init(32, RZCommandAllocatorPool::GetInstanceSize());
+            m_CommandAllocatorsPool.init(32, RZCommandPool::GetInstanceSize());
             m_DrawCommandBuffersPool.init(32, RZDrawCommandBuffer::GetInstanceSize());
         }
 
@@ -233,10 +233,10 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RZHandle<RZCommandAllocatorPool> handle;
-            void*                            where = m_CommandAllocatorsPool.obtain(handle);
-            RZCommandAllocatorPool::Create(where, type);
-            IRZResource<RZCommandAllocatorPool>* resource = (IRZResource<RZCommandAllocatorPool>*) where;
+            RZHandle<RZCommandPool> handle;
+            void*                   where = m_CommandAllocatorsPool.obtain(handle);
+            RZCommandPool::Create(where, type);
+            IRZResource<RZCommandPool>* resource = (IRZResource<RZCommandPool>*) where;
             resource->setName("Command Allocator");
             resource->setHandle(handle);
             return handle;
@@ -253,7 +253,7 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a Command Allocator resource with Invalid handle!");
         }
 
-        Razix::Graphics::RZCommandAllocatorPool* RZResourceManager::getCommandAllocator(RZCommandAllocatorPoolHandle handle)
+        Razix::Graphics::RZCommandPool* RZResourceManager::getCommandAllocator(RZCommandAllocatorPoolHandle handle)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

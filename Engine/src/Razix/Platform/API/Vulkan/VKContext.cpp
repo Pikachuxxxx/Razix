@@ -59,12 +59,6 @@ namespace Razix {
             if (RZApplication::Get().getAppType() == AppType::GAME) {
                 SetupDeviceAndSC();
             }
-
-            // Create the command pools for allocating per in-flight command buffers
-            for (u32 i = 0; i < RAZIX_MAX_FRAMES; i++) {
-                auto commandPool = rzstl::CreateRef<VKCommandPool>(VKDevice::Get().getPhysicalDevice()->getGraphicsQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-                m_GraphicsCommandPools.push_back(commandPool);
-            }
         }
 
         void VKContext::Destroy()
@@ -73,9 +67,6 @@ namespace Razix {
             m_Swapchain->Destroy();
             // Destroy the logical device
             VKDevice::Get().destroy();
-            // Destroy the graphics command pools
-            for (u32 i = 0; i < RAZIX_MAX_FRAMES; i++)
-                m_GraphicsCommandPools[i]->destroy();
             // Destroy the surface
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
             // Destroy the debug manager

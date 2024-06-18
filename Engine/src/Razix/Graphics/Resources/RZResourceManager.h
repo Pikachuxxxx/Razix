@@ -56,7 +56,7 @@ namespace Razix {
             }
 
             template<>
-            RZResourcePoolTyped<RZCommandAllocatorPool>& getPool()
+            RZResourcePoolTyped<RZCommandPool>& getPool()
             {
                 return m_CommandAllocatorsPool;
             }
@@ -88,7 +88,7 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             RZCommandAllocatorPoolHandle createCommandAllocator(PoolType type);
             void                         destroyCommandAllocator(RZCommandAllocatorPoolHandle handle);
-            RZCommandAllocatorPool*      getCommandAllocator(RZCommandAllocatorPoolHandle handle);
+            RZCommandPool*      getCommandAllocator(RZCommandAllocatorPoolHandle handle);
             //-----------------------------------------------------------------------------------
             // Draw Command Buffer
             RZDrawCommandBufferHandle createDrawCommandBuffer(RZCommandAllocatorPoolHandle pool);
@@ -100,7 +100,7 @@ namespace Razix {
             RZResourcePoolTyped<RZShader>               m_ShaderPool;
             RZResourcePoolTyped<RZPipeline>             m_PipelinePool;
             RZResourcePoolTyped<RZUniformBuffer>        m_UniformBufferPool;
-            RZResourcePoolTyped<RZCommandAllocatorPool> m_CommandAllocatorsPool;
+            RZResourcePoolTyped<RZCommandPool> m_CommandAllocatorsPool;
             RZResourcePoolTyped<RZDrawCommandBuffer>    m_DrawCommandBuffersPool;
         };
     }    // namespace Graphics

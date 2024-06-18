@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZCommandAllocatorPool.h"
+#include "Razix/Graphics/RHI/API/RZCommandPool.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
@@ -10,7 +10,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Creates a Vulkan command buffer */
-        class VKCommandPool final : public RZCommandAllocatorPool
+        class VKCommandPool final : public RZCommandPool
         {
         public:
             VKCommandPool() {}

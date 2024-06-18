@@ -2,10 +2,12 @@
 
 #include "Razix/Core/RZDebugConfig.h"
 
+#include "Razix/Graphics/Resources/IRZResource.h"
+
 namespace Razix {
     namespace Graphics {
 
-        class RZCommandAllocatorPool;
+        class RZCommandPool;
 
         enum class CommandBufferState : u8
         {
@@ -30,8 +32,8 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
-            static RZDrawCommandBuffer* BeginSingleTimeCommandBuffer();
-            static void                 EndSingleTimeCommandBuffer(RZDrawCommandBufferHandle cmdBuffer);
+            static RZDrawCommandBufferHandle BeginSingleTimeCommandBuffer();
+            static void                      EndSingleTimeCommandBuffer(RZDrawCommandBufferHandle cmdBuffer);
 
             /* Initializes the command buffer and creates them */
             virtual void Init(RZ_DEBUG_NAME_TAG_S_ARG) = 0;
