@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/Resources/IRZResource.h"
+
 namespace Razix {
     namespace Graphics {
 
