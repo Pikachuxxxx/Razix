@@ -36,8 +36,7 @@ namespace Razix {
 
             rzstl::UniqueRef<DX12Swapchain>& getSwapchain() { return m_Swapchain; }
 
-            RAZIX_INLINE ID3D12CommandAllocator* getGraphicsCommandPool() { return m_GraphicsCommandAllocators.front(); }
-            RAZIX_INLINE ID3D12CommandQueue*     getGraphicsQueue() { return m_GraphicsQueue; }
+            RAZIX_INLINE ID3D12CommandQueue* getGraphicsQueue() { return m_GraphicsQueue; }
             /*  Returns a const pointer to the window handle that the context renders to */
             RAZIX_INLINE const RZWindow* getWindow() const { return m_Window; }
             /* Gets the handle to the device */
@@ -53,9 +52,8 @@ namespace Razix {
             // https://microsoft.github.io/DirectX-Specs/d3d/MessageCallback.html
             ID3D12InfoQueue* m_DebugValidation = nullptr; /* Debug validation to break on severity and filter messages  */
     #endif
-            rzstl::ring_buffer<ID3D12CommandAllocator*> m_GraphicsCommandAllocators; /* Command buffer allocator, one in-flight frame per render thread */
-            ID3D12CommandQueue*                         m_GraphicsQueue;             /* GPU queue to submit draw/grpahcis related command lists */
-            rzstl::UniqueRef<DX12Swapchain>             m_Swapchain;                 /* Handle to the Razix-DX12 swapchain abstraction     */
+            ID3D12CommandQueue*             m_GraphicsQueue; /* GPU queue to submit draw/grpahcis related command lists */
+            rzstl::UniqueRef<DX12Swapchain> m_Swapchain;     /* Handle to the Razix-DX12 swapchain abstraction     */
         };
     }    // namespace Graphics
 }    // namespace Razix

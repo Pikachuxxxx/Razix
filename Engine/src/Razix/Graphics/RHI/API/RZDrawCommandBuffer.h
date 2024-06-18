@@ -5,6 +5,8 @@
 namespace Razix {
     namespace Graphics {
 
+        class RZCommandAllocatorPool;
+
         enum class CommandBufferState : u8
         {
             Idle,
@@ -16,9 +18,9 @@ namespace Razix {
         /**
          * Command buffer to which the draw and other command are recorded to and used with
          * Note: Command Buffers needs command pool to be allocated from, except for single time 
-         * command buffers. The Device can store the command allocators in ring buffer and uses that 
-         * to allocate the command buffers to a ring buffer as the needed for multiple and
-         * multi-threaded recording usage etc. in future.
+         * command buffers. The RHI can store the command allocators in ring buffer and uses that 
+         * to allocate the command buffers to a ring buffer internally within the command allocator class
+         * as the needed per in-flight frame per thread recording usage etc.
          */
         class RAZIX_API RZDrawCommandBuffer : public RZRoot
         {
@@ -29,13 +31,6 @@ namespace Razix {
             static RZDrawCommandBuffer* BeginSingleTimeCommandBuffer();
 
             static void EndSingleTimeCommandBuffer(RZDrawCommandBuffer* cmdBuffer);
-
-            /**
-             * Creates a command buffer to record draw command onto and bind pipeline and it's resources while drawing
-             * 
-             * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
-             */
-            static RZDrawCommandBuffer* Create();
 
             /* Initializes the command buffer and creates them */
             virtual void Init(RZ_DEBUG_NAME_TAG_S_ARG) = 0;
@@ -53,6 +48,16 @@ namespace Razix {
 
         protected:
             CommandBufferState m_State = CommandBufferState::Idle;
+
+        private:
+            /**
+             * Creates a command buffer to record draw command onto and bind pipeline and it's resources while drawing
+             * 
+             * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
+             */
+            static void Create(RZCommandAllocatorPool* pool);
+
+            friend class RZResourceManager;
         };
 
     }    // namespace Graphics

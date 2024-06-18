@@ -48,7 +48,8 @@ namespace Razix {
             RZSwapchain* GetSwapchainImpl() override;
 
         private:
-            DX12Context* m_Context = nullptr;
+            DX12Context*                m_Context = nullptr;
+            rzstl::UniqueRef<DX12Fence> m_RenderReadyFence;
         };
     }    // namespace Graphics
 }    // namespace Razix

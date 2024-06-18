@@ -565,7 +565,7 @@ namespace Razix {
             else
                 VK_CHECK_RESULT(result);
 
-            m_CurrentSubmittedBackBufferIndex = (m_CurrentSubmittedBackBufferIndex + 1) % m_SwapchainImageCount;
+            m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_SwapchainImageCount;
         }
     }    // namespace Graphics
 }    // namespace Razix

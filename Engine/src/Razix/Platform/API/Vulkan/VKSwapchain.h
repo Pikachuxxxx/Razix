@@ -62,8 +62,8 @@ namespace Razix {
             FrameSyncData_VK& getCurrentFrameSyncDataVK()
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                RAZIX_ASSERT(m_CurrentSubmittedBackBufferIndex < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
-                return m_FramesSyncData[m_CurrentSubmittedBackBufferIndex];
+                RAZIX_ASSERT(m_CurrentFrameIndex < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
+                return m_FramesSyncData[m_CurrentFrameIndex];
             }
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
             VkSwapchainKHR         getSwapchain() const { return m_Swapchain; }

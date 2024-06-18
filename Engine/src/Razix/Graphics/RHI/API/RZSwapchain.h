@@ -52,17 +52,17 @@ namespace Razix {
             /* Gets the index of the acquired back buffer to render onto */
             inline u32 getAcquiredBackBufferImageIndex() { return m_AcquiredBackBufferImageIndex; };
             /* Gets the index of the current image that is ready for rendering */
-            inline u32 getCurrentBackBufferImageIndex() { return m_CurrentSubmittedBackBufferIndex; };
+            inline u32 getCurrentFrameIndex() { return m_CurrentFrameIndex; };
 
             virtual void* GetAPIHandle() = 0;
 
         protected:
-            u32  m_Width                           = 0;     /* The width of the swapchain extent                                            */
-            u32  m_Height                          = 0;     /* The height of the swapchain extent                                           */
-            u32  m_AcquiredBackBufferImageIndex    = 0;     /* Currently acquired image index of the swapchain that is being rendered to    */
-            u32  m_CurrentSubmittedBackBufferIndex = 0;     /* Index of the current buffer being submitted for execution                    */
-            bool m_IsResized                       = false; /* has the swapchain been resized since the last time it was created            */
-            bool m_IsResizing                      = false; /* is the swapchain in the process of resizing                                  */
+            u32  m_Width                        = 0;     /* The width of the swapchain extent                                            */
+            u32  m_Height                       = 0;     /* The height of the swapchain extent                                           */
+            u32  m_AcquiredBackBufferImageIndex = 0;     /* Currently acquired image index of the swapchain that is being rendered to    */
+            u32  m_CurrentFrameIndex            = 0;     /* Index of the current buffer being submitted for execution                    */
+            bool m_IsResized                    = false; /* has the swapchain been resized since the last time it was created            */
+            bool m_IsResizing                   = false; /* is the swapchain in the process of resizing                                  */
         };
 
     }    // namespace Graphics

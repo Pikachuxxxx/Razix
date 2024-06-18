@@ -100,14 +100,14 @@ namespace Razix {
             }
 
         protected:
-            std::string      m_VirtualPath;                     /* The virtual path of the texture                             */
-            uint64_t         m_Size;                            /* The size of the texture resource                            */
-            RZDescriptorSet* m_DescriptorSet = nullptr;         /* Descriptor set for the image                                */
-            RZTextureDesc    m_Desc;                            /* Texture properties and create desc                          */
-            u32              m_TotalMipLevels           = 1;    /* Total Mips, Calculated by a formula except for RZCubeMap    */
-            u32              m_CurrentMipRenderingLevel = 0;    /* Current mip level to which we are rendering to (as RT)      */
-            u32              m_BaseArrayLayer           = 0;    /* Current face/array layer being accesses                     */
-            bool             m_IsRenderTexture          = true; /* Any texture not imported from file and created is a RT      */
+            std::string      m_VirtualPath              = "";      /* The virtual path of the texture                             */
+            uint64_t         m_Size                     = 0;       /* The size of the texture resource                            */
+            RZDescriptorSet* m_DescriptorSet            = nullptr; /* Descriptor set for the image                                */
+            RZTextureDesc    m_Desc                     = {};      /* Texture properties and create desc                          */
+            u32              m_TotalMipLevels           = 1;       /* Total Mips, Calculated by a formula except for RZCubeMap    */
+            u32              m_CurrentMipRenderingLevel = 0;       /* Current mip level to which we are rendering to (as RT)      */
+            u32              m_BaseArrayLayer           = 0;       /* Current face/array layer being accesses                     */
+            bool             m_IsRenderTexture          = true;    /* Any texture not imported from file and created is a RT      */
 
         private:
             static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
