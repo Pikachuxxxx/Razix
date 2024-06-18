@@ -153,7 +153,7 @@ namespace Razix {
                 [=](const ReflectiveShadowMapData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_RSMCmdBuffers[RHI::GetSwapchain()->getCurrentBackBufferImageIndex()];
+                    auto cmdBuffer = m_RSMCmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
                     RHI::Begin(cmdBuffer);
 
                     struct CheckpointData
@@ -319,7 +319,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
 #if 1
-                    auto cmdBuffer = m_RadianceInjectionCmdBuffers[RHI::GetSwapchain()->getCurrentBackBufferImageIndex()];
+                    auto cmdBuffer = m_RadianceInjectionCmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
                     RHI::Begin(cmdBuffer);
 
                     struct CheckpointData
@@ -454,7 +454,7 @@ namespace Razix {
                 [=](const LightPropagationVolumesData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    auto cmdBuffer = m_RadiancePropagationCmdBuffers[RHI::GetSwapchain()->getCurrentBackBufferImageIndex()];
+                    auto cmdBuffer = m_RadiancePropagationCmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
                     RHI::Begin(cmdBuffer);
 
                     struct CheckpointData

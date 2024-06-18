@@ -414,7 +414,7 @@ namespace Razix {
                 RHI::Begin(Graphics::RHI::GetCurrentCommandBuffer());
 
                 // Begin Frame Marker
-                RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentBackBufferImageIndex()) + " ]", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+                RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
                 m_FrameGraph.execute(nullptr);

@@ -19,7 +19,7 @@ namespace Razix {
 
         RZDrawCommandBuffer* RZDrawCommandBuffer::BeginSingleTimeCommandBuffer()
         {
-            auto             vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+            auto                 vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
             VKDrawCommandBuffer* cmdBuffer   = new VKDrawCommandBuffer(vkCmdBuffer);
             return (RZDrawCommandBuffer*) cmdBuffer;
         }
@@ -29,7 +29,7 @@ namespace Razix {
             return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBuffer)->getBuffer());
         }
 
-        RZDrawCommandBuffer* RZDrawCommandBuffer::Create()
+        RZDrawCommandBuffer* RZDrawCommandBuffer::Create(RZCommandAllocatorPool* pool)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

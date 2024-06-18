@@ -5,6 +5,8 @@
 namespace Razix {
     namespace Graphics {
 
+        class RZCommandAllocatorPool;
+
         enum class CommandBufferState : u8
         {
             Idle,
@@ -30,13 +32,6 @@ namespace Razix {
 
             static void EndSingleTimeCommandBuffer(RZDrawCommandBuffer* cmdBuffer);
 
-            /**
-             * Creates a command buffer to record draw command onto and bind pipeline and it's resources while drawing
-             * 
-             * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
-             */
-            static RZDrawCommandBuffer* Create();
-
             /* Initializes the command buffer and creates them */
             virtual void Init(RZ_DEBUG_NAME_TAG_S_ARG) = 0;
             /* Starts the recording of the commands onto the command buffer */
@@ -53,6 +48,16 @@ namespace Razix {
 
         protected:
             CommandBufferState m_State = CommandBufferState::Idle;
+
+        private:
+            /**
+             * Creates a command buffer to record draw command onto and bind pipeline and it's resources while drawing
+             * 
+             * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
+             */
+            static RZDrawCommandBuffer* Create(RZCommandAllocatorPool* pool);
+
+            friend class RZResourceManager;
         };
 
     }    // namespace Graphics

@@ -46,22 +46,19 @@ namespace Razix {
             RAZIX_INLINE const VkSurfaceKHR& getSurface() const { return m_Surface; }
             /*  Returns a const pointer to the window handle that the context renders to */
             RAZIX_INLINE const RZWindow* getWindow() const { return m_Window; }
-            /* Gets the graphics command pool to allocate the draw command buffers for rendering */
-            RAZIX_INLINE const rzstl::Ref<VKCommandPool>& getGraphicsCommandPool() const { return m_GraphicsCommandPools.front(); }
 
         private:
-            RZWindow*                                     m_Window;                         /* The Window handle                                                                            */
-            VkInstance                                    m_Instance;                       /* The Vulkan instance handle                                                                   */
-            bool                                          m_EnabledValidationLayer = true;  /* Whether or not to enable validation layers on not                                            */
-            std::vector<VkLayerProperties>                m_InstanceLayers;                 /* Collection of list of Instance layers supported                                              */
-            std::vector<VkExtensionProperties>            m_InstanceExtensions;             /* Collection of list of supported Extension                                                    */
-            std::vector<cstr>                             m_RequiredInstanceLayerNames;     /* The list of Required Layers by the engine                                                    */
-            std::vector<cstr>                             m_RequiredInstanceExtensionNames; /* The list of Required Extension by the engine                                                 */
-            VkDebugUtilsMessengerEXT                      m_DebugCallbackHandle;            /* Debug callback handle to manage the Vulkan debug                                             */
-            VkDebugUtilsMessengerCreateInfoEXT            m_DebugCI;                        /* Debug callback handle creation struct                                                        */
-            VkSurfaceKHR                                  m_Surface;                        /* The WSI Surface to which Vulkan presents to                                                  */
-            rzstl::Ref<VKSwapchain>                       m_Swapchain;                      /* Handle to the Razix-Vulkan swapchain abstraction                                             */
-            rzstl::ring_buffer<rzstl::Ref<VKCommandPool>> m_GraphicsCommandPools;           /* Graphics command pool to allocate the draw command buffers for rendering per in-flight frame */
+            RZWindow*                          m_Window                         = nullptr;        /* The Window handle                                                                            */
+            VkInstance                         m_Instance                       = VK_NULL_HANDLE; /* The Vulkan instance handle                                                                   */
+            bool                               m_EnabledValidationLayer         = true;           /* Whether or not to enable validation layers on not                                            */
+            std::vector<VkExtensionProperties> m_InstanceExtensions             = {};             /* Collection of list of supported Extension                                                    */
+            std::vector<cstr>                  m_RequiredInstanceLayerNames     = {};             /* The list of Required Layers by the engine                                                    */
+            std::vector<cstr>                  m_RequiredInstanceExtensionNames = {};             /* The list of Required Extension by the engine                                                 */
+            VkDebugUtilsMessengerEXT           m_DebugCallbackHandle            = VK_NULL_HANDLE; /* Debug callback handle to manage the Vulkan debug                                             */
+            VkDebugUtilsMessengerCreateInfoEXT m_DebugCI                        = {};             /* Debug callback handle creation struct                                                        */
+            VkSurfaceKHR                       m_Surface                        = VK_NULL_HANDLE; /* The WSI Surface to which Vulkan presents to                                                  */
+            rzstl::Ref<VKSwapchain>            m_Swapchain                      = nullptr;        /* Handle to the Razix-Vulkan swapchain abstraction                                             */
+
         private:
             /* Creates a VkInstance to interface with the Vulkan library */
             void createInstance();
