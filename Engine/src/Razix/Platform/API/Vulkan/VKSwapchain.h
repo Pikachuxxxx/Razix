@@ -49,7 +49,7 @@ namespace Razix {
             void createFrameData();
 
             // Flip related functions
-            void acquireNextImage(VkSemaphore signalSemaphore);
+            u32  acquireNextImage(VkSemaphore signalSemaphore);
             void queueSubmit(CommandQueue& commandQueue, std::vector<VkSemaphore> waitSemaphores, std::vector<VkSemaphore> signalSemaphores);
             void present(VkSemaphore waitSemaphore);
             /* One show submit and presentation function to reduce nested function calling overhead! */
@@ -69,15 +69,15 @@ namespace Razix {
             VkSwapchainKHR         getSwapchain() const { return m_Swapchain; }
 
         private:
-            VkSwapchainKHR               m_Swapchain                             = VK_NULL_HANDLE; /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos   */
-            VkSwapchainKHR               m_OldSwapChain                          = VK_NULL_HANDLE; /* Caching old swapchain, requires when we need to re-create swapchain                               */
-            SwapSurfaceProperties        m_SwapSurfaceProperties                 = {};             /* Swapchain surface properties                                                                      */
-            VkSurfaceFormatKHR           m_SurfaceFormat                         = {};             /* Selected Swapchain image format and color space of the swapchain image                            */
-            VkPresentModeKHR             m_PresentMode                           = {};             /* The presentation mode for the swapchain images                                                    */
-            VkExtent2D                   m_SwapchainExtent                       = {};             /* The extent of the swapchain images                                                                */
-            u32                          m_SwapchainImageCount                   = {};             /* Total number of swapchain images being used                                                       */
-            std::vector<RZTextureHandle> m_SwapchainImageTextures                = {};             /* Swapchain images stored as engine 2D texture                                                      */
-            VkFormat                     m_ColorFormat                           = {};             /* Color format of the screen                                                                        */
+            VkSwapchainKHR               m_Swapchain                                   = VK_NULL_HANDLE; /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos   */
+            VkSwapchainKHR               m_OldSwapChain                                = VK_NULL_HANDLE; /* Caching old swapchain, requires when we need to re-create swapchain                               */
+            SwapSurfaceProperties        m_SwapSurfaceProperties                       = {};             /* Swapchain surface properties                                                                      */
+            VkSurfaceFormatKHR           m_SurfaceFormat                               = {};             /* Selected Swapchain image format and color space of the swapchain image                            */
+            VkPresentModeKHR             m_PresentMode                                 = {};             /* The presentation mode for the swapchain images                                                    */
+            VkExtent2D                   m_SwapchainExtent                             = {};             /* The extent of the swapchain images                                                                */
+            u32                          m_SwapchainImageCount                         = {};             /* Total number of swapchain images being used                                                       */
+            std::vector<RZTextureHandle> m_SwapchainImageTextures                      = {};             /* Swapchain images stored as engine 2D texture                                                      */
+            VkFormat                     m_ColorFormat                                 = {};             /* Color format of the screen                                                                        */
             FrameSyncData_VK             m_FramesSyncData[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};             /* Frame sync primitives                                                                             */
 
         private:

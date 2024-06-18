@@ -14,6 +14,7 @@ namespace Razix {
 
         class RZTexture;
         enum class ShaderBuiltin : u32;
+        enum class PoolType : u32;
 
         // TODO: FIX RESOURCE CLEANUP IMMEDIATELY
 
@@ -54,6 +55,18 @@ namespace Razix {
                 return m_UniformBufferPool;
             }
 
+            template<>
+            RZResourcePoolTyped<RZCommandAllocatorPool>& getPool()
+            {
+                return m_CommandAllocatorsPool;
+            }
+
+            template<>
+            RZResourcePoolTyped<RZDrawCommandBuffer>& getPool()
+            {
+                return m_DrawCommandBuffersPool;
+            }
+
             /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             RZTextureHandle createTexture(const RZTextureDesc& desc);
@@ -73,12 +86,22 @@ namespace Razix {
             void                  destroyUniformBuffer(RZUniformBufferHandle handle);
             RZUniformBuffer*      getUniformBufferResource(RZUniformBufferHandle handle);
             //-----------------------------------------------------------------------------------
+            RZCommandAllocatorPoolHandle createCommandAllocator(PoolType type);
+            void                         destroyCommandAllocator(RZCommandAllocatorPoolHandle handle);
+            RZCommandAllocatorPool*      getCommandAllocator(RZCommandAllocatorPoolHandle handle);
+            //-----------------------------------------------------------------------------------
+            // Draw Command Buffer
+            RZDrawCommandBufferHandle createDrawCommandBuffer(RZCommandAllocatorPoolHandle pool);
+            void                      destroyDrawCommandBuffer(RZDrawCommandBufferHandle handle);
+            RZDrawCommandBuffer*      getDrawCommandBuffer(RZDrawCommandBufferHandle handle);
 
         private:
-            RZResourcePoolTyped<RZTexture>       m_TexturePool;
-            RZResourcePoolTyped<RZShader>        m_ShaderPool;
-            RZResourcePoolTyped<RZPipeline>      m_PipelinePool;
-            RZResourcePoolTyped<RZUniformBuffer> m_UniformBufferPool;
+            RZResourcePoolTyped<RZTexture>              m_TexturePool;
+            RZResourcePoolTyped<RZShader>               m_ShaderPool;
+            RZResourcePoolTyped<RZPipeline>             m_PipelinePool;
+            RZResourcePoolTyped<RZUniformBuffer>        m_UniformBufferPool;
+            RZResourcePoolTyped<RZCommandAllocatorPool> m_CommandAllocatorsPool;
+            RZResourcePoolTyped<RZDrawCommandBuffer>    m_DrawCommandBuffersPool;
         };
     }    // namespace Graphics
 }    // namespace Razix

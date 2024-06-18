@@ -3,10 +3,10 @@
 // clang-format on
 #include "VKSwapchain.h"
 
-#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKCommandPool.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
+#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKFence.h"
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
@@ -329,69 +329,68 @@ namespace Razix {
             }
         }
 
-        void VKSwapchain::acquireNextImage(VkSemaphore signalSemaphore)
+        u32 VKSwapchain::acquireNextImage(VkSemaphore signalSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsResizing)
-                return;
+                return m_AcquiredBackBufferImageIndex;
 
-            {
-                auto& frameData = getCurrentFrameSyncDataVK();
-                frameData.renderFence->wait();
+            auto& frameData = getCurrentFrameSyncDataVK();
+            frameData.renderFence->wait();
 
-                auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
-                if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-                    VK_CHECK_RESULT(result);
+            auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+                VK_CHECK_RESULT(result);
 
-                    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-                        vkDeviceWaitIdle(VKDevice::Get().getDevice());
-                        //Destroy();
+                if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+                    vkDeviceWaitIdle(VKDevice::Get().getDevice());
+                    //Destroy();
 
-                        for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                            //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-                            //tex->Release(false);
-                            RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
-                        }
-                        m_SwapchainImageTextures.clear();
-                        vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
-
-                        // Create the KHR Swapchain
-                        createSwapchain();
-
-                        // Retrieve and create the swapchain images
-                        std::vector<VkImage> images = retrieveSwapchainImages();
-
-                        // Create image view for the retrieved swapchain images
-                        std::vector<VkImageView> imageView = createSwapImageViews(images);
-
-                        // Encapsulate the swapchain images and image views in a RZTexture2D
-                        m_SwapchainImageTextures.clear();
-                        for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                            VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-                            RZHandle<RZTexture> handle;
-                            void*               where = RZResourceManager::Get().getPool<RZTexture>().obtain(handle);
-                            new (where) VKTexture(images[i], imageView[i]);
-                            IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
-                            resource->setHandle(handle);
-                            resource->setName("Swapchain Image");
-
-                            m_SwapchainImageTextures.push_back(handle);
-                        }
-
-                        result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
-                        VK_CHECK_RESULT(result);
-                        frameData.renderFence->reset();
+                    for (u32 i = 0; i < m_SwapchainImageCount; i++) {
+                        //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
+                        //tex->Release(false);
+                        RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
                     }
-                    return;
-                } else if (result != VK_SUCCESS)
-                    RAZIX_CORE_ERROR("[Vulkan] Failed to acquire swap chain image!");
+                    m_SwapchainImageTextures.clear();
+                    vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
 
-                frameData.renderFence->reset();
+                    // Create the KHR Swapchain
+                    createSwapchain();
 
-                return;
-            }
+                    // Retrieve and create the swapchain images
+                    std::vector<VkImage> images = retrieveSwapchainImages();
+
+                    // Create image view for the retrieved swapchain images
+                    std::vector<VkImageView> imageView = createSwapImageViews(images);
+
+                    // Encapsulate the swapchain images and image views in a RZTexture2D
+                    m_SwapchainImageTextures.clear();
+                    for (u32 i = 0; i < m_SwapchainImageCount; i++) {
+                        VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+                        RZHandle<RZTexture> handle;
+                        void*               where = RZResourceManager::Get().getPool<RZTexture>().obtain(handle);
+                        new (where) VKTexture(images[i], imageView[i]);
+                        IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
+                        resource->setHandle(handle);
+                        resource->setName("Swapchain Image");
+
+                        m_SwapchainImageTextures.push_back(handle);
+                    }
+
+                    result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
+                    VK_CHECK_RESULT(result);
+                    frameData.renderFence->reset();
+
+                    return m_AcquiredBackBufferImageIndex;
+                }
+            } else if (result != VK_SUCCESS)
+                RAZIX_CORE_ERROR("[Vulkan] Failed to acquire swap chain image!");
+
+            frameData.renderFence->reset();
+
+            return m_AcquiredBackBufferImageIndex;
         }
 
         void VKSwapchain::queueSubmit(CommandQueue& commandQueue, std::vector<VkSemaphore> waitSemaphores, std::vector<VkSemaphore> signalSemaphores)

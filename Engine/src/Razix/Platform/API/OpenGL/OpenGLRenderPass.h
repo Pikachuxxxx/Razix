@@ -11,8 +11,8 @@ namespace Razix {
             OpenGLRenderPass(const RenderPassInfo& renderPassInfo);
             ~OpenGLRenderPass();
 
-            void BeginRenderPass(RZDrawCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height) override;
-            void EndRenderPass(RZDrawCommandBuffer* commandBuffer) override;
+            void BeginRenderPass(RZDrawCommandBufferHandle cmdBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height) override;
+            void EndRenderPass(RZDrawCommandBufferHandle cmdBuffer) override;
             void AddAttachment() override;
             void Destroy() override;
 

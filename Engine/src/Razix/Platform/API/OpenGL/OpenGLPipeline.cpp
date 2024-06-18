@@ -13,7 +13,7 @@ namespace Razix {
             m_Desc = pipelineInfo;
         }
 
-        void OpenGLPipeline::Bind(RZDrawCommandBuffer* commandBuffer)
+        void OpenGLPipeline::Bind(RZDrawCommandBufferHandle cmdBuffer)
         {
             // Set cull mode, polygon mode, depth and transparency settings
             // TODO: Configure depth and blend test functions

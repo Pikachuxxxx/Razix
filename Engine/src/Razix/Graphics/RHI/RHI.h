@@ -80,7 +80,7 @@ namespace Razix {
         };
 
         /* Command Queue is a collection of command buffers that will be submitted for execution at once */
-        typedef std::vector<RZDrawCommandBuffer*> CommandQueue;
+        typedef std::vector<RZDrawCommandBufferHandle> CommandQueue;
 
         /* The Razix RHI (Render Hardware Interface) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
          * The Renderers creates from the provided IRZRenderer interface of Razix uses this to perform command recording/submission sets binding
@@ -126,7 +126,7 @@ namespace Razix {
                 s_APIInstance->AcquireImageAPIImpl(signalSemaphore);
             }
             /* Begins recording of the command buffer */
-            RAZIX_FORCE_INLINE static void Begin(RZDrawCommandBuffer* cmdBuffer)
+            RAZIX_FORCE_INLINE static void Begin(RZDrawCommandBufferHandle cmdBuffer)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Begin Rendering");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -134,7 +134,7 @@ namespace Razix {
                 s_APIInstance->BeginAPIImpl(cmdBuffer);
             }
             /* Submits the recorded command buffers onto the RenderQueue to be submitted to the GPU for execution */
-            RAZIX_FORCE_INLINE static void Submit(RZDrawCommandBuffer* cmdBuffer)
+            RAZIX_FORCE_INLINE static void Submit(RZDrawCommandBufferHandle cmdBuffer)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Submit To Render Queue");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -142,6 +142,7 @@ namespace Razix {
                 s_APIInstance->SubmitImpl(cmdBuffer);
             }
             /* Executes the the lists of command buffers stacked up in the Command Queue  */
+            RAZIX_DEPRECATED("SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
             RAZIX_FORCE_INLINE static void SubmitWork(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
             {
                 RAZIX_PROFILE_GPU_SCOPE("SubmitWork");
@@ -158,7 +159,7 @@ namespace Razix {
                 s_APIInstance->PresentAPIImpl(waitSemaphore);
             }
             /* Bind the Pipeline State Object to the command buffer */
-            RAZIX_FORCE_INLINE static void BindPipeline(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer)
+            RAZIX_FORCE_INLINE static void BindPipeline(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Pipeline");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -166,7 +167,7 @@ namespace Razix {
                 s_APIInstance->BindPipelineImpl(pipeline, cmdBuffer);
             }
             /* Binds a descriptor set to the given PSO at the specified set index */
-            RAZIX_FORCE_INLINE static void BindDescriptorSet(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+            RAZIX_FORCE_INLINE static void BindDescriptorSet(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Set at Idx");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -174,7 +175,7 @@ namespace Razix {
                 s_APIInstance->BindDescriptorSetAPImpl(pipeline, cmdBuffer, descriptorSet, setIdx);
             }
             /* Binds vector of descriptor sets to the given PSO from a starting set index */
-            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx = 0)
+            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx = 0)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -182,7 +183,7 @@ namespace Razix {
                 s_APIInstance->BindUserDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets, startSetIdx);
             }
             /* Binds array of descriptor sets to the given PSO from a starting set index */
-            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx = 0)
+            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx = 0)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -190,7 +191,7 @@ namespace Razix {
                 s_APIInstance->BindUserDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets, totalSets, startSetIdx);
             }
             /* Binds a push/root constant to the PSO */
-            RAZIX_FORCE_INLINE static void BindPushConstant(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
+            RAZIX_FORCE_INLINE static void BindPushConstant(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Pushconstants");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -198,7 +199,7 @@ namespace Razix {
                 s_APIInstance->BindPushConstantsAPIImpl(pipeline, cmdBuffer, pushConstant);
             }
             /* Issue a Draw call to the GPU with vertex count and vertex data type */
-            RAZIX_FORCE_INLINE static void Draw(RZDrawCommandBuffer* cmdBuffer, u32 count, DataType dataType = DataType::UNSIGNED_INT)
+            RAZIX_FORCE_INLINE static void Draw(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType dataType = DataType::UNSIGNED_INT)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Draw");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -206,7 +207,7 @@ namespace Razix {
                 s_APIInstance->DrawAPIImpl(cmdBuffer, count, dataType);
             }
             /* Issues a Indexed Draw call to the GPU with index count, instance info and vertex offset */
-            RAZIX_FORCE_INLINE static void DrawIndexed(RZDrawCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)
+            RAZIX_FORCE_INLINE static void DrawIndexed(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Draw Indexed");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -222,7 +223,7 @@ namespace Razix {
                 s_APIInstance->OnResizeAPIImpl(width, height);
             }
             /* Starts a rendering pass to record commands */
-            RAZIX_FORCE_INLINE static void BeginRendering(RZDrawCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)
+            RAZIX_FORCE_INLINE static void BeginRendering(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Begin Rendering");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -230,7 +231,7 @@ namespace Razix {
                 s_APIInstance->BeginRenderingImpl(cmdBuffer, renderingInfo);
             }
             /* Ends a rendering pass with recorded commands */
-            RAZIX_FORCE_INLINE static void EndRendering(RZDrawCommandBuffer* cmdBuffer)
+            RAZIX_FORCE_INLINE static void EndRendering(RZDrawCommandBufferHandle cmdBuffer)
             {
                 RAZIX_PROFILE_GPU_SCOPE("End Rendering");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -238,7 +239,7 @@ namespace Razix {
                 s_APIInstance->EndRenderingImpl(cmdBuffer);
             }
             /* Enables bindless textures for the current PSO by binding the global sets */
-            RAZIX_FORCE_INLINE static void EnableBindlessTextures(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer)
+            RAZIX_FORCE_INLINE static void EnableBindlessTextures(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Enable Bindless Textures");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -246,7 +247,7 @@ namespace Razix {
                 s_APIInstance->EnableBindlessTexturesImpl(pipeline, cmdBuffer);
             }
             /* Binds on-the-fly descriptors to the PSO on-demand basis */
-            RAZIX_FORCE_INLINE static void BindPushDescriptors(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+            RAZIX_FORCE_INLINE static void BindPushDescriptors(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptor>& descriptors)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Push Descriptors");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -254,14 +255,14 @@ namespace Razix {
                 s_APIInstance->BindPushDescriptorsImpl(pipeline, cmdBuffer, descriptors);
             }
             /* Inserts a image memory barriers for a texture using pipeline barriers and memory barrier info */
-            RAZIX_FORCE_INLINE static void InsertImageMemoryBarrier(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+            RAZIX_FORCE_INLINE static void InsertImageMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Insert Image Memory Barrier");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                 s_APIInstance->InsertImageMemoryBarrierImpl(cmdBuffer, texture, pipelineBarrierInfo, imgBarrierInfo);
             }
             /* Inserts a image memory barriers for a buffer using pipeline barriers and memory barrier info */
-            RAZIX_FORCE_INLINE static void InsertBufferMemoryBarrier(RZDrawCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+            RAZIX_FORCE_INLINE static void InsertBufferMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Insert Buffer Memory Barrier");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -269,7 +270,7 @@ namespace Razix {
                 s_APIInstance->InsertBufferMemoryBarrierImpl(cmdBuffer, buffer, pipelineBarrierInfo, bufBarrierInfo);
             }
             /* Inserts a image memory barriers for a texture using pipeline barriers*/
-            RAZIX_FORCE_INLINE static void InsertPipelineBarrier(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo)
+            RAZIX_FORCE_INLINE static void InsertPipelineBarrier(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo)
             {
                 RAZIX_UNIMPLEMENTED_METHOD
 
@@ -279,7 +280,7 @@ namespace Razix {
                 //s_APIInstance->InsertPipelineBarrierImpl(cmdBuffer, texture, pipelineBarrierInfo);
             }
             /* Copies the texture resource from source to destination */
-            RAZIX_FORCE_INLINE static void CopyTextureResource(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
+            RAZIX_FORCE_INLINE static void CopyTextureResource(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Copy Texture Resource");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -287,7 +288,7 @@ namespace Razix {
                 return s_APIInstance->CopyTextureResourceImpl(cmdBuffer, dstTexture, srcTextureHandle);
             }
             /* Sets Hardware depth bias value */
-            RAZIX_FORCE_INLINE static void SetDepthBias(RZDrawCommandBuffer* cmdBuffer)
+            RAZIX_FORCE_INLINE static void SetDepthBias(RZDrawCommandBufferHandle cmdBuffer)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Set Depth Bias");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -295,7 +296,7 @@ namespace Razix {
                 return s_APIInstance->SetDepthBiasImpl(cmdBuffer);
             }
             /* Sets viewport rendering extents */
-            RAZIX_FORCE_INLINE static void SetViewport(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+            RAZIX_FORCE_INLINE static void SetViewport(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
             {
                 RAZIX_PROFILE_GPU_SCOPE("SetViewport");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -303,7 +304,7 @@ namespace Razix {
                 return s_APIInstance->SetViewportImpl(cmdBuffer, x, y, width, height);
             }
             /* Sets scissor rect rendering extents */
-            RAZIX_FORCE_INLINE static void SetScissorRect(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+            RAZIX_FORCE_INLINE static void SetScissorRect(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
             {
                 RAZIX_PROFILE_GPU_SCOPE("SetScissorRect");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -319,7 +320,7 @@ namespace Razix {
                 return s_APIInstance->GetSwapchainImpl();
             }
             /* Gets the current command buffer onto which we record the commands */
-            RAZIX_FORCE_INLINE static RZDrawCommandBuffer* GetCurrentCommandBuffer()
+            RAZIX_FORCE_INLINE static RZDrawCommandBufferHandle GetCurrentCommandBuffer()
             {
                 RAZIX_PROFILE_GPU_SCOPE("GetCurrentCommandBuffer");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -341,52 +342,53 @@ namespace Razix {
             RAZIX_FORCE_INLINE const u32& getHeight() { return m_Height; }
             /* Set the command buffer to record command onto */
             RAZIX_DEPRECATED("SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
-            RAZIX_FORCE_INLINE static void SetCmdBuffer(RZDrawCommandBuffer* cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
+            RAZIX_FORCE_INLINE static void SetCmdBuffer(RZDrawCommandBufferHandle cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
 
             /* OnImGui UI rendering for RHI */
             virtual void OnImGui() = 0;
 
         protected:
-            virtual void         InitAPIImpl()                                                                                                                                                                = 0;
-            virtual void         AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                            = 0;
-            virtual void         BeginAPIImpl(RZDrawCommandBuffer* cmdBuffer)                                                                                                                                 = 0;
-            virtual void         SubmitImpl(RZDrawCommandBuffer* cmdBuffer)                                                                                                                                   = 0;
-            virtual void         SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                         = 0;
-            virtual void         PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                                   = 0;
-            virtual void         BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer)                                                                                                  = 0;
-            virtual void         BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                         = 0;
-            virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)                = 0;
-            virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)              = 0;
-            virtual void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, RZPushConstant pushConstant)                                                             = 0;
-            virtual void         DrawAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                          = 0;
-            virtual void         DrawIndexedAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)               = 0;
-            virtual void         DestroyAPIImpl()                                                                                                                                                             = 0;
-            virtual void         OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                       = 0;
-            virtual void         SetDepthBiasImpl(RZDrawCommandBuffer* cmdBuffer)                                                                                                                             = 0;
-            virtual void         SetScissorRectImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                              = 0;
-            virtual void         SetViewportImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                                 = 0;
-            virtual void         EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer)                                                                                        = 0;
-            virtual void         BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                             = 0;
-            virtual void         BeginRenderingImpl(RZDrawCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)                                                                                       = 0;
-            virtual void         EndRenderingImpl(RZDrawCommandBuffer* cmdBuffer)                                                                                                                             = 0;
-            virtual void         InsertImageMemoryBarrierImpl(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)        = 0;
-            virtual void         InsertBufferMemoryBarrierImpl(RZDrawCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) = 0;
-            virtual void         CopyTextureResourceImpl(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)                                                        = 0;
-            virtual RZSwapchain* GetSwapchainImpl()                                                                                                                                                           = 0;
+            virtual void         InitAPIImpl()                                                                                                                                                                     = 0;
+            virtual void         AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                                 = 0;
+            virtual void         BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                                 = 0;
+            virtual void         SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                                   = 0;
+            virtual void         SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                              = 0;
+            virtual void         PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                                        = 0;
+            virtual void         BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)                                                                                                  = 0;
+            virtual void         BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                         = 0;
+            virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)                = 0;
+            virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)              = 0;
+            virtual void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)                                                             = 0;
+            virtual void         DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                          = 0;
+            virtual void         DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)               = 0;
+            virtual void         DestroyAPIImpl()                                                                                                                                                                  = 0;
+            virtual void         OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                            = 0;
+            virtual void         SetDepthBiasImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                             = 0;
+            virtual void         SetScissorRectImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                              = 0;
+            virtual void         SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                                 = 0;
+            virtual void         EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)                                                                                        = 0;
+            virtual void         BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                             = 0;
+            virtual void         BeginRenderingImpl(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo)                                                                                       = 0;
+            virtual void         EndRenderingImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                             = 0;
+            virtual void         InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)        = 0;
+            virtual void         InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) = 0;
+            virtual void         CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)                                                        = 0;
+            virtual RZSwapchain* GetSwapchainImpl()                                                                                                                                                                = 0;
 
         protected:
             static RHI* s_APIInstance;
 
-            std::string                              m_RendererTitle; /* The name of the renderer API that is being used */
-            u32                                      m_Width      = 0;
-            u32                                      m_Height     = 0;
-            u32                                      m_PrevWidth  = 0;
-            u32                                      m_PrevHeight = 0;
-            CommandQueue                             m_CommandQueue; /* The queue of recorded commands that needs execution */
-            RZDrawCommandBuffer*                     m_CurrentCommandBuffer = nullptr;
-            rzstl::ring_buffer<RZDrawCommandBuffer*> m_DrawCommandBuffers;
-            RZDescriptorSet*                         m_FrameDataSet       = nullptr;
-            RZDescriptorSet*                         m_SceneLightsDataSet = nullptr;
+            std::string                                      m_RendererTitle; /* The name of the renderer API that is being used */
+            u32                                              m_Width      = 0;
+            u32                                              m_Height     = 0;
+            u32                                              m_PrevWidth  = 0;
+            u32                                              m_PrevHeight = 0;
+            CommandQueue                                     m_CommandQueue; /* The queue of recorded commands that needs execution */
+            RZDrawCommandBufferHandle                        m_CurrentCommandBuffer;
+            rzstl::ring_buffer<RZDrawCommandBufferHandle>    m_DrawCommandBuffers;
+            rzstl::ring_buffer<RZCommandAllocatorPoolHandle> m_CommandPool;
+            RZDescriptorSet*                                 m_FrameDataSet       = nullptr;
+            RZDescriptorSet*                                 m_SceneLightsDataSet = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

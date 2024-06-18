@@ -15,7 +15,7 @@ namespace Razix {
             VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKVertexBuffer() {}
 
-            void Bind(RZDrawCommandBuffer* cmdBuffer) override;
+            void Bind(RZDrawCommandBufferHandle cmdBuffer) override;
             void Unbind() override {}
 
             void SetData(u32 size, const void* data) override;

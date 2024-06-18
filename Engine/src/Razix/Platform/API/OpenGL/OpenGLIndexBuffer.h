@@ -10,7 +10,7 @@ namespace Razix {
             OpenGLIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage);
             ~OpenGLIndexBuffer();
 
-            void Bind(RZDrawCommandBuffer* commandBuffer = nullptr) override;
+            void Bind(RZDrawCommandBufferHandle cmdBuffer = nullptr) override;
             void Unbind() override;
             void Destroy() override {}
             void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;

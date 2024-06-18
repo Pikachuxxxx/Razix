@@ -48,13 +48,13 @@
             m_Context = OpenGLContext::Get();
         }
 
-        void GLRenderContext::BeginAPIImpl(RZDrawCommandBuffer* cmdBuffer)
+        void GLRenderContext::BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             m_CurrentCommandBuffer = cmdBuffer;
         }
 
-        void GLRenderContext::SubmitImpl(RZDrawCommandBuffer* cmdBuffer)
+        void GLRenderContext::SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
         }
 
@@ -71,13 +71,13 @@
             //glfwSwapBuffers(m_Context->getGLFWWindow());
         }
 
-        void GLRenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer)
+        void GLRenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
         {
             auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             pp->Bind(cmdBuffer);
         }
 
-        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -114,7 +114,7 @@
             }
         }
 
-        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
+        void GLRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -146,59 +146,59 @@
             }
         }
 
-        void GLRenderContext::SetScissorRectImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+        void GLRenderContext::SetScissorRectImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             glScissor(x, y, width, height);
         }
 
-        void GLRenderContext::BeginRenderingImpl(RZDrawCommandBuffer* cmdBuffer, const RenderingInfo& renderingInfo)
+        void GLRenderContext::BeginRenderingImpl(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::EndRenderingImpl(RZDrawCommandBuffer* cmdBuffer)
+        void GLRenderContext::EndRenderingImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer)
+        void GLRenderContext::EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+        void GLRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, const std::vector<RZDescriptor>& descriptors)
+        void GLRenderContext::BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptor>& descriptors)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+        void GLRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBuffer* cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+        void GLRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::SetViewportImpl(RZDrawCommandBuffer* cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
+        void GLRenderContext::SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
         {
             glViewport(x, y, width, height);
         }
 
-        void GLRenderContext::CopyTextureResourceImpl(RZDrawCommandBuffer* cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
+        void GLRenderContext::CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-        void GLRenderContext::DrawAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
+        void GLRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -208,7 +208,7 @@
             glDrawArrays(GL_TRIANGLES, 0, count);
         }
 
-        void GLRenderContext::DrawIndexedAPIImpl(RZDrawCommandBuffer* cmdBuffer, u32 indexCount, u32 instanceCount /*= 1*/, u32 firstIndex /*= 0*/, int32_t vertexOffset /*= 0*/, u32 firstInstance /*= 0*/)
+        void GLRenderContext::DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount /*= 1*/, u32 firstIndex /*= 0*/, int32_t vertexOffset /*= 0*/, u32 firstInstance /*= 0*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -234,7 +234,7 @@
             return static_cast<RZSwapchain*>(OpenGLContext::Get()->getSwapchain());
         }
 
-        void GLRenderContext::BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBuffer* cmdBuffer, RZPushConstant pushConstant)
+        void GLRenderContext::BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -253,7 +253,7 @@
             //ubo.Destroy();
         }
 
-        void GLRenderContext::SetDepthBiasImpl(RZDrawCommandBuffer* cmdBuffer)
+        void GLRenderContext::SetDepthBiasImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }

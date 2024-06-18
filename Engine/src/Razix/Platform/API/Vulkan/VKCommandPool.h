@@ -10,7 +10,7 @@ namespace Razix {
     namespace Graphics {
 
         /* Creates a Vulkan command buffer */
-        class VKCommandPool : public RZCommandAllocatorPool
+        class VKCommandPool final : public RZCommandAllocatorPool
         {
         public:
             VKCommandPool() {}
@@ -24,10 +24,11 @@ namespace Razix {
             /* Destructor for the command pool */
             ~VKCommandPool() {}
 
+            RAZIX_CLEANUP_RESOURCE
+
             /* Resets the pool and the buffers it allocated */
-            void reset();
-            /* Destroys the command pool */
-            void destroy();
+            void  Reset() override;
+            void* getAPIHandle() override { return &m_CmdPool; }
 
             /* Returns the underlying Vulkan command pool handle */
             const VkCommandPool& getVKPool() const { return m_CmdPool; }

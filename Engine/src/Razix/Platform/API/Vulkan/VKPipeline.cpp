@@ -20,7 +20,7 @@ namespace Razix {
             init(pipelineInfo RZ_DEBUG_E_ARG_NAME);
         }
 
-        void VKPipeline::Bind(RZDrawCommandBuffer* commandBuffer)
+        void VKPipeline::Bind(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

@@ -11,15 +11,16 @@
 namespace Razix {
     namespace Graphics {
 
-        class VKDrawCommandBuffer : public RZDrawCommandBuffer
+        class VKDrawCommandBuffer final : public RZDrawCommandBuffer
         {
         public:
-            VKDrawCommandBuffer();
+            VKDrawCommandBuffer(VkCommandPool pool);
             VKDrawCommandBuffer(VkCommandBuffer vulkanHandle);
             ~VKDrawCommandBuffer() {}
+                
+            RAZIX_CLEANUP_RESOURCE
 
             void Init(RZ_DEBUG_NAME_TAG_S_ARG) override;
-            //void Init(VkCommandPool cmdPool = VK_NULL_HANDLE NAME_TAG);
             void BeginRecording() override;
             void EndRecording() override;
             void Execute() override;

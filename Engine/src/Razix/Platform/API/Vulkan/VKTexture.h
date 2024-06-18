@@ -97,7 +97,7 @@ namespace Razix {
             ~VKTexture() {}
 
             //---------------------------------------
-            /* Releases the iRZResource */
+            /* Releases the IRZResource */
             RAZIX_CLEANUP_RESOURCE
             //---------------------------------------
 

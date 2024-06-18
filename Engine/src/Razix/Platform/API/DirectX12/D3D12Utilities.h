@@ -10,6 +10,12 @@ namespace Razix {
     namespace Graphics {
         namespace D3D12Utilities {
 
+    #define D3D_SAFE_RELEASE(x) \
+        if (x) {                \
+            x->Release();       \
+            x = nullptr;        \
+        }
+
     #ifndef RAZIX_DISTRIBUTION
 
         #define D3D12_TAG_OBJECT(name, handle) handle->SetName(L##name);

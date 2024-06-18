@@ -28,7 +28,7 @@ namespace Razix {
         {
         }
 
-        void VKRenderPass::BeginRenderPass(RZDrawCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height)
+        void VKRenderPass::BeginRenderPass(RZDrawCommandBufferHandle cmdBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -67,7 +67,7 @@ namespace Razix {
             vkCmdBeginRenderPass(static_cast<VKDrawCommandBuffer*>(commandBuffer)->getBuffer(), &rpBegin, (subpass == INLINE ? VK_SUBPASS_CONTENTS_INLINE : VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS));
         }
 
-        void VKRenderPass::EndRenderPass(RZDrawCommandBuffer* commandBuffer)
+        void VKRenderPass::EndRenderPass(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

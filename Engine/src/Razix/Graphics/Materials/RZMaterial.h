@@ -41,7 +41,7 @@ namespace Razix {
             RAZIX_INLINE const MaterialTexturePaths& getTexturePaths() const { return m_MaterialData.m_MaterialTexturePaths; }
             void                                     setTexturePaths(MaterialTexturePaths& paths);
 
-            void Bind(RZPipeline* pipeline = nullptr, RZDrawCommandBuffer* cmdBuffer = nullptr);
+            void Bind(RZPipeline* pipeline = nullptr, RZDrawCommandBufferHandle cmdBuffer = nullptr);
 
             RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }
             RAZIX_INLINE void  setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }

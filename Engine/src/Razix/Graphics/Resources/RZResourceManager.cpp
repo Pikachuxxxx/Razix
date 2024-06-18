@@ -3,12 +3,34 @@
 // clang-format on
 #include "RZResourceManager.h"
 
+#include "Razix/Graphics/RHI/API/RZCommandAllocatorPool.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
+
+#define CREATE_UTIL(type, pool, ...)                          \
+    RZHandle<type> handle;                                    \
+    void*          where = pool.obtain(handle);               \
+    type::Create(where, __VA_ARGS__);                         \
+    IRZResource<type>* resource = (IRZResource<type>*) where; \
+    resource->setName(desc.name);                             \
+    resource->setHandle(handle);                              \
+    return handle;
+
+#define DESTROY_UTIL(pool, message) \
+    if (handle.isValid())           \
+        pool.release(handle);       \
+    else                            \
+        RAZIX_CORE_ERROR(message);
+
+#define GET_UTIL(pool)           \
+    if (handle.isValid())        \
+        return pool.get(handle); \
+    return nullptr;
 
 namespace Razix {
     namespace Graphics {
@@ -22,6 +44,8 @@ namespace Razix {
             m_ShaderPool.init(512, RZShader::GetInstanceSize());
             m_PipelinePool.init(512, RZPipeline::GetInstanceSize());
             m_UniformBufferPool.init(4096, RZUniformBuffer::GetInstanceSize());
+            m_CommandAllocatorsPool.init(32, RZCommandAllocatorPool::GetInstanceSize());
+            m_DrawCommandBuffersPool.init(32, RZDrawCommandBuffer::GetInstanceSize());
         }
 
         void RZResourceManager::ShutDown()
@@ -202,5 +226,78 @@ namespace Razix {
             else
                 return nullptr;
         }
+
+        //-----------------------------------------------------------------------------------
+
+        Razix::Graphics::RZCommandAllocatorPoolHandle RZResourceManager::createCommandAllocator(PoolType type)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RZHandle<RZCommandAllocatorPool> handle;
+            void*                            where = m_CommandAllocatorsPool.obtain(handle);
+            RZCommandAllocatorPool::Create(where, type);
+            IRZResource<RZCommandAllocatorPool>* resource = (IRZResource<RZCommandAllocatorPool>*) where;
+            resource->setName("Command Allocator");
+            resource->setHandle(handle);
+            return handle;
+        }
+
+        void RZResourceManager::destroyCommandAllocator(RZCommandAllocatorPoolHandle handle)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Delete only if it's a valid handle, else skip it and report it
+            if (handle.isValid())
+                m_CommandAllocatorsPool.release(handle);
+            else
+                RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a Command Allocator resource with Invalid handle!");
+        }
+
+        Razix::Graphics::RZCommandAllocatorPool* RZResourceManager::getCommandAllocator(RZCommandAllocatorPoolHandle handle)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (handle.isValid())
+                return m_CommandAllocatorsPool.get(handle);
+            else
+                return nullptr;
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        Razix::Graphics::RZDrawCommandBufferHandle RZResourceManager::createDrawCommandBuffer(RZCommandAllocatorPoolHandle pool)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RZHandle<RZDrawCommandBuffer> handle;
+            void*                         where = m_DrawCommandBuffersPool.obtain(handle);
+            RZDrawCommandBuffer::Create(where, pool);
+            IRZResource<RZDrawCommandBuffer>* resource = (IRZResource<RZDrawCommandBuffer>*) where;
+            resource->setName("Command Buffer");
+            resource->setHandle(handle);
+            return handle;
+        }
+
+        void RZResourceManager::destroyDrawCommandBuffer(RZDrawCommandBufferHandle handle)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // Delete only if it's a valid handle, else skip it and report it
+            if (handle.isValid())
+                m_DrawCommandBuffersPool.release(handle);
+            else
+                RAZIX_CORE_ERROR("[Resource Manager] Attempting to release a Command Buffer resource with Invalid handle!");
+        }
+
+        Razix::Graphics::RZDrawCommandBuffer* RZResourceManager::getDrawCommandBuffer(RZDrawCommandBufferHandle handle)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (handle.isValid())
+                return m_DrawCommandBuffersPool.get(handle);
+            else
+                return nullptr;
+        }
+
     }    // namespace Graphics
 }    // namespace Razix
