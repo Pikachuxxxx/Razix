@@ -26,7 +26,7 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
-            virtual void Bind(RZDrawCommandBuffer* commandBuffer) = 0;
+            virtual void Bind(RZDrawCommandBufferHandle cmdBuffer) = 0;
 
             RAZIX_INLINE RZPipelineDesc getDesc() { return m_Desc; }
 

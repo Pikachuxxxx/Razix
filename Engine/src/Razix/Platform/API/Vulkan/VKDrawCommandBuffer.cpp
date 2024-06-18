@@ -9,15 +9,19 @@
 namespace Razix {
     namespace Graphics {
 
-        VKDrawCommandBuffer::VKDrawCommandBuffer()
-            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(VK_NULL_HANDLE)
+        VKDrawCommandBuffer::VKDrawCommandBuffer(VkCommandPool pool)
+            : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(pool)
 
         {
         }
-
         VKDrawCommandBuffer::VKDrawCommandBuffer(VkCommandBuffer vulkanHandle)
             : m_CommandBuffer(vulkanHandle), m_CommandPool(VK_NULL_HANDLE)
         {
+        }
+
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKDrawCommandBuffer)
+        {
+            // Deleting the pool wil free up command buffers memory
         }
 
         void VKDrawCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
@@ -25,8 +29,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             VkCommandBufferAllocateInfo cmdBufferCI = {};
-
-            m_CommandPool = VKContext::Get()->getGraphicsCommandPool()->getVKPool();
 
             cmdBufferCI.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             cmdBufferCI.commandBufferCount = 1;

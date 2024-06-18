@@ -38,7 +38,7 @@ namespace Razix {
             GL_CALL(glDeleteBuffers(1, &m_IBO));
         }
 
-        void OpenGLIndexBuffer::Bind(RZDrawCommandBuffer* commandBuffer /*= nullptr*/)
+        void OpenGLIndexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer /*= nullptr*/)
         {
             GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
         }

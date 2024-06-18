@@ -252,7 +252,7 @@ namespace Razix {
             memcpy(&m_MaterialData.m_MaterialTexturePaths, &paths, sizeof(paths));
         }
 
-        void RZMaterial::Bind(RZPipeline* pipeline /*= nullptr*/, RZDrawCommandBuffer* cmdBuffer /*= nullptr*/)
+        void RZMaterial::Bind(RZPipeline* pipeline /*= nullptr*/, RZDrawCommandBufferHandle cmdBuffer /*= nullptr*/)
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
             if (!m_DescriptorSet || getTexturesUpdated()) {

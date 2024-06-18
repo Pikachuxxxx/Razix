@@ -9,12 +9,13 @@
 namespace Razix {
     namespace Graphics {
 
-        class DX12DrawCommandBuffer : public RZDrawCommandBuffer
+        class DX12DrawCommandBuffer final : public RZDrawCommandBuffer
         {
         public:
-            DX12DrawCommandBuffer();
-            DX12DrawCommandBuffer(ID3D12GraphicsCommandList2* commandList);
-            ~DX12DrawCommandBuffer();
+            DX12DrawCommandBuffer(ID3D12CommandAllocator* commandAllocator);
+            ~DX12DrawCommandBuffer() {}
+
+            RAZIX_CLEANUP_RESOURCE
 
             void Init(RZ_DEBUG_NAME_TAG_S_ARG) override;
             void BeginRecording() override;

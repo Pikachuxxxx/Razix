@@ -10,7 +10,7 @@ namespace Razix {
             OpenGLVertexBuffer(u32 size, const void* data, BufferUsage usage);
             ~OpenGLVertexBuffer();
 
-            void Bind(RZDrawCommandBuffer* cmdBuffer) override;
+            void Bind(RZDrawCommandBufferHandle cmdBuffer) override;
             void Unbind() override;
             void Destroy() override {}
             void SetData(u32 size, const void* data) override;

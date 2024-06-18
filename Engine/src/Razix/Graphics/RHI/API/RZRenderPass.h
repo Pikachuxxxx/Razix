@@ -58,9 +58,9 @@ namespace Razix {
              * @param width The width of the attachment
              * @param height The height of the attachment
              */
-            virtual void BeginRenderPass(RZDrawCommandBuffer* commandBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height) = 0;
+            virtual void BeginRenderPass(RZDrawCommandBufferHandle cmdBuffer, glm::vec4 clearColor, RZFramebuffer* framebuffer, SubPassContents subpass, u32 width, u32 height) = 0;
             /* Ends the render pass */
-            virtual void EndRenderPass(RZDrawCommandBuffer* commandBuffer) = 0;
+            virtual void EndRenderPass(RZDrawCommandBufferHandle cmdBuffer) = 0;
             // TODO: Implement this
             /* Adds another attachment to the render pass for additional pass read/writes */
             virtual void AddAttachment() = 0;

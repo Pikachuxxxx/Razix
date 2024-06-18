@@ -22,15 +22,16 @@ namespace Razix {
          * to allocate the command buffers to a ring buffer internally within the command allocator class
          * as the needed per in-flight frame per thread recording usage etc.
          */
-        class RAZIX_API RZDrawCommandBuffer : public RZRoot
+        class RAZIX_API RZDrawCommandBuffer : public IRZResource<RZDrawCommandBuffer>
         {
         public:
             RZDrawCommandBuffer()          = default;
             virtual ~RZDrawCommandBuffer() = default;
 
-            static RZDrawCommandBuffer* BeginSingleTimeCommandBuffer();
+            GET_INSTANCE_SIZE;
 
-            static void EndSingleTimeCommandBuffer(RZDrawCommandBuffer* cmdBuffer);
+            static RZDrawCommandBuffer* BeginSingleTimeCommandBuffer();
+            static void                 EndSingleTimeCommandBuffer(RZDrawCommandBufferHandle cmdBuffer);
 
             /* Initializes the command buffer and creates them */
             virtual void Init(RZ_DEBUG_NAME_TAG_S_ARG) = 0;
@@ -55,7 +56,7 @@ namespace Razix {
              * 
              * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
              */
-            static void Create(RZCommandAllocatorPool* pool);
+            static void Create(void* where, RZCommandAllocatorPoolHandle pool);
 
             friend class RZResourceManager;
         };

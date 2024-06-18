@@ -5,11 +5,13 @@
 namespace Razix {
     namespace Graphics {
 
-        class OpenGLCommandBuffer : public RZDrawCommandBuffer
+        class OpenGLCommandBuffer final : public RZDrawCommandBuffer
         {
         public:
             OpenGLCommandBuffer();
             ~OpenGLCommandBuffer();
+
+            RAZIX_CLEANUP_RESOURCE
 
             void Init(RZ_DEBUG_NAME_TAG_S_ARG) override;
             void BeginRecording() override;

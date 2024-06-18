@@ -197,7 +197,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::Draw(RZDrawCommandBuffer* cmdBuffer)
+        void RZDebugRenderer::Draw(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

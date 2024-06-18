@@ -11,20 +11,15 @@
 namespace Razix {
     namespace Graphics {
 
-        DX12DrawCommandBuffer::DX12DrawCommandBuffer()
+        DX12DrawCommandBuffer::DX12DrawCommandBuffer(ID3D12CommandAllocator* commandAllocator)
+            : m_CommandList(nullptr), m_CommandAllocator(commandAllocator)
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
             m_State = CommandBufferState::Idle;
         }
 
-        DX12DrawCommandBuffer::DX12DrawCommandBuffer(ID3D12GraphicsCommandList2* commandList)
-            : m_CommandList(commandList)
+        RAZIX_CLEANUP_RESOURCE_IMPL(DX12DrawCommandBuffer)
         {
-        }
-
-        DX12DrawCommandBuffer::~DX12DrawCommandBuffer()
-        {
+            D3D_SAFE_RELEASE(m_CommandList);
         }
 
         void DX12DrawCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
@@ -34,7 +29,6 @@ namespace Razix {
             auto device = DX12Context::Get()->getDevice();
 
             // Get the command allocator from the ring buffer pool
-            m_CommandAllocator = DX12Context::Get()->getGraphicsCommandPool();
             CHECK_HRESULT(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator, nullptr, IID_PPV_ARGS(&m_CommandList)));
             CHECK_HRESULT(m_CommandList->Close());
         }

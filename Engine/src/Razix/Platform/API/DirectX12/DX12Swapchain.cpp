@@ -55,6 +55,8 @@ namespace Razix {
             Init(m_Width, m_Height);
 
             m_SwapchainImageCount = RAZIX_MAX_SWAP_IMAGES_COUNT;
+
+            m_FrameSyncFence = rzstl::CreateUniqueRef<DX12Fence>();
         }
 
         void DX12Swapchain::Init(u32 width, u32 height)
@@ -162,14 +164,9 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }
 
-        u32 DX12Swapchain::acquireBackBuffer(u32 fenceValue)
+        u32 DX12Swapchain::acquireBackBuffer()
         {
             m_AcquiredBackBufferImageIndex = m_Swapchain->GetCurrentBackBufferIndex();
-            // Wait on GPU to finish executing previous frame commands using this resource to be finished
-
-            auto& frameSync = getCurrentFrameSyncDataD3D12();
-            frameSync.renderFence->wait(fenceValue);
-
             return m_AcquiredBackBufferImageIndex;
         }
 

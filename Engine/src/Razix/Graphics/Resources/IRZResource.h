@@ -16,7 +16,7 @@
             case Razix::Graphics::RenderAPI::OPENGL: return sizeof(OpenGL##TYPE); break; \
             case Razix::Graphics::RenderAPI::VULKAN: return sizeof(VK##TYPE); break;     \
             case Razix::Graphics::RenderAPI::D3D11:                                      \
-            case Razix::Graphics::RenderAPI::D3D12:                                      \
+            case Razix::Graphics::RenderAPI::D3D12: return sizeof(DX12##TYPE); break;    \
             case Razix::Graphics::RenderAPI::GXM:                                        \
             case Razix::Graphics::RenderAPI::GCM:                                        \
             default: return sizeof(RZ##TYPE); break;                                     \

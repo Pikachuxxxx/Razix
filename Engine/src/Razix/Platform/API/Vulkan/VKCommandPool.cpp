@@ -21,16 +21,18 @@ namespace Razix {
             VK_CHECK_RESULT(vkCreateCommandPool(VKDevice::Get().getDevice(), &cmdPoolCI, nullptr, &m_CmdPool));
         }
 
-        void VKCommandPool::reset()
+        //-------------------------------------------------------------------------------------------
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKCommandPool)
+        {
+            vkDestroyCommandPool(VKDevice::Get().getDevice(), m_CmdPool, nullptr);
+        }
+        //-------------------------------------------------------------------------------------------
+
+        void VKCommandPool::Reset()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             VK_CHECK_RESULT(vkResetCommandPool(VKDevice::Get().getDevice(), m_CmdPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
-        }
-
-        void VKCommandPool::destroy()
-        {
-            vkDestroyCommandPool(VKDevice::Get().getDevice(), m_CmdPool, nullptr);
         }
     }    // namespace Graphics
 }    // namespace Razix

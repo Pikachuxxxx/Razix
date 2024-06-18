@@ -19,6 +19,10 @@ namespace Razix {
         {
         }
 
+        RAZIX_CLEANUP_RESOURCE_IMPL(OpenGLCommandBuffer)
+        {
+        }
+
         void OpenGLCommandBuffer::Init(RZ_DEBUG_NAME_TAG_S_ARG)
         {
         }

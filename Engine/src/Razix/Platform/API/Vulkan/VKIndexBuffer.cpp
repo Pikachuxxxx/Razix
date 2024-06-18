@@ -16,7 +16,7 @@ namespace Razix {
             m_IndexCount = count;
         }
 
-        void VKIndexBuffer::Bind(RZDrawCommandBuffer* commandBuffer /*= nullptr*/)
+        void VKIndexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer /*= nullptr*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

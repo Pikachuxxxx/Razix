@@ -51,7 +51,7 @@ namespace Razix {
 
             void Begin(RZScene* scene) override;
 
-            void Draw(RZDrawCommandBuffer* cmdBuffer) override;
+            void Draw(RZDrawCommandBufferHandle cmdBuffer) override;
 
             void End() override;
 

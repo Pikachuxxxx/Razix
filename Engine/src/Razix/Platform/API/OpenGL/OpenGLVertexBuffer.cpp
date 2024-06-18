@@ -41,7 +41,7 @@ namespace Razix {
             GL_CALL(glDeleteBuffers(1, &m_VBO));
         }
 
-        void OpenGLVertexBuffer::Bind(RZDrawCommandBuffer* cmdBuffer)
+        void OpenGLVertexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer)
         {
             // Bind the VAO here later
             glBindVertexArray(m_VAO);

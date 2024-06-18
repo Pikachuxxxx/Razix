@@ -3,34 +3,30 @@
 namespace Razix {
     namespace Graphics {
 
-        enum class PoolType
+        enum class PoolType : u32
         {
             kGraphics,
             kCompute,
             kCopy
         };
 
-        class RZCommandAllocatorPool
+        class RZCommandAllocatorPool : public IRZResource<RZCommandAllocatorPool>
         {
         public:
             RZCommandAllocatorPool()          = default;
             virtual ~RZCommandAllocatorPool() = default;
 
-            /* Resets the command buffers of all the recordings */
-            virtual RZDrawCommandBufferHandle AllocateCommandBuffer() = 0;
-            /* Resets the command buffers and the resources it holds */
-            virtual void Reset() = 0;
+            GET_INSTANCE_SIZE;
 
-            virtual void* getAPIHandle() { return nullptr; }
-            PoolType      getPoolType() const { return m_PoolType; }
+            /* Resets the command buffers recordings and the resources it holds */
+            virtual void  Reset()        = 0;
+            virtual void* getAPIHandle() = 0;
+
+            RZDrawCommandBufferHandle allocateCommandBuffer();
+            RAZIX_INLINE PoolType     getPoolType() const { return m_PoolType; }
 
         protected:
-            PoolType                                m_PoolType   = PoolType::kGraphics; /* Type of command buffers allocated from this pool */
-            u32                                     m_FenceValue = 0;                   /* For in-flight frames synchronization */
-            rzstl::ring_buffer<RZDrawCommandBuffer> m_DrawCommandBuffers;
-            rzstl::ring_buffer<RZDrawCommandBuffer> m_CopyCommandBuffers;
-            //rzstl::ring_buffer<RZDrawCommandBuffer> m_ComputeCommandBuffers;
-            //rzstl::ring_buffer<RZDrawCommandBuffer> m_AsyncComputeCommandBuffers;
+            PoolType m_PoolType = PoolType::kGraphics; /* Type of command buffers allocated from this pool */
 
         private:
             /**

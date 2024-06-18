@@ -34,7 +34,7 @@ namespace Razix {
              * 
              * @param The Command Buffer that will be used to bind/draw with
              */
-            virtual void Bind(RZDrawCommandBuffer* cmdBuffer) = 0;
+            virtual void Bind(RZDrawCommandBufferHandle cmdBuffer) = 0;
             /* Unbinds the vertex buffer */
             virtual void Unbind() = 0;
             /* Sets the data with some offset */

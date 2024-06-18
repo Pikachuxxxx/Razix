@@ -202,7 +202,7 @@ namespace Razix {
             m_ImGuiIBO->UnMap();
         }
 
-        void RZImGuiRenderer::Draw(RZDrawCommandBuffer* cmdBuffer)
+        void RZImGuiRenderer::Draw(RZDrawCommandBufferHandle cmdBuffer)
         {
             ImDrawData* imDrawData = ImGui::GetDrawData();
 
