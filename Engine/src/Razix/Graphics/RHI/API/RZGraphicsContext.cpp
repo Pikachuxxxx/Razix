@@ -43,11 +43,15 @@ namespace Razix {
             Graphics::RZResourceManager::Get().StartUp();
 
             switch (s_RenderAPI) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: s_Context = new OpenGLContext((GLFWwindow*) window->GetNativeWindow()); break;
+#endif
+#ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Graphics::RenderAPI::VULKAN: s_Context = new VKContext(window); break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12: s_Context = new DX12Context(window); break;
-                case Razix::Graphics::RenderAPI::GXM:
-                case Razix::Graphics::RenderAPI::GCM:
+#endif
                 default: s_Context = nullptr; break;
             }
         }
@@ -74,11 +78,15 @@ namespace Razix {
             }
 
             switch (s_RenderAPI) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: return static_cast<OpenGLContext*>(s_Context); break;
+#endif
+#ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Graphics::RenderAPI::VULKAN: return static_cast<VKContext*>(s_Context); break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12: return static_cast<DX12Context*>(s_Context); break;
-                case Razix::Graphics::RenderAPI::GXM:
-                case Razix::Graphics::RenderAPI::GCM:
+#endif
                 default: return s_Context; break;
             }
             RAZIX_CORE_ASSERT(s_Context, "[Graphics Context] Failed to get context!")
@@ -92,6 +100,7 @@ namespace Razix {
             switch (s_RenderAPI) {
                 case Razix::Graphics::RenderAPI::OPENGL: return "OpenGL"; break;
                 case Razix::Graphics::RenderAPI::VULKAN: return "Vulkan"; break;
+                case Razix::Graphics::RenderAPI::D3D11: return "DirectX 11"; break;
                 case Razix::Graphics::RenderAPI::D3D12: return "DirectX 12"; break;
                 case Razix::Graphics::RenderAPI::GXM: return "SCE GXM (PSVita)"; break;
                 case Razix::Graphics::RenderAPI::GCM: return "SCE GCM (PS3)"; break;

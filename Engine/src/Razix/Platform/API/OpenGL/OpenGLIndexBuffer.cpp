@@ -55,7 +55,7 @@ namespace Razix {
 
         void OpenGLIndexBuffer::Map(u32 size /*= 0*/, u32 offset /*= 0*/)
         {
-            Bind(nullptr);
+            Bind();
 
             m_Mapped = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_WRITE);
             RAZIX_CORE_ASSERT(m_Mapped != nullptr, "[OPENGL] cannot map buffer")
@@ -63,7 +63,7 @@ namespace Razix {
 
         void OpenGLIndexBuffer::UnMap()
         {
-            Bind(nullptr);
+            Bind();
 
             glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         }

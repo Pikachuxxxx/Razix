@@ -5,7 +5,7 @@
 
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Platform/API/DirectX12/DX12CommandAllocatorPool.h"
+#include "Razix/Platform/API/DirectX12/DX12CommandPool.h"
 #include "Razix/Platform/API/DirectX12/DX12Context.h"
 #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
 #include "Razix/Platform/API/DirectX12/DX12Fence.h"

@@ -233,14 +233,14 @@ for (int i = 0; i < vertexCount; i++) {
 #endif
         }
 
-        void RZMesh::Draw(RZDrawCommandBuffer* cmdBuf)
+        void RZMesh::Draw(RZDrawCommandBufferHandle cmdBuffer)
         {
-            m_VertexBuffer->Bind(cmdBuf);
-            m_IndexBuffer->Bind(cmdBuf);
+            m_VertexBuffer->Bind(cmdBuffer);
+            m_IndexBuffer->Bind(cmdBuffer);
 
             m_Material->Bind();
 
-            RHI::DrawIndexed(cmdBuf, m_IndexCount, 1, 0, 0, 0);
+            RHI::DrawIndexed(cmdBuffer, m_IndexCount, 1, 0, 0, 0);
         }
 
         void RZMesh::Destroy()

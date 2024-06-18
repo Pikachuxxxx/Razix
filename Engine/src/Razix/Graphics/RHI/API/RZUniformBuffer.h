@@ -5,6 +5,7 @@
 namespace Razix {
     namespace Graphics {
 
+        // TODO: Rename this to RZConstantBuffer
         /* Uniform Buffer that contains various kinds of data such as animation, lighting etc and can be passed to the shader stages */
         class RAZIX_API RZUniformBuffer : public IRZResource<RZUniformBuffer>
         {

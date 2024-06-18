@@ -1,7 +1,7 @@
 \    // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "DX12CommandAllocatorPool.h"
+#include "DX12CommandPool.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
@@ -12,19 +12,20 @@
 {
     namespace Graphics {
 
-        DX12CommandAllocatorPool::DX12CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE type)
+        DX12CommandPool::DX12CommandPool(D3D12_COMMAND_LIST_TYPE type)
         {
             CHECK_HRESULT(DX12Context::Get()->getDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&m_CommandListAllocator)));
+            D3D12_TAG_OBJECT(m_CommandListAllocator, "Command Allocator");
         }
 
         //-------------------------------------------------------------------------------------------
-        RAZIX_CLEANUP_RESOURCE_IMPL(DX12CommandAllocatorPool)
+        RAZIX_CLEANUP_RESOURCE_IMPL(DX12CommandPool)
         {
             D3D_SAFE_RELEASE(m_CommandListAllocator);
         }
         //-------------------------------------------------------------------------------------------
 
-        void DX12CommandAllocatorPool::Reset()
+        void DX12CommandPool::Reset()
         {
             m_CommandListAllocator->Reset();
         }

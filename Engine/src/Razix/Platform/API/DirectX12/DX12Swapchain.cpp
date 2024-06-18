@@ -55,8 +55,6 @@ namespace Razix {
             Init(m_Width, m_Height);
 
             m_SwapchainImageCount = RAZIX_MAX_SWAP_IMAGES_COUNT;
-
-            m_FrameSyncFence = rzstl::CreateUniqueRef<DX12Fence>();
         }
 
         void DX12Swapchain::Init(u32 width, u32 height)

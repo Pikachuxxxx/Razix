@@ -70,7 +70,7 @@ namespace Razix {
             static void GenerateTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount);
             static void GenerateTangentsAndBiTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 numIndices);
 
-            void Draw(RZDrawCommandBuffer* cmdBuf);
+            void Draw(RZDrawCommandBufferHandle cmdBuffer);
 
             void Destroy();
 

@@ -38,7 +38,9 @@
     #include <vulkan/vulkan.h>
 #endif
 
-#include <imgui/backends/imgui_impl_opengl3.h>
+#ifdef RAZIX_RENDER_API_OPENGL
+    #include <imgui/backends/imgui_impl_opengl3.h>
+#endif
 
 #include <imgui/plugins/ImGuizmo.h>
 
@@ -134,9 +136,11 @@ namespace Razix {
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                 ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
             else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+#ifdef RAZIX_RENDER_API_OPENGL
                 ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
                 cstr glsl_version = "#version 410";
                 ImGui_ImplOpenGL3_Init(glsl_version);
+#endif
                 return;
             }
 
@@ -210,11 +214,13 @@ namespace Razix {
                 return;
             }
 
+#ifdef RAZIX_RENDER_API_OPENGL
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
                 // Start the Dear ImGui frame
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
                 return;
             }
+#endif
 
             int32_t vertexOffset = 0;
             int32_t indexOffset  = 0;
@@ -253,7 +259,8 @@ namespace Razix {
                     RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
                     RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, set, 0);
                     // TODO: Fix this for Vulkan
-                    VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBuffer->getAPIBuffer());
+                    auto             cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+                    VkCommandBuffer* cmdBuf            = (VkCommandBuffer*) (cmdBufferResource->getAPIBuffer());
 
                     RZEngine::Get().GetStatistics().NumDrawCalls++;
                     RZEngine::Get().GetStatistics().IndexedDraws++;

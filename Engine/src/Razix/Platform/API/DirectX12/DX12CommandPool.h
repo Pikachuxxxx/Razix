@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZCommandAllocatorPool.h"
+#include "Razix/Graphics/RHI/API/RZCommandPool.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
@@ -9,11 +9,11 @@
 namespace Razix {
     namespace Graphics {
 
-        class DX12CommandAllocatorPool final : public RZCommandAllocatorPool
+        class DX12CommandPool final : public RZCommandPool
         {
         public:
-            DX12CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE type);
-            ~DX12CommandAllocatorPool() {}
+            DX12CommandPool(D3D12_COMMAND_LIST_TYPE type);
+            ~DX12CommandPool() {}
 
             RAZIX_CLEANUP_RESOURCE
 

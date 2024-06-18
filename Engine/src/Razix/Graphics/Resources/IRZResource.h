@@ -9,18 +9,64 @@
 
 #define GET_INSTANCE_SIZE static u32 GetInstanceSize()
 
-#define GET_INSTANCE_SIZE_IMPL(TYPE)                                                     \
-    u32 RZ##TYPE::GetInstanceSize()                                                      \
-    {                                                                                    \
-        switch (Graphics::RZGraphicsContext::GetRenderAPI()) {                           \
-            case Razix::Graphics::RenderAPI::OPENGL: return sizeof(OpenGL##TYPE); break; \
-            case Razix::Graphics::RenderAPI::VULKAN: return sizeof(VK##TYPE); break;     \
-            case Razix::Graphics::RenderAPI::D3D11:                                      \
-            case Razix::Graphics::RenderAPI::D3D12: return sizeof(DX12##TYPE); break;    \
-            case Razix::Graphics::RenderAPI::GXM:                                        \
-            case Razix::Graphics::RenderAPI::GCM:                                        \
-            default: return sizeof(RZ##TYPE); break;                                     \
-        }                                                                                \
+#ifdef RAZIX_RENDER_API_OPENGL
+    #define GET_INSTANCE_SIZE_IMPL_OPENGL(TYPE)  \
+        case Razix::Graphics::RenderAPI::OPENGL: \
+            return sizeof(OpenGL##TYPE);         \
+            break;
+#else
+    #define GET_INSTANCE_SIZE_IMPL_OPENGL(TYPE)  \
+        case Razix::Graphics::RenderAPI::OPENGL: \
+            return 0;                            \
+            break;
+#endif
+
+#ifdef RAZIX_RENDER_API_VULKAN
+    #define GET_INSTANCE_SIZE_IMPL_VULKAN(TYPE)  \
+        case Razix::Graphics::RenderAPI::VULKAN: \
+            return sizeof(VK##TYPE);             \
+            break;
+#else
+    #define GET_INSTANCE_SIZE_IMPL_VULKAN(TYPE)  \
+        case Razix::Graphics::RenderAPI::VULKAN: \
+            return 0;                            \
+            break;
+#endif
+
+#ifdef RAZIX_RENDER_API_DIRECTX11
+    #define GET_INSTANCE_SIZE_IMPL_DIRECTX11(TYPE) \
+        case Razix::Graphics::RenderAPI::D3D11:    \
+            return sizeof(DX11##TYPE);             \
+            break;
+#else
+    #define GET_INSTANCE_SIZE_IMPL_DIRECTX11(TYPE) \
+        case Razix::Graphics::RenderAPI::D3D11:    \
+            return 0;                              \
+            break;
+#endif
+
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #define GET_INSTANCE_SIZE_IMPL_DIRECTX12(TYPE) \
+        case Razix::Graphics::RenderAPI::D3D12:    \
+            return sizeof(DX12##TYPE);             \
+            break;
+#else
+    #define GET_INSTANCE_SIZE_IMPL_DIRECTX12(TYPE) \
+        case Razix::Graphics::RenderAPI::D3D12:    \
+            return 0;                              \
+            break;
+#endif
+
+#define GET_INSTANCE_SIZE_IMPL(TYPE)                           \
+    u32 RZ##TYPE::GetInstanceSize()                            \
+    {                                                          \
+        switch (Graphics::RZGraphicsContext::GetRenderAPI()) { \
+            GET_INSTANCE_SIZE_IMPL_OPENGL(TYPE)                \
+            GET_INSTANCE_SIZE_IMPL_VULKAN(TYPE)                \
+            GET_INSTANCE_SIZE_IMPL_DIRECTX11(TYPE)             \
+            GET_INSTANCE_SIZE_IMPL_DIRECTX12(TYPE)             \
+            default: return sizeof(RZ##TYPE); break;           \
+        }                                                      \
     }
 
 namespace Razix {

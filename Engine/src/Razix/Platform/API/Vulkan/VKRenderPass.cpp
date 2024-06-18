@@ -5,8 +5,8 @@
 
 #include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 
-#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"
+#include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKFramebuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -64,14 +64,16 @@ namespace Razix {
             rpBegin.clearValueCount          = u32(m_AttachmentsCount);
             rpBegin.pClearValues             = m_ClearValue;
 
-            vkCmdBeginRenderPass(static_cast<VKDrawCommandBuffer*>(commandBuffer)->getBuffer(), &rpBegin, (subpass == INLINE ? VK_SUBPASS_CONTENTS_INLINE : VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS));
+            auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            vkCmdBeginRenderPass(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), &rpBegin, (subpass == INLINE ? VK_SUBPASS_CONTENTS_INLINE : VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS));
         }
 
         void VKRenderPass::EndRenderPass(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            vkCmdEndRenderPass(static_cast<VKDrawCommandBuffer*>(commandBuffer)->getBuffer());
+            auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            vkCmdEndRenderPass(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
         }
 
         void VKRenderPass::AddAttachment()

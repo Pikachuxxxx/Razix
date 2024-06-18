@@ -3,10 +3,10 @@
 
 #include "Razix/Platform/API/OpenGL/OpenGLContext.h"
 
+#ifdef RAZIX_RENDER_API_OPENGL
+
 namespace Razix {
     namespace Graphics {
-
-        // TODO: FIX THIS!!!
 
         class GLRenderContext : public RHI
         {
@@ -64,3 +64,5 @@ namespace Razix {
         };
     }    // namespace Graphics
 }    // namespace Razix
+
+#endif

@@ -18,10 +18,10 @@ namespace Razix {
 
     #ifndef RAZIX_DISTRIBUTION
 
-        #define D3D12_TAG_OBJECT(name, handle) handle->SetName(L##name);
+        #define D3D12_TAG_OBJECT(handle, name) handle->SetName(L##name);
     #else
 
-        #define D3D12_TAG_OBJECT(name, handle)
+        #define D3D12_TAG_OBJECT(handle, name)
 
     #endif
             /**

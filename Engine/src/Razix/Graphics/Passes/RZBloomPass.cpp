@@ -33,7 +33,8 @@
 namespace Razix {
     namespace Graphics {
 
-        void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+#if 0
+void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             SceneData forwardSceneData = framegraph.getBlackboard().get<SceneData>();
 
@@ -436,5 +437,6 @@ namespace Razix {
                     Graphics::RHI::SubmitWork({}, {});
                 });
         }
+#endif
     }    // namespace Graphics
 }    // namespace Razix

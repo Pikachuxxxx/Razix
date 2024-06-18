@@ -12,7 +12,7 @@ namespace Razix {
             VKIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG);
             ~VKIndexBuffer() {}
 
-            void Bind(RZDrawCommandBufferHandle cmdBuffer = nullptr) override;
+            void Bind(RZDrawCommandBufferHandle cmdBuffer = {}) override;
             void Unbind() override {}
 
             void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;

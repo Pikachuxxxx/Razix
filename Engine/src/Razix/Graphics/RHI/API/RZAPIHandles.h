@@ -15,7 +15,7 @@ namespace Razix {
         class RZShader;
         class RZMaterial;
         class RZDrawCommandBuffer;
-        class RZCommandAllocatorPool;
+        class RZCommandPool;
         class RZDescriptorSet;
         class RZMesh;
         struct RZDecal;
@@ -29,7 +29,7 @@ namespace Razix {
         using RZPipelineHandle             = RZHandle<Graphics::RZPipeline>;
         using RZShaderHandle               = RZHandle<Graphics::RZShader>;
         using RZDrawCommandBufferHandle    = RZHandle<Graphics::RZDrawCommandBuffer>;
-        using RZCommandAllocatorPoolHandle = RZHandle<Graphics::RZCommandAllocatorPool>;
+        using RZCommandAllocatorPoolHandle = RZHandle<Graphics::RZCommandPool>;
         using RZDescriptorSetHandle        = RZHandle<Graphics::RZDescriptorSet>;
 
         using RZMaterialHandle = RZHandle<Graphics::RZMaterial>;

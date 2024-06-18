@@ -409,8 +409,11 @@ namespace Razix {
             submitInfo.commandBufferCount = static_cast<u32>(commandQueue.size());
 
             std::vector<VkCommandBuffer> cmdBuffs;
-            for (sz i = 0; i < submitInfo.commandBufferCount; i++)
-                cmdBuffs.push_back(*((VkCommandBuffer*) commandQueue[i]->getAPIBuffer()));
+            for (sz i = 0; i < submitInfo.commandBufferCount; i++) {
+                auto& handle    = commandQueue[i];
+                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBuffer(handle)->getAPIBuffer();
+                cmdBuffs.push_back(*((VkCommandBuffer*) apiBuffer));
+            }
 
             submitInfo.pCommandBuffers = cmdBuffs.data();
             std::vector<VkPipelineStageFlags> waitStages;
@@ -518,8 +521,11 @@ namespace Razix {
             submitInfo.commandBufferCount = static_cast<u32>(commandQueue.size());
             // !TODO: OPTIMIZE THIS SHITTY SNIPPET!!!
             std::vector<VkCommandBuffer> cmdBuffs;
-            for (sz i = 0; i < submitInfo.commandBufferCount; i++)
-                cmdBuffs.push_back(*((VkCommandBuffer*) commandQueue[i]->getAPIBuffer()));
+            for (sz i = 0; i < submitInfo.commandBufferCount; i++) {
+                auto& handle    = commandQueue[i];
+                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBuffer(handle)->getAPIBuffer();
+                cmdBuffs.push_back(*((VkCommandBuffer*) apiBuffer));
+            }
             submitInfo.pCommandBuffers = cmdBuffs.data();
 
             // We can do a VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT (will still need memory barriers) which will stall the GPU until all the work is done

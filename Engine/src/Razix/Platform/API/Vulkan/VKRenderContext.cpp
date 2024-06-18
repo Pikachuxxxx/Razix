@@ -135,10 +135,10 @@ namespace Razix {
 
             // Get the next image to present
             m_Context->getSwapchain()->acquireNextImage(VK_NULL_HANDLE);
-            //RZResourceManager::Get().getDrawCommandBuffer(m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentFrameIndex()]);
-            m_CurrentCommandBuffer = m_DrawCommandBuffers.front();
-            m_DrawCommandBuffers.pop_front();
-            m_DrawCommandBuffers.push_back(m_CurrentCommandBuffer);
+            m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentFrameIndex()];
+            //m_CurrentCommandBuffer = m_DrawCommandBuffers.front();
+            //m_DrawCommandBuffers.pop_front();
+            //m_DrawCommandBuffers.push_back(m_CurrentCommandBuffer);
 
 // Update VMA for Budget Queries
 #if RAZIX_USE_VMA
@@ -154,6 +154,9 @@ namespace Razix {
         void VKRenderContext::BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // FIXME: Reset the command pool before starting recording
+            //auto& currentCommandPool = m_CommandPool[RHI::Get().GetSwapchain()->getCurrentFrameIndex()];
 
             // Begin recording to the command buffer
             m_CurrentCommandBuffer = cmdBuffer;
