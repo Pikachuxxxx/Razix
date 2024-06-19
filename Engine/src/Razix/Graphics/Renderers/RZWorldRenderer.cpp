@@ -152,22 +152,22 @@ namespace Razix {
             //-------------------------------
             // SSAO Pass
             //-------------------------------
-            settings.renderFeatures |= RendererFeature_SSAO;
-            //settings.renderFeatures &= ~RendererFeature_SSAO;
-            if (settings.renderFeatures & RendererFeature_SSAO)
-                settings.renderFeatures |= RendererFeature_SSAO;
-            m_SSAOPass.addPass(m_FrameGraph, scene, &settings);
+            //settings.renderFeatures |= RendererFeature_SSAO;
+            settings.renderFeatures &= ~RendererFeature_SSAO;
+            //if (settings.renderFeatures & RendererFeature_SSAO)
+            //    settings.renderFeatures |= RendererFeature_SSAO;
+            //m_SSAOPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // Gaussian Blur Pass - SSAO
             //-------------------------------
-            auto& ssaoData = m_FrameGraph.getBlackboard().get<FX::SSAOData>();
-            m_GaussianBlurPass.setTwoPassFilter(false);
-            m_GaussianBlurPass.setBlurRadius(1.0f);
-            m_GaussianBlurPass.setFilterTap(GaussianTap::Five);
-            m_GaussianBlurPass.setInputTexture(ssaoData.SSAOPreBlurTexture);
-            m_GaussianBlurPass.addPass(m_FrameGraph, scene, &settings);
-            ssaoData.SSAOSceneTexture = m_GaussianBlurPass.getOutputTexture();
+            //auto& ssaoData = m_FrameGraph.getBlackboard().get<FX::SSAOData>();
+            //m_GaussianBlurPass.setTwoPassFilter(false);
+            //m_GaussianBlurPass.setBlurRadius(1.0f);
+            //m_GaussianBlurPass.setFilterTap(GaussianTap::Five);
+            //m_GaussianBlurPass.setInputTexture(ssaoData.SSAOPreBlurTexture);
+            //m_GaussianBlurPass.addPass(m_FrameGraph, scene, &settings);
+            //ssaoData.SSAOSceneTexture = m_GaussianBlurPass.getOutputTexture();
 
             //-------------------------------
             // PBR Deferred Pass
@@ -245,6 +245,8 @@ namespace Razix {
                     sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
 
                     // Origin point
@@ -352,6 +354,8 @@ namespace Razix {
                     m_ImGuiRenderer.Init();
                 },
                 [&](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
                     m_ImGuiRenderer.Begin(scene);

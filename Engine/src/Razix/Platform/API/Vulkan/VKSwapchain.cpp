@@ -85,7 +85,7 @@ namespace Razix {
                 //frame.mainCommandBuffer->Reset();
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.imageAvailableSemaphore, nullptr);
                 vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderingDoneSemaphore, nullptr);
-                vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence->getVKFence(), nullptr);
+                vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence, nullptr);
             }
 
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
@@ -313,19 +313,22 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            VkSemaphoreCreateInfo semaphoreInfo = {};
+            semaphoreInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+            semaphoreInfo.pNext                 = nullptr;
+
+            VkFenceCreateInfo fenceCreateInfo = {};
+            fenceCreateInfo.sType             = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+            fenceCreateInfo.flags             = VK_FENCE_CREATE_SIGNALED_BIT;
+
             for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                if (!m_FramesSyncData[i].renderFence) {
-                    VkSemaphoreCreateInfo semaphoreInfo = {};
-                    semaphoreInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-                    semaphoreInfo.pNext                 = nullptr;
+                VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_FramesSyncData[i].imageAvailableSemaphore));
+                VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_FramesSyncData[i].renderingDoneSemaphore));
+                VK_CHECK_RESULT(vkCreateFence(VKDevice::Get().getDevice(), &fenceCreateInfo, nullptr, &m_FramesSyncData[i].renderFence));
 
-                    if (m_FramesSyncData[i].imageAvailableSemaphore == VK_NULL_HANDLE)
-                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_FramesSyncData[i].imageAvailableSemaphore));
-                    if (m_FramesSyncData[i].renderingDoneSemaphore == VK_NULL_HANDLE)
-                        VK_CHECK_RESULT(vkCreateSemaphore(VKDevice::Get().getDevice(), &semaphoreInfo, nullptr, &m_FramesSyncData[i].renderingDoneSemaphore));
-
-                    m_FramesSyncData[i].renderFence = rzstl::CreateRef<VKFence>(true);
-                }
+                VK_TAG_OBJECT("imageAvailable Semaphore #" + std::to_string(i), VK_OBJECT_TYPE_SEMAPHORE, (uint64_t) m_FramesSyncData[i].imageAvailableSemaphore);
+                VK_TAG_OBJECT("renderingDone Semaphore #" + std::to_string(i), VK_OBJECT_TYPE_SEMAPHORE, (uint64_t) m_FramesSyncData[i].renderingDoneSemaphore);
+                VK_TAG_OBJECT("Fence #" + std::to_string(i), VK_OBJECT_TYPE_FENCE, (uint64_t) m_FramesSyncData[i].renderFence);
             }
         }
 
@@ -337,7 +340,17 @@ namespace Razix {
                 return m_AcquiredBackBufferImageIndex;
 
             auto& frameData = getCurrentFrameSyncDataVK();
-            frameData.renderFence->wait();
+
+            {
+                RAZIX_PROFILE_SCOPEC("vkWaitForFences", RZ_PROFILE_COLOR_GRAPHICS);
+
+                VK_CHECK_RESULT(vkWaitForFences(VKDevice::Get().getDevice(), 1, &frameData.renderFence, VK_TRUE, UINT64_MAX));
+            }
+            {
+                RAZIX_PROFILE_SCOPEC("vkResetFences", RZ_PROFILE_COLOR_GRAPHICS);
+
+                VK_CHECK_RESULT(vkResetFences(VKDevice::Get().getDevice(), 1, &frameData.renderFence));
+            }
 
             auto result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
@@ -381,14 +394,12 @@ namespace Razix {
 
                     result = vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex);
                     VK_CHECK_RESULT(result);
-                    frameData.renderFence->reset();
+                    VK_CHECK_RESULT(vkResetFences(VKDevice::Get().getDevice(), 1, &frameData.renderFence));
 
                     return m_AcquiredBackBufferImageIndex;
                 }
             } else if (result != VK_SUCCESS)
                 RAZIX_CORE_ERROR("[Vulkan] Failed to acquire swap chain image!");
-
-            frameData.renderFence->reset();
 
             return m_AcquiredBackBufferImageIndex;
         }
@@ -400,8 +411,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto& frameData = getCurrentFrameSyncDataVK();
-
-            frameData.renderFence->wait();
 
             VkSubmitInfo submitInfo       = {};
             submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -430,10 +439,8 @@ namespace Razix {
             submitInfo.signalSemaphoreCount = static_cast<u32>(signalSemaphores.size());
             submitInfo.pSignalSemaphores    = signalSemaphores.data();
 
-            frameData.renderFence->reset();
-
             {
-                auto result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence());
+                auto result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence);
                 VK_CHECK_RESULT(result);
 #if 0
                 if (result == VK_ERROR_DEVICE_LOST) {
@@ -543,7 +550,7 @@ namespace Razix {
             submitInfo.pSignalSemaphores    = &frameData.renderingDoneSemaphore;
 
             // Submit the command buffers for execution and signal a fence to let the CPU know when the submitted command buffers finish execution so that they can be re-used for recording
-            result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence());
+            result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence);
             VK_CHECK_RESULT(result);
 
             //----------------------------------------------------------

@@ -63,7 +63,7 @@ namespace Razix {
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
             auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
-            auto& ssaoData             = framegraph.getBlackboard().get<FX::SSAOData>();
+            //auto& ssaoData             = framegraph.getBlackboard().get<FX::SSAOData>();
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRDeferredLighting",
@@ -97,7 +97,7 @@ namespace Razix {
                     builder.read(gbufferData.GBuffer0);
                     builder.read(gbufferData.GBuffer1);
                     builder.read(gbufferData.GBuffer2);
-                    builder.read(ssaoData.SSAOSceneTexture);
+                    //builder.read(ssaoData.SSAOSceneTexture);
                 },
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -153,9 +153,9 @@ namespace Razix {
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
 
                         // Scene SSAO Texture
-                        descriptor = shaderBindVars["SSAOSceneTexture"];
-                        if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAOSceneTexture).getHandle();
+                        //descriptor = shaderBindVars["SSAOSceneTexture"];
+                        //if (descriptor)
+                        //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAOSceneTexture).getHandle();
 
                         // CSM Array Texture
                         descriptor = shaderBindVars["CSMArray"];

@@ -62,7 +62,7 @@ layout(set = 3, binding = 0) uniform samplerCube IrradianceMap;
 layout(set = 3, binding = 1) uniform samplerCube PreFilteredMap;
 layout(set = 3, binding = 2) uniform sampler2D BrdfLUT;
 //--------------------------------------------------------
-layout(set = 4, binding = 0) uniform sampler2D SSAOSceneTexture;
+//layout(set = 4, binding = 0) uniform sampler2D SSAOSceneTexture;
 //------------------------------------------------------------------------------
 // Output from Fragment Shader : Final Render targets 
 layout(location = 0) out vec4 outSceneColor;
@@ -86,7 +86,7 @@ void main()
     vec3 albedo     = A_R.rgb;
     float metallic  = N_M.a;
     float roughness = A_R.a;
-    float sceneAO = texture(SSAOSceneTexture, uv).r;
+    float sceneAO = 1.0f;// texture(SSAOSceneTexture, uv).r;
     float ao        = P_O.a * sceneAO;
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
