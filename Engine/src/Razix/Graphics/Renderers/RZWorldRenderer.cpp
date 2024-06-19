@@ -129,6 +129,8 @@ namespace Razix {
             if (!getFrameGraphFilePath().empty())
                 RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
 #endif
+            // Testing disabled shadows
+            //settings.renderFeatures &= ~RendererFeature_Shadows;
 
             //-------------------------------
             // Simple Shadow map Pass
