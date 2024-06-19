@@ -139,9 +139,9 @@ void main()
     result *= shadow;
     //-----------------------------------------------
 
-    // Opacity Discard
-    if(Mat_getOpacity(fs_in.fragUV) < 0.1)
-        discard;
+    // Opacity Discard [Disabled because this is deferred pass]
+    // if(Mat_getOpacity(fs_in.fragUV) < 0.1)
+    //     discard;
 
     outSceneColor = vec4(result, Mat_getOpacity(fs_in.fragUV));
     //outSceneColor = vec4(RandomColorHash(gl_PrimitiveID), Mat_getOpacity(fs_in.fragUV));

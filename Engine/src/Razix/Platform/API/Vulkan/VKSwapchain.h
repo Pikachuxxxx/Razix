@@ -18,9 +18,9 @@ namespace Razix {
 
         struct FrameSyncData_VK
         {
-            VkSemaphore         imageAvailableSemaphore = VK_NULL_HANDLE;
-            VkSemaphore         renderingDoneSemaphore  = VK_NULL_HANDLE;
-            rzstl::Ref<VKFence> renderFence;
+            VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+            VkSemaphore renderingDoneSemaphore  = VK_NULL_HANDLE;
+            VkFence     renderFence             = VK_NULL_HANDLE;
         };
 
         class VKSwapchain : public RZSwapchain
@@ -62,7 +62,6 @@ namespace Razix {
             FrameSyncData_VK& getCurrentFrameSyncDataVK()
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                RAZIX_ASSERT(m_CurrentFrameIndex < m_SwapchainImageCount, "[Vulkan] Incorrect swapchain buffer index");
                 return m_FramesSyncData[m_CurrentFrameIndex];
             }
             inline const VkFormat& getColorFormat() const { return m_ColorFormat; }
