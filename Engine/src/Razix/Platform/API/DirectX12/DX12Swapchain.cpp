@@ -161,6 +161,28 @@ namespace Razix {
         void DX12Swapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (m_Width == width && m_Height == height)
+                return;
+
+            m_IsResized  = true;
+            m_IsResizing = true;
+
+            m_Width  = width;
+            m_Height = height;
+
+            Destroy();
+
+            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
+                m_SwapchainD3DHandles[i]->Release();
+                //RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
+            }
+            m_SwapchainImageTextures.clear();
+
+            m_Swapchain = VK_NULL_HANDLE;
+
+            Init(width, height);
+            m_IsResizing = false;
         }
 
         u32 DX12Swapchain::acquireBackBuffer()

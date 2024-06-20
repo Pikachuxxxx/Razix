@@ -47,11 +47,11 @@ public:
         {
             Razix::Memory::RZHeapAllocator heapAlloc;
             RAZIX_INFO("Allocating 16 Mb of Heap memory");
-            heapAlloc.init(static_cast<size_t>(16 * 1024 * 1024));
+            heapAlloc.init(static_cast<size_t>(16_Mib));
 
-            void* alloc_1 = heapAlloc.allocate(245 * 1024, 16);
-            void* alloc_2 = heapAlloc.allocate(128 * 1024, 16);
-            void* alloc_3 = heapAlloc.allocate(512 * 1024, 16);
+            void* alloc_1 = heapAlloc.allocate(245_Kib, 16);
+            void* alloc_2 = heapAlloc.allocate(128_Kib, 16);
+            void* alloc_3 = heapAlloc.allocate(512_Kib, 16);
 
             heapAlloc.deallocate(alloc_1);
             heapAlloc.deallocate(alloc_2);

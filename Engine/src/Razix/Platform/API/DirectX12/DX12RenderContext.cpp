@@ -195,6 +195,13 @@ namespace Razix {
 
         void DX12RenderContext::OnResizeAPIImpl(u32 width, u32 height)
         {
+            m_Width  = width;
+            m_Height = height;
+
+            // Flush any and all queues including graphics and compute
+            m_RenderReadyFence->flush(DX12Context::Get()->getGraphicsQueue());
+
+            m_Context->getSwapchain().get()->OnResize(width, height);
         }
 
         void DX12RenderContext::BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)
