@@ -68,15 +68,22 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_CurrentCommandBuffer = m_DrawCommandBuffers.front();
-            m_DrawCommandBuffers.pop_front();
+            m_CurrentCommandBuffer = m_DrawCommandBuffers[RHI::Get().GetSwapchain()->getCurrentFrameIndex()];
 
             // Wait until previous rendering is finished for the current acquired command buffer
             m_RenderReadyFence->wait(m_InflightFramesFenceValues[RHI::Get().GetSwapchain()->getCurrentFrameIndex()]);
+
+            // Acquire the Swapchain back buffer
+            m_Context->getSwapchain()->acquireBackBuffer();
         }
 
         void DX12RenderContext::BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
+            m_CurrentCommandBuffer = cmdBuffer;
+
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_CurrentCommandBuffer);
+            // Reset the Command Allocator and Command List and begin recording commands
+            commandBufferResource->BeginRecording();
         }
 
         RAZIX_DEPRECATED("SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
@@ -86,12 +93,19 @@ namespace Razix {
 
         void DX12RenderContext::SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
-            m_CommandQueue.clear();
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            commandBufferResource->EndRecording();
         }
 
         void DX12RenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
         {
             m_Context->getSwapchain()->present();
+
+            // Signal the fence
+            u64 fenceValueForNextWait                                                      = m_RenderReadyFence->signal(DX12Context::Get()->getGraphicsQueue());
+            m_InflightFramesFenceValues[RHI::Get().GetSwapchain()->getCurrentFrameIndex()] = fenceValueForNextWait;
+
+            m_CommandQueue.clear();
         }
 
         void DX12RenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)

@@ -12,6 +12,8 @@ namespace Razix {
         VKFence::VKFence(bool isSignalled /*= true*/)
             : m_IsSignaled(isSignalled)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             VkFenceCreateInfo fenceCreateInfo = {};
             fenceCreateInfo.sType             = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
             fenceCreateInfo.flags             = isSignalled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
@@ -23,11 +25,15 @@ namespace Razix {
 
         VKFence::~VKFence()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             vkDestroyFence(VKDevice::Get().getDevice(), m_Fence, nullptr);
         }
 
         bool VKFence::isSignaled()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+
             if (m_IsSignaled)
                 return true;
             else
@@ -38,27 +44,10 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            //RAZIX_CORE_ASSERT(!m_IsSignaled, "[Vulkan] Fence is Signaled!");
-
             // Waits until the fence is signaled
-            const VkResult result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT64_MAX);
+            VK_CHECK_RESULT(vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT64_MAX));
+            m_IsSignaled = true;
 
-#if 0
-                        // Waits until the fence is signaled
-            VkResult result;    // = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, true, UINT32_MAX);
-
-            result = vkGetFenceStatus(VKDevice::Get().getDevice(), m_Fence);
-
-            if (result != VK_SUCCESS) {
-                result = vkWaitForFences(VKDevice::Get().getDevice(), 1, &m_Fence, VK_TRUE, UINT64_MAX);
-            }
-#endif
-
-            VK_CHECK_RESULT(result);
-            if (result == VK_SUCCESS) {
-                m_IsSignaled = true;
-                return false;
-            }
             return true;
         }
 
