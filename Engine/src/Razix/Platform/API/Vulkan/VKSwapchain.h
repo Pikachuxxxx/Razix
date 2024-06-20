@@ -8,6 +8,8 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
+    #include "Razix/Platform/API/Vulkan/VKFence.h"
+
     #include <vulkan/vulkan.h>
 
 namespace Razix {
@@ -20,7 +22,8 @@ namespace Razix {
         {
             VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
             VkSemaphore renderingDoneSemaphore  = VK_NULL_HANDLE;
-            VkFence     renderFence             = VK_NULL_HANDLE;
+            //VkFence                   renderFence             = VK_NULL_HANDLE;
+            rzstl::UniqueRef<VKFence> renderFence = nullptr;
         };
 
         class VKSwapchain : public RZSwapchain

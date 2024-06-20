@@ -415,15 +415,16 @@ namespace Razix {
                 m_IsFGFilePathDirty = false;
             }
 
-            if (m_FrameGraphBuildingInProgress)
-                return;
+            //if (m_FrameGraphBuildingInProgress)
+            //    return;
 
             // Update calls passes
-            m_CSMPass.updateCascades(scene);
+            //m_CSMPass.updateCascades(scene);
 
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
+
                 Graphics::RHI::AcquireImage(nullptr);
 
                 // Begin Recording  onto the command buffer, select one as per the frame idx
@@ -433,7 +434,7 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
-                m_FrameGraph.execute(nullptr);
+                //m_FrameGraph.execute(nullptr);
 
                 // End Frame Marker
                 RAZIX_MARK_END();

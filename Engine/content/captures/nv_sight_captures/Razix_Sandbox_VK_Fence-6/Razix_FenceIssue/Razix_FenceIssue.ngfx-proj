@@ -1,6 +1,10 @@
 {
     "extension": "ngfx-proj",
     "files": [
+        {
+            "is_open": true,
+            "path": "Sandbox.exe_20240619170203929.ngfx-gputrace"
+        }
     ],
     "launcher": {
         "activity/cpp/capturemode": "Manual",
@@ -183,8 +187,14 @@
         "platform/win32/arguments": "",
         "platform/win32/autoconnect": true,
         "platform/win32/environment": "",
-        "platform/win32/executable": "",
-        "platform/win32/workingdir": "",
+        "platform/win32/executable": "C:/Dev/Game Engines/Razix/bin/Debug-windows-x86_64/Sandbox.exe",
+        "platform/win32/executable/history": [
+            "C:/Dev/Game Engines/Razix/bin/Debug-windows-x86_64/Sandbox.exe"
+        ],
+        "platform/win32/workingdir": "C:/Dev/Game Engines/Razix",
+        "platform/win32/workingdir/history": [
+            "C:/Dev/Game Engines/Razix"
+        ],
         "platform/windows/device": "localhost"
     },
     "uuid": "{39e1341c-d5cd-4921-8f10-25fc3f55fc97}",

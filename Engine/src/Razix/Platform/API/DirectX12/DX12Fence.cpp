@@ -17,7 +17,7 @@ namespace Razix {
             CHECK_HRESULT(device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
 
             m_FenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-            RAZIX_CORE_ASSERT(!m_FenceEvent, "[DX12] cannot create fence event handle!.");
+            RAZIX_CORE_ASSERT(m_FenceEvent, "[DX12] cannot create fence event handle!.");
 
             D3D12_TAG_OBJECT(m_Fence, "Sync Fence");
         }

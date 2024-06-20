@@ -89,8 +89,8 @@ namespace Razix {
         RAZIX_CORE_INFO("***********************************");
 
         // Ignite the shader library after the Graphics has been initialized
-        Graphics::RZShaderLibrary::Get().StartUp();
-        Graphics::RZMaterial::InitDefaultTexture();
+        //Graphics::RZShaderLibrary::Get().StartUp();
+        //Graphics::RZMaterial::InitDefaultTexture();
     }
 
     void RZEngine::ShutDown()

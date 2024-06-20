@@ -272,6 +272,8 @@ namespace Razix {
         // TODO: Enable window V-Sync here
         Graphics::RHI::Init();
 
+        return;
+
         // TODO: Job system and Engine Systems(run-time) Initialization
         Razix::RZSplashScreen::Get().setLogString("Loading Scene...");
 
@@ -351,7 +353,7 @@ namespace Razix {
         }
 
         // Update the Engine systems
-        Update(m_Timestep);
+        //Update(m_Timestep);
         m_Updates++;
 
         // Render the Graphics
@@ -359,7 +361,7 @@ namespace Razix {
         m_Frames++;
 
         // RenderGUI
-        RenderGUI();
+        //RenderGUI();
 
         // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
@@ -376,7 +378,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                //RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;
