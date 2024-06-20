@@ -160,6 +160,12 @@ workspace ( settings.workspace_name )
     group ""
 
     --------------------------------------------------------------------------------
+    -- Build script for Razix Game Framework
+    group "Game Framework"
+        include "GameFramework/razix_game_framework.lua"
+    group ""
+
+    --------------------------------------------------------------------------------
     -- Build script for Sandbox
     group "Sandbox"
         include "Sandbox/sandbox.lua"
@@ -180,6 +186,8 @@ workspace ( settings.workspace_name )
         include "Tools/Building/premake/premake_regenerate_proj_files.lua"
         -- Gets the version of the Engine for Build workflows
         include "Tools/Building/RazixVersion/razix_tool_version.lua"
+        -- Game Packager using Game Framework
+        include "Tools/Building/GamePackager/game_packager.lua"
     group ""
 
     -- Razix Engine Samples and Tests
