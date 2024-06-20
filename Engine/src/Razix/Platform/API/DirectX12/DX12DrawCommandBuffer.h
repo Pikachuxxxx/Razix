@@ -23,8 +23,9 @@ namespace Razix {
             void Execute() override;
             void Reset() override;
 
-            RAZIX_INLINE void*                       getAPIBuffer() override { return (void*) &m_CommandList; }
+            RAZIX_INLINE void*                       getAPIBuffer() override { return (void*) m_CommandList; }
             RAZIX_INLINE ID3D12GraphicsCommandList2* getD3DCommandList() const { return m_CommandList; }
+            RAZIX_INLINE ID3D12CommandAllocator*     getD3DCommandAllocator() const { return m_CommandAllocator; }
 
         private:
             ID3D12GraphicsCommandList2* m_CommandList      = nullptr; /* Handle to the DX12 command buffer that will be executed by the GPU */

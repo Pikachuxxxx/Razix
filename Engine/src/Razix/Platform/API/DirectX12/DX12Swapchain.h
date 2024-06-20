@@ -31,21 +31,25 @@ namespace Razix {
             void  OnResize(u32 width, u32 height) override;
             void* GetAPIHandle() override { return &m_Swapchain; }
 
-            u32  acquireBackBuffer();
-            void present();
+            u32                         acquireBackBuffer();
+            void                        present();
+            void                        clearWithColor(ID3D12GraphicsCommandList2* commandList, glm::vec4 color);
+            D3D12_CPU_DESCRIPTOR_HANDLE getCurrentBackBufferRTVHandle();
+            ID3D12Resource*             getCurrentD3DBackbufferResource() { return m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex]; }
 
             RZTextureHandle GetImage(u32 index) override { return m_SwapchainImageTextures[index]; }
             RZTextureHandle GetCurrentImage() override { return m_SwapchainImageTextures[m_AcquiredBackBufferImageIndex]; }
             sz              GetSwapchainImageCount() override { return m_SwapchainImageCount; }
 
         private:
-            IDXGISwapChain4*             m_Swapchain              = nullptr;                     /* Handle to DXGI swapchain */
-            u32                          m_SwapchainImageCount    = 0;                           /* Total number of swapchain images being used  */
-            std::vector<RZTextureHandle> m_SwapchainImageTextures = {};                          /* Swapchain images stored as engine 2D texture */
-            HWND                         m_HWNDHandle             = NULL;                        /* Windows Handle */
-            ID3D12DescriptorHeap*        m_SwapchainRTVHeap       = nullptr;                     /* Descriptor Heap from which the swapchain back buffers are allocated from */
-            u32                          m_RTVDescriptorSize      = 0;                           /* Size of the descriptor in the heap */
-            const u32                    m_BackbuffersCount       = RAZIX_MAX_SWAP_IMAGES_COUNT; /* Number of swapchain back buffers  */
+            IDXGISwapChain4*             m_Swapchain                                        = nullptr;                     /* Handle to DXGI swapchain */
+            u32                          m_SwapchainImageCount                              = 0;                           /* Total number of swapchain images being used  */
+            std::vector<RZTextureHandle> m_SwapchainImageTextures                           = {};                          /* Swapchain images stored as engine 2D texture */
+            ID3D12Resource*              m_SwapchainD3DHandles[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};                          /* Swapchain images stored as d3d resources */
+            HWND                         m_HWNDHandle                                       = NULL;                        /* Windows Handle */
+            ID3D12DescriptorHeap*        m_SwapchainRTVHeap                                 = nullptr;                     /* Descriptor Heap from which the swapchain back buffers are allocated from */
+            u32                          m_RTVDescriptorSize                                = 0;                           /* Size of the descriptor in the heap */
+            const u32                    m_BackbuffersCount                                 = RAZIX_MAX_SWAP_IMAGES_COUNT; /* Number of swapchain back buffers  */
         };
 
     }    // namespace Graphics

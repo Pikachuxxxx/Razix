@@ -28,7 +28,7 @@ namespace Razix {
 
         void* DX12Texture::GetAPIHandlePtr() const
         {
-            throw std::logic_error("The method or operation is not implemented.");
+            return m_ResourceHandle;
         }
 
         int32_t DX12Texture::ReadPixels(u32 x, u32 y)
