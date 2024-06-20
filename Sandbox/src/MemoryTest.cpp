@@ -160,17 +160,5 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new MemoryTest();
 }
 
-int main(int argc, char** argv)
-{
-    EngineMain(argc, argv);
-
-    while (Razix::RZApplication::Get().RenderFrame()) {}
-
-    Razix::RZApplication::Get().Quit();
-    Razix::RZApplication::Get().SaveApp();
-
-    EngineExit();
-
-    return EXIT_SUCCESS;
-}
+RAZIX_PLATFORM_MAIN
 #endif

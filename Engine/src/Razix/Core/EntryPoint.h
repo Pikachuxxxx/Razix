@@ -1,9 +1,9 @@
 #pragma once
 
+#include "RZSTL/smart_pointers.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/RZProfiling.h"
-#include "RZSTL/smart_pointers.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
@@ -24,6 +24,21 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 //#endif
 //
 //#include <windows.h>
+
+    #define RAZIX_PLATFORM_MAIN                                 \
+        int main(int argc, char** argv)                         \
+        {                                                       \
+            EngineMain(argc, argv);                             \
+            while (Razix::RZApplication::Get().RenderFrame()) { \
+            }                                                   \
+                                                                \
+            Razix::RZApplication::Get().Quit();                 \
+            Razix::RZApplication::Get().SaveApp();              \
+                                                                \
+            EngineExit();                                       \
+                                                                \
+            return EXIT_SUCCESS;                                \
+        }
 
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)

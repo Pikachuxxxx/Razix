@@ -272,8 +272,7 @@ namespace Razix {
         // TODO: Enable window V-Sync here
         Graphics::RHI::Init();
 
-        return;
-
+#ifdef WIP_DX12_RENDERER
         // TODO: Job system and Engine Systems(run-time) Initialization
         Razix::RZSplashScreen::Get().setLogString("Loading Scene...");
 
@@ -289,6 +288,7 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
 
         Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+#endif
 
         m_CurrentState = AppState::Running;
 
@@ -298,7 +298,9 @@ namespace Razix {
 
         //m_GPUProfiler.Init(&RZCPUMemoryManager::Get().getSystemAllocator(), RAZIX_MAX_FRAMES, 32);
 
+#ifdef WIP_DX12_RENDERER
         Start();
+#endif
     }
 
     bool RZApplication::RenderFrame()
