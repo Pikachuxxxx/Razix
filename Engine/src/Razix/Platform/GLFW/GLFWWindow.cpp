@@ -1,4 +1,4 @@
-\    // clang-format off
+// clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "GLFWWindow.h"
@@ -20,8 +20,7 @@
 
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
-    namespace Razix
-{
+namespace Razix {
     static bool sGLFWInitialized = false;
 
     GLFWWindow::GLFWWindow(const WindowProperties& properties)
@@ -42,9 +41,8 @@
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-#if defined(RAZIX_RENDER_API_OPENGL) || defined(RAZIX_RENDER_API_VULKAN)
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL || Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-            glfwPollEvents();
+#if defined(RAZIX_RENDER_API_OPENGL) || defined(RAZIX_RENDER_API_VULKAN) || defined(RAZIX_RENDER_API_DIRECTX12)
+        glfwPollEvents();
 #endif    // RAZIX_RENDER_API_OPENGL
     }
 
@@ -137,8 +135,8 @@
         }
 #endif
 
-#ifdef RAZIX_RENDER_API_VULKAN
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
+#if defined RAZIX_RENDER_API_VULKAN || defined RAZIX_RENDER_API_DIRECTX12
+        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN || Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::D3D12) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         }

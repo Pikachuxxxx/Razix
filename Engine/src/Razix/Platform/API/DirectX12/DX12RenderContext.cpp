@@ -3,16 +3,20 @@
 // clang-format on
 #include "DX12RenderContext.h"
 
+#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Platform/API/DirectX12/DX12CommandPool.h"
-#include "Razix/Platform/API/DirectX12/DX12Context.h"
-#include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
-#include "Razix/Platform/API/DirectX12/DX12Fence.h"
-#include "Razix/Platform/API/DirectX12/DX12Swapchain.h"
-#include "Razix/Platform/API/DirectX12/DX12Texture.h"
+#ifdef RAZIX_RENDER_API_DIRECTX12
 
-#include <imgui/imgui.h>
+    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12CommandPool.h"
+    #include "Razix/Platform/API/DirectX12/DX12Context.h"
+    #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
+    #include "Razix/Platform/API/DirectX12/DX12Fence.h"
+    #include "Razix/Platform/API/DirectX12/DX12Swapchain.h"
+    #include "Razix/Platform/API/DirectX12/DX12Texture.h"
+
+    #include <imgui/imgui.h>
 
 namespace Razix {
     namespace Graphics {
@@ -84,6 +88,10 @@ namespace Razix {
             auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_CurrentCommandBuffer);
             // Reset the Command Allocator and Command List and begin recording commands
             commandBufferResource->BeginRecording();
+
+            // TESTING CLEAR COLOR
+            auto commandListD3D = (ID3D12GraphicsCommandList2*) RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer)->getAPIBuffer();
+            m_Context->getSwapchain()->clearWithColor(commandListD3D, glm::vec4(cos(0.96f * Razix::RZApplication::Get().getTimer().GetElapsed()), sin(0.32f * Razix::RZApplication::Get().getTimer().GetElapsed()), 1.0f, 1.0f));
         }
 
         RAZIX_DEPRECATED("SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
@@ -94,7 +102,14 @@ namespace Razix {
         void DX12RenderContext::SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+
+            // Ready the swapchain image from Render TArget stat to Present state for the presentation engine
+            auto commandListD3D = (ID3D12GraphicsCommandList2*) commandBufferResource->getAPIBuffer();
+            D3D12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+
             commandBufferResource->EndRecording();
+
+            commandBufferResource->Execute();
         }
 
         void DX12RenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
@@ -180,6 +195,13 @@ namespace Razix {
 
         void DX12RenderContext::OnResizeAPIImpl(u32 width, u32 height)
         {
+            m_Width  = width;
+            m_Height = height;
+
+            // Flush any and all queues including graphics and compute
+            m_RenderReadyFence->flush(DX12Context::Get()->getGraphicsQueue());
+
+            m_Context->getSwapchain().get()->OnResize(width, height);
         }
 
         void DX12RenderContext::BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)
@@ -236,3 +258,5 @@ namespace Razix {
 
     }    // namespace Graphics
 }    // namespace Razix
+
+#endif

@@ -19,14 +19,10 @@ namespace Razix {
             ~DX12Texture() {}
 
             void DestroyResource() override;
-
             void Bind(u32 slot) override;
-
-            void* GetAPIHandlePtr() const override;
-
-            int32_t ReadPixels(u32 x, u32 y) override;
-
             void Unbind(u32 slot) override;
+            int32_t ReadPixels(u32 x, u32 y) override;
+            void* GetAPIHandlePtr() const override;
 
         private:
             ID3D12Resource* m_ResourceHandle;

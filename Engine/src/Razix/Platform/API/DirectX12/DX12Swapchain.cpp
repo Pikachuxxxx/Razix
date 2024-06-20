@@ -139,6 +139,7 @@ namespace Razix {
                 resource->setName("Swapchain Image");
 
                 m_SwapchainImageTextures.push_back(handle);
+                m_SwapchainD3DHandles[i] = backBuffer;
             }
         }
 
@@ -160,6 +161,28 @@ namespace Razix {
         void DX12Swapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (m_Width == width && m_Height == height)
+                return;
+
+            m_IsResized  = true;
+            m_IsResizing = true;
+
+            m_Width  = width;
+            m_Height = height;
+
+            Destroy();
+
+            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
+                m_SwapchainD3DHandles[i]->Release();
+                //RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
+            }
+            m_SwapchainImageTextures.clear();
+
+            m_Swapchain = VK_NULL_HANDLE;
+
+            Init(width, height);
+            m_IsResizing = false;
         }
 
         u32 DX12Swapchain::acquireBackBuffer()
@@ -175,6 +198,22 @@ namespace Razix {
             CHECK_HRESULT(m_Swapchain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
 
             m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_SwapchainImageCount;
+        }
+
+        void DX12Swapchain::clearWithColor(ID3D12GraphicsCommandList2* commandList, glm::vec4 color)
+        {
+            D3D12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+            auto rtv = getCurrentBackBufferRTVHandle();
+            commandList->ClearRenderTargetView(rtv, &color[0], 0, nullptr);
+        }
+
+        D3D12_CPU_DESCRIPTOR_HANDLE DX12Swapchain::getCurrentBackBufferRTVHandle()
+        {
+            D3D12_CPU_DESCRIPTOR_HANDLE rtv = m_SwapchainRTVHeap->GetCPUDescriptorHandleForHeapStart();
+            // The handle is offset from the beginning of the descriptor heap based on the current back buffer index and the size of the descriptor
+            D3D12Utilities::GetCPUDescriptorOffsetHandle(rtv, m_AcquiredBackBufferImageIndex, m_RTVDescriptorSize);
+            return rtv;
         }
 
         //--------------------------------------------------------------------------------------
