@@ -50,6 +50,10 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+    #ifndef RAZIX_DISTRIBUTION
+            D3D12Utilities::LoadPIXRuntime();
+    #endif
+
             // Create the Draw/Compute Command buffers
             m_DrawCommandBuffers.set_capacity(MAX_SWAPCHAIN_BUFFERS);
             m_CommandPool.set_capacity(MAX_SWAPCHAIN_BUFFERS);

@@ -11,6 +11,11 @@
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
+#endif
+
 void BeginMarker(const std::string& name, glm::vec4 color)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -20,10 +25,16 @@ void BeginMarker(const std::string& name, glm::vec4 color)
     auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuf);
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_VULKAN
         case Razix::Graphics::RenderAPI::VULKAN:
             Razix::Graphics::VKUtilities::CmdBeginDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), name, color);
             break;
-        case Razix::Graphics::RenderAPI::D3D12: break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        case Razix::Graphics::RenderAPI::D3D12:
+            Razix::Graphics::D3D12Utilities::CmdBeginLabel(static_cast<Razix::Graphics::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList(), name, color);
+            break;
+#endif
     }
 }
 
@@ -36,10 +47,14 @@ void InsertMarker(const std::string& name, glm::vec4 color)
     auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuf);
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_VULKAN
         case Razix::Graphics::RenderAPI::VULKAN:
             Razix::Graphics::VKUtilities::CmdInsertDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), name, color);
             break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
         case Razix::Graphics::RenderAPI::D3D12: break;
+#endif
     }
 }
 
@@ -52,9 +67,15 @@ void EndMarker()
     auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuf);
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_VULKAN
         case Razix::Graphics::RenderAPI::VULKAN:
             Razix::Graphics::VKUtilities::CmdEndDebugUtilsLabelEXT(static_cast<Razix::Graphics::VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
             break;
-        case Razix::Graphics::RenderAPI::D3D12: break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        case Razix::Graphics::RenderAPI::D3D12:
+            Razix::Graphics::D3D12Utilities::CmdEndLabel(static_cast<Razix::Graphics::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
+            break;
+#endif
     }
 }

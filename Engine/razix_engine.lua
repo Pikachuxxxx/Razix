@@ -269,26 +269,35 @@ project "Razix"
         -- Windows specific incldue directories
         includedirs
         {
-             VulkanSDK .. "/include"
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
         }
 
         -- Windows specific library directories
         libdirs
         {
-            VulkanSDK .. "/Lib"
+            VulkanSDK .. "/Lib",
+            "%{wks.location}/../Engine/vendor/winpix/bin/x64"
         }
 
         -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
         links
         {
             "Dbghelp",
-            -- Redner API
+            -- Render API
             "vulkan-1",
             "d3d11",
             "d3d12",
             "dxgi",
             "dxguid",
             "D3DCompiler"
+        }
+
+        -- Copy the DLLs to bin dir
+        postbuildcommands 
+        {
+            '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime.dll" "%{cfg.targetdir}"',
+            '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime_UAP.dll" "%{cfg.targetdir}"',
         }
 
     -- Config settings for Razix Engine project
@@ -298,11 +307,23 @@ project "Razix"
         runtime "Debug"
         optimize "Off"
 
+        links
+        {
+            "WinPixEventRuntime",
+            "WinPixEventRuntime_UAP"
+        }
+
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
         runtime "Release"
+
+        links
+        {
+            "WinPixEventRuntime",
+            "WinPixEventRuntime_UAP"
+        }
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
