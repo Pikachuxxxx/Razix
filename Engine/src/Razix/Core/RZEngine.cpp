@@ -90,7 +90,7 @@ namespace Razix {
 
         // Ignite the shader library after the Graphics has been initialized
         //Graphics::RZShaderLibrary::Get().StartUp();
-        //Graphics::RZMaterial::InitDefaultTexture();
+        //dxGraphics::RZMaterial::InitDefaultTexture();
     }
 
     void RZEngine::ShutDown()

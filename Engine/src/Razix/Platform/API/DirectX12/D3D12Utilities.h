@@ -24,6 +24,22 @@ namespace Razix {
         #define D3D12_TAG_OBJECT(handle, name)
 
     #endif
+
+            typedef void(WINAPI* BeginEventOnCommandList)(ID3D12GraphicsCommandList* commandList, UINT64 color, _In_ PCSTR formatString);
+            typedef void(WINAPI* EndEventOnCommandList)(ID3D12GraphicsCommandList* commandList);
+            typedef void(WINAPI* SetMarkerOnCommandList)(ID3D12GraphicsCommandList* commandList, UINT64 color, _In_ PCSTR formatString);
+
+            void LoadPIXRuntime();
+
+            //-----------------------------------------------------------------------------------
+            // Markers for API Debugging in Graphics debugger Tools (PIX/RenderDoc)
+
+            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color);
+            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color);
+            void CmdEndLabel(ID3D12GraphicsCommandList2* commandList);
+
+            //-----------------------------------------------------------------------------------
+
             /**
              * Transition the D3D12 resource from on state to another
              */
