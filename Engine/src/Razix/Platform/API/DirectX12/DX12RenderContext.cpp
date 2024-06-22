@@ -112,6 +112,8 @@ namespace Razix {
             D3D12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
             commandBufferResource->EndRecording();
+            // Stack up the recorded command buffers for execution
+            m_CommandQueue.push_back(cmdBuffer);
 
             commandBufferResource->Execute();
         }
@@ -129,6 +131,7 @@ namespace Razix {
 
         void DX12RenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
         {
+
         }
 
         void DX12RenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
@@ -195,6 +198,7 @@ namespace Razix {
 
         void DX12RenderContext::DestroyAPIImpl()
         {
+            DX12Context::Get()->getSwapchain()->Destroy();
         }
 
         void DX12RenderContext::OnResizeAPIImpl(u32 width, u32 height)

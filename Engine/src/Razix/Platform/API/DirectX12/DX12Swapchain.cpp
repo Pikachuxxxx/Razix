@@ -140,6 +140,8 @@ namespace Razix {
 
                 m_SwapchainImageTextures.push_back(handle);
                 m_SwapchainD3DHandles[i] = backBuffer;
+
+                D3D12_TAG_OBJECT(backBuffer, "swapchain backbuffer");
             }
         }
 
@@ -151,6 +153,11 @@ namespace Razix {
                 m_Swapchain->Release();
                 m_Swapchain = nullptr;
             }
+
+            for (u32 i = 0; i < m_SwapchainImageCount; i++)
+                D3D_SAFE_RELEASE(m_SwapchainD3DHandles[i]);
+
+            m_SwapchainRTVHeap->Release();
         }
 
         void DX12Swapchain::Flip()
@@ -173,10 +180,9 @@ namespace Razix {
 
             Destroy();
 
-            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                m_SwapchainD3DHandles[i]->Release();
-                //RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
-            }
+            for (u32 i = 0; i < m_SwapchainImageCount; i++)
+                D3D_SAFE_RELEASE(m_SwapchainD3DHandles[i]);
+
             m_SwapchainImageTextures.clear();
 
             m_Swapchain = VK_NULL_HANDLE;
