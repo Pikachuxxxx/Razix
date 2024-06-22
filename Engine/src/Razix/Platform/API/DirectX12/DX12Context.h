@@ -9,6 +9,9 @@
     #include <d3d12.h>
     #include <dxgi1_6.h>
 
+    // D3D Memory allocator - VMA equivalent
+    #include <D3D12MemAlloc.h>
+
     #ifdef RAZIX_DEBUG
         #include <d3d12sdklayers.h>
         #include <dxgidebug.h>
@@ -52,7 +55,7 @@ namespace Razix {
             // https://microsoft.github.io/DirectX-Specs/d3d/MessageCallback.html
             ID3D12InfoQueue* m_DebugValidation = nullptr; /* Debug validation to break on severity and filter messages  */
     #endif
-            ID3D12CommandQueue*             m_GraphicsQueue; /* GPU queue to submit draw/grpahcis related command lists */
+            ID3D12CommandQueue*             m_GraphicsQueue; /* GPU queue to submit draw/graphics related command lists */
             rzstl::UniqueRef<DX12Swapchain> m_Swapchain;     /* Handle to the Razix-DX12 swapchain abstraction     */
         };
     }    // namespace Graphics

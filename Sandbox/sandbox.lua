@@ -47,6 +47,7 @@ project "Sandbox"
         "%{IncludeDir.optick}",
         "%{IncludeDir.Jolt}",
         "%{IncludeDir.json}",
+        "%{IncludeDir.D3D12MA}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Internal libraries
