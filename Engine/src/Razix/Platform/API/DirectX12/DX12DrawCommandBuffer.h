@@ -13,6 +13,7 @@ namespace Razix {
         {
         public:
             DX12DrawCommandBuffer(ID3D12CommandAllocator* commandAllocator);
+            DX12DrawCommandBuffer(ID3D12GraphicsCommandList2* commandList);
             ~DX12DrawCommandBuffer() {}
 
             RAZIX_CLEANUP_RESOURCE

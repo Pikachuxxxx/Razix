@@ -4,6 +4,8 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
+    #include <d3d12.h>
+
 namespace Razix {
     namespace Graphics {
 
@@ -13,12 +15,16 @@ namespace Razix {
         class DX12VertexBuffer final : public RZVertexBuffer
         {
         public:
-            DX12VertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
+            DX12VertexBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
             ~DX12VertexBuffer() {}
+
+            //---------------------------------------
+            /* Releases the IRZResource */
+            RAZIX_CLEANUP_RESOURCE
+            //---------------------------------------
 
             void  AddBufferLayout(RZVertexBufferLayout& layout) override;
             void  Bind(RZDrawCommandBufferHandle cmdBuffer) override;
-            void  Destroy() override;
             void  Flush() override;
             void* GetMappedBuffer() override;
             void  Invalidate() override;
@@ -27,6 +33,10 @@ namespace Razix {
             void  SetData(u32 size, const void* data) override;
             void  UnMap() override;
             void  Unbind() override;
+
+        private:
+            ID3D12Resource*          m_VertexBufferResource = nullptr;
+            D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView     = {};
         };
     }    // namespace Graphics
 }    // namespace Razix

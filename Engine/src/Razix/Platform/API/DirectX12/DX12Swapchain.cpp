@@ -141,7 +141,7 @@ namespace Razix {
                 m_SwapchainImageTextures.push_back(handle);
                 m_SwapchainD3DHandles[i] = backBuffer;
 
-                D3D12_TAG_OBJECT(backBuffer, "swapchain backbuffer");
+                D3D12_TAG_OBJECT(backBuffer, L"swapchain backbuffer");
             }
         }
 

@@ -15,19 +15,13 @@ namespace Razix {
         class RZDrawCommandBuffer;
 
         /* Vertex buffer that contains the vertex data that will be used to render geometry */
-        class RAZIX_API RZVertexBuffer : public RZRoot
+        class RAZIX_API RZVertexBuffer : public IRZResource<RZVertexBuffer>
         {
         public:
             RZVertexBuffer() = default;
-            virtual ~RZVertexBuffer() {}
+            RAZIX_VIRTUAL_DESCTURCTOR(RZVertexBuffer)
 
-            /**
-             * Creates a vertex buffer with the specified usage
-             * 
-             * @param usage The usage Description of the buffer
-             * @returns Returns a RZVertexBuffer pointer to the underlying Graphics API implementation
-             */
-            static RZVertexBuffer* Create(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG);
+            GET_INSTANCE_SIZE;
 
             /**
              * Binds the given Vertex buffer to the graphics pipeline before a draw command is issued
@@ -43,8 +37,6 @@ namespace Razix {
             virtual void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
             /* Sets the vertex buffer layout */
             virtual void AddBufferLayout(RZVertexBufferLayout& layout) = 0;
-            /* Destroys the buffer and it's resources allocated by the underlying API */
-            virtual void Destroy() = 0;
 
             virtual void Map(u32 size = 0, u32 offset = 0) = 0;
             virtual void UnMap()                           = 0;
@@ -56,6 +48,17 @@ namespace Razix {
             virtual void* GetMappedBuffer() = 0;
             virtual void  Flush()           = 0;
             virtual void  Invalidate()      = 0;
+
+        protected:
+            RZBufferDesc m_Desc;
+
+        private:
+            /**
+             * Creates a vertex buffer with the specified usage
+             * 
+             * @param usage The usage Description of the buffer
+             */
+            static void Create(void* where, const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
         };
 
     }    // namespace Graphics

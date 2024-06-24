@@ -117,6 +117,12 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
 
+            /**
+             * Copies data from CPU to GPU only visible buffer using a staging buffer
+             */
+            void CopyDataToGPUBufferResource(const void* cpuData, VkBuffer gpuBuffer, u32 size, u32 srcOffset = 0, u32 dstOffset = 0);
+            void CopyDataToGPUTextureResource(const void* cpuData, VkImage gpuTexture, u32 width, u32 height, u64 size, u32 mipLevel = 0, u32 layersCount = 1, u32 baseArrayLayer = 0);
+
             //-----------------------------------------------------------------------------------
             // Texture/Image utility Functions
             //-----------------------------------------------------------------------------------

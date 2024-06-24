@@ -426,9 +426,9 @@ namespace Razix {
                 return false;
 
             // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
-            VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(m_Size), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
-            if (m_DeleteImageData)
-                delete[] pixels;
+            //VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(m_Size), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
+            //if (m_DeleteImageData)
+            //    delete[] pixels;
 
             m_TotalMipLevels = 1;
             if (desc.enableMips)
@@ -465,25 +465,34 @@ namespace Razix {
             // 1. Transfer layout to copy data from transfer buffer
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_TotalMipLevels);
 
-            {
-                // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+            //{
+            //    // 1.1 Copy from staging buffer to Image
+            //    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+            //
+            //    VkBufferImageCopy region               = {};
+            //    region.bufferOffset                    = 0;
+            //    region.bufferRowLength                 = 0;
+            //    region.bufferImageHeight               = 0;
+            //    region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            //    region.imageSubresource.mipLevel       = 0;
+            //    region.imageSubresource.baseArrayLayer = 0;
+            //    region.imageSubresource.layerCount     = 1;
+            //    region.imageOffset                     = {0, 0, 0};
+            //    region.imageExtent                     = {m_Desc.width, m_Desc.height, 1};
+            //
+            //    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->getBuffer(), m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+            //
+            //    VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+            //}
 
-                VkBufferImageCopy region               = {};
-                region.bufferOffset                    = 0;
-                region.bufferRowLength                 = 0;
-                region.bufferImageHeight               = 0;
-                region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                region.imageSubresource.mipLevel       = 0;
-                region.imageSubresource.baseArrayLayer = 0;
-                region.imageSubresource.layerCount     = 1;
-                region.imageOffset                     = {0, 0, 0};
-                region.imageExtent                     = {m_Desc.width, m_Desc.height, 1};
+            VKUtilities::CopyDataToGPUTextureResource(pixels, m_Image, m_Desc.width, m_Desc.height, m_Size);
 
-                vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->getBuffer(), m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+            // Delete and clean up any temp stuff
+            //stagingBuffer->destroy();
+            //delete stagingBuffer;
 
-                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
-            }
+            if (m_DeleteImageData)
+                delete[] pixels;
 
             // 2. Transition from transfer to shader layout (This causing some error, some kind of unnecessary layout transition for the mip maps)
             //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_TotalMipLevels);
@@ -519,10 +528,6 @@ namespace Razix {
 
             // Update the Image descriptor with the created view and sampler
             updateDescriptor();
-
-            // Delete and clean up any temp stuff
-            stagingBuffer->destroy();
-            delete stagingBuffer;
 
             return true;
         }
