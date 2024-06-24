@@ -49,14 +49,15 @@ namespace Razix {
             std::string name = "$UNNAMED_BUFFER"; /* Name of the buffer */
             union
             {
-                u32 size;  /* The size of the vertex buffer         */
-                u32 count; /* The count of the index buffer         */
+                u32 size = 0; /* The size of the vertex buffer         */
+                u32 count;    /* The count of the index buffer         */
             };
-            void*       data;  /* vertex data to fill the buffer with   */
-            BufferUsage usage; /* Usage of the vertex buffer            */
+            void*       data   = nullptr;             /* vertex data to fill the buffer with   */
+            BufferUsage usage  = BufferUsage::Static; /* Usage of the vertex buffer            */
+            u32         stride = 0;
         };
 
-        // TODO: Add presets to select blendings like Additive, Subtractive etc as in PhotoShop + util methods
+        // TODO: Add presets to select blending like Additive, Subtractive etc as in PhotoShop + util methods
         enum class BlendPresets
         {
             Additive,

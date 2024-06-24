@@ -15,6 +15,7 @@
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
 #endif
 
@@ -25,12 +26,23 @@ namespace Razix {
 
         RZDrawCommandBufferHandle RZDrawCommandBuffer::BeginSingleTimeCommandBuffer()
         {
-            auto vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+            RZHandle<RZDrawCommandBuffer> handle;
+            void*                         where = RZResourceManager::Get().getPool<RZDrawCommandBuffer>().obtain(handle);
 
-            RZHandle<RZDrawCommandBuffer>     handle;
-            void*                             where     = RZResourceManager::Get().getPool<RZDrawCommandBuffer>().obtain(handle);
-            VKDrawCommandBuffer*              cmdBuffer = new (where) VKDrawCommandBuffer(vkCmdBuffer);
-            IRZResource<RZDrawCommandBuffer>* resource  = (IRZResource<RZDrawCommandBuffer>*) where;
+#ifdef RAZIX_RENDER_API_VULKAN
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN) {
+                auto                 vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                VKDrawCommandBuffer* cmdBuffer   = new (where) VKDrawCommandBuffer(vkCmdBuffer);
+            }
+#endif
+
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::D3D12) {
+                auto                   d3d12CmdBuffer = D3D12Utilities::BeginSingleTimeCommandBuffer();
+                DX12DrawCommandBuffer* cmdBuffer      = new (where) DX12DrawCommandBuffer(d3d12CmdBuffer);
+            }
+#endif
+            IRZResource<RZDrawCommandBuffer>* resource = (IRZResource<RZDrawCommandBuffer>*) where;
             resource->setName("Single Time Command Buffer");
             resource->setHandle(handle);
             return handle;
@@ -39,7 +51,14 @@ namespace Razix {
         void RZDrawCommandBuffer::EndSingleTimeCommandBuffer(RZDrawCommandBufferHandle cmdBuffer)
         {
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
-            return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
+#ifdef RAZIX_RENDER_API_VULKAN
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
+                return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::D3D12)
+                return D3D12Utilities::EndSingleTimeCommandBuffer(static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
+#endif
         }
 
         void RZDrawCommandBuffer::Create(void* where, RZCommandAllocatorPoolHandle pool)

@@ -9,9 +9,17 @@
 namespace Razix {
     namespace Graphics {
 
-        VKVertexBuffer::VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
-            : VKBuffer(usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data RZ_DEBUG_E_ARG_NAME)
+        VKVertexBuffer::VKVertexBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+            : VKBuffer(desc.usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, desc.size, desc.data RZ_DEBUG_E_ARG_NAME)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_Desc = desc;
+        }
+
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKVertexBuffer)
+        {
+            Destroy();
         }
 
         void VKVertexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer)

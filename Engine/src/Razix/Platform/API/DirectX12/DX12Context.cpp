@@ -150,13 +150,22 @@ namespace Razix {
     #endif
 
             // Create the Graphics Command Queue
-            D3D12_COMMAND_QUEUE_DESC graphicsCommandQueueDesc = {};
-            graphicsCommandQueueDesc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;    // Direct = Graphics
-            graphicsCommandQueueDesc.Priority                 = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-            graphicsCommandQueueDesc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
-            graphicsCommandQueueDesc.NodeMask                 = 0;
+            D3D12_COMMAND_QUEUE_DESC CommandQueueDesc = {};
+            CommandQueueDesc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;    // Direct = Graphics
+            CommandQueueDesc.Priority                 = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+            CommandQueueDesc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
+            CommandQueueDesc.NodeMask                 = 0;
 
-            CHECK_HRESULT(m_Device->CreateCommandQueue(&graphicsCommandQueueDesc, IID_PPV_ARGS(&m_GraphicsQueue)));
+            CHECK_HRESULT(m_Device->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_GraphicsQueue)));
+            D3D12_TAG_OBJECT(m_GraphicsQueue, L"Graphics Queue");
+
+            CommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+            CHECK_HRESULT(m_Device->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_CopyQueue)));
+            D3D12_TAG_OBJECT(m_CopyQueue, L"Copy Queue");
+
+            CommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+            CHECK_HRESULT(m_Device->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_SingleTimeGraphicsQueue)));
+            D3D12_TAG_OBJECT(m_SingleTimeGraphicsQueue, L"Single TIme Graphics Queue");
 
             if (g_GraphicsFeaturesSettings.EnableVSync) {
             }
@@ -164,8 +173,7 @@ namespace Razix {
             // Create the swapchain
             m_Swapchain = rzstl::CreateUniqueRef<DX12Swapchain>(m_Window->getWidth(), m_Window->getHeight());
 
-            D3D12_TAG_OBJECT(m_Device, "Device");
-            D3D12_TAG_OBJECT(m_GraphicsQueue, "Graphics Queue");
+            D3D12_TAG_OBJECT(m_Device, L"Device");
         }
 
         void DX12Context::Destroy()

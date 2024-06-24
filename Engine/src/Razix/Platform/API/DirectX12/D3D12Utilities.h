@@ -18,7 +18,7 @@ namespace Razix {
 
     #ifndef RAZIX_DISTRIBUTION
 
-        #define D3D12_TAG_OBJECT(handle, name) handle->SetName(L##name);
+        #define D3D12_TAG_OBJECT(handle, name) handle->SetName(name);
     #else
 
         #define D3D12_TAG_OBJECT(handle, name)
@@ -39,11 +39,28 @@ namespace Razix {
             void CmdEndLabel(ID3D12GraphicsCommandList2* commandList);
 
             //-----------------------------------------------------------------------------------
+            // Single Time Command Buffer utility functions
+            //-----------------------------------------------------------------------------------
+
+            /* Creates a command buffer for single time use */
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer();
+            /* Ends the recording of the single time command buffer */
+            void EndSingleTimeCommandBuffer(ID3D12GraphicsCommandList2* commandList);
+
+            //-----------------------------------------------------------------------------------
+            // Memory and Barriers related stuff
+            //-----------------------------------------------------------------------------------
 
             /**
              * Transition the D3D12 resource from on state to another
              */
             void TransitionResource(ID3D12GraphicsCommandList2* commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
+
+            void UpdateBufferResource(ID3D12Resource** pDestinationResource, size_t bufferSize, const void* bufferData);
+
+            //-----------------------------------------------------------------------------------
+            // Texture/Image utility Functions
+            //-----------------------------------------------------------------------------------
 
             /**
              * Function to get the offset CPU descriptor handle pointer from the start of the heap 
@@ -77,6 +94,8 @@ namespace Razix {
                 } else
                     return true;
             }
+
+            //-----------------------------------------------------------------------------------
 
         }    // namespace D3D12Utilities
     }        // namespace Graphics

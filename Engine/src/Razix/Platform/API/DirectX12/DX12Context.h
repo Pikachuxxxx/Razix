@@ -40,6 +40,8 @@ namespace Razix {
             rzstl::UniqueRef<DX12Swapchain>& getSwapchain() { return m_Swapchain; }
 
             RAZIX_INLINE ID3D12CommandQueue* getGraphicsQueue() { return m_GraphicsQueue; }
+            RAZIX_INLINE ID3D12CommandQueue* getCopyQueue() { return m_CopyQueue; }
+            RAZIX_INLINE ID3D12CommandQueue* getSingleTimeGraphicsQueue() { return m_SingleTimeGraphicsQueue; }
             /*  Returns a const pointer to the window handle that the context renders to */
             RAZIX_INLINE const RZWindow* getWindow() const { return m_Window; }
             /* Gets the handle to the device */
@@ -55,8 +57,10 @@ namespace Razix {
             // https://microsoft.github.io/DirectX-Specs/d3d/MessageCallback.html
             ID3D12InfoQueue* m_DebugValidation = nullptr; /* Debug validation to break on severity and filter messages  */
     #endif
-            ID3D12CommandQueue*             m_GraphicsQueue; /* GPU queue to submit draw/graphics related command lists */
-            rzstl::UniqueRef<DX12Swapchain> m_Swapchain;     /* Handle to the Razix-DX12 swapchain abstraction     */
+            ID3D12CommandQueue*             m_GraphicsQueue;           /* GPU queue to submit draw/graphics related command lists */
+            ID3D12CommandQueue*             m_CopyQueue;               /* GPU queue to submit copy command lists, for temporary and persistent resource copies */
+            ID3D12CommandQueue*             m_SingleTimeGraphicsQueue; /* Graphics queue to submit single time command lists, for copy/single frame operations etc */
+            rzstl::UniqueRef<DX12Swapchain> m_Swapchain; /* Handle to the Razix-DX12 swapchain abstraction     */
         };
     }    // namespace Graphics
 }    // namespace Razix

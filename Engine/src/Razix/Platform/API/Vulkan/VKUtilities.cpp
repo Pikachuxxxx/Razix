@@ -9,12 +9,62 @@
 #include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
+#include "Razix/Platform/API/Vulkan/VKBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 namespace Razix {
     namespace Graphics {
         namespace VKUtilities {
+
+            void CopyDataToGPUBufferResource(const void* cpuData, VkBuffer gpuBuffer, u32 size, u32 srcOffset, u32 dstOffset)
+            {
+                /**
+                * For anything else we copy using a staging buffer to copy to the GPU
+                */
+                VKBuffer transferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
+                {
+                    // 1.1 Copy from staging buffer to Image
+                    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+
+                    VkBufferCopy region = {};
+                    region.srcOffset    = 0;
+                    region.dstOffset    = 0;
+                    region.size         = size;
+
+                    vkCmdCopyBuffer(commandBuffer, transferBuffer.getBuffer(), gpuBuffer, 1, &region);
+
+                    VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+                }
+                transferBuffer.destroy();
+            }
+
+            void CopyDataToGPUTextureResource(const void* cpuData, VkImage gpuTexture, u32 width, u32 height, u64 size, u32 mipLevel /*= 0*/, u32 layersCount /*= 1*/, u32 baseArrayLayer /*= 0*/)
+            {
+                // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
+                VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(size), cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer for VKTexture"));
+
+                // 1.1 Copy from staging buffer to Image
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+
+                VkBufferImageCopy region               = {};
+                region.bufferOffset                    = 0;
+                region.bufferRowLength                 = 0;
+                region.bufferImageHeight               = 0;
+                region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel       = 0;
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount     = 1;
+                region.imageOffset                     = {0, 0, 0};
+                region.imageExtent                     = {width, height, 1};
+
+                vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->getBuffer(), gpuTexture, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+
+                stagingBuffer->destroy();
+                delete stagingBuffer;
+            }
 
             //-----------------------------------------------------------------------------------
             // Texture Utility Functions
@@ -114,7 +164,8 @@ namespace Razix {
                             break;
                         case TextureFormat::RG16F:
                             return VK_FORMAT_R16G16_SFLOAT;
-                            break;;
+                            break;
+                            ;
                         case TextureFormat::RGB8:
                             return VK_FORMAT_R8G8B8_UNORM;
                             break;
@@ -532,8 +583,9 @@ namespace Razix {
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocInfo.commandPool                 = VKDevice::Get().getSingleTimeGraphicsCommandPool()->getVKPool();
-                allocInfo.commandBufferCount          = 1;
+                // TODO: Use a dedicated transfer only pool for copy operations, but this is a generic one and we use it for IBL too maybe this if fine.
+                allocInfo.commandPool        = VKDevice::Get().getSingleTimeGraphicsCommandPool()->getVKPool();
+                allocInfo.commandBufferCount = 1;
 
                 VkCommandBuffer commandBuffer;
                 VK_CHECK_RESULT(vkAllocateCommandBuffers(VKDevice::Get().getDevice(), &allocInfo, &commandBuffer));
