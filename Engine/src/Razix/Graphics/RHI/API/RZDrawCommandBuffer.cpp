@@ -50,7 +50,7 @@ namespace Razix {
 
         void RZDrawCommandBuffer::EndSingleTimeCommandBuffer(RZDrawCommandBufferHandle cmdBuffer)
         {
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
 #ifdef RAZIX_RENDER_API_VULKAN
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
                 return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
@@ -61,12 +61,12 @@ namespace Razix {
 #endif
         }
 
-        void RZDrawCommandBuffer::Create(void* where, RZCommandAllocatorPoolHandle pool)
+        void RZDrawCommandBuffer::Create(void* where, RZCommandPoolHandle pool)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Get the command pool API handle
-            auto poolApiHandle = RZResourceManager::Get().getCommandAllocator(pool)->getAPIHandle();
+            auto poolApiHandle = RZResourceManager::Get().getCommandPoolResource(pool)->getAPIHandle();
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
 #ifdef RAZIX_RENDER_API_OPENGL

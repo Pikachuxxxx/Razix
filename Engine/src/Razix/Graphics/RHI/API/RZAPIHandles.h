@@ -29,7 +29,7 @@ namespace Razix {
         using RZPipelineHandle             = RZHandle<Graphics::RZPipeline>;
         using RZShaderHandle               = RZHandle<Graphics::RZShader>;
         using RZDrawCommandBufferHandle    = RZHandle<Graphics::RZDrawCommandBuffer>;
-        using RZCommandAllocatorPoolHandle = RZHandle<Graphics::RZCommandPool>;
+        using RZCommandPoolHandle = RZHandle<Graphics::RZCommandPool>;
         using RZDescriptorSetHandle        = RZHandle<Graphics::RZDescriptorSet>;
 
         using RZMaterialHandle = RZHandle<Graphics::RZMaterial>;

@@ -24,7 +24,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
         }
 

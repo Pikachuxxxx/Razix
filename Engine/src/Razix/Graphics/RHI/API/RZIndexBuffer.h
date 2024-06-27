@@ -1,37 +1,30 @@
 #pragma once
 
-#include "Razix/Core/RZRoot.h"
-#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
-
 #include "Razix/Core/RZDebugConfig.h"
+#include "Razix/Core/RZRoot.h"
+
+#include "Razix/Graphics/Resources/IRZResource.h"
+
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 namespace Razix {
     namespace Graphics {
 
         /* Creates an Index Buffer to use indexed data to draw geometry */
-        class RAZIX_API RZIndexBuffer : public RZRoot
+        class RAZIX_API RZIndexBuffer : public IRZResource<RZIndexBuffer>
         {
         public:
             RZIndexBuffer() = default;
-            virtual ~RZIndexBuffer() {}
+            /* Virtual destructor enables the API implementation to delete it's resources */
+            RAZIX_VIRTUAL_DESCTURCTOR(RZIndexBuffer)
+            RAZIX_NONCOPYABLE_CLASS(RZIndexBuffer)
 
-            /**
-             * Creates an index buffer with the given index data to render the geometry
-             * 
-             * @param data The index to fill the buffer with
-             * @param count The number of indices used to draw the geometry
-             * @param bufferUsage Whether the index buffer is static or dynamically streamed
-             * 
-             * @returns The pointer to the underlying API implementation
-             */
-            static RZIndexBuffer* Create(RZ_DEBUG_NAME_TAG_F_ARG u32* data, u32 count, BufferUsage bufferUsage = BufferUsage::Static);
+            GET_INSTANCE_SIZE;
 
             /* Binds the Index buffer to the pipeline and the command buffer that is recorded and binded with */
             virtual void Bind(RZDrawCommandBufferHandle cmdBuffer = {}) = 0;
             /* Unbinds the index buffer */
             virtual void Unbind() = 0;
-            /* Destroys the buffer and it's resources allocated by the underlying API */
-            virtual void Destroy() = 0;
             /* Resizes the buffer with new data */
             virtual void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
 
@@ -47,7 +40,14 @@ namespace Razix {
             inline void setCount(u32 count) { m_IndexCount = count; }
 
         protected:
-            u32 m_IndexCount; /* The index count of the index buffer  */
+            RZBufferDesc m_Desc;
+            u32          m_IndexCount; /* The index count of the index buffer  */
+
+        private:
+            /**
+             * Creates an index buffer with the given index data to render the geometry
+             */
+            static void Create(void* where, const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
         };
     }    // namespace Graphics
 }    // namespace Razix

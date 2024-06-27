@@ -36,7 +36,7 @@
                 auto pool                  = RZResourceManager::Get().createCommandAllocator(PoolType::kGraphics);
                 m_CommandPool[i]           = pool;
                 m_DrawCommandBuffers[i]    = RZResourceManager::Get().createDrawCommandBuffer(pool);
-                auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_DrawCommandBuffers[i]);
+                auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(m_DrawCommandBuffers[i]);
                 commandBufferResource->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Draw Command Buffer: #" + std::to_string(i)));
             }
         }

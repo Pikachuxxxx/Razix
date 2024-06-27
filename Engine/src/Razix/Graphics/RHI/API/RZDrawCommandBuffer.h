@@ -58,7 +58,7 @@ namespace Razix {
              * 
              * @returns Returns the handle to the abstracted underlying graphics API implementation of the RZCommandBuffer
              */
-            static void Create(void* where, RZCommandAllocatorPoolHandle pool);
+            static void Create(void* where, RZCommandPoolHandle pool);
 
             friend class RZResourceManager;
         };

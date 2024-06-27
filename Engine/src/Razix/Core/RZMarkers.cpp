@@ -22,7 +22,7 @@ void BeginMarker(const std::string& name, glm::vec4 color)
 
     // Get the current command buffer
     auto cmdBuf            = Razix::Graphics::RHI::GetCurrentCommandBuffer();
-    auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuf);
+    auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuf);
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -44,7 +44,7 @@ void InsertMarker(const std::string& name, glm::vec4 color)
 
     // Get the current command buffer
     auto cmdBuf            = Razix::Graphics::RHI::GetCurrentCommandBuffer();
-    auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuf);
+    auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuf);
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -64,7 +64,7 @@ void EndMarker()
 
     // Get the current command buffer
     auto cmdBuf            = Razix::Graphics::RHI::GetCurrentCommandBuffer();
-    auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuf);
+    auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuf);
 
     switch (Razix::Graphics::RZGraphicsContext::GetRenderAPI()) {
 #ifdef RAZIX_RENDER_API_VULKAN

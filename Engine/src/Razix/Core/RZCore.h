@@ -453,6 +453,13 @@ constexpr float operator""_inKib(unsigned long long int x)
 /* Whether or not to use VMA as memory backend */
 #define RAZIX_USE_VMA 1
 
+/* Size of indices in Razix Engine, change here for global configuration */
+#define RAZIX_INDICES_SIZE         sizeof(u32)    // we use 32-bit indices for now
+#define RAZIX_INDICES_FORMAT       R32_UINT
+#define RAZIX_INDICES_FORMAT_VK    VK_INDEX_TYPE_UINT32
+#define RAZIX_INDICES_FORMAT_D3D12 DXGI_FORMAT_R32_UINT
+#define RAZIX_INDICES_FORMAT_AGC   sce::Agc::IndexSize::k32
+
 /****************************************************************************************************
  *                                         Vendor Settings                                          * 
  ****************************************************************************************************/

@@ -100,7 +100,7 @@ namespace Razix {
             virtual void GenerateDescriptorHeaps() = 0;
 
             /* Gets the name of the shader file */
-            RAZIX_INLINE const std::string& getName() { return m_Name; }
+            RAZIX_INLINE const std::string& getName() { return m_Desc.name; }
             /* Gets the stage of the pipeline that shader is bound/being used with */
             RAZIX_INLINE const ShaderStage& getStage() { return m_ShaderStage; }
             /* Gets the input stride of the vertex layout */
@@ -118,16 +118,14 @@ namespace Razix {
             /* Updates the descriptor sets with the bind variables aka filled descriptors */
             void updateBindVarsHeaps();
 
-            RAZIX_INLINE std::string getShaderFilePath() const { return m_ShaderFilePath; }
-            RAZIX_INLINE void        setShaderFilePath(std::string val) { m_ShaderFilePath = val; }
+            RAZIX_INLINE std::string getShaderFilePath() const { return m_Desc.filePath; }
+            RAZIX_INLINE void        setShaderFilePath(std::string val) { m_Desc.filePath = val; }
             // TODO: Expose internal Vertex Attributes and Layout functions in a engine wide style
 
         protected:
-            ShaderBuiltin                      m_ShaderLibraryID;                       /* Built-in shader library Idx                                                                              */
+            RZShaderDesc                       m_Desc        = {};
             ShaderStage                        m_ShaderStage = ShaderStage::NONE;       /* The shader stage to which the shader will be bound to                                                    */
             ShaderSourceType                   m_SourceType  = ShaderSourceType::SPIRV; /* The source type of the shader                                                                            */
-            std::string                        m_ShaderFilePath;                        /* Virtual file location of the shader file                                                                 */
-            std::string                        m_Name;                                  /* The name of the shader                                                                                   */
             std::map<ShaderStage, std::string> m_ParsedRZSF;                            /* The razix shader file that was parsed                                                                    */
             RZVertexBufferLayout               m_BufferLayout;                          /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
             DescriptorsPerHeapMap              m_DescriptorsPerHeap;                    /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
@@ -142,7 +140,7 @@ namespace Razix {
              * 
              * @param filePath The Virtual/absolute path to the compiled binary shader file
              */
-            static void Create(void* where, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
+            static void Create(void* where, const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
 
             friend class RZResourceManager;
         };

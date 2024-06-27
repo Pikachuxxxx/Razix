@@ -12,8 +12,11 @@ namespace Razix {
         // Forward Declarations
         class RZShader;
         enum class ShaderStage;
+        enum class ShaderBuiltin : u32;
 
         // Graphics API
+
+        // All API desc structs must have a name member variable
 
         // TODO: Add checks for data members based on type, ex. Texture_CubeMap must have layers > 1 etc.
         struct RZTextureDesc
@@ -33,6 +36,7 @@ namespace Razix {
             bool          flipX      = false;                       /* Flip the texture on X-axis during load                        */
             bool          flipY      = true;                        /* Flip the texture on Y-axis during load                        */
             u32           dataSize   = sizeof(unsigned char);       /* data size of each pixel, HDR data vs normal pixel data        */
+            std::string   filePath   = "";                          /* Filepath to load texture from, empty if not                   */
 
             // TODO: move them with below functions or to some util class
 
@@ -55,6 +59,13 @@ namespace Razix {
             void*       data   = nullptr;             /* vertex data to fill the buffer with   */
             BufferUsage usage  = BufferUsage::Static; /* Usage of the vertex buffer            */
             u32         stride = 0;
+        };
+
+        struct RZShaderDesc
+        {
+            std::string   name = "$UNNAMED_SHADER"; /* Name of the shader */
+            std::string   filePath;
+            ShaderBuiltin libraryID;
         };
 
         // TODO: Add presets to select blending like Additive, Subtractive etc as in PhotoShop + util methods

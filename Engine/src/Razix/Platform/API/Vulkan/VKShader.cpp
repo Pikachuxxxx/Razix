@@ -110,16 +110,18 @@ namespace Razix {
             return DescriptorType::UniformBuffer;
         }
 
-        VKShader::VKShader(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
+        VKShader::VKShader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            setShaderFilePath(filePath);
+            m_Desc = desc;
 
-            m_Name = Razix::Utilities::GetFileName(filePath);
+            setShaderFilePath(desc.filePath);
+
+            m_Desc.name = Razix::Utilities::GetFileName(desc.filePath);
 
             // Read the *.rzsf shader file to get the necessary shader stages and it's corresponding compiled shader file virtual path
-            m_ParsedRZSF = RZShader::ParseRZSF(filePath);
+            m_ParsedRZSF = RZShader::ParseRZSF(desc.filePath);
 
             // Cross compile the shaders if necessary to reflect it onto GLSL
             // TODO: Make this shit dynamic!
@@ -284,7 +286,7 @@ namespace Razix {
 
                     // FIXME: Make this intuitive and don't hard code it
                     // Specializing vertex format for ImGui shaders
-                    if (spvSource.second == "Compiled/SPIRV/Shader.Builtin.ImGui.vert.spv" || m_ShaderLibraryID == ShaderBuiltin::ImGui) {
+                    if (spvSource.second == "Compiled/SPIRV/Shader.Builtin.ImGui.vert.spv" || m_Desc.libraryID == ShaderBuiltin::ImGui) {
                         struct ImDrawVert
                         {
                             ImVec2 pos;
@@ -441,7 +443,7 @@ namespace Razix {
                 else
                     RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
 
-                VK_TAG_OBJECT(m_Name, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) setLayout)
+                VK_TAG_OBJECT(m_Desc.name, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) setLayout)
             }
 
             std::vector<VkDescriptorSetLayout> descriptorLayouts;
@@ -470,7 +472,7 @@ namespace Razix {
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
 
-            VK_TAG_OBJECT(m_Name, VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t) m_PipelineLayout)
+            VK_TAG_OBJECT(m_Desc.name, VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t) m_PipelineLayout)
 
             // Replace the Set a index BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START with the bindless set layout
             if (potentiallyBindless) {

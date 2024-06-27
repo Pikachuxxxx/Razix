@@ -386,7 +386,7 @@ namespace Razix {
             CommandQueue                                     m_CommandQueue; /* The queue of recorded commands that needs execution */
             RZDrawCommandBufferHandle                        m_CurrentCommandBuffer;
             rzstl::ring_buffer<RZDrawCommandBufferHandle>    m_DrawCommandBuffers;
-            rzstl::ring_buffer<RZCommandAllocatorPoolHandle> m_CommandPool;
+            rzstl::ring_buffer<RZCommandPoolHandle> m_CommandPool;
             RZDescriptorSet*                                 m_FrameDataSet       = nullptr;
             RZDescriptorSet*                                 m_SceneLightsDataSet = nullptr;
         };
