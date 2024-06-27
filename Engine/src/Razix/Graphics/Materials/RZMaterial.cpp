@@ -106,44 +106,60 @@ namespace Razix {
         {
             m_MaterialData.m_MaterialTexturePaths = paths;
 
+            RZTextureDesc desc = {};
+
             if (!std::string(paths.albedo).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.albedo);
+                desc.name     = fileName;
+                desc.filePath = paths.albedo;
                 if (!fileName.empty())
-                    m_MaterialData.m_MaterialTextures.albedo = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.albedo);
+                    m_MaterialData.m_MaterialTextures.albedo = RZResourceManager::Get().createTexture(desc);
             }
 
             if (!std::string(paths.ao).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.ao);
+                desc.name     = fileName;
+                desc.filePath = paths.ao;
                 if (!fileName.empty())
-                    m_MaterialData.m_MaterialTextures.ao = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.ao);
+                    m_MaterialData.m_MaterialTextures.ao = RZResourceManager::Get().createTexture(desc);
             }
 
             if (!std::string(paths.emissive).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.emissive);
+                desc.name     = fileName;
+                desc.filePath = paths.emissive;
                 if (!fileName.empty())
-                    m_MaterialData.m_MaterialTextures.emissive = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.emissive);
+                    m_MaterialData.m_MaterialTextures.emissive = RZResourceManager::Get().createTexture(desc);
             }
 
             if (!std::string(paths.metallic).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.metallic);
+                desc.name     = fileName;
+                desc.filePath = paths.metallic;
                 if (!fileName.empty())
-                    m_MaterialData.m_MaterialTextures.metallic = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.metallic);
+                    m_MaterialData.m_MaterialTextures.metallic = RZResourceManager::Get().createTexture(desc);
             }
 
             if (!std::string(paths.normal).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.normal);
+                desc.name     = fileName;
+                desc.filePath = paths.normal;
                 if (!fileName.empty())
-                    m_MaterialData.m_MaterialTextures.normal = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.normal);
+                    m_MaterialData.m_MaterialTextures.normal = RZResourceManager::Get().createTexture(desc);
             }
 
             if (!std::string(paths.roughness).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.roughness);
+                desc.name     = fileName;
+                desc.filePath = paths.roughness;
                 if (!fileName.empty())
-                    m_MaterialData.m_MaterialTextures.roughness = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.roughness);
+                    m_MaterialData.m_MaterialTextures.roughness = RZResourceManager::Get().createTexture(desc);
             }
 
             if (!std::string(paths.specular).empty()) {
                 auto fileName = Razix::Utilities::GetFileName(paths.specular);
+                desc.name     = fileName;
+                desc.filePath = paths.specular;
                 if (!fileName.empty())
                     m_MaterialData.m_MaterialTextures.specular = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.specular);
             }

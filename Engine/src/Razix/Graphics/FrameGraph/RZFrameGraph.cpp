@@ -111,7 +111,8 @@ namespace Razix {
                             desc.dataSize = sizeof(float);
 
                         // Create the resource
-                        auto textureHandle = RZResourceManager::Get().createTextureFromFile(desc, import_res["file_path"]);
+                        desc.filePath      = import_res["file_path"];
+                        auto textureHandle = RZResourceManager::Get().createTexture(desc);
                         resource           = import <RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc, {textureHandle});
 
                     } else if (std::string(type) == "Buffer") {

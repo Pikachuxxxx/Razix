@@ -32,6 +32,12 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            // If we are loading from a file
+            if (!desc.filePath.empty()) {
+                RZTexture::CreateFromFile(where, desc, desc.filePath RZ_DEBUG_E_ARG_NAME);
+                return;
+            }
+
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
 #ifdef RAZIX_RENDER_API_OPENGL
                 case Razix::Graphics::RenderAPI::OPENGL: new (where) OpenGLTexture(desc); break;

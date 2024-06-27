@@ -62,7 +62,7 @@ namespace Razix {
                 auto pool                  = RZResourceManager::Get().createCommandAllocator(PoolType::kGraphics);
                 m_CommandPool[i]           = pool;
                 m_DrawCommandBuffers[i]    = RZResourceManager::Get().createDrawCommandBuffer(pool);
-                auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_DrawCommandBuffers[i]);
+                auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(m_DrawCommandBuffers[i]);
                 commandBufferResource->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Draw Command Buffer: #" + std::to_string(i)));
             }
 
@@ -89,12 +89,12 @@ namespace Razix {
         {
             m_CurrentCommandBuffer = cmdBuffer;
 
-            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_CurrentCommandBuffer);
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(m_CurrentCommandBuffer);
             // Reset the Command Allocator and Command List and begin recording commands
             commandBufferResource->BeginRecording();
 
             // TESTING CLEAR COLOR
-            auto commandListD3D = (ID3D12GraphicsCommandList2*) RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer)->getAPIBuffer();
+            auto commandListD3D = (ID3D12GraphicsCommandList2*) RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer)->getAPIBuffer();
             m_Context->getSwapchain()->clearWithColor(commandListD3D, glm::vec4(cos(0.96f * Razix::RZApplication::Get().getTimer().GetElapsed()), sin(0.32f * Razix::RZApplication::Get().getTimer().GetElapsed()), 1.0f, 1.0f));
         }
 
@@ -105,7 +105,7 @@ namespace Razix {
 
         void DX12RenderContext::SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
-            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
 
             // Ready the swapchain image from Render TArget stat to Present state for the presentation engine
             auto commandListD3D = (ID3D12GraphicsCommandList2*) commandBufferResource->getAPIBuffer();
@@ -180,7 +180,7 @@ namespace Razix {
 
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             RZEngine::Get().GetStatistics().Draws++;
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             auto commandList       = static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList();
             commandList->DrawInstanced(count, 1, 0, 0);
         }
@@ -191,7 +191,7 @@ namespace Razix {
 
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             RZEngine::Get().GetStatistics().IndexedDraws++;
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             auto commandList       = static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList();
             commandList->DrawIndexedInstanced(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
@@ -230,7 +230,7 @@ namespace Razix {
             viewport.MinDepth       = 0.0f;
             viewport.MaxDepth       = 1.0f;
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             auto commandList       = static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList();
             commandList->RSSetViewports(1, &viewport);
         }
@@ -247,7 +247,7 @@ namespace Razix {
             scissor.right      = width;
             scissor.bottom     = height;
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             auto commandList       = static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList();
             commandList->RSSetScissorRects(1, &scissor);
         }

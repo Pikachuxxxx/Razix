@@ -45,9 +45,6 @@ namespace Razix {
         template<typename T>
         struct RZResourcePoolTyped final : public RZResourcePool
         {
-            void init(u32 pool_size, u32 resource_size, u32 alignment = 16);
-            void shutdown();
-
             void printResources();
 
             T*   obtain(RZHandle<T>& handle);
@@ -88,17 +85,17 @@ namespace Razix {
             return handles;
         }
 
-        template<typename T>
-        inline void RZResourcePoolTyped<T>::init(u32 pool_size, u32 resource_size, u32 alignment)
-        {
-            RZResourcePool::init(pool_size, resource_size, alignment);
-        }
-
-        template<typename T>
-        inline void RZResourcePoolTyped<T>::shutdown()
-        {
-            RZResourcePool::shutdown();
-        }
+        //template<typename T>
+        //inline void RZResourcePoolTyped<T>::init(u32 pool_size, u32 resource_size, u32 alignment)
+        //{
+        //    RZResourcePool::init(pool_size, resource_size, alignment);
+        //}
+        //
+        //template<typename T>
+        //inline void RZResourcePoolTyped<T>::shutdown()
+        //{
+        //    RZResourcePool::shutdown();
+        //}
 
         template<typename T>
         inline T* RZResourcePoolTyped<T>::obtain(RZHandle<T>& handle)

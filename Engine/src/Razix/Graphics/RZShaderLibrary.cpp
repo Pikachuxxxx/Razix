@@ -80,7 +80,12 @@ namespace Razix {
 
         void RZShaderLibrary::loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath)
         {
-            RZShaderHandle shader      = RZResourceManager::Get().createShaderFromFile(shaderID, shaderPath);
+            RZShaderDesc desc{};
+            desc.filePath  = shaderPath;
+            desc.libraryID = shaderID;
+            // name will be auto-resolved from the shader file path
+
+            RZShaderHandle shader      = RZResourceManager::Get().createShader(desc);
             m_BuiltinShaders[shaderID] = shader;
 
             m_BuiltinShadersReverseNameMap[Utilities::RemoveFilePathExtension(Utilities::GetFileName(shaderPath))] = shaderID;
@@ -91,7 +96,12 @@ namespace Razix {
             for (auto& shader: m_BuiltinShaders) {
                 auto shaderPath = RZResourceManager::Get().getShaderResource(shader.second)->getShaderFilePath();
                 RZResourceManager::Get().destroyShader(shader.second);
-                RZShaderHandle shaderHandle    = RZResourceManager::Get().createShaderFromFile(shader.first, shaderPath);
+
+                RZShaderDesc desc{};
+                desc.filePath  = shaderPath;
+                desc.libraryID = shader.first;
+                // name will be auto-resolved from the shader file path
+                RZShaderHandle shaderHandle    = RZResourceManager::Get().createShader(desc);
                 m_BuiltinShaders[shader.first] = shaderHandle;
             }
         }

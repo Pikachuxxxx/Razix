@@ -64,7 +64,7 @@ namespace Razix {
             rpBegin.clearValueCount          = u32(m_AttachmentsCount);
             rpBegin.pClearValues             = m_ClearValue;
 
-            auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBeginRenderPass(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), &rpBegin, (subpass == INLINE ? VK_SUBPASS_CONTENTS_INLINE : VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS));
         }
 
@@ -72,7 +72,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdEndRenderPass(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
         }
 

@@ -259,7 +259,7 @@ namespace Razix {
                     RZDescriptorSet* set = (RZDescriptorSet*) pcmd->TextureId;
                     RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, set, 0);
                     // TODO: Fix this for Vulkan
-                    auto             cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+                    auto             cmdBufferResource = Razix::Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
                     VkCommandBuffer* cmdBuf            = (VkCommandBuffer*) (cmdBufferResource->getAPIBuffer());
 
                     RZEngine::Get().GetStatistics().NumDrawCalls++;

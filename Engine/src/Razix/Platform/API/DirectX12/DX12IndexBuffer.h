@@ -23,7 +23,7 @@ namespace Razix {
             RAZIX_CLEANUP_RESOURCE
             //---------------------------------------
 
-            void Bind(RZDrawCommandBufferHandle cmdBuffer =) override;
+            void Bind(RZDrawCommandBufferHandle cmdBuffer = {}) override;
             void Unbind() override;
 
             void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) override;

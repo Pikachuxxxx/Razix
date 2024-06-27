@@ -155,12 +155,12 @@ namespace Razix {
             RZPipelineHandle m_LinePipeline = {};
 
             // VBs and IBs
-            RZIndexBuffer*  m_PointIBO        = nullptr;
-            RZVertexBuffer* m_PointVBO        = nullptr;
-            u32             m_PointIndexCount = 0;
-            RZIndexBuffer*  m_LineIBO         = nullptr;
-            RZVertexBuffer* m_LineVBO         = nullptr;
-            u32             m_LineIndexCount  = 0;
+            RZIndexBufferHandle  m_PointIBO        = nullptr;
+            RZVertexBufferHandle m_PointVBO        = nullptr;
+            u32                  m_PointIndexCount = 0;
+            RZIndexBufferHandle  m_LineIBO         = nullptr;
+            RZVertexBufferHandle m_LineVBO         = nullptr;
+            u32                  m_LineIndexCount  = 0;
         };
     }    // namespace Graphics
 }    // namespace Razix

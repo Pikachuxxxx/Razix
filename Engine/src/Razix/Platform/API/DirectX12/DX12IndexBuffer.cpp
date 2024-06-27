@@ -59,7 +59,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto commandListD3D = (ID3D12GraphicsCommandList2*) Graphics::RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer)->getAPIBuffer();
+            auto commandListD3D = (ID3D12GraphicsCommandList2*) Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer)->getAPIBuffer();
             commandListD3D->IASetIndexBuffer(&m_IndexBufferView);
         }
 

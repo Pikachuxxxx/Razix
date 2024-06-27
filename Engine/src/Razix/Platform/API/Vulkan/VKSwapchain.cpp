@@ -426,7 +426,7 @@ namespace Razix {
             std::vector<VkCommandBuffer> cmdBuffs;
             for (sz i = 0; i < submitInfo.commandBufferCount; i++) {
                 auto& handle    = commandQueue[i];
-                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBuffer(handle)->getAPIBuffer();
+                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBufferResource(handle)->getAPIBuffer();
                 cmdBuffs.push_back(*((VkCommandBuffer*) apiBuffer));
             }
 
@@ -536,7 +536,7 @@ namespace Razix {
             std::vector<VkCommandBuffer> cmdBuffs;
             for (sz i = 0; i < submitInfo.commandBufferCount; i++) {
                 auto& handle    = commandQueue[i];
-                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBuffer(handle)->getAPIBuffer();
+                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBufferResource(handle)->getAPIBuffer();
                 cmdBuffs.push_back(*((VkCommandBuffer*) apiBuffer));
             }
             submitInfo.pCommandBuffers = cmdBuffs.data();
