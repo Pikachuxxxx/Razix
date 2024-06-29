@@ -70,8 +70,8 @@ namespace Razix {
             RAZIX_INLINE const std::array<glm::vec2, 4>& getUVs() const { return m_UVs; }
 
             // getter for shader, buffers and sets
-            RZVertexBuffer* getVertexBuffer() { return m_VBO; }
-            RZIndexBuffer*  getIndexBuffer() { return m_IBO; }
+            RZVertexBufferHandle getVertexBuffer() { return m_VBO; }
+            RZIndexBufferHandle  getIndexBuffer() { return m_IBO; }
 
             RZShaderHandle   getShader();
             RZDescriptorSet* getDescriptorSet(u32 index);
@@ -84,8 +84,8 @@ namespace Razix {
             bool                          m_IsTextured = false;
             RZShaderHandle                m_SpriteShader;
             RZShaderHandle                m_TexturedSpriteShader;
-            RZVertexBuffer*               m_VBO;
-            RZIndexBuffer*                m_IBO;
+            RZVertexBufferHandle          m_VBO;
+            RZIndexBufferHandle           m_IBO;
             std::vector<RZDescriptorSet*> m_TexturedSpriteDescriptorSets;
 
         private:

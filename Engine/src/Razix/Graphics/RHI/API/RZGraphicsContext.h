@@ -16,7 +16,7 @@ namespace Razix {
             NONE   = -1,
             OPENGL = 0,    // Deprecated
             VULKAN = 1,    // Working
-            D3D11  = 2,    // No Longer Supported
+            D3D11  = 2,    // Deprecated
             D3D12  = 3,    // [WIP]
             GXM    = 4,    // Not Supported yet! (PSVita)
             GCM    = 5     // Not Supported yet! (PS3)

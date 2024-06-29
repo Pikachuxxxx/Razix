@@ -59,7 +59,7 @@ namespace Razix {
             m_CommandPool.set_capacity(MAX_SWAPCHAIN_BUFFERS);
 
             for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                auto pool                  = RZResourceManager::Get().createCommandAllocator(PoolType::kGraphics);
+                auto pool                  = RZResourceManager::Get().createCommandPool(PoolType::kGraphics);
                 m_CommandPool[i]           = pool;
                 m_DrawCommandBuffers[i]    = RZResourceManager::Get().createDrawCommandBuffer(pool);
                 auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(m_DrawCommandBuffers[i]);
@@ -131,7 +131,6 @@ namespace Razix {
 
         void DX12RenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
         {
-
         }
 
         void DX12RenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)

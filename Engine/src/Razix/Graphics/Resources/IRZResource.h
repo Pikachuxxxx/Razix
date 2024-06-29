@@ -122,10 +122,10 @@ namespace Razix {
             inline RZUUID& getUUID() { return m_UUID; }
 
         protected:
-            rzstl::ReferenceCounter m_AtomicRefCounter;
-            RZUUID                  m_UUID;
-            RZHandle<T>             m_Handle;
-            std::string             m_ResourceName;
+            rzstl::ReferenceCounter m_AtomicRefCounter = {};
+            RZUUID                  m_UUID             = {};
+            RZHandle<T>             m_Handle           = {};
+            std::string             m_ResourceName     = "$UNNAMED_RESOURCE$";
 
         private:
             //template<typename U>

@@ -25,7 +25,7 @@ namespace Razix {
             static RZMesh* cubeMesh   = nullptr;
             static RZMesh* sphereMesh = nullptr;
 
-#if 0
+#if 1
             RZMesh* CreatePrimitive(MeshPrimitive primitive)
             {
                 switch (primitive) {
@@ -34,24 +34,19 @@ namespace Razix {
                             planeMesh = CreatePlane();
                         return planeMesh;
                     }
-                    case MeshPrimitive::ScreenQuad: {
-                        if (ScreenMesh == nullptr)
-                            ScreenMesh = CreateScreenQuad();
-                        return ScreenMesh;
-                    }
                     case MeshPrimitive::Cube: {
                         if (cubeMesh == nullptr)
                             cubeMesh = CreateCube();
                         return cubeMesh;
                     }
-                    case MeshPrimitive::Pyramid:
-                        RAZIX_UNIMPLEMENTED_METHOD
-                        break;
                     case MeshPrimitive::Sphere: {
                         if (sphereMesh == nullptr)
                             sphereMesh = CreateSphere();
                         return sphereMesh;
                     }
+                    case MeshPrimitive::Pyramid:
+                        RAZIX_UNIMPLEMENTED_METHOD
+                        break;
                     case MeshPrimitive::Capsule:
                         RAZIX_UNIMPLEMENTED_METHOD
                         break;
@@ -68,35 +63,35 @@ namespace Razix {
             }
 #endif
 
-            RZMesh* CreatePrimitive(MeshPrimitive primitive)
-            {
-                switch (primitive) {
-                    case MeshPrimitive::Plane:
-                        return CreatePlane();
-                        break;
-                    case MeshPrimitive::ScreenQuad:
-                        return CreateScreenQuad();
-                        break;
-                    case MeshPrimitive::Cube:
-                        return CreateCube();
-                        break;
-                    case MeshPrimitive::Pyramid:
-                        RAZIX_UNIMPLEMENTED_METHOD
-                        break;
-                    case MeshPrimitive::Sphere:
-                        return CreateSphere();
-                        break;
-                    case MeshPrimitive::Capsule:
-                        RAZIX_UNIMPLEMENTED_METHOD
-                        break;
-                    case MeshPrimitive::Cylinder:
-                        RAZIX_UNIMPLEMENTED_METHOD
-                        break;
-                    default:
-                        break;
-                }
-                return nullptr;
-            }
+            //RZMesh* CreatePrimitive(MeshPrimitive primitive)
+            //{
+            //    switch (primitive) {
+            //        case MeshPrimitive::Plane:
+            //            return CreatePlane();
+            //            break;
+            //        case MeshPrimitive::ScreenQuad:
+            //            return CreateScreenQuad();
+            //            break;
+            //        case MeshPrimitive::Cube:
+            //            return CreateCube();
+            //            break;
+            //        case MeshPrimitive::Pyramid:
+            //            RAZIX_UNIMPLEMENTED_METHOD
+            //            break;
+            //        case MeshPrimitive::Sphere:
+            //            return CreateSphere();
+            //            break;
+            //        case MeshPrimitive::Capsule:
+            //            RAZIX_UNIMPLEMENTED_METHOD
+            //            break;
+            //        case MeshPrimitive::Cylinder:
+            //            RAZIX_UNIMPLEMENTED_METHOD
+            //            break;
+            //        default:
+            //            break;
+            //    }
+            //    return nullptr;
+            //}
 
             RZMesh* CreatePlane(f32 width, f32 height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
             {
@@ -104,40 +99,52 @@ namespace Razix {
 
                 glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
 
-                data[0].Position  = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
-                data[0].Color     = color;
-                data[0].UV = glm::vec2(0.0f, 0.0f);
-                data[0].Normal    = normal;
+                data[0].Position = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
+                data[0].Color    = color;
+                data[0].UV       = glm::vec2(0.0f, 0.0f);
+                data[0].Normal   = normal;
 
-                data[1].Position  = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
-                data[1].Color     = color;
-                data[1].UV = glm::vec2(0.0f, 1.0f);
-                data[1].Normal    = normal;
+                data[1].Position = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
+                data[1].Color    = color;
+                data[1].UV       = glm::vec2(0.0f, 1.0f);
+                data[1].Normal   = normal;
 
-                data[2].Position  = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
-                data[2].Color     = color;
-                data[2].UV = glm::vec2(1.0f, 1.0f);
-                data[2].Normal    = normal;
+                data[2].Position = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
+                data[2].Color    = color;
+                data[2].UV       = glm::vec2(1.0f, 1.0f);
+                data[2].Normal   = normal;
 
-                data[3].Position  = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
-                data[3].Color     = color;
-                data[3].UV = glm::vec2(1.0f, 0.0f);
-                data[3].Normal    = normal;
+                data[3].Position = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
+                data[3].Color    = color;
+                data[3].UV       = glm::vec2(1.0f, 0.0f);
+                data[3].Normal   = normal;
 
-                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZVertex), data, BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Plane"));
+                RZBufferDesc vbDesc     = {};
+                vbDesc.name             = "VB_SM.Primitive.Plane";
+                vbDesc.data             = data;
+                vbDesc.size             = sizeof(RZVertex) * 4;
+                vbDesc.usage            = BufferUsage::Static;
+                RZVertexBufferHandle vb = RZResourceManager::Get().createVertexBuffer(vbDesc);
+
                 RZVertexBufferLayout layout;
                 layout.push<glm::vec3>("Position");
                 layout.push<glm::vec4>("Color");
                 layout.push<glm::vec2>("TexCoords");
                 layout.push<glm::vec3>("Normal");
                 layout.push<glm::vec3>("Tangent");
-                vb->AddBufferLayout(layout);
+                auto vbResource = RZResourceManager::Get().getVertexBufferResource(vb);
+                vbResource->AddBufferLayout(layout);
                 delete[] data;
 
                 u32 indices[6]{
                     0, 1, 2, 2, 3, 0};
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Plane") indices, 6);
+                RZBufferDesc ibDesc    = {};
+                ibDesc.name            = "IB_SM.Primitive.Plane";
+                ibDesc.data            = indices;
+                ibDesc.count           = 6;
+                ibDesc.usage           = BufferUsage::Static;
+                RZIndexBufferHandle ib = RZResourceManager::Get().createIndexBuffer(ibDesc);
 
                 RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
 
@@ -188,10 +195,10 @@ namespace Razix {
                 data[6].Color    = glm::vec4(0.0f);
                 data[6].Normal   = glm::vec3(1.0f, 0.0f, 0.0f);
 
-                data[7].Position  = glm::vec3(1.0f, 1.0f, -1.0f);
-                data[7].Color     = glm::vec4(0.0f);
-                data[7].UV = glm::vec2(0.0f, 1.0f);
-                data[7].Normal    = glm::vec3(1.0f, 0.0f, 0.0f);
+                data[7].Position = glm::vec3(1.0f, 1.0f, -1.0f);
+                data[7].Color    = glm::vec4(0.0f);
+                data[7].UV       = glm::vec2(0.0f, 1.0f);
+                data[7].Normal   = glm::vec3(1.0f, 0.0f, 0.0f);
 
                 data[8].Position = glm::vec3(1.0f, 1.0f, 1.0f);
                 data[8].Color    = glm::vec4(0.0f);
@@ -201,10 +208,10 @@ namespace Razix {
                 data[9].Color    = glm::vec4(0.0f);
                 data[9].Normal   = glm::vec3(0.0f, 1.0f, 0.0f);
 
-                data[10].Position  = glm::vec3(-1.0f, 1.0f, -1.0f);
-                data[10].Color     = glm::vec4(0.0f);
-                data[10].UV = glm::vec2(0.0f, 1.0f);
-                data[10].Normal    = glm::vec3(0.0f, 1.0f, 0.0f);
+                data[10].Position = glm::vec3(-1.0f, 1.0f, -1.0f);
+                data[10].Color    = glm::vec4(0.0f);
+                data[10].UV       = glm::vec2(0.0f, 1.0f);
+                data[10].Normal   = glm::vec3(0.0f, 1.0f, 0.0f);
 
                 data[11].Position = glm::vec3(-1.0f, 1.0f, 1.0f);
                 data[11].Color    = glm::vec4(0.0f);
@@ -258,6 +265,7 @@ namespace Razix {
                 data[23].Color    = glm::vec4(0.0f);
                 data[23].Normal   = glm::vec3(0.0f, 0.0f, -1.0f);
 
+                // UVs
                 for (int i = 0; i < 6; i++) {
                     data[i * 4 + 0].UV = glm::vec2(0.0f, 0.0f);
                     data[i * 4 + 1].UV = glm::vec2(1.0f, 0.0f);
@@ -265,12 +273,32 @@ namespace Razix {
                     data[i * 4 + 3].UV = glm::vec2(0.0f, 1.0f);
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(24 * sizeof(RZVertex), data, BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Cube"));
+                RZBufferDesc vbDesc     = {};
+                vbDesc.name             = "VB_SM.Primitive.Cube";
+                vbDesc.data             = data;
+                vbDesc.size             = sizeof(RZVertex) * 24;
+                vbDesc.usage            = BufferUsage::Static;
+                RZVertexBufferHandle vb = RZResourceManager::Get().createVertexBuffer(vbDesc);
+
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec3>("Position");
+                layout.push<glm::vec4>("Color");
+                layout.push<glm::vec2>("TexCoords");
+                layout.push<glm::vec3>("Normal");
+                layout.push<glm::vec3>("Tangent");
+                auto vbResource = RZResourceManager::Get().getVertexBufferResource(vb);
+                vbResource->AddBufferLayout(layout);
                 delete[] data;
 
                 u32 indices[36]{
                     0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
-                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Cube") indices, 36);
+
+                RZBufferDesc ibDesc    = {};
+                ibDesc.name            = "IB_SM.Primitive.Cube";
+                ibDesc.data            = indices;
+                ibDesc.count           = 36;
+                ibDesc.usage           = BufferUsage::Static;
+                RZIndexBufferHandle ib = RZResourceManager::Get().createIndexBuffer(ibDesc);
 
                 RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
 
@@ -311,15 +339,29 @@ namespace Razix {
                         f32 t = static_cast<f32>(i / stackCount);
 
                         Graphics::RZVertex vertex;
-                        vertex.Position  = glm::vec3(x, y, z);
-                        vertex.UV = glm::vec2(s, t);
-                        vertex.Normal    = glm::normalize(glm::vec3(x, y, z));
+                        vertex.Position = glm::vec3(x, y, z);
+                        vertex.UV       = glm::vec2(s, t);
+                        vertex.Normal   = glm::normalize(glm::vec3(x, y, z));
 
                         data.emplace_back(vertex);
                     }
                 }
 
-                RZVertexBuffer* vb = RZVertexBuffer::Create(sizeof(RZVertex) * int(data.size()), data.data(), BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Sphere"));
+                RZBufferDesc vbDesc     = {};
+                vbDesc.name             = "VB_SM.Primitive.Sphere";
+                vbDesc.data             = data.data();
+                vbDesc.size             = sizeof(RZVertex) * data.size();
+                vbDesc.usage            = BufferUsage::Static;
+                RZVertexBufferHandle vb = RZResourceManager::Get().createVertexBuffer(vbDesc);
+
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec3>("Position");
+                layout.push<glm::vec4>("Color");
+                layout.push<glm::vec2>("TexCoords");
+                layout.push<glm::vec3>("Normal");
+                layout.push<glm::vec3>("Tangent");
+                auto vbResource = RZResourceManager::Get().getVertexBufferResource(vb);
+                vbResource->AddBufferLayout(layout);
 
                 std::vector<u32> indices;
                 u16              k1, k2;
@@ -345,7 +387,12 @@ namespace Razix {
                     }
                 }
 
-                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sphere") indices.data(), static_cast<u32>(indices.size()));
+                RZBufferDesc ibDesc    = {};
+                ibDesc.name            = "IB_SM.Primitive.Sphere";
+                ibDesc.data            = indices.data();
+                ibDesc.count           = static_cast<u32>(indices.size());
+                ibDesc.usage           = BufferUsage::Static;
+                RZIndexBufferHandle ib = RZResourceManager::Get().createIndexBuffer(ibDesc);
 
                 RZMesh* mesh = new RZMesh(vb, ib, static_cast<u32>(data.size()), static_cast<u32>(indices.size()));
 
@@ -353,43 +400,6 @@ namespace Razix {
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
                 forwardRendererMaterial->createDescriptorSet();
                 mesh->setMaterial(forwardRendererMaterial);
-
-                return mesh;
-            }
-
-            RZMesh* CreateScreenQuad()
-            {
-                RZSimpleVertex* data = new RZSimpleVertex[4];
-                data[0].Position     = glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);
-                data[0].TexCoords    = glm::vec2(0.0f, 0.0f);
-
-                data[1].Position  = glm::vec4(1.0f, -1.0f, 0.0f, 1.0f);
-                data[1].TexCoords = glm::vec2(1.0f, 0.0f);
-
-                data[2].Position  = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
-                data[2].TexCoords = glm::vec2(1.0f, 1.0f);
-
-                data[3].Position  = glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f);
-                data[3].TexCoords = glm::vec2(0.0f, 1.0f);
-
-                RZVertexBuffer*      vb = RZVertexBuffer::Create(4 * sizeof(RZSimpleVertex), data, BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Screen Quad VB"));
-                RZVertexBufferLayout layout;
-                layout.push<glm::vec4>("Position");
-                layout.push<glm::vec2>("TexCoords");
-                vb->AddBufferLayout(layout);
-                delete[] data;
-
-                u32 indices[6] = {0, 1, 2, 2, 3, 0};
-
-                RZIndexBuffer* ib = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Screen Quad IB") indices, 6);
-
-                RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
-                // Set the material
-                auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition);
-
-                RZMaterial* compositePassMaterial = new RZMaterial(shader);
-                compositePassMaterial->createDescriptorSet();
-                mesh->setMaterial(compositePassMaterial);
 
                 return mesh;
             }

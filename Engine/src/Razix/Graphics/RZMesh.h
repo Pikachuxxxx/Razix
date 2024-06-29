@@ -35,7 +35,7 @@ namespace Razix {
 
         constexpr cstr kStaticMeshAssetFilePrefix   = "SM_";
         constexpr cstr kDynamicMeshAssetFilePrefix  = "DM_";
-        constexpr cstr kSkeletalMeshAssetFilePrefix = "SM_";
+        constexpr cstr kSkeletalMeshAssetFilePrefix = "SK_";
 
         /**
          * Mesh represents the cluster of vertex and index data which is essentially the building block of a 3D Model which will be rendered onto a scene in one draw call
@@ -54,7 +54,7 @@ namespace Razix {
              * @param vertexBuffer The Razix vertex buffer used to render the mesh
              * @param indexBuffer The Index Buffer used to render the mesh
              */
-            RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, u32 vtxcount, u32 idxcount);
+            RZMesh(RZVertexBufferHandle vertexBuffer, RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount);
             /**
              * Creates a mesh with given indices and vertices
              * 
@@ -70,21 +70,19 @@ namespace Razix {
             static void GenerateTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount);
             static void GenerateTangentsAndBiTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 numIndices);
 
-            void Draw(RZDrawCommandBufferHandle cmdBuffer);
-
             void Destroy();
 
-            RAZIX_INLINE const std::string& getName() const { return m_Name; }
-            RAZIX_INLINE void               setName(const char* name);
-            RAZIX_INLINE void               setName(std::string name);
-            RAZIX_INLINE RZMaterial*        getMaterial() { return m_Material; }
-            RAZIX_INLINE void               setMaterial(RZMaterial* mat) { m_Material = mat; }
-            RAZIX_INLINE RZVertexBuffer*    getVertexBuffer() { return m_VertexBuffer; }
-            RAZIX_INLINE RZIndexBuffer*     getIndexBuffer() { return m_IndexBuffer; }
-            RAZIX_INLINE u32                getVerticesCount() const { return m_VertexCount; }
-            RAZIX_INLINE u32                getIndexCount() const { return m_IndexCount; }
-            RAZIX_INLINE void               setIndexCount(u32 count) { m_IndexCount = count; }
-            RAZIX_INLINE void               setVertexCount(u32 count) { m_VertexCount = count; }
+            RAZIX_INLINE const std::string&   getName() const { return m_Name; }
+            RAZIX_INLINE void                 setName(const char* name);
+            RAZIX_INLINE void                 setName(std::string name);
+            RAZIX_INLINE RZMaterial*          getMaterial() { return m_Material; }
+            RAZIX_INLINE void                 setMaterial(RZMaterial* mat) { m_Material = mat; }
+            RAZIX_INLINE RZVertexBufferHandle getVertexBufferHandle() { return m_VertexBuffer; }
+            RAZIX_INLINE RZIndexBufferHandle  getIndexBufferHandle() { return m_IndexBuffer; }
+            RAZIX_INLINE u32                  getVerticesCount() const { return m_VertexCount; }
+            RAZIX_INLINE u32                  getIndexCount() const { return m_IndexCount; }
+            RAZIX_INLINE void                 setIndexCount(u32 count) { m_IndexCount = count; }
+            RAZIX_INLINE void                 setVertexCount(u32 count) { m_VertexCount = count; }
             RAZIX_INLINE std::string getPath() { return m_MeshPath; }
             RAZIX_INLINE void        setPath(std::string path) { m_MeshPath = path; }
             RAZIX_INLINE Maths::AABB getBoundingBox() { return m_BoundingBox; }
@@ -98,16 +96,16 @@ namespace Razix {
             RAZIX_INLINE void      setBaseVertex(u32 count) { m_BaseVertex = count; }
 
         private:
-            std::string     m_Name = "SM_Primitive.Cube"; /* The name of the mesh                                   */
-            RZMaterial*     m_Material;                   /* The material with which the mesh will be rendered with */
-            RZVertexBuffer* m_VertexBuffer;               /* The Vertex Buffer that will be uploaded to the GPU     */
-            RZIndexBuffer*  m_IndexBuffer;                /* The Index Buffer that will be uploaded to the GPU      */
-            u32             m_IndexCount;                 /* Total indices count of the mesh                        */
-            u32             m_VertexCount;                /* Total vertices count of the mesh                       */
-            Maths::AABB     m_BoundingBox;
-            u32             m_BaseIndex  = 0;
-            u32             m_BaseVertex = 0;
-            std::string     m_MeshPath;
+            std::string          m_Name         = "SM_Primitive.Cube"; /* The name of the mesh                                   */
+            RZMaterial*          m_Material     = nullptr;             /* The material with which the mesh will be rendered with */
+            RZVertexBufferHandle m_VertexBuffer = {};                  /* The Vertex Buffer that will be uploaded to the GPU     */
+            RZIndexBufferHandle  m_IndexBuffer  = {};                  /* The Index Buffer that will be uploaded to the GPU      */
+            u32                  m_IndexCount   = 0;                   /* Total indices count of the mesh                        */
+            u32                  m_VertexCount  = 0;                   /* Total vertices count of the mesh                       */
+            Maths::AABB          m_BoundingBox  = {};
+            u32                  m_BaseIndex    = 0;
+            u32                  m_BaseVertex   = 0;
+            std::string          m_MeshPath     = "";
         };
 
     }    // namespace Graphics

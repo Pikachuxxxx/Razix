@@ -56,7 +56,7 @@ namespace Razix {
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
             // Load the ImGui shaders
-            m_OverrideGlobalRHIShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ImGui);
+            m_ImGuiShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ImGui);
 
             // Configure ImGui
             // Setup Dear ImGui context
@@ -96,7 +96,7 @@ namespace Razix {
             //uploadUIFont("//RazixContent/Fonts/FiraCode/FiraCode-Light.ttf");
 
             // Now create the descriptor set that will be bound for the shaders
-            auto setInfos = RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getDescriptorsPerHeapMap();
+            auto setInfos = RZResourceManager::Get().getShaderResource(m_ImGuiShader)->getDescriptorsPerHeapMap();
 
             // Add icon fonts to ImGui
             // merge in icons from Font Awesome
@@ -145,8 +145,20 @@ namespace Razix {
             }
 
             constexpr u32 maxSize = 64_Mib;
-            m_ImGuiVBO            = RZVertexBuffer::Create(maxSize, nullptr, BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("VB.ImGUi"));
-            m_ImGuiIBO            = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("IB.ImGui") nullptr, maxSize * 6, BufferUsage::PersistentStream);
+
+            RZBufferDesc vertexBufferDesc = {};
+            vertexBufferDesc.name         = "VB_ImGui";
+            vertexBufferDesc.usage        = BufferUsage::PersistentStream;
+            vertexBufferDesc.size         = maxSize;
+            vertexBufferDesc.data         = nullptr;
+            m_ImGuiVBO                    = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+
+            RZBufferDesc indexBufferDesc = {};
+            indexBufferDesc.name         = "IB_ImGui";
+            indexBufferDesc.usage        = BufferUsage::PersistentStream;
+            indexBufferDesc.count        = maxSize * 6;    // cause of 6 verts/quad
+            indexBufferDesc.data         = nullptr;
+            m_ImGuiIBO                   = RZResourceManager::Get().createIndexBuffer(indexBufferDesc);
         }
 
         void RZImGuiRenderer::Begin(RZScene* scene)
@@ -170,28 +182,15 @@ namespace Razix {
             if ((vertexBufferSize == 0) || (indexBufferSize == 0))
                 return;
 
-            /* if ((dynamic_cast<VKVertexBuffer*>(m_ImGuiVBO)->getBuffer() == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {*/
-            //m_ImGuiVBO->Destroy();
-            //delete m_ImGuiVBO;
-            //m_ImGuiVBO = RZVertexBuffer::Create(vertexBufferSize, nullptr, BufferUsage::DYNAMIC RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGUi VBO"));
-            //vertexCount = imDrawData->TotalVtxCount;
-            //m_ImGuiVBO->UnMap();
-            m_ImGuiVBO->Map();
-            updateCmdBuffers = true;
-            //}
+            auto imguiVB = RZResourceManager::Get().getVertexBufferResource(m_ImGuiVBO);
+            auto imguiIB = RZResourceManager::Get().getIndexBufferResource(m_ImGuiIBO);
 
-            //if ((dynamic_cast<VKIndexBuffer*>(m_ImGuiIBO)->getBuffer() == VK_NULL_HANDLE) || (indexCount != imDrawData->TotalIdxCount)) {
-            //m_ImGuiIBO->Destroy();
-            //delete m_ImGuiIBO;
-            //m_ImGuiIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("ImGui IBO") nullptr, imDrawData->TotalIdxCount, BufferUsage::DYNAMIC);
-            //indexCount = imDrawData->TotalIdxCount;
-            //m_ImGuiIBO->UnMap();
-            m_ImGuiIBO->Map();
-            updateCmdBuffers = true;
+            imguiVB->Map();
+            imguiIB->Map();
 
             // Upload vertex and index data to the GPU
-            ImDrawVert* vtxDst = (ImDrawVert*) m_ImGuiVBO->GetMappedBuffer();
-            ImDrawIdx*  idxDst = (ImDrawIdx*) m_ImGuiIBO->GetMappedBuffer();
+            ImDrawVert* vtxDst = (ImDrawVert*) imguiVB->GetMappedBuffer();
+            ImDrawIdx*  idxDst = (ImDrawIdx*) imguiIB->GetMappedBuffer();
 
             for (int n = 0; n < imDrawData->CmdListsCount; n++) {
                 const ImDrawList* cmd_list = imDrawData->CmdLists[n];
@@ -202,8 +201,8 @@ namespace Razix {
                 idxDst += cmd_list->IdxBuffer.Size;
             }
 
-            m_ImGuiVBO->UnMap();
-            m_ImGuiIBO->UnMap();
+            imguiVB->UnMap();
+            imguiIB->UnMap();
         }
 
         void RZImGuiRenderer::Draw(RZDrawCommandBufferHandle cmdBuffer)
@@ -247,8 +246,10 @@ namespace Razix {
             RHI::BindPushConstant(m_Pipeline, cmdBuffer, model);
 
             // Bind the vertex and index buffers
-            m_ImGuiVBO->Bind(cmdBuffer);
-            m_ImGuiIBO->Bind(cmdBuffer);
+            auto imguiVB = RZResourceManager::Get().getVertexBufferResource(m_ImGuiVBO);
+            auto imguiIB = RZResourceManager::Get().getIndexBufferResource(m_ImGuiIBO);
+            imguiVB->Bind(cmdBuffer);
+            imguiIB->Bind(cmdBuffer);
 
             for (u32 i = 0; i < (u32) imDrawData->CmdListsCount; ++i) {
                 ImDrawList* cmd_list = imDrawData->CmdLists[i];
@@ -309,15 +310,15 @@ namespace Razix {
         {
             if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
                 return;
-            //m_DepthTexture->Release(true);
 
             if (m_FontAtlasDescriptorSet)
                 m_FontAtlasDescriptorSet->Destroy();
-            //m_FontAtlasTexture->Release(true);
             RZResourceManager::Get().destroyTexture(m_FontAtlasTexture);
-            m_ImGuiVBO->Destroy();
-            m_ImGuiIBO->Destroy();
+            RZResourceManager::Get().destroyIndexBuffer(m_ImGuiIBO);
+            RZResourceManager::Get().destroyVertexBuffer(m_ImGuiVBO);
+            RZResourceManager::Get().destroyTexture(m_FontAtlasTexture);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            RZResourceManager::Get().destroyShader(m_ImGuiShader);
         }
 
         void RZImGuiRenderer::initDisposableResources()
@@ -327,7 +328,7 @@ namespace Razix {
             pipelineInfo.name                   = "Pipeline.ImGui";
             pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
-            pipelineInfo.shader                 = m_OverrideGlobalRHIShader;
+            pipelineInfo.shader                 = m_ImGuiShader;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F};
@@ -350,9 +351,17 @@ namespace Razix {
             unsigned char* fontData;
             int            texWidth, texHeight;
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
-            //sz uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZResourceManager::Get().createTexture({.name = "Awesome Font Icon Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .type = TextureType::Texture_2D, .format = TextureFormat::RGBA8, .wrapping = Wrapping::CLAMP_TO_EDGE});
+            RZTextureDesc fontAtlasDesc = {};
+            fontAtlasDesc.name          = "Texture.2D.ImGuiAwesomeIconAtlas";
+            fontAtlasDesc.width         = (u32) texWidth;
+            fontAtlasDesc.height        = (u32) texHeight;
+            fontAtlasDesc.data          = fontData;
+            fontAtlasDesc.type          = TextureType::Texture_2D;
+            fontAtlasDesc.format        = TextureFormat::RGBA8;
+            fontAtlasDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
+
+            m_FontAtlasTexture = RZResourceManager::Get().createTexture(fontAtlasDesc);
         }
     }    // namespace Graphics
 }    // namespace Razix

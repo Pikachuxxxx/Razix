@@ -15,7 +15,7 @@ namespace Razix {
     namespace Graphics {
 
         RZMesh::RZMesh()
-            : m_VertexBuffer(nullptr), m_IndexBuffer(nullptr), m_Material(nullptr)
+            : m_Material(nullptr)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
         }
@@ -26,7 +26,7 @@ namespace Razix {
             RZEngine::Get().GetStatistics().MeshesRendered++;
         }
 
-        RZMesh::RZMesh(RZVertexBuffer* vertexBuffer, RZIndexBuffer* indexBuffer, u32 vtxcount, u32 idxcount)
+        RZMesh::RZMesh(RZVertexBufferHandle vertexBuffer, RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount)
             : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
@@ -70,8 +70,21 @@ namespace Razix {
             //GenerateTangentsAndBiTangents(m_Vertices.data(), m_VertexCount, nullptr, 0);
             GenerateTangents(&m_Vertices[0], m_VertexCount, nullptr, 0);
 
-            m_IndexBuffer  = Graphics::RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG(m_Name) m_Indices.data(), m_IndexCount);
-            m_VertexBuffer = Graphics::RZVertexBuffer::Create(sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount), m_Vertices.data(), BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Name));
+            RZBufferDesc indexBufferDesc = {};
+            indexBufferDesc.name         = "IB_" + m_Name;
+            indexBufferDesc.data         = m_Indices.data();
+            indexBufferDesc.count        = m_IndexCount;
+            indexBufferDesc.usage        = BufferUsage::Static;
+            m_IndexBuffer                = RZResourceManager::Get().createIndexBuffer(indexBufferDesc);
+
+            RZBufferDesc vertexBufferDesc = {};
+            vertexBufferDesc.name         = "VB_" + m_Name;
+            vertexBufferDesc.data         = (void*) vertices.data();
+            vertexBufferDesc.usage        = BufferUsage::Static;
+            vertexBufferDesc.size         = sizeof(Graphics::RZVertex) * static_cast<u32>(m_VertexCount);
+            m_VertexBuffer                = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+
+            auto vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VertexBuffer);
             // TODO: Add buffer layout by reflecting from the shader
             RZVertexBufferLayout layout;
             layout.push<glm::vec3>("Position");
@@ -79,7 +92,7 @@ namespace Razix {
             layout.push<glm::vec2>("UV");
             layout.push<glm::vec3>("Normal");
             layout.push<glm::vec3>("Tangent");
-            m_VertexBuffer->AddBufferLayout(layout);
+            vertexBufferResource->AddBufferLayout(layout);
 
             m_Vertices.clear();
             m_Indices.clear();
@@ -233,21 +246,13 @@ for (int i = 0; i < vertexCount; i++) {
 #endif
         }
 
-        void RZMesh::Draw(RZDrawCommandBufferHandle cmdBuffer)
-        {
-            m_VertexBuffer->Bind(cmdBuffer);
-            m_IndexBuffer->Bind(cmdBuffer);
-
-            m_Material->Bind();
-
-            RHI::DrawIndexed(cmdBuffer, m_IndexCount, 1, 0, 0, 0);
-        }
-
         void RZMesh::Destroy()
         {
-            m_VertexBuffer->Destroy();
-            m_IndexBuffer->Destroy();
-            //m_Material->Destroy();
+            // We don't destroy the vertex and index buffers here because, the mesh might not be sole owner of the VB/IB
+            // It might only be using some part of a big VB/IB so we leave it to the resource manager + RefCounter to release VB/IB
+            //m_VertexBuffer->Destroy();
+            //m_IndexBuffer->Destroy();
+            m_Material->Destroy();
         }
     }    // namespace Graphics
 }    // namespace Razix
