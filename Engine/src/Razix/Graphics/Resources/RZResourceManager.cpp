@@ -5,10 +5,12 @@
 
 #include "Razix/Graphics/RHI/API/RZCommandPool.h"
 #include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
@@ -129,6 +131,8 @@ namespace Razix {
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, const RZShaderDesc& desc)
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, const RZPipelineDesc& desc)
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(UniformBuffer, const RZBufferDesc& desc)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(VertexBuffer, const RZBufferDesc& desc)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(IndexBuffer, const RZBufferDesc& desc)
 
         // Since there don't use a Desc struct, we customize how they are created
         BEGIN_CREATE_UTIL(CommandPool, PoolType type)

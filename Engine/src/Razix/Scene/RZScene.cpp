@@ -14,8 +14,8 @@
 #include "Razix/Scene/RZEntity.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
-#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"
 #include "Razix/Graphics/RHI/RHI.h"
@@ -253,8 +253,8 @@ namespace Razix {
                     Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
                 }
 
-                mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
-                mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
+                Graphics::RZResourceManager::Get().getVertexBufferResource(mrc.Mesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                Graphics::RZResourceManager::Get().getIndexBufferResource(mrc.Mesh->getIndexBufferHandle())->Bind(cmdBuffer);
 
                 Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
@@ -263,8 +263,8 @@ namespace Razix {
             if (!m_Cube)
                 m_Cube = Graphics::MeshFactory::CreatePrimitive(Graphics::Cube);
 
-            m_Cube->getVertexBuffer()->Bind(cmdBuffer);
-            m_Cube->getIndexBuffer()->Bind(cmdBuffer);
+            Graphics::RZResourceManager::Get().getVertexBufferResource(m_Cube->getVertexBufferHandle())->Bind(cmdBuffer);
+            Graphics::RZResourceManager::Get().getIndexBufferResource(m_Cube->getIndexBufferHandle())->Bind(cmdBuffer);
 
             // TODO: Bind mat and desc sets and PCs
 

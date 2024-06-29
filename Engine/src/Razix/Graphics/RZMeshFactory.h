@@ -5,18 +5,18 @@
 namespace Razix {
     namespace Graphics {
 
+        // TODO: Use RZMeshHandle
         class RZMesh;
 
         /* Mesh primitive describes the primitive geometry */
         enum MeshPrimitive : int32_t
         {
-            Plane      = 0,
-            ScreenQuad = 1,
-            Cube       = 2,
-            Pyramid    = 3,
-            Sphere     = 4,
-            Capsule    = 5,
-            Cylinder   = 6
+            Plane = 0,
+            Cube,
+            Sphere,
+            Pyramid,    // WIP
+            Capsule,    // WIP
+            Cylinder    // WIP
         };
 
         namespace MeshFactory {
@@ -27,7 +27,6 @@ namespace Razix {
 
             RAZIX_API RZMesh* CreatePrimitive(MeshPrimitive primitive);
 
-            RZMesh* CreateScreenQuad();
             RZMesh* CreatePlane(f32 width = 10.0f, f32 height = 10.0f, const glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
             RZMesh* CreateCube();
             RZMesh* CreatePyramid();

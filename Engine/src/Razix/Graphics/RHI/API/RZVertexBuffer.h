@@ -59,6 +59,8 @@ namespace Razix {
              * @param usage The usage Description of the buffer
              */
             static void Create(void* where, const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            friend class RZResourceManager;
         };
 
     }    // namespace Graphics

@@ -161,7 +161,7 @@ namespace Razix {
                 desc.name     = fileName;
                 desc.filePath = paths.specular;
                 if (!fileName.empty())
-                    m_MaterialData.m_MaterialTextures.specular = RZResourceManager::Get().createTextureFromFile({.name = fileName}, paths.specular);
+                    m_MaterialData.m_MaterialTextures.specular = RZResourceManager::Get().createTexture(desc);
             }
 
             setTexturesUpdated(true);

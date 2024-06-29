@@ -141,8 +141,8 @@ namespace Razix {
 
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
-                cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
-                cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
+                RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
 
                 // Bind the Bindless Env map texture 2d
 
@@ -157,7 +157,7 @@ namespace Razix {
                 for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
                     //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-                    RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                    RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
                 }
 
                 RHI::EndRendering(cmdBuffer);
@@ -269,8 +269,8 @@ namespace Razix {
 
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
-                cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
-                cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
+                RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
 
                 //u32            idx = cubeMap.getIndex();
                 //RZPushConstant pc;
@@ -283,7 +283,7 @@ namespace Razix {
                 for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
                     //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-                    RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                    RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
                 }
 
                 RHI::EndRendering(cmdBuffer);
@@ -410,8 +410,8 @@ namespace Razix {
 
                     RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
-                    cubeMesh->getVertexBuffer()->Bind(cmdBuffer);
-                    cubeMesh->getIndexBuffer()->Bind(cmdBuffer);
+                    RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                    RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
 
                     for (u32 i = 0; i < layerCount; i++) {
                         RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
@@ -430,7 +430,7 @@ namespace Razix {
 
                         RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
-                        RHI::DrawIndexed(cmdBuffer, cubeMesh->getIndexBuffer()->getCount(), 1, 0, 0, 0);
+                        RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
                     }
                     RHI::EndRendering(cmdBuffer);
                 }

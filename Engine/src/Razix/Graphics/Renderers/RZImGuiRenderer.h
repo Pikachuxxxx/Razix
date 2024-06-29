@@ -64,19 +64,11 @@ namespace Razix {
             ~RZImGuiRenderer() {}
 
         private:
-            RZTextureHandle  m_FontAtlasTexture       = {};
-            RZDescriptorSet* m_FontAtlasDescriptorSet = nullptr;
-
-            RZVertexBuffer* m_ImGuiVBO = nullptr;
-            RZIndexBuffer*  m_ImGuiIBO = nullptr;
-
-            RZShaderHandle m_OverrideGlobalRHIShader;
-
-            //int32_t vertexCount = 0;
-            //int32_t indexCount  = 0;
-
-            std::vector<ImGuiVertex> m_VertexData;
-            std::vector<u16>         m_IndexData;
+            RZDescriptorSet*     m_FontAtlasDescriptorSet = nullptr;
+            RZTextureHandle      m_FontAtlasTexture       = {};
+            RZVertexBufferHandle m_ImGuiVBO               = {};
+            RZIndexBufferHandle  m_ImGuiIBO               = {};
+            RZShaderHandle       m_ImGuiShader            = {};
 
         private:
             void initDisposableResources();

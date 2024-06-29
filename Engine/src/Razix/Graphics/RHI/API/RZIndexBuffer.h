@@ -48,6 +48,8 @@ namespace Razix {
              * Creates an index buffer with the given index data to render the geometry
              */
             static void Create(void* where, const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            friend class RZResourceManager;
         };
     }    // namespace Graphics
 }    // namespace Razix

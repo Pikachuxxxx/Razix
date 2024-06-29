@@ -54,28 +54,26 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRenderer::Init()
         {
-            auto PointShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
-
-            Graphics::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "Debug Renderer:: Points pipeline (DT)";
-            pipelineInfo.cullMode               = Graphics::CullMode::None;
-            pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
-            pipelineInfo.shader                 = PointShader;
-            pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Graphics::TextureFormat::RGBA16F};
-            pipelineInfo.depthFormat            = Graphics::TextureFormat::DEPTH32F;
-            pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
-            pipelineInfo.depthOp                = CompareOp::LessOrEqual;
-
+            m_PointShader                         = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
+            Graphics::RZPipelineDesc pipelineInfo = {};
+            pipelineInfo.name                     = "Pipeline.DebugRender::Points(DT)";
+            pipelineInfo.cullMode                 = Graphics::CullMode::None;
+            pipelineInfo.depthBiasEnabled         = false;
+            pipelineInfo.drawType                 = Graphics::DrawType::Triangle;
+            pipelineInfo.shader                   = m_PointShader;
+            pipelineInfo.transparencyEnabled      = true;
+            pipelineInfo.colorAttachmentFormats   = {Graphics::TextureFormat::RGBA16F};
+            pipelineInfo.depthFormat              = Graphics::TextureFormat::DEPTH32F;
+            pipelineInfo.depthTestEnabled         = true;
+            pipelineInfo.depthWriteEnabled        = true;
+            pipelineInfo.depthOp                  = CompareOp::LessOrEqual;
             // Points Pipeline
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Change the polygon mode for drawing lines
-            auto LineShader          = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugLine);
-            pipelineInfo.name        = "Debug Renderer:: Lines pipeline (DT)";
-            pipelineInfo.shader      = LineShader;
+            m_LineShader             = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugLine);
+            pipelineInfo.name        = "Pipeline.DebugRenderer::Lines(DT)";
+            pipelineInfo.shader      = m_LineShader;
             pipelineInfo.cullMode    = CullMode::None;
             pipelineInfo.polygonMode = PolygonMode::Fill;
             pipelineInfo.drawType    = DrawType::Line;
@@ -84,8 +82,20 @@ namespace Razix {
 
             // Create the VBOs and IBOs
             // Points - Create a large enough to hold a large amount of points
-            m_PointVBO = RZVertexBuffer::Create(RENDERER_POINT_BUFFER_SIZE, nullptr, Graphics::BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Points VBO"));
-            m_LineVBO  = RZVertexBuffer::Create(RENDERER_LINE_BUFFER_SIZE, nullptr, Graphics::BufferUsage::PersistentStream RZ_DEBUG_NAME_TAG_STR_E_ARG("Debug Lines VBO"));
+
+            RZBufferDesc pointVBDesc = {};
+            pointVBDesc.name         = "VB_Points";
+            pointVBDesc.usage        = BufferUsage::PersistentStream;
+            pointVBDesc.size         = RENDERER_POINT_BUFFER_SIZE;
+            pointVBDesc.data         = nullptr;
+            m_PointVBO               = RZResourceManager::Get().createVertexBuffer(pointVBDesc);
+
+            RZBufferDesc lineVBDesc = {};
+            lineVBDesc.name         = "VB_Lines";
+            lineVBDesc.usage        = BufferUsage::PersistentStream;
+            lineVBDesc.size         = RENDERER_LINE_BUFFER_SIZE;
+            lineVBDesc.data         = nullptr;
+            m_LineVBO               = RZResourceManager::Get().createVertexBuffer(lineVBDesc);
 
             u32* indices = new u32[MaxPointIndices];
             u32  offset  = 0;
@@ -101,7 +111,12 @@ namespace Razix {
                 offset += 4;
             }
 
-            m_PointIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Debug Point IBO") indices, MaxPointIndices);
+            RZBufferDesc pointIBDesc = {};
+            pointIBDesc.name         = "IB_Points";
+            pointIBDesc.usage        = BufferUsage::Static;
+            pointIBDesc.count        = MaxPointIndices;
+            pointIBDesc.data         = indices;
+            m_PointIBO               = RZResourceManager::Get().createIndexBuffer(pointIBDesc);
 
             delete[] indices;
 
@@ -111,7 +126,12 @@ namespace Razix {
                 line_indices[i] = i;
             }
 
-            m_LineIBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Debug Lines IBO") line_indices, MaxLineIndices);
+            RZBufferDesc lineIBDesc = {};
+            lineIBDesc.name         = "IB_Lines";
+            lineIBDesc.usage        = BufferUsage::Static;
+            lineIBDesc.count        = MaxLineIndices;
+            lineIBDesc.data         = line_indices;
+            m_LineIBO               = RZResourceManager::Get().createIndexBuffer(lineIBDesc);
 
             delete[] line_indices;
         }
@@ -132,11 +152,14 @@ namespace Razix {
             // POINTS
             {
                 // Prepare the points VBO and IBO and update them
-                m_PointVBO->Bind(cmdBuffer);
+                auto pointVBResource = RZResourceManager::Get().getVertexBufferResource(m_PointVBO);
+                auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIBO);
+
+                pointVBResource->Bind(cmdBuffer);
 
                 // Map the VBO
-                m_PointVBO->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
-                PointVertexData* pointsVertexData = (PointVertexData*) m_PointVBO->GetMappedBuffer();
+                pointVBResource->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
+                PointVertexData* pointsVertexData = (PointVertexData*) pointVBResource->GetMappedBuffer();
 
                 for (auto& point: m_DrawList.m_DebugPoints) {
                     glm::vec3 right = point.size * sceneCamera.getRight();
@@ -169,16 +192,19 @@ namespace Razix {
                     m_PointIndexCount += 6;
                 }
 
-                m_PointVBO->UnMap();
-                m_PointIBO->setCount(m_PointIndexCount);
+                pointVBResource->UnMap();
+                pointIBResource->setCount(m_PointIndexCount);
             }
 
             // LINES
             {
-                m_LineVBO->Bind(cmdBuffer);
+                auto lineVBResource = RZResourceManager::Get().getVertexBufferResource(m_LineVBO);
+                auto lineIBResource = RZResourceManager::Get().getIndexBufferResource(m_LineIBO);
 
-                m_LineVBO->Map(RENDERER_LINE_SIZE * static_cast<u32>(m_DrawList.m_DebugLines.size()));
-                LineVertexData* lineVtxData = (LineVertexData*) m_LineVBO->GetMappedBuffer();
+                lineVBResource->Bind(cmdBuffer);
+
+                lineVBResource->Map(RENDERER_LINE_SIZE * static_cast<u32>(m_DrawList.m_DebugLines.size()));
+                LineVertexData* lineVtxData = (LineVertexData*) lineVBResource->GetMappedBuffer();
 
                 for (auto& line: m_DrawList.m_DebugLines) {
                     lineVtxData->vertex = glm::vec4(line.p1, 1.0f);
@@ -192,8 +218,8 @@ namespace Razix {
                     m_LineIndexCount += 2;
                 }
 
-                m_LineVBO->UnMap();
-                m_LineIBO->setCount(m_LineIndexCount);
+                lineVBResource->UnMap();
+                lineIBResource->setCount(m_LineIndexCount);
             }
         }
 
@@ -207,8 +233,11 @@ namespace Razix {
 
                 Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
-                m_PointVBO->Bind(cmdBuffer);
-                m_PointIBO->Bind(cmdBuffer);
+                auto pointVBResource = RZResourceManager::Get().getVertexBufferResource(m_PointVBO);
+                auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIBO);
+
+                pointVBResource->Bind(cmdBuffer);
+                pointIBResource->Bind(cmdBuffer);
 
                 RHI::DrawIndexed(cmdBuffer, m_PointIndexCount);
             }
@@ -219,8 +248,11 @@ namespace Razix {
 
                 Graphics::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
-                m_LineVBO->Bind(cmdBuffer);
-                m_LineIBO->Bind(cmdBuffer);
+                auto lineVBResource = RZResourceManager::Get().getVertexBufferResource(m_LineVBO);
+                auto lineIBResource = RZResourceManager::Get().getIndexBufferResource(m_LineIBO);
+
+                lineVBResource->Bind(cmdBuffer);
+                lineIBResource->Bind(cmdBuffer);
 
                 RHI::DrawIndexed(cmdBuffer, m_LineIndexCount);
             }
@@ -245,10 +277,14 @@ namespace Razix {
         {
             RZResourceManager::Get().destroyPipeline(m_LinePipeline);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-            m_PointIBO->Destroy();
-            m_PointVBO->Destroy();
-            m_LineIBO->Destroy();
-            m_LineVBO->Destroy();
+
+            RZResourceManager::Get().destroyIndexBuffer(m_PointIBO);
+            RZResourceManager::Get().destroyVertexBuffer(m_PointVBO);
+            RZResourceManager::Get().destroyIndexBuffer(m_LineIBO);
+            RZResourceManager::Get().destroyVertexBuffer(m_LineVBO);
+
+            RZResourceManager::Get().destroyShader(m_PointShader);
+            RZResourceManager::Get().destroyShader(m_LineShader);
         }
 
         //---------------------------------------------------------------------------------------------------------------

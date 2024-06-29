@@ -58,10 +58,8 @@ namespace Razix {
 
         void RZSprite::destroy()
         {
-            // Destroy all the sets
-            m_VBO->Destroy();
-            m_IBO->Destroy();
-
+            RZResourceManager::Get().destroyVertexBuffer(m_VBO);
+            RZResourceManager::Get().destroyIndexBuffer(m_IBO);
             RZResourceManager::Get().getPool<RZTexture>().release(m_Texture);
 
             if (m_IsTextured)
@@ -195,15 +193,27 @@ m_IsAnimated = true;
                 0, 1, 2, 2, 3, 0};
 
             // Create the vertex buffer
-            m_VBO = RZVertexBuffer::Create(sizeof(RZVeretx2D) * 4, vertices.data(), BufferUsage::Static RZ_DEBUG_NAME_TAG_STR_E_ARG("Sprite"));
+            RZBufferDesc vbDesc = {};
+            vbDesc.name         = "VB_Sprite";
+            vbDesc.data         = vertices.data();
+            vbDesc.size         = sizeof(RZVeretx2D) * 4;
+            vbDesc.usage        = BufferUsage::Static;
+            m_VBO               = RZResourceManager::Get().createVertexBuffer(vbDesc);
+
+            auto                 vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VBO);
             RZVertexBufferLayout layout;
             layout.push<glm::vec4>("Position");
             layout.push<glm::vec4>("Color");
             layout.push<glm::vec2>("UV");
-            m_VBO->AddBufferLayout(layout);
+            vertexBufferResource->AddBufferLayout(layout);
 
             // Create the index buffer
-            m_IBO = RZIndexBuffer::Create(RZ_DEBUG_NAME_TAG_STR_F_ARG("Sprite") indices, 6, BufferUsage::Static);
+            RZBufferDesc indexBufferDesc = {};
+            indexBufferDesc.name         = "IB_Sprite";
+            indexBufferDesc.data         = indices;
+            indexBufferDesc.count        = 6;
+            indexBufferDesc.usage        = BufferUsage::Static;
+            m_IBO                        = RZResourceManager::Get().createIndexBuffer(indexBufferDesc);
         }
 
         void RZSprite::updateVertexData()
@@ -231,7 +241,8 @@ m_IsAnimated = true;
                 vertices[3].UV = m_UVs[3];
             }
 
-            m_VBO->SetData(sizeof(RZVeretx2D) * 4, vertices.data());
+            auto vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VBO);
+            vertexBufferResource->SetData(sizeof(RZVeretx2D) * 4, vertices.data());
         }
 
         void RZSprite::updateDescriptorSets()

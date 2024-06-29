@@ -69,6 +69,10 @@ private:                                                                        
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(UniformBuffer, const RZBufferDesc& desc)
             //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(VertexBuffer, const RZBufferDesc& desc)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(IndexBuffer, const RZBufferDesc& desc)
+            //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(CommandPool, PoolType type)
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(DrawCommandBuffer, RZCommandPoolHandle pool)
