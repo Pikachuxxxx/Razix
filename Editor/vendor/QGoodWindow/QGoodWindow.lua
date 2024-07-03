@@ -6,7 +6,7 @@ local qt = premake.extensions.qt
 project "QGoodWindow"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
+    cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
     characterset "MBCS"
         -- Debugging directory = where the main premake5.lua is located

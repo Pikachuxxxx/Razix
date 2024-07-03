@@ -184,12 +184,17 @@ namespace Razix {
             // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_robustness2.html
             // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPhysicalDeviceRobustness2FeaturesEXT.html
             // Enable Null Descriptor writes
-            VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT, .pNext = nullptr};
+            VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features{};
+            robustness2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
+            robustness2Features.pNext = nullptr;
             // Just like DirectX12 this enables passing null descriptors to vkUpdateDescriptorSets and treats as if no descriptors were bound
             robustness2Features.nullDescriptor = VK_TRUE;
 
             // Query bindless extension, called Descriptor Indexing (https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_EXT_descriptor_indexing.html)
-            VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES, .pNext = &robustness2Features};
+            VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{};
+            indexing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+            indexing_features.pNext = &robustness2Features;
+
             VkPhysicalDeviceFeatures2                  device_features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &indexing_features};
             vkGetPhysicalDeviceFeatures2(getGPU(), &device_features);
             // Check if Bindless feature is supported by the GPU

@@ -26,6 +26,11 @@ namespace Razix {
                 RZFrameGraphResource id    = -1; /* Unique ID of the resource                            */
                 u32                  flags = kFlagsNone; /* Flags on how to view the resource from rendering POV */
 
+                RZFrameGraphResourceAcessView(RZFrameGraphResource _id, u32 _flags)
+                    : id(_id), flags(_flags)
+                {}
+
+
                 bool operator==(const RZFrameGraphResourceAcessView& view) const
                 {
                     return id == view.id;

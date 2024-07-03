@@ -68,12 +68,12 @@ namespace Razix {
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc textureDesc{
-                        .name   = "SceneHDR",
-                        .width  = ResolutionToExtentsMap[Resolution::k1440p].x,
-                        .height = ResolutionToExtentsMap[Resolution::k1440p].y,
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA16F};
+                    RZTextureDesc textureDesc{};
+                    textureDesc.name   = "SceneHDR";
+                    textureDesc.width  = ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.type   = TextureType::Texture_2D;
+                    textureDesc.format = TextureFormat::RGBA16F;
 
                     data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
@@ -85,8 +85,8 @@ namespace Razix {
 
                     data.sceneDepth = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    data.sceneHDR = builder.write(data.sceneHDR);
-                    data.sceneDepth     = builder.write(data.sceneDepth);
+                    data.sceneHDR   = builder.write(data.sceneHDR);
+                    data.sceneDepth = builder.write(data.sceneDepth);
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);

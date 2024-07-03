@@ -61,7 +61,17 @@ namespace Razix {
                 [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", {.name = "ShadowMap", .width = kShadowMapSize, .height = kShadowMapSize, .type = TextureType::Texture_Depth, .format = TextureFormat::DEPTH32F, .wrapping = Wrapping::CLAMP_TO_BORDER, .filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST}, .enableMips = false});
+                    RZTextureDesc shadowTextureDesc{};
+                    shadowTextureDesc.name       = "ShadowMap";
+                    shadowTextureDesc.width      = kShadowMapSize;
+                    shadowTextureDesc.height     = kShadowMapSize;
+                    shadowTextureDesc.type       = TextureType::Texture_Depth;
+                    shadowTextureDesc.format     = TextureFormat::DEPTH32F;
+                    shadowTextureDesc.wrapping   = Wrapping::CLAMP_TO_BORDER;
+                    shadowTextureDesc.filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST};
+                    shadowTextureDesc.enableMips = false;
+
+                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", CAST_TO_FG_TEX_DESC shadowTextureDesc);
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData), 0, BufferUsage::PersistentStream});
 

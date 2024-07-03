@@ -62,11 +62,15 @@ namespace Razix {
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTexture({.name = "BrdfLUT", .enableMips = false, .filePath = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png"});
-            auto BRDFfLUTTextureDesc                         = RZResourceManager::Get().getPool<RZTexture>().get(m_BRDFfLUTTextureHandle)->getDescription();
-            BRDFfLUTTextureDesc.wrapping                     = Wrapping::REPEAT;
-            BRDFfLUTTextureDesc.filtering                    = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(BRDFfLUTTextureDesc.name, CAST_TO_FG_TEX_DESC BRDFfLUTTextureDesc, {m_BRDFfLUTTextureHandle});
+            RZTextureDesc brdfDesc{};
+            brdfDesc.name           = "BrdfLUT";
+            brdfDesc.enableMips     = false;
+            brdfDesc.filePath       = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
+            brdfDesc.filtering      = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            brdfDesc.wrapping       = Wrapping::REPEAT;
+            m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTexture(brdfDesc);
+
+            m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
 
             // Noise texture LUT
             m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTexture({.name = "VolumetricCloudsNoise", .wrapping = Wrapping::REPEAT, .enableMips = false, .filePath = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png"});
@@ -201,13 +205,13 @@ namespace Razix {
             //sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
-            // [] Tonemapping Pass
+            // Tonemapping Pass
             //-------------------------------
             m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
-            // [] FXAA Pass
+            // FXAA Pass
             //-------------------------------
             m_FXAAPass.addPass(m_FrameGraph, scene, &settings);
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();

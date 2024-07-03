@@ -54,6 +54,22 @@ else
     end
 end
 
+-- Razix Engine Global Built Settings
+engine_global_config = {
+    -- Razix is compiled with C++14 (we need constexpr)
+    -- Using C++17 since Jolt, Entt, Sol needs it. Once we remove the dependencies of the 
+    -- engine on Sol and Entt we will reert back to C++14, with the sole exception of Jolt
+    cpp_dialect = "C++17"
+}
+
+-- Function to apply global settings to a project
+function apply_engine_global_config()
+    if engine_global_config.cpp_dialect then
+        cppdialect(engine_global_config.cpp_dialect)
+    end
+end
+
+
 -- The Razix Engine Workspace
 workspace ( settings.workspace_name )
     location "build"
@@ -93,6 +109,8 @@ workspace ( settings.workspace_name )
         "Release",
         "Distribution"
     }
+
+    apply_engine_global_config()
 
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"

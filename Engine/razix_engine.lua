@@ -186,7 +186,7 @@ project "Razix"
     -- Razix Project settings for Windows
     -------------------------------------
     filter "system:windows"
-        cppdialect "C++20"
+        cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
         systemversion "latest"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning

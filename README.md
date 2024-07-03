@@ -4,17 +4,17 @@ Razix is a High Performance Research Engine for production pipeline with emphasi
 
  ---
 
-|:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul hence nothing will make sense, check the RoadMap below for release information |
+|:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul thread with caution while using, check the RoadMap below for release information |
 | --- |
 
 # About
-Cross-Platform 2D and 3D engine with multi render API support (OpenGL, Vulkan, DirectX 12, GXM & GCM). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
-
-(PSVita and PS3 will be supported sometime far in future).
+Cross-Platform 2D and 3D engine with multi render API support (Vulkan, DirectX 12). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
 
 View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
+- Built using C++17. (Engine will be reverted back to C++14 once entt/sol have been removed and only Jolt will be compiled in C++17 mode)
+	- C++14 over C++11 because `constexpr` and `sizeof` and improved `lamdbas` are needed for framegraph.
 - Support for Windows, Linux, macOS.
 - Support for OpenGL, Vulkan & DirectX 12.
 - **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  
@@ -53,6 +53,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 	- FXAA
 	- TAA (WIP)
 
+DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs will be supported. PSVita(GXM) and PS3(GCM) will be supported sometime far in future.
 
 # Tools
 Razix also provides a rich set of GUI and Commmand Line [**Tools**](https://github.com/Pikachuxxxx/Razix/tree/master/Tools) along with the Editor for various purposes such as

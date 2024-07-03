@@ -1,7 +1,7 @@
 project "test_resource_usage"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++20"
+    cppdialect (engine_global_config.cpp_dialect)
 
     files
     {

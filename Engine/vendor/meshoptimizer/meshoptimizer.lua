@@ -1,7 +1,7 @@
 project "spdlog"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++20"
+	cppdialect (engine_global_config.cpp_dialect)
 	staticruntime "off"
 
     files { "src/*.h", "src/*.cpp" }

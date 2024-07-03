@@ -98,7 +98,7 @@ namespace Razix {
             m_Context->getSwapchain()->clearWithColor(commandListD3D, glm::vec4(cos(0.96f * Razix::RZApplication::Get().getTimer().GetElapsed()), sin(0.32f * Razix::RZApplication::Get().getTimer().GetElapsed()), 1.0f, 1.0f));
         }
 
-        RAZIX_DEPRECATED("SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
+        RAZIX_DEPRECATED("[Razix Deprecated!] SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
         void DX12RenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
         {
         }

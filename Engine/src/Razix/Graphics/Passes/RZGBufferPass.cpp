@@ -80,12 +80,12 @@ namespace Razix {
                 [&](GBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc gbufferTexturesDesc{
-                        .name   = "gBuffer0",
-                        .width  = RZApplication::Get().getWindow()->getWidth(),
-                        .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA16F};
+                    RZTextureDesc gbufferTexturesDesc{};
+                    gbufferTexturesDesc.name   = "gBuffer0";
+                    gbufferTexturesDesc.width  = RZApplication::Get().getWindow()->getWidth();
+                    gbufferTexturesDesc.height = RZApplication::Get().getWindow()->getHeight();
+                    gbufferTexturesDesc.type   = TextureType::Texture_2D;
+                    gbufferTexturesDesc.format = TextureFormat::RGBA16F;
 
                     data.GBuffer0 = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
@@ -119,16 +119,15 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("GBuffer Pass");
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
 
-                    RenderingInfo info{
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer1).getHandle(), {true, ClearColorPresets::TransparentBlack}},
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer2).getHandle(), {true, ClearColorPresets::TransparentBlack}},
-                            {resources.get<FrameGraph::RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}},
-                        },
-                        .depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}},
-                        .resize          = true};
+                    RenderingInfo info{};
+                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.colorAttachments = {
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer1).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer2).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.resize          = true;
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 

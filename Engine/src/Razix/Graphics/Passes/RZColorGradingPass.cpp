@@ -28,15 +28,15 @@ namespace Razix {
             // Create the shader and the pipeline
             auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ColorGrading);
 
-            RZPipelineDesc pipelineInfo{
-                // Build the pipeline here for this pass
-                .name                   = "ColorGrading.Pipeline",
-                .shader                 = shader,
-                .colorAttachmentFormats = {TextureFormat::RGBA16F},
-                .cullMode               = Graphics::CullMode::None,
-                .drawType               = Graphics::DrawType::Triangle,
-                .transparencyEnabled    = false,
-                .depthBiasEnabled       = false};
+            RZPipelineDesc pipelineInfo = {};
+            // Build the pipeline here for this pass
+            pipelineInfo.name                   = "ColorGrading.Pipeline";
+            pipelineInfo.shader                 = shader;
+            pipelineInfo.colorAttachmentFormats = {TextureFormat::RGBA16F};
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.transparencyEnabled    = false;
+            pipelineInfo.depthBiasEnabled       = false;
 
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
@@ -48,12 +48,12 @@ namespace Razix {
                 [&](FX::ColorGradingData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc colorGradedImageDesc{
-                        .name   = "ColorGradedSceneHDR",
-                        .width  = RZApplication::Get().getWindow()->getWidth(),
-                        .height = RZApplication::Get().getWindow()->getHeight(),
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::RGBA16F};
+                    RZTextureDesc colorGradedImageDesc{};
+                    colorGradedImageDesc.name   = "ColorGradedSceneHDR";
+                    colorGradedImageDesc.width  = RZApplication::Get().getWindow()->getWidth();
+                    colorGradedImageDesc.height = RZApplication::Get().getWindow()->getHeight();
+                    colorGradedImageDesc.type   = TextureType::Texture_2D;
+                    colorGradedImageDesc.format = TextureFormat::RGBA16F;
 
                     data.colorGradedSceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(colorGradedImageDesc.name, CAST_TO_FG_TEX_DESC colorGradedImageDesc);
 
@@ -71,10 +71,10 @@ namespace Razix {
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(data.colorGradedSceneHDR).getHandle();
 
-                    RenderingInfo info{
-                        .resolution       = Resolution::kWindow,
-                        .colorAttachments = {{rt, {true, ClearColorPresets::OpaqueBlack}}},
-                        .resize           = true};
+                    RenderingInfo info{};
+                    info.resolution       = Resolution::kWindow;
+                    info.colorAttachments = {{rt, {true, ClearColorPresets::OpaqueBlack}}};
+                    info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 

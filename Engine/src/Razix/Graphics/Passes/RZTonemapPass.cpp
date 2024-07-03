@@ -28,17 +28,17 @@ namespace Razix {
         {
             auto tonemapShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Tonemap);
 
-            RZPipelineDesc pipelineInfo{
-                // Build the pipeline here for this pass
-                .name                   = "Pipeline.Tonemap",
-                .shader                 = tonemapShader,
-                .colorAttachmentFormats = {TextureFormat::RGBA16F},
-                .cullMode               = Graphics::CullMode::None,
-                .drawType               = Graphics::DrawType::Triangle,
-                .transparencyEnabled    = false,
-                .depthBiasEnabled       = false,
-                .depthTestEnabled       = false,
-                .depthWriteEnabled      = false};
+            RZPipelineDesc pipelineInfo{};
+            // Build the pipeline here for this pass
+            pipelineInfo.name                   = "Pipeline.Tonemap";
+            pipelineInfo.shader                 = tonemapShader;
+            pipelineInfo.colorAttachmentFormats = {TextureFormat::RGBA16F};
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.transparencyEnabled    = false;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
             // Create the pipeline
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
