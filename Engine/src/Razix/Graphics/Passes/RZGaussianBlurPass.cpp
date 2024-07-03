@@ -88,13 +88,13 @@ namespace Razix {
                 [&](GaussianBlurOutput& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc textureDesc{
-                        .name       = "GaussianBlurredTex",
-                        .width      = ResolutionToExtentsMap[Resolution::k1440p].x,
-                        .height     = ResolutionToExtentsMap[Resolution::k1440p].y,
-                        .type       = TextureType::Texture_2D,
-                        .format     = TextureFormat::RGBA16F,
-                        .enableMips = false};
+                    RZTextureDesc textureDesc{};
+                    textureDesc.name       = "GaussianBlurredTex";
+                    textureDesc.width      = ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height     = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.type       = TextureType::Texture_2D;
+                    textureDesc.format     = TextureFormat::RGBA16F;
+                    textureDesc.enableMips = false;
 
                     data.blur = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 

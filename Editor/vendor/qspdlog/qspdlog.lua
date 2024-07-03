@@ -8,7 +8,7 @@ local qt = premake.extensions.qt
 project "qspdlog"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++20"
+    cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
         -- Debugging directory = where the main premake5.lua is located
     debugdir "%{wks.location}../"

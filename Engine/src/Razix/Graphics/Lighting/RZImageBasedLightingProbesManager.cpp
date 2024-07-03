@@ -54,7 +54,20 @@ namespace Razix {
             u32  width, height, bpp;
             f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture({.name = "HDR Cube Map Texture", .width = width, .height = height, .data = pixels, .size = (width * height * 4 * sizeof(float)), .format = TextureFormat::RGBA32F, .wrapping = Wrapping::CLAMP_TO_EDGE, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .dataSize = sizeof(float)});
+            RZTextureDesc equiMapTextureDesc{};
+            equiMapTextureDesc.name       = "HDR Cube Map Texture";
+            equiMapTextureDesc.width      = width;
+            equiMapTextureDesc.height     = height;
+            equiMapTextureDesc.data       = pixels;
+            equiMapTextureDesc.size       = (width * height * 4 * sizeof(float));
+            equiMapTextureDesc.format     = TextureFormat::RGBA32F;
+            equiMapTextureDesc.wrapping   = Wrapping::CLAMP_TO_EDGE;
+            equiMapTextureDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            equiMapTextureDesc.enableMips = false;
+            ;
+            equiMapTextureDesc.dataSize = sizeof(float);
+
+            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
             std::vector<RZDescriptorSet*>      envMapSets;
             std::vector<RZUniformBufferHandle> UBOs;
@@ -78,7 +91,12 @@ namespace Razix {
                 uboData.projection[1][1] = -1;
                 uboData.layer            = i;
 
-                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({.name = "ViewProjLayerUBOData : #" + std::to_string(i), .size = sizeof(ViewProjLayerUBOData), .data = &uboData});
+                RZBufferDesc vplBufferDesc{};
+                vplBufferDesc.name = "ViewProjLayerUBOData : #" + std::to_string(i);
+                vplBufferDesc.size = sizeof(ViewProjLayerUBOData);
+                vplBufferDesc.data = &uboData;
+
+                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
 
                 UBOs.push_back(viewProjLayerUBO);
 
@@ -110,14 +128,17 @@ namespace Razix {
 
             RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
 
-            RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture({.name = "Texture.Imported.HDR.EnvMap",
-                .width                                                                    = dim,
-                .height                                                                   = dim,
-                .layers                                                                   = 6,
-                .type                                                                     = TextureType::Texture_CubeMap,
-                .format                                                                   = TextureFormat::RGBA32F,
-                .filtering                                                                = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR},
-                .enableMips                                                               = false});
+            RZTextureDesc cubeMapTextureDesc{};
+            cubeMapTextureDesc.name       = "Texture.Imported.HDR.EnvMap",
+            cubeMapTextureDesc.width      = dim;
+            cubeMapTextureDesc.height     = dim;
+            cubeMapTextureDesc.layers     = 6;
+            cubeMapTextureDesc.type       = TextureType::Texture_CubeMap;
+            cubeMapTextureDesc.format     = TextureFormat::RGBA32F;
+            cubeMapTextureDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            cubeMapTextureDesc.enableMips = false;
+
+            RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
 
             u32 layerCount = 6;
 
@@ -184,17 +205,20 @@ namespace Razix {
         {
             u32 dim = 32;
 
-            RZTextureHandle irradianceMapHandle = RZResourceManager::Get().createTexture({.name = "Irradiance Map",
-                .width                                                                          = dim,
-                .height                                                                         = dim,
-                .layers                                                                         = 6,
-                .type                                                                           = TextureType::Texture_CubeMap,
-                .format                                                                         = TextureFormat::RGBA32F,
-                .wrapping                                                                       = Wrapping::CLAMP_TO_EDGE,
-                .filtering                                                                      = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR},
-                .enableMips                                                                     = false});
+            RZTextureDesc irradianceMapTextureDesc = {};
+            irradianceMapTextureDesc.name          = "Texture.IrradianceMap";
+            irradianceMapTextureDesc.width         = dim;
+            irradianceMapTextureDesc.height        = dim;
+            irradianceMapTextureDesc.layers        = 6;
+            irradianceMapTextureDesc.type          = TextureType::Texture_CubeMap;
+            irradianceMapTextureDesc.format        = TextureFormat::RGBA32F;
+            irradianceMapTextureDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
+            irradianceMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            irradianceMapTextureDesc.enableMips    = false;
 
-            // Load the shader for converting plain cubemap to irradiance map by convolution
+            RZTextureHandle irradianceMapHandle = RZResourceManager::Get().createTexture(irradianceMapTextureDesc);
+
+            // Load the shader for converting plain cube map to irradiance map by convolution
             RZShaderHandle cubemapConvolutionShaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GenerateIrradianceMap);
             auto           shader                         = RZResourceManager::Get().getShaderResource(cubemapConvolutionShaderHandle);
 
@@ -220,7 +244,13 @@ namespace Razix {
                 uboData.projection[1][1] = -1;
                 uboData.layer            = i;
 
-                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({.name = "ViewProjLayerUBOData : #" + std::to_string(i), .size = sizeof(ViewProjLayerUBOData), .data = &uboData});
+                RZBufferDesc vplBufferDesc{};
+                vplBufferDesc.name = "ViewProjLayerUBOData : #" + std::to_string(i);
+                vplBufferDesc.size = sizeof(ViewProjLayerUBOData);
+                vplBufferDesc.data = &uboData;
+
+                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
+
                 UBOs.push_back(viewProjLayerUBO);
 
                 for (auto& setInfo: setInfos) {
@@ -306,19 +336,22 @@ namespace Razix {
         {
             u32 dim = 128;
 
-            RZTextureHandle preFilteredMapHandle = RZResourceManager::Get().createTexture({.name = "Pipeline.PreFilteredMap",
-                .width                                                                           = dim,
-                .height                                                                          = dim,
-                .layers                                                                          = 6,
-                .type                                                                            = TextureType::Texture_CubeMap,
-                .format                                                                          = TextureFormat::RGBA32F,
-                .wrapping                                                                        = Wrapping::CLAMP_TO_EDGE,
-                .filtering                                                                       = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR},
-                .enableMips                                                                      = true});
+            RZTextureDesc preFilteredMapTextureDesc{};
+            preFilteredMapTextureDesc.name       = "Texture.PreFilteredMap";
+            preFilteredMapTextureDesc.width      = dim;
+            preFilteredMapTextureDesc.height     = dim;
+            preFilteredMapTextureDesc.layers     = 6;
+            preFilteredMapTextureDesc.type       = TextureType::Texture_CubeMap;
+            preFilteredMapTextureDesc.format     = TextureFormat::RGBA32F;
+            preFilteredMapTextureDesc.wrapping   = Wrapping::CLAMP_TO_EDGE;
+            preFilteredMapTextureDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            preFilteredMapTextureDesc.enableMips = true;
+
+            RZTextureHandle preFilteredMapHandle = RZResourceManager::Get().createTexture(preFilteredMapTextureDesc);
 
             RZTexture* preFilteredMap = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
 
-            // Load the shader for converting plain cubemap to irradiance map by convolution
+            // Load the shader for converting plain cube map to irradiance map by convolution
             RZShaderHandle cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap);
             auto           shader                   = RZResourceManager::Get().getShaderResource(cubemapConvolutionShader);
 
@@ -344,7 +377,12 @@ namespace Razix {
                 uboData.projection[1][1] = -1;
                 uboData.layer            = i;
 
-                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer({.name = "ViewProjLayerUBOData : #" + std::to_string(i), .size = sizeof(ViewProjLayerUBOData), .data = &uboData});
+                RZBufferDesc vplBufferDesc{};
+                vplBufferDesc.name = "ViewProjLayerUBOData : #" + std::to_string(i);
+                vplBufferDesc.size = sizeof(ViewProjLayerUBOData);
+                vplBufferDesc.data = &uboData;
+
+                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
                 UBOs.push_back(viewProjLayerUBO);
 
                 //for (auto& setInfo: setInfos) {

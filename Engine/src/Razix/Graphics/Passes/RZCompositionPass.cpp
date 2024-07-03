@@ -35,17 +35,17 @@ namespace Razix {
         {
             auto compositionShader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition);
 
-            RZPipelineDesc pipelineInfo{
-                // Build the pipeline here for this pass
-                .name                   = "Pipeline.Composition",
-                .shader                 = compositionShader,
-                .colorAttachmentFormats = {TextureFormat::BGRA8_UNORM},
-                .cullMode               = Graphics::CullMode::None,
-                .drawType               = Graphics::DrawType::Triangle,
-                .transparencyEnabled    = false,
-                .depthBiasEnabled       = false,
-                .depthTestEnabled       = false,
-                .depthWriteEnabled      = false};
+            RZPipelineDesc pipelineInfo{};
+            // Build the pipeline here for this pass
+            pipelineInfo.name                   = "Pipeline.Composition";
+            pipelineInfo.shader                 = compositionShader;
+            pipelineInfo.colorAttachmentFormats = {TextureFormat::BGRA8_UNORM};
+            pipelineInfo.cullMode               = Graphics::CullMode::None;
+            pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.transparencyEnabled    = false;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
             // Create the pipeline
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 

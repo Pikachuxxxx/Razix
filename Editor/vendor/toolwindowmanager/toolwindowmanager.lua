@@ -6,7 +6,7 @@ local qt = premake.extensions.qt
 project "toolwindowmanager"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
+    cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
         -- Debugging directory = where the main premake5.lua is located
     debugdir "%{wks.location}../"

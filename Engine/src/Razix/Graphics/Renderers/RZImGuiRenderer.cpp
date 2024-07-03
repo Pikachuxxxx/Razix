@@ -113,7 +113,17 @@ namespace Razix {
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             u32 uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            m_FontAtlasTexture = RZResourceManager::Get().createTexture({.name = "Awesome Font Icon Atlas", .width = (u32) texWidth, .height = (u32) texHeight, .data = fontData, .size = uploadSize, .type = TextureType::Texture_2D, .format = TextureFormat::RGBA8, .wrapping = Wrapping::CLAMP_TO_EDGE});
+            RZTextureDesc imguiFontTextureDesc{};
+            imguiFontTextureDesc.name     = "Texture.ImGui.AwesomeFontIconAtlas";
+            imguiFontTextureDesc.width    = (u32) texWidth;
+            imguiFontTextureDesc.height   = (u32) texHeight;
+            imguiFontTextureDesc.data     = fontData;
+            imguiFontTextureDesc.size     = uploadSize;
+            imguiFontTextureDesc.type     = TextureType::Texture_2D;
+            imguiFontTextureDesc.format   = TextureFormat::RGBA8;
+            imguiFontTextureDesc.wrapping = Wrapping::CLAMP_TO_EDGE;
+
+            m_FontAtlasTexture = RZResourceManager::Get().createTexture(imguiFontTextureDesc);
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures

@@ -63,10 +63,10 @@ namespace Razix {
 
                     auto accumulationRT = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
 
-                    RenderingInfo info{
-                        .resolution       = Resolution::kWindow,
-                        .colorAttachments = {{accumulationRT, {false, ClearColorPresets::OpaqueBlack}}},
-                        .resize           = true};
+                    RenderingInfo info{};
+                    info.resolution       = Resolution::kWindow;
+                    info.colorAttachments = {{accumulationRT, {false, ClearColorPresets::OpaqueBlack}}};
+                    info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 

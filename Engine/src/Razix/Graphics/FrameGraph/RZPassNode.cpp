@@ -1,7 +1,9 @@
-\// clang-format off
+// clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZPassNode.h"
+
+#include "Razix/Graphics/FrameGraph/RZFrameGraphResource.h"
 
 namespace Razix {
     namespace Graphics {
@@ -65,12 +67,12 @@ namespace Razix {
             RZFrameGraphResource RZPassNode::registerResourceForRead(RZFrameGraphResource id, u32 flags)
             {
                 RAZIX_CORE_ASSERT((!canCreateResouce(id) && !canWriteResouce(id)), "Cannot read a resource that this node creates or write to!");
-                return canReadResouce(id) ? id : m_Reads.emplace_back(id, flags).id;
+                return canReadResouce(id) ? id : m_Reads.emplace_back(RZFrameGraphResourceAcessView(id, flags)).id;
             }
 
             RZFrameGraphResource RZPassNode::registerResourceForWrite(RZFrameGraphResource id, u32 flags)
             {
-                return canWriteResouce(id) ? id : m_Writes.emplace_back(id, flags).id;
+                return canWriteResouce(id) ? id : m_Writes.emplace_back(RZFrameGraphResourceAcessView(id, flags)).id;
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

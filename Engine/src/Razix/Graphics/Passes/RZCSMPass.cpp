@@ -72,7 +72,13 @@ namespace Razix {
                 [&](CSMData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                     // Create the final cascaded VP data here after rendering the depth texture array, in fact this pass can be parallelized before the we render the depth maps
-                    data.viewProjMatrices = builder.create<FrameGraph::RZFrameGraphBuffer>("CB_CascadesMatrixData", {.name = "CB_CascadesMatrixData", .size = sizeof(CascadesMatrixData), .data = nullptr, .usage = BufferUsage::PersistentStream});
+                    RZBufferDesc bufferDesc = {};
+                    bufferDesc.name         = "CB_CascadesMatrixData";
+                    bufferDesc.size         = sizeof(CascadesMatrixData);
+                    bufferDesc.data         = nullptr;
+                    bufferDesc.usage        = BufferUsage::PersistentStream;
+
+                    data.viewProjMatrices = builder.create<FrameGraph::RZFrameGraphBuffer>("CB_CascadesMatrixData", CAST_TO_FG_BUF_DESC bufferDesc);
 
                     data.viewProjMatrices = builder.write(data.viewProjMatrices);
                 },
@@ -278,9 +284,25 @@ namespace Razix {
 
                     // Create the resource only on first pass, render to the same resource again and again
                     if (cascadeIdx == 0) {
-                        subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", {.name = "CascadedShadowMapArray", .width = kShadowMapSize, .height = kShadowMapSize, .layers = kNumCascades, .type = TextureType::Texture_2DArray, .format = TextureFormat::DEPTH32F, .wrapping = Wrapping::CLAMP_TO_BORDER});
+                        RZTextureDesc textureDesc{};
+                        textureDesc.name     = "CascadedShadowMapArray";
+                        textureDesc.width    = kShadowMapSize;
+                        textureDesc.height   = kShadowMapSize;
+                        textureDesc.layers   = kNumCascades;
+                        textureDesc.type     = TextureType::Texture_2DArray;
+                        textureDesc.format   = TextureFormat::DEPTH32F;
+                        textureDesc.wrapping = Wrapping::CLAMP_TO_BORDER;
+
+                        subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
                     }
-                    subpassData.vpLayer = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", {.name = "VPLayer", .size = sizeof(LightVPLayerData), .data = nullptr, .usage = BufferUsage::PersistentStream});
+
+                    RZBufferDesc bufferDesc = {};
+                    bufferDesc.name         = "VPLayer";
+                    bufferDesc.size         = sizeof(LightVPLayerData);
+                    bufferDesc.data         = nullptr;
+                    bufferDesc.usage        = BufferUsage::PersistentStream;
+
+                    subpassData.vpLayer = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", CAST_TO_FG_BUF_DESC bufferDesc);
 
                     data.cascadeOutput = builder.write(subpassData.cascadeOutput);
                     data.vpLayer       = builder.write(subpassData.vpLayer);

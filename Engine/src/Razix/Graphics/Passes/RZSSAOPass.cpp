@@ -83,28 +83,28 @@ namespace Razix {
                 ssaoNoise[i] = glm::vec4(rndDist(rndEngine) * 2.0f - 1.0f, rndDist(rndEngine) * 2.0f - 1.0f, 0.0f, 0.0f);
             }
             // SSAO kernel samples buffer
-            RZBufferDesc samplesBufferDesc{
-                .name  = "Kernel",
-                .size  = static_cast<u32>(ssaoKernel.size()) * sizeof(glm::vec4),
-                .data  = ssaoKernel.data(),
-                .usage = BufferUsage::Static};
+            RZBufferDesc samplesBufferDesc{};
+            samplesBufferDesc.name     = "Kernel";
+            samplesBufferDesc.size     = static_cast<u32>(ssaoKernel.size()) * sizeof(glm::vec4);
+            samplesBufferDesc.data     = ssaoKernel.data();
+            samplesBufferDesc.usage    = BufferUsage::Static;
             auto ssaoKernelBuffer      = Graphics::RZResourceManager::Get().createUniformBuffer(samplesBufferDesc);
             ssaoData.SSAOKernelSamples = framegraph.import <FrameGraph::RZFrameGraphBuffer>(samplesBufferDesc.name, CAST_TO_FG_BUF_DESC samplesBufferDesc, {ssaoKernelBuffer});
 
             // SSAO Noise texture
-            RZTextureDesc noiseTextureDesc{
-                .name       = "SSAONoiseTex",
-                .width      = 4,
-                .height     = 4,
-                .data       = ssaoNoise.data(),
-                .size       = static_cast<u32>(ssaoNoise.size()) * sizeof(glm::vec4),
-                .type       = TextureType::Texture_2D,
-                .format     = TextureFormat::RGBA16F,
-                .wrapping   = Wrapping::REPEAT,
-                .enableMips = false,
-                .dataSize   = sizeof(float)};
-            auto ssaoNoiseTexture     = Graphics::RZResourceManager::Get().createTexture(noiseTextureDesc);
-            ssaoData.SSAONoiseTexture = framegraph.import <FrameGraph::RZFrameGraphTexture>(noiseTextureDesc.name, CAST_TO_FG_TEX_DESC noiseTextureDesc, {ssaoNoiseTexture});
+            RZTextureDesc noiseTextureDesc{};
+            noiseTextureDesc.name       = "SSAONoiseTex";
+            noiseTextureDesc.width      = 4;
+            noiseTextureDesc.height     = 4;
+            noiseTextureDesc.data       = ssaoNoise.data();
+            noiseTextureDesc.size       = static_cast<u32>(ssaoNoise.size()) * sizeof(glm::vec4);
+            noiseTextureDesc.type       = TextureType::Texture_2D;
+            noiseTextureDesc.format     = TextureFormat::RGBA16F;
+            noiseTextureDesc.wrapping   = Wrapping::REPEAT;
+            noiseTextureDesc.enableMips = false;
+            noiseTextureDesc.dataSize   = sizeof(float);
+            auto ssaoNoiseTexture       = Graphics::RZResourceManager::Get().createTexture(noiseTextureDesc);
+            ssaoData.SSAONoiseTexture   = framegraph.import <FrameGraph::RZFrameGraphTexture>(noiseTextureDesc.name, CAST_TO_FG_TEX_DESC noiseTextureDesc, {ssaoNoiseTexture});
 
             framegraph.getBlackboard()
                 .add<FX::SSAOData>() = framegraph.addCallbackPass<FX::SSAOData>(
@@ -113,19 +113,19 @@ namespace Razix {
                     builder.setAsStandAlonePass();
 
                     // We use a single channel f32 texture
-                    RZTextureDesc textureDesc{
-                        .name   = "SSAOPreBlurTexture",
-                        .width  = ResolutionToExtentsMap[Resolution::k1440p].x,
-                        .height = ResolutionToExtentsMap[Resolution::k1440p].y,
-                        .type   = TextureType::Texture_2D,
-                        .format = TextureFormat::R32F};
+                    RZTextureDesc textureDesc{};
+                    textureDesc.name        = "SSAOPreBlurTexture";
+                    textureDesc.width       = ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height      = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.type        = TextureType::Texture_2D;
+                    textureDesc.format      = TextureFormat::R32F;
                     data.SSAOPreBlurTexture = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    RZBufferDesc ssaoDataBufferDesc{
-                        .name  = "SSAOParams",
-                        .size  = sizeof(SSAOParamsData),
-                        .usage = BufferUsage::PersistentStream};
-                    data.SSAOParams = builder.create<FrameGraph::RZFrameGraphBuffer>(ssaoDataBufferDesc.name, CAST_TO_FG_BUF_DESC ssaoDataBufferDesc);
+                    RZBufferDesc ssaoDataBufferDesc{};
+                    ssaoDataBufferDesc.name  = "SSAOParams";
+                    ssaoDataBufferDesc.size  = sizeof(SSAOParamsData);
+                    ssaoDataBufferDesc.usage = BufferUsage::PersistentStream;
+                    data.SSAOParams          = builder.create<FrameGraph::RZFrameGraphBuffer>(ssaoDataBufferDesc.name, CAST_TO_FG_BUF_DESC ssaoDataBufferDesc);
 
                     data.SSAOPreBlurTexture = builder.write(data.SSAOPreBlurTexture);
                     data.SSAOParams         = builder.write(data.SSAOParams);

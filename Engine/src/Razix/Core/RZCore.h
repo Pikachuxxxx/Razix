@@ -178,7 +178,7 @@ public:                                                  \
 
 // Deprecation error macros
 #ifdef _MSC_VER
-    #define RAZIX_DEPRECATED(msg_str) __declspec(deprecated("[Razix Deprecated!] This symbol is deprecated by Razix Engine. Details: " msg_str))
+    #define RAZIX_DEPRECATED(msg_str) __declspec(deprecated(msg_str))
 #elif defined(__clang__)
     #define RAZIX_DEPRECATED(msg_str) __attribute__((deprecated(msg_str)))
 #elif defined(__GNUC__)

@@ -142,7 +142,7 @@ namespace Razix {
                 s_APIInstance->SubmitImpl(cmdBuffer);
             }
             /* Executes the the lists of command buffers stacked up in the Command Queue  */
-            RAZIX_DEPRECATED("SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
+            RAZIX_DEPRECATED("[Razix Deprecated!] SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
             RAZIX_FORCE_INLINE static void SubmitWork(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
             {
                 RAZIX_PROFILE_GPU_SCOPE("SubmitWork");
@@ -341,7 +341,7 @@ namespace Razix {
             /* Gets the height of the current RHI rendering extents */
             RAZIX_FORCE_INLINE const u32& getHeight() { return m_Height; }
             /* Set the command buffer to record command onto */
-            RAZIX_DEPRECATED("SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
+            RAZIX_DEPRECATED("[Razix Deprecated!] SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
             RAZIX_FORCE_INLINE static void SetCmdBuffer(RZDrawCommandBufferHandle cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
 
             /* OnImGui UI rendering for RHI */
