@@ -16,10 +16,10 @@ namespace Razix {
         virtual ~LuaScriptComponent() {}
 
         /**
-            * Loads the lua script file
-            * 
-            * @param scriptPath The path to where the lua script file is at
-            */
+         * Loads the lua script file
+         * 
+         * @param scriptPath The path to where the lua script file is at
+         */
         void loadScript(const std::string& scriptPath);
 
         void OnStart(RZEntity entity);
@@ -42,13 +42,11 @@ namespace Razix {
         const std::string& getScriptFilePath() { return m_Filepath; }
 
     private:
-        std::string m_Filepath;
-
+        std::string              m_Filepath;
         std::vector<std::string> m_Errors;
 
-        std::shared_ptr<sol::environment>        m_Env;
-        std::shared_ptr<sol::protected_function> m_OnStartFunc;
-        std::shared_ptr<sol::protected_function> m_UpdateFunc;
-        std::shared_ptr<sol::protected_function> m_OnImGuiFunc;
+        i32 m_OnStartFunc = -1;
+        i32 m_UpdateFunc  = -1;
+        i32 m_OnImGuiFunc = -1;
     };
 }    // namespace Razix

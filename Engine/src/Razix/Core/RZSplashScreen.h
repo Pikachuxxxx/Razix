@@ -47,7 +47,7 @@ namespace Razix {
         void setLogString(const std::string& text);
 
         /* Process the windows messages */
-        static std::optional<int> ProcessMessages();
+        static i32 ProcessMessages();
 
     private:
         HWND        hWnd;

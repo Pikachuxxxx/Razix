@@ -20,6 +20,13 @@ namespace Razix {
             init(pipelineInfo RZ_DEBUG_E_ARG_NAME);
         }
 
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKPipeline)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
+        }
+
         void VKPipeline::Bind(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -228,13 +235,6 @@ namespace Razix {
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created graphics pipeline!");
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
-        }
-
-        void VKPipeline::DestroyResource()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
         }
     }    // namespace Graphics
 }    // namespace Razix

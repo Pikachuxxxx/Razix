@@ -2,8 +2,12 @@
 
 #include "Razix/Utilities/TRZSingleton.h"
 
-// Lua and c++ wrapper dependencies
-#include <sol/sol.hpp>
+extern "C"
+{
+#include <lauxlib.h>    // Provides auxiliary functions for error handling, buffer manipulation, etc.
+#include <lua.h>
+#include <lualib.h>    // Provides standard libraries like base, string, table, etc.
+}
 
 namespace Razix {
 
@@ -31,10 +35,10 @@ namespace Razix {
             void OnUpdate(RZScene* scene, RZTimestep dt);
             void OnImGui(RZScene* scene);
 
-            sol::state& getState() { return m_State; }
+            lua_State* getState() { return m_State; }
 
         private:
-            sol::state m_State; /* Manages the lua runtime state and executes scripts etc. */
+            lua_State* m_State = nullptr; /* Manages the lua runtime state and executes scripts etc. */
 
         private:
             /* Binds Application API which the user can control such as Widows system information, or get app state and other simple information */

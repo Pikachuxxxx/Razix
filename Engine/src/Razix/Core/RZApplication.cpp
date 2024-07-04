@@ -329,8 +329,9 @@ namespace Razix {
         m_Timestep.Update(now);
 
         // Update the stats
+
         stats.DeltaTime = m_Timestep.GetTimestepMs();
-        RAZIX_CORE_TRACE("dt : {0} ms", stats.DeltaTime);
+        //RAZIX_CORE_TRACE("dt : {0} ms", stats.DeltaTime);
 
         // Poll for Input events
         m_Window->ProcessInput();
@@ -380,7 +381,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = m_Frames;
                 stats.UpdatesPerSecond = m_Updates;
-                RAZIX_CORE_TRACE("FPS : {0}", stats.FramesPerSecond);
+                RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms)", stats.FramesPerSecond, stats.DeltaTime);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 m_Frames  = 0;

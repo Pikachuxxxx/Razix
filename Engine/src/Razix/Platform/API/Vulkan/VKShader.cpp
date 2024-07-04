@@ -27,6 +27,7 @@
 namespace Razix {
     namespace Graphics {
 
+        // TODO: Move these to VKUtilites
         static u32 GetStrideFromVulkanFormat(VkFormat format)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

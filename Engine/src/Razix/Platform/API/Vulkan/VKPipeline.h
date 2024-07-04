@@ -11,8 +11,9 @@ namespace Razix {
         {
         public:
             VKPipeline(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
-
             ~VKPipeline() {}
+
+            RAZIX_CLEANUP_RESOURCE
 
             void Bind(RZDrawCommandBufferHandle cmdBuffer) override;
 
@@ -21,11 +22,9 @@ namespace Razix {
             inline const VkPipeline&       getPipeline() const { return m_Pipeline; }
             inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
 
-            void DestroyResource() override;
-
         private:
-            VkPipelineLayout              m_PipelineLayout;
-            VkPipeline                    m_Pipeline;
+            VkPipelineLayout m_PipelineLayout;
+            VkPipeline       m_Pipeline;
         };
     }    // namespace Graphics
 }    // namespace Razix
