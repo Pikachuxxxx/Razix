@@ -63,24 +63,33 @@ namespace Razix {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
             RZTextureDesc brdfDesc{};
-            brdfDesc.name           = "BrdfLUT";
-            brdfDesc.enableMips     = false;
-            brdfDesc.filePath       = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
-            brdfDesc.filtering      = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            brdfDesc.wrapping       = Wrapping::REPEAT;
-            m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTexture(brdfDesc);
-
+            brdfDesc.name                                    = "BrdfLUT";
+            brdfDesc.enableMips                              = false;
+            brdfDesc.filePath                                = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
+            brdfDesc.filtering                               = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            brdfDesc.wrapping                                = Wrapping::REPEAT;
+            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTexture(brdfDesc);
             m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
 
             // Noise texture LUT
-            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTexture({.name = "VolumetricCloudsNoise", .wrapping = Wrapping::REPEAT, .enableMips = false, .filePath = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png"});
-            const auto& NoiseTextureDesc                                          = RZResourceManager::Get().getPool<RZTexture>().get(m_NoiseTextureHandle)->getDescription();
-            m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(NoiseTextureDesc.name, CAST_TO_FG_TEX_DESC NoiseTextureDesc, {m_NoiseTextureHandle});
+            RZTextureDesc noiseDesc{};
+            noiseDesc.name                                                        = "VolumetricCloudsNoise";
+            noiseDesc.enableMips                                                  = false;
+            noiseDesc.filePath                                                    = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
+            noiseDesc.wrapping                                                    = Wrapping::REPEAT;
+            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTexture(noiseDesc);
+            m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
 
             // Import the color grading LUT
-            m_ColorGradingNeutralLUTHandle                                         = RZResourceManager::Get().createTexture({.name = "ColorGradingUnreal_Neutral_LUT16", .wrapping = Wrapping::REPEAT, .filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR}, .enableMips = false, .flipY = true, .filePath = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png"});
-            const auto& colorLUTTextureDesc                                        = RZResourceManager::Get().getPool<RZTexture>().get(m_ColorGradingNeutralLUTHandle)->getDescription();
-            m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorLUTTextureDesc.name, CAST_TO_FG_TEX_DESC colorLUTTextureDesc, {m_ColorGradingNeutralLUTHandle});
+            RZTextureDesc colorGradingNeutralLUTDesc{};
+            colorGradingNeutralLUTDesc.name                                        = "ColorGradingUnreal_Neutral_LUT16";
+            colorGradingNeutralLUTDesc.enableMips                                  = false;
+            colorGradingNeutralLUTDesc.flipY                                       = true;
+            colorGradingNeutralLUTDesc.filePath                                    = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
+            colorGradingNeutralLUTDesc.filtering                                   = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            colorGradingNeutralLUTDesc.wrapping                                    = Wrapping::REPEAT;
+            m_ColorGradingNeutralLUTHandle                                         = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
+            m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
 
             //-----------------------------------------------------------------------------------
 
@@ -320,12 +329,12 @@ namespace Razix {
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
 
-                    RenderingInfo info{
-                        .resolution       = Resolution::kCustom,
-                        .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
-                        .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
-                        .resize           = true};
+                    RenderingInfo info{};
+                    info.resolution       = Resolution::kCustom;
+                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
+                    info.resize           = true;
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -370,11 +379,11 @@ namespace Razix {
                     //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
                     //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
 
-                    RenderingInfo info{
-                        .resolution       = Resolution::kWindow,
-                        .colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}},
-                        .depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}},
-                        .resize           = true};
+                    RenderingInfo info{};
+                        info.resolution       = Resolution::kWindow;
+                        info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
+                        info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
+                        info.resize           = true;
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
@@ -828,15 +837,17 @@ namespace Razix {
         {
             auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
 
-            const auto& SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
-            const auto& DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
-            const auto& SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
+            auto SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
+            auto DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
+            auto SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
 
-            globalLightProbeData.environmentMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("EnvironmentMap", {.name = "EnvironmentMap", .width = SkyboxDesc.width, .height = SkyboxDesc.height, .type = TextureType::Texture_CubeMap, .format = SkyboxDesc.format}, {globalLightProbe.skybox});
+            SkyboxDesc.name   = "EnvironmentMap";
+            DiffuseDesc.name  = "IrradianceMap";
+            SpecularDesc.name = "PreFilteredMap";
 
-            globalLightProbeData.diffuseIrradianceMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("IrradianceMap", {.name = "IrradianceMap", .width = DiffuseDesc.width, .height = DiffuseDesc.height, .type = TextureType::Texture_CubeMap, .format = DiffuseDesc.format}, {globalLightProbe.diffuse});
-
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("PreFilteredMap", {.name = "PreFilteredMap", .width = SpecularDesc.width, .height = SpecularDesc.height, .type = TextureType::Texture_CubeMap, .format = SpecularDesc.format}, {globalLightProbe.specular});
+            globalLightProbeData.environmentMap         = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {globalLightProbe.skybox});
+            globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
         }
 
         //--------------------------------------------------------------------------

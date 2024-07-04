@@ -330,7 +330,7 @@ namespace Razix {
 
         // Update the stats
         stats.DeltaTime = m_Timestep.GetTimestepMs();
-        //RAZIX_CORE_TRACE("Time steps : {0} ms", stats.FrameTime);
+        RAZIX_CORE_TRACE("dt : {0} ms", stats.DeltaTime);
 
         // Poll for Input events
         m_Window->ProcessInput();
