@@ -9,8 +9,6 @@
 #include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
 
-#include <meshoptimizer/src/meshoptimizer.h>
-
 namespace Razix {
     namespace Graphics {
 
@@ -41,29 +39,6 @@ namespace Razix {
 
             m_IndexCount  = static_cast<u32>(indices.size());
             m_VertexCount = static_cast<u32>(vertices.size());
-
-            // TODO: Move this to AssetPacker
-#if 0
-            //-------------------------------
-            // Mesh Optimization
-            //-------------------------------
-
-            // Order is important as per instructions in https://github.com/zeux/meshoptimizer
-
-            //-------------------------------
-            // 1. Indexing
-            //-------------------------------
-            // First, generate a remap table from your existing vertex (and, optionally, index) data:
-            std::vector<u32> unique_remapped_vertices(m_IndexCount);    // allocate temporary memory for the remap table
-            u32              vertex_count = meshopt_generateVertexRemap(&unique_remapped_vertices[0], NULL, m_IndexCount, &vertices[0], m_IndexCount, sizeof(Graphics::RZVertex));
-
-            u32* remap_indices = new u32[m_IndexCount];
-            meshopt_remapIndexBuffer<u32>(remap_indices, m_Indices.data(), m_IndexCount, unique_remapped_vertices.data());
-            Graphics::RZVertex* remap_vertices = new Graphics::RZVertex[vertex_count];
-            meshopt_remapVertexBuffer(remap_vertices, m_Vertices.data(), m_VertexCount, sizeof(Graphics::RZVertex), unique_remapped_vertices.data());
-
-            RAZIX_CORE_INFO("Mesh Optimizer - Before : {0} indices {1} vertices , After : {2} indices , {3} vertices", m_IndexCount, m_Vertices.size(), m_IndexCount, vertex_count);
-#endif
 
             // Fill any missing tangents, bi tangents and normals
             //GenerateNormals(&m_Vertices[0], m_VertexCount, nullptr, 0);

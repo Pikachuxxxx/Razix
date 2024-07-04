@@ -23,7 +23,8 @@ namespace Razix {
             Razix::RZSplashScreen::Get().setLogString("Starting Lua Script Handler...");
 
             // Load lua default libraries that can be used by the client
-            m_State.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table);
+            m_State = luaL_newstate();
+            luaL_openlibs(m_State); // Load standard libraries
 
             // Bind the Engine Systems Scripting API to be exposed to user via lua
             bindApplicationAPI();
@@ -49,6 +50,8 @@ namespace Razix {
         void RZLuaScriptHandler::ShutDown()
         {
             RAZIX_CORE_ERROR("[Lua Script Manager] Shutting Lua Script Handler");
+            lua_gc(m_State, LUA_GCCOLLECT, 0);
+            lua_close(m_State);
         }
 
         void RZLuaScriptHandler::OnStart(RZScene* scene)

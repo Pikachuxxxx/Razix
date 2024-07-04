@@ -31,7 +31,7 @@ namespace Razix {
         {
             std::string  name;               /* The name of the buffer element ex. position or uv or normal              */
             BufferFormat format;             /* The format of the element data                                           */
-            u32     offset     = 0;     /* Offset of the element from the first basically stride                    */
+            u32          offset     = 0;     /* Offset of the element from the first basically stride                    */
             bool         normalized = false; /* Whether or not the data is normalized or not                             */
 
             u32 getCount()
@@ -129,7 +129,7 @@ namespace Razix {
 
         private:
             std::vector<BufferLayoutElement> m_Elements; /* The elements comprising of the buffer data format                */
-            u32                         m_Stride;   /* Stride describes the frequency after which the elements repeat   */
+            u32                              m_Stride;   /* Stride describes the frequency after which the elements repeat   */
 
         private:
             void pushImpl(const std::string& name, BufferFormat format, u32 size, bool Normalised);

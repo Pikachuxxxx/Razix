@@ -70,17 +70,17 @@ namespace Razix {
         SendMessage(hWnd, UPDATE_VERSION_LABEL, NULL, NULL);
     }
 
-    std::optional<int> RZSplashScreen::ProcessMessages()
+    i32 RZSplashScreen::ProcessMessages()
     {
         MSG msg;
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT)
-                return (int) msg.wParam;
+                return (i32) msg.wParam;
 
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        return {};
+        return -1;
     }
 
     LRESULT CALLBACK RZSplashScreen::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept

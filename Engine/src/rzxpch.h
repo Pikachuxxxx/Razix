@@ -20,7 +20,6 @@
 // TODO: DIsable this once rzstl replacement is done
 #include <map>
 #include <memory>
-#include <optional>
 #include <set>
 #include <stack>
 #include <string>
@@ -48,8 +47,6 @@
 //-----3rd Party-----//
 // Profilers
 #include <Tracy.hpp>
-// SOL
-#include <sol/sol.hpp>
 // GLM
 #include <glm/glm.hpp>
 // Cereal

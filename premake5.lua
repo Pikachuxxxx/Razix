@@ -118,8 +118,6 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/glfw/glfw.lua"
         include "Engine/vendor/imgui/imgui.lua"
         include "Engine/vendor/lua/lua.lua"
-        include "Engine/vendor/meshoptimizer/meshoptimizer.lua"
-        include "Engine/vendor/OpenFBX/OpenFBX.lua"
         include "Engine/vendor/optick/optick.lua"
         include "Engine/vendor/spdlog/spdlog.lua"
         include "Engine/vendor/SPIRVCross/SPIRVCross.lua"
@@ -143,6 +141,8 @@ workspace ( settings.workspace_name )
     -- Razix Tools Vendor dependencies
     group "Dependencies/Tools"
         include "Tools/RazixAssetPacker/vendor/assimp/assimp.lua"
+        include "Tools/RazixAssetPacker/vendor/meshoptimizer/meshoptimizer.lua"
+        include "Tools/RazixAssetPacker/vendor/OpenFBX/OpenFBX.lua"
     group ""
 
     -- Build Script for Razix Engine (Internal)

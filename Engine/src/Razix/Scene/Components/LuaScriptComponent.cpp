@@ -11,6 +11,30 @@
 
 namespace Razix {
 
+    static i32 GetLuaFunctionRefID(lua_State* L, const char* funcName)
+    {
+        lua_getglobal(L, funcName);
+        if (lua_isfunction(L, -1)) {
+            return luaL_ref(L, LUA_REGISTRYINDEX);
+        } else {
+            //lua_pop(L, 1);    // Pop non-function value from stack
+            return -1;
+        }
+    }
+
+    static bool CallLuaFunction(i32 funcRegistryIndex)
+    {
+        lua_State* L = Scripting::RZLuaScriptHandler::Get().getState();
+        lua_rawgeti(L, LUA_REGISTRYINDEX, funcRegistryIndex);
+        if (lua_pcall(L, 0, 0, 0) != 0) {
+            auto errorStr = lua_tostring(L, -1);
+            RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", errorStr);
+            lua_pop(L, 1);    // Pop error message from stack
+            return false;
+        }
+        return true;
+    }
+
     void LuaScriptComponent::loadScript(const std::string& scriptPath)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
@@ -19,45 +43,36 @@ namespace Razix {
         std::string physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(scriptPath, physicalPath)) {
             RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Load Lua script {0}", scriptPath);
-            m_Env = nullptr;
             return;
         } else
             RAZIX_CORE_INFO("[Lua Script Manager] Loading script from : {0}", m_Filepath);
 
-        m_Env = std::make_shared<sol::environment>(Scripting::RZLuaScriptHandler::Get().getState(), sol::create, Scripting::RZLuaScriptHandler::Get().getState().globals());
+        lua_State* L = Scripting::RZLuaScriptHandler::Get().getState();
 
-        auto loadFileResult = Scripting::RZLuaScriptHandler::Get().getState().script_file(physicalPath, *m_Env, sol::script_pass_on_error);
-        if (!loadFileResult.valid()) {
-            sol::error err = loadFileResult;
+        if (luaL_loadfile(L, physicalPath.c_str()) || lua_pcall(L, 0, 0, 0)) {
+            auto errorStr = lua_tostring(L, -1);
+
             RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Execute Lua script {0}", physicalPath);
-            RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", err.what());
-            m_Errors.push_back(std::string(err.what()));
+            RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", errorStr);
+            m_Errors.push_back(std::string(errorStr));
+            lua_pop(L, 1);    // Pop error message from stack
         }
 
-        m_OnStartFunc = std::make_shared<sol::protected_function>((*m_Env)["OnStart"]);
-        if (!m_OnStartFunc->valid())
-            m_OnStartFunc.reset();
-
-        m_UpdateFunc = std::make_shared<sol::protected_function>((*m_Env)["OnUpdate"]);
-        if (!m_UpdateFunc->valid())
-            m_UpdateFunc.reset();
-
-        m_OnImGuiFunc = std::make_shared<sol::protected_function>((*m_Env)["OnImGui"]);
-        if (!m_OnImGuiFunc->valid())
-            m_OnImGuiFunc.reset();
+        m_OnStartFunc = GetLuaFunctionRefID(L, "OnStart");
+        m_UpdateFunc  = GetLuaFunctionRefID(L, "OnUpdate");
+        m_OnImGuiFunc = GetLuaFunctionRefID(L, "OnImGui");
     }
+
+    // TODO: Pass entity as func params
 
     void LuaScriptComponent::OnStart(RZEntity entity)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
-        if (m_OnStartFunc) {
-            sol::protected_function_result result = m_OnStartFunc->call(entity);
-            if (!result.valid()) {
-                sol::error err = result;
-                RAZIX_CORE_ERROR("Failed to Execute Script Lua Init function");
-                RAZIX_CORE_ERROR("Error : {0}", err.what());
-            }
+        if (m_OnStartFunc > -1) {
+            bool success = CallLuaFunction(m_OnStartFunc);
+            if (!success)
+                RAZIX_CORE_ERROR("[Lua Script Manager] Error in OnStart: {0}", m_Filepath);
         }
     }
 
@@ -65,13 +80,10 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
-        if (m_UpdateFunc) {
-            sol::protected_function_result result = m_UpdateFunc->call(entity, dt.GetTimestepMs());
-            if (!result.valid()) {
-                sol::error err = result;
-                RAZIX_CORE_ERROR("Failed to Execute Script Lua OnUpdate");
-                RAZIX_CORE_ERROR("Error : {0}", err.what());
-            }
+        if (m_UpdateFunc > -1) {
+            bool success = CallLuaFunction(m_UpdateFunc);
+            if (!success)
+                RAZIX_CORE_ERROR("[Lua Script Manager] Error in Update: {0}", m_Filepath);
         }
     }
 
@@ -79,14 +91,10 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
-        if (m_OnImGuiFunc) {
-            sol::protected_function_result result = m_OnImGuiFunc->call();
-            if (!result.valid()) {
-                sol::error err = result;
-                RAZIX_CORE_ERROR("Failed to Execute Script Lua OnImGui");
-                RAZIX_CORE_ERROR("Error : {0}", err.what());
-            }
+        if (m_OnImGuiFunc > -1) {
+            bool success = CallLuaFunction(m_OnImGuiFunc);
+            if (!success)
+                RAZIX_CORE_ERROR("[Lua Script Manager] Error in OnImGui: {0}", m_Filepath);
         }
     }
-
 }    // namespace Razix
