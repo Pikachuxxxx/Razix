@@ -5,11 +5,11 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include <d3dx12/d3dx12.h>
-
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
     #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
+
+    #include <d3dx12/d3dx12.h>
 
 namespace Razix {
     namespace Graphics {
@@ -21,7 +21,7 @@ namespace Razix {
             //----------------------------
             // Root Signature
             //----------------------------
-            // get this from shader reflection.
+            // get this from shader reflection/api etc.
 
             //----------------------------
             // Vertex Input Layout Stage
@@ -30,6 +30,11 @@ namespace Razix {
 
             //----------------------------
             // Primitive Topology Stage
+            //----------------------------
+            // Set by IA on command list
+
+            //----------------------------
+            // Rasterization Stage
             //----------------------------
         }
 

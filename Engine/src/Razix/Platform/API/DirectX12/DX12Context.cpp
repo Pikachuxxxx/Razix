@@ -5,7 +5,7 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
 // Windows Runtime Library. Needed for Microsoft::WRL::ComPtr<> template class.
     #include <wrl.h>

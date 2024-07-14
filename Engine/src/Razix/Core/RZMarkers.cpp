@@ -12,7 +12,7 @@
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
 #endif
 
@@ -32,7 +32,7 @@ void BeginMarker(const std::string& name, glm::vec4 color)
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
         case Razix::Graphics::RenderAPI::D3D12:
-            Razix::Graphics::D3D12Utilities::CmdBeginLabel(static_cast<Razix::Graphics::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList(), name, color);
+            Razix::Graphics::DX12Utilities::CmdBeginLabel(static_cast<Razix::Graphics::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList(), name, color);
             break;
 #endif
     }
@@ -74,7 +74,7 @@ void EndMarker()
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
         case Razix::Graphics::RenderAPI::D3D12:
-            Razix::Graphics::D3D12Utilities::CmdEndLabel(static_cast<Razix::Graphics::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
+            Razix::Graphics::DX12Utilities::CmdEndLabel(static_cast<Razix::Graphics::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
             break;
 #endif
     }

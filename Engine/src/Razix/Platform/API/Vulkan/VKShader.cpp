@@ -139,11 +139,7 @@ namespace Razix {
             }
         }
 
-        VKShader::~VKShader()
-        {
-        }
-
-        void VKShader::DestroyResource()
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKShader)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

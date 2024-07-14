@@ -8,7 +8,7 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12CommandPool.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
     #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
@@ -51,7 +51,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
     #ifndef RAZIX_DISTRIBUTION
-            D3D12Utilities::LoadPIXRuntime();
+            DX12Utilities::LoadPIXRuntime();
     #endif
 
             // Create the Draw/Compute Command buffers
@@ -93,9 +93,11 @@ namespace Razix {
             // Reset the Command Allocator and Command List and begin recording commands
             commandBufferResource->BeginRecording();
 
+            //----------------------------------------------
             // TESTING CLEAR COLOR
             auto commandListD3D = (ID3D12GraphicsCommandList2*) RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer)->getAPIBuffer();
             m_Context->getSwapchain()->clearWithColor(commandListD3D, glm::vec4(cos(0.96f * Razix::RZApplication::Get().getTimer().GetElapsed()), sin(0.32f * Razix::RZApplication::Get().getTimer().GetElapsed()), 1.0f, 1.0f));
+            //----------------------------------------------
         }
 
         RAZIX_DEPRECATED("[Razix Deprecated!] SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
@@ -109,7 +111,7 @@ namespace Razix {
 
             // Ready the swapchain image from Render TArget stat to Present state for the presentation engine
             auto commandListD3D = (ID3D12GraphicsCommandList2*) commandBufferResource->getAPIBuffer();
-            D3D12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+            DX12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
             commandBufferResource->EndRecording();
             // Stack up the recorded command buffers for execution

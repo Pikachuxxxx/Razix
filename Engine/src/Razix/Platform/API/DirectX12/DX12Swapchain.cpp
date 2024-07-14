@@ -5,7 +5,7 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
     #include "Razix/Platform/API/DirectX12/DX12Texture.h"
 
@@ -208,7 +208,7 @@ namespace Razix {
 
         void DX12Swapchain::clearWithColor(ID3D12GraphicsCommandList2* commandList, glm::vec4 color)
         {
-            D3D12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            DX12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
             auto rtv = getCurrentBackBufferRTVHandle();
             commandList->ClearRenderTargetView(rtv, &color[0], 0, nullptr);
@@ -218,7 +218,7 @@ namespace Razix {
         {
             D3D12_CPU_DESCRIPTOR_HANDLE rtv = m_SwapchainRTVHeap->GetCPUDescriptorHandleForHeapStart();
             // The handle is offset from the beginning of the descriptor heap based on the current back buffer index and the size of the descriptor
-            D3D12Utilities::GetCPUDescriptorOffsetHandle(rtv, m_AcquiredBackBufferImageIndex, m_RTVDescriptorSize);
+            DX12Utilities::GetCPUDescriptorOffsetHandle(rtv, m_AcquiredBackBufferImageIndex, m_RTVDescriptorSize);
             return rtv;
         }
 

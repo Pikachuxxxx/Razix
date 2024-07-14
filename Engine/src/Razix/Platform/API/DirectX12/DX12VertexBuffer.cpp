@@ -12,7 +12,7 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 
     #include <vendor/d3dx12/d3dx12.h>
@@ -100,7 +100,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_Desc.usage == BufferUsage::Static) {
-                D3D12Utilities::UpdateBufferResource(&m_VertexBufferResource, size, data);
+                DX12Utilities::UpdateBufferResource(&m_VertexBufferResource, size, data);
             }
         }
 

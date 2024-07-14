@@ -9,6 +9,34 @@ extern "C"
 #include <lualib.h>    // Provides standard libraries like base, string, table, etc.
 }
 
+// Using macros to register types and functions/methods
+
+#define LUA_CREATE_TABLE(L, table_name) \
+    lua_newtable(L);                    \
+    lua_setglobal(L, table_name);
+
+#define LUA_REGISTER_GLOBAL_FUNCTION(L, table, func_name, ...) \
+    {                                                          \
+        auto func = [](lua_State* L) -> int {                  \
+            __VA_ARGS__                                        \
+        };                                                     \
+        lua_getglobal(L, table);                               \
+        lua_pushcfunction(L, func);                            \
+        lua_setfield(L, -2, #func_name);                       \
+        lua_pop(L, 1);                                         \
+    }
+
+#define LUA_REGISTER_CLASS_FUNCTION(L, table, class_name, method_name, func_body)         \
+    int class_name##_##method_name(lua_State* L)                                          \
+    {                                                                                     \
+        class_name* obj = *(class_name**) luaL_checkudata(L, 1, #class_name "MetaTable"); \
+        func_body                                                                         \
+    }                                                                                     \
+    lua_getglobal(L, table);                                                              \
+    lua_pushcfunction(L, class_name##_##method_name);                                     \
+    lua_setfield(L, -2, #method_name);                                                    \
+    lua_pop(L, 1);
+
 namespace Razix {
 
     class RZScene;
@@ -19,7 +47,7 @@ namespace Razix {
         // TODO: Derive this from the engine system and register to handle automatic startup and shutdown
 
         /**
-         * A class that handled lua script file and their execution, lifetime, memory and Engine API access
+         * A class that handles lua script files and their execution, lifetime, memory and Engine API access
          * 
          * This also a Engine system that will be managed by the engine class for startUp and shutdown
          */

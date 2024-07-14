@@ -24,24 +24,24 @@ namespace Razix {
 
             // Load lua default libraries that can be used by the client
             m_State = luaL_newstate();
-            luaL_openlibs(m_State); // Load standard libraries
+            luaL_openlibs(m_State); // Load standard libraries 
 
-            // Bind the Engine Systems Scripting API to be exposed to user via lua
+            // [] Bind the Engine Systems Scripting API to be exposed to user via lua (windowing etc.)
             bindApplicationAPI();
 
-            // Bind the logging API that can be used by the user via scripts
+            // [x] Bind the logging API that can be used by the user via scripts
             bindLoggingAPI();
 
-            // Bind the ImGui bindings
+            // [] Bind the ImGui bindings
             bindImGuiAPI();
 
-            // Bind the Renderer API
+            // [] Bind the Renderer API (materials etc.)
             bindRendererAPI();
 
-            // Binding GLM
+            // [] Binding GLM
             bindglm();
 
-            // Bind the ECS API
+            // [] Bind the ECS API
             bindECSAPI();
 
             // TODO: Bind other APIs (engine, gfx, ecs, physics etc.)
