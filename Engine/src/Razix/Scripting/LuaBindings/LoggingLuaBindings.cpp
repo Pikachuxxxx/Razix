@@ -11,7 +11,33 @@ namespace Razix {
 
         void RZLuaScriptHandler::bindLoggingAPI()
         {
-            
+            lua_State* L = m_State;
+
+            LUA_CREATE_TABLE(L, "RZLog");
+
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Trace, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_TRACE(message);
+                return 0;
+            });
+
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Info, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_INFO(message);
+                return 0;
+            });
+
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Warn, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_WARN(message);
+                return 0;
+            });
+
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Error, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_ERROR(message);
+                return 0;
+            });
         }
     }    // namespace Scripting
 }    // namespace Razix

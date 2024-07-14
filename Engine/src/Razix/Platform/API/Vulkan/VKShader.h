@@ -8,11 +8,11 @@
 
 namespace Razix {
     namespace Graphics {
-        class VKShader : public RZShader
+        class VKShader final : public RZShader
         {
         public:
             VKShader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            ~VKShader();
+            ~VKShader() {}
 
             /* Releases the vulkan texture resources */
             void DestroyResource() override;

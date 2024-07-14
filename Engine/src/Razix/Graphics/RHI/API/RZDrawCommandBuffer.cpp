@@ -15,7 +15,7 @@
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
 #endif
 
@@ -38,7 +38,7 @@ namespace Razix {
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::D3D12) {
-                auto                   d3d12CmdBuffer = D3D12Utilities::BeginSingleTimeCommandBuffer();
+                auto                   d3d12CmdBuffer = DX12Utilities::BeginSingleTimeCommandBuffer();
                 DX12DrawCommandBuffer* cmdBuffer      = new (where) DX12DrawCommandBuffer(d3d12CmdBuffer);
             }
 #endif
@@ -57,7 +57,7 @@ namespace Razix {
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
             if (Graphics::RZGraphicsContext::GetRenderAPI() == RenderAPI::D3D12)
-                return D3D12Utilities::EndSingleTimeCommandBuffer(static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
+                return DX12Utilities::EndSingleTimeCommandBuffer(static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
 #endif
         }
 

@@ -12,7 +12,7 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 
     #include <vendor/d3dx12/d3dx12.h>
@@ -38,7 +38,7 @@ namespace Razix {
 
             // Copy CPU data to this GPU only resource
             if (desc.data != nullptr && m_Desc.usage == BufferUsage::Static)
-                D3D12Utilities::UpdateBufferResource(&m_IndexBufferResource, bufferSize, desc.data);
+                DX12Utilities::UpdateBufferResource(&m_IndexBufferResource, bufferSize, desc.data);
 
             // Create the vertex buffer view
             m_IndexBufferView.BufferLocation = m_IndexBufferResource->GetGPUVirtualAddress();

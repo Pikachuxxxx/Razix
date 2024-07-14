@@ -13,6 +13,5 @@ namespace Razix {
         {
            
         }
-
     }    // namespace Scripting
 }    // namespace Razix
