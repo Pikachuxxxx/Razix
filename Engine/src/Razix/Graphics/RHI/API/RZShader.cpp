@@ -17,12 +17,17 @@
     #include "Razix/Platform/API/Vulkan/VKShader.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Platform/API/DirectX12/DX12Shader.h"
+#endif
+
 namespace Razix {
     namespace Graphics {
 
-        class DX12Shader
-        {};
         GET_INSTANCE_SIZE_IMPL(Shader)
+
+        static std::string ShaderBindaryFileExtension;
+        static std::string ShaderBindaryFileDirectory;
 
         void RZShader::Create(void* where, const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -30,13 +35,25 @@ namespace Razix {
 
             switch (Graphics::RZGraphicsContext::GetRenderAPI()) {
 #ifdef RAZIX_RENDER_API_OPENGL
-                case Razix::Graphics::RenderAPI::OPENGL: new (where) OpenGLShader(desc); break;
+                case Razix::Graphics::RenderAPI::OPENGL:
+                    new (where) OpenGLShader(desc);
+                    ShaderBindaryFileExtension = "";
+                    break;
+
 #endif
 #ifdef RAZIX_RENDER_API_VULKAN
-                case Razix::Graphics::RenderAPI::VULKAN: new (where) VKShader(desc RZ_DEBUG_E_ARG_NAME); break;
+                case Razix::Graphics::RenderAPI::VULKAN:
+                    ShaderBindaryFileExtension = ".spv";
+                    ShaderBindaryFileDirectory = "Compiled/SPIRV/";
+                    new (where) VKShader(desc RZ_DEBUG_E_ARG_NAME);
+                    break;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Graphics::RenderAPI::D3D12:
+                    ShaderBindaryFileExtension = ".cso";
+                    ShaderBindaryFileDirectory = "Compiled/CSO/";
+                    new (where) DX12Shader(desc RZ_DEBUG_E_ARG_NAME);
+                    break;
 #endif
                 default: break;
             }
@@ -73,13 +90,21 @@ namespace Razix {
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     }
-                } else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
+                }
+#if 0
+// TODO: Add token parsing for #elif defined
+else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
                     std::string rem                  = "#ifdef ";
                     str                              = Utilities::RemoveStringRange(str, 0, 7);
                     str                              = Razix::Utilities::RemoveSpaces(str);
                     std::vector<std::string> defines = Razix::Utilities::SplitString(str, "||");
-                } else if (Razix::Utilities::StartsWith(str, "#include")) {
+                } else
+#endif
+                if (Razix::Utilities::StartsWith(str, "#include")) {
                     str = Utilities::RemoveStringRange(str, 0, 9);
+                    // Adding the shader extension to load the apt shader
+                    str += ShaderBindaryFileExtension;
+                    str = ShaderBindaryFileDirectory + str;
                     shaders.at(stage).append(str);
                 }
             }

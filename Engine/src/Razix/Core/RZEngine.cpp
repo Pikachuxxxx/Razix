@@ -88,9 +88,9 @@ namespace Razix {
         RAZIX_CORE_INFO("*   Post Graphics Ignition....    *");
         RAZIX_CORE_INFO("***********************************");
 
-        // Ignite the shader library after the Graphics has been initialized
-        //Graphics::RZShaderLibrary::Get().StartUp();
-        //dxGraphics::RZMaterial::InitDefaultTexture();
+        // Ignite the shader library after the Graphics has been initialized (Shutdown by RHI when being destroyed)
+        Graphics::RZShaderLibrary::Get().StartUp();
+        //Graphics::RZMaterial::InitDefaultTexture();
     }
 
     void RZEngine::ShutDown()
@@ -100,7 +100,7 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
-        
+
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager

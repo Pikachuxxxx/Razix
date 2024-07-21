@@ -4,7 +4,7 @@
 
     #include <d3d12.h>
 
-    #define CHECK_HRESULT(x) Razix::Graphics::D3D12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
+    #define CHECK_HRESULT(x) Razix::Graphics::DX12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
 namespace Razix {
     namespace Graphics {
@@ -98,6 +98,10 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             // Enum Conversions
             //-----------------------------------------------------------------------------------
+
+            // Vertex Input
+            DXGI_FORMAT GetFormatFromComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, u32 componentCount);
+            u32         GetFormatSize(DXGI_FORMAT format);
 
             // PipelineInfo
             // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type);

@@ -117,6 +117,7 @@ namespace Razix {
 
             m_Desc = desc;
 
+            // Attach the binary extension before loading shaders
             setShaderFilePath(desc.filePath);
 
             m_Desc.name = Razix::Utilities::GetFileName(desc.filePath);
@@ -133,10 +134,6 @@ namespace Razix {
 
             // Create the shader modules and the pipeline shader stage create infos that will be bound to the pipeline
             createShaderModules();
-
-            for (const auto& spvSource: m_ParsedRZSF) {
-                VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t) m_ShaderCreateInfos[spvSource.first].module);
-            }
         }
 
         RAZIX_CLEANUP_RESOURCE_IMPL(VKShader)
@@ -525,6 +522,9 @@ namespace Razix {
                     RAZIX_CORE_ERROR("[Vulkan] Failed to create shader module!");
                 else
                     RAZIX_CORE_TRACE("[Vulkan] Successfully created shader module");
+
+                // Name tag
+                VK_TAG_OBJECT(m_Desc.filePath, VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t) m_ShaderCreateInfos[spvSource.first].module);
 
                 delete spvByteCode;
             }

@@ -119,7 +119,8 @@ namespace Razix {
             void updateBindVarsHeaps();
 
             RAZIX_INLINE std::string getShaderFilePath() const { return m_Desc.filePath; }
-            RAZIX_INLINE void        setShaderFilePath(std::string val) { m_Desc.filePath = val; }
+            RAZIX_DEPRECATED("Since m_Desc already contains this info, this is redundant.")
+            RAZIX_INLINE void setShaderFilePath(std::string val) { m_Desc.filePath = val; }
             // TODO: Expose internal Vertex Attributes and Layout functions in a engine wide style
 
         protected:

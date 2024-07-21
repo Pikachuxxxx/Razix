@@ -4,43 +4,7 @@ include 'Scripts/premake/common/vendor_includes.lua'
 include 'Scripts/premake/common/internal_includes.lua'
 ------------------------------------------------------------------------------
 -- Shaders a separate project to build as cache
-group "Engine/content"
-    project "Shaders"
-        kind "Utility"
-
-        files
-        { 
-            -- Shader files
-            -- GLSL
-            "content/Shaders/GLSL/**.glsl",
-            "content/Shaders/GLSL/**.vert",
-            "content/Shaders/GLSL/**.geom",
-            "content/Shaders/GLSL/**.frag",
-            "content/Shaders/GLSL/**.comp",
-            -- HLSL
-            "content/Shaders/HLSL/**.hlsl",
-            -- PSSL
-            "content/Shaders/PSSL/**.pssl",
-            "content/Shaders/PSSL/**.h",
-            "content/Shaders/PSSL/**.hs",
-            -- Cg
-            "content/Shaders/CG/**.cg",
-            -- Razix Shader File
-            "content/Shaders/Razix/**.rzsf"
-        }
-    filter "system:windows"
-        -- TODO Add as rules, every shader file type will have it's own rule
-        -- Don't build the shaders, they are compiled by the engine once and cached
-       filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
-            flags { "ExcludeFromBuild" }
-
-        -- Build GLSL files based on their extension
-        filter {"files:**.vert or **.frag or **.geom"}
-            removeflags "ExcludeFromBuild"
-            buildmessage 'Compiling glsl shader : %{file.name}'
-            buildcommands 'glslc.exe -I "%{wks.location}/../Engine/content/Shaders/GLSL" "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
-            buildoutputs "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"
-group""
+include 'razix_shaders_build.lua'
 ------------------------------------------------------------------------------
 -- Frame Graph resources data for editing in VS
 group "Engine/content"
@@ -133,6 +97,7 @@ project "Razix"
         "%{IncludeDir.Jolt}",
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- API related
@@ -278,7 +243,8 @@ project "Razix"
         libdirs
         {
             VulkanSDK .. "/Lib",
-            "%{wks.location}/../Engine/vendor/winpix/bin/x64"
+            "%{wks.location}/../Engine/vendor/winpix/bin/x64",
+            "%{wks.location}/../Engine/vendor/dxc/lib/x64",
         }
 
         -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
@@ -291,14 +257,19 @@ project "Razix"
             "d3d12",
             "dxgi",
             "dxguid",
-            "D3DCompiler"
+            "D3DCompiler",
+            "dxcompiler"
         }
 
         -- Copy the DLLs to bin dir
         postbuildcommands 
         {
+            -- copy windows pix dlls
             '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime.dll" "%{cfg.targetdir}"',
             '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime_UAP.dll" "%{cfg.targetdir}"',
+            -- Copy the DXC dlls 
+            '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
+            '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"'
         }
 
     -- Config settings for Razix Engine project

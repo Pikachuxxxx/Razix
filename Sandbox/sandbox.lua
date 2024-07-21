@@ -1,3 +1,4 @@
+
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
 -- Internal libraies include dirs
@@ -48,6 +49,7 @@ project "Sandbox"
         "%{IncludeDir.Jolt}",
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Internal libraries

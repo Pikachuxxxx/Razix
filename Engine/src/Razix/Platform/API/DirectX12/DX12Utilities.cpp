@@ -189,7 +189,58 @@ namespace Razix {
                 handle.ptr = SIZE_T(INT64(handle.ptr) + INT64(offsetInDescriptors) * INT64(descriptorIncrementSize));
             }
 
-        }    // namespace D3D12Utilities
+            DXGI_FORMAT GetFormatFromComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, UINT componentCount)
+            {
+                switch (componentType) {
+                    case D3D_REGISTER_COMPONENT_FLOAT32:
+                        switch (componentCount) {
+                            case 1: return DXGI_FORMAT_R32_FLOAT;
+                            case 2: return DXGI_FORMAT_R32G32_FLOAT;
+                            case 3: return DXGI_FORMAT_R32G32B32_FLOAT;
+                            case 4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+                            default: return DXGI_FORMAT_UNKNOWN;
+                        }
+                    case D3D_REGISTER_COMPONENT_SINT32:
+                        switch (componentCount) {
+                            case 1: return DXGI_FORMAT_R32_SINT;
+                            case 2: return DXGI_FORMAT_R32G32_SINT;
+                            case 3: return DXGI_FORMAT_R32G32B32_SINT;
+                            case 4: return DXGI_FORMAT_R32G32B32A32_SINT;
+                            default: return DXGI_FORMAT_UNKNOWN;
+                        }
+                    case D3D_REGISTER_COMPONENT_UINT32:
+                        switch (componentCount) {
+                            case 1: return DXGI_FORMAT_R32_UINT;
+                            case 2: return DXGI_FORMAT_R32G32_UINT;
+                            case 3: return DXGI_FORMAT_R32G32B32_UINT;
+                            case 4: return DXGI_FORMAT_R32G32B32A32_UINT;
+                            default: return DXGI_FORMAT_UNKNOWN;
+                        }
+                    default:
+                        return DXGI_FORMAT_UNKNOWN;
+                }
+            }
+
+            u32 GetFormatSize(DXGI_FORMAT format)
+            {
+                switch (format) {
+                    case DXGI_FORMAT_R32_FLOAT: return 4;
+                    case DXGI_FORMAT_R32G32_FLOAT: return 8;
+                    case DXGI_FORMAT_R32G32B32_FLOAT: return 12;
+                    case DXGI_FORMAT_R32G32B32A32_FLOAT: return 16;
+                    case DXGI_FORMAT_R32_SINT: return 4;
+                    case DXGI_FORMAT_R32G32_SINT: return 8;
+                    case DXGI_FORMAT_R32G32B32_SINT: return 12;
+                    case DXGI_FORMAT_R32G32B32A32_SINT: return 16;
+                    case DXGI_FORMAT_R32_UINT: return 4;
+                    case DXGI_FORMAT_R32G32_UINT: return 8;
+                    case DXGI_FORMAT_R32G32B32_UINT: return 12;
+                    case DXGI_FORMAT_R32G32B32A32_UINT: return 16;
+                    default: return 0;
+                }
+            }
+
+        }    // namespace DX12Utilities
     }        // namespace Graphics
 }    // namespace Razix
 
