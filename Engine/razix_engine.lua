@@ -268,8 +268,8 @@ project "Razix"
             '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime.dll" "%{cfg.targetdir}"',
             '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime_UAP.dll" "%{cfg.targetdir}"',
             -- Copy the DXC dlls 
-            '{COPY} "%{wks.location}../Engine/vendor/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
-            '{COPY} "%{wks.location}../Engine/vendor/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"'
+            '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
+            '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"'
         }
 
     -- Config settings for Razix Engine project

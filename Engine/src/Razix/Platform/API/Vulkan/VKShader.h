@@ -15,7 +15,7 @@ namespace Razix {
             ~VKShader() {}
 
             /* Releases the vulkan texture resources */
-            void DestroyResource() override;
+            RAZIX_CLEANUP_RESOURCE
 
             void Bind() const override;
             void Unbind() const override;

@@ -15,10 +15,10 @@ group "Engine/content"
             "content/Shaders/HLSL/**.h",
             "content/Shaders/HLSL/**.hlsl",
             "content/Shaders/HLSL/**.hlsli",
-            "content/Shaders/HLSL/**.vert",
-            "content/Shaders/HLSL/**.geom",
-            "content/Shaders/HLSL/**.frag",
-            "content/Shaders/HLSL/**.comp",
+            "content/Shaders/HLSL/**.vert.hlsl",
+            "content/Shaders/HLSL/**.geom.hlsl",
+            "content/Shaders/HLSL/**.frag.hlsl",
+            "content/Shaders/HLSL/**.comp.hlsl",
             -- GLSL (Deprecated)
             "content/Shaders/GLSL/**",
             -- PSSL (PlayStation 5)
@@ -43,72 +43,72 @@ group "Engine/content"
         -------------------
         -- VERTEX SHADER
         -------------------
-        filter { "files:**.vert" }
+        filter { "files:**.vert.hlsl" }
             removeflags "ExcludeFromBuild"
             buildmessage 'Compiling HLSL Vertex shader : %{file.name}'
             buildcommands 
             {
                 -- Compile CSO binary
                 "echo [Compiling] CSO for DX12 backend...",
-                '"%{dxcLocation}/dxc.exe" -D __HLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E VS_MAIN -T vs_6_0  "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.name }.cso"',
+                '"%{dxcLocation}/dxc.exe" -D __HLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E VS_MAIN -T vs_6_0  "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.basename}.cso"',
                 -- Compile SPIRV binary
                 "echo [Compiling] SPIRV for VK backend",
-                '"%{dxcLocation}/dxc.exe" -spirv -D __GLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E VS_MAIN -T vs_6_0  -fspv-reflect -fspv-target-env=vulkan1.3 "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"',
+                '"%{dxcLocation}/dxc.exe" -spirv -D __GLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E VS_MAIN -T vs_6_0  -fspv-reflect -fspv-target-env=vulkan1.3 "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename }.spv"',
                 -- Generate GLSL (for reference only)???
                 --"echo [WIP] [Generating] GLSL from SPIRV",
                 -- Generate Reflection Data JSON
                 --"echo [Generating] exporting shader Reflection data",
-                --'"%{dxcLocation}/dxc.exe" -E VS_MAIN -T vs_6_0 "%{file.directory}/%{file.name}" -Fre "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.name }.json"',
+                --'"%{dxcLocation}/dxc.exe" -E VS_MAIN -T vs_6_0 "%{file.directory}/%{file.name}" -Fre "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.basename }.json"',
                 -- Generate RootSig desc
                 --"echo [Generating] exporting root signature info",
-                --'"%{dxcLocation}/dxc.exe" -E VS_MAIN -T vs_6_0 "%{file.directory}/%{file.name}" -Frs "%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.name }.rootsig"',
+                --'"%{dxcLocation}/dxc.exe" -E VS_MAIN -T vs_6_0 "%{file.directory}/%{file.name}" -Frs "%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.basename }.rootsig"',
                 -- Generate Assembly
                 "echo [Generating] exporting shader assembly listing",
-                '"%{dxcLocation}/dxc.exe" -E VS_MAIN -T vs_6_0 "%{file.directory}/%{file.name}" -Fc "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.name }.isa"'
+                '"%{dxcLocation}/dxc.exe" -E VS_MAIN -T vs_6_0 "%{file.directory}/%{file.name}" -Fc "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.basename}.isa"'
             }
             buildoutputs 
             {
-                "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.name }.cso",
-                "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv",
+                "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.basename }.cso",
+                "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename }.spv",
                 -----------------------------------------------------------------------------
-                "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.name }.json",
-                "%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.name }.rootsig",
-                "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.name }.isa"
+                "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.basename }.json",
+                "%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.basename }.rootsig",
+                "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.basename }.isa"
             }
         -------------------
         -- PIXEL SHADER
         -------------------
-        filter { "files:**.frag" }
+        filter { "files:**.frag.hlsl" }
             removeflags "ExcludeFromBuild"
             buildmessage 'Compiling HLSL Pixel shader : %{file.name}'
             buildcommands 
             {
                 -- Compile CSO binary
                 "echo [Compiling] CSO for DX12 backend...",
-                '"%{dxcLocation}/dxc.exe" -D __HLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.name }.cso"',
+                '"%{dxcLocation}/dxc.exe" -D __HLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.basename}.cso"',
                 -- Compile SPIRV binary
                 "echo [Compiling] SPIRV for VK backend",
-                '"%{dxcLocation}/dxc.exe" -spirv -D __GLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E PS_MAIN -T ps_6_0  -fspv-reflect -fspv-target-env=vulkan1.3 "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"',
+                '"%{dxcLocation}/dxc.exe" -spirv -D __GLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E PS_MAIN -T ps_6_0  -fspv-reflect -fspv-target-env=vulkan1.3 "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename}.spv"',
                 -- Generate GLSL (for reference only)???
                 --"echo [WIP] [Generating] GLSL from SPIRV",
                 -- Generate Reflection Data JSON
                 --"echo [Generating] exporting shader Reflection data",
-                --'"%{dxcLocation}/dxc.exe" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Fre "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.name }.json"',
+                --'"%{dxcLocation}/dxc.exe" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Fre "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.basename }.json"',
                 -- Generate RootSig desc
                 --"echo [Generating] exporting root signature info",
-                --'"%{dxcLocation}/dxc.exe" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Frs "%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.name }.rootsig"',
+                --'"%{dxcLocation}/dxc.exe" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Frs "%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.basename }.rootsig"',
                 -- Generate Assembly
                 "echo [Generating] exporting shader assembly listing",
-                '"%{dxcLocation}/dxc.exe" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Fc "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.name }.isa"'
+                '"%{dxcLocation}/dxc.exe" -E PS_MAIN -T ps_6_0 "%{file.directory}/%{file.name}" -Fc "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.basename}.isa"'
             }
             buildoutputs 
             {
-                "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.name }.cso",
-                "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv",
+                "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.basename }.cso",
+                "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename }.spv",
                 -----------------------------------------------------------------------------
-                --"%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.name }.json",
-                --"%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.name }.rootsig",
-                "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.name }.isa"
+                --"%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.basename }.json",
+                --"%{wks.location}/../Engine/content/Shaders/Generated/RootSignature/%{file.basename }.rootsig",
+                "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.basename }.isa"
             }
 group""
 ------------------------------------------------------------------------------

@@ -20,12 +20,13 @@ namespace Razix {
             Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION: Starting Shader Library...");
 
             // TESTING HLSL LOADING
+            loadBuiltInShader(ShaderBuiltin::Default, "//RazixContent/Shaders/Razix/Shader.Builtin.Default.rzsf");
+            return;
 
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
             // pre-load some shaders
             //-------------------------------------------------------------------
             // Basic shaders
-            loadBuiltInShader(ShaderBuiltin::Default, "//RazixContent/Shaders/Razix/Shader.Builtin.Default.rzsf");
             loadBuiltInShader(ShaderBuiltin::Skybox, "//RazixContent/Shaders/Razix/Shader.Builtin.Skybox.rzsf");
             loadBuiltInShader(ShaderBuiltin::ProceduralSkybox, "//RazixContent/Shaders/Razix/Shader.Builtin.ProceduralSkybox.rzsf");
             //-------------------------------------------------------------------

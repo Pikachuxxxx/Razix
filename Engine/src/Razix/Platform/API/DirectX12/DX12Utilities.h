@@ -99,6 +99,10 @@ namespace Razix {
             // Enum Conversions
             //-----------------------------------------------------------------------------------
 
+            // Vertex Input
+            DXGI_FORMAT GetFormatFromComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, u32 componentCount);
+            u32         GetFormatSize(DXGI_FORMAT format);
+
             // PipelineInfo
             // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type);
             // I3DXXXX* CullModeToDX12(Razix::Graphics::CullMode cullMode);

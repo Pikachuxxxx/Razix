@@ -22,8 +22,11 @@ namespace Razix {
             void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
             void GenerateDescriptorHeaps() override;
 
+            RAZIX_INLINE const std::vector<D3D12_INPUT_ELEMENT_DESC>& getVertexAttribDescriptions() const { return m_VertexInputAttributeDescriptions; }
+
         private:
-            std::map<ShaderStage, ID3DBlob*> m_ShaderStageBlobs;
+            std::map<ShaderStage, ID3DBlob*>      m_ShaderStageBlobs;
+            std::vector<D3D12_INPUT_ELEMENT_DESC> m_VertexInputAttributeDescriptions;
 
         private:
             // https://simoncoenen.com/blog/programming/graphics/DxcCompiling

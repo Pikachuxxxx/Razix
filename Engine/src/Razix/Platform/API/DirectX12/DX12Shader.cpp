@@ -26,11 +26,24 @@
 namespace Razix {
     namespace Graphics {
 
+        static u32 GetComponentCount(u32 mask)
+        {
+            u32 count = 0;
+            if (mask & 0x1) count++;
+            if (mask & 0x2) count++;
+            if (mask & 0x4) count++;
+            if (mask & 0x8) count++;
+            return count;
+        }
+
         DX12Shader::DX12Shader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             m_Desc = desc;
+
+            // Attach the binary extension before loading shaders
+            setShaderFilePath(desc.filePath);
 
             m_Desc.name = Razix::Utilities::GetFileName(desc.filePath);
 
@@ -48,6 +61,9 @@ namespace Razix {
 
         RAZIX_CLEANUP_RESOURCE_IMPL(DX12Shader)
         {
+            // Destroy the shader blobs
+            for (const auto& csoSource: m_ParsedRZSF)
+                D3D_SAFE_RELEASE(m_ShaderStageBlobs[csoSource.first]);
         }
 
         void DX12Shader::Bind() const
@@ -112,11 +128,36 @@ namespace Razix {
                 //--------------------------
                 // Get the vertex input desc
                 //--------------------------
-                // TODO: Fill D3D12_INPUT_ELEMENT_DESC
-                for (u32 i = 0; i < shaderDesc.InputParameters; ++i) {
-                    D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
-                    CHECK_HRESULT(shaderReflection->GetInputParameterDesc(i, &paramDesc));
-                    RAZIX_CORE_INFO("[DX12] [Shader Reflection] Input Params: {0} type: {1} elements/register: {2}", paramDesc.SemanticName, paramDesc.ComponentType, paramDesc.Register);
+                if (csoSource.first == ShaderStage::Vertex) {
+                    m_VertexInputStride = 0;
+
+                    // TODO: Fill D3D12_INPUT_ELEMENT_DESC
+                    for (u32 i = 0; i < shaderDesc.InputParameters; ++i) {
+                        D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
+                        CHECK_HRESULT(shaderReflection->GetInputParameterDesc(i, &paramDesc));
+                        RAZIX_CORE_INFO("[DX12] [Shader Reflection] Input Params: {0} type: {1} elements/register: {2}", paramDesc.SemanticName, paramDesc.ComponentType, paramDesc.Register);
+
+                        u32 componentCount = GetComponentCount(paramDesc.Mask);
+                        RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t input param component count : {0}", componentCount);
+                        DXGI_FORMAT format     = DX12Utilities::GetFormatFromComponentType(paramDesc.ComponentType, componentCount);
+                        u32         formatSize = DX12Utilities::GetFormatSize(format);
+
+                        D3D12_INPUT_ELEMENT_DESC inputElement = {};
+                        inputElement.SemanticName             = paramDesc.SemanticName;
+                        inputElement.SemanticIndex            = paramDesc.SemanticIndex;
+                        inputElement.Format                   = format;
+                        inputElement.InputSlot                = 0;
+                        inputElement.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
+                        inputElement.InputSlotClass           = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+                        inputElement.InstanceDataStepRate     = 0;
+
+                        m_VertexInputAttributeDescriptions.push_back(inputElement);
+
+                        // TODO: Create the buffer layout for Razix engine
+                        //pushBufferLayout((VkFormat) inputVar.format, inputVar.name, m_BufferLayout);
+
+                        m_VertexInputStride += formatSize;
+                    }
                 }
 
                 delete csoByteCode;
@@ -142,6 +183,8 @@ namespace Razix {
                 ID3DBlob* blob = m_ShaderStageBlobs[spvSource.first];
                 CHECK_HRESULT(D3DCreateBlob(csoByteSize, &blob));
                 memcpy(blob->GetBufferPointer(), csoByteCode, csoByteSize);
+
+                // TODO: Name tag shader blobs D3D12_TAG_OBJECT(blob);
 
                 delete csoByteCode;
             }
