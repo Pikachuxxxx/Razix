@@ -17,11 +17,13 @@
     #include "Razix/Platform/API/Vulkan/VKShader.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Platform/API/DirectX12/DX12Shader.h"
+#endif
+
 namespace Razix {
     namespace Graphics {
 
-        class DX12Shader
-        {};
         GET_INSTANCE_SIZE_IMPL(Shader)
 
         void RZShader::Create(void* where, const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
@@ -36,9 +38,9 @@ namespace Razix {
                 case Razix::Graphics::RenderAPI::VULKAN: new (where) VKShader(desc RZ_DEBUG_E_ARG_NAME); break;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-                case Razix::Graphics::RenderAPI::D3D12:
+                case Razix::Graphics::RenderAPI::D3D12: new (where) DX12Shader(desc RZ_DEBUG_E_ARG_NAME); break;
 #endif
-                default: break;
+                    default : break;
             }
         }
 
@@ -73,7 +75,9 @@ namespace Razix {
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     }
-                } else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
+                } 
+                // TODO: Add token parsing for #elif defined
+                else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
                     std::string rem                  = "#ifdef ";
                     str                              = Utilities::RemoveStringRange(str, 0, 7);
                     str                              = Razix::Utilities::RemoveSpaces(str);

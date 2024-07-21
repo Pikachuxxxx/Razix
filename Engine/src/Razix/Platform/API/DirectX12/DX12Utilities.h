@@ -4,7 +4,7 @@
 
     #include <d3d12.h>
 
-    #define CHECK_HRESULT(x) Razix::Graphics::D3D12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
+    #define CHECK_HRESULT(x) Razix::Graphics::DX12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
 namespace Razix {
     namespace Graphics {

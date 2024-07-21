@@ -75,6 +75,10 @@
     #include <vulkan/vulkan.h>
 #endif
 
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include <d3d12.h>
+#endif
+
 // Disable Warnings
 #pragma warning(disable : 4100)
 #pragma warning(disable : 4996)    // some spdlog stuff

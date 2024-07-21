@@ -38,6 +38,7 @@ project "GameFramework"
         "%{IncludeDir.Jolt}",
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Internal libraries

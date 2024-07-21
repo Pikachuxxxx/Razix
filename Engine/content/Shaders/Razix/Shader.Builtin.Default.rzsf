@@ -1,7 +1,7 @@
 ﻿/*
  * Razix Shader File 
- * default.rzsf : Quad shader that can be used to render a screen space quad, useful for post processing effects and multipass shaders for deferred erndedring etc.
- * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ * Shader.Builtin.Default.rzsf : Default shader to test basic rendering in 3D world with a texture
+ * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
  */
 
 // Including the default vertex shader based on the API (ofc these can always be cross compiled but in some situations you need to spearately include them and also it looks more readable this way)
@@ -10,11 +10,17 @@
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
         #include Compiled/SPIRV/Shader.Builtin.Default.vert.spv
     #endif
+    #ifdef RAZIX_RENDER_API_DIRECTX12
+        #include Compiled/SPIRV/Shader.Builtin.Default.vert.cso
+    #endif
 #end
 
 // Including the default fragment shader
 #shader fragment
     #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
         #include Compiled/SPIRV/Shader.Builtin.Default.frag.spv
+    #endif
+    #ifdef RAZIX_RENDER_API_DIRECTX12
+        #include Compiled/SPIRV/Shader.Builtin.Default.frag.cso
     #endif
 #end

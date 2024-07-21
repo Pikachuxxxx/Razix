@@ -19,6 +19,8 @@ namespace Razix {
             RAZIX_CORE_INFO("[Shader Library] Starting Up Shader Library to load shaders");
             Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION: Starting Shader Library...");
 
+            // TESTING HLSL LOADING
+
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
             // pre-load some shaders
             //-------------------------------------------------------------------
