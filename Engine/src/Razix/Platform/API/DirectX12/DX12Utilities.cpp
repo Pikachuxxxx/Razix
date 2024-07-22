@@ -3,6 +3,13 @@
 // clang-format on
 #include "DX12Utilities.h"
 
+#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
+
+#include "Razix/Platform/API/Vulkan/VKDevice.h"
+
 #include "Razix/Utilities/RZColorUtilities.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
@@ -240,6 +247,33 @@ namespace Razix {
                 }
             }
 
+            u32 PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZVertexBufferLayout& layout) /* PipelineInfo */    // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type)
+            {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                // TODO: Add buffer layout for all supported types
+                switch (format) {
+                    case DXGI_FORMAT_R8_SINT:
+                        layout.push<int>(name);
+                        break;
+                    case DXGI_FORMAT_R32_FLOAT:
+                        layout.push<f32>(name);
+                        break;
+                    case DXGI_FORMAT_R32G32_FLOAT:
+                        layout.push<glm::vec2>(name);
+                        break;
+                    case DXGI_FORMAT_R32G32B32_FLOAT:
+                        layout.push<glm::vec3>(name);
+                        break;
+                    case DXGI_FORMAT_R32G32B32A32_FLOAT:
+                        layout.push<glm::vec4>(name);
+                        break;
+                    default:
+                        RAZIX_CORE_ERROR("Unsupported Format {0}", format);
+                        return 0;
+                }
+                return 0;
+            }
         }    // namespace DX12Utilities
     }        // namespace Graphics
 }    // namespace Razix

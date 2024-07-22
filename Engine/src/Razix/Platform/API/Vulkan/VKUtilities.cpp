@@ -13,6 +13,8 @@
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
+#include <spirv_reflect.h>
+
 namespace Razix {
     namespace Graphics {
         namespace VKUtilities {
@@ -870,6 +872,89 @@ namespace Razix {
                         return VK_SHADER_STAGE_ALL_GRAPHICS;
                         break;
                 }
+            }
+
+            u32 GetStrideFromVulkanFormat(VkFormat format)
+            {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                switch (format) {
+                    case VK_FORMAT_R8_SINT:
+                        return sizeof(int);
+                    case VK_FORMAT_R32_SFLOAT:
+                        return sizeof(FLOAT);
+                    case VK_FORMAT_R32G32_SFLOAT:
+                        return sizeof(glm::vec2);
+                    case VK_FORMAT_R32G32B32_SFLOAT:
+                        return sizeof(glm::vec3);
+                    case VK_FORMAT_R32G32B32A32_SFLOAT:
+                        return sizeof(glm::vec4);
+                    case VK_FORMAT_R32G32_SINT:
+                        return sizeof(glm::ivec2);
+                    case VK_FORMAT_R32G32B32_SINT:
+                        return sizeof(glm::ivec3);
+                    case VK_FORMAT_R32G32B32A32_SINT:
+                        return sizeof(glm::ivec4);
+                    case VK_FORMAT_R32G32_UINT:
+                        return sizeof(glm::uvec2);
+                    case VK_FORMAT_R32G32B32_UINT:
+                        return sizeof(glm::uvec3);
+                    case VK_FORMAT_R32G32B32A32_UINT:
+                        return sizeof(glm::uvec4);    //Need uintvec?
+                    case VK_FORMAT_R32_UINT:
+                        return sizeof(u32);
+                    default:
+                        RAZIX_CORE_ERROR("Unsupported Format {0}", format);
+                        return 0;
+                }
+
+                return 0;
+            }
+
+            u32 PushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout)
+            {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                // TODO: Add buffer layout for all supported types
+                switch (format) {
+                    case VK_FORMAT_R8_SINT:
+                        layout.push<int>(name);
+                        break;
+                    case VK_FORMAT_R32_SFLOAT:
+                        layout.push<FLOAT>(name);
+                        break;
+                    case VK_FORMAT_R32G32_SFLOAT:
+                        layout.push<glm::vec2>(name);
+                        break;
+                    case VK_FORMAT_R32G32B32_SFLOAT:
+                        layout.push<glm::vec3>(name);
+                        break;
+                    case VK_FORMAT_R32G32B32A32_SFLOAT:
+                        layout.push<glm::vec4>(name);
+                        break;
+                    default:
+                        RAZIX_CORE_ERROR("Unsupported Format {0}", format);
+                        return 0;
+                }
+
+                return 0;
+            }
+
+            DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type)
+            {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                switch (type) {
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                        return DescriptorType::ImageSamplerCombined;
+                        break;
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                        return DescriptorType::UniformBuffer;
+                        break;
+                }
+
+                // FIXME: Make this return something like NONE and cause a ASSERT_ERROR
+                return DescriptorType::UniformBuffer;
             }
 
             //-----------------------------------------------------------------------------------

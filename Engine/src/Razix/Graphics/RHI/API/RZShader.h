@@ -100,9 +100,7 @@ namespace Razix {
             virtual void GenerateDescriptorHeaps() = 0;
 
             /* Gets the name of the shader file */
-            RAZIX_INLINE const std::string& getName() { return m_Desc.name; }
-            /* Gets the stage of the pipeline that shader is bound/being used with */
-            RAZIX_INLINE const ShaderStage& getStage() { return m_ShaderStage; }
+            RAZIX_INLINE const std::string& getName() const { return m_Desc.name; }
             /* Gets the input stride of the vertex layout */
             RAZIX_INLINE const u32& getInputStride() const { return m_VertexInputStride; }
             /* Gets per set descriptors info */
@@ -124,16 +122,15 @@ namespace Razix {
             // TODO: Expose internal Vertex Attributes and Layout functions in a engine wide style
 
         protected:
-            RZShaderDesc                       m_Desc        = {};
-            ShaderStage                        m_ShaderStage = ShaderStage::NONE;       /* The shader stage to which the shader will be bound to                                                    */
-            ShaderSourceType                   m_SourceType  = ShaderSourceType::SPIRV; /* The source type of the shader                                                                            */
-            std::map<ShaderStage, std::string> m_ParsedRZSF;                            /* The razix shader file that was parsed                                                                    */
-            RZVertexBufferLayout               m_BufferLayout;                          /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
-            DescriptorsPerHeapMap              m_DescriptorsPerHeap;                    /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
-            ShaderBindVars                     m_BindVars;                              /* Descriptors and name maps for updating descriptors                                                       */
-            SceneDrawParams                    m_SceneParams;                           /* Some params to help with scene drawing                                                                   */
-            std::vector<RZPushConstant>        m_PushConstants;                         /* The list of the the push constants                                                                       */
-            u32                                m_VertexInputStride = 0;                 /* The stride of the vertex data that is extracted from the information                                     */
+            RZShaderDesc                       m_Desc       = {};
+            ShaderSourceType                   m_SourceType = ShaderSourceType::SPIRV; /* The source type of the shader                                                                            */
+            std::map<ShaderStage, std::string> m_ParsedRZSF;                           /* The razix shader file that was parsed                                                                    */
+            RZVertexBufferLayout               m_BufferLayout;                         /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
+            DescriptorsPerHeapMap              m_DescriptorsPerHeap;                   /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
+            ShaderBindVars                     m_BindVars;                             /* Descriptors and name maps for updating descriptors                                                       */
+            SceneDrawParams                    m_SceneParams;                          /* Some params to help with scene drawing                                                                   */
+            std::vector<RZPushConstant>        m_PushConstants;                        /* The list of the the push constants                                                                       */
+            u32                                m_VertexInputStride = 0;                /* The stride of the vertex data that is extracted from the information                                     */
 
         private:
             /**

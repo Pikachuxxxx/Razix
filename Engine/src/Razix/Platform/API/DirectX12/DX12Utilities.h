@@ -8,6 +8,21 @@
 
 namespace Razix {
     namespace Graphics {
+
+        // Forward Declarations for reducing cyclic dependency
+        enum class DrawType;
+        enum class CullMode;
+        enum class PolygonMode;
+        enum class BlendOp;
+        enum class BlendFactor;
+        enum class CompareOp;
+        enum class ShaderStage;
+        enum class DescriptorType : u32;
+        enum class ImageLayout : u32;
+        enum class PipelineStage : u32;
+        enum class MemoryAccessMask : u32;
+        class RZVertexBufferLayout;
+
         namespace DX12Utilities {
 
     #define D3D_SAFE_RELEASE(x) \
@@ -102,6 +117,7 @@ namespace Razix {
             // Vertex Input
             DXGI_FORMAT GetFormatFromComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, u32 componentCount);
             u32         GetFormatSize(DXGI_FORMAT format);
+            u32         PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZVertexBufferLayout& layout);
 
             // PipelineInfo
             // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type);

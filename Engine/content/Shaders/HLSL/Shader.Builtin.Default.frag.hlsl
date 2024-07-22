@@ -5,12 +5,14 @@
 //------------------------------------------------------------------------------
 #include "../ShaderCommon/ShaderInclude.Builtin.ShaderLangCommon.h"
 //------------------------------------------------------------------------------
-struct VSIn
+struct PSIn
 {
-    float4 color : Color;
+    float4 Color      : COLOR;
+    float2 UV         : TEXCOORD;
+    float3 Normal     : NORMAL;
 };
-
-float4 PS_MAIN(VSIn vsIn) : SV_TARGET
+ //------------------------------------------------------------------------------
+float4 PS_MAIN(PSIn psIn) : SV_TARGET
 {
-    return vsIn.color;
+    return psIn.Color;
 }

@@ -5,22 +5,49 @@
 //------------------------------------------------------------------------------
 #include "../ShaderCommon/ShaderInclude.Builtin.ShaderLangCommon.h"
 //------------------------------------------------------------------------------
-
+// Vertex Input
+struct VSIn
+{
+    float3 inPosition   : POSITION;
+    float4 inColor      : COLOR;
+    float2 inTexCoord   : TEXCOORD;
+    float3 inNormal     : NORMAL;
+};
+//------------------------------------------------------------------------------
+// Buffers and Root Constants
+// The view projection matrix
+cbuffer ViewProjectionBuffer : register (b0, space0)
+{
+    matrix view;
+    matrix proj;
+};
+// The model push constant
+// TODO: Make this a root constant
+cbuffer ModelPushConstantData : register(b1, space0)
+{
+    float4x4 worldTransform;
+    float4x4 previousWorldTransform;
+};
+//------------------------------------------------------------------------------
 struct VSOut
 {
-    float4 pos : SV_Position;
-    float4 color : Color;
+    float4 Position   : SV_POSITION;
+    float4 Color      : COLOR;
+    float2 UV         : TEXCOORD;
+    float3 Normal     : NORMAL;
 };
-
-cbuffer CBuf : register (b0)
-{
-    matrix transform;
-};
-
-VSOut VS_MAIN( float3 pos : Position, float4 color : Color )
+//------------------------------------------------------------------------------
+VSOut VS_MAIN(VSIn vsIn)
 {
     VSOut vso;
-    vso.pos = mul(float4(pos, 1.0f), transform);
-    vso.color = color;
+
+    float4 transformedPos = mul(worldTransform, float4(vsIn.inPosition, 1.0f));
+    transformedPos = mul(view, transformedPos);
+    transformedPos = mul(proj, transformedPos);
+    vso.Position = transformedPos;
+    vso.Color = vsIn.inColor;
+    vso.UV = vsIn.inTexCoord;
+    vso.Normal = vsIn.inNormal;
+
     return vso;
 }
