@@ -15,101 +15,17 @@
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
-#include <SPIRVReflect/common/output_stream.h>
-#include <spirv_reflect.h>
-
-#include <glm/glm.hpp>
-
-#include <imgui/imgui.h>
-
 #include "internal/RazixMemory/include/RZMemoryFunctions.h"
+
+#include <SPIRVReflect/common/output_stream.h>
+#include <glm/glm.hpp>
+#include <imgui/imgui.h>
+#include <spirv_reflect.h>
 
 namespace Razix {
     namespace Graphics {
 
         // TODO: Move these to VKUtilites
-        static u32 GetStrideFromVulkanFormat(VkFormat format)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            switch (format) {
-                case VK_FORMAT_R8_SINT:
-                    return sizeof(int);
-                case VK_FORMAT_R32_SFLOAT:
-                    return sizeof(FLOAT);
-                case VK_FORMAT_R32G32_SFLOAT:
-                    return sizeof(glm::vec2);
-                case VK_FORMAT_R32G32B32_SFLOAT:
-                    return sizeof(glm::vec3);
-                case VK_FORMAT_R32G32B32A32_SFLOAT:
-                    return sizeof(glm::vec4);
-                case VK_FORMAT_R32G32_SINT:
-                    return sizeof(glm::ivec2);
-                case VK_FORMAT_R32G32B32_SINT:
-                    return sizeof(glm::ivec3);
-                case VK_FORMAT_R32G32B32A32_SINT:
-                    return sizeof(glm::ivec4);
-                case VK_FORMAT_R32G32_UINT:
-                    return sizeof(glm::uvec2);
-                case VK_FORMAT_R32G32B32_UINT:
-                    return sizeof(glm::uvec3);
-                case VK_FORMAT_R32G32B32A32_UINT:
-                    return sizeof(glm::uvec4);    //Need uintvec?
-                case VK_FORMAT_R32_UINT:
-                    return sizeof(unsigned int);
-                default:
-                    RAZIX_CORE_ERROR("Unsupported Format {0}", format);
-                    return 0;
-            }
-
-            return 0;
-        }
-
-        static u32 pushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            // TODO: Add buffer layout for all supported types
-            switch (format) {
-                case VK_FORMAT_R8_SINT:
-                    layout.push<int>(name);
-                    break;
-                case VK_FORMAT_R32_SFLOAT:
-                    layout.push<FLOAT>(name);
-                    break;
-                case VK_FORMAT_R32G32_SFLOAT:
-                    layout.push<glm::vec2>(name);
-                    break;
-                case VK_FORMAT_R32G32B32_SFLOAT:
-                    layout.push<glm::vec3>(name);
-                    break;
-                case VK_FORMAT_R32G32B32A32_SFLOAT:
-                    layout.push<glm::vec4>(name);
-                    break;
-                default:
-                    RAZIX_CORE_ERROR("Unsupported Format {0}", format);
-                    return 0;
-            }
-
-            return 0;
-        }
-
-        static DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            switch (type) {
-                case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    return DescriptorType::ImageSamplerCombined;
-                    break;
-                case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    return DescriptorType::UniformBuffer;
-                    break;
-            }
-
-            // FIXME: Make this return something like NONE and cause a ASSERT_ERROR
-            return DescriptorType::UniformBuffer;
-        }
 
         VKShader::VKShader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -270,10 +186,10 @@ namespace Razix {
 
                         m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc);
 
-                        m_VertexInputStride += GetStrideFromVulkanFormat((VkFormat) inputVar.format);
+                        m_VertexInputStride += VKUtilities::GetStrideFromVulkanFormat((VkFormat) inputVar.format);
 
                         // Create the buffer layout for Razix engine
-                        pushBufferLayout((VkFormat) inputVar.format, inputVar.name, m_BufferLayout);
+                        VKUtilities::PushBufferLayout((VkFormat) inputVar.format, inputVar.name, m_BufferLayout);
 
                         //delete inputVar;
                     }
@@ -348,7 +264,7 @@ namespace Razix {
                     bindingInfo.location.binding = descriptor.binding;
                     bindingInfo.location.set     = descriptor.set;
                     bindingInfo.count            = descriptor.count;
-                    bindingInfo.type             = VKToEngineDescriptorType(descriptor.descriptor_type);
+                    bindingInfo.type             = VKUtilities::VKToEngineDescriptorType(descriptor.descriptor_type);
                     bindingInfo.stage            = spvSource.first;
 
                     if (descriptor.count >= 1024)

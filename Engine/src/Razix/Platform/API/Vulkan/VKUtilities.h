@@ -10,6 +10,8 @@
 
 #define VK_ERROR_REPORT(x) Razix::Graphics::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
+enum SpvReflectDescriptorType;
+
 namespace Razix {
     namespace Graphics {
 
@@ -25,6 +27,7 @@ namespace Razix {
         enum class ImageLayout : u32;
         enum class PipelineStage : u32;
         enum class MemoryAccessMask : u32;
+        class RZVertexBufferLayout;
 
         namespace VKUtilities {
 
@@ -231,6 +234,10 @@ namespace Razix {
             VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType);
 
             VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage);
+
+            u32            GetStrideFromVulkanFormat(VkFormat format);
+            u32            PushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout);
+            DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type);
 
         }    // namespace VKUtilities
     }        // namespace Graphics
