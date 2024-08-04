@@ -632,9 +632,9 @@ namespace Razix {
 
             VkViewport viewport = {};
             viewport.x          = static_cast<f32>(x);
-            viewport.y          = static_cast<f32>(y);
+            viewport.y          = static_cast<f32>(height) - static_cast<f32>(y);
             viewport.width      = static_cast<f32>(width);
-            viewport.height     = static_cast<f32>(height);
+            viewport.height     = -static_cast<f32>(height);    // (-) to match with DX12
             viewport.minDepth   = 0.0f;
             viewport.maxDepth   = 1.0f;
 
