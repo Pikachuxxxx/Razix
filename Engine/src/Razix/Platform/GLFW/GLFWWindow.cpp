@@ -96,6 +96,11 @@ namespace Razix {
         Shutdown();
     }
 
+    void GLFWWindow::setTitle(const char* title)
+    {
+        glfwSetWindowTitle(m_Window, title);
+    }
+
     RZWindow* GLFWWindow::GLFWConstructionFunc(const WindowProperties& properties)
     {
         return new GLFWWindow(properties);

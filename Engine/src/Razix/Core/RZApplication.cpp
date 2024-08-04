@@ -49,6 +49,12 @@ namespace Razix {
     std::mutex              RZApplication::m;
     std::condition_variable RZApplication::halt_execution;
 
+    static std::string GetAppWindowTitleSignature(const std::string& projectName)
+    {
+        std::string SignatureTitle = projectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
+        return SignatureTitle;
+    }
+
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
         : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE), m_GuizmoMode(ImGuizmo::MODE::WORLD)
     {
@@ -115,13 +121,12 @@ namespace Razix {
         }
 
         // The Razix Application Signature Name is generated here and passed to the window
-        std::string SignatureTitle = m_ProjectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
 
         // Create the timer
         m_Timer = rzstl::CreateUniqueRef<RZTimer>();
 
         // Set the window properties and create the timer
-        m_WindowProperties.Title = SignatureTitle;
+        m_WindowProperties.Title = GetAppWindowTitleSignature(m_ProjectName);
 
         // TODO: Load any other Engine systems that needs to be done only in the Application
         // Destroy the Splash Screen before we create the window
@@ -143,6 +148,15 @@ namespace Razix {
 
             defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
+
+        // Override for dev utils (can still be overrided by application)
+        if (RZEngine::Get().commandLineParser.isSet("vulkan"))
+            Graphics::RZGraphicsContext::SetRenderAPI(Graphics::RenderAPI::VULKAN);
+        else if (RZEngine::Get().commandLineParser.isSet("dx12"))
+            Graphics::RZGraphicsContext::SetRenderAPI(Graphics::RenderAPI::D3D12);
+
+        // If we change the API, then update the window title
+        m_Window->setTitle(GetAppWindowTitleSignature(m_ProjectName).c_str());
 
         // Convert the app to loaded state
         m_CurrentState = AppState::Loading;
@@ -383,6 +397,10 @@ namespace Razix {
                 stats.UpdatesPerSecond = m_Updates;
                 RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms)", stats.FramesPerSecond, stats.DeltaTime);
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
+
+                // update window signature with FPS
+                auto sig = GetAppWindowTitleSignature(m_ProjectName) + " | FPS: " + std::to_string(stats.FramesPerSecond);
+                m_Window->setTitle(sig.c_str());
 
                 m_Frames  = 0;
                 m_Updates = 0;

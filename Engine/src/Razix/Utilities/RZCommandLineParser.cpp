@@ -15,6 +15,10 @@ namespace Razix {
         AddCommand("vsync", {"-vs", "--vsync"}, 0, "Enable V-Sync");
         AddCommand("width", {"-w", "--width"}, 1, "Set window width");
         AddCommand("height", {"-h", "--height"}, 1, "Set window height");
+        //-------------------------------------------------------
+        // Dev Utils
+        AddCommand("vulkan", {"--vulkan"}, 0, "Start the engine with Vulkan API.");
+        AddCommand("dx12", {"--dx12"}, 0, "Start the engine with DirectX12 API.");
     }
 
     void RZCommandLineParser::printHelp()
