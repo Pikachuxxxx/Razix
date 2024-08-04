@@ -287,8 +287,8 @@ namespace Razix {
 
         Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
 
-        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 #endif
+        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 
         m_CurrentState = AppState::Running;
 

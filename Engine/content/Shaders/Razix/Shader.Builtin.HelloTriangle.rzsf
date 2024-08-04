@@ -1,26 +1,13 @@
 ﻿/*
  * Razix Shader File 
- * Shader.Builtin.Default.rzsf : Default shader to test basic rendering in 3D world with a texture
+ * Shader.Builtin.HelloTriangle.rzsf : Test shader to render a hello triangle 
  * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
  */
 
-// Including the default vertex shader based on the API (ofc these can always be cross compiled but in some situations you need to spearately include them and also it looks more readable this way)
-// Here #include doesn't mean that it will be copied but rather interpreted as a keyword that it's a file that needs to be read/included into to the shader read stream for reading the byte code
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Default.vert.spv
-    #endif
-    #ifdef RAZIX_RENDER_API_DIRECTX12
-        #include Compiled/SPIRV/Shader.Builtin.Default.vert.cso
-    #endif
+    #include Shader.Builtin.HelloTriangle.vert
 #end
 
-// Including the default fragment shader
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Default.frag.spv
-    #endif
-    #ifdef RAZIX_RENDER_API_DIRECTX12
-        #include Compiled/SPIRV/Shader.Builtin.Default.frag.cso
-    #endif
+    #include Shader.Builtin.HelloTriangle.frag
 #end
