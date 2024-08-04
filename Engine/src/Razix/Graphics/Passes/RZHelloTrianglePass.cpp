@@ -36,6 +36,8 @@ namespace Razix {
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
             pipelineInfo.cullMode               = Graphics::CullMode::None;
             pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);

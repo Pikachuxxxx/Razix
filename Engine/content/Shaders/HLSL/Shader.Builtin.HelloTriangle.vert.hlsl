@@ -9,9 +9,8 @@
 //------------------------------------------------------------------------------
 struct VSOut
 {
+    float4 Color      : COLOR0;
     float4 Position   : SV_POSITION;
-    float4 Color      : COLOR;
-    float2 UV         : TEXCOORD;
 };
 //------------------------------------------------------------------------------
 VSOut VS_MAIN(uint VertexIndex : SV_VertexID)
@@ -38,7 +37,8 @@ VSOut VS_MAIN(uint VertexIndex : SV_VertexID)
 
     vso.Position = float4(positions[VertexIndex], 0.0f, 1.0f);
     vso.Color = colors[VertexIndex];
-    vso.UV = positions[VertexIndex] * 0.5f + 0.5f;
+    // Not using as this is getting optimized out in PS
+    //vso.UV = positions[VertexIndex] * 0.5f + 0.5f;
 
     return vso;
 }

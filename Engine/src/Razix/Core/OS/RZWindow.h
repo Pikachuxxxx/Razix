@@ -71,6 +71,8 @@ namespace Razix {
         /* Gets the Height of the window */
         virtual unsigned int getHeight() const = 0;
 
+        virtual void setTitle(const char* title) = 0;
+
         // Window Attributes
 
         /**

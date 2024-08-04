@@ -17,6 +17,7 @@ namespace Razix {
 
         inline unsigned int getWidth() const override { return m_Data.Width; }
         inline unsigned int getHeight() const override { return m_Data.Height; }
+        void                setTitle(const char* title) override;
 
         // Window Attributes
         inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
