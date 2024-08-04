@@ -5,9 +5,9 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
     #include "Razix/Platform/API/DirectX12/DX12Texture.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
     #include <GLFW/glfw3.h>
     #define GLFW_EXPOSE_NATIVE_WIN32
@@ -212,6 +212,11 @@ namespace Razix {
 
             auto rtv = getCurrentBackBufferRTVHandle();
             commandList->ClearRenderTargetView(rtv, &color[0], 0, nullptr);
+        }
+
+        void DX12Swapchain::prepareAsRenderTarget(ID3D12GraphicsCommandList2* commandList)
+        {
+            DX12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         }
 
         D3D12_CPU_DESCRIPTOR_HANDLE DX12Swapchain::getCurrentBackBufferRTVHandle()

@@ -6,20 +6,20 @@
 #include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
-#ifdef RAZIX_RENDER_API_VULKAN
-    #include "Razix/Platform/API/Vulkan/VKPipeline.h"
-#endif
-
 #ifdef RAZIX_RENDER_API_OPENGL
     #include "Razix/Platform/API/OpenGL/OpenGLPipeline.h"
 #endif
 
+#ifdef RAZIX_RENDER_API_VULKAN
+    #include "Razix/Platform/API/Vulkan/VKPipeline.h"
+#endif
+
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Platform/API/DirectX12/DX12Pipeline.h"
+#endif
+
 namespace Razix {
     namespace Graphics {
-
-        // TEMP FIX
-        class DX12Pipeline
-        {};
 
         GET_INSTANCE_SIZE_IMPL(Pipeline)
 
@@ -38,7 +38,7 @@ namespace Razix {
                 case Razix::Graphics::RenderAPI::D3D11:
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-                case Razix::Graphics::RenderAPI::D3D12:
+                case Razix::Graphics::RenderAPI::D3D12: new (where) DX12Pipeline(pipelineInfo RZ_DEBUG_E_ARG_NAME); break;
 #endif
                 default: break;
             }

@@ -8,13 +8,15 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12CommandPool.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
     #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
     #include "Razix/Platform/API/DirectX12/DX12Fence.h"
+    #include "Razix/Platform/API/DirectX12/DX12Pipeline.h"
+    #include "Razix/Platform/API/DirectX12/DX12RootSignature.h"
     #include "Razix/Platform/API/DirectX12/DX12Swapchain.h"
     #include "Razix/Platform/API/DirectX12/DX12Texture.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
     #include <imgui/imgui.h>
 
@@ -93,16 +95,15 @@ namespace Razix {
             // Reset the Command Allocator and Command List and begin recording commands
             commandBufferResource->BeginRecording();
 
-            //----------------------------------------------
-            // TESTING CLEAR COLOR
+            // Prepare swapchain for rendering stuff onto
             auto commandListD3D = (ID3D12GraphicsCommandList2*) RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer)->getAPIBuffer();
-            m_Context->getSwapchain()->clearWithColor(commandListD3D, glm::vec4(cos(0.96f * Razix::RZApplication::Get().getTimer().GetElapsed()), sin(0.32f * Razix::RZApplication::Get().getTimer().GetElapsed()), 1.0f, 1.0f));
-            //----------------------------------------------
+            DX12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         }
 
         RAZIX_DEPRECATED("[Razix Deprecated!] SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
         void DX12RenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)
@@ -111,6 +112,7 @@ namespace Razix {
 
             // Ready the swapchain image from Render TArget stat to Present state for the presentation engine
             auto commandListD3D = (ID3D12GraphicsCommandList2*) commandBufferResource->getAPIBuffer();
+            // Now that we hare rendered onto it convert it back to presentable
             DX12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
             commandBufferResource->EndRecording();
@@ -133,30 +135,63 @@ namespace Razix {
 
         void DX12RenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
         {
+            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            pp->Bind(cmdBuffer);
         }
 
         void DX12RenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptor>& descriptors)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::BeginRenderingImpl(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo)
         {
+            //----------------------------------------------
+            // TESTING HELLO_TRIANGLE
+
+            // TODO: Clear the RTs and DTs + bind the actual RT textures to render onto and set the viewport etc
+
+            glm::ivec2 viewPortExtents;
+            if (renderingInfo.resolution == Resolution::kCustom)
+                viewPortExtents = {renderingInfo.extent.x, renderingInfo.extent.y};
+            else if (renderingInfo.resolution == Resolution::kWindow)
+                viewPortExtents = {m_Width, m_Height};
+            else {
+                auto& res       = ResolutionToExtentsMap[renderingInfo.resolution];
+                viewPortExtents = {res.x, res.y};
+            }
+
+            SetViewport(cmdBuffer, 0, 0, viewPortExtents.x, viewPortExtents.y);
+            SetScissorRect(cmdBuffer, 0, 0, viewPortExtents.x, viewPortExtents.y);
+
+            // Set the RT/DT
+            //if (renderingInfo.colorAttachments.Handle == SWAPCHAIN[frameIndex].Handle)
+            auto rtv = m_Context->getSwapchain()->getCurrentBackBufferRTVHandle();
+
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            auto commandListD3D        = (ID3D12GraphicsCommandList2*) commandBufferResource->getAPIBuffer();
+            commandListD3D->OMSetRenderTargets(1, &rtv, false, nullptr);
+            //----------------------------------------------
         }
 
         void DX12RenderContext::EndRenderingImpl(RZDrawCommandBufferHandle cmdBuffer)
@@ -165,14 +200,17 @@ namespace Razix {
 
         void DX12RenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
@@ -215,6 +253,7 @@ namespace Razix {
 
         void DX12RenderContext::BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)
         {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         void DX12RenderContext::SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
@@ -256,6 +295,8 @@ namespace Razix {
         void DX12RenderContext::SetDepthBiasImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RAZIX_UNIMPLEMENTED_METHOD
         }
 
         Razix::Graphics::RZSwapchain* DX12RenderContext::GetSwapchainImpl()

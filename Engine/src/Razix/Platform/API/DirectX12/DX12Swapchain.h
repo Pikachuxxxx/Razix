@@ -34,6 +34,7 @@ namespace Razix {
             u32                         acquireBackBuffer();
             void                        present();
             void                        clearWithColor(ID3D12GraphicsCommandList2* commandList, glm::vec4 color);
+            void                        prepareAsRenderTarget(ID3D12GraphicsCommandList2* commandList);
             D3D12_CPU_DESCRIPTOR_HANDLE getCurrentBackBufferRTVHandle();
             ID3D12Resource*             getCurrentD3DBackbufferResource() { return m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex]; }
 

@@ -23,6 +23,8 @@ namespace Razix {
             void GenerateDescriptorHeaps() override;
 
             RAZIX_INLINE const std::vector<D3D12_INPUT_ELEMENT_DESC>& getVertexAttribDescriptions() const { return m_VertexInputAttributeDescriptions; }
+            RAZIX_INLINE u32                                          getVertexAttribDescriptionsCount() const { return m_VertexInputAttributeDescriptions.size(); }
+            RAZIX_INLINE ID3DBlob*                                    getShaderStageBlob(ShaderStage stage) { return m_ShaderStageBlobs[stage]; }
 
         private:
             std::map<ShaderStage, ID3DBlob*>      m_ShaderStageBlobs;

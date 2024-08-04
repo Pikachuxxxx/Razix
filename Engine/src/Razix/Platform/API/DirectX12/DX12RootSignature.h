@@ -9,7 +9,19 @@ namespace Razix {
 
         class DX12RootSignature final : public RZRootSignature
         {
+        public:
+            DX12RootSignature() {}
+            ~DX12RootSignature() {}
 
+            //---------------------------------------
+            /* Releases the IRZResource */
+            RAZIX_CLEANUP_RESOURCE
+            //---------------------------------------
+
+        private:
+            ID3D12RootSignature* pRootSignature           = nullptr;
+            ID3DBlob*            pSerializedRootSignature = nullptr;
+            ID3DBlob*            pErrorBlob               = nullptr;
         };
 
     }    // namespace Graphics

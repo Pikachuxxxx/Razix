@@ -291,9 +291,10 @@ namespace Razix {
                 i64        csoByteSize = RZFileSystem::GetFileSize(outPath);
                 const u32* csoByteCode = reinterpret_cast<u32*>(RZVirtualFileSystem::Get().readFile(virtualPath));
 
-                ID3DBlob* blob = m_ShaderStageBlobs[spvSource.first];
+                ID3DBlob* blob = nullptr;
                 CHECK_HRESULT(D3DCreateBlob(csoByteSize, &blob));
                 memcpy(blob->GetBufferPointer(), csoByteCode, csoByteSize);
+                m_ShaderStageBlobs[spvSource.first] = blob;
 
                 // TODO: Name tag shader blobs D3D12_TAG_OBJECT(blob);
 

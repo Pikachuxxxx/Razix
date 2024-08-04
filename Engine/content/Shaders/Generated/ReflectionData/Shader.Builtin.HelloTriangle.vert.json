@@ -8,13 +8,8 @@
     "outputs" : [
         {
             "type" : "vec4",
-            "name" : "out.var.COLOR",
+            "name" : "out.var.COLOR0",
             "location" : 0
-        },
-        {
-            "type" : "vec2",
-            "name" : "out.var.TEXCOORD",
-            "location" : 1
         }
     ]
 }
