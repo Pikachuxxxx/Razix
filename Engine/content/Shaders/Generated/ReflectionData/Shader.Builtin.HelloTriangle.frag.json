@@ -1,0 +1,22 @@
+{
+    "entryPoints" : [
+        {
+            "name" : "PS_MAIN",
+            "mode" : "frag"
+        }
+    ],
+    "inputs" : [
+        {
+            "type" : "vec4",
+            "name" : "in.var.COLOR",
+            "location" : 0
+        }
+    ],
+    "outputs" : [
+        {
+            "type" : "vec4",
+            "name" : "out.var.SV_TARGET",
+            "location" : 0
+        }
+    ]
+}

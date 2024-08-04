@@ -79,9 +79,9 @@ namespace Razix {
         public:
             RZShader() {}
             /* Virtual destructor enables the API implementation to delete it's resources */
-            RAZIX_VIRTUAL_DESCTURCTOR(RZShader)
+            RAZIX_VIRTUAL_DESCTURCTOR(RZShader);
             /* Unless we have variants we don't want it to be copied around */
-            RAZIX_NONCOPYABLE_CLASS(RZShader)
+            RAZIX_NONCOPYABLE_CLASS(RZShader);
 
             GET_INSTANCE_SIZE;
 

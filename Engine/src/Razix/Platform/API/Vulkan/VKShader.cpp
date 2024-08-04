@@ -25,6 +25,12 @@
 namespace Razix {
     namespace Graphics {
 
+        std::unordered_map<ShaderStage, const char*> ShaderStageEntryPointNameMap = {
+            {ShaderStage::Vertex, "VS_MAIN"},
+            {ShaderStage::Pixel, "PS_MAIN"},
+            {ShaderStage::Compute, "CS_MAIN"},
+            {ShaderStage::Geometry, "GS_MAIN"}};
+
         // TODO: Move these to VKUtilites
 
         VKShader::VKShader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
@@ -173,6 +179,9 @@ namespace Razix {
                     //std::cout << "---------------------------------------------" << std::endl;
                     for (sz i = 0; i < module.input_variable_count; i++) {
                         SpvReflectInterfaceVariable inputVar = *module.input_variables[i];
+
+                        if (std::string(inputVar.semantic) == "SV_VertexID")
+                            return;
 
                         if (std::string(inputVar.name) == "gl_VertexIndex" || inputVar.name == "vs_out")
                             break;
@@ -431,7 +440,7 @@ namespace Razix {
                 shaderModuleCI.pCode                    = spvByteCode;
 
                 m_ShaderCreateInfos[spvSource.first].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-                m_ShaderCreateInfos[spvSource.first].pName = "main";    // TODO: Extract this from shader later
+                m_ShaderCreateInfos[spvSource.first].pName = ShaderStageEntryPointNameMap[spvSource.first];
                 m_ShaderCreateInfos[spvSource.first].stage = VKUtilities::ShaderStageToVK(spvSource.first);
 
                 if (VK_CHECK_RESULT(vkCreateShaderModule(VKDevice::Get().getDevice(), &shaderModuleCI, nullptr, &m_ShaderCreateInfos[spvSource.first].module)))

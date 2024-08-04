@@ -39,6 +39,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
+#define HELLO_TRIANGLE_TEST 1
+
 namespace Razix {
 
     Maths::RZGrid::RZGrid(const Maths::AABB& _aabb)
@@ -58,6 +60,11 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+#if HELLO_TRIANGLE_TEST
+
+            m_HelloTrianglePass.addPass(m_FrameGraph, scene, &settings);
+
+#else
             m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
@@ -134,14 +141,14 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
 
-#if ENABLE_DATA_DRIVEN_FG_PASSES
+    #if ENABLE_DATA_DRIVEN_FG_PASSES
             //-------------------------------
             // Data Driven Frame Graph
             //-------------------------------
 
             if (!getFrameGraphFilePath().empty())
                 RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
-#endif
+    #endif
             // Testing disabled shadows
             //settings.renderFeatures &= ~RendererFeature_Shadows;
 
@@ -161,7 +168,7 @@ namespace Razix {
             m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
-#if !ENABLE_FORWARD_RENDERING
+    #if !ENABLE_FORWARD_RENDERING
             //-------------------------------
             // SSAO Pass
             //-------------------------------
@@ -186,14 +193,14 @@ namespace Razix {
             // PBR Deferred Pass
             //-------------------------------
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
-#endif
+    #endif
 
             //-------------------------------
             // PBR Forward Pass
             //-------------------------------
-#if ENABLE_FORWARD_RENDERING
+    #if ENABLE_FORWARD_RENDERING
             m_PBRLightingPass.addPass(m_FrameGraph, scene, settings);
-#endif
+    #endif
             SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -380,10 +387,10 @@ namespace Razix {
                     //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
 
                     RenderingInfo info{};
-                        info.resolution       = Resolution::kWindow;
-                        info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
-                        info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
-                        info.resize           = true;
+                    info.resolution       = Resolution::kWindow;
+                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
+                    info.resize           = true;
 
                     RHI::BeginRendering(Graphics::RHI::GetCurrentCommandBuffer(), info);
 
@@ -400,6 +407,8 @@ namespace Razix {
             // Composition Pass
             //-------------------------------
             m_CompositePass.addPass(m_FrameGraph, scene, &settings);
+
+#endif
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");
@@ -447,7 +456,7 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
-                //m_FrameGraph.execute(nullptr);
+                m_FrameGraph.execute(nullptr);
 
                 // End Frame Marker
                 RAZIX_MARK_END();
@@ -469,6 +478,10 @@ namespace Razix {
 
             m_FrameGraphBuildingInProgress = true;
 
+#if HELLO_TRIANGLE_TEST
+            m_HelloTrianglePass.destroy();
+#else
+
             // Destroy Imported Resources
             RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
             RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
@@ -482,17 +495,19 @@ namespace Razix {
             RZDebugRenderer::Get()->Destroy();
 
             // Destroy Passes
-#if !ENABLE_FORWARD_RENDERING
+    #if !ENABLE_FORWARD_RENDERING
             m_PBRDeferredPass.destroy();
-#else
+    #else
             m_PBRLightingPass.destroy();
-#endif
+    #endif
             m_SkyboxPass.destroy();
             m_ShadowPass.destroy();
             m_GBufferPass.destroy();
             m_SSAOPass.destroy();
             m_GaussianBlurPass.destroy();
             m_CompositePass.destroy();
+
+#endif
 
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();

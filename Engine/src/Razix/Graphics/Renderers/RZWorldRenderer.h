@@ -17,6 +17,7 @@
 #include "Razix/Graphics/Passes/RZGBufferPass.h"
 #include "Razix/Graphics/Passes/RZGIPass.h"
 #include "Razix/Graphics/Passes/RZGaussianBlurPass.h"
+#include "Razix/Graphics/Passes/RZHelloTrianglePass.h"
 #include "Razix/Graphics/Passes/RZPBRDeferredLightingPass.h"
 #include "Razix/Graphics/Passes/RZPBRLightingPass.h"
 #include "Razix/Graphics/Passes/RZSSAOPass.h"
@@ -122,21 +123,21 @@ namespace Razix {
             RZFXAAPass                m_FXAAPass;
             RZToneMapPass             m_TonemapPass;
             RZCompositionPass         m_CompositePass;
+            RZHelloTrianglePass       m_HelloTrianglePass;
 
             //RZColorGradingPass        m_ColorGradingPass;
 
             // Other Variables
-            u32         m_FrameCount = 0;
-            Maths::AABB m_SceneAABB{};
-            glm::vec2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER];
-            glm::mat4   m_PreviousViewProj;
-            glm::vec2   m_Jitter;
-            glm::vec2   m_PreviousJitter;
-
-            bool        m_FrameGraphBuildingInProgress = true;
-            std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            u32         m_FrameCount                                            = 0;
+            Maths::AABB m_SceneAABB                                             = {};
+            glm::vec2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
+            glm::mat4   m_PreviousViewProj                                      = {};
+            glm::vec2   m_Jitter                                                = {};
+            glm::vec2   m_PreviousJitter                                        = {};
+            bool        m_FrameGraphBuildingInProgress                          = true;
+            bool        m_IsFGFilePathDirty                                     = false;
+            std::string m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
             //std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.User.EditorTest.json";
-            bool m_IsFGFilePathDirty = false;
 
         private:
             /**
