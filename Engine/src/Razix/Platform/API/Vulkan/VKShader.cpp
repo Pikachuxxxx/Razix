@@ -180,8 +180,11 @@ namespace Razix {
                     for (sz i = 0; i < module.input_variable_count; i++) {
                         SpvReflectInterfaceVariable inputVar = *module.input_variables[i];
 
+                        if (inputVar.semantic == NULL || inputVar.name == NULL)
+                            break;
+
                         if (std::string(inputVar.semantic) == "SV_VertexID")
-                            return;
+                            break;
 
                         if (std::string(inputVar.name) == "gl_VertexIndex" || inputVar.name == "vs_out")
                             break;

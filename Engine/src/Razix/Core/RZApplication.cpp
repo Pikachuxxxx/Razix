@@ -41,6 +41,8 @@
 
 #include <entt.hpp>
 
+//#define WIP_DX12_RENDERER
+
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
@@ -286,7 +288,7 @@ namespace Razix {
         // TODO: Enable window V-Sync here
         Graphics::RHI::Init();
 
-#ifdef WIP_DX12_RENDERER
+#ifndef WIP_DX12_RENDERER
         // TODO: Job system and Engine Systems(run-time) Initialization
         Razix::RZSplashScreen::Get().setLogString("Loading Scene...");
 

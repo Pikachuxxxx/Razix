@@ -108,6 +108,9 @@ namespace Razix {
             RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 4096)
             RAZIX_INIT_RESOURCE_POOL(CommandPool, 32)
             RAZIX_INIT_RESOURCE_POOL(DrawCommandBuffer, 32)
+            RAZIX_INIT_RESOURCE_POOL(VertexBuffer, 512)
+            RAZIX_INIT_RESOURCE_POOL(IndexBuffer, 512)
+
         }
 
         void RZResourceManager::ShutDown()
@@ -122,6 +125,8 @@ namespace Razix {
             RAZIX_UNREGISTER_RESOURCE_POOL(UniformBuffer)
             RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool)
             RAZIX_UNREGISTER_RESOURCE_POOL(DrawCommandBuffer)
+            RAZIX_UNREGISTER_RESOURCE_POOL(VertexBuffer)
+            RAZIX_UNREGISTER_RESOURCE_POOL(IndexBuffer)
             ////////////////////////////////
         }
 

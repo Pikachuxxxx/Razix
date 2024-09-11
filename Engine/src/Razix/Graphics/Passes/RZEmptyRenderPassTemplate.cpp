@@ -29,16 +29,14 @@ namespace Razix {
             // Create the shader and the pipeline
             //auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::);
             //
-            //RZPipelineDesc pipelineInfo{
-            //    // Build the pipeline here for this pass
-            //    .name                   = "ColorGrading.Pipeline",
-            //    .shader                 = shader,
-            //    .colorAttachmentFormats = {TextureFormat::RGBA16F},
-            //    .cullMode               = Graphics::CullMode::None,
-            //    .drawType               = Graphics::DrawType::Triangle,
-            //    .transparencyEnabled    = false,
-            //    .depthBiasEnabled       = false};
-            //
+            //RZPipelineDesc pipelineInfo         = {};
+            //pipelineInfo.name                   = "Pipeline.VisibilityBuffer";
+            //pipelineInfo.shader                 = shader;
+            //pipelineInfo.colorAttachmentFormats = {TextureFormat::RGBA16F};
+            //pipelineInfo.cullMode               = Graphics::CullMode::None;
+            //pipelineInfo.drawType               = Graphics::DrawType::Triangle;
+            //pipelineInfo.transparencyEnabled    = false;
+            //pipelineInfo.depthBiasEnabled       = false;
             //m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
             framegraph.addCallbackPass(
                 "",

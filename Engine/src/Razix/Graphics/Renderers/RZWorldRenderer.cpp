@@ -43,14 +43,6 @@
 
 namespace Razix {
 
-    Maths::RZGrid::RZGrid(const Maths::AABB& _aabb)
-        : aabb{_aabb}
-    {
-        const auto extent = aabb.getExtent();
-        cellSize          = max3(extent) / kLPVResolution;
-        size              = glm::uvec3{extent / cellSize + 0.5f};
-    }
-
     namespace Graphics {
 
         /**
@@ -62,7 +54,21 @@ namespace Razix {
         {
 #if HELLO_TRIANGLE_TEST
 
+            //-------------------------------
+            // [TEST] HELLO TRIANGLE
+            //-------------------------------
             m_HelloTrianglePass.addPass(m_FrameGraph, scene, &settings);
+
+            // These are system level code passes so always enabled
+            uploadFrameData(scene, settings);
+            uploadLightsData(scene, settings);
+
+            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+
+            //-------------------------------
+            // Vis Buffer Fill Pass
+            //-------------------------------
+            m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
 
 #else
             m_FrameGraphBuildingInProgress = true;
@@ -480,6 +486,8 @@ namespace Razix {
 
 #if HELLO_TRIANGLE_TEST
             m_HelloTrianglePass.destroy();
+
+            m_VisBufferFillPass.destroy();
 #else
 
             // Destroy Imported Resources

@@ -13,7 +13,7 @@
 
 #include <cereal/archives/json.hpp>
 
-#undef DISABLE_MATERIALS_LOADING
+#define DISABLE_MATERIALS_LOADING 1
 
 #define READ_AND_OFFSET(stream, dest, size, offset) \
     stream.read((char*) dest, size);                \
@@ -92,7 +92,7 @@ namespace Razix {
 
         RZMaterial* loadMaterial(const std::string& materialName, const std::string& folderName)
         {
-#ifdef DISABLE_MATERIALS_LOADING
+#if DISABLE_MATERIALS_LOADING
             return GetDefaultMaterial();
 #else
 
