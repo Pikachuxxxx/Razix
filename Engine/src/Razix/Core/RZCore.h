@@ -357,15 +357,15 @@ public:                                                  \
 
 #define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) -1)) == 0)    // 'a' needs to be a power of 2
 
-#define RZ_IS_ALIGNED_512(n) (((size_t) (n) &511) == 0)
-#define RZ_IS_ALIGNED_256(n) (((size_t) (n) &255) == 0)
-#define RZ_IS_ALIGNED_128(n) (((size_t) (n) &127) == 0)
-#define RZ_IS_ALIGNED_64(n)  (((size_t) (n) &63) == 0)
-#define RZ_IS_ALIGNED_32(n)  (((size_t) (n) &31) == 0)
-#define RZ_IS_ALIGNED_16(n)  (((size_t) (n) &15) == 0)
-#define RZ_IS_ALIGNED_8(n)   (((size_t) (n) &7) == 0)
-#define RZ_IS_ALIGNED_4(n)   (((size_t) (n) &3) == 0)
-#define RZ_IS_ALIGNED_2(n)   (((size_t) (n) &1) == 0)
+#define RZ_IS_ALIGNED_512(n) (((size_t) (n) & 511) == 0)
+#define RZ_IS_ALIGNED_256(n) (((size_t) (n) & 255) == 0)
+#define RZ_IS_ALIGNED_128(n) (((size_t) (n) & 127) == 0)
+#define RZ_IS_ALIGNED_64(n)  (((size_t) (n) & 63) == 0)
+#define RZ_IS_ALIGNED_32(n)  (((size_t) (n) & 31) == 0)
+#define RZ_IS_ALIGNED_16(n)  (((size_t) (n) & 15) == 0)
+#define RZ_IS_ALIGNED_8(n)   (((size_t) (n) & 7) == 0)
+#define RZ_IS_ALIGNED_4(n)   (((size_t) (n) & 3) == 0)
+#define RZ_IS_ALIGNED_2(n)   (((size_t) (n) & 1) == 0)
 
 #define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
 
@@ -474,3 +474,8 @@ constexpr float operator""_inKib(unsigned long long int x)
 #define RAZIX_SEREALIZE     \
     template<class Archive> \
     void serialize(Archive& archive);
+
+/****************************************************************************************************
+ *                                                  Misc                                            * 
+ ****************************************************************************************************/
+#define RAZIX_MSG_BUFFER_SIZE 256

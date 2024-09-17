@@ -3,10 +3,13 @@
 // clang-format on
 #include "RZCommandLineParser.h"
 
+#include "Razix/Core/RazixVersion.h"
+
 namespace Razix {
     RZCommandLineParser::RZCommandLineParser()
     {
         AddCommand("help", {"--help"}, 0, "Show help");
+        AddCommand("version", {"--version", "-v"}, 0, "Engine Version");
         AddCommand("project filename", {"-f", "--project-file"}, 1, "The project file to start the application with");
         AddCommand("project filename", {"-s", "--scene"}, 1, "The scene file to load when the engine is fired");
         AddCommand("engine config filename", {"-cf", "--config-file"}, 1, "The engine config file to for the engine runtime settings");
@@ -69,7 +72,8 @@ namespace Razix {
 
     void RZCommandLineParser::parse(std::vector<cstr>& arguments)
     {
-        bool printH = false;
+        bool printH       = false;
+        bool printVersion = false;
         // Known arguments
         for (auto& option: m_CommandOptions) {
             for (auto& command: option.second.commandFlags) {
@@ -98,5 +102,9 @@ namespace Razix {
         // If help is set print it
         if (isSet("help"))
             printHelp();
+
+        if (isSet("version")) {
+            std::cout << RazixVersion.getVersionString() << std::endl;
+        }
     }
 }    // namespace Razix

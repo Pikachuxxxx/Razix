@@ -5,6 +5,10 @@
 //------------------------------------------------------------------------------
 #include "../ShaderCommon/ShaderInclude.Builtin.ShaderLangCommon.h"
 //------------------------------------------------------------------------------
+// Includes
+#include "Common/ShaderInclude.Builtin.FrameData.h"
+//------------------------------------------------------------------------------
+
 // Vertex Input
 struct VSIn
 {
@@ -15,12 +19,6 @@ struct VSIn
 };
 //------------------------------------------------------------------------------
 // Buffers and Root Constants
-// The view projection matrix
-cbuffer ViewProjectionBuffer : register (b0, space0)
-{
-    matrix view;
-    matrix proj;
-};
 // The model push constant
 // TODO: Make this a root constant
 struct ModelPushConstantData 
@@ -45,8 +43,8 @@ VSOut VS_MAIN(VSIn vsIn)
     VSOut vso;
 
     float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsIn.inPosition, 1.0f));
-    transformedPos = mul(view, transformedPos);
-    transformedPos = mul(proj, transformedPos);
+    transformedPos = mul(frame_info.camera.view, transformedPos);
+    transformedPos = mul(frame_info.camera.projection, transformedPos);
     vso.Position = transformedPos;
 
     return vso;

@@ -929,7 +929,7 @@ namespace Razix {
 
                     auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
-                    gpuData.camera.projection         = jitteredProjMatrix;
+                    gpuData.camera.projection         = sceneCam.getProjection();
                     gpuData.camera.inversedProjection = glm::inverse(gpuData.camera.projection);
                     gpuData.camera.view               = sceneCam.getViewMatrix();
                     gpuData.camera.inversedView       = glm::inverse(gpuData.camera.view);

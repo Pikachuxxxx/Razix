@@ -18,7 +18,7 @@
 ; TEXCOORD                 0   xy          2     NONE   float       
 ; NORMAL                   0   xyz         3     NONE   float       
 ;
-; shader hash: fe4a00c135ab99d3494047254ff24b9a
+; shader hash: 52500022b7f0529111b0bc21545420bb
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -46,16 +46,41 @@
 ;
 ; Buffer Definitions:
 ;
-; cbuffer ViewProjectionBuffer
+; cbuffer FrameData
 ; {
 ;
-;   struct hostlayout.ViewProjectionBuffer
+;   struct hostlayout.FrameData
 ;   {
 ;
-;       column_major float4x4 view;                   ; Offset:    0
-;       column_major float4x4 proj;                   ; Offset:   64
+;       struct hostlayout.struct.Frameframe_info
+;       {
+;
+;           float time;                               ; Offset:    0
+;           float deltaTime;                          ; Offset:    4
+;           uint2 resolution;                         ; Offset:    8
+;           struct hostlayout.struct.Camera
+;           {
+;
+;               column_major float4x4 projection;     ; Offset:   16
+;               column_major float4x4 inversedProjection;; Offset:   80
+;               column_major float4x4 view;           ; Offset:  144
+;               column_major float4x4 inversedView;   ; Offset:  208
+;               column_major float4x4 prevViewProj;   ; Offset:  272
+;               float fov;                            ; Offset:  336
+;               float near;                           ; Offset:  340
+;               float far;                            ; Offset:  344
+;           
+;           } camera;                                 ; Offset:   16
+;
+;           uint renderFeatures;                      ; Offset:  348
+;           uint debugFlags;                          ; Offset:  352
+;           float2 jitterTAA;                         ; Offset:  356
+;           float2 previousJitterTAA;                 ; Offset:  368
+;       
+;       } frame_info;                                 ; Offset:    0
+;
 ;   
-;   } ViewProjectionBuffer;                           ; Offset:    0 Size:   128
+;   } FrameData;                                      ; Offset:    0 Size:   376
 ;
 ; }
 ;
@@ -83,7 +108,7 @@
 ;
 ; Name                                 Type  Format         Dim      ID      HLSL Bind  Count
 ; ------------------------------ ---------- ------- ----------- ------- -------------- ------
-; ViewProjectionBuffer              cbuffer      NA          NA     CB0            cb0     1
+; FrameData                         cbuffer      NA          NA     CB0            cb0     1
 ; ModelPushConstantDataBuffer       cbuffer      NA          NA     CB1            cb1     1
 ;
 ;
@@ -102,7 +127,9 @@ target triple = "dxil-ms-dx"
 
 %dx.types.Handle = type { i8* }
 %dx.types.CBufRet.f32 = type { float, float, float, float }
-%hostlayout.ViewProjectionBuffer = type { [4 x <4 x float>], [4 x <4 x float>] }
+%hostlayout.FrameData = type { %hostlayout.struct.Frameframe_info }
+%hostlayout.struct.Frameframe_info = type { float, float, <2 x i32>, %hostlayout.struct.Camera, i32, i32, <2 x float>, <2 x float> }
+%hostlayout.struct.Camera = type { [4 x <4 x float>], [4 x <4 x float>], [4 x <4 x float>], [4 x <4 x float>], [4 x <4 x float>], float, float, float }
 %hostlayout.ModelPushConstantDataBuffer = type { %hostlayout.struct.ModelPushConstantData }
 %hostlayout.struct.ModelPushConstantData = type { [4 x <4 x float>], [4 x <4 x float>] }
 
@@ -148,22 +175,22 @@ define void @VS_MAIN() {
   %39 = call float @dx.op.tertiary.f32(i32 46, float %15, float %4, float %38)  ; FMad(a,b,c)
   %40 = call float @dx.op.tertiary.f32(i32 46, float %20, float %5, float %39)  ; FMad(a,b,c)
   %41 = fadd fast float %40, %25
-  %42 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %42 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 9)  ; CBufferLoadLegacy(handle,regIndex)
   %43 = extractvalue %dx.types.CBufRet.f32 %42, 0
   %44 = extractvalue %dx.types.CBufRet.f32 %42, 1
   %45 = extractvalue %dx.types.CBufRet.f32 %42, 2
   %46 = extractvalue %dx.types.CBufRet.f32 %42, 3
-  %47 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %47 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 10)  ; CBufferLoadLegacy(handle,regIndex)
   %48 = extractvalue %dx.types.CBufRet.f32 %47, 0
   %49 = extractvalue %dx.types.CBufRet.f32 %47, 1
   %50 = extractvalue %dx.types.CBufRet.f32 %47, 2
   %51 = extractvalue %dx.types.CBufRet.f32 %47, 3
-  %52 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 2)  ; CBufferLoadLegacy(handle,regIndex)
+  %52 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 11)  ; CBufferLoadLegacy(handle,regIndex)
   %53 = extractvalue %dx.types.CBufRet.f32 %52, 0
   %54 = extractvalue %dx.types.CBufRet.f32 %52, 1
   %55 = extractvalue %dx.types.CBufRet.f32 %52, 2
   %56 = extractvalue %dx.types.CBufRet.f32 %52, 3
-  %57 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 3)  ; CBufferLoadLegacy(handle,regIndex)
+  %57 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 12)  ; CBufferLoadLegacy(handle,regIndex)
   %58 = extractvalue %dx.types.CBufRet.f32 %57, 0
   %59 = extractvalue %dx.types.CBufRet.f32 %57, 1
   %60 = extractvalue %dx.types.CBufRet.f32 %57, 2
@@ -184,22 +211,22 @@ define void @VS_MAIN() {
   %75 = call float @dx.op.tertiary.f32(i32 46, float %51, float %33, float %74)  ; FMad(a,b,c)
   %76 = call float @dx.op.tertiary.f32(i32 46, float %56, float %37, float %75)  ; FMad(a,b,c)
   %77 = call float @dx.op.tertiary.f32(i32 46, float %61, float %41, float %76)  ; FMad(a,b,c)
-  %78 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 4)  ; CBufferLoadLegacy(handle,regIndex)
+  %78 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
   %79 = extractvalue %dx.types.CBufRet.f32 %78, 0
   %80 = extractvalue %dx.types.CBufRet.f32 %78, 1
   %81 = extractvalue %dx.types.CBufRet.f32 %78, 2
   %82 = extractvalue %dx.types.CBufRet.f32 %78, 3
-  %83 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 5)  ; CBufferLoadLegacy(handle,regIndex)
+  %83 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 2)  ; CBufferLoadLegacy(handle,regIndex)
   %84 = extractvalue %dx.types.CBufRet.f32 %83, 0
   %85 = extractvalue %dx.types.CBufRet.f32 %83, 1
   %86 = extractvalue %dx.types.CBufRet.f32 %83, 2
   %87 = extractvalue %dx.types.CBufRet.f32 %83, 3
-  %88 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 6)  ; CBufferLoadLegacy(handle,regIndex)
+  %88 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 3)  ; CBufferLoadLegacy(handle,regIndex)
   %89 = extractvalue %dx.types.CBufRet.f32 %88, 0
   %90 = extractvalue %dx.types.CBufRet.f32 %88, 1
   %91 = extractvalue %dx.types.CBufRet.f32 %88, 2
   %92 = extractvalue %dx.types.CBufRet.f32 %88, 3
-  %93 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 7)  ; CBufferLoadLegacy(handle,regIndex)
+  %93 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 4)  ; CBufferLoadLegacy(handle,regIndex)
   %94 = extractvalue %dx.types.CBufRet.f32 %93, 0
   %95 = extractvalue %dx.types.CBufRet.f32 %93, 1
   %96 = extractvalue %dx.types.CBufRet.f32 %93, 2
@@ -260,7 +287,7 @@ attributes #2 = { nounwind readonly }
 !3 = !{!"vs", i32 6, i32 0}
 !4 = !{null, null, !5, null}
 !5 = !{!6, !7}
-!6 = !{i32 0, %hostlayout.ViewProjectionBuffer* undef, !"", i32 0, i32 0, i32 1, i32 128, null}
+!6 = !{i32 0, %hostlayout.FrameData* undef, !"", i32 0, i32 0, i32 1, i32 376, null}
 !7 = !{i32 1, %hostlayout.ModelPushConstantDataBuffer* undef, !"", i32 0, i32 1, i32 1, i32 128, null}
 !8 = !{[17 x i32] [i32 15, i32 15, i32 15, i32 15, i32 15, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0]}
 !9 = !{void ()* @VS_MAIN, !"VS_MAIN", !10, !4, null}

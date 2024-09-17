@@ -1,75 +1,104 @@
 #ifndef _FRAME_DATA_GLSL_
 #define _FRAME_DATA_GLSL_
 //----------------------------------------------------------------------------
-struct Camera {
-    mat4 projection;
-    mat4 inversedProjection;
-    mat4 view;
-    mat4 inversedView;
-    mat4 prevViewProj;
-    float fov;
-    float near, far;
+// TODO: Don't redefine this, use from Engine source
+struct Camera
+{
+    float4x4 projection;
+    float4x4 inversedProjection;
+    float4x4 view;
+    float4x4 inversedView;
+    float4x4 prevViewProj;
+    float    fov;
+    float    near, far;
     // Implicit padding, 4bytes
 };
 //----------------------------------
 // TODO: Remove this struct
-struct FrameInfo {
-    float time;
-    float deltaTime;
-    uvec2 resolution;
+struct Frameframe_info
+{
+    float  time;
+    float  deltaTime;
+    uint2  resolution;
     Camera camera;
-    uint renderFeatures;
-    uint debugFlags;
-    vec2 jitterTAA;
-    vec2 previousJitterTAA;
+    uint   renderFeatures;
+    uint   debugFlags;
+    float2 jitterTAA;
+    float2 previousJitterTAA;
 };
 //----------------------------------
 #ifndef DISABLE_FRAME_DATA_BINDING
-layout(set = 0, binding = 0, std140) uniform FrameDataBuffer {
-    FrameInfo info;
-} FrameData;
+cbuffer FrameData : register(b0, space0)
+{
+    Frameframe_info frame_info;
+};
 //----------------------------------------------------------------------------
-const uint RendererFeature_Shadows    = 1 << 0;
-const uint RendererFeature_GI         = 1 << 1;
-const uint RendererFeature_IBL        = 1 << 2;
-const uint RendererFeature_SSAO       = 1 << 3;
-const uint RendererFeature_SSR        = 1 << 4;
-const uint RendererFeature_Bloom      = 1 << 5;
-const uint RendererFeature_FXAA       = 1 << 6;
-const uint RendererFeature_TAA        = 1 << 7;
-const uint RendererFeature_ImGui      = 1 << 8;
-const uint RendererFeature_Deferred   = 1 << 9;
-const uint RendererFeature_DebugDraws = 1 << 10;
+static const uint RendererFeature_Shadows    = 1 << 0;
+static const uint RendererFeature_GI         = 1 << 1;
+static const uint RendererFeature_IBL        = 1 << 2;
+static const uint RendererFeature_SSAO       = 1 << 3;
+static const uint RendererFeature_SSR        = 1 << 4;
+static const uint RendererFeature_Bloom      = 1 << 5;
+static const uint RendererFeature_FXAA       = 1 << 6;
+static const uint RendererFeature_TAA        = 1 << 7;
+static const uint RendererFeature_ImGui      = 1 << 8;
+static const uint RendererFeature_Deferred   = 1 << 9;
+static const uint RendererFeature_DebugDraws = 1 << 10;
 //----------------------------------
 // !Note: Only to be used when ENABLE_FRAME_DATA_BINDING is defined in the shader
-float getTime() { return FrameData.info.time; }
-float getDeltaTime() { return FrameData.info.deltaTime; }
-
-uvec2 getResolution() { return FrameData.info.resolution; }
-vec2 getTexelSize() { return 1.0 / vec2(FrameData.info.resolution); }
-
-vec3 getCameraPosition() { return FrameData.info.camera.inversedView[3].xyz; }
-
-bool hasRenderFeatures(uint f) { return (FrameData.info.renderFeatures & f) == f; }
-bool hasDebugFlags(uint f) { return (FrameData.info.debugFlags & f) == f; }
-//----------------------------------------------------------------------------
-#endif
-
-vec3 getCameraPosition(Camera cam) { return cam.inversedView[3].xyz; }
-
-vec4 getProjectionViewSpacePosition(vec4 pos)
+float getTime()
 {
-    mat4 jitterMatrix = mat4(
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0,
-        FrameData.info.jitterTAA.x, FrameData.info.jitterTAA.y, 0.0, 1.0  // translation 
+    return frame_info.time;
+}
+float getDeltaTime()
+{
+    return frame_info.deltaTime;
+}
+
+uint2 getResolution()
+{
+    return frame_info.resolution;
+}
+float2 getTexelSize()
+{
+    return 1.0 / float2(frame_info.resolution);
+}
+
+float3 getCameraPosition()
+{
+    return frame_info.camera.inversedView[3].xyz;
+}
+
+bool hasRenderFeatures(uint f)
+{
+    return (frame_info.renderFeatures & f) == f;
+}
+bool hasDebugFlags(uint f)
+{
+    return (frame_info.debugFlags & f) == f;
+}
+//----------------------------------------------------------------------------
+#endif    // DISABLE_FRAME_DATA_BINDING
+
+float3 getCameraPosition(Camera cam)
+{
+    return cam.inversedView[3].xyz;
+}
+
+float4 getProjectionViewSpacePosition(float4 pos)
+{
+    float4x4 jitterMatrix = float4x4(
+        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, frame_info.jitterTAA.x, frame_info.jitterTAA.y, 0.0, 1.0    // translation
     );
 
-    mat4 jitterProj = FrameData.info.camera.projection * jitterMatrix;
+    float4x4 jitterProj = mul(frame_info.camera.projection, jitterMatrix);
 
     // Final position of the vertices
-    return jitterProj * FrameData.info.camera.view * pos;
+    float4 worldPos = mul(frame_info.camera.view, pos);
+
+    float4 jitterWorldPos = mul(jitterProj, worldPos);
+
+    return jitterWorldPos;
 }
 
 #endif

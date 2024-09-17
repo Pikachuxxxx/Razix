@@ -9,8 +9,8 @@ P3 [label=<{ {<B>Pass.Builtin.Code.VisibilityBufferFill</B>} | {&#x2605; Refs: 2
 
 R0_1 [label=<{ {<B>FrameData</B><BR/>size : 384 bytes} | {Index: 0<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
 R1_1 [label=<{ {<B>SceneLightsData</B><BR/>size : 10256 bytes} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R2_1 [label=<{ {<B>VisBuffer</B><BR/>(1280, 720) - RGBA8 [2D]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R3_1 [label=<{ {<B>SceneDepth</B><BR/>(1280, 720) - BGRA8_UNORM [Depth]} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R2_1 [label=<{ {<B>VisBuffer</B><BR/>(1920, 991) - RGBA8 [2D]} | {Index: 2<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R3_1 [label=<{ {<B>SceneDepth</B><BR/>(1920, 991) - BGRA8_UNORM [Depth]} | {Index: 3<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { } [color=orangered]
 P1 -> { R0_1 } [color=orangered]

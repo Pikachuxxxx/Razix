@@ -18,13 +18,8 @@ namespace Razix {
             RZEngine::Get().GetStatistics().MeshesRendered++;
         }
 
-        RZMesh::RZMesh(const RZMesh& mesh)
-            : m_VertexBuffer(mesh.m_VertexBuffer), m_IndexBuffer(mesh.m_IndexBuffer), m_Material(mesh.m_Material)
-        {
-            RZEngine::Get().GetStatistics().MeshesRendered++;
-        }
-
-        RZMesh::RZMesh(RZVertexBufferHandle vertexBuffer, RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount)
+#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
+        RZMesh::RZMesh(RZVertexBufferHandle vertexBuffers, RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount)
             : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
@@ -72,6 +67,122 @@ namespace Razix {
             m_Vertices.clear();
             m_Indices.clear();
         }
+#endif
+
+        RZMesh::RZMesh(const RZVertex& vertices, const std::vector<u32>& indices)
+        {
+            RZEngine::Get().GetStatistics().MeshesRendered++;
+
+            // FIXME: Name is wrong here
+
+            auto m_Indices  = indices;
+            auto m_Vertices = vertices;
+
+            m_IndexCount  = static_cast<u32>(indices.size());
+            m_VertexCount = static_cast<u32>(vertices.Position.size());
+
+            RZBufferDesc indexBufferDesc = {};
+            indexBufferDesc.name         = "IB_" + m_Name;
+            indexBufferDesc.data         = m_Indices.data();
+            indexBufferDesc.count        = m_IndexCount;
+            indexBufferDesc.usage        = BufferUsage::Static;
+            m_IndexBuffer                = RZResourceManager::Get().createIndexBuffer(indexBufferDesc);
+
+            m_Indices.clear();
+
+            // TODO: Add buffer layout by reflecting from the shader?
+
+            // Positions
+            {
+                RZBufferDesc vertexBufferDesc             = {};
+                vertexBufferDesc.name                     = "VB_POSITION_" + m_Name;
+                vertexBufferDesc.data                     = (void*) vertices.Position.data();
+                vertexBufferDesc.usage                    = BufferUsage::Static;
+                vertexBufferDesc.size                     = sizeof(glm::vec3) * static_cast<u32>(m_VertexCount);
+                m_VertexBuffers[VERTEX_ATTRIBS_POS_IDX]   = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+                auto                 vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VertexBuffers[VERTEX_ATTRIBS_POS_IDX]);
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec3>("Position");
+                vertexBufferResource->AddBufferLayout(layout);
+            }
+
+            // Colors
+            {
+                RZBufferDesc vertexBufferDesc             = {};
+                vertexBufferDesc.name                     = "VB_COLOR_" + m_Name;
+                vertexBufferDesc.data                     = (void*) vertices.Color.data();
+                vertexBufferDesc.usage                    = BufferUsage::Static;
+                vertexBufferDesc.size                     = sizeof(glm::vec4) * static_cast<u32>(m_VertexCount);
+                m_VertexBuffers[VERTEX_ATTRIBS_COL_IDX]   = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+                auto                 vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VertexBuffers[VERTEX_ATTRIBS_COL_IDX]);
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec4>("Color");
+                vertexBufferResource->AddBufferLayout(layout);
+            }
+
+            // UV
+            {
+                RZBufferDesc vertexBufferDesc             = {};
+                vertexBufferDesc.name                     = "VB_TEXCOORD_" + m_Name;
+                vertexBufferDesc.data                     = (void*) vertices.UV.data();
+                vertexBufferDesc.usage                    = BufferUsage::Static;
+                vertexBufferDesc.size                     = sizeof(glm::vec2) * static_cast<u32>(m_VertexCount);
+                m_VertexBuffers[VERTEX_ATTRIBS_UV_IDX]    = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+                auto                 vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VertexBuffers[VERTEX_ATTRIBS_UV_IDX]);
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec2>("UV");
+                vertexBufferResource->AddBufferLayout(layout);
+            }
+
+            // Normal
+            {
+                RZBufferDesc vertexBufferDesc             = {};
+                vertexBufferDesc.name                     = "VB_NORMAL_" + m_Name;
+                vertexBufferDesc.data                     = (void*) vertices.Normal.data();
+                vertexBufferDesc.usage                    = BufferUsage::Static;
+                vertexBufferDesc.size                     = sizeof(glm::vec3) * static_cast<u32>(m_VertexCount);
+                m_VertexBuffers[VERTEX_ATTRIBS_NOR_IDX]   = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+                auto                 vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VertexBuffers[VERTEX_ATTRIBS_NOR_IDX]);
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec3>("Normal");
+                vertexBufferResource->AddBufferLayout(layout);
+            }
+
+            // Tangent
+            {
+                RZBufferDesc vertexBufferDesc             = {};
+                vertexBufferDesc.name                     = "VB_TANGENT_" + m_Name;
+                vertexBufferDesc.data                     = (void*) vertices.Tangent.data();
+                vertexBufferDesc.usage                    = BufferUsage::Static;
+                vertexBufferDesc.size                     = sizeof(glm::vec3) * static_cast<u32>(m_VertexCount);
+                m_VertexBuffers[VERTEX_ATTRIBS_TAN_IDX]   = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+                auto                 vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VertexBuffers[VERTEX_ATTRIBS_TAN_IDX]);
+                RZVertexBufferLayout layout;
+                layout.push<glm::vec3>("Tangent");
+                vertexBufferResource->AddBufferLayout(layout);
+            }
+        }
+
+        RZMesh::RZMesh(RZVertexBufferHandle vertexBuffer[VERTEX_ATTRIBS_COUNT], RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount)
+            : m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
+
+        {
+            RZEngine::Get().GetStatistics().MeshesRendered++;
+
+            for (uint32_t i = 0; i < VERTEX_ATTRIBS_COUNT; i++) {
+                if (vertexBuffer[i].isValid())
+                    m_VertexBuffers[i] = vertexBuffer[i];
+            }
+        }
+
+        RZMesh::RZMesh(const RZVertex& vertices, u32* indices, uint32_t indicesCount)
+        {
+            std::vector<u32> indicesVec;
+            indicesVec.reserve(indicesCount);
+            memcpy(indicesVec.data(), indices, indicesCount * sizeof(u32));
+
+            RZMesh(vertices, indicesVec);
+        }
 
         void RZMesh::setName(const char* name)
         {
@@ -82,6 +193,7 @@ namespace Razix {
             m_Name = name;
         }
 
+#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
         void RZMesh::GenerateNormals(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount)
         {
             glm::vec3* normals = new glm::vec3[vertexCount];
@@ -173,8 +285,7 @@ namespace Razix {
 
         void RZMesh::GenerateTangentsAndBiTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 numIndices)
         {
-#if 0
-for (int i = 0; i < vertexCount; i++) {
+            for (int i = 0; i < vertexCount; i++) {
                 vertices[i].Tangent   = glm::vec3(0.0f);
                 vertices[i].BiTangent = glm::vec3(0.0f);
             }
@@ -218,8 +329,8 @@ for (int i = 0; i < vertexCount; i++) {
                 vertices[i].Tangent   = glm::normalize(vertices[i].Tangent);
                 vertices[i].BiTangent = glm::normalize(vertices[i].BiTangent);
             }
-#endif
         }
+#endif
 
         void RZMesh::Destroy()
         {
@@ -228,6 +339,18 @@ for (int i = 0; i < vertexCount; i++) {
             //m_VertexBuffer->Destroy();
             //m_IndexBuffer->Destroy();
             m_Material->Destroy();
+        }
+
+        void RZMesh::bindVBsAndIB(RZDrawCommandBufferHandle cmdBuffer)
+        {
+            // TODO: Improve buffer layout, use reflected buffer layout to bind only those VB that have not been optimized out.
+
+            Graphics::RZResourceManager::Get().getIndexBufferResource(m_IndexBuffer)->Bind(cmdBuffer);
+            for (uint32_t i = 0; i < 1; i++) {
+                auto& vertexBuffer = m_VertexBuffers[i];
+                if (vertexBuffer.isValid())
+                    Graphics::RZResourceManager::Get().getVertexBufferResource(vertexBuffer)->Bind(cmdBuffer);
+            }
         }
     }    // namespace Graphics
 }    // namespace Razix

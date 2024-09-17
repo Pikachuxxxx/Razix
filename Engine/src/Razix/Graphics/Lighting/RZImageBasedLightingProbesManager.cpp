@@ -162,8 +162,11 @@ namespace Razix {
 
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
-                RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
-                RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
+                // AOS Deprecated
+                //RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                //RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
+
+                cubeMesh->bindVBsAndIB(cmdBuffer);
 
                 // Bind the Bindless Env map texture 2d
 
@@ -299,8 +302,11 @@ namespace Razix {
 
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
-                RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
-                RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
+                // AOS Deprecated
+                //RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                //RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
+
+                cubeMesh->bindVBsAndIB(cmdBuffer);
 
                 //u32            idx = cubeMap.getIndex();
                 //RZPushConstant pc;
@@ -448,8 +454,11 @@ namespace Razix {
 
                     RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
-                    RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
-                    RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
+                    // AOS Deprecated
+                    //RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                    //RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
+
+                    cubeMesh->bindVBsAndIB(cmdBuffer);
 
                     for (u32 i = 0; i < layerCount; i++) {
                         RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);

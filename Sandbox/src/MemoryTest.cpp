@@ -19,8 +19,8 @@ class MemoryTest : public Razix::RZApplication
 {
 public:
     MemoryTest()
-        //: RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
-        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
+    //: RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
 
     {
         Razix::RZInput::SelectGLFWInputManager();
@@ -115,7 +115,7 @@ public:
             }
         }
 
-    #if 0
+    #if 1
         // PBR materials test
         {
             int nrRows    = 7;

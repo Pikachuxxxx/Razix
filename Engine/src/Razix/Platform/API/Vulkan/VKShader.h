@@ -26,6 +26,8 @@ namespace Razix {
             inline const RZVertexBufferLayout& getBufferLayout() const { return m_BufferLayout; }
             /* Gets the vertex input variables attribute descriptions of the vertex data that are being sent to the shaders via VBO */
             inline const std::vector<VkVertexInputAttributeDescription>& getVertexAttribDescriptions() const { return m_VertexInputAttributeDescriptions; }
+            /* Gets the vertex input binding attribute descriptions of the vertex data on where to bind what VBs */
+            inline const std::vector<VkVertexInputBindingDescription>& getVertexBindingDescriptions() const { return m_VertexInputBindingDescriptions; }
             /* Gets Descriptor set info that is used to create the descriptor sets */
             inline const DescriptorsPerHeapMap getDescriptorSetInfos() const { return m_DescriptorsPerHeap; }
             /* Gets the pipeline layout that encapsulates the descriptor sets and push constants information while creating the graphics pipeline */
@@ -35,6 +37,7 @@ namespace Razix {
 
         private:
             std::vector<VkVertexInputAttributeDescription>           m_VertexInputAttributeDescriptions; /* Vulkan handle for vertex input attribute description that is used by IA/VS for understating vertex data  */
+            std::vector<VkVertexInputBindingDescription>             m_VertexInputBindingDescriptions;   /* Vulkan handle for vertex input binding description for SOA we have multiple                              */
             std::map<u32, std::vector<VkDescriptorSetLayoutBinding>> m_VKSetBindingLayouts;              /* Vulkan handle for descriptor layout binding information per descriptor set location                      */
             std::map<u32, VkDescriptorSetLayout>                     m_PerSetLayouts;                    /* Descriptor set layouts and their corresponding set IDs                                                   */
             std::map<ShaderStage, VkPipelineShaderStageCreateInfo>   m_ShaderCreateInfos;                /* Shader module abstractions that will be used while creating the pipeline to bind the shaders             */

@@ -253,8 +253,11 @@ namespace Razix {
                     Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
                 }
 
-                Graphics::RZResourceManager::Get().getVertexBufferResource(mrc.Mesh->getVertexBufferHandle())->Bind(cmdBuffer);
-                Graphics::RZResourceManager::Get().getIndexBufferResource(mrc.Mesh->getIndexBufferHandle())->Bind(cmdBuffer);
+                // AOS Deprecated
+                //Graphics::RZResourceManager::Get().getVertexBufferResource(mrc.Mesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                //Graphics::RZResourceManager::Get().getIndexBufferResource(mrc.Mesh->getIndexBufferHandle())->Bind(cmdBuffer);
+
+                mrc.Mesh->bindVBsAndIB(cmdBuffer);
 
                 Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
@@ -263,8 +266,11 @@ namespace Razix {
             if (!m_Cube)
                 m_Cube = Graphics::MeshFactory::CreatePrimitive(Graphics::Cube);
 
-            Graphics::RZResourceManager::Get().getVertexBufferResource(m_Cube->getVertexBufferHandle())->Bind(cmdBuffer);
-            Graphics::RZResourceManager::Get().getIndexBufferResource(m_Cube->getIndexBufferHandle())->Bind(cmdBuffer);
+            // AOS Deprecated
+            //Graphics::RZResourceManager::Get().getVertexBufferResource(m_Cube->getVertexBufferHandle())->Bind(cmdBuffer);
+            //Graphics::RZResourceManager::Get().getIndexBufferResource(m_Cube->getIndexBufferHandle())->Bind(cmdBuffer);
+
+            m_Cube->bindVBsAndIB(cmdBuffer);
 
             // TODO: Bind mat and desc sets and PCs
 
