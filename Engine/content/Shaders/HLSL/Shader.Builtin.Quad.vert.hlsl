@@ -1,4 +1,3 @@
-#version 450
 /*
  * Razix Engine GLSL Vertex Shader File
  * Used to render a screen space quad

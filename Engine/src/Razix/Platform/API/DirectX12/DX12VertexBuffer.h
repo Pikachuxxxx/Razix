@@ -23,7 +23,6 @@ namespace Razix {
             RAZIX_CLEANUP_RESOURCE
             //---------------------------------------
 
-            void  AddBufferLayout(RZVertexBufferLayout& layout) override;
             void  Bind(RZDrawCommandBufferHandle cmdBuffer) override;
             void  Flush() override;
             void* GetMappedBuffer() override;

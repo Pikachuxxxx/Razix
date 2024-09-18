@@ -6,7 +6,7 @@
 #include "Razix/Core/RZDebugConfig.h"
 
 #include "Razix/Graphics/RHI/API/Data/RZBufferData.h"
-#include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
+#include "Razix/Graphics/RHI/API/RZBufferLayout.h"
 
 namespace Razix {
     namespace Graphics {
@@ -35,8 +35,6 @@ namespace Razix {
             virtual void SetData(u32 size, const void* data) = 0;
             /* Resizes and sets the buffer with new data */
             virtual void Resize(u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG) = 0;
-            /* Sets the vertex buffer layout */
-            virtual void AddBufferLayout(RZVertexBufferLayout& layout) = 0;
 
             virtual void Map(u32 size = 0, u32 offset = 0) = 0;
             virtual void UnMap()                           = 0;

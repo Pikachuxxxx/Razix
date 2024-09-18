@@ -10,6 +10,7 @@ namespace Razix {
         /* Engine internal format of the buffer data */
         enum class BufferFormat
         {
+            INVALID,
             R8_INT,   /* char*            */
             R8_UINT,  /* unsigned char*   */
             R32_INT,  /* 32-bit integer   */
@@ -23,7 +24,8 @@ namespace Razix {
             R32G32B32_FLOAT,
             R32G32B32A32_INT,
             R32G32B32A32_UINT,
-            R32G32B32A32_FLOAT
+            R32G32B32A32_FLOAT,
+            COUNT
         };
 
         /* Describes the format information of each element in the buffer data cluster */
@@ -67,10 +69,10 @@ namespace Razix {
         };
 
         /* Vertex buffer layout describes the layout of the buffer data that is being uploaded to the GPU to be consumed by the Input Assembler */
-        class RAZIX_API RZVertexBufferLayout : public RZRoot
+        class RAZIX_API RZBufferLayout : public RZRoot
         {
         public:
-            RZVertexBufferLayout();
+            RZBufferLayout();
 
             /**
              * Creates a layout entry for the buffer element

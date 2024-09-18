@@ -23,7 +23,7 @@ namespace Razix {
             void GenerateDescriptorHeaps() override;
 
             /* Gets the buffer layout information in engine internal format, this is how the shader expects the vertex buffer data to be packed while uploading to the GPU */
-            inline const RZVertexBufferLayout& getBufferLayout() const { return m_BufferLayout; }
+            inline const RZBufferLayout& getBufferLayout() const { return m_BufferLayout; }
             /* Gets the vertex input variables attribute descriptions of the vertex data that are being sent to the shaders via VBO */
             inline const std::vector<VkVertexInputAttributeDescription>& getVertexAttribDescriptions() const { return m_VertexInputAttributeDescriptions; }
             /* Gets the vertex input binding attribute descriptions of the vertex data on where to bind what VBs */

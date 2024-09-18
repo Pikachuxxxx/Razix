@@ -911,7 +911,7 @@ namespace Razix {
                 return 0;
             }
 
-            u32 PushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout)
+            u32 PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
