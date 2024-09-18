@@ -117,7 +117,7 @@ namespace Razix {
 
             commandBufferResource->EndRecording();
             // Stack up the recorded command buffers for execution
-            m_CommandQueue.push_back(cmdBuffer);
+            m_GraphicsCommandQueue.push_back(cmdBuffer);
 
             commandBufferResource->Execute();
         }
@@ -130,7 +130,7 @@ namespace Razix {
             u64 fenceValueForNextWait                                                      = m_RenderReadyFence->signal(DX12Context::Get()->getGraphicsQueue());
             m_InflightFramesFenceValues[RHI::Get().GetSwapchain()->getCurrentFrameIndex()] = fenceValueForNextWait;
 
-            m_CommandQueue.clear();
+            m_GraphicsCommandQueue.clear();
         }
 
         void DX12RenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)

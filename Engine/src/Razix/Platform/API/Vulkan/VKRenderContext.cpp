@@ -173,7 +173,7 @@ namespace Razix {
             auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             commandBufferResource->EndRecording();
             // Stack up the recorded command buffers for execution
-            m_CommandQueue.push_back(cmdBuffer);
+            m_GraphicsCommandQueue.push_back(cmdBuffer);
         }
 
         void VKRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
@@ -208,8 +208,8 @@ namespace Razix {
             m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
 #endif
 
-            m_Context->getSwapchain()->submitGraphicsAndFlip(m_CommandQueue);
-            m_CommandQueue.clear();
+            m_Context->getSwapchain()->submitGraphicsAndFlip(m_GraphicsCommandQueue);
+            m_GraphicsCommandQueue.clear();
         }
 
         void VKRenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)

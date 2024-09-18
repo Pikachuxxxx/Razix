@@ -109,5 +109,38 @@ group "Engine/content"
                 "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.basename }.json",                
                 "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.basename }.isa"
             }
+        -------------------
+        -- COMPUTE SHADER
+        -------------------
+        filter { "files:**.comp.hlsl" }
+            removeflags "ExcludeFromBuild"
+            buildmessage 'Compiling HLSL Compute shader : %{file.name}'
+            buildcommands 
+            {
+                -- Compile CSO binary
+                "echo [Compiling] CSO for DX12 backend...",
+                '"%{dxcLocation}/dxc.exe" -D __HLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E CS_MAIN -T cs_6_0  "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.basename}.cso"',
+                -- Compile SPIRV binary
+                "echo [Compiling] SPIRV for VK backend",
+                '"%{dxcLocation}/dxc.exe" -spirv -D __GLSL__ -I "%{wks.location}/../Engine/content/Shaders/HLSL" -I "%{wks.location}/../Engine/content/Shaders/ShaderCommon" -E CS_MAIN -T cs_6_0 -fspv-target-env=vulkan1.3 "%{file.directory}/%{file.name}" -Fo "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename }.spv"',
+                -- Generate GLSL (for reference only)???
+                "echo [Generating] GLSL from SPIRV",
+                'spirv-cross.exe "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename}.spv" --stage comp --entry CS_MAIN -V --output "%{wks.location}/../Engine/content/Shaders/Generated/GLSL/%{file.basename}.glsl"',
+                -- Generate Reflection Data JSON
+                "echo [Generating] exporting shader Reflection data",
+                'spirv-cross.exe "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename}.spv" --reflect --stage comp --entry CS_MAIN --output "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.basename}.json"',
+                -- Generate Assembly
+                "echo [Generating] exporting shader assembly listing",
+                '"%{dxcLocation}/dxc.exe" -D __HLSL__ -E CS_MAIN -T cs_6_0 "%{file.directory}/%{file.name}" -Fc "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.basename}.isa"'
+            }
+            buildoutputs 
+            {
+                "%{wks.location}/../Engine/content/Shaders/Compiled/CSO/%{file.basename }.cso",
+                "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.basename }.spv",
+                -----------------------------------------------------------------------------
+                "%{wks.location}/../Engine/content/Shaders/Generated/GLSL/%{file.basename }.glsl",
+                "%{wks.location}/../Engine/content/Shaders/Generated/ReflectionData/%{file.basename }.json",
+                "%{wks.location}/../Engine/content/Shaders/Generated/Assembly/%{file.basename }.isa"
+            }
 group""
 ------------------------------------------------------------------------------
