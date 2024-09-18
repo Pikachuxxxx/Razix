@@ -48,10 +48,12 @@ namespace Razix {
             {
                 int32_t Graphics = -1;
                 int32_t Present  = -1;
+                int32_t Compute  = -1;
+                //int32_t Transfer = -1; // TODO: To be supported
 
                 bool isComplete()
                 {
-                    return Graphics > -1 && Present > -1;
+                    return Graphics > -1 && Present > -1 && Compute > -1;
                 }
             };
 
@@ -75,6 +77,7 @@ namespace Razix {
             RAZIX_INLINE QueueFamilyIndices               getQueueFamilyIndices() const { return m_QueueFamilyIndices; }
             RAZIX_INLINE int32_t                          getGraphicsQueueFamilyIndex() const { return m_QueueFamilyIndices.Graphics; }
             RAZIX_INLINE int32_t                          getPresentQueueFamilyIndex() const { return m_QueueFamilyIndices.Present; }
+            RAZIX_INLINE int32_t                          getComputeQueueFamilyIndex() const { return m_QueueFamilyIndices.Compute; }
             RAZIX_INLINE VkPhysicalDeviceProperties       getProperties() const { return m_PhysicalDeviceProperties; };
             RAZIX_INLINE VkPhysicalDeviceMemoryProperties getMemoryProperties() const { return m_MemoryProperties; }
 
@@ -99,8 +102,8 @@ namespace Razix {
         class VKDevice : public RZSingleton<VKDevice>
         {
         public:
-            VKDevice();
-            ~VKDevice();
+            VKDevice() {}
+            ~VKDevice() {}
 
             bool init();
             void destroy();
@@ -113,6 +116,7 @@ namespace Razix {
             RAZIX_INLINE VkPhysicalDevice                 getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
             RAZIX_INLINE VkQueue                          getGraphicsQueue() const { return m_GraphicsQueue; };
             RAZIX_INLINE VkQueue                          getPresentQueue() const { return m_PresentQueue; };
+            RAZIX_INLINE VkQueue                          getComputeQueue() const { return m_ComputeQueue; };
             RAZIX_INLINE VkQueryPool                      getPipelineStatsQueryPool() const { return m_PipelineStatsQueryPool; }
             RAZIX_INLINE VkDescriptorPool                 getGlobalDescriptorPool() const { return m_GlobalDescriptorPool; }
             RAZIX_INLINE VkDescriptorPool                 getBindlessDescriptorPool() const { return m_BindlessDescriptorPool; }
@@ -126,6 +130,7 @@ namespace Razix {
             VkDevice                     m_Device                 = VK_NULL_HANDLE; /* Vulkan handle to abstracted device                                               */
             VkQueue                      m_GraphicsQueue          = VK_NULL_HANDLE; /* GPU queue on which graphics commands are submitted                               */
             VkQueue                      m_PresentQueue           = VK_NULL_HANDLE; /* GPU queue on which presentation commands are submitted                           */
+            VkQueue                      m_ComputeQueue           = VK_NULL_HANDLE; /* GPU queue on which compute commands are submitted                                */
             rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice         = {};             /* List of available GPUs on the machine                                            */
             rzstl::Ref<VKCommandPool>    m_CommandPool            = {};             /* Global Command pool from which the command buffers are allocated from            */
             VkDescriptorPool             m_GlobalDescriptorPool   = VK_NULL_HANDLE; /* Global descriptor pool from which normal descriptor sets are allocated from      */

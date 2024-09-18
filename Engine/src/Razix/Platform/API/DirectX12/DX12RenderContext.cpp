@@ -58,11 +58,11 @@ namespace Razix {
 
             // Create the Draw/Compute Command buffers
             m_DrawCommandBuffers.set_capacity(MAX_SWAPCHAIN_BUFFERS);
-            m_CommandPool.set_capacity(MAX_SWAPCHAIN_BUFFERS);
+            m_GraphicsCommandPool.set_capacity(MAX_SWAPCHAIN_BUFFERS);
 
             for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 auto pool                  = RZResourceManager::Get().createCommandPool(PoolType::kGraphics);
-                m_CommandPool[i]           = pool;
+                m_GraphicsCommandPool[i]   = pool;
                 m_DrawCommandBuffers[i]    = RZResourceManager::Get().createDrawCommandBuffer(pool);
                 auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(m_DrawCommandBuffers[i]);
                 commandBufferResource->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Draw Command Buffer: #" + std::to_string(i)));
@@ -235,6 +235,17 @@ namespace Razix {
             commandList->DrawIndexedInstanced(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
+        void DX12RenderContext::DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // FIXME: Don't we need a Compute/Async Command List?
+            RZEngine::Get().GetStatistics().ComputeDispatches++;
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            auto commandList       = static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList();
+            commandList->Dispatch(groupX, groupY, groupZ);
+        }
+
         void DX12RenderContext::DestroyAPIImpl()
         {
             DX12Context::Get()->getSwapchain()->Destroy();
@@ -305,7 +316,6 @@ namespace Razix {
 
             return static_cast<RZSwapchain*>(DX12Context::Get()->getSwapchain().get());
         }
-
     }    // namespace Graphics
 }    // namespace Razix
 
