@@ -909,14 +909,6 @@ namespace Razix {
                     auto& sceneCam = scene->getSceneCamera();
 
                     sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
-#if 0
-                    // Test code to view from the Directional Light POV to configure shadow map
-                    auto      lights     = scene->GetComponentsOfType<LightComponent>();
-                    auto&     dir_light  = lights[0].light;
-                    glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                    float     near_plane = -100.0f, far_plane = 50.0f;
-                    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -far_plane * 2.0f, far_plane);
-#endif
 
                     // clang-format off
                     glm::mat4 jitterMatrix = glm::mat4(

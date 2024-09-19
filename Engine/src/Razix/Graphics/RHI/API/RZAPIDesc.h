@@ -60,7 +60,7 @@ namespace Razix {
             };
             void*          data   = nullptr;             /* vertex data to fill the buffer with   */
             BufferUsage    usage  = BufferUsage::Static; /* Usage of the vertex buffer            */
-            RZBufferLayout layout = {};
+            RZBufferLayout layout = {};                  /* Layout of buffer on how elements have been stored in the buffer */
         };
 
         struct RZShaderDesc

@@ -28,7 +28,7 @@ public:
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::D3D12);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
 
         // Init Graphics Context
