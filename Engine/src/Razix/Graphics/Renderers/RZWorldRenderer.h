@@ -25,6 +25,7 @@
 #include "Razix/Graphics/Passes/RZSkyboxPass.h"
 #include "Razix/Graphics/Passes/RZTAAResolvePass.h"
 #include "Razix/Graphics/Passes/RZTonemapPass.h"
+#include "Razix/Graphics/Passes/RZVisibilityBufferFillPass.h"
 
 // Renderers
 #include "Razix/Graphics/Renderers/RZImGuiRenderer.h"
@@ -110,20 +111,24 @@ namespace Razix {
             RZTextureHandle m_ColorGradingNeutralLUTHandle;
             LightProbe      m_GlobalLightProbes{};
             // List of all passes, renderers and data in the frame graph
-            RZShadowPass              m_ShadowPass;
-            RZCSMPass                 m_CSMPass;
-            RZGBufferPass             m_GBufferPass;
-            RZSSAOPass                m_SSAOPass;
-            RZPBRDeferredLightingPass m_PBRDeferredPass;
-            RZPBRLightingPass         m_PBRLightingPass;
-            RZSkyboxPass              m_SkyboxPass;
-            RZGaussianBlurPass        m_GaussianBlurPass;
-            RZImGuiRenderer           m_ImGuiRenderer;
-            RZTAAResolvePass          m_TAAResolvePass;
-            RZFXAAPass                m_FXAAPass;
-            RZToneMapPass             m_TonemapPass;
-            RZCompositionPass         m_CompositePass;
-            RZHelloTrianglePass       m_HelloTrianglePass;
+            RZShadowPass               m_ShadowPass;
+            RZCSMPass                  m_CSMPass;
+            RZVisibilityBufferFillPass m_VisBufferFillPass;
+            RZGBufferPass              m_GBufferPass;
+            RZSSAOPass                 m_SSAOPass;
+            RZPBRDeferredLightingPass  m_PBRDeferredPass;
+            RZPBRLightingPass          m_PBRLightingPass;
+            RZSkyboxPass               m_SkyboxPass;
+            RZGaussianBlurPass         m_GaussianBlurPass;
+            RZImGuiRenderer            m_ImGuiRenderer;
+            RZTAAResolvePass           m_TAAResolvePass;
+            RZFXAAPass                 m_FXAAPass;
+            RZToneMapPass              m_TonemapPass;
+            RZCompositionPass          m_CompositePass;
+            //-------------------------------------------
+            // TESTING PASS
+            RZHelloTrianglePass m_HelloTrianglePass;
+            //-------------------------------------------
 
             //RZColorGradingPass        m_ColorGradingPass;
 

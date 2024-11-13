@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZSprite.h"
 
-#include "razix/Core/RZApplication.h"
+#include "razix/Core/App/RZApplication.h"
 
 #include "Razix/Graphics/RZShaderLibrary.h"
 
@@ -199,13 +199,6 @@ m_IsAnimated = true;
             vbDesc.size         = sizeof(RZVeretx2D) * 4;
             vbDesc.usage        = BufferUsage::Static;
             m_VBO               = RZResourceManager::Get().createVertexBuffer(vbDesc);
-
-            auto                 vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VBO);
-            RZVertexBufferLayout layout;
-            layout.push<glm::vec4>("Position");
-            layout.push<glm::vec4>("Color");
-            layout.push<glm::vec2>("UV");
-            vertexBufferResource->AddBufferLayout(layout);
 
             // Create the index buffer
             RZBufferDesc indexBufferDesc = {};

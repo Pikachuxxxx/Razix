@@ -2,7 +2,7 @@
 
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZHandle.h"
-#include "Razix/Core/RZUUID.h"
+#include "Razix/Core/UUID/RZUUID.h"
 #include "Razix/Graphics/Resources/RZResourceManager.h"
 
 #include "RZSTL/smart_pointers.h"

@@ -60,6 +60,12 @@ namespace Razix {
             FrameGraph::RZFrameGraphResource lightVP;
         };
 
+        struct VisBufferData
+        {
+            FrameGraph::RZFrameGraphResource visBuffer;    // stores the Primitive_ID, Instance_ID/Draw_ID & alpha mask in a u32 screen space map
+            FrameGraph::RZFrameGraphResource sceneDepth;
+        };
+
         namespace FX {
 
             struct SSAOData

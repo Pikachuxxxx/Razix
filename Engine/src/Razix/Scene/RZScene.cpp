@@ -8,7 +8,7 @@
 #endif
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
@@ -253,8 +253,11 @@ namespace Razix {
                     Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
                 }
 
-                Graphics::RZResourceManager::Get().getVertexBufferResource(mrc.Mesh->getVertexBufferHandle())->Bind(cmdBuffer);
-                Graphics::RZResourceManager::Get().getIndexBufferResource(mrc.Mesh->getIndexBufferHandle())->Bind(cmdBuffer);
+                // AOS Deprecated
+                //Graphics::RZResourceManager::Get().getVertexBufferResource(mrc.Mesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                //Graphics::RZResourceManager::Get().getIndexBufferResource(mrc.Mesh->getIndexBufferHandle())->Bind(cmdBuffer);
+
+                mrc.Mesh->bindVBsAndIB(cmdBuffer);
 
                 Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
@@ -263,8 +266,11 @@ namespace Razix {
             if (!m_Cube)
                 m_Cube = Graphics::MeshFactory::CreatePrimitive(Graphics::Cube);
 
-            Graphics::RZResourceManager::Get().getVertexBufferResource(m_Cube->getVertexBufferHandle())->Bind(cmdBuffer);
-            Graphics::RZResourceManager::Get().getIndexBufferResource(m_Cube->getIndexBufferHandle())->Bind(cmdBuffer);
+            // AOS Deprecated
+            //Graphics::RZResourceManager::Get().getVertexBufferResource(m_Cube->getVertexBufferHandle())->Bind(cmdBuffer);
+            //Graphics::RZResourceManager::Get().getIndexBufferResource(m_Cube->getIndexBufferHandle())->Bind(cmdBuffer);
+
+            m_Cube->bindVBsAndIB(cmdBuffer);
 
             // TODO: Bind mat and desc sets and PCs
 
@@ -285,13 +291,17 @@ namespace Razix {
     {
         // Meshes
         auto mrcs = this->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh: mrcs)
-            mesh.Mesh->Destroy();
+        for (auto& mesh: mrcs) {
+            if (mesh.Mesh)
+                mesh.Mesh->Destroy();
+        }
 
         // Sprites
         auto sprites = this->GetComponentsOfType<SpriteRendererComponent>();
-        for (auto& sprite: sprites)
-            sprite.Sprite->destroy();
+        for (auto& sprite: sprites) {
+            if (sprite.Sprite)
+                sprite.Sprite->destroy();
+        }
     }
 
     RZEntity RZScene::createEntity(const std::string& name /*= std::string()*/)

@@ -55,13 +55,6 @@ namespace Razix {
             D3D_SAFE_RELEASE(m_VertexBufferResource);
         }
 
-        void DX12VertexBuffer::AddBufferLayout(RZVertexBufferLayout& layout)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            throw std::logic_error("The method or operation is not implemented.");
-        }
-
         void DX12VertexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

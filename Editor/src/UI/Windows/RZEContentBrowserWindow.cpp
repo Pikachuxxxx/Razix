@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZEContentBrowserWindow.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 namespace Razix {
     namespace Editor {

@@ -1,0 +1,54 @@
+;
+; Input signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; no parameters
+;
+; Output signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; no parameters
+; shader hash: 547f040b39256c00cbc72034b29ddfc5
+;
+; Pipeline Runtime Information: 
+;
+; Compute Shader
+; NumThreads=(16,16,1)
+;
+;
+; Buffer Definitions:
+;
+;
+; Resource Bindings:
+;
+; Name                                 Type  Format         Dim      ID      HLSL Bind  Count
+; ------------------------------ ---------- ------- ----------- ------- -------------- ------
+;
+target datalayout = "e-m:e-p:32:32-i1:32-i8:32-i16:32-i32:32-i64:64-f16:32-f32:32-f64:64-n8:16:32:64"
+target triple = "dxil-ms-dx"
+
+define void @CS_MAIN() {
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  ret void
+}
+
+; Function Attrs: noduplicate nounwind
+declare void @dx.op.barrier(i32, i32) #0
+
+attributes #0 = { noduplicate nounwind }
+
+!llvm.ident = !{!0}
+!dx.version = !{!1}
+!dx.valver = !{!2}
+!dx.shaderModel = !{!3}
+!dx.entryPoints = !{!4}
+
+!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!1 = !{i32 1, i32 0}
+!2 = !{i32 1, i32 8}
+!3 = !{!"cs", i32 6, i32 0}
+!4 = !{void ()* @CS_MAIN, !"CS_MAIN", null, null, !5}
+!5 = !{i32 4, !6}
+!6 = !{i32 16, i32 16, i32 1}

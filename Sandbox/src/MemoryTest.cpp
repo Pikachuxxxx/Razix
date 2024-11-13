@@ -19,8 +19,8 @@ class MemoryTest : public Razix::RZApplication
 {
 public:
     MemoryTest()
-        //: RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
-        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
+    //: RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
 
     {
         Razix::RZInput::SelectGLFWInputManager();
@@ -39,6 +39,25 @@ public:
         RAZIX_CORE_INFO("Initializing Graphics Context...");
         Razix::Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
+
+        // Testing Reflection system
+        {
+            const TypeMetaData* meta = RZTypeRegistry::getTypeMetaData<TransformComponent>();
+            if (meta) {
+                RAZIX_INFO("Reflecting type... {0}", meta->name);
+                RAZIX_TRACE("\t @typeName: {0}", meta->typeName);
+                RAZIX_TRACE("\t @size    : {0}", meta->size);
+                RAZIX_TRACE("\t @members : {0}", meta->members.size());
+
+                for (u32 i = 0; i < meta->members.size(); i++) {
+                    const MemberMetaData& memberMeta = meta->members[i];
+                    RAZIX_TRACE("\t @name    : {0}", memberMeta.name);
+                    RAZIX_TRACE("\t @typeName: {0}", memberMeta.typeName);
+                    RAZIX_TRACE("\t @size    : {0}", memberMeta.size);
+                    RAZIX_TRACE("\t @offset  : {0}", memberMeta.offset);
+                }
+            }
+        }
     }
 
     void OnStart() override
@@ -120,7 +139,7 @@ public:
         {
             int nrRows    = 7;
             int nrColumns = 7;
-            int spacing   = 2.5f;
+            float spacing   = 2.5f;
 
             Razix::Graphics::MaterialProperties mat;
             mat.albedoColor      = glm::vec3(1.0f, 0.3f, 0.75f);

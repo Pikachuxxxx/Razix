@@ -3,8 +3,9 @@
 // clang-format on
 #include "RZLuaScriptHandler.h"
 
-#include "Razix/Core/RZApplication.h"
-#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/App/RZApplication.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
+
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Scene/RZScene.h"

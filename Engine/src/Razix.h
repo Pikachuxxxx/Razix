@@ -5,13 +5,13 @@
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZCore.h"
 // clang-format on
-#include "Razix/Core/IRZSystem.h"
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/System/IRZSystem.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZLog.h"
-#include "Razix/Core/RZSplashScreen.h"
-#include "Razix/Core/RZUUID.h"
-#include "Razix/Core/RazixVersion.h"
+#include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
+#include "Razix/Core/UUID/RZUUID.h"
+#include "Razix/Core/Version/RazixVersion.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZFileSystem.h"
@@ -42,7 +42,7 @@
 #include "Razix/Graphics/RHI/API/RZTexture.h"
 #include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 #include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
-#include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
+#include "Razix/Graphics/RHI/API/RZBufferLayout.h"
 
 #include "Razix/Graphics/RHI/RHI.h"
 

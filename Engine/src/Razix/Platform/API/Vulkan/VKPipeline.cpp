@@ -3,6 +3,8 @@
 // clang-format on
 #include "VKPipeline.h"
 
+#include "Razix/AssetSystem/RZAssetFileSpec.h"
+
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKShader.h"
@@ -44,19 +46,22 @@ namespace Razix {
             //----------------------------
             // Vertex Input Layout Stage
             //----------------------------
+#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
             VkVertexInputBindingDescription vertexBindingDescription{};
             vertexBindingDescription.binding   = 0;
             vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
             vertexBindingDescription.stride    = shader->getInputStride();
+#endif
 
             // Get the input description information from the shader reflection
-            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*>(shader)->getVertexAttribDescriptions();
+            auto& vertexInputBindingDescription   = static_cast<VKShader*>(shader)->getVertexBindingDescriptions();
+            auto& vertexInputAttributeDescription = static_cast<VKShader*>(shader)->getVertexAttribDescriptions();
 
             VkPipelineVertexInputStateCreateInfo vertexInputSCI{};
             vertexInputSCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             vertexInputSCI.pNext                           = nullptr;
-            vertexInputSCI.vertexBindingDescriptionCount   = vertexBindingDescription.stride == 0 ? 0 : 1;
-            vertexInputSCI.pVertexBindingDescriptions      = vertexBindingDescription.stride == 0 ? nullptr : &vertexBindingDescription;
+            vertexInputSCI.vertexBindingDescriptionCount   = u32(vertexInputBindingDescription.size());
+            vertexInputSCI.pVertexBindingDescriptions      = vertexInputBindingDescription.data();
             vertexInputSCI.vertexAttributeDescriptionCount = u32(vertexInputAttributeDescription.size());
             vertexInputSCI.pVertexAttributeDescriptions    = vertexInputAttributeDescription.data();
 

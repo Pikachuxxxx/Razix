@@ -4,7 +4,7 @@
 
 #include "RZSTL/ring_buffer.h"
 
-#include "Razix/Core/RZProfiling.h"
+#include "Razix/Core/Profiling/RZProfiling.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 #include "Razix/Graphics/RHI/API/RZBarriers.h"
@@ -214,6 +214,16 @@ namespace Razix {
 
                 s_APIInstance->DrawIndexedAPIImpl(cmdBuffer, indexCount);
             }
+            // TODO: Use AsyncCommandBufferHandle
+            RAZIX_FORCE_INLINE static void Dispatch(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ)
+            {
+                RAZIX_PROFILE_GPU_SCOPE("Dispatch");
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                RAZIX_ASSERT(groupX || groupY || groupZ, "[Vulkan Render Context] either of groupX/groupY/groupZ should be non-zero.");
+
+                s_APIInstance->DispatchAPIImpl(cmdBuffer, groupX, groupY, groupZ);
+            }
             /* Resize callback function for RHI */
             RAZIX_FORCE_INLINE static void OnResize(u32 width, u32 height)
             {
@@ -361,6 +371,7 @@ namespace Razix {
             virtual void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)                                                             = 0;
             virtual void         DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                          = 0;
             virtual void         DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)               = 0;
+            virtual void         DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ)                                                                                          = 0;
             virtual void         DestroyAPIImpl()                                                                                                                                                                  = 0;
             virtual void         OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                            = 0;
             virtual void         SetDepthBiasImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                             = 0;
@@ -378,17 +389,18 @@ namespace Razix {
         protected:
             static RHI* s_APIInstance;
 
-            std::string                                      m_RendererTitle; /* The name of the renderer API that is being used */
-            u32                                              m_Width      = 0;
-            u32                                              m_Height     = 0;
-            u32                                              m_PrevWidth  = 0;
-            u32                                              m_PrevHeight = 0;
-            CommandQueue                                     m_CommandQueue; /* The queue of recorded commands that needs execution */
-            RZDrawCommandBufferHandle                        m_CurrentCommandBuffer;
-            rzstl::ring_buffer<RZDrawCommandBufferHandle>    m_DrawCommandBuffers;
-            rzstl::ring_buffer<RZCommandPoolHandle> m_CommandPool;
-            RZDescriptorSet*                                 m_FrameDataSet       = nullptr;
-            RZDescriptorSet*                                 m_SceneLightsDataSet = nullptr;
+            std::string                                   m_RendererTitle; /* The name of the renderer API that is being used */
+            u32                                           m_Width      = 0;
+            u32                                           m_Height     = 0;
+            u32                                           m_PrevWidth  = 0;
+            u32                                           m_PrevHeight = 0;
+            CommandQueue                                  m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
+            RZDrawCommandBufferHandle                     m_CurrentCommandBuffer;
+            rzstl::ring_buffer<RZDrawCommandBufferHandle> m_DrawCommandBuffers;
+            rzstl::ring_buffer<RZCommandPoolHandle>       m_GraphicsCommandPool;
+            rzstl::ring_buffer<RZCommandPoolHandle>       m_ComputeCommandPool;
+            RZDescriptorSet*                              m_FrameDataSet       = nullptr;
+            RZDescriptorSet*                              m_SceneLightsDataSet = nullptr;
         };
     }    // namespace Graphics
 }    // namespace Razix

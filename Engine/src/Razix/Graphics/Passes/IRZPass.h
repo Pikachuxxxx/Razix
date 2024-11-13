@@ -26,6 +26,7 @@ namespace Razix {
             IRZPass()          = default;
             virtual ~IRZPass() = default;
 
+            // TODO: make FrameGraph::RZFrameGraph& a pointer too
             virtual void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) = 0;
 
             virtual void destroy() = 0;

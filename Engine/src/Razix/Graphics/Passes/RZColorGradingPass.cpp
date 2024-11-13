@@ -3,8 +3,8 @@
 // clang-format on
 #include "RZColorGradingPass.h"
 
-#include "Razix/Core/RZApplication.h"
-#include "Razix/Core/RZMarkers.h"
+#include "Razix/Core/App/RZApplication.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZPipeline.h"
 #include "Razix/Graphics/RHI/API/RZShader.h"

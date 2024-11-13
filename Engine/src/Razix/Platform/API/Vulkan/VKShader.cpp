@@ -6,6 +6,8 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/AssetSystem/RZAssetFileSpec.h"
+
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -180,11 +182,16 @@ namespace Razix {
                     for (sz i = 0; i < module.input_variable_count; i++) {
                         SpvReflectInterfaceVariable inputVar = *module.input_variables[i];
 
-                        if (std::string(inputVar.semantic) == "SV_VertexID")
-                            return;
-
-                        if (std::string(inputVar.name) == "gl_VertexIndex" || inputVar.name == "vs_out")
+                        if (inputVar.semantic == NULL && inputVar.name == NULL)
                             break;
+
+                        if (inputVar.semantic && std::string(inputVar.semantic) == "SV_VertexID")
+                            break;
+
+                        if (inputVar.name && std::string(inputVar.name) == "gl_VertexIndex" || inputVar.name == "vs_out")
+                            break;
+
+#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
 
                         // Fill the vulkan input variables attribute information
                         VkVertexInputAttributeDescription verextInputattribDesc = {};
@@ -197,9 +204,25 @@ namespace Razix {
 
                         m_VertexInputStride += VKUtilities::GetStrideFromVulkanFormat((VkFormat) inputVar.format);
 
-                        // Create the buffer layout for Razix engine
                         VKUtilities::PushBufferLayout((VkFormat) inputVar.format, inputVar.name, m_BufferLayout);
+#else
+                        // SOA so we will have a attrib per binding+location pair and also multiple VkVertexInputBindingDescriptions
 
+                        VkVertexInputAttributeDescription verextInputattribDesc = {};
+                        verextInputattribDesc.binding                           = inputVar.location;    // Since we will be doing SOA instead of AOS
+                        verextInputattribDesc.location                          = inputVar.location;
+                        verextInputattribDesc.format                            = (VkFormat) inputVar.format;
+                        verextInputattribDesc.offset                            = 0;
+                        m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc);
+
+                        VkVertexInputBindingDescription bindingDesc = {};
+                        bindingDesc.binding                         = verextInputattribDesc.binding;
+                        bindingDesc.stride                          = VKUtilities::GetStrideFromVulkanFormat((VkFormat) inputVar.format);
+                        bindingDesc.inputRate                       = VK_VERTEX_INPUT_RATE_VERTEX;
+                        m_VertexInputBindingDescriptions.push_back(bindingDesc);
+
+                        // TODO: Not creating the buffer layout for Razix engine, but in case of SOA we will have many, each for a buffer, they are added manually for now, not reflected.
+#endif
                         //delete inputVar;
                     }
 

@@ -20,7 +20,7 @@ namespace Razix {
     namespace Graphics {
         namespace MeshFactory {
 
-            static RZMesh* ScreenMesh = nullptr;
+            static RZMesh* ScreenMesh = nullptr;    // Drawn by generating vertices in shader itself
             static RZMesh* planeMesh  = nullptr;
             static RZMesh* cubeMesh   = nullptr;
             static RZMesh* sphereMesh = nullptr;
@@ -93,60 +93,43 @@ namespace Razix {
             //    return nullptr;
             //}
 
+#define NUM_QUAD_VERTS 4
+#define NUM_CUBE_VERTS 24
+
             RZMesh* CreatePlane(f32 width, f32 height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
             {
-                RZVertex* data = new RZVertex[4];
+                RZVertex data{};
+                data.Position.reserve(NUM_QUAD_VERTS);
+                data.Color.reserve(NUM_QUAD_VERTS);
+                data.UV.reserve(NUM_QUAD_VERTS);
+                data.Normal.reserve(NUM_QUAD_VERTS);
 
                 glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
 
-                data[0].Position = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
-                data[0].Color    = color;
-                data[0].UV       = glm::vec2(0.0f, 0.0f);
-                data[0].Normal   = normal;
+                data.Position[0] = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
+                data.Color[0]    = color;
+                data.UV[0]       = glm::vec2(0.0f, 0.0f);
+                data.Normal[0]   = normal;
 
-                data[1].Position = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
-                data[1].Color    = color;
-                data[1].UV       = glm::vec2(0.0f, 1.0f);
-                data[1].Normal   = normal;
+                data.Position[1] = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
+                data.Color[1]    = color;
+                data.UV[1]       = glm::vec2(0.0f, 1.0f);
+                data.Normal[1]   = normal;
 
-                data[2].Position = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
-                data[2].Color    = color;
-                data[2].UV       = glm::vec2(1.0f, 1.0f);
-                data[2].Normal   = normal;
+                data.Position[2] = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
+                data.Color[2]    = color;
+                data.UV[2]       = glm::vec2(1.0f, 1.0f);
+                data.Normal[2]   = normal;
 
-                data[3].Position = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
-                data[3].Color    = color;
-                data[3].UV       = glm::vec2(1.0f, 0.0f);
-                data[3].Normal   = normal;
-
-                RZBufferDesc vbDesc     = {};
-                vbDesc.name             = "VB_SM.Primitive.Plane";
-                vbDesc.data             = data;
-                vbDesc.size             = sizeof(RZVertex) * 4;
-                vbDesc.usage            = BufferUsage::Static;
-                RZVertexBufferHandle vb = RZResourceManager::Get().createVertexBuffer(vbDesc);
-
-                RZVertexBufferLayout layout;
-                layout.push<glm::vec3>("Position");
-                layout.push<glm::vec4>("Color");
-                layout.push<glm::vec2>("TexCoords");
-                layout.push<glm::vec3>("Normal");
-                layout.push<glm::vec3>("Tangent");
-                auto vbResource = RZResourceManager::Get().getVertexBufferResource(vb);
-                vbResource->AddBufferLayout(layout);
-                delete[] data;
+                data.Position[3] = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
+                data.Color[3]    = color;
+                data.UV[3]       = glm::vec2(1.0f, 0.0f);
+                data.Normal[3]   = normal;
 
                 u32 indices[6]{
                     0, 1, 2, 2, 3, 0};
 
-                RZBufferDesc ibDesc    = {};
-                ibDesc.name            = "IB_SM.Primitive.Plane";
-                ibDesc.data            = indices;
-                ibDesc.count           = 6;
-                ibDesc.usage           = BufferUsage::Static;
-                RZIndexBufferHandle ib = RZResourceManager::Get().createIndexBuffer(ibDesc);
-
-                RZMesh* mesh = new RZMesh(vb, ib, 4, 6);
+                RZMesh* mesh = new RZMesh(data, indices, 6);
 
                 auto        shader                  = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
@@ -165,142 +148,99 @@ namespace Razix {
                 //  | |v7---|-|v4
                 //  |/      |/
                 //  v2------v3
-                RZVertex* data = new RZVertex[24];
+                RZVertex data{};
+                data.Position.reserve(NUM_CUBE_VERTS);
+                data.Color.reserve(NUM_CUBE_VERTS);
+                data.UV.reserve(NUM_CUBE_VERTS);
+                data.Normal.reserve(NUM_CUBE_VERTS);
 
-                data[0].Position = glm::vec3(1.0f, 1.0f, 1.0f);
-                data[0].Color    = glm::vec4(0.0f);
-                data[0].Normal   = glm::vec3(0.0f, 0.0f, 1.0f);
-
-                data[1].Position = glm::vec3(-1.0f, 1.0f, 1.0f);
-                data[1].Color    = glm::vec4(0.0f);
-                data[1].Normal   = glm::vec3(0.0f, 0.0f, 1.0f);
-
-                data[2].Position = glm::vec3(-1.0f, -1.0f, 1.0f);
-                data[2].Color    = glm::vec4(0.0f);
-                data[2].Normal   = glm::vec3(0.0f, 0.0f, 1.0f);
-
-                data[3].Position = glm::vec3(1.0f, -1.0f, 1.0f);
-                data[3].Color    = glm::vec4(0.0f);
-                data[3].Normal   = glm::vec3(0.0f, 0.0f, 1.0f);
-
-                data[4].Position = glm::vec3(1.0f, 1.0f, 1.0f);
-                data[4].Color    = glm::vec4(0.0f);
-                data[4].Normal   = glm::vec3(1.0f, 0.0f, 0.0f);
-
-                data[5].Position = glm::vec3(1.0f, -1.0f, 1.0f);
-                data[5].Color    = glm::vec4(0.0f);
-                data[5].Normal   = glm::vec3(1.0f, 0.0f, 0.0f);
-
-                data[6].Position = glm::vec3(1.0f, -1.0f, -1.0f);
-                data[6].Color    = glm::vec4(0.0f);
-                data[6].Normal   = glm::vec3(1.0f, 0.0f, 0.0f);
-
-                data[7].Position = glm::vec3(1.0f, 1.0f, -1.0f);
-                data[7].Color    = glm::vec4(0.0f);
-                data[7].UV       = glm::vec2(0.0f, 1.0f);
-                data[7].Normal   = glm::vec3(1.0f, 0.0f, 0.0f);
-
-                data[8].Position = glm::vec3(1.0f, 1.0f, 1.0f);
-                data[8].Color    = glm::vec4(0.0f);
-                data[8].Normal   = glm::vec3(0.0f, 1.0f, 0.0f);
-
-                data[9].Position = glm::vec3(1.0f, 1.0f, -1.0f);
-                data[9].Color    = glm::vec4(0.0f);
-                data[9].Normal   = glm::vec3(0.0f, 1.0f, 0.0f);
-
-                data[10].Position = glm::vec3(-1.0f, 1.0f, -1.0f);
-                data[10].Color    = glm::vec4(0.0f);
-                data[10].UV       = glm::vec2(0.0f, 1.0f);
-                data[10].Normal   = glm::vec3(0.0f, 1.0f, 0.0f);
-
-                data[11].Position = glm::vec3(-1.0f, 1.0f, 1.0f);
-                data[11].Color    = glm::vec4(0.0f);
-                data[11].Normal   = glm::vec3(0.0f, 1.0f, 0.0f);
-
-                data[12].Position = glm::vec3(-1.0f, 1.0f, 1.0f);
-                data[12].Color    = glm::vec4(0.0f);
-                data[12].Normal   = glm::vec3(-1.0f, 0.0f, 0.0f);
-
-                data[13].Position = glm::vec3(-1.0f, 1.0f, -1.0f);
-                data[13].Color    = glm::vec4(0.0f);
-                data[13].Normal   = glm::vec3(-1.0f, 0.0f, 0.0f);
-
-                data[14].Position = glm::vec3(-1.0f, -1.0f, -1.0f);
-                data[14].Color    = glm::vec4(0.0f);
-                data[14].Normal   = glm::vec3(-1.0f, 0.0f, 0.0f);
-
-                data[15].Position = glm::vec3(-1.0f, -1.0f, 1.0f);
-                data[15].Color    = glm::vec4(0.0f);
-                data[15].Normal   = glm::vec3(-1.0f, 0.0f, 0.0f);
-
-                data[16].Position = glm::vec3(-1.0f, -1.0f, -1.0f);
-                data[16].Color    = glm::vec4(0.0f);
-                data[16].Normal   = glm::vec3(0.0f, -1.0f, 0.0f);
-
-                data[17].Position = glm::vec3(1.0f, -1.0f, -1.0f);
-                data[17].Color    = glm::vec4(0.0f);
-                data[17].Normal   = glm::vec3(0.0f, -1.0f, 0.0f);
-
-                data[18].Position = glm::vec3(1.0f, -1.0f, 1.0f);
-                data[18].Color    = glm::vec4(0.0f);
-                data[18].Normal   = glm::vec3(0.0f, -1.0f, 0.0f);
-
-                data[19].Position = glm::vec3(-1.0f, -1.0f, 1.0f);
-                data[19].Color    = glm::vec4(0.0f);
-                data[19].Normal   = glm::vec3(0.0f, -1.0f, 0.0f);
-
-                data[20].Position = glm::vec3(1.0f, -1.0f, -1.0f);
-                data[20].Color    = glm::vec4(0.0f);
-                data[20].Normal   = glm::vec3(0.0f, 0.0f, -1.0f);
-
-                data[21].Position = glm::vec3(-1.0f, -1.0f, -1.0f);
-                data[21].Color    = glm::vec4(0.0f);
-                data[21].Normal   = glm::vec3(0.0f, 0.0f, -1.0f);
-
-                data[22].Position = glm::vec3(-1.0f, 1.0f, -1.0f);
-                data[22].Color    = glm::vec4(0.0f);
-                data[22].Normal   = glm::vec3(0.0f, 0.0f, -1.0f);
-
-                data[23].Position = glm::vec3(1.0f, 1.0f, -1.0f);
-                data[23].Color    = glm::vec4(0.0f);
-                data[23].Normal   = glm::vec3(0.0f, 0.0f, -1.0f);
+                data.Position[0]  = glm::vec3(1.0f, 1.0f, 1.0f);
+                data.Color[0]     = glm::vec4(0.0f);
+                data.Normal[0]    = glm::vec3(0.0f, 0.0f, 1.0f);
+                data.Position[1]  = glm::vec3(-1.0f, 1.0f, 1.0f);
+                data.Color[1]     = glm::vec4(0.0f);
+                data.Normal[1]    = glm::vec3(0.0f, 0.0f, 1.0f);
+                data.Position[2]  = glm::vec3(-1.0f, -1.0f, 1.0f);
+                data.Color[2]     = glm::vec4(0.0f);
+                data.Normal[2]    = glm::vec3(0.0f, 0.0f, 1.0f);
+                data.Position[3]  = glm::vec3(1.0f, -1.0f, 1.0f);
+                data.Color[3]     = glm::vec4(0.0f);
+                data.Normal[3]    = glm::vec3(0.0f, 0.0f, 1.0f);
+                data.Position[4]  = glm::vec3(1.0f, 1.0f, 1.0f);
+                data.Color[4]     = glm::vec4(0.0f);
+                data.Normal[4]    = glm::vec3(1.0f, 0.0f, 0.0f);
+                data.Position[5]  = glm::vec3(1.0f, -1.0f, 1.0f);
+                data.Color[5]     = glm::vec4(0.0f);
+                data.Normal[5]    = glm::vec3(1.0f, 0.0f, 0.0f);
+                data.Position[6]  = glm::vec3(1.0f, -1.0f, -1.0f);
+                data.Color[6]     = glm::vec4(0.0f);
+                data.Normal[6]    = glm::vec3(1.0f, 0.0f, 0.0f);
+                data.Position[7]  = glm::vec3(1.0f, 1.0f, -1.0f);
+                data.Color[7]     = glm::vec4(0.0f);
+                data.UV[7]        = glm::vec2(0.0f, 1.0f);
+                data.Normal[7]    = glm::vec3(1.0f, 0.0f, 0.0f);
+                data.Position[8]  = glm::vec3(1.0f, 1.0f, 1.0f);
+                data.Color[8]     = glm::vec4(0.0f);
+                data.Normal[8]    = glm::vec3(0.0f, 1.0f, 0.0f);
+                data.Position[9]  = glm::vec3(1.0f, 1.0f, -1.0f);
+                data.Color[9]     = glm::vec4(0.0f);
+                data.Normal[9]    = glm::vec3(0.0f, 1.0f, 0.0f);
+                data.Position[10] = glm::vec3(-1.0f, 1.0f, -1.0f);
+                data.Color[10]    = glm::vec4(0.0f);
+                data.UV[10]       = glm::vec2(0.0f, 1.0f);
+                data.Normal[10]   = glm::vec3(0.0f, 1.0f, 0.0f);
+                data.Position[11] = glm::vec3(-1.0f, 1.0f, 1.0f);
+                data.Color[11]    = glm::vec4(0.0f);
+                data.Normal[11]   = glm::vec3(0.0f, 1.0f, 0.0f);
+                data.Position[12] = glm::vec3(-1.0f, 1.0f, 1.0f);
+                data.Color[12]    = glm::vec4(0.0f);
+                data.Normal[12]   = glm::vec3(-1.0f, 0.0f, 0.0f);
+                data.Position[13] = glm::vec3(-1.0f, 1.0f, -1.0f);
+                data.Color[13]    = glm::vec4(0.0f);
+                data.Normal[13]   = glm::vec3(-1.0f, 0.0f, 0.0f);
+                data.Position[14] = glm::vec3(-1.0f, -1.0f, -1.0f);
+                data.Color[14]    = glm::vec4(0.0f);
+                data.Normal[14]   = glm::vec3(-1.0f, 0.0f, 0.0f);
+                data.Position[15] = glm::vec3(-1.0f, -1.0f, 1.0f);
+                data.Color[15]    = glm::vec4(0.0f);
+                data.Normal[15]   = glm::vec3(-1.0f, 0.0f, 0.0f);
+                data.Position[16] = glm::vec3(-1.0f, -1.0f, -1.0f);
+                data.Color[16]    = glm::vec4(0.0f);
+                data.Normal[16]   = glm::vec3(0.0f, -1.0f, 0.0f);
+                data.Position[17] = glm::vec3(1.0f, -1.0f, -1.0f);
+                data.Color[17]    = glm::vec4(0.0f);
+                data.Normal[17]   = glm::vec3(0.0f, -1.0f, 0.0f);
+                data.Position[18] = glm::vec3(1.0f, -1.0f, 1.0f);
+                data.Color[18]    = glm::vec4(0.0f);
+                data.Normal[18]   = glm::vec3(0.0f, -1.0f, 0.0f);
+                data.Position[19] = glm::vec3(-1.0f, -1.0f, 1.0f);
+                data.Color[19]    = glm::vec4(0.0f);
+                data.Normal[19]   = glm::vec3(0.0f, -1.0f, 0.0f);
+                data.Position[20] = glm::vec3(1.0f, -1.0f, -1.0f);
+                data.Color[20]    = glm::vec4(0.0f);
+                data.Normal[20]   = glm::vec3(0.0f, 0.0f, -1.0f);
+                data.Position[21] = glm::vec3(-1.0f, -1.0f, -1.0f);
+                data.Color[21]    = glm::vec4(0.0f);
+                data.Normal[21]   = glm::vec3(0.0f, 0.0f, -1.0f);
+                data.Position[22] = glm::vec3(-1.0f, 1.0f, -1.0f);
+                data.Color[22]    = glm::vec4(0.0f);
+                data.Normal[22]   = glm::vec3(0.0f, 0.0f, -1.0f);
+                data.Position[23] = glm::vec3(1.0f, 1.0f, -1.0f);
+                data.Color[23]    = glm::vec4(0.0f);
+                data.Normal[23]   = glm::vec3(0.0f, 0.0f, -1.0f);
 
                 // UVs
                 for (int i = 0; i < 6; i++) {
-                    data[i * 4 + 0].UV = glm::vec2(0.0f, 0.0f);
-                    data[i * 4 + 1].UV = glm::vec2(1.0f, 0.0f);
-                    data[i * 4 + 2].UV = glm::vec2(1.0f, 1.0f);
-                    data[i * 4 + 3].UV = glm::vec2(0.0f, 1.0f);
+                    data.UV[i * 4 + 0] = glm::vec2(0.0f, 0.0f);
+                    data.UV[i * 4 + 1] = glm::vec2(1.0f, 0.0f);
+                    data.UV[i * 4 + 2] = glm::vec2(1.0f, 1.0f);
+                    data.UV[i * 4 + 3] = glm::vec2(0.0f, 1.0f);
                 }
-
-                RZBufferDesc vbDesc     = {};
-                vbDesc.name             = "VB_SM.Primitive.Cube";
-                vbDesc.data             = data;
-                vbDesc.size             = sizeof(RZVertex) * 24;
-                vbDesc.usage            = BufferUsage::Static;
-                RZVertexBufferHandle vb = RZResourceManager::Get().createVertexBuffer(vbDesc);
-
-                RZVertexBufferLayout layout;
-                layout.push<glm::vec3>("Position");
-                layout.push<glm::vec4>("Color");
-                layout.push<glm::vec2>("TexCoords");
-                layout.push<glm::vec3>("Normal");
-                layout.push<glm::vec3>("Tangent");
-                auto vbResource = RZResourceManager::Get().getVertexBufferResource(vb);
-                vbResource->AddBufferLayout(layout);
-                delete[] data;
 
                 u32 indices[36]{
                     0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
 
-                RZBufferDesc ibDesc    = {};
-                ibDesc.name            = "IB_SM.Primitive.Cube";
-                ibDesc.data            = indices;
-                ibDesc.count           = 36;
-                ibDesc.usage           = BufferUsage::Static;
-                RZIndexBufferHandle ib = RZResourceManager::Get().createIndexBuffer(ibDesc);
-
-                RZMesh* mesh = new RZMesh(vb, ib, 24, 36);
+                RZMesh* mesh = new RZMesh(data, indices, 36);
 
                 auto        shader                  = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
@@ -312,7 +252,7 @@ namespace Razix {
 
             RZMesh* CreateSphere(u32 xSegments /*= 64*/, u32 ySegments /*= 64*/)
             {
-                auto data = std::vector<RZVertex>();
+                RZVertex data{};
 
                 f32 sectorCount = static_cast<f32>(xSegments);
                 f32 stackCount  = static_cast<f32>(ySegments);
@@ -338,30 +278,11 @@ namespace Razix {
                         f32 s = static_cast<f32>(j / sectorCount);
                         f32 t = static_cast<f32>(i / stackCount);
 
-                        Graphics::RZVertex vertex;
-                        vertex.Position = glm::vec3(x, y, z);
-                        vertex.UV       = glm::vec2(s, t);
-                        vertex.Normal   = glm::normalize(glm::vec3(x, y, z));
-
-                        data.emplace_back(vertex);
+                        data.Position.push_back(glm::vec3(x, y, z));
+                        data.UV.push_back(glm::vec2(s, t));
+                        data.Normal.push_back(glm::normalize(glm::vec3(x, y, z)));
                     }
                 }
-
-                RZBufferDesc vbDesc     = {};
-                vbDesc.name             = "VB_SM.Primitive.Sphere";
-                vbDesc.data             = data.data();
-                vbDesc.size             = sizeof(RZVertex) * data.size();
-                vbDesc.usage            = BufferUsage::Static;
-                RZVertexBufferHandle vb = RZResourceManager::Get().createVertexBuffer(vbDesc);
-
-                RZVertexBufferLayout layout;
-                layout.push<glm::vec3>("Position");
-                layout.push<glm::vec4>("Color");
-                layout.push<glm::vec2>("TexCoords");
-                layout.push<glm::vec3>("Normal");
-                layout.push<glm::vec3>("Tangent");
-                auto vbResource = RZResourceManager::Get().getVertexBufferResource(vb);
-                vbResource->AddBufferLayout(layout);
 
                 std::vector<u32> indices;
                 u16              k1, k2;
@@ -387,14 +308,7 @@ namespace Razix {
                     }
                 }
 
-                RZBufferDesc ibDesc    = {};
-                ibDesc.name            = "IB_SM.Primitive.Sphere";
-                ibDesc.data            = indices.data();
-                ibDesc.count           = static_cast<u32>(indices.size());
-                ibDesc.usage           = BufferUsage::Static;
-                RZIndexBufferHandle ib = RZResourceManager::Get().createIndexBuffer(ibDesc);
-
-                RZMesh* mesh = new RZMesh(vb, ib, static_cast<u32>(data.size()), static_cast<u32>(indices.size()));
+                RZMesh* mesh = new RZMesh(data, indices);
 
                 auto        shader                  = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
                 RZMaterial* forwardRendererMaterial = new RZMaterial(shader);

@@ -4,7 +4,7 @@
 
 #include "RZEMainWindowCentralWidget.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 

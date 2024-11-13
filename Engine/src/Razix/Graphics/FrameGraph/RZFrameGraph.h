@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
-#include "Razix/Graphics/FrameGraph/RZFrameGraphResourceTypeChecks.h"
+#include "Razix/Graphics/FrameGraph/RZFrameGraphResourcesTypeTraits.h"
 #include "Razix/Graphics/FrameGraph/RZResourceEntry.h"
 #include "Razix/Graphics/FrameGraph/RZResourceNode.h"
 

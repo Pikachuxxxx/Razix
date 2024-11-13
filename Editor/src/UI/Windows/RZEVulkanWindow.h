@@ -9,7 +9,7 @@
 #include "RZESceneHierarchyPanel.h"
 
 #include "Razix/Core/OS/RZInput.h"
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Events/ApplicationEvent.h"
 
 namespace Razix {

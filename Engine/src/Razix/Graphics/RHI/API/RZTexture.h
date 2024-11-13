@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/RZLog.h"
+#include "Razix/Core/Log/RZLog.h"
 
 #include "Razix/Graphics/Resources/IRZResource.h"
 

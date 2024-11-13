@@ -21,6 +21,9 @@ namespace Razix {
             PBRIBL,
             PBRDeferredLighting,
             GBuffer,
+            //----------------
+            VisibilityBufferFill,
+            //----------------
             DeferredDecals,
             Composition,
             DepthPreTest,

@@ -3,9 +3,9 @@
 // clang-format on
 #include "RZGBufferPass.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZMarkers.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 
 #include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"

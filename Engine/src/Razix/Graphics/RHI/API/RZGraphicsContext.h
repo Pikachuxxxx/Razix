@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Razix/Core/RZCore.h"
-#include "Razix/Core/RZLog.h"
+#include "Razix/Core/Log/RZLog.h"
 
 #include "Razix/Core/OS/RZWindow.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 namespace Razix {
     namespace Graphics {

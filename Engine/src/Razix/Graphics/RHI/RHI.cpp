@@ -3,7 +3,7 @@
 // clang-format on
 #include "RHI.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 #include "Razix/Graphics/RHI/API/RZGraphicsContext.h"

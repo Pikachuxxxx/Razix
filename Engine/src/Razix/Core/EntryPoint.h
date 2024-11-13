@@ -3,7 +3,7 @@
 #include "RZSTL/smart_pointers.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZProfiling.h"
+#include "Razix/Core/Profiling/RZProfiling.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
@@ -14,7 +14,7 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 #ifdef RAZIX_PLATFORM_WINDOWS
 
     #include "Platform/Windows/WindowsOS.h"
-    #include "Razix/Core/RZSplashScreen.h"
+    #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 // TODO: Change this back to WinMain, since we are use the logging system to output to console we use an Console App instead of an Widowed App
 //#pragma comment(linker, "/subsystem:windows")

@@ -21,7 +21,7 @@ namespace Razix {
         enum class ImageLayout : u32;
         enum class PipelineStage : u32;
         enum class MemoryAccessMask : u32;
-        class RZVertexBufferLayout;
+        class RZBufferLayout;
 
         namespace DX12Utilities {
 
@@ -117,7 +117,7 @@ namespace Razix {
             // Vertex Input
             DXGI_FORMAT GetFormatFromComponentType(D3D_REGISTER_COMPONENT_TYPE componentType, u32 componentCount);
             u32         GetFormatSize(DXGI_FORMAT format);
-            u32         PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZVertexBufferLayout& layout);
+            u32         PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZBufferLayout& layout);
 
             // PipelineInfo
             // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type);

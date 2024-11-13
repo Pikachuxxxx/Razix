@@ -2,6 +2,7 @@
 
 #include "Razix/Graphics/Loaders/RZMeshLoader.h"
 #include "Razix/Graphics/Materials/RZMaterial.h"
+#include "Razix/Graphics/RZGraphicsCompileConfig.h"
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"
 
@@ -64,10 +65,12 @@ namespace Razix {
             // Load/Create a new Material (override the save location)
             std::string materialPath;
             archive(cereal::make_nvp("MaterialPath", materialPath));
+#if !DISABLE_MATERIALS_LOADING
             if (!materialPath.empty()) {
                 // Since we have the path to a material file load it, deserialize it and create the material
                 Mesh->getMaterial()->loadFromFile(materialPath);
             }
+#endif
         }
 
         template<class Archive>

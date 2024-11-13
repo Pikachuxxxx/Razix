@@ -3,7 +3,7 @@
 // clang-format on
 #include "GLFWInput.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include <GLFW/glfw3.h>
 
 #ifdef RAZIX_RENDER_API_OPENGL

@@ -2,7 +2,7 @@
 
 #include "Razix/Graphics/Renderers/RZWorldRenderer.h"
 
-#include "Razix/Core/IRZSystem.h"
+#include "Razix/Core/System/IRZSystem.h"
 
 namespace Razix {
     namespace Graphics {

@@ -16,7 +16,7 @@
 #include "UI/Windows/RZEMaterialEditor.h"
 #include "UI/Windows/RZERendererSettingsUIWindow.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 namespace Razix {
     namespace Editor {

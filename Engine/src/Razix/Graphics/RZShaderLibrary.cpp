@@ -4,7 +4,7 @@
 #include "RZShaderLibrary.h"
 
 #include "Razix/Core/OS/RZFileSystem.h"
-#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 #include "Razix/Graphics/RHI/API/RZShader.h"
 
@@ -21,6 +21,10 @@ namespace Razix {
 
             // TESTING HLSL LOADING
             loadBuiltInShader(ShaderBuiltin::HelloTriangle, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangle.rzsf");
+
+            // TESTING VIS BUFFER GEN SHADER
+            loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
+
             return;
 
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
@@ -37,6 +41,9 @@ namespace Razix {
             // Frame Graph Pass Shaders
             // Composite Pass
             loadBuiltInShader(ShaderBuiltin::Composition, "//RazixContent/Shaders/Razix/Shader.Builtin.Composition.rzsf");
+            //-------------------------------------------------------------------
+            // Rendering
+            loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
             //-------------------------------------------------------------------
             // Lighting
             loadBuiltInShader(ShaderBuiltin::GBuffer, "//RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf");
@@ -84,6 +91,8 @@ namespace Razix {
 
         void RZShaderLibrary::loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath)
         {
+            // TODO: Assert if key already exists
+
             RZShaderDesc desc{};
             desc.filePath  = shaderPath;
             desc.libraryID = shaderID;

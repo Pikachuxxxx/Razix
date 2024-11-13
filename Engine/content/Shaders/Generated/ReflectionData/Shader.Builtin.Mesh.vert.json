@@ -1,0 +1,179 @@
+{
+    "entryPoints" : [
+        {
+            "name" : "VS_MAIN",
+            "mode" : "vert"
+        }
+    ],
+    "types" : {
+        "_11" : {
+            "name" : "Camera",
+            "members" : [
+                {
+                    "name" : "projection",
+                    "type" : "mat4",
+                    "offset" : 0,
+                    "matrix_stride" : 16,
+                    "row_major" : true
+                },
+                {
+                    "name" : "inversedProjection",
+                    "type" : "mat4",
+                    "offset" : 64,
+                    "matrix_stride" : 16,
+                    "row_major" : true
+                },
+                {
+                    "name" : "view",
+                    "type" : "mat4",
+                    "offset" : 128,
+                    "matrix_stride" : 16,
+                    "row_major" : true
+                },
+                {
+                    "name" : "inversedView",
+                    "type" : "mat4",
+                    "offset" : 192,
+                    "matrix_stride" : 16,
+                    "row_major" : true
+                },
+                {
+                    "name" : "prevViewProj",
+                    "type" : "mat4",
+                    "offset" : 256,
+                    "matrix_stride" : 16,
+                    "row_major" : true
+                },
+                {
+                    "name" : "fov",
+                    "type" : "float",
+                    "offset" : 320
+                },
+                {
+                    "name" : "near",
+                    "type" : "float",
+                    "offset" : 324
+                },
+                {
+                    "name" : "far",
+                    "type" : "float",
+                    "offset" : 328
+                }
+            ]
+        },
+        "_10" : {
+            "name" : "Frameframe_info",
+            "members" : [
+                {
+                    "name" : "time",
+                    "type" : "float",
+                    "offset" : 0
+                },
+                {
+                    "name" : "deltaTime",
+                    "type" : "float",
+                    "offset" : 4
+                },
+                {
+                    "name" : "resolution",
+                    "type" : "uvec2",
+                    "offset" : 8
+                },
+                {
+                    "name" : "camera",
+                    "type" : "_11",
+                    "offset" : 16
+                },
+                {
+                    "name" : "renderFeatures",
+                    "type" : "uint",
+                    "offset" : 352
+                },
+                {
+                    "name" : "debugFlags",
+                    "type" : "uint",
+                    "offset" : 356
+                },
+                {
+                    "name" : "jitterTAA",
+                    "type" : "vec2",
+                    "offset" : 360
+                },
+                {
+                    "name" : "previousJitterTAA",
+                    "type" : "vec2",
+                    "offset" : 368
+                }
+            ]
+        },
+        "_9" : {
+            "name" : "type.FrameData",
+            "members" : [
+                {
+                    "name" : "frame_info",
+                    "type" : "_10",
+                    "offset" : 0
+                }
+            ]
+        },
+        "_12" : {
+            "name" : "type.PushConstant.ModelPushConstantData",
+            "members" : [
+                {
+                    "name" : "worldTransform",
+                    "type" : "mat4",
+                    "offset" : 0,
+                    "matrix_stride" : 16,
+                    "row_major" : true
+                },
+                {
+                    "name" : "previousWorldTransform",
+                    "type" : "mat4",
+                    "offset" : 64,
+                    "matrix_stride" : 16,
+                    "row_major" : true
+                }
+            ]
+        }
+    },
+    "inputs" : [
+        {
+            "type" : "vec3",
+            "name" : "in.var.POSITION",
+            "location" : 0
+        }
+    ],
+    "outputs" : [
+        {
+            "type" : "vec4",
+            "name" : "out.var.COLOR",
+            "location" : 0
+        },
+        {
+            "type" : "vec2",
+            "name" : "out.var.TEXCOORD",
+            "location" : 1
+        },
+        {
+            "type" : "vec3",
+            "name" : "out.var.NORMAL",
+            "location" : 2
+        }
+    ],
+    "ubos" : [
+        {
+            "type" : "_9",
+            "name" : "type.FrameData",
+            "block_size" : 376,
+            "set" : 0,
+            "binding" : 0
+        }
+    ],
+    "push_constants" : [
+        {
+            "type" : "_12",
+            "name" : "pcData",
+            "push_constant" : true
+        }
+    ]
+}

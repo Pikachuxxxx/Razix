@@ -60,13 +60,21 @@ namespace Razix {
             // Input management
             if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
                 processKeyboard(FORWARD, deltaTime);
-            else if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
+            if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
                 processKeyboard(BACKWARD, deltaTime);
             if (RZInput::IsKeyHeld(KeyCode::Key::Right) || RZInput::IsKeyHeld(KeyCode::Key::D))
                 processKeyboard(RIGHT, deltaTime);
-            else if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
+            if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
                 processKeyboard(LEFT, deltaTime);
 
+            // Update position with lerping effect using the Velocity
+            TargetMovement = this->Position + Velocity;
+            this->Position = lerp3(this->Position, TargetMovement, 0.9f, static_cast<f32>(deltaTime));
+
+            // Gradually reduce the velocity over time to create the lingering effect
+            Velocity *= DampingFactor;
+
+            // Mouse movement handling
             auto mX = RZInput::GetMouseX();
             auto mY = RZInput::GetMouseY();
 
@@ -84,29 +92,24 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            f32 velocity = this->MovementSpeed * static_cast<f32>(deltaTime);
-
-            // TODO: Use lerp here to smoothly move the camera
-
-            glm::vec3 CameraMovement = glm::vec3(0.0f);
+            f32       velocityMagnitude = this->MovementSpeed * static_cast<f32>(deltaTime);
+            glm::vec3 inputMovement     = glm::vec3(0.0f);
 
             if (direction == FORWARD)
-                CameraMovement += this->Front;
+                inputMovement += this->Front;
             if (direction == BACKWARD)
-                CameraMovement -= this->Front;
+                inputMovement -= this->Front;
             if (direction == LEFT)
-                CameraMovement -= this->Right;
+                inputMovement -= this->Right;
             if (direction == RIGHT)
-                CameraMovement += this->Right;
+                inputMovement += this->Right;
             if (direction == UP)
-                CameraMovement += this->Up;
+                inputMovement += this->Up;
             if (direction == DOWN)
-                CameraMovement -= this->Up;
+                inputMovement -= this->Up;
 
-            TargetMovement = TargetMovement + (CameraMovement * velocity);
-
-            //this->Position = TargetMovement;
-            this->Position = lerp3(this->Position, TargetMovement, 0.9f, static_cast<f32>(deltaTime));
+            // Scale input by velocity magnitude and add to current velocity
+            Velocity += inputMovement * velocityMagnitude;
         }
 
         void Camera3D::processMouseMovement(f32 xoffset, f32 yoffset, bool constrainPitch /*= true*/)
@@ -181,6 +184,5 @@ namespace Razix {
             this->Right = glm::normalize(glm::cross(this->Front, this->WorldUp));    // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
             this->Up    = glm::normalize(glm::cross(this->Right, this->Front));
         }
-
     }    // namespace Graphics
 }    // namespace Razix

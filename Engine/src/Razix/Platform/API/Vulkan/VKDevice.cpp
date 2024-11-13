@@ -84,7 +84,7 @@ namespace Razix {
             findQueueFamilyIndices(VKContext::Get()->getSurface());
 
             //! BUG: I guess in Distribution mode the set has 2 elements or something is happening such that the queue priority for other element is nan and not 0 as we have provided
-            std::set<int32_t> uniqueQueueFamilies = {m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present};
+            std::set<int32_t> uniqueQueueFamilies = {m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present, m_QueueFamilyIndices.AsyncCompute, m_QueueFamilyIndices.Transfer};
             f32               queuePriority       = 1.0f;
             for (u32 queueFamily: uniqueQueueFamilies) {
                 VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -147,7 +147,7 @@ namespace Razix {
             // For other queue types or if no separate compute queue is present, return the first one to support the requested flags
             u32 i = 0;
             for (const auto& queue: m_QueueFamilyProperties) {
-                if (queue.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                if ((queue.queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queue.queueFlags & VK_QUEUE_COMPUTE_BIT))
                     m_QueueFamilyIndices.Graphics = i;
 
                 // Check for presentation support
@@ -156,6 +156,12 @@ namespace Razix {
 
                 if (presentationSupported)
                     m_QueueFamilyIndices.Present = i;
+
+                if (queue.queueFlags & VK_QUEUE_COMPUTE_BIT && !(queue.queueFlags & VK_QUEUE_GRAPHICS_BIT))
+                    m_QueueFamilyIndices.AsyncCompute = i;
+
+                if (queue.queueFlags & VK_QUEUE_TRANSFER_BIT)
+                    m_QueueFamilyIndices.Transfer = i;
 
                 if (m_QueueFamilyIndices.isComplete())
                     break;
@@ -167,14 +173,6 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
         // Logical Device
         //-----------------------------------------------------------------------------------
-
-        VKDevice::VKDevice()
-        {
-        }
-
-        VKDevice::~VKDevice()
-        {
-        }
 
         bool VKDevice::init()
         {
@@ -195,7 +193,7 @@ namespace Razix {
             indexing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
             indexing_features.pNext = &robustness2Features;
 
-            VkPhysicalDeviceFeatures2                  device_features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &indexing_features};
+            VkPhysicalDeviceFeatures2 device_features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &indexing_features};
             vkGetPhysicalDeviceFeatures2(getGPU(), &device_features);
             // Check if Bindless feature is supported by the GPU
             // [TAG: BINDLESS]
@@ -248,9 +246,11 @@ namespace Razix {
             } else
                 RAZIX_CORE_INFO("[Vulkan] Successfully created logical device!");
 
-            // Get the queue handles using the queue index (we assume that the graphics queue also has presentation capability)
+            // Get the queue handles using the queue index (we assume that the graphics queue also has presentation and compute capabilities)
             vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
-            vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_PresentQueue);
+            vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Present, 0, &m_PresentQueue);
+            vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.AsyncCompute, 0, &m_AsyncComputeQueue);
+            vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Transfer, 0, &m_TransferQueue);
 
             //------------------------------------------------------------------------------------------------
             // Create a command pool for single time command buffers

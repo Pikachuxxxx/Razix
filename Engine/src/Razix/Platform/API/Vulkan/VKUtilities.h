@@ -27,7 +27,7 @@ namespace Razix {
         enum class ImageLayout : u32;
         enum class PipelineStage : u32;
         enum class MemoryAccessMask : u32;
-        class RZVertexBufferLayout;
+        class RZBufferLayout;
 
         namespace VKUtilities {
 
@@ -236,7 +236,7 @@ namespace Razix {
             VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage);
 
             u32            GetStrideFromVulkanFormat(VkFormat format);
-            u32            PushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout);
+            u32            PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout);
             DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type);
 
         }    // namespace VKUtilities

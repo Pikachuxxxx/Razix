@@ -534,6 +534,8 @@ namespace Razix {
 
         void VKTexture::init(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
+            RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null widht/height.");
+
             m_TotalMipLevels = 1;
             if (m_Desc.enableMips)
                 m_TotalMipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;

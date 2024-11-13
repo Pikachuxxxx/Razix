@@ -87,8 +87,8 @@ namespace Razix {
                 CHECK_HRESULT(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, nullptr, IID_PPV_ARGS(&commandList)));
 
                 // Reset the allocator and command list
-                CHECK_HRESULT(commandAllocator->Reset());
-                CHECK_HRESULT(commandList->Reset(commandAllocator, nullptr));
+                //CHECK_HRESULT(commandAllocator->Reset());
+                //CHECK_HRESULT(commandList->Reset(commandAllocator, nullptr));
 
                 // Associate the command allocator with the command list so that it can be
                 // retrieved when the command list is executed.
@@ -247,7 +247,7 @@ namespace Razix {
                 }
             }
 
-            u32 PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZVertexBufferLayout& layout) /* PipelineInfo */    // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type)
+            u32 PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZBufferLayout& layout) /* PipelineInfo */    // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

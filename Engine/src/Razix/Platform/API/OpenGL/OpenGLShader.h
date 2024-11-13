@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Graphics/RHI/API/RZShader.h"
-#include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
+#include "Razix/Graphics/RHI/API/RZBufferLayout.h"
 
 // TODO: Check spirv includes order in the razix codebase to get rid of SPV_REVISION redefinition warning
 #include <SPIRVCross/spirv_glsl.hpp>

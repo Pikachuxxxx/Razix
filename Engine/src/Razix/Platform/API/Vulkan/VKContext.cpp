@@ -5,10 +5,10 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-    #include "Razix/Core/RZApplication.h"
+    #include "Razix/Core/App/RZApplication.h"
     #include "Razix/Core/RZEngine.h"
-    #include "Razix/Core/RZProfiling.h"
-    #include "Razix/Core/RazixVersion.h"
+    #include "Razix/Core/Profiling/RZProfiling.h"
+   #include "Razix/Core/Version/RazixVersion.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 

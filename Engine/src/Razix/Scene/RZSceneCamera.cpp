@@ -19,8 +19,8 @@ namespace Razix {
     RAZIX_FORCE_INLINE glm::mat4 RZSceneCamera::getProjection()
     {
         glm::mat4 proj = m_Projection;
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-            proj[1][1] *= -1;
+        //if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+        //    proj[1][1] *= -1;
 
         return proj;
     }

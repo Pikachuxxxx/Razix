@@ -6,14 +6,15 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/AssetSystem/RZAssetFileSpec.h"
+
+#include "Razix/Graphics/RZGraphicsCompileConfig.h"
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZShaderLibrary.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 
 #include <cereal/archives/json.hpp>
-
-#undef DISABLE_MATERIALS_LOADING
 
 #define READ_AND_OFFSET(stream, dest, size, offset) \
     stream.read((char*) dest, size);                \
@@ -26,6 +27,16 @@
 
 namespace Razix {
     namespace Graphics {
+
+        static void VerifyMeshBinFileHeader(Razix::AssetSystem::BINFileHeader header)
+        {
+            // Verify Magic number then the version and type
+            char magicNumberBuf[MAGIC_NUM_SZ] = {};
+            memcpy(magicNumberBuf, header.magic, MAGIC_NUM_SZ);
+            RAZIX_ASSERT(strcmp(magicNumberBuf, "razix_engine_asset"), "[Mesh Loader] Unknown magic number, this is not a valid razix asset file!");
+            RAZIX_ASSERT(header.version == RAZIX_ASSET_VERSION, "[Mesh Loader], wrong asset version, only V2 assets are supports, please recompile the assets with latest.");
+            RAZIX_ASSERT(header.type == (uint8_t) Razix::AssetSystem::ASSET_MESH, "[Mesh Loader] Asset is not a mesh, it will fail to load!");
+        }
 
         RZMesh* loadMesh(const std::string& filePath)
         {
@@ -48,30 +59,73 @@ namespace Razix {
 
             READ_AND_OFFSET(f, &file_header, sizeof(Razix::AssetSystem::BINFileHeader), offset);
 
+            VerifyMeshBinFileHeader(file_header);
+
             READ_AND_OFFSET(f, &mesh_header, sizeof(Razix::AssetSystem::BINMeshFileHeader), offset);
 
             // This is dummy Name until we load the submesh and get it's true name, this is use the by Root empty Entity that will hold meshes unless it's a single one
 
-            std::vector<Graphics::RZVertex> vertices(mesh_header.vertex_count);
-            std::vector<uint32_t>           indices(mesh_header.index_count);
+            Graphics::RZVertex    vertices;
+            std::vector<uint32_t> indices(mesh_header.index_count);
+
+            if (mesh_header.index_count > 0) {
+                READ_AND_OFFSET(f, (char*) &indices[0], sizeof(uint32_t) * mesh_header.index_count, offset);
+            }
 
             if (mesh_header.vertex_count > 0) {
-                READ_AND_OFFSET(f, (char*) &vertices[0], sizeof(Graphics::RZVertex) * mesh_header.vertex_count, offset);
+                uint32_t numBlobs = mesh_header.blobs_count;
+
+                // Load vertices
+                Razix::AssetSystem::BINBlobHeader h;
+                h = {};
+                READ_AND_OFFSET(f, (char*) &h, sizeof(Razix::AssetSystem::BINBlobHeader), offset);
+                if (h.size > 0) {
+                    vertices.Position.resize(mesh_header.vertex_count);
+                    READ_AND_OFFSET(f, (char*) &vertices.Position[0], h.size, offset);
+                }
+
+                // Color
+                h = {};
+                READ_AND_OFFSET(f, (char*) &h, sizeof(Razix::AssetSystem::BINBlobHeader), offset);
+                if (h.size > 0) {
+                    vertices.Color.resize(mesh_header.vertex_count);
+                    READ_AND_OFFSET(f, (char*) &vertices.Color[0], h.size, offset);
+                }
+
+                // UV
+                h = {};
+                READ_AND_OFFSET(f, (char*) &h, sizeof(Razix::AssetSystem::BINBlobHeader), offset);
+                if (h.size > 0) {
+                    vertices.UV.resize(mesh_header.vertex_count);
+                    READ_AND_OFFSET(f, (char*) &vertices.UV[0], h.size, offset);
+                }
+
+                // Normal
+                h = {};
+                READ_AND_OFFSET(f, (char*) &h, sizeof(Razix::AssetSystem::BINBlobHeader), offset);
+                if (h.size > 0) {
+                    vertices.Normal.resize(mesh_header.vertex_count);
+                    READ_AND_OFFSET(f, (char*) &vertices.Normal[0], h.size, offset);
+                }
+
+                // Tangent
+                h = {};
+                READ_AND_OFFSET(f, (char*) &h, sizeof(Razix::AssetSystem::BINBlobHeader), offset);
+                if (h.size > 0) {
+                    vertices.Tangent.resize(mesh_header.vertex_count);
+                    READ_AND_OFFSET(f, (char*) &vertices.Tangent[0], h.size, offset);
+                }
             }
 
             if (mesh_header.skeletal_vertex_count > 0) {
                 SKIP_AND_OFFSET(f, nullptr, sizeof(Graphics::RZSkeletalVertex) * mesh_header.skeletal_vertex_count, offset);
             }
 
-            if (mesh_header.index_count > 0) {
-                READ_AND_OFFSET(f, (char*) &indices[0], sizeof(uint32_t) * mesh_header.index_count, offset);
-            }
-
             // Load Materials
             RAZIX_CORE_TRACE("Loading material : {0}", mesh_header.materialName);
 
             // Create the Mesh
-            mesh = new RZMesh(indices, vertices);
+            mesh = new RZMesh(vertices, indices);
 
             mesh->setName(mesh_header.name);
             mesh->setMaxExtents(mesh_header.max_extents);
@@ -84,7 +138,6 @@ namespace Razix {
 
             mesh->setMaterial(material);
 
-            vertices.clear();
             indices.clear();
 
             return mesh;
@@ -92,7 +145,7 @@ namespace Razix {
 
         RZMaterial* loadMaterial(const std::string& materialName, const std::string& folderName)
         {
-#ifdef DISABLE_MATERIALS_LOADING
+#if DISABLE_MATERIALS_LOADING
             return GetDefaultMaterial();
 #else
 

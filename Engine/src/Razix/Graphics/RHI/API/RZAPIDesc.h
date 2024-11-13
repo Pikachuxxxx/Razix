@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Graphics/RHI/API/RZBufferLayout.h"
+
 #include "Razix/Graphics/RHI/API/Data/RZBufferData.h"
 #include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
 #include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
@@ -56,8 +58,9 @@ namespace Razix {
                 u32 size = 0; /* The size of the vertex buffer         */
                 u32 count;    /* The count of the index buffer         */
             };
-            void*       data  = nullptr;             /* vertex data to fill the buffer with   */
-            BufferUsage usage = BufferUsage::Static; /* Usage of the vertex buffer            */
+            void*          data   = nullptr;             /* vertex data to fill the buffer with   */
+            BufferUsage    usage  = BufferUsage::Static; /* Usage of the vertex buffer            */
+            RZBufferLayout layout = {};                  /* Layout of buffer on how elements have been stored in the buffer */
         };
 
         struct RZShaderDesc

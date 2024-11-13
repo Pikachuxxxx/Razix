@@ -27,14 +27,12 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZDebugConfig.h"
-#include "Razix/Core/RZLog.h"
-#include "Razix/Core/RZProfiling.h"
+#include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZRoot.h"
 
 //-----3rd Party-----//
 // Profilers
 #include <Tracy.hpp>
-// SOL
-#include <sol/sol.hpp>
 // GLM
 #include <glm/glm.hpp>
