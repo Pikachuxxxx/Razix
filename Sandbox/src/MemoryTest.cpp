@@ -43,17 +43,19 @@ public:
         // Testing Reflection system
         {
             const TypeMetaData* meta = RZTypeRegistry::getTypeMetaData<TransformComponent>();
-            RAZIX_INFO("Reflecting type... {0}", meta->name);
-            RAZIX_INFO("\t @typeName: {0}", meta->typeName);
-            RAZIX_INFO("\t @size    : {0}", meta->size);
-            RAZIX_INFO("\t @members : {0}", meta->members.size());
+            if (meta) {
+                RAZIX_INFO("Reflecting type... {0}", meta->name);
+                RAZIX_TRACE("\t @typeName: {0}", meta->typeName);
+                RAZIX_TRACE("\t @size    : {0}", meta->size);
+                RAZIX_TRACE("\t @members : {0}", meta->members.size());
 
-            for (u32 i = 0; i < meta->members.size(); i++) {
-                const MemberMetaData& memberMeta = meta->members[i];
-                RAZIX_INFO("\t @name    : {0}", memberMeta.name);
-                RAZIX_INFO("\t @typeName: {0}", memberMeta.typeName);
-                RAZIX_INFO("\t @size    : {0}", memberMeta.size);
-                RAZIX_INFO("\t @offset  : {0}", memberMeta.offset);
+                for (u32 i = 0; i < meta->members.size(); i++) {
+                    const MemberMetaData& memberMeta = meta->members[i];
+                    RAZIX_TRACE("\t @name    : {0}", memberMeta.name);
+                    RAZIX_TRACE("\t @typeName: {0}", memberMeta.typeName);
+                    RAZIX_TRACE("\t @size    : {0}", memberMeta.size);
+                    RAZIX_TRACE("\t @offset  : {0}", memberMeta.offset);
+                }
             }
         }
     }

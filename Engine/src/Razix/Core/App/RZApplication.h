@@ -3,8 +3,8 @@
 
 #include "RZSTL/smart_pointers.h"
 #include "Razix/Core/OS/RZWindow.h"
-#include "Razix/Core/RZCore.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
+#include "Razix/Core/RZCore.h"
 #include "Razix/Core/UUID/RZUUID.h"
 
 #include "Razix/Events/ApplicationEvent.h"
@@ -54,7 +54,11 @@ namespace Razix {
     enum class AppType
     {
         EDITOR,
-        GAME
+        GAME,
+        // Networking mode
+        EDITOR_CLIENT,    // connect to the engine via network
+        GAME_CLIENT,      // Razix app where the game is in client mode
+        GAME_SERVER       // either used as standalone server or central server
     };
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
