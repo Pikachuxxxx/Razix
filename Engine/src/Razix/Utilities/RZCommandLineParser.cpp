@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZCommandLineParser.h"
 
-#include "Razix/Core/RazixVersion.h"
+ #include "Razix/Core/Version/RazixVersion.h"
 
 namespace Razix {
     RZCommandLineParser::RZCommandLineParser()

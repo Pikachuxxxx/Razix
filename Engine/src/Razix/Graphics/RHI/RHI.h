@@ -4,7 +4,7 @@
 
 #include "RZSTL/ring_buffer.h"
 
-#include "Razix/Core/RZProfiling.h"
+#include "Razix/Core/Profiling/RZProfiling.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 #include "Razix/Graphics/RHI/API/RZBarriers.h"

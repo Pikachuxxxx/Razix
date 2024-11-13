@@ -51,9 +51,20 @@
   ****************************************************************************************************/
 
 // Asserts
-#ifdef RAZIX_ENABLE_ASSERTS    // Only available in Debug Builds (predefined by the build system only in Debug mode)
-    // Predefined conditioned Assert
-    // TODO: Use the generic condition assert macro and pass this specific condition
+#ifdef RAZIX_ENABLE_ASSERTS    // Only available in Debug Builds (predefined by the build system only in Debug mode) \
+                               // Predefined conditioned Assert                                                      \
+                               // TODO: Use the generic condition assert macro and pass this specific condition
+
+    #define RAZIX_CONSTEXPR_ASSERT(x, ...)                                                                           \
+        {                                                                                                            \
+            if constexpr (!(x)) {                                                                                    \
+                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
+                RAZIX_DEBUG_BREAK();                                                                                 \
+            }                                                                                                        \
+        }
+
+// TODO: Define a Razix Static Assert
+
     #define RAZIX_CORE_ASSERT(x, ...)                                                                                \
         {                                                                                                            \
             if (!(x)) {                                                                                              \

@@ -138,6 +138,8 @@ namespace Razix {
             f32 m_OldX = 0, m_OldY = 0;
 
             glm::vec3 TargetMovement = glm::vec3(0.0f);
+            glm::vec3 Velocity       = glm::vec3(0.0f);    // Stores the current movement velocity
+            float     DampingFactor  = 0.85f;              // Controls how quickly movement slows down
 
         private:
             // Calculates the front vector from the Camera's (updated) Euler Angles

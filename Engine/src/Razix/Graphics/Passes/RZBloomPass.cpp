@@ -3,9 +3,9 @@
 // clang-format on
 #include "RZBloomPass.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZMarkers.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 
 #include "Razix/Graphics/Materials/RZMaterial.h"
 

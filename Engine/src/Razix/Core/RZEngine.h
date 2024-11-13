@@ -3,7 +3,7 @@
 #include "Razix/Audio/RZSoundEngine.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
-#include "Razix/Core/RazixVersion.h"
+#include "Razix/Core/Version/RazixVersion.h"
 
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRZSingleton.h"

@@ -3,7 +3,7 @@
 // clang-format on
 #include "DX12RenderContext.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12

@@ -8,9 +8,9 @@
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZMarkers.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 
 #include "Razix/Graphics/FrameGraph/RZBlackboard.h"
 #include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
@@ -59,16 +59,10 @@ namespace Razix {
             //-------------------------------
             m_HelloTrianglePass.addPass(m_FrameGraph, scene, &settings);
 
-            // These are system level code passes so always enabled
-            uploadFrameData(scene, settings);
-            uploadLightsData(scene, settings);
-
-            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
-
             //-------------------------------
             // Vis Buffer Fill Pass
             //-------------------------------
-            m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
+            //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
 
 #else
             m_FrameGraphBuildingInProgress = true;

@@ -4,10 +4,10 @@
 #include "RZImGuiRenderer.h"
 
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZMarkers.h"
-#include "razix/Core/RZApplication.h"
+#include "Razix/Core/Markers/RZMarkers.h"
+#include "razix/Core/App/RZApplication.h"
 
-#include "Razix/Core/RZCPUMemoryManager.h"
+#include "Razix/Core/Memory/RZCPUMemoryManager.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 

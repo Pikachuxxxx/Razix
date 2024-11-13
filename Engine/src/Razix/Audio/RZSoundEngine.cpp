@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZSoundEngine.h"
 
-#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 namespace Razix {
     namespace Audio {

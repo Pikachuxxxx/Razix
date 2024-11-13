@@ -8,7 +8,7 @@
 #endif
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
@@ -291,13 +291,17 @@ namespace Razix {
     {
         // Meshes
         auto mrcs = this->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh: mrcs)
-            mesh.Mesh->Destroy();
+        for (auto& mesh: mrcs) {
+            if (mesh.Mesh)
+                mesh.Mesh->Destroy();
+        }
 
         // Sprites
         auto sprites = this->GetComponentsOfType<SpriteRendererComponent>();
-        for (auto& sprite: sprites)
-            sprite.Sprite->destroy();
+        for (auto& sprite: sprites) {
+            if (sprite.Sprite)
+                sprite.Sprite->destroy();
+        }
     }
 
     RZEntity RZScene::createEntity(const std::string& name /*= std::string()*/)

@@ -7,6 +7,8 @@
 
 #include <cereal/cereal.hpp>
 
+#include "Razix/Core/Reflection/RZReflection.h"
+
 namespace Razix {
     /**
      * A transform components represents the transformation of the entity in the game world
@@ -37,4 +39,11 @@ namespace Razix {
             archive(cereal::make_nvp("Translation", Translation), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale), cereal::make_nvp("Transform", Transform));
         }
     };
+
+    REFLECT_TYPE_START(TransformComponent)
+    REFLECT_MEMBER(Translation)
+    REFLECT_MEMBER(Rotation)
+    REFLECT_MEMBER(Scale)
+    REFLECT_TYPE_END(TransformComponent)
+
 }    // namespace Razix

@@ -4,7 +4,7 @@
 #include "RZShaderLibrary.h"
 
 #include "Razix/Core/OS/RZFileSystem.h"
-#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 #include "Razix/Graphics/RHI/API/RZShader.h"
 

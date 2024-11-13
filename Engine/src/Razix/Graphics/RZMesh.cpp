@@ -161,7 +161,7 @@ namespace Razix {
             indicesVec.reserve(indicesCount);
             memcpy(indicesVec.data(), indices, indicesCount * sizeof(u32));
 
-            RZMesh(vertices, indicesVec);
+            *this = RZMesh(vertices, indicesVec);
         }
 
         void RZMesh::setName(const char* name)

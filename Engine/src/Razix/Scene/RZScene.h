@@ -3,8 +3,8 @@
 #include <cereal/archives/json.hpp>
 #include <entt.hpp>
 
-#include "Razix/Core/RZProfiling.h"
-#include "Razix/Core/RZUUID.h"
+#include "Razix/Core/Profiling/RZProfiling.h"
+#include "Razix/Core/UUID/RZUUID.h"
 
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 

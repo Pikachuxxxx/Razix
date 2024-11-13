@@ -4,7 +4,7 @@
 
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include "RZSplashScreen.h"
-    #include "Razix/Core/RazixVersion.h"
+    #include "Razix/Core/Version/RazixVersion.h"
 
     #include "Razix/Core/RZEngine.h"
 

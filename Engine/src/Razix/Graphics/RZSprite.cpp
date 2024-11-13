@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZSprite.h"
 
-#include "razix/Core/RZApplication.h"
+#include "razix/Core/App/RZApplication.h"
 
 #include "Razix/Graphics/RZShaderLibrary.h"
 

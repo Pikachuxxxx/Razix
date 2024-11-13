@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZLog.h"
 
-#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 RAZIX_WARNING_PUSH()
 #pragma warning(disable : 26812)

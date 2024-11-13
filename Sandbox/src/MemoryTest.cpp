@@ -28,7 +28,7 @@ public:
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::D3D12);
         //-------------------------------------------------------------------------------------
 
         // Init Graphics Context
@@ -39,6 +39,23 @@ public:
         RAZIX_CORE_INFO("Initializing Graphics Context...");
         Razix::Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
+
+        // Testing Reflection system
+        {
+            const TypeMetaData* meta = RZTypeRegistry::getTypeMetaData<TransformComponent>();
+            RAZIX_INFO("Reflecting type... {0}", meta->name);
+            RAZIX_INFO("\t @typeName: {0}", meta->typeName);
+            RAZIX_INFO("\t @size    : {0}", meta->size);
+            RAZIX_INFO("\t @members : {0}", meta->members.size());
+
+            for (u32 i = 0; i < meta->members.size(); i++) {
+                const MemberMetaData& memberMeta = meta->members[i];
+                RAZIX_INFO("\t @name    : {0}", memberMeta.name);
+                RAZIX_INFO("\t @typeName: {0}", memberMeta.typeName);
+                RAZIX_INFO("\t @size    : {0}", memberMeta.size);
+                RAZIX_INFO("\t @offset  : {0}", memberMeta.offset);
+            }
+        }
     }
 
     void OnStart() override
@@ -115,12 +132,12 @@ public:
             }
         }
 
-    #if 1
+    #if 0
         // PBR materials test
         {
             int nrRows    = 7;
             int nrColumns = 7;
-            int spacing   = 2.5f;
+            float spacing   = 2.5f;
 
             Razix::Graphics::MaterialProperties mat;
             mat.albedoColor      = glm::vec3(1.0f, 0.3f, 0.75f);

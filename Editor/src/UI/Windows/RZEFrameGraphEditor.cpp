@@ -15,7 +15,7 @@
 #include "Nodes/RZEPassNodeUI.h"
 #include "Nodes/RZETextureResourceNodeUI.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
 
 #include "Razix/Core/OS/RZFileSystem.h"

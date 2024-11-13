@@ -8,10 +8,10 @@
 #include "Razix/Core/RZEngine.h"
 // ----------------------------
 
-#include "Razix/Core/RZSplashScreen.h"
-#include "Razix/Core/RazixVersion.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
+#include "Razix/Core/Version/RazixVersion.h"
 
-#include "Razix/Core/RZCPUMemoryManager.h"
+#include "Razix/Core/Memory/RZCPUMemoryManager.h"
 
 #include "Razix/Core/OS/RZInput.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"

@@ -3,9 +3,9 @@
 // clang-format on
 #include "RZCompositionPass.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZMarkers.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 
 #include "Razix/Graphics/RZMesh.h"
 #include "Razix/Graphics/RZMeshFactory.h"

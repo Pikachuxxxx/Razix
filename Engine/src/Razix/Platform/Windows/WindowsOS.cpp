@@ -3,7 +3,7 @@
 // clang-format on
 #include "WindowsOS.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 #include "Razix/Core/OS/RZWindow.h"
 #ifdef RAZIX_USE_GLFW_WINDOWS
