@@ -39,6 +39,7 @@ namespace Razix {
 
             // Creates a socket
             SocketStatus CreateSocket(SocketProtocol protocol);
+            SocketStatus CreateSocket(void* socket);
 
             // Binds the socket to an address and port, typically used by a server connection port
             SocketStatus Bind(const std::string& address, uint16_t port);
@@ -46,8 +47,8 @@ namespace Razix {
             // Starts listening for incoming connections
             SocketStatus Listen(int backlog = 5);
 
-            // Accepts an incoming connection
-            SocketStatus Accept();
+            // Accepts an incoming connection and returns the pointer to the new socket
+            RZSocket Accept();
 
             // Sends data over the socket
             SocketStatus Send(const char* data, size_t size);
@@ -60,6 +61,9 @@ namespace Razix {
 
             // Checks if the socket is valid
             SocketStatus IsValid() const;
+
+        private:
+            void* m_Socket = nullptr;
         };
     }    // namespace Network
 }    // namespace Razix

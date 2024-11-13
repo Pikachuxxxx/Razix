@@ -13,8 +13,7 @@
 namespace Razix {
     namespace Network {
 
-        static SOCKET m_ListenSocket     = INVALID_SOCKET;
-        static SOCKET m_ConnectionSocket = INVALID_SOCKET;
+    #define CAST_SOCKET_PTR(s) *((SOCKET*) s)
 
         SocketStatus RZSocket::CreateSocket(SocketProtocol protocol)
         {
@@ -30,12 +29,20 @@ namespace Razix {
             int sockType = (protocol == SocketProtocol::TCP) ? SOCK_STREAM : SOCK_DGRAM;
             int family   = AF_INET;
 
-            m_ListenSocket = socket(family, sockType, 0);
-            if (m_ListenSocket == INVALID_SOCKET) {
+            m_Socket = (SOCKET*) Memory::RZMalloc(sizeof(SOCKET));
+
+            CAST_SOCKET_PTR(m_Socket) = socket(family, sockType, 0);
+            if (CAST_SOCKET_PTR(m_Socket) == INVALID_SOCKET) {
                 RAZIX_CORE_ERROR("[Network//Socket] Socket creation failed: {0}", WSAGetLastError());
                 WSACleanup();
                 return SocketStatus::ERR;
             }
+            return SocketStatus::SUCCESS;
+        }
+
+        SocketStatus RZSocket::CreateSocket(void* socket)
+        {
+            m_Socket = socket;
             return SocketStatus::SUCCESS;
         }
 
@@ -46,7 +53,7 @@ namespace Razix {
             service.sin_addr.s_addr = inet_addr(address.c_str());
             service.sin_port        = htons(port);
 
-            if (bind(m_ListenSocket, (SOCKADDR*) &service, sizeof(service)) == SOCKET_ERROR) {
+            if (bind(CAST_SOCKET_PTR(m_Socket), (SOCKADDR*) &service, sizeof(service)) == SOCKET_ERROR) {
                 RAZIX_CORE_ERROR("[Network//Socket] Socket bind failed: {0}", WSAGetLastError());
                 Close();
                 return SocketStatus::ERR;
@@ -56,7 +63,7 @@ namespace Razix {
 
         SocketStatus RZSocket::Listen(int backlog)
         {
-            if (listen(m_ListenSocket, backlog) == SOCKET_ERROR) {
+            if (listen(CAST_SOCKET_PTR(m_Socket), backlog) == SOCKET_ERROR) {
                 RAZIX_CORE_ERROR("[Network//Socket] Socket Listen failed: {0}", WSAGetLastError());
                 Close();
                 return SocketStatus::ERR;
@@ -64,22 +71,23 @@ namespace Razix {
             return SocketStatus::SUCCESS;
         }
 
-        SocketStatus RZSocket::Accept()
+        RZSocket RZSocket::Accept()
         {
-            SOCKET clientSocket = accept(m_ListenSocket, nullptr, nullptr);
+            SOCKET clientSocket = accept(CAST_SOCKET_PTR(m_Socket), nullptr, nullptr);
             if (clientSocket == INVALID_SOCKET) {
                 RAZIX_CORE_ERROR("[Network//Socket] Socket Accept failed: {0}", WSAGetLastError());
-                return SocketStatus::ERR;
+                return RZSocket();
             }
-            m_ConnectionSocket = clientSocket;
-            return SocketStatus::SUCCESS;
+            RZSocket socket = RZSocket();
+            socket.CreateSocket((void*) &clientSocket);
+            return socket;
         }
 
         SocketStatus RZSocket::Send(const char* data, size_t size)
         {
-            int result = send(m_ConnectionSocket, data, static_cast<int>(size), 0);
+            int result = send(CAST_SOCKET_PTR(m_Socket), data, static_cast<int>(size), 0);
             if (result == SOCKET_ERROR) {
-                std::cerr << "Send failed: " << WSAGetLastError() << std::endl;
+                RAZIX_CORE_ERROR("[Network//Socket] Socket Send failed: {0}", WSAGetLastError());
                 return SocketStatus::ERR;
             }
             return SocketStatus::SUCCESS;
@@ -87,9 +95,9 @@ namespace Razix {
 
         ssize_t RZSocket::Receive(char* buffer, size_t size)
         {
-            int result = recv(m_ConnectionSocket, buffer, static_cast<int>(size), 0);
+            int result = recv(CAST_SOCKET_PTR(m_Socket), buffer, static_cast<int>(size), 0);
             if (result == SOCKET_ERROR) {
-                std::cerr << "Receive failed: " << WSAGetLastError() << std::endl;
+                RAZIX_CORE_ERROR("[Network//Socket] Socket Receive failed: {0}", WSAGetLastError());
                 return -1;
             }
             return result;
@@ -97,8 +105,8 @@ namespace Razix {
 
         SocketStatus RZSocket::Close()
         {
-            if (closesocket(m_ListenSocket) == SOCKET_ERROR) {
-                std::cerr << "Close failed: " << WSAGetLastError() << std::endl;
+            if (closesocket(CAST_SOCKET_PTR(m_Socket)) == SOCKET_ERROR) {
+                RAZIX_CORE_ERROR("[Network//Socket] m_ListenSocket Close failed: {0}", WSAGetLastError());
                 return SocketStatus::ERR;
             }
             WSACleanup();
@@ -107,7 +115,7 @@ namespace Razix {
 
         SocketStatus RZSocket::IsValid() const
         {
-            return m_ListenSocket != INVALID_SOCKET ? SocketStatus::SUCCESS : SocketStatus::ERR;
+            return CAST_SOCKET_PTR(m_Socket) != INVALID_SOCKET ? SocketStatus::SUCCESS : SocketStatus::ERR;
         }
     }    // namespace Network
 }    // namespace Razix
