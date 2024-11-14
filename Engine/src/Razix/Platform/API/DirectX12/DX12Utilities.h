@@ -120,7 +120,15 @@ namespace Razix {
             u32         PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZBufferLayout& layout);
 
             // PipelineInfo
-            // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type);
+            /**
+             * Converts the draw type that is used to draw geometry into DX12 enum value
+             * for the pipeline
+             * 
+             * @param type The primitive draw type, value is one of POINT, TRIANGLES and LINE
+             * 
+             * @returns DX12 equivalent value of primitive topology 
+             */
+            D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Graphics::DrawType type);
             // I3DXXXX* CullModeToDX12(Razix::Graphics::CullMode cullMode);
             // I3DXXXX* PolygoneModeToDX12(Razix::Graphics::PolygonMode polygonMode);
             // I3DXXXX* BlendOpToDX12(Razix::Graphics::BlendOp blendOp);

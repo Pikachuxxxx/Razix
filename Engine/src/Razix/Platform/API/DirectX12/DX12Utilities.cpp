@@ -274,6 +274,26 @@ namespace Razix {
                 }
                 return 0;
             }
+
+            // Pipeline Info
+
+            D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Graphics::DrawType type)
+            {
+                switch (type) {
+                    case Razix::Graphics::DrawType::Point:
+                        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+                        break;
+                    case Razix::Graphics::DrawType::Triangle:
+                        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+                        break;
+                    case Razix::Graphics::DrawType::Line:
+                        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+                        break;
+                    default:
+                        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+                        break;
+                }
+            }
         }    // namespace DX12Utilities
     }        // namespace Graphics
 }    // namespace Razix

@@ -43,6 +43,11 @@ namespace Razix {
         SocketStatus RZSocket::CreateSocket(void* socket)
         {
             m_Socket = socket;
+            if (CAST_SOCKET_PTR(m_Socket) == INVALID_SOCKET) {
+                RAZIX_CORE_ERROR("[Network//Socket] Socket invalid");
+                WSACleanup();
+                return SocketStatus::ERR;
+            }
             return SocketStatus::SUCCESS;
         }
 
@@ -119,5 +124,4 @@ namespace Razix {
         }
     }    // namespace Network
 }    // namespace Razix
-
 #endif

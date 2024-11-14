@@ -7,6 +7,9 @@
 
 namespace Razix {
     namespace Debug {
+
+        // TODO: Add categorization for sinks
+
         /** 
          * The Engine wide Logging system
          * @birief Used for various Engine and Client sub-systems to report statuses, errors and other information
