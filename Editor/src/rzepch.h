@@ -1,35 +1,5 @@
-//-----C Standard Includes-----//
-#include <stdint.h>
-
-//-----System Includes-----//
-#include <algorithm>
-#include <cstdint>
-#include <fstream>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <memory>
-#include <random>
-#include <sstream>
-#include <utility>
-
-//-----Data Structures-----//
-#include <map>
-#include <optional>
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-//-----Engine-----//
-#include "Razix/Core/RZCore.h"
-#include "Razix/Core/RZDataTypes.h"
-#include "Razix/Core/RZDebugConfig.h"
-#include "Razix/Core/Log/RZLog.h"
-#include "Razix/Core/Profiling/RZProfiling.h"
-#include "Razix/Core/RZRoot.h"
+// engine pch + whatever you need
+#include "Razix/../rzxpch.h"
 
 //-----3rd Party-----//
 // Profilers

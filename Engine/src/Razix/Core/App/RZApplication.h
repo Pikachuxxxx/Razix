@@ -61,6 +61,8 @@ namespace Razix {
         GAME_SERVER       // either used as standalone server or central server
     };
 
+    // TODO!!!: Add budget info to RZApplication and RZFrameGraph
+
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
     class RAZIX_API RZApplication : public RZRoot
     {

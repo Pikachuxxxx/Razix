@@ -6,6 +6,21 @@ include 'Scripts/premake/common/internal_includes.lua'
 -- Shaders a separate project to build as cache
 include 'razix_shaders_build.lua'
 ------------------------------------------------------------------------------
+-- Engine Config files
+group "Engine/content"
+    project "Config"
+        kind "Utility"
+
+        files
+        {
+            -- ini files
+            "content/config/**.ini"
+        }
+
+        filter { "files:**.ini"}
+            flags { "ExcludeFromBuild" }
+group"" 
+------------------------------------------------------------------------------
 -- Frame Graph resources data for editing in VS
 group "Engine/content"
     project "FrameGraphs"
@@ -21,7 +36,6 @@ group "Engine/content"
 
         filter { "files:**.json"}
             flags { "ExcludeFromBuild" }
-
 group"" 
 ------------------------------------------------------------------------------
 group "Engine"
@@ -100,6 +114,8 @@ project "Razix"
         "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}",
         -- API related
         -- Vulkan
         "%{VulkanSDK}",

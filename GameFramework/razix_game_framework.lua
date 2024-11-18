@@ -41,6 +41,8 @@ project "GameFramework"
         "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
         "%{InternalIncludeDir.RZSTL}",

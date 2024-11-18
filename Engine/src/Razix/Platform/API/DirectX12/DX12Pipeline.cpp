@@ -66,6 +66,7 @@ namespace Razix {
             //----------------------------
             // Set by IA on command list
             // aka desc.PolygonMode is not set on the pipeline unlike vulkan
+            // see the Bind function below
 
             //----------------------------
             // Rasterization Stage

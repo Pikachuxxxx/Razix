@@ -12,9 +12,6 @@
 
 #include <chrono>
 
-#include <d3d11.h>
-#include <vulkan/vulkan.h>
-
 namespace Razix {
     void RZEngine::Ignite()
     {
@@ -37,6 +34,18 @@ namespace Razix {
         //------------------------------//
         // 1. Virtual File System
         RZVirtualFileSystem::Get().StartUp();
+
+        // Load the memory budgets
+        RAZIX_CORE_INFO("Loading Department/Global Budgets...");
+        bool success = Memory::ParseBudgetFile("//RazixConfig/RazixDepartmentBudgets.ini");
+
+        // TODO: maybe use RAZIX_CORE_ASSERT
+        if (success)
+            RAZIX_CORE_INFO("Department/Global Budgets Load Success!");
+        else {
+            RAZIX_CORE_ERROR("Department/Global Budgets Load Failed! Defaulting...");
+            RAZIX_DEBUG_BREAK();
+        }
 
         // TODO: Temp code remove this!!!
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
