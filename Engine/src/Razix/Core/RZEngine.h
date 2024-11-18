@@ -79,6 +79,7 @@ namespace Razix {
     public:
         /* Starts up the Engine and it's sub-systems */
         void Ignite();
+        // TODO: Extern this and implement in the Gfx module to decrease header overload
         /* Post ignition after important engine systems */
         void PostGraphicsIgnite();
 

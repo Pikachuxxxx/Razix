@@ -65,19 +65,25 @@ namespace Razix {
             // Primitive Topology Stage
             //----------------------------
             // Set by IA on command list
+            // aka desc.PolygonMode is not set on the pipeline unlike vulkan
+            // see the Bind function below
 
             //----------------------------
             // Rasterization Stage
             //----------------------------
 
             //----------------------------
+            // Blend State Stage
+            //----------------------------
+
+            //----------------------------
             // Depth Stencil Stage
             //----------------------------
             D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-            depthStencilDesc.DepthEnable                  = FALSE;
-            depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ALL;
+            depthStencilDesc.DepthEnable                  = desc.depthTestEnabled;
+            depthStencilDesc.DepthWriteMask               = desc.depthWriteEnabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
             depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_LESS;
-            depthStencilDesc.StencilEnable                = FALSE;
+            depthStencilDesc.StencilEnable                = desc.depthTestEnabled;
             depthStencilDesc.StencilReadMask              = D3D12_DEFAULT_STENCIL_READ_MASK;
             depthStencilDesc.StencilWriteMask             = D3D12_DEFAULT_STENCIL_WRITE_MASK;
             depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
@@ -89,7 +95,6 @@ namespace Razix {
             //----------------------------
             // Pipeline
             //----------------------------
-
             D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
             psoDesc.InputLayout                        = {inputDescs.data(), dx12ShaderResource->getVertexAttribDescriptionsCount()};
             psoDesc.pRootSignature                     = m_pRootSignature;
@@ -99,8 +104,8 @@ namespace Razix {
             psoDesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
             psoDesc.DepthStencilState                  = depthStencilDesc;
             psoDesc.SampleMask                         = UINT_MAX;
-            psoDesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-            psoDesc.NumRenderTargets                   = 1;
+            psoDesc.PrimitiveTopologyType              = DX12Utilities::DrawTypeToDX12(desc.drawType);
+            psoDesc.NumRenderTargets                   = desc.colorAttachmentFormats.size();
             psoDesc.RTVFormats[0]                      = DXGI_FORMAT_R8G8B8A8_UNORM;
             psoDesc.SampleDesc.Count                   = 1;
 

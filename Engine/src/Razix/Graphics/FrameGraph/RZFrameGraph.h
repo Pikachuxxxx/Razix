@@ -35,6 +35,8 @@ namespace Razix {
             /* Resource builder for Execute function of the PassNode with minimal get access */
             class RZPassResourceDirectory;
 
+            // TODO!!!: Add budget info to RZApplication and RZFrameGraph
+
             /**
              * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
              * Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 

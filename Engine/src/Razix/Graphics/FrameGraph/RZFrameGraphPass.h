@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Razix/Core/Memory/RZMemoryBudgets.h"
+#include "Razix/Core/RZDepartments.h"
+
 #include "Razix/Graphics/RHI/API/RZAPIHandles.h"
 
 namespace Razix {
@@ -18,7 +21,7 @@ namespace Razix {
 /**
 * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
 * Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 
-* With Additional Changes Copyright (c) by Phani Srikar (Pikachuxxxx) MIT license.
+* With Additional Changes Copyright (c) by Phani Srikar (Pikachuxxxx) MIT license. (Data-driven + customization)
 * Inspired from EA's Frostbite engine : https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
 */
 namespace Razix {
@@ -54,6 +57,10 @@ namespace Razix {
 
                 virtual void operator()(RZPassNode &node, RZPassResourceDirectory &resources)  = 0;
                 virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;
+
+            protected:
+                Department         m_Department; /* The department this pass belongs to */
+                Memory::BudgetInfo m_PassBudget; /* Pass current budget tracking */
             };
 
             /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */

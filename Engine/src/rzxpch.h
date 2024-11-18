@@ -15,6 +15,7 @@
 #include <sstream>
 #include <type_traits>
 #include <utility>
+#include <variant>
 
 //-----Data Structures-----//
 // TODO: DIsable this once rzstl replacement is done

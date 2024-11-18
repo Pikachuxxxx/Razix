@@ -5,8 +5,8 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
 namespace Razix {
     namespace Graphics {
@@ -45,6 +45,7 @@ namespace Razix {
         void DX12DrawCommandBuffer::BeginRecording()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            m_State = CommandBufferState::Recording;
 
             // Reset the Command Allocator and Command List using the apt one for the current in-flight frame index
             CHECK_HRESULT(m_CommandAllocator->Reset());
@@ -56,6 +57,8 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             CHECK_HRESULT(m_CommandList->Close());
+
+            m_State = CommandBufferState::Ended;
         }
 
         void DX12DrawCommandBuffer::Execute()
@@ -66,6 +69,7 @@ namespace Razix {
                 m_CommandList};
 
             DX12Context::Get()->getGraphicsQueue()->ExecuteCommandLists(1, ppCommandLists);
+            m_State = CommandBufferState::Submitted;
         }
 
         void DX12DrawCommandBuffer::Reset()

@@ -17,7 +17,11 @@ IncludeDir["simde"]             = "%{wks.location}/../Engine/" .. "vendor/simde"
 IncludeDir["Jolt"]              = "%{wks.location}/../Engine/" .. "vendor/Jolt"
 IncludeDir["json"]              = "%{wks.location}/../Engine/" .. "vendor/json/single_include"
 IncludeDir["D3D12MA"]           = "%{wks.location}/../Engine/" .. "vendor/D3D12MemoryAllocator/include"
-IncludeDir["dxc"]           = "%{wks.location}/../Engine/" .. "vendor/dxc/inc"
+IncludeDir["dxc"]               = "%{wks.location}/../Engine/" .. "vendor/dxc/inc"
+
+-- Experimental Stuff
+ExperimentalIncludeDir = {}
+ExperimentalIncludeDir["Eigen"]               = "%{wks.location}/../Engine/" .. "vendor/Experimental/eigen/"
 
 
 EditorVendorIncludeDir = {}

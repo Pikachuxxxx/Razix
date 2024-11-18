@@ -27,6 +27,7 @@ namespace Razix {
         RZVirtualFileSystem::Get().mount("RazixContent", rootDir + std::string("/Engine/content/"));
         RZVirtualFileSystem::Get().mount("RazixShaders", rootDir + std::string("/Engine/content/Shaders/Razix"));
         RZVirtualFileSystem::Get().mount("RazixFG", rootDir + std::string("/Engine/content/FrameGraphs"));
+        RZVirtualFileSystem::Get().mount("RazixConfig", rootDir + std::string("/Engine/content/config"));
     }
 
     void RZVirtualFileSystem::ShutDown()

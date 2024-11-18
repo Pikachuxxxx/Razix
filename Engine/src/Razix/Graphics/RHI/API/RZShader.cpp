@@ -74,7 +74,7 @@ namespace Razix {
 
             for (u32 i = 0; i < lines.size(); i++) {
                 std::string str = std::string(lines[i]);
-                str             = Utilities::RemoveTabs(str);
+                str             = Utilities::TrimWhitespaces(str);
 
                 if (Razix::Utilities::StartsWith(str, "#shader")) {
                     if (Razix::Utilities::StringContains(str, "vertex")) {

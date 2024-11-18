@@ -145,6 +145,11 @@ workspace ( settings.workspace_name )
         include "Tools/RazixAssetPacker/vendor/OpenFBX/OpenFBX.lua"
     group ""
 
+    -- Experimental
+    group "Dependencies/Experimental"
+        include "Engine/vendor/Experimental/eigen/eigen.lua"
+    group ""
+
     -- Build Script for Razix Engine (Internal)
     --------------------------------------------------------------------------------
     group "Engine/internal"
