@@ -44,7 +44,6 @@ namespace Razix {
             RAZIX_CORE_INFO("Department/Global Budgets Load Success!");
         else {
             RAZIX_CORE_ERROR("Department/Global Budgets Load Failed! Defaulting...");
-            RAZIX_DEBUG_BREAK();
         }
 
         // TODO: Load the Map the default world renderer settings file...the scene can override this
