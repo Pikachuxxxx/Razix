@@ -10,7 +10,7 @@
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
 #include "Razix/Graphics/RHI/RZGPUMemoryManager.h"
 
-#include <chrono>
+#include "Razix/Utilities/RZiniParser.h"
 
 namespace Razix {
     void RZEngine::Ignite()
@@ -46,6 +46,12 @@ namespace Razix {
             RAZIX_CORE_ERROR("Department/Global Budgets Load Failed! Defaulting...");
             RAZIX_DEBUG_BREAK();
         }
+
+        // TODO: Load the Map the default world renderer settings file...the scene can override this
+        Utilities::RZiniParser worldSettingsParser;
+        success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
+        if (success)
+            RAZIX_CORE_INFO("Default World Renderer Settings Load Success!");
 
         // TODO: Temp code remove this!!!
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -132,14 +138,11 @@ namespace Razix {
 
     void RZEngine::LoadEngineConfigFile()
     {
-        std::ifstream config_file("./Engine/content/config/razix_engine.config");
-        if (config_file.good()) {
-            std::string line;
-            std::getline(config_file, line);
-            std::cout << line << std::endl;
-            auto installationDir    = line.substr(0, line.find("=")).length();
-            m_EngineInstallationDir = line.erase(0, installationDir + 1);
-            std::cout << m_EngineInstallationDir << std::endl;
+        Utilities::RZiniParser engineConfigParser;
+        // we're fucked if people launch it from bin directory we need to safe copy this just in case
+        bool                   success = engineConfigParser.parse("./Engine/content/config/DefaultEngineConfig.ini", true);
+        if (success) {
+            engineConfigParser.getValue<std::string>("Installation", "RootDir", m_EngineInstallationDir);
         } else {
 #ifdef RAZIX_DEBUG
             m_EngineInstallationDir = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);

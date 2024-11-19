@@ -3,8 +3,6 @@
 // clang-format on
 #include "RZLog.h"
 
-#include "Razix/Core/SplashScreen/RZSplashScreen.h"
-
 RAZIX_WARNING_PUSH()
 #pragma warning(disable : 26812)
 #include <spdlog/fmt/ostr.h>
@@ -35,7 +33,6 @@ namespace Razix {
             core_sinks.insert(core_sinks.end(), s_CoreLoggerSinks.begin(), s_CoreLoggerSinks.end());
 
             RAZIX_CORE_INFO("Starting Up Core Engine Logger");
-            Razix::RZSplashScreen::Get().setLogString("Starting Up Core Engine Logger");
 
             //--------------------------------------------------------------------------------------
 
@@ -48,7 +45,6 @@ namespace Razix {
             app_sinks.insert(app_sinks.end(), s_AppLoggerSinks.begin(), s_AppLoggerSinks.end());
             s_ApplicationLogger->set_level(spdlog::level::trace);
             RAZIX_INFO("Starting Up Engine Application Logger");
-            Razix::RZSplashScreen::Get().setLogString("Starting Up Engine Application Logger");
         }
 
         void RZLog::Shutdown()
