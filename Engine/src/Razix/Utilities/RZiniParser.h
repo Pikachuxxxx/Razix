@@ -22,6 +22,8 @@ namespace Razix {
         * - Float (e.g., 16.67)
         * - Boolean (true/false)
         * - String (e.g., "Hello")
+        * 
+        * Note: string value types cannot contain white spaces!
         */
 
         // Union to handle different types for values (string, int, bool, float)
@@ -39,7 +41,7 @@ namespace Razix {
             RZiniParser()  = default;
             ~RZiniParser() = default;
 
-            bool parse(const std::string& filePath);
+            bool parse(const std::string& filePath, bool skipVFS = false);
 
             /**
              * This function helps find the value given the key, this also works for sub-key
@@ -64,11 +66,10 @@ namespace Razix {
                         auto& varIt     = variables.find(key);
                         if (varIt != variables.end()) {
                             if (std::holds_alternative<T>(varIt->second)) {
-                            value = std::get<T>(varIt->second);
-                            return true;
+                                value = std::get<T>(varIt->second);
+                                return true;
                             } else
                                 RAZIX_CORE_ERROR("[INI Parser] Trying to get type {0}, but the variable holds {1} ", typeid(value).name(), typeid(varIt->second).name());
-                                        
                         }
                     }
                 }
@@ -97,7 +98,7 @@ namespace Razix {
                                 value = std::get<T>(varIt->second);
                                 return true;
                             } else
-                                RAZIX_CORE_ERROR("[INI Parser] Trying to get type {0}, but the variable holds {1} ", typeid(value).name(), typeid(varIt->second).name());     
+                                RAZIX_CORE_ERROR("[INI Parser] Trying to get type {0}, but the variable holds {1} ", typeid(value).name(), typeid(varIt->second).name());
                         }
                     }
                 }

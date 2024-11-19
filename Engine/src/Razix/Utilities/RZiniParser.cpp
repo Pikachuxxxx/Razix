@@ -93,11 +93,13 @@ namespace Razix {
 
         //----------------------------------------------------
 
-        bool RZiniParser::parse(const std::string& filePath)
+        bool RZiniParser::parse(const std::string& filePath, bool skipVFS)
         {
-            std::string physicalPath;
-            if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
-                return false;
+            std::string physicalPath = filePath;
+            if (!skipVFS) {
+                if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
+                    return false;
+            }
 
             std::string              textFileStr = RZFileSystem::ReadTextFile(physicalPath);
             std::vector<std::string> lines       = Utilities::GetLines(textFileStr);

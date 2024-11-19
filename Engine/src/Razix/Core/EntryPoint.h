@@ -1,9 +1,9 @@
 #pragma once
 
 #include "RZSTL/smart_pointers.h"
+#include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/Profiling/RZProfiling.h"
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
@@ -50,15 +50,15 @@ static int EngineMain(int argc, char** argv)
         args.push_back(argv[i]);
     };
 
+    // 1.-> Logging System Initialization, start up logging before anything else
+    Razix::Debug::RZLog::StartUp();
+
     Razix::RZEngine::Get().LoadEngineConfigFile();
 
     // Splash Screen!
     Razix::RZSplashScreen::Get().init();
     Razix::RZSplashScreen::Get().setVersionString("Version : " + std::string(Razix::RazixVersion.getVersionString()));
     Razix::RZSplashScreen::Get().setLogString("Initializing Razix Engine...");
-
-    // 1.-> Logging System Initialization
-    Razix::Debug::RZLog::StartUp();
 
     // Create the OS Instance
     Razix::rzstl::UniqueRef<Razix::WindowsOS> windowsOS = Razix::rzstl::CreateUniqueRef<Razix::WindowsOS>();

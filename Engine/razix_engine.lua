@@ -163,6 +163,13 @@ project "Razix"
     filter { "files:vendor/**"}
         warnings "Off"
 
+
+    -- default config file copy just in case some one starts the exe from bi directory
+    postbuildcommands 
+    {
+        '{COPY} "%{wks.location}../Engine/content/config/DefaultEngineConfig.ini" "%{cfg.targetdir}/Engine/content/config/"',
+    }
+
     -------------------------------------
     -- Razix Project settings for Windows
     -------------------------------------

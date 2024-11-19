@@ -39,8 +39,7 @@ namespace Razix {
 
                     s_DepartmentBudgets[departInfo.first] = budget;
                 }
-
-            } 
+            }
             return success;
         }
 
