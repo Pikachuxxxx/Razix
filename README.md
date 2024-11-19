@@ -7,6 +7,12 @@ Razix is a High Performance Research Engine for production pipeline with emphasi
 |:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul thread with caution while using, check the RoadMap below for release information |
 | --- |
 
+# Dev Status
+Hi all, 
+Due to my new job and changes in my life, I will be taking a break until 2025. Relax and focus on some other things, this won't mean I'l stop learning but a small break on a very long journey to absorb other things in life. 
+Regards, 
+Phani.
+
 # About
 Cross-Platform 2D and 3D engine with multi render API support (Vulkan, DirectX 12). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
 
@@ -17,7 +23,8 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 	- C++14 over C++11 because `constexpr` and `sizeof` and improved `lamdbas` are needed for framegraph.
 - Support for Windows, Linux, macOS.
 - Support for OpenGL, Vulkan & DirectX 12.
-- **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  
+- **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj
+1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  
     - **Uses Custom [Node Graph Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
 
 | Node based <br /> Frame Graph Editor  | <img src="./Branding/DemoImages/ReleaseNotes/Frame_Graph_Editor_design_demo_5.png" width="400"> |  
