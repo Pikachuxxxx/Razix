@@ -7,12 +7,6 @@ Razix is a High Performance Research Engine for production pipeline with emphasi
 |:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul thread with caution while using, check the RoadMap below for release information |
 | --- |
 
-# Dev Status
-Hi all, 
-Due to my new job and changes in my life, I will be taking a break until 2025. Relax and focus on some other things, this won't mean I'l stop learning but a small break on a very long journey to absorb other things in life. 
-Regards, 
-Phani.
-
 # About
 Cross-Platform 2D and 3D engine with multi render API support (Vulkan, DirectX 12). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
 
@@ -43,7 +37,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 | Resource Viewer | <img src="./Branding/DemoImages/ReleaseNotes/ResourceViewerPreview_2_Full.png" width="400"> |  
 | ------------- | ------------- |
 
-- Data drive pipeline architecture - **WIP**
+- Data drive pipeline architecture - FrameGraph uses JSON files
 - Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
 - **WorldRenderer** Passes
 	- Lighting and shadows 
@@ -60,17 +54,16 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 	- FXAA
 	- TAA (WIP)
 
+**Experimental features:**
+  - Machine Learning sandbox (custom NNs class + Transformers WIP) CPU only for now, later might be ported over the engine RHI layer
+  - Department based memory/frame time budget profiling (inspiration from SMS GDC talk and Insomniac engine)
+
 DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs will be supported. PSVita(GXM) and PS3(GCM) will be supported sometime far in future.
 
 # Tools
 Razix also provides a rich set of GUI and Commmand Line [**Tools**](https://github.com/Pikachuxxxx/Razix/tree/master/Tools) along with the Editor for various purposes such as
 - [**Razix Asset Packer**](https://github.com/Pikachuxxxx/RazixAssetPacker) - **CLI Tool + API for Editor** - Export 3D Models into custom razix format Meshes and Materials
-- [**Razix Code Editor**](https://github.com/Pikachuxxxx/RazixCodeEditor) - Shaders and Scripts code editor for Razix Engine (Sony ATF)
 
-### TODO
-    - Blender exporter and Importer for model and navmesh formats
-    - Blender Integration
-    - Script debugger for Lua
 
 # RoadMap
 
