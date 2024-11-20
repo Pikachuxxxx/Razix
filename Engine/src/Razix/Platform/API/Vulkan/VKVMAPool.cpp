@@ -4,7 +4,7 @@
 #include "VKVMAPool.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         u64 VKVMAPool::AllocateVideoMemoryFromPoolId(u32 poolIdx)
         {

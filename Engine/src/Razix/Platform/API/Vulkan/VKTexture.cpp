@@ -3,7 +3,7 @@
 // clang-format on
 #include "VKTexture.h"
 
-#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+#include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
@@ -15,7 +15,7 @@
 #include <vendor/stb/stb_image_write.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         //-----------------------------------------------------------------------------------
         // Texture Utility Static Functions
@@ -416,7 +416,7 @@ namespace Razix {
                     // TODO: Support loading floating point Image data
                     pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Desc.width, &m_Desc.height, &bpp, m_Desc.flipY);
                     // Here the format for the texture is extracted based on bits per pixel
-                    m_Desc.format = Razix::Graphics::RZTexture::bitsToTextureFormat(BPP);
+                    m_Desc.format = Razix::Gfx::RZTexture::bitsToTextureFormat(BPP);
                     // Size of the texture
                     m_Size = static_cast<u64>(m_Desc.width * m_Desc.height * BPP * m_Desc.dataSize);
                 }

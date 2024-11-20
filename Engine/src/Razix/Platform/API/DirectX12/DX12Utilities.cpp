@@ -3,10 +3,10 @@
 // clang-format on
 #include "DX12Utilities.h"
 
-#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
-#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
-#include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/API/RZShader.h"
+#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
+#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
+#include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
@@ -24,7 +24,7 @@
     #endif
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
         namespace DX12Utilities {
 
             static HMODULE WinPixEventRuntimeModule;
@@ -77,7 +77,7 @@ namespace Razix {
 
             ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer()
             {
-                auto device = Graphics::DX12Context::Get()->getDevice();
+                auto device = Gfx::DX12Context::Get()->getDevice();
 
                 // Create a allocator and allocate a command list
                 ID3D12CommandAllocator* commandAllocator = nullptr;
@@ -112,7 +112,7 @@ namespace Razix {
                 // Execute the work on GPU queue
                 DX12Context::Get()->getSingleTimeGraphicsQueue()->ExecuteCommandLists(1, ppCommandLists);
 
-                auto device = Graphics::DX12Context::Get()->getDevice();
+                auto device = Gfx::DX12Context::Get()->getDevice();
 
                 // Wait for the work do be done on this queue
                 ID3D12Fence* fence;
@@ -152,8 +152,8 @@ namespace Razix {
 
             void UpdateBufferResource(ID3D12Resource** pDestinationResource, size_t bufferSize, const void* bufferData)
             {
-                auto            device                = Graphics::DX12Context::Get()->getDevice();
-                auto            copyCommandQueue      = Graphics::DX12Context::Get()->getCopyQueue();
+                auto            device                = Gfx::DX12Context::Get()->getDevice();
+                auto            copyCommandQueue      = Gfx::DX12Context::Get()->getCopyQueue();
                 ID3D12Resource* pIntermediateResource = nullptr;
 
                 auto commandList = BeginSingleTimeCommandBuffer();
@@ -247,7 +247,7 @@ namespace Razix {
                 }
             }
 
-            u32 PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZBufferLayout& layout) /* PipelineInfo */    // I3DXXXX* DrawTypeToDX12(Razix::Graphics::DrawType type)
+            u32 PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZBufferLayout& layout) /* PipelineInfo */    // I3DXXXX* DrawTypeToDX12(Razix::Gfx::DrawType type)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -277,16 +277,16 @@ namespace Razix {
 
             // Pipeline Info
 
-            D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Graphics::DrawType type)
+            D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Gfx::DrawType type)
             {
                 switch (type) {
-                    case Razix::Graphics::DrawType::Point:
+                    case Razix::Gfx::DrawType::Point:
                         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
                         break;
-                    case Razix::Graphics::DrawType::Triangle:
+                    case Razix::Gfx::DrawType::Triangle:
                         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
                         break;
-                    case Razix::Graphics::DrawType::Line:
+                    case Razix::Gfx::DrawType::Line:
                         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
                         break;
                     default:
@@ -294,8 +294,67 @@ namespace Razix {
                         break;
                 }
             }
+
+            D3D12_PRIMITIVE_TOPOLOGY DrawTypeToDX12Topology(Razix::Gfx::DrawType type)
+            {
+                switch (type) {
+                    case Razix::Gfx::DrawType::Point:
+                        return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+                        break;
+                    case Razix::Gfx::DrawType::Triangle:
+                        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+                        break;
+                    case Razix::Gfx::DrawType::Line:
+                        return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+                        break;
+                    default:
+                        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+                        break;
+                }
+            }
+
+            D3D12_FILL_MODE PolygoneModeToDX12(Razix::Gfx::PolygonMode polygonMode)
+            {
+                switch (polygonMode) {
+                    case Razix::Gfx::PolygonMode::Fill:
+                        return D3D12_FILL_MODE_SOLID;
+                        break;
+                    case Razix::Gfx::PolygonMode::Line:
+                        return D3D12_FILL_MODE_WIREFRAME;
+                        break;
+                    case Razix::Gfx::PolygonMode::Point:
+                        RAZIX_CORE_ERROR("[DX12] Point Fill Mode is not supported in DX12... defaulting to Fill solid");
+                        return D3D12_FILL_MODE_SOLID;
+                        break;
+                    default:
+                        return D3D12_FILL_MODE_SOLID;
+                        break;
+                }
+            }
+
+            D3D12_CULL_MODE CullModeToDX12(Razix::Gfx::CullMode cullMode)
+            {
+                switch (cullMode) {
+                    case Razix::Gfx::CullMode::Back:
+                        return D3D12_CULL_MODE_BACK;
+                        break;
+                    case Razix::Gfx::CullMode::Front:
+                        return D3D12_CULL_MODE_FRONT;
+                        break;
+                    case Razix::Gfx::CullMode::FrontBack:
+                        RAZIX_CORE_ERROR("[DX12] FrontBack Polygon Mode is not supported in DX12... defaulting to back face culling");
+                        return D3D12_CULL_MODE_BACK;
+                        break;
+                    case Razix::Gfx::CullMode::None:
+                        return D3D12_CULL_MODE_NONE;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
         }    // namespace DX12Utilities
-    }        // namespace Graphics
+    }        // namespace Gfx
 }    // namespace Razix
 
 #endif

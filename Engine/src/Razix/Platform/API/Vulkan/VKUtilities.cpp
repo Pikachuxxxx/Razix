@@ -3,10 +3,10 @@
 // clang-format on
 #include "VKUtilities.h"
 
-#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
-#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
-#include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/API/RZShader.h"
+#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
+#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
+#include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
@@ -16,7 +16,7 @@
 #include <spirv_reflect.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
         namespace VKUtilities {
 
             void CopyDataToGPUBufferResource(const void* cpuData, VkBuffer gpuBuffer, u32 size, u32 srcOffset, u32 dstOffset)
@@ -412,31 +412,31 @@ namespace Razix {
             u32 EngineImageLayoutToVK(ImageLayout layout)
             {
                 switch (layout) {
-                    case Razix::Graphics::ImageLayout::kUndefined:
+                    case Razix::Gfx::ImageLayout::kUndefined:
                         return VK_IMAGE_LAYOUT_UNDEFINED;
                         break;
-                    case Razix::Graphics::ImageLayout::kGeneral:
+                    case Razix::Gfx::ImageLayout::kGeneral:
                         return VK_IMAGE_LAYOUT_GENERAL;
                         break;
-                    case Razix::Graphics::ImageLayout::kColorAttachmentOptimal:
+                    case Razix::Gfx::ImageLayout::kColorAttachmentOptimal:
                         return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                         break;
-                    case Razix::Graphics::ImageLayout::kDepthStencilAttachmentOptimal:
+                    case Razix::Gfx::ImageLayout::kDepthStencilAttachmentOptimal:
                         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                         break;
-                    case Razix::Graphics::ImageLayout::kDepthStencilReadOnlyOptimal:
+                    case Razix::Gfx::ImageLayout::kDepthStencilReadOnlyOptimal:
                         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
                         break;
-                    case Razix::Graphics::ImageLayout::kShaderReadOnlyOptimal:
+                    case Razix::Gfx::ImageLayout::kShaderReadOnlyOptimal:
                         return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                         break;
-                    case Razix::Graphics::ImageLayout::kTransferSrcOptimal:
+                    case Razix::Gfx::ImageLayout::kTransferSrcOptimal:
                         return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                         break;
-                    case Razix::Graphics::ImageLayout::kTransferDstOptimal:
+                    case Razix::Gfx::ImageLayout::kTransferDstOptimal:
                         return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                         break;
-                    case Razix::Graphics::ImageLayout::kPresentationEngine:
+                    case Razix::Gfx::ImageLayout::kPresentationEngine:
                         return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
                         break;
                     default:
@@ -448,61 +448,61 @@ namespace Razix {
             u32 EngineMemoryAcsessMaskToVK(MemoryAccessMask mask)
             {
                 switch (mask) {
-                    case Razix::Graphics::MemoryAccessMask::kNone:
+                    case Razix::Gfx::MemoryAccessMask::kNone:
                         return VK_ACCESS_NONE;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kIndirectCommandReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kIndirectCommandReadBit:
                         return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kIndexBufferDataReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kIndexBufferDataReadBit:
                         return VK_ACCESS_INDEX_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kVertexAttributeReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kVertexAttributeReadBit:
                         return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kUniformReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kUniformReadBit:
                         return VK_ACCESS_UNIFORM_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kInputAttachmentReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kInputAttachmentReadBit:
                         return VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kShaderReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kShaderReadBit:
                         return VK_ACCESS_SHADER_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kShaderWriteBit:
+                    case Razix::Gfx::MemoryAccessMask::kShaderWriteBit:
                         return VK_ACCESS_SHADER_WRITE_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kColorAttachmentReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kColorAttachmentReadBit:
                         return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kColorAttachmentWriteBit:
+                    case Razix::Gfx::MemoryAccessMask::kColorAttachmentWriteBit:
                         return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kColorAttachmentReadWriteBit:
+                    case Razix::Gfx::MemoryAccessMask::kColorAttachmentReadWriteBit:
                         return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kDepthStencilAttachmentReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kDepthStencilAttachmentReadBit:
                         return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kDepthStencilAttachmentWriteBit:
+                    case Razix::Gfx::MemoryAccessMask::kDepthStencilAttachmentWriteBit:
                         return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kTransferReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kTransferReadBit:
                         return VK_ACCESS_TRANSFER_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kTransferWriteBit:
+                    case Razix::Gfx::MemoryAccessMask::kTransferWriteBit:
                         return VK_ACCESS_TRANSFER_WRITE_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kHostReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kHostReadBit:
                         return VK_ACCESS_HOST_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kHostWriteBit:
+                    case Razix::Gfx::MemoryAccessMask::kHostWriteBit:
                         return VK_ACCESS_HOST_WRITE_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kMemoryReadBit:
+                    case Razix::Gfx::MemoryAccessMask::kMemoryReadBit:
                         return VK_ACCESS_MEMORY_READ_BIT;
                         break;
-                    case Razix::Graphics::MemoryAccessMask::kMemoryWriteBit:
+                    case Razix::Gfx::MemoryAccessMask::kMemoryWriteBit:
                         return VK_ACCESS_MEMORY_WRITE_BIT;
                         break;
                     default:
@@ -514,58 +514,58 @@ namespace Razix {
             u32 EnginePipelineStageToVK(PipelineStage ppstage)
             {
                 switch (ppstage) {
-                    case Razix::Graphics::PipelineStage::kTopOfPipe:
+                    case Razix::Gfx::PipelineStage::kTopOfPipe:
                         return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kDrawIndirect:
+                    case Razix::Gfx::PipelineStage::kDrawIndirect:
                         return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kDraw:
+                    case Razix::Gfx::PipelineStage::kDraw:
                         return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kVertexInput:
+                    case Razix::Gfx::PipelineStage::kVertexInput:
                         return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kVertexShader:
+                    case Razix::Gfx::PipelineStage::kVertexShader:
                         return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kTessellationControlShader:
+                    case Razix::Gfx::PipelineStage::kTessellationControlShader:
                         return VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kTessellationEvaluationShader:
+                    case Razix::Gfx::PipelineStage::kTessellationEvaluationShader:
                         return VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kGeometryShader:
+                    case Razix::Gfx::PipelineStage::kGeometryShader:
                         return VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kFragmentShader:
+                    case Razix::Gfx::PipelineStage::kFragmentShader:
                         return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kEarlyFragmentTests:
+                    case Razix::Gfx::PipelineStage::kEarlyFragmentTests:
                         return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kLateFragmentTests:
+                    case Razix::Gfx::PipelineStage::kLateFragmentTests:
                         return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kEarlyOrLateTests:
+                    case Razix::Gfx::PipelineStage::kEarlyOrLateTests:
                         return (VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT);
                         break;
-                    case Razix::Graphics::PipelineStage::kColorAttachmentOutput:
+                    case Razix::Gfx::PipelineStage::kColorAttachmentOutput:
                         return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kComputeShader:
+                    case Razix::Gfx::PipelineStage::kComputeShader:
                         return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kTransfer:
+                    case Razix::Gfx::PipelineStage::kTransfer:
                         return VK_PIPELINE_STAGE_TRANSFER_BIT;
                         break;
-                    case Razix::Graphics::PipelineStage::kMeshShader:
+                    case Razix::Gfx::PipelineStage::kMeshShader:
                         return VK_PIPELINE_STAGE_MESH_SHADER_BIT_EXT;
                         break;
-                    case Razix::Graphics::PipelineStage::kTaskShader:
+                    case Razix::Gfx::PipelineStage::kTaskShader:
                         return VK_PIPELINE_STAGE_TASK_SHADER_BIT_EXT;
                         break;
-                    case Razix::Graphics::PipelineStage::kBottomOfPipe:
+                    case Razix::Gfx::PipelineStage::kBottomOfPipe:
                         return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
                         break;
                     default:
@@ -655,16 +655,16 @@ namespace Razix {
             // Enum Conversions
             //-----------------------------------------------------------------------------------
 
-            VkPrimitiveTopology DrawTypeToVK(Razix::Graphics::DrawType type)
+            VkPrimitiveTopology DrawTypeToVK(Razix::Gfx::DrawType type)
             {
                 switch (type) {
-                    case Razix::Graphics::DrawType::Point:
+                    case Razix::Gfx::DrawType::Point:
                         return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
                         break;
-                    case Razix::Graphics::DrawType::Triangle:
+                    case Razix::Gfx::DrawType::Triangle:
                         return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
                         break;
-                    case Razix::Graphics::DrawType::Line:
+                    case Razix::Gfx::DrawType::Line:
                         return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
                         break;
                     default:
@@ -674,19 +674,19 @@ namespace Razix {
                 }
             }
 
-            VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode)
+            VkCullModeFlags CullModeToVK(Razix::Gfx::CullMode cullMode)
             {
                 switch (cullMode) {
-                    case Razix::Graphics::CullMode::Front:
+                    case Razix::Gfx::CullMode::Front:
                         return VK_CULL_MODE_FRONT_BIT;
                         break;
-                    case Razix::Graphics::CullMode::Back:
+                    case Razix::Gfx::CullMode::Back:
                         return VK_CULL_MODE_BACK_BIT;
                         break;
-                    case Razix::Graphics::CullMode::FrontBack:
+                    case Razix::Gfx::CullMode::FrontBack:
                         return VK_CULL_MODE_FRONT_AND_BACK;
                         break;
-                    case Razix::Graphics::CullMode::None:
+                    case Razix::Gfx::CullMode::None:
                         return VK_CULL_MODE_NONE;
                         break;
                     default:
@@ -696,16 +696,16 @@ namespace Razix {
                 }
             }
 
-            VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode)
+            VkPolygonMode PolygoneModeToVK(Razix::Gfx::PolygonMode polygonMode)
             {
                 switch (polygonMode) {
-                    case Razix::Graphics::PolygonMode::Fill:
+                    case Razix::Gfx::PolygonMode::Fill:
                         return VK_POLYGON_MODE_FILL;
                         break;
-                    case Razix::Graphics::PolygonMode::Line:
+                    case Razix::Gfx::PolygonMode::Line:
                         return VK_POLYGON_MODE_LINE;
                         break;
-                    case Razix::Graphics::PolygonMode::Point:
+                    case Razix::Gfx::PolygonMode::Point:
                         return VK_POLYGON_MODE_POINT;
                         break;
                     default:
@@ -715,22 +715,22 @@ namespace Razix {
                 }
             }
 
-            VkBlendOp BlendOpToVK(Razix::Graphics::BlendOp blendOp)
+            VkBlendOp BlendOpToVK(Razix::Gfx::BlendOp blendOp)
             {
                 switch (blendOp) {
-                    case Razix::Graphics::BlendOp::Add:
+                    case Razix::Gfx::BlendOp::Add:
                         return VK_BLEND_OP_ADD;
                         break;
-                    case Razix::Graphics::BlendOp::Subtract:
+                    case Razix::Gfx::BlendOp::Subtract:
                         return VK_BLEND_OP_SUBTRACT;
                         break;
-                    case Razix::Graphics::BlendOp::ReverseSubtract:
+                    case Razix::Gfx::BlendOp::ReverseSubtract:
                         return VK_BLEND_OP_REVERSE_SUBTRACT;
                         break;
-                    case Razix::Graphics::BlendOp::Min:
+                    case Razix::Gfx::BlendOp::Min:
                         return VK_BLEND_OP_MIN;
                         break;
-                    case Razix::Graphics::BlendOp::Max:
+                    case Razix::Gfx::BlendOp::Max:
                         return VK_BLEND_OP_MAX;
                         break;
                     default:
@@ -740,52 +740,52 @@ namespace Razix {
                 return VK_BLEND_OP_ADD;
             }
 
-            VkBlendFactor BlendFactorToVK(Razix::Graphics::BlendFactor blendFactor)
+            VkBlendFactor BlendFactorToVK(Razix::Gfx::BlendFactor blendFactor)
             {
                 switch (blendFactor) {
-                    case Razix::Graphics::BlendFactor::Zero:
+                    case Razix::Gfx::BlendFactor::Zero:
                         return VK_BLEND_FACTOR_ZERO;
                         break;
-                    case Razix::Graphics::BlendFactor::One:
+                    case Razix::Gfx::BlendFactor::One:
                         return VK_BLEND_FACTOR_ONE;
                         break;
-                    case Razix::Graphics::BlendFactor::SrcColor:
+                    case Razix::Gfx::BlendFactor::SrcColor:
                         return VK_BLEND_FACTOR_SRC_COLOR;
                         break;
-                    case Razix::Graphics::BlendFactor::OneMinusSrcColor:
+                    case Razix::Gfx::BlendFactor::OneMinusSrcColor:
                         return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
                         break;
-                    case Razix::Graphics::BlendFactor::DstColor:
+                    case Razix::Gfx::BlendFactor::DstColor:
                         return VK_BLEND_FACTOR_DST_COLOR;
                         break;
-                    case Razix::Graphics::BlendFactor::OneMinusDstColor:
+                    case Razix::Gfx::BlendFactor::OneMinusDstColor:
                         return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
                         break;
-                    case Razix::Graphics::BlendFactor::SrcAlpha:
+                    case Razix::Gfx::BlendFactor::SrcAlpha:
                         return VK_BLEND_FACTOR_SRC_ALPHA;
                         break;
-                    case Razix::Graphics::BlendFactor::OneMinusSrcAlpha:
+                    case Razix::Gfx::BlendFactor::OneMinusSrcAlpha:
                         return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
                         break;
-                    case Razix::Graphics::BlendFactor::DstAlpha:
+                    case Razix::Gfx::BlendFactor::DstAlpha:
                         return VK_BLEND_FACTOR_DST_ALPHA;
                         break;
-                    case Razix::Graphics::BlendFactor::OneMinusDstAlpha:
+                    case Razix::Gfx::BlendFactor::OneMinusDstAlpha:
                         return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
                         break;
-                    case Razix::Graphics::BlendFactor::ConstantColor:
+                    case Razix::Gfx::BlendFactor::ConstantColor:
                         return VK_BLEND_FACTOR_CONSTANT_COLOR;
                         break;
                     case BlendFactor::OneMinusConstantColor:
                         return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
                         break;
-                    case Razix::Graphics::BlendFactor::ConstantAlpha:
+                    case Razix::Gfx::BlendFactor::ConstantAlpha:
                         return VK_BLEND_FACTOR_CONSTANT_ALPHA;
                         break;
-                    case Razix::Graphics::BlendFactor::OneMinusConstantAlpha:
+                    case Razix::Gfx::BlendFactor::OneMinusConstantAlpha:
                         return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
                         break;
-                    case Razix::Graphics::BlendFactor::SrcAlphaSaturate:
+                    case Razix::Gfx::BlendFactor::SrcAlphaSaturate:
                         return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
                         break;
                     default:
@@ -795,31 +795,31 @@ namespace Razix {
                 return VK_BLEND_FACTOR_ONE;
             }
 
-            VkCompareOp CompareOpToVK(Razix::Graphics::CompareOp compareOp)
+            VkCompareOp CompareOpToVK(Razix::Gfx::CompareOp compareOp)
             {
                 switch (compareOp) {
-                    case Razix::Graphics::CompareOp::Never:
+                    case Razix::Gfx::CompareOp::Never:
                         return VK_COMPARE_OP_NEVER;
                         break;
-                    case Razix::Graphics::CompareOp::Less:
+                    case Razix::Gfx::CompareOp::Less:
                         return VK_COMPARE_OP_LESS;
                         break;
-                    case Razix::Graphics::CompareOp::Equal:
+                    case Razix::Gfx::CompareOp::Equal:
                         return VK_COMPARE_OP_EQUAL;
                         break;
-                    case Razix::Graphics::CompareOp::LessOrEqual:
+                    case Razix::Gfx::CompareOp::LessOrEqual:
                         return VK_COMPARE_OP_LESS_OR_EQUAL;
                         break;
-                    case Razix::Graphics::CompareOp::Greater:
+                    case Razix::Gfx::CompareOp::Greater:
                         return VK_COMPARE_OP_GREATER;
                         break;
-                    case Razix::Graphics::CompareOp::NotEqual:
+                    case Razix::Gfx::CompareOp::NotEqual:
                         return VK_COMPARE_OP_NOT_EQUAL;
                         break;
-                    case Razix::Graphics::CompareOp::GreaterOrEqual:
+                    case Razix::Gfx::CompareOp::GreaterOrEqual:
                         return VK_COMPARE_OP_GREATER_OR_EQUAL;
                         break;
-                    case Razix::Graphics::CompareOp::Always:
+                    case Razix::Gfx::CompareOp::Always:
                         return VK_COMPARE_OP_ALWAYS;
                         break;
                     default:
@@ -829,13 +829,13 @@ namespace Razix {
                 return VK_COMPARE_OP_LESS_OR_EQUAL;
             }
 
-            VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType)
+            VkDescriptorType DescriptorTypeToVK(Razix::Gfx::DescriptorType descriptorType)
             {
                 switch (descriptorType) {
-                    case Razix::Graphics::DescriptorType::UniformBuffer:
+                    case Razix::Gfx::DescriptorType::UniformBuffer:
                         return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                         break;
-                    case Razix::Graphics::DescriptorType::ImageSamplerCombined:
+                    case Razix::Gfx::DescriptorType::ImageSamplerCombined:
                         return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                         break;
                     default:
@@ -844,28 +844,28 @@ namespace Razix {
                 }
             }
 
-            VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage)
+            VkShaderStageFlagBits ShaderStageToVK(Razix::Gfx::ShaderStage stage)
             {
                 switch (stage) {
-                    case Razix::Graphics::ShaderStage::NONE:
+                    case Razix::Gfx::ShaderStage::NONE:
                         return VK_SHADER_STAGE_ALL;
                         break;
-                    case Razix::Graphics::ShaderStage::Vertex:
+                    case Razix::Gfx::ShaderStage::Vertex:
                         return VK_SHADER_STAGE_VERTEX_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::Pixel:
+                    case Razix::Gfx::ShaderStage::Pixel:
                         return VK_SHADER_STAGE_FRAGMENT_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::Geometry:
+                    case Razix::Gfx::ShaderStage::Geometry:
                         return VK_SHADER_STAGE_GEOMETRY_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::TCS:
+                    case Razix::Gfx::ShaderStage::TCS:
                         return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::TES:
+                    case Razix::Gfx::ShaderStage::TES:
                         return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
                         break;
-                    case Razix::Graphics::ShaderStage::Compute:
+                    case Razix::Gfx::ShaderStage::Compute:
                         return VK_SHADER_STAGE_COMPUTE_BIT;
                         break;
                     default:

@@ -7,7 +7,7 @@
 #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKVertexBuffer::VKVertexBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
             : VKBuffer(desc.usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, desc.size, desc.data RZ_DEBUG_E_ARG_NAME)

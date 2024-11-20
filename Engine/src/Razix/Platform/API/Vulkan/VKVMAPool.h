@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Razix/Graphics/Resources/RZGPUResourcePool.h"
+#include "Razix/Gfx/Resources/RZGPUResourcePool.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class VKVMAPool : public RZGPUResourcePool
         {

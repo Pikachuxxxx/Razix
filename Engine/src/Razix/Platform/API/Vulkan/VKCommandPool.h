@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZCommandPool.h"
+#include "Razix/Gfx/RHI/API/RZCommandPool.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         /* Creates a Vulkan command buffer */
         class VKCommandPool final : public RZCommandPool

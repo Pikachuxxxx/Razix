@@ -2,7 +2,7 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-    #include "Razix/Graphics/RHI/API/RZTexture.h"
+    #include "Razix/Gfx/RHI/API/RZTexture.h"
 
     #include "Razix/Platform/API/Vulkan/VKBuffer.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
@@ -10,7 +10,7 @@
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // TODO: Just as we generate one image view per mip do the same per each layer
 

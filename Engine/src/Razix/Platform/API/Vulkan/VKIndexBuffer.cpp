@@ -6,7 +6,7 @@
 #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKIndexBuffer::VKIndexBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
             : VKBuffer(desc.usage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, desc.count * RAZIX_INDICES_SIZE, (const void*) desc.data RZ_DEBUG_E_ARG_NAME)

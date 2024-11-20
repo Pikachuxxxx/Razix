@@ -2,12 +2,12 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Graphics/RHI/API/RZTexture.h"
+    #include "Razix/Gfx/RHI/API/RZTexture.h"
 
     #include <d3d12.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         /* DirectX 12 implementation of the RZTexture class */
         class DX12Texture final : public RZTexture

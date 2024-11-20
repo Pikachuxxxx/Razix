@@ -2,18 +2,18 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Gfx/RHI/API/RZTexture.h"
 
 #include <glm/glm.hpp>
 
 #define VK_CHECK_RESULT(x) VK_ERROR_REPORT(x)
 
-#define VK_ERROR_REPORT(x) Razix::Graphics::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
+#define VK_ERROR_REPORT(x) Razix::Gfx::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
 enum SpvReflectDescriptorType;
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // Forward Declarations for reducing cyclic dependency
         enum class DrawType;
@@ -219,21 +219,21 @@ namespace Razix {
              * 
              * @returns Vulkan equivalent value of primitive topology 
              */
-            VkPrimitiveTopology DrawTypeToVK(Razix::Graphics::DrawType type);
+            VkPrimitiveTopology DrawTypeToVK(Razix::Gfx::DrawType type);
 
-            VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode);
+            VkCullModeFlags CullModeToVK(Razix::Gfx::CullMode cullMode);
 
-            VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode);
+            VkPolygonMode PolygoneModeToVK(Razix::Gfx::PolygonMode polygonMode);
 
-            VkBlendOp BlendOpToVK(Razix::Graphics::BlendOp blendOp);
+            VkBlendOp BlendOpToVK(Razix::Gfx::BlendOp blendOp);
 
-            VkBlendFactor BlendFactorToVK(Razix::Graphics::BlendFactor blendFactor);
+            VkBlendFactor BlendFactorToVK(Razix::Gfx::BlendFactor blendFactor);
 
-            VkCompareOp CompareOpToVK(Razix::Graphics::CompareOp compareOp);
+            VkCompareOp CompareOpToVK(Razix::Gfx::CompareOp compareOp);
 
-            VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType);
+            VkDescriptorType DescriptorTypeToVK(Razix::Gfx::DescriptorType descriptorType);
 
-            VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage);
+            VkShaderStageFlagBits ShaderStageToVK(Razix::Gfx::ShaderStage stage);
 
             u32            GetStrideFromVulkanFormat(VkFormat format);
             u32            PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout);

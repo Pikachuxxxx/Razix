@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include <d3d12.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         /**
          * DirectX 12 implementation of index buffer

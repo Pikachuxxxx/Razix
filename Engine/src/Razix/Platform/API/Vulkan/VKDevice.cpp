@@ -9,14 +9,14 @@
 
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
-    #include "Razix/Graphics/Renderers/RZSystemBinding.h"
+    #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
     // VMA
     #define VMA_IMPLEMENTATION
     #include <vma/vk_mem_alloc.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         //-----------------------------------------------------------------------------------
         // Physical Device

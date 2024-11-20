@@ -6,7 +6,7 @@
 
 #include "generated/ui_RZEFrameGraphEditor.h"
 
-#include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
+#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
 namespace Razix {
     namespace Editor {
@@ -161,7 +161,7 @@ namespace Razix {
             RZETextureResourceNodeUI*          m_CurrentEditingTextureNode        = nullptr;
             RZEImportNodeUI*                   m_CurrentEditingImportNode         = nullptr;
             QStringList                        m_FormatsStringList                = {};
-            Graphics::FrameGraph::RZFrameGraph m_FrameGraph                       = {}; /* FrameGraph classes used to export into a JSON file */
+            Gfx::FrameGraph::RZFrameGraph m_FrameGraph                       = {}; /* FrameGraph classes used to export into a JSON file */
             std::string                        m_FrameGraphFilePath               = "";
             std::string                        m_FinalOutputName                  = "SceneHDR";
 

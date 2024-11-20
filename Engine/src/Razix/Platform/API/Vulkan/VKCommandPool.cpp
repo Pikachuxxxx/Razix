@@ -9,7 +9,7 @@
     #include "VKUtilities.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKCommandPool::VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags)
         {

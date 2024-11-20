@@ -3,6 +3,8 @@
 // clang-format on
 #include "DX12Pipeline.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
@@ -13,7 +15,7 @@
     #include <d3dx12/d3dx12.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // Function to convert const char* to LPCWSTR
         LPCWSTR ConvertToLPCWSTR(const char* str)
@@ -62,16 +64,19 @@ namespace Razix {
             CHECK_HRESULT(DX12Context::Get()->getDevice()->CreateRootSignature(0, pSerializedRootSignature->GetBufferPointer(), pSerializedRootSignature->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature)));
 
             //----------------------------
-            // Primitive Topology Stage
-            //----------------------------
-            // Set by IA on command list
-            // aka desc.PolygonMode is not set on the pipeline unlike vulkan
-            // see the Bind function below
-
-            //----------------------------
             // Rasterization Stage
             //----------------------------
-
+            D3D12_RASTERIZER_DESC rasterizerStateDesc{};
+            rasterizerStateDesc.FillMode              = DX12Utilities::PolygoneModeToDX12(desc.polygonMode);
+            rasterizerStateDesc.CullMode              = DX12Utilities::CullModeToDX12(desc.cullMode);
+            rasterizerStateDesc.FrontCounterClockwise = false;    // it's CW to match Vulkan
+            rasterizerStateDesc.DepthBias             = 0;
+            rasterizerStateDesc.DepthBiasClamp        = 0.0f;
+            rasterizerStateDesc.SlopeScaledDepthBias  = 0.0f;
+            rasterizerStateDesc.DepthClipEnable       = (desc.depthBiasEnabled ? true : false);
+            rasterizerStateDesc.MultisampleEnable     = Razix::RZEngine::Get().getGlobalEngineSettings().EnableMSAA;
+            rasterizerStateDesc.AntialiasedLineEnable = Razix::RZEngine::Get().getGlobalEngineSettings().EnableMSAA;
+            rasterizerStateDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
             //----------------------------
             // Blend State Stage
             //----------------------------
@@ -100,7 +105,7 @@ namespace Razix {
             psoDesc.pRootSignature                     = m_pRootSignature;
             psoDesc.VS                                 = CD3DX12_SHADER_BYTECODE(dx12ShaderResource->getShaderStageBlob(ShaderStage::Vertex));
             psoDesc.PS                                 = CD3DX12_SHADER_BYTECODE(dx12ShaderResource->getShaderStageBlob(ShaderStage::Pixel));
-            psoDesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+            psoDesc.RasterizerState                    = rasterizerStateDesc;
             psoDesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
             psoDesc.DepthStencilState                  = depthStencilDesc;
             psoDesc.SampleMask                         = UINT_MAX;
@@ -133,8 +138,8 @@ namespace Razix {
             commandList->SetPipelineState(m_PipelineState);
 
             // Set by IA on command list
-            commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            commandList->IASetPrimitiveTopology(DX12Utilities::DrawTypeToDX12Topology(m_Desc.drawType));
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

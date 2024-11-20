@@ -3,7 +3,7 @@
 // clang-format on
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
-#include "Razix/Graphics/Renderers/RZDebugRenderer.h"
+#include "Razix/Gfx/Renderers/RZDebugRenderer.h"
 
 namespace Razix {
     namespace Scripting {

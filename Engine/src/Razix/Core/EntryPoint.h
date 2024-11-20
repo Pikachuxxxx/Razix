@@ -72,7 +72,7 @@ static int EngineMain(int argc, char** argv)
 
     // Parse the command line arguments, if any
     if (argc > 1)
-        Razix::RZEngine::Get().commandLineParser.parse(args);
+        Razix::RZEngine::Get().getCommandLineParser().parse(args);
 
     Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
 

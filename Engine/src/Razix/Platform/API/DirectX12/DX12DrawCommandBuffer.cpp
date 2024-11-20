@@ -9,7 +9,7 @@
     #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         DX12DrawCommandBuffer::DX12DrawCommandBuffer(ID3D12CommandAllocator* commandAllocator)
             : m_CommandList(nullptr), m_CommandAllocator(commandAllocator)

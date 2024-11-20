@@ -5,12 +5,14 @@
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/Version/RazixVersion.h"
 
+#include "Razix/Core/RZEngineSettings.h"
+
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "Razix/Graphics/RZShaderLibrary.h"
+#include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Graphics/Renderers/RZWorldRenderer.h"
+#include "Razix/Gfx/Renderers/RZWorldRenderer.h"
 
 #include "Razix/Scene/RZScene.h"
 #include "Razix/Scene/RZSceneManager.h"
@@ -28,6 +30,7 @@ namespace Razix {
     {
         // All internal type definition go here
     public:
+        // TODO: Hide this
         bool isRZApplicationCreated = false;
         /* Statistic about the current frame */
         struct Stats
@@ -65,74 +68,55 @@ namespace Razix {
             }
         };
 
-    public:
-        RZCommandLineParser commandLineParser; /* Command line parser for that helps in setting Engine and Application options */
-
     private:
+        // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
         // Engine Systems
         RZVirtualFileSystem           m_VirtualFileSystem;      /* The Virtual File Engine System for managing files								*/
         RZSceneManager                m_SceneManagerSystem;     /* Scene Manager Engine System for managing scenes in game world					*/
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
-        Graphics::RZWorldRenderer     m_WorldRenderer;          /* Razix world renderer that build and renders the frame graph passes in the scene  */
-        Graphics::RZShaderLibrary     m_ShaderLibrary;          /* Shader library that pre-loads shaders into memory                                */
+        Gfx::RZWorldRenderer          m_WorldRenderer;          /* Razix world renderer that build and renders the frame graph passes in the scene  */
+        Gfx::RZShaderLibrary          m_ShaderLibrary;          /* Shader library that pre-loads shaders into memory                                */
 
     public:
         /* Starts up the Engine and it's sub-systems */
         void Ignite();
-        // TODO: Extern this and implement in the Gfx module to decrease header overload
-        /* Post ignition after important engine systems */
+        /* Post ignition after important engine systems, usually called after Gfx context and RZApp has been initialized */
         void PostGraphicsIgnite();
 
-        /// <summary>
-        /// Shutdowns the engine and all the resources and systems
-        /// </summary>
+        /* Shutdowns the engine and all the resources and systems */
         void ShutDown();
 
-        /// <summary>
-        /// manages the Engine Runtime systems
-        /// </summary>
+        /* manages the Engine Runtime systems */
         void Run();
 
-        /// <summary>
-        /// Gets the Statistics of the current engine state
-        /// </summary>
-        Stats& GetStatistics() { return m_Stats; }
-
-        /// <summary>
-        /// Resets the stats to the default value
-        /// </summary>
-        void ResetStats()
-        {
-            m_Stats.reset();
-        }
-
+        /* Loads and fills the Engine config Settings */
         void LoadEngineConfigFile();
 
+        /* Gets the command line parser */
+        RZCommandLineParser getCommandLineParser() { return m_CommandLineParser; }
         /* Get engine installation directory */
-        inline const std::string& getEngineInstallationDir() { return m_EngineInstallationDir; }
-
-        /// <summary>
-        /// Gets the maximum number of frames that can be rendered
-        /// </summary>
-        const f32& getTargetFrameRate() const { return m_MaxFramesPerSecond; }
-
-        /// <summary>
-        /// Sets the maximum number of frames per second
-        /// </summary>
-        /// <param name="targetFPS"> The targeted FPS for the engine </param>
-        void setTargetFrameRate(const f32& targetFPS) { m_MaxFramesPerSecond = targetFPS; }
+        RAZIX_INLINE const std::string& getEngineInstallationDir() { return m_EngineInstallationDir; }
+        /* Gets the Statistics of the current engine state */
+        RAZIX_INLINE Stats& GetStatistics() { return m_Stats; }
+        /* Reset Statistics of the current engine state */
+        RAZIX_INLINE void ResetStats() { m_Stats.reset(); }
+        /* Gets the World Renderer default global settings */
+        RAZIX_INLINE Gfx::RZRendererSettings& getWorldSettings() { return m_WorldSettings; }
+        /* Assigns the World Renderer default global settings */
+        RAZIX_INLINE void setWorldSettings(const Gfx::RZRendererSettings& settings) { m_WorldSettings = settings; }
+        /* Gets the Global Engine settings loaded from the ini file */
+        RAZIX_INLINE const EngineSettings& getGlobalEngineSettings() { return m_EngineSettings; }
 
         // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
-        RAZIX_INLINE Graphics::RZWorldRenderer& getWorldRenderer() { return m_WorldRenderer; }
-        RAZIX_INLINE Graphics::RZRendererSettings& getWorldSettings() { return m_WorldSettings; }
-        RAZIX_INLINE void                          setWorldSettings(const Graphics::RZRendererSettings& settings) { m_WorldSettings = settings; }
+        RAZIX_INLINE Gfx::RZWorldRenderer& getWorldRenderer() { return m_WorldRenderer; }
         RAZIX_INLINE Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        RAZIX_INLINE Graphics::RZShaderLibrary& getShaderLibrary() { return m_ShaderLibrary; }
+        RAZIX_INLINE Gfx::RZShaderLibrary& getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
-        Stats                        m_Stats;                                /* Current frame basic statistics	                                */
-        f32                          m_MaxFramesPerSecond = 1000.0f / 60.0f; /* Maximum frames per second that will be rendered by the Engine	*/
-        std::string                  m_EngineInstallationDir;                /* Where was the engine installed                                  */
-        Graphics::RZRendererSettings m_WorldSettings;                        /* World Renderer Settings                                         */
+        RZCommandLineParser     m_CommandLineParser;     /* Razix command line args passed to app/engine                   */
+        Stats                   m_Stats;                 /* Current frame basic statistics	                               */
+        std::string             m_EngineInstallationDir; /* Where was the engine installed                                 */
+        Gfx::RZRendererSettings m_WorldSettings;         /* World Renderer Settings                                        */
+        EngineSettings          m_EngineSettings;        /* Global Engine wide settings                                    */
     };
 }    // namespace Razix

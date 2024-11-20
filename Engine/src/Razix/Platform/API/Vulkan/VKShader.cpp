@@ -11,9 +11,9 @@
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
-#include "Razix/Graphics/RZShaderLibrary.h"
+#include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+#include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
@@ -25,7 +25,7 @@
 #include <spirv_reflect.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         std::unordered_map<ShaderStage, const char*> ShaderStageEntryPointNameMap = {
             {ShaderStage::Vertex, "VS_MAIN"},

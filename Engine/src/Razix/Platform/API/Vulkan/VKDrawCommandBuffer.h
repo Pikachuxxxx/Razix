@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
+#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
@@ -9,7 +9,7 @@
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class VKDrawCommandBuffer final : public RZDrawCommandBuffer
         {

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
         class VKIndexBuffer final : public RZIndexBuffer, public VKBuffer
         {
         public:

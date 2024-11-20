@@ -3,17 +3,17 @@
 // clang-format on
 #include "SpriteRendererComponent.h"
 
-#include "Razix/Graphics/RZSprite.h"
+#include "Razix/Gfx/RZSprite.h"
 
 namespace Razix {
 
-    SpriteRendererComponent::SpriteRendererComponent(Graphics::RZTextureHandle texture)
+    SpriteRendererComponent::SpriteRendererComponent(Gfx::RZTextureHandle texture)
     {
-        Sprite = new Graphics::RZSprite(texture);
+        Sprite = new Gfx::RZSprite(texture);
     }
 
     SpriteRendererComponent::SpriteRendererComponent(glm::vec4 color)
     {
-        Sprite = new Graphics::RZSprite(color);
+        Sprite = new Gfx::RZSprite(color);
     }
 }    // namespace Razix

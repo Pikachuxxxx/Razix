@@ -9,9 +9,9 @@
 #include "Razix/Platform/API/DirectX12/DX12Context.h"
 #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
-#include "Razix/Graphics/RZShaderLibrary.h"
+#include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+#include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
@@ -24,7 +24,7 @@
     #include <vendor/dxc/inc/dxcapi.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // Mask represents the number of components in binary form.
         // ex. float3 would be represented by 7 (0xb111), float2 by 3

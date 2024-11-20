@@ -14,7 +14,7 @@
 #include <glfw/glfw3.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         static void GetQueueCheckpointDataNV(VkQueue queue, u32* pCheckpointDataCount, VkCheckpointDataNV* pCheckPointData)
         {

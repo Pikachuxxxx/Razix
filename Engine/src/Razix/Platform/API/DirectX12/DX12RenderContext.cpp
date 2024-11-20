@@ -21,7 +21,7 @@
     #include <imgui/imgui.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         DX12RenderContext::DX12RenderContext(u32 width, u32 height)
         {
@@ -310,7 +310,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        Razix::Graphics::RZSwapchain* DX12RenderContext::GetSwapchainImpl()
+        Razix::Gfx::RZSwapchain* DX12RenderContext::GetSwapchainImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

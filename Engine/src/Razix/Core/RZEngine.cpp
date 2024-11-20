@@ -5,10 +5,10 @@
 
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/Version/RazixVersion.h"
-#include "Razix/Graphics/Materials/RZMaterial.h"
+#include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
-#include "Razix/Graphics/RHI/RZGPUMemoryManager.h"
+#include "Razix/Gfx/RHI/RZGPUMemoryManager.h"
 
 #include "Razix/Utilities/RZiniParser.h"
 
@@ -103,7 +103,7 @@ namespace Razix {
         RAZIX_CORE_INFO("***********************************");
 
         // Ignite the shader library after the Graphics has been initialized (Shutdown by RHI when being destroyed)
-        Graphics::RZShaderLibrary::Get().StartUp();
+        Gfx::RZShaderLibrary::Get().StartUp();
         //Graphics::RZMaterial::InitDefaultTexture();
     }
 
@@ -139,9 +139,36 @@ namespace Razix {
     {
         Utilities::RZiniParser engineConfigParser;
         // we're fucked if people launch it from bin directory we need to safe copy this just in case
-        bool                   success = engineConfigParser.parse("./Engine/content/config/DefaultEngineConfig.ini", true);
+        bool success = engineConfigParser.parse("./Engine/content/config/DefaultEngineConfig.ini", true);
         if (success) {
-            engineConfigParser.getValue<std::string>("Installation", "RootDir", m_EngineInstallationDir);
+            // Installation Settings
+            {
+                engineConfigParser.getValue<std::string>("Installation", "RootDir", m_EngineInstallationDir);
+            }
+
+            // Rendering Settings
+            {
+                engineConfigParser.getValue<bool>("Rendering", "EnableMSAA", m_EngineSettings.EnableMSAA);
+                engineConfigParser.getValue<bool>("Rendering", "EnableBindless", m_EngineSettings.EnableBindless);
+
+                int perfMode = 0;
+                engineConfigParser.getValue<int>("Rendering", "PerfMode", perfMode);
+                m_EngineSettings.PerformanceMode = (PerfMode) perfMode;
+
+                int GfxQuality = 0;
+                engineConfigParser.getValue<int>("Rendering", "GfxQuality", GfxQuality);
+                m_EngineSettings.GfxQuality = (GfxQualityMode) GfxQuality;
+
+                engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
+
+                int FPS = 0;
+                engineConfigParser.getValue<int>("Rendering", "TargetFPS", FPS);
+                m_EngineSettings.TargetFPSCap = (Gfx::TargetFPS) FPS;
+
+                engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
+                engineConfigParser.getValue<int>("Rendering", "MSAASamples", m_EngineSettings.MSAASamples);
+            }
+
         } else {
 #ifdef RAZIX_DEBUG
             m_EngineInstallationDir = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);

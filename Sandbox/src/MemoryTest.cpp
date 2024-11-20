@@ -28,16 +28,16 @@ public:
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::D3D12);
+        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::D3D12);
         //-------------------------------------------------------------------------------------
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
-        Razix::Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
         RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Razix::Graphics::RZGraphicsContext::GetContext()->Init();
+        Razix::Gfx::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
 
         // Testing Reflection system
@@ -98,7 +98,7 @@ public:
             //Razix::Memory::RZRingAllocator<std::unique_ptr<Graphics::RZCommandBuffer>> frame_command_buffers;
             //frame_command_buffers.init(3);
             //for (uint32_t i = 0; i < 45; i++) {
-            //    frame_command_buffers.put(std::make_unique<Graphics::RZCommandBuffer>(Razix::Graphics::RZCommandBuffer::Create()));
+            //    frame_command_buffers.put(std::make_unique<Graphics::RZCommandBuffer>(Razix::Gfx::RZCommandBuffer::Create()));
             //    RAZIX_TRACE("Ring buffer value at : {0} | head : {1}, tail : {2}", fmt::ptr(frame_command_buffers.get()), frame_command_buffers.getHead(), frame_command_buffers.getTail());
             //    if (frame_command_buffers.isFull())
             //        RAZIX_WARN("Ring Allocator is Full!");
@@ -141,7 +141,7 @@ public:
             int nrColumns = 7;
             float spacing   = 2.5f;
 
-            Razix::Graphics::MaterialProperties mat;
+            Razix::Gfx::MaterialProperties mat;
             mat.albedoColor      = glm::vec3(1.0f, 0.3f, 0.75f);
             mat.ambientOcclusion = 1.0f;
 

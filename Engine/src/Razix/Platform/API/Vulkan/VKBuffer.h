@@ -8,7 +8,7 @@
     #include "Razix/Core/RZDebugConfig.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         /* Vulkan buffer to hold and transfer data */
         class VKBuffer

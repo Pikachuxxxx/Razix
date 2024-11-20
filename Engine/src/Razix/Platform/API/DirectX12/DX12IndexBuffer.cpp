@@ -4,11 +4,11 @@
 
 #include "DX12IndexBuffer.h"
 
-#include "Razix/Graphics/RZVertexFormat.h"
+#include "Razix/Gfx/RZVertexFormat.h"
 
-#include "Razix/Graphics/Resources/RZResourceManager.h"
+#include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
+#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
@@ -18,7 +18,7 @@
     #include <vendor/d3dx12/d3dx12.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         DX12IndexBuffer::DX12IndexBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -59,7 +59,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto commandListD3D = (ID3D12GraphicsCommandList2*) Graphics::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer)->getAPIBuffer();
+            auto commandListD3D = (ID3D12GraphicsCommandList2*) Gfx::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer)->getAPIBuffer();
             commandListD3D->IASetIndexBuffer(&m_IndexBufferView);
         }
 

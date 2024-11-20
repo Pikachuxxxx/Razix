@@ -59,7 +59,6 @@ project "Razix"
         "RAZIX_BUILD_CONFIG=" .. outputdir,
         -- Renderer
         "RAZIX_RENDERER_RAZIX",
-        "RAZIX_RENDERER_FALCOR",
         "RAZIX_RAY_TRACE_RENDERER_RAZIX",
         "RAZIX_RAY_TRACE_RENDERER_OPTIX",
         "RAZIX_RAY_TRACE_RENDERER_EMBREE",
@@ -213,7 +212,6 @@ project "Razix"
             -- API
             -- "RAZIX_RENDER_API_OPENGL", // OpenGL is deprecated in Razix
             "RAZIX_RENDER_API_VULKAN",
-            -- "RAZIX_RENDER_API_DIRECTX11", // No Longer supported, only advanced APIs
             "RAZIX_RENDER_API_DIRECTX12",
             -- Windows / Visual Studio
             "WIN32_LEAN_AND_MEAN",
@@ -239,14 +237,9 @@ project "Razix"
             "src/Razix/Platform/GLFW/*.cpp",
 
             -- Platform supported Graphics API implementatioon
-            -- "src/Razix/Platform/API/OpenGL/*.h",
-            -- "src/Razix/Platform/API/OpenGL/*.cpp",
 
             "src/Razix/Platform/API/Vulkan/*.h",
             "src/Razix/Platform/API/Vulkan/*.cpp",
-
-            -- "src/Razix/Platform/API/DirectX11/*.h",
-            -- "src/Razix/Platform/API/DirectX11/*.cpp",
 
             "src/Razix/Platform/API/DirectX12/*.h",
             "src/Razix/Platform/API/DirectX12/*.cpp",

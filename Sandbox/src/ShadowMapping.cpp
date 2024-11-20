@@ -21,7 +21,7 @@ public:
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
+        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
     }
 
@@ -47,10 +47,10 @@ public:
         width = getWindow()->getWidth();
         height = getWindow()->getHeight();
 
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
+        if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::OPENGL) {
             swapchain = Graphics::RZSwapchain::Create(getWindow()->getWidth(), getWindow()->getHeight());
         }
-        else  if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
+        else  if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN) {
 
             buildPipelineResources();
             buildCommandPipeline();
@@ -81,12 +81,12 @@ public:
         auto& cameras = m_ActiveScene.GetComponentsOfType<CameraComponent>();
         m_ActiveScene.getSceneCamera().Camera.update(dt.GetTimestepMs());
 
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
+        if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::OPENGL) {
+            Razix::Gfx::RZGraphicsContext::GetContext()->ClearWithColor(0.39f, 0.33f, 0.43f);
             swapchain->Flip();
         }
-        else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN) {
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
+        else if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN) {
+            Razix::Gfx::RZGraphicsContext::GetContext()->ClearWithColor(0.99f, 0.33f, 0.43f);
 
             //RAZIX_TRACE("FPS : {0}", RZEngine::Get().GetStatistics().FramesPerSecond);
             
@@ -173,8 +173,8 @@ public:
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
 
         }
-        else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
-            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
+        else if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
+            Razix::Gfx::RZGraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
     }
 
     void OnQuit() override

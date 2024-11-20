@@ -17,9 +17,9 @@
 #include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "Razix/Graphics/RHI/API/RZSwapchain.h"
+#include "Razix/Gfx/RHI/API/RZSwapchain.h"
 
-#include "Razix/Graphics/RHI/RZGPUProfiler.h"
+#include "Razix/Gfx/RHI/RZGPUProfiler.h"
 
 // glm
 #include <glm/glm.hpp>
@@ -36,9 +36,9 @@ namespace ImGuizmo {
     enum MODE;
 }    // namespace ImGuizmo
 
-namespace Razix::Graphics {
+namespace Razix::Gfx {
     class RZTexture;
-}    // namespace Razix::Graphics
+}    // namespace Razix::Gfx
 
 namespace Razix {
 
@@ -205,7 +205,7 @@ namespace Razix {
         ImGuizmo::OPERATION       m_GuizmoOperation;
         ImGuizmo::MODE            m_GuizmoMode;
         f32                       m_GuizmoSnapAmount = 0.0f;
-        Graphics::RZGPUProfiler   m_GPUProfiler;
+        Gfx::RZGPUProfiler   m_GPUProfiler;
         bool                      m_EnableGuizmoEditing = false;
         std::mutex                m_RenderThreadMutex;
         std::thread               m_RenderThread;

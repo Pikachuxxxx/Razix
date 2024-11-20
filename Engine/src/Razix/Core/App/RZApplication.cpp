@@ -18,10 +18,10 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
-#include "Razix/Graphics/RHI/API/RZSwapchain.h"
-#include "Razix/Graphics/RHI/API/RZTexture.h"
-#include "Razix/Graphics/RHI/RHI.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZSwapchain.h"
+#include "Razix/Gfx/RHI/API/RZTexture.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #include "Razix/Scene/Components/CameraComponent.h"
 #include "Razix/Scene/Components/LightComponent.h"
@@ -53,7 +53,7 @@ namespace Razix {
 
     static std::string GetAppWindowTitleSignature(const std::string& projectName)
     {
-        std::string SignatureTitle = projectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Graphics::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
+        std::string SignatureTitle = projectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Gfx::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
         return SignatureTitle;
     }
 
@@ -82,8 +82,8 @@ namespace Razix {
         // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream;
-        if (RZEngine::Get().commandLineParser.isSet("project filename")) {
-            std::string fullPath = RZEngine::Get().commandLineParser.getValueAsString("project filename");
+        if (RZEngine::Get().getCommandLineParser().isSet("project filename")) {
+            std::string fullPath = RZEngine::Get().getCommandLineParser().getValueAsString("project filename");
             RAZIX_CORE_TRACE("Command line filename : {0}", fullPath);
             AppStream.open(fullPath, std::ifstream::in);
             m_ProjectFilePath = fullPath.substr(0, fullPath.find_last_of("\\/")) + "/";
@@ -112,8 +112,8 @@ namespace Razix {
         RZVirtualFileSystem::Get().mount("Materials", m_ProjectFilePath + std::string("/Assets/Materials"));
 
         // Check the command line arguments for the rendering api
-        if (RZEngine::Get().commandLineParser.isSet("rendering api"))
-            Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) RZEngine::Get().commandLineParser.getValueAsInt("project filename"));
+        if (RZEngine::Get().getCommandLineParser().isSet("rendering api"))
+            Gfx::RZGraphicsContext::SetRenderAPI((Gfx::RenderAPI) RZEngine::Get().getCommandLineParser().getValueAsInt("project filename"));
 
         // De-serialize the application
         if (AppStream.is_open()) {
@@ -151,11 +151,11 @@ namespace Razix {
             defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
-        // Override for dev utils (can still be overrided by application)
-        if (RZEngine::Get().commandLineParser.isSet("vulkan"))
-            Graphics::RZGraphicsContext::SetRenderAPI(Graphics::RenderAPI::VULKAN);
-        else if (RZEngine::Get().commandLineParser.isSet("dx12"))
-            Graphics::RZGraphicsContext::SetRenderAPI(Graphics::RenderAPI::D3D12);
+        // Override for dev utils (can still be override by application)
+        if (RZEngine::Get().getCommandLineParser().isSet("vulkan"))
+            Gfx::RZGraphicsContext::SetRenderAPI(Gfx::RenderAPI::VULKAN);
+        else if (RZEngine::Get().getCommandLineParser().isSet("dx12"))
+            Gfx::RZGraphicsContext::SetRenderAPI(Gfx::RenderAPI::D3D12);
 
         // If we change the API, then update the window title
         m_Window->setTitle(GetAppWindowTitleSignature(m_ProjectName).c_str());
@@ -207,8 +207,8 @@ namespace Razix {
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
-        if (Graphics::RHI::GetPointer() != nullptr) {
-            Graphics::RHI::OnResize(e.GetWidth(), e.GetHeight());
+        if (Gfx::RHI::GetPointer() != nullptr) {
+            Gfx::RHI::OnResize(e.GetWidth(), e.GetHeight());
 
             // Resize the frame graph resource before resizing the RHI
             Razix::RZEngine::Get().getWorldRenderer().getFrameGraph().resize(e.GetWidth(), e.GetHeight());
@@ -284,9 +284,9 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Initializing RHI...");
 
         // Create the API renderer to issue render commands
-        Graphics::RHI::Create(getWindow()->getWidth(), getWindow()->getHeight());
+        Gfx::RHI::Create(getWindow()->getWidth(), getWindow()->getHeight());
         // TODO: Enable window V-Sync here
-        Graphics::RHI::Init();
+        Gfx::RHI::Init();
 
 #ifndef WIP_DX12_RENDERER
         // TODO: Job system and Engine Systems(run-time) Initialization
@@ -362,10 +362,10 @@ namespace Razix {
         // Reload shaders and FrameGraph resources
         if (RZInput::IsKeyPressed(Razix::KeyCode::Key::R)) {
             RAZIX_CORE_INFO("Reloading FrameGraph...");
-            Graphics::RZShaderLibrary::Get().reloadShadersFromDisk();
+            Gfx::RZShaderLibrary::Get().reloadShadersFromDisk();
             auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
             worldRenderer.destroy();
-            Razix::Graphics::FrameGraph::RZFrameGraph::ResetFirstFrame();
+            Razix::Gfx::FrameGraph::RZFrameGraph::ResetFirstFrame();
             worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 
             RAZIX_CORE_INFO("FrameGraph reload Done!");
@@ -433,7 +433,7 @@ namespace Razix {
         //archive(cereal::make_nvp("Project Version", 0));
         archive(cereal::make_nvp("Render API", m_RenderAPI));
         // Set the render API from the De-serialized data
-        Graphics::RZGraphicsContext::SetRenderAPI((Graphics::RenderAPI) m_RenderAPI);
+        Gfx::RZGraphicsContext::SetRenderAPI((Gfx::RenderAPI) m_RenderAPI);
         u32 Width, Height;
         archive(cereal::make_nvp("Width", Width));
         archive(cereal::make_nvp("Height", Height));
@@ -460,7 +460,7 @@ namespace Razix {
         archive(cereal::make_nvp("Project Name", m_ProjectName));
         archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
         archive(cereal::make_nvp("Project ID", m_ProjectID.bytes()));
-        archive(cereal::make_nvp("Render API", (u32) Graphics::RZGraphicsContext::GetRenderAPI()));
+        archive(cereal::make_nvp("Render API", (u32) Gfx::RZGraphicsContext::GetRenderAPI()));
         archive(cereal::make_nvp("Width", m_Window->getWidth()));
         archive(cereal::make_nvp("Height", m_Window->getHeight()));
         archive(cereal::make_nvp("Project Path", m_ProjectFilePath));    // Why am I even serializing this?
@@ -548,7 +548,7 @@ namespace Razix {
             return;
 
 #ifdef RAZIX_RENDER_API_OPENGL
-        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL)
+        if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::OPENGL)
             ImGui_ImplOpenGL3_NewFrame();
 #endif
 
@@ -571,7 +571,7 @@ namespace Razix {
         RZEngine::Get().getWorldRenderer().OnImGui();
 
         // RHI Memory Stats (Available in Editor mode also)
-        Razix::Graphics::RHI::Get().OnImGui();
+        Razix::Gfx::RHI::Get().OnImGui();
 
         // User GUI
         if (RZSceneManager::Get().getCurrentScene())
@@ -766,7 +766,7 @@ namespace Razix {
 
         // FIXME: This is fucked up I'm not cleaning stuff for editor mode
         if (RZApplication::Get().getAppType() == AppType::GAME)
-            Graphics::RHI::Release();
+            Gfx::RHI::Release();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }

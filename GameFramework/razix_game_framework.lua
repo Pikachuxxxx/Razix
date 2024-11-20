@@ -107,9 +107,7 @@ project "GameFramework"
             "RAZIX_ROOT_DIR=./",
             "RAZIX_IMGUI",
             -- API
-            "RAZIX_RENDER_API_OPENGL",
             "RAZIX_RENDER_API_VULKAN",
-            "RAZIX_RENDER_API_DIRECTX11",
             "RAZIX_RENDER_API_DIRECTX12",
             -- Windows / Visual Studio
             "WIN32_LEAN_AND_MEAN",

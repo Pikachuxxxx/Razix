@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZCommandPool.h"
+#include "Razix/Gfx/RHI/API/RZCommandPool.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include <d3d12.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class DX12CommandPool final : public RZCommandPool
         {

@@ -113,7 +113,7 @@ void Razix::Editor::RZEInspectorWindow::qt_static_metacall(QObject *_o, QMetaObj
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->InspectorPropertyChanged(); break;
-        case 1: _t->OnMeshMaterialSelected((*reinterpret_cast< Graphics::RZMaterial*(*)>(_a[1]))); break;
+        case 1: _t->OnMeshMaterialSelected((*reinterpret_cast< Gfx::RZMaterial*(*)>(_a[1]))); break;
         case 2: _t->OnNameEdit(); break;
         case 3: _t->OnEntitySelected((*reinterpret_cast< RZEntity(*)>(_a[1]))); break;
         case 4: _t->ShowComponentsUtilContextMenu(); break;
@@ -134,7 +134,7 @@ void Razix::Editor::RZEInspectorWindow::qt_static_metacall(QObject *_o, QMetaObj
             }
         }
         {
-            using _t = void (RZEInspectorWindow::*)(Graphics::RZMaterial * );
+            using _t = void (RZEInspectorWindow::*)(Gfx::RZMaterial * );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&RZEInspectorWindow::OnMeshMaterialSelected)) {
                 *result = 1;
                 return;
@@ -190,7 +190,7 @@ void Razix::Editor::RZEInspectorWindow::InspectorPropertyChanged()
 }
 
 // SIGNAL 1
-void Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected(Graphics::RZMaterial * _t1)
+void Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected(Gfx::RZMaterial * _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);
