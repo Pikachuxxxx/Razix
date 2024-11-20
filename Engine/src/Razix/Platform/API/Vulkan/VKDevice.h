@@ -35,7 +35,7 @@ static std::vector<cstr> deviceExtensions = {
 // [To be read]: https://vulkan-tutorial.com/Compute_Shader
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // TODO: Move these either to RZGraphicsContext or make a new RZGPUDevice class
         constexpr u32    k_gpu_time_queries_per_frame = 32;   /* Max number of queries that can be made in a frame          */

@@ -23,7 +23,7 @@ namespace Razix {
         * - Boolean (true/false)
         * - String (e.g., "Hello")
         * 
-        * Note: string value types cannot contain white spaces!
+        * Note/FIXME: string value types cannot contain white spaces!
         */
 
         // Union to handle different types for values (string, int, bool, float)

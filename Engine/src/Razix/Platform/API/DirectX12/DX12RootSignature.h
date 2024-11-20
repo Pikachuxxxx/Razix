@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZRootSignature.h"
+#include "Razix/Gfx/RHI/API/RZRootSignature.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class DX12RootSignature final : public RZRootSignature
         {

@@ -11,7 +11,7 @@
 #include "vulkan/vulkan_core.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKBuffer::VKBuffer(BufferUsage usage, VkBufferUsageFlags usageFlags, u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
             : m_Usage(usage), m_UsageFlags(usageFlags), m_BufferSize(size)

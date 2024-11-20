@@ -3,6 +3,8 @@
 // clang-format on
 #include "VKPipeline.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/AssetSystem/RZAssetFileSpec.h"
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
@@ -11,7 +13,7 @@
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKPipeline::VKPipeline(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -185,7 +187,7 @@ namespace Razix {
             depthStencilSCI.front          = depthStencilSCI.back;
 
             //----------------------------
-            // Multi sample State
+            // Multi sample State (MSAA)
             //----------------------------
             VkPipelineMultisampleStateCreateInfo multiSampleSCI{};
             multiSampleSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -224,7 +226,7 @@ namespace Razix {
             graphicsPipelineCI.pRasterizationState                    = &rasterizationSCI;
             graphicsPipelineCI.pColorBlendState                       = &colorBlendSCI;
             graphicsPipelineCI.pTessellationState                     = nullptr;
-            graphicsPipelineCI.pMultisampleState                      = &multiSampleSCI;
+            graphicsPipelineCI.pMultisampleState                      = Razix::RZEngine::Get().getGlobalEngineSettings().EnableMSAA ? &multiSampleSCI : nullptr;
             graphicsPipelineCI.pDynamicState                          = &dynamicStateCI;
             graphicsPipelineCI.pViewportState                         = &viewportSCI;
             graphicsPipelineCI.pDepthStencilState                     = &depthStencilSCI;
@@ -241,5 +243,5 @@ namespace Razix {
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

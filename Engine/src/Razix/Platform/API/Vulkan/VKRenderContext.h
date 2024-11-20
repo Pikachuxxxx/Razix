@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/RHI.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -9,7 +9,7 @@
  */
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         const u32 kMAX_DESCRIPTORS_BINDABLE_PER_FRAME = 16;
 

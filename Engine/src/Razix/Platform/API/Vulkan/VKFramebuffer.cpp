@@ -9,7 +9,7 @@
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKFramebuffer::VKFramebuffer(const FramebufferInfo& frameBufInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {

@@ -1,3 +1,4 @@
+
 -- Configuration settings
 include 'Scripts/premake/common/premake-config.lua'
 -- Engine tool include directories

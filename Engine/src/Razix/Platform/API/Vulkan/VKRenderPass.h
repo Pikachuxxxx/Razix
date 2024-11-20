@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZRenderPass.h"
+#include "Razix/Gfx/RHI/API/RZRenderPass.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         /* Vulkan implementation of the render pass */
         class VKRenderPass : public RZRenderPass

@@ -20,7 +20,7 @@
 using namespace Microsoft::WRL;
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         //--------------------------------------------------------------------------------------
 

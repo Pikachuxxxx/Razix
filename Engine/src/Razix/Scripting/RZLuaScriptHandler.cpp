@@ -6,7 +6,7 @@
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Scene/RZScene.h"
 

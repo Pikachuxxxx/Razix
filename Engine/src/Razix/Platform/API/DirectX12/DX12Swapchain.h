@@ -2,9 +2,9 @@
 
 #include "RZSTL/smart_pointers.h"
 
-#include "Razix/Graphics/RHI/API/RZSwapchain.h"
-#include "Razix/Graphics/RHI/API/RZTexture.h"
-#include "Razix/Graphics/RHI/RHI.h"
+#include "Razix/Gfx/RHI/API/RZSwapchain.h"
+#include "Razix/Gfx/RHI/API/RZTexture.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
@@ -14,7 +14,7 @@
     #include "Razix/Platform/API/DirectX12/DX12Fence.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // VSYNC = OFF => To achieve maximum frame rates while rendering with vsync-off, the DXGI_SWAP_EFFECT_FLIP_DISCARD flip model should be used.
         // VSYNC = ON  => When using the DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL presentation model, the DXGI runtime will place the presented frame at the end of the presentation queue.

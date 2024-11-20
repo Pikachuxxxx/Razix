@@ -6,7 +6,7 @@
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/UUID/RZUUID.h"
 
-#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
 
 #include "Razix/Scene/RZSceneCamera.h"
 
@@ -15,13 +15,13 @@ namespace Razix {
     class RZEntity;
     struct CameraComponent;
 
-    namespace Graphics {
+    namespace Gfx {
         class RZPipeline;
         class RZDescriptorSet;
         class RZMesh;
     }    // namespace Graphics
 
-    using RZDescriptorSets = std::vector<Graphics::RZDescriptorSet*>;
+    using RZDescriptorSets = std::vector<Gfx::RZDescriptorSet*>;
 
     enum class SceneDrawGeometryMode
     {
@@ -66,9 +66,9 @@ namespace Razix {
         void update();
         void updateTransform(entt::entity entity);
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
-        void drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode = SceneDrawGeometryMode::SceneGeometry);
+        void drawScene(Gfx::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode = SceneDrawGeometryMode::SceneGeometry);
         /* Draw Decals into the GBuffer Render Targets */
-        void drawDecals(Graphics::RZPipelineHandle pipeline);
+        void drawDecals(Gfx::RZPipelineHandle pipeline);
 
         void Destroy();
 
@@ -133,7 +133,7 @@ namespace Razix {
         u32            m_LastMeshesCount = 0;
         RZSceneCamera  m_EditorModeCamera;
 
-        Graphics::RZMesh* m_Cube       = nullptr;
+        Gfx::RZMesh* m_Cube       = nullptr;
 
         friend class RZEntity;
 

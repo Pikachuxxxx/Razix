@@ -9,7 +9,7 @@
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         DX12Fence::DX12Fence(bool isSignalled /*= false*/)
         {

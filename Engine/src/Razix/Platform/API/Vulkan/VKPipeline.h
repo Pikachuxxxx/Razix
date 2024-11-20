@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZPipeline.h"
 
 #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class VKPipeline : public RZPipeline
         {

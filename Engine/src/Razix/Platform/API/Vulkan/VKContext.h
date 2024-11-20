@@ -4,7 +4,7 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
@@ -16,7 +16,7 @@
 struct GLFWwindow;
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class RAZIX_API VKContext : public RZGraphicsContext
         {

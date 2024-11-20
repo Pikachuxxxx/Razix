@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZPipeline.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include <d3d12.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class DX12Pipeline : public RZPipeline
         {

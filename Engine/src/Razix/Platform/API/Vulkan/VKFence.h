@@ -7,7 +7,7 @@
     #include "Razix/Core/RZDebugConfig.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         /* A Vulkan fence is a object used to synchronize between the CPU and GPU */
         class VKFence : public RZRoot

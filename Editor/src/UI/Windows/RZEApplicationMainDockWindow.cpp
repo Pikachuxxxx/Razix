@@ -17,7 +17,7 @@
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Scene/RZEntity.h"
 
-#include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Gfx/RZMeshFactory.h"
 #include "Razix/Scene/Components/HierarchyComponent.h"
 #include "Razix/Scene/Components/MeshRendererComponent.h"
 #include "Razix/Scene/Components/TransformComponent.h"
@@ -208,23 +208,23 @@ namespace Razix {
         {
             auto& worldSettings = RZEngine::Get().getWorldSettings();
             // Remove other shading mode flags before setting this
-            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisWireframe | Graphics::RendererDebugFlag_VisQuadOverDraw);
+            worldSettings.debugFlags &= ~(Gfx::RendererDebugFlag_VisWireframe | Gfx::RendererDebugFlag_VisQuadOverDraw);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_WireframeMode()
         {
             auto& worldSettings = RZEngine::Get().getWorldSettings();
             // Remove other shading mode flags before setting this
-            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisQuadOverDraw);
-            worldSettings.debugFlags |= Graphics::RendererDebugFlag_VisWireframe;
+            worldSettings.debugFlags &= ~(Gfx::RendererDebugFlag_VisQuadOverDraw);
+            worldSettings.debugFlags |= Gfx::RendererDebugFlag_VisWireframe;
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_QuadoverdrawMode()
         {
             auto& worldSettings = RZEngine::Get().getWorldSettings();
             // Remove other shading mode flags before setting this
-            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisWireframe);
-            worldSettings.debugFlags |= Graphics::RendererDebugFlag_VisQuadOverDraw;
+            worldSettings.debugFlags &= ~(Gfx::RendererDebugFlag_VisWireframe);
+            worldSettings.debugFlags |= Gfx::RendererDebugFlag_VisQuadOverDraw;
         }
 
         //-----------------------------------------------------------------------------------------------

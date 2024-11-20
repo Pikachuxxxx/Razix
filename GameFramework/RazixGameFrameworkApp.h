@@ -17,9 +17,9 @@ public:
         //-------------------------------------------------------------------------------------
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
-        Razix::Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
         RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Razix::Graphics::RZGraphicsContext::GetContext()->Init();
+        Razix::Gfx::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
     }
 

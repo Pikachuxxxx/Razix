@@ -21,7 +21,7 @@
     #define VK_LAYER_KHRONOS_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Load the functions dynamically to create the DebugUtilsMessenger

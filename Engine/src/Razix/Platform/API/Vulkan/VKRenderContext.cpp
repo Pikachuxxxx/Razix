@@ -20,7 +20,7 @@
 #include <imgui/imgui.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         static constexpr u32 MAX_DESCRIPTOR_SET_COUNT = 2500;
 
@@ -361,7 +361,7 @@ namespace Razix {
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                auto clearColor = Graphics::ClearColorFromPreset(attachment.second.clearColor);
+                auto clearColor = Gfx::ClearColorFromPreset(attachment.second.clearColor);
 
                 memcpy(attachInfo.clearValue.color.float32, &clearColor, sizeof(glm::vec4));
                 colorAttachments.push_back(attachInfo);

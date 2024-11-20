@@ -4,7 +4,7 @@
 
 #include "RZEVulkanWindow.h"
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -23,7 +23,7 @@ namespace Razix {
 
         void RZEVulkanWindow::Init()
         {
-            Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
+            Razix::Gfx::VKContext* context = static_cast<Razix::Gfx::VKContext*>(Razix::Gfx::RZGraphicsContext::GetContext());
 
             m_QVKInstance.setVkInstance(context->getInstance());
             auto result = m_QVKInstance.create();

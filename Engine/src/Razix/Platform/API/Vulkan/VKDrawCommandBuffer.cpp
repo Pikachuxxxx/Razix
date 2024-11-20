@@ -7,7 +7,7 @@
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKDrawCommandBuffer::VKDrawCommandBuffer(VkCommandPool pool)
             : m_CommandBuffer(VK_NULL_HANDLE), m_CommandPool(pool)

@@ -9,7 +9,7 @@
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         DX12CommandPool::DX12CommandPool(D3D12_COMMAND_LIST_TYPE type)
         {

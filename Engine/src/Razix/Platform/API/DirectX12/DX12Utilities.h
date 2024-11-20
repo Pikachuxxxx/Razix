@@ -4,10 +4,10 @@
 
     #include <d3d12.h>
 
-    #define CHECK_HRESULT(x) Razix::Graphics::DX12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
+    #define CHECK_HRESULT(x) Razix::Gfx::DX12Utilities::HRESULTCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // Forward Declarations for reducing cyclic dependency
         enum class DrawType;
@@ -128,17 +128,18 @@ namespace Razix {
              * 
              * @returns DX12 equivalent value of primitive topology 
              */
-            D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Graphics::DrawType type);
-            // I3DXXXX* CullModeToDX12(Razix::Graphics::CullMode cullMode);
-            // I3DXXXX* PolygoneModeToDX12(Razix::Graphics::PolygonMode polygonMode);
-            // I3DXXXX* BlendOpToDX12(Razix::Graphics::BlendOp blendOp);
-            // I3DXXXX* BlendFactorToDX12(Razix::Graphics::BlendFactor blendFactor);
-            // I3DXXXX* CompareOpToDX12(Razix::Graphics::CompareOp compareOp);
-            // I3DXXXX* DescriptorTypeToDX12(Razix::Graphics::DescriptorType descriptorType);
-            // I3DXXXX* ShaderStageToDX12(Razix::Graphics::ShaderStage stage);
+            D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Gfx::DrawType type);
+            D3D12_PRIMITIVE_TOPOLOGY      DrawTypeToDX12Topology(Razix::Gfx::DrawType type);
+            D3D12_FILL_MODE               PolygoneModeToDX12(Razix::Gfx::PolygonMode polygonMode);
+            D3D12_CULL_MODE               CullModeToDX12(Razix::Gfx::CullMode cullMode);
+            // I3DXXXX* BlendOpToDX12(Razix::Gfx::BlendOp blendOp);
+            // I3DXXXX* BlendFactorToDX12(Razix::Gfx::BlendFactor blendFactor);
+            // I3DXXXX* CompareOpToDX12(Razix::Gfx::CompareOp compareOp);
+            // I3DXXXX* DescriptorTypeToDX12(Razix::Gfx::DescriptorType descriptorType);
+            // I3DXXXX* ShaderStageToDX12(Razix::Gfx::ShaderStage stage);
 
         }    // namespace DX12Utilities
-    }        // namespace Graphics
+    }        // namespace Gfx
 }    // namespace Razix
 
 #endif

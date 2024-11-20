@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZEInspectorWindow.h"
 
-#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Gfx/RZMesh.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 
@@ -183,7 +183,7 @@ namespace Razix {
 
         void RZEInspectorWindow::AddMeshRendererComponent()
         {
-            m_InspectingEntity.AddComponent<MeshRendererComponent>(Graphics::MeshPrimitive::Sphere);
+            m_InspectingEntity.AddComponent<MeshRendererComponent>(Gfx::MeshPrimitive::Sphere);
             OnEntitySelected(m_InspectingEntity);
         }
 

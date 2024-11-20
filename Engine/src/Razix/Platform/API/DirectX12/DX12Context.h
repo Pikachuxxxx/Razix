@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
@@ -18,7 +18,7 @@
     #endif
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // Use the Windows Advanced Rasterization Platform (WARP) for device creation.
         static constexpr bool g_UseWarp = false;    // Preferable with older GPUs

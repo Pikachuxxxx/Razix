@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/RHI.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class DX12RenderContext : public RHI
         {

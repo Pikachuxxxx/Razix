@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZFramebuffer.h"
+#include "Razix/Gfx/RHI/API/RZFramebuffer.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         class VKFramebuffer : public RZFramebuffer
         {

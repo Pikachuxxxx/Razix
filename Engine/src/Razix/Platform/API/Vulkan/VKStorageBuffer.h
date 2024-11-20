@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZStorageBuffer.h"
+#include "Razix/Gfx/RHI/API/RZStorageBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
         class VKStorageBuffer : public RZStorageBuffer
         {
         public:

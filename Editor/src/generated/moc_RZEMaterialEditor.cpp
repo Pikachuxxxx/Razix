@@ -36,7 +36,7 @@ static const qt_meta_stringdata_Razix__Editor__RZEMaterialEditor_t qt_meta_strin
 QT_MOC_LITERAL(0, 0, 32), // "Razix::Editor::RZEMaterialEditor"
 QT_MOC_LITERAL(1, 33, 20), // "OnSetEditingMaterial"
 QT_MOC_LITERAL(2, 54, 0), // ""
-QT_MOC_LITERAL(3, 55, 28), // "Razix::Graphics::RZMaterial*"
+QT_MOC_LITERAL(3, 55, 28), // "Razix::Gfx::RZMaterial*"
 QT_MOC_LITERAL(4, 84, 8), // "material"
 QT_MOC_LITERAL(5, 93, 14), // "on_NameChanged"
 QT_MOC_LITERAL(6, 108, 23), // "on_DiffuseTextureSelect"
@@ -58,7 +58,7 @@ QT_MOC_LITERAL(20, 418, 17) // "OnUVScaleYChanged"
     },
     "Razix::Editor::RZEMaterialEditor\0"
     "OnSetEditingMaterial\0\0"
-    "Razix::Graphics::RZMaterial*\0material\0"
+    "Razix::Gfx::RZMaterial*\0material\0"
     "on_NameChanged\0on_DiffuseTextureSelect\0"
     "onDiffuseTextureUseCheckbox\0on_DiffuseColor\0"
     "on_SpecularTextureSelected\0"
@@ -131,7 +131,7 @@ void Razix::Editor::RZEMaterialEditor::qt_static_metacall(QObject *_o, QMetaObje
         auto *_t = static_cast<RZEMaterialEditor *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnSetEditingMaterial((*reinterpret_cast< Razix::Graphics::RZMaterial*(*)>(_a[1]))); break;
+        case 0: _t->OnSetEditingMaterial((*reinterpret_cast< Razix::Gfx::RZMaterial*(*)>(_a[1]))); break;
         case 1: _t->on_NameChanged(); break;
         case 2: _t->on_DiffuseTextureSelect(); break;
         case 3: _t->onDiffuseTextureUseCheckbox(); break;

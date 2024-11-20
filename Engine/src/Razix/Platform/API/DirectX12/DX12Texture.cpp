@@ -6,7 +6,7 @@
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         DX12Texture::DX12Texture(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {

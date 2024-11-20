@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZSceneCamera.h"
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

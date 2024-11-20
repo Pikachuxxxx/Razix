@@ -5,7 +5,7 @@
     #include <d3d12.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         /* D3D12 API Usage
                 CPU	                                GPU

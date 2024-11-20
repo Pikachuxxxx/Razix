@@ -77,9 +77,9 @@ public:
         //-------------------------------------------------------------------------------------
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
-        Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
         RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Graphics::RZGraphicsContext::GetContext()->Init();
+        Gfx::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
 
         vulkanWindow->Init();
@@ -89,7 +89,7 @@ public:
         Razix::RZApplication::Get().Init();
 
         VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
-        Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
+        Razix::Gfx::VKContext* context = static_cast<Razix::Gfx::VKContext*>(Razix::Gfx::RZGraphicsContext::GetContext());
         context->CreateSurface(&surface);
         context->SetupDeviceAndSC();
 

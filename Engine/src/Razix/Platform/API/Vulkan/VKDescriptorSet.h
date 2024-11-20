@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
+#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
     #define MAX_BUFFER_INFOS      32
     #define MAX_IMAGE_INFOS       32

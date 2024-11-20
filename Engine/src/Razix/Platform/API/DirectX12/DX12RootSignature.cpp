@@ -6,7 +6,7 @@
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
     }
 }    // namespace Razix
 
