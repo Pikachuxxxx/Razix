@@ -83,6 +83,7 @@ namespace Razix {
     {
         std::ifstream file(path);
         if (!file.is_open()) {
+            RAZIX_CORE_ERROR("[FileSystem] cannot open file check path: {0}", path);
             return "";
         }
 

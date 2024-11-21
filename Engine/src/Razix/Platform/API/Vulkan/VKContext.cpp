@@ -175,6 +175,9 @@ namespace Razix {
             VkInstanceCreateInfo instanceCI{};
             instanceCI.sType            = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
             instanceCI.pApplicationInfo = &appInfo;
+#ifdef __APPLE__
+            instanceCI.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
             // To track if there is any issue with instance creation we supply the pNext with the `VkDebugUtilsMessengerCreateInfoEXT`
             m_DebugCI                 = {};
@@ -255,9 +258,15 @@ namespace Razix {
             std::vector<cstr> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
 #ifdef RAZIX_PLATFORM_WINDOWS
             extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#elif defined RAZIX_PLATFORM_MACOS
+            extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
             extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
             extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+            
+            // instance extension
+            extensions.push_back("VK_EXT_debug_report");
+            
             // Add any custom extension from the list of supported extensions that you need and are not included by GLFW
             if (m_EnabledValidationLayer)
                 extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

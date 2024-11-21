@@ -34,6 +34,7 @@ namespace Razix {
             pipelineInfo.name                   = "Pipeline.HelloTriangle";
             pipelineInfo.shader                 = shader;
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
+            pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
             pipelineInfo.cullMode               = Gfx::CullMode::None;
             pipelineInfo.drawType               = Gfx::DrawType::Triangle;
             pipelineInfo.depthTestEnabled       = false;
@@ -41,13 +42,28 @@ namespace Razix {
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
+            
+            struct HelloTriangleData
+            {
+                FrameGraph::RZFrameGraphResource Depth;
+            };
 
-            framegraph.addCallbackPass(
+            framegraph.getBlackboard().add<HelloTriangleData>() = framegraph.addCallbackPass<HelloTriangleData>(
                 "Pass.Builtin.Code.HelloTriangle",
-                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](HelloTriangleData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
+                    
+                    RZTextureDesc depthTextureDesc;
+                    depthTextureDesc.name      = "SceneDepth";
+                    depthTextureDesc.width     = RZApplication::Get().getWindow()->getWidth();
+                    depthTextureDesc.height    = RZApplication::Get().getWindow()->getHeight();
+                    depthTextureDesc.format    = TextureFormat::DEPTH16_UNORM;
+                    depthTextureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
+                    depthTextureDesc.type      = TextureType::Texture_Depth;
+                    data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+
                 },
-                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const HelloTriangleData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Hello Triangle Pass");
@@ -58,6 +74,9 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
+                    
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
