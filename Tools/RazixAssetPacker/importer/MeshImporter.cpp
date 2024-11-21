@@ -120,7 +120,7 @@ namespace Razix {
                         }
 
                         // Store the Name
-                        strcpy_s(material.m_Name, mat_name.c_str());
+                        strcpy(material.m_Name, mat_name.c_str());
                         // TODO: Set the Surface Type and Material Type
                         readMaterial(directoryPath, assimp_material, material);
 
@@ -134,7 +134,7 @@ namespace Razix {
                         if (submesh_name.length() == 0)
                             submesh_name = "submesh_" + std::to_string(i);
 
-                        strcpy_s(result.submeshes[i].name, submesh_name.c_str());
+                        strcpy(result.submeshes[i].name, submesh_name.c_str());
                         result.submeshes[i].index_count  = scene->mMeshes[i]->mNumFaces * 3;
                         result.submeshes[i].vertex_count = scene->mMeshes[i]->mNumVertices;
                         result.submeshes[i].base_index   = index_count;
@@ -389,7 +389,7 @@ namespace Razix {
 
                 out_path = materialsDirectory + out_path;
 
-                strcpy_s(material, 250 * sizeof(char), out_path.c_str());
+                strcpy(material, out_path.c_str());
 
                 return true;
             }

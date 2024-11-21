@@ -152,8 +152,13 @@ project "assimp"
       "contrib/zlib",
       "contrib/rapidjson/include",
   }
-
-
+  
+    externalincludedirs {
+      "include",
+      "contrib/irrXML",
+      "contrib/zlib",
+      "contrib/rapidjson/include",
+  }
 
     filter "system:windows"
         systemversion "latest"

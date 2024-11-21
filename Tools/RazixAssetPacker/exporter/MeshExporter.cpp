@@ -79,7 +79,7 @@ namespace Razix {
                         BINMeshFileHeader header{};
 
                         // Copy Name
-                        strcpy_s(header.name, std::string(import_result.name + submesh.name).c_str());
+                        strcpy(header.name, std::string(import_result.name + submesh.name).c_str());
                         header.name[import_result.name.size()] = '\0';
 
                         header.index_count           = submesh.index_count;
@@ -94,7 +94,7 @@ namespace Razix {
                         header.base_vertex           = submesh.base_vertex;
                         header.material_index        = submesh.material_index;
                         //header.materialName          = submesh.materialName;
-                        strcpy_s(header.materialName, &submesh.materialName[0]);
+                        strcpy(header.materialName, &submesh.materialName[0]);
 
                         std::cout << "Exporting Mesh... : " << import_result.name + submesh.name << std::endl;
 
@@ -137,7 +137,7 @@ namespace Razix {
                         // write positions
                         BINBlobHeader h;
                         h.stride = sizeof(glm::vec3);
-                        strcpy_s(h.typeName, "POSITION:R32G32B32");
+                        strcpy(h.typeName, "POSITION:R32G32B32");
                         u32 writeSize = import_result.vertices.Position.size();
                         h.size        = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
                         WRITE_AND_OFFSET(f, (char*) &h, sizeof(BINBlobHeader), offset);
@@ -147,7 +147,7 @@ namespace Razix {
                         // Color
                         h        = {};
                         h.stride = sizeof(glm::vec4);
-                        strcpy_s(h.typeName, "COLOR:R32G32B32A32");
+                        strcpy(h.typeName, "COLOR:R32G32B32A32");
                         writeSize = import_result.vertices.Color.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
                         WRITE_AND_OFFSET(f, (char*) &h, sizeof(BINBlobHeader), offset);
@@ -157,7 +157,7 @@ namespace Razix {
                         // UV
                         h        = {};
                         h.stride = sizeof(glm::vec2);
-                        strcpy_s(h.typeName, "TEXCOORD:R32G32");
+                        strcpy(h.typeName, "TEXCOORD:R32G32");
                         writeSize = import_result.vertices.UV.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
                         WRITE_AND_OFFSET(f, (char*) &h, sizeof(BINBlobHeader), offset);
@@ -167,7 +167,7 @@ namespace Razix {
                         // Normal
                         h        = {};
                         h.stride = sizeof(glm::vec3);
-                        strcpy_s(h.typeName, "NORMAL:R32G32B32");
+                        strcpy(h.typeName, "NORMAL:R32G32B32");
                         writeSize = import_result.vertices.Normal.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
                         WRITE_AND_OFFSET(f, (char*) &h, sizeof(BINBlobHeader), offset);
@@ -177,7 +177,7 @@ namespace Razix {
                         // Tangent
                         h        = {};
                         h.stride = sizeof(glm::vec3);
-                        strcpy_s(h.typeName, "TANGENT:R32G32B32");
+                        strcpy(h.typeName, "TANGENT:R32G32B32");
                         writeSize = import_result.vertices.Tangent.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
                         WRITE_AND_OFFSET(f, (char*) &h, sizeof(BINBlobHeader), offset);

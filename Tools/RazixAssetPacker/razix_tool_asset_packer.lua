@@ -22,6 +22,21 @@ project "RazixAssetPacker"
         "%{IncludeDir.glm}",
         "%{IncludeDir.cereal}"
     }
+    
+    -- macos/xcode
+    externalincludedirs
+    {
+         "./",
+         "./common",
+         "./importer",
+         "./exporter",
+         "./vendor/assimp/include",
+         -- Razix
+         "%{IncludeDir.Razix}",
+         -- GLM
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.cereal}"
+    }
 
     files
     {
