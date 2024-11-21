@@ -144,7 +144,12 @@ workspace ( settings.workspace_name )
         architecture "x86_64"
     elseif Arch == "x86" then
         architecture "x86"
+    elseif Arch == "ARM64" then
+        architecture "ARM64"
     end
+    
+    architecture "ARM64"
+
 
     print("Generating Project files for Architecture = ", Arch)
 

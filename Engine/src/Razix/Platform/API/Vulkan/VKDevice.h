@@ -6,7 +6,9 @@
     #include "Razix/Platform/API/Vulkan/VKCommandPool.h"
     #include "Razix/Utilities/TRZSingleton.h"
 
+#if RAZIX_USE_VMA
     #include <vma/vk_mem_alloc.h>
+#endif
     #include <vulkan/vulkan.h>
 
     #define VK_KHR_dynamic_rendering_NAME "VK_KHR_dynamic_rendering"
@@ -127,8 +129,10 @@ namespace Razix {
             RAZIX_INLINE VkDescriptorSet                  getBindlessDescriptorSet() const { return m_BindlessDescriptorSet; }
             RAZIX_INLINE VkDescriptorSetLayout            getBindlessSetLayout() const { return m_BindlessSetLayout; }
             RAZIX_INLINE bool                             isBindlessSupported() const { return m_IsBindlessSupported; }
+#if RAZIX_USE_VMA
             /* Gets the Vulkan Memory Allocator */
             RAZIX_INLINE VmaAllocator& getVMA() { return m_VMAllocator; }
+#endif
 
         private:
             VkDevice                     m_Device                 = VK_NULL_HANDLE; /* Vulkan handle to abstracted device                                               */
@@ -145,7 +149,9 @@ namespace Razix {
             VkQueryPool                  m_TimestampsQueryPool    = VK_NULL_HANDLE; /* Query pool for allocating timestamps                                             */
             VkQueryPool                  m_PipelineStatsQueryPool = VK_NULL_HANDLE; /* Query pool for allocating pipeline stats                                         */
             bool                         m_IsBindlessSupported    = false;          /* Whether or not Bindless is supported on the machine                              */
+#if RAZIX_USE_VMA
             VmaAllocator                 m_VMAllocator            = VK_NULL_HANDLE; /* Vulkan Memory Allocator for managing GPU heap                                    */
+#endif
         };
     }    // namespace Graphics
 }    // namespace Razix

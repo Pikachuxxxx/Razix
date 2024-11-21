@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 //-----System Includes-----//
+#ifdef __cplusplus
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -73,7 +74,9 @@
 
 //-----Graphics-----//
 #ifdef RAZIX_RENDER_API_VULKAN
+#if RAZIX_USE_VMA
     #include <vma/vk_mem_alloc.h>
+#endif
     #include <vulkan/vulkan.h>
 #endif
 
@@ -84,3 +87,4 @@
 // Disable Warnings
 #pragma warning(disable : 4100)
 #pragma warning(disable : 4996)    // some spdlog stuff
+#endif

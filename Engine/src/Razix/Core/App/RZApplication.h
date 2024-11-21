@@ -32,8 +32,16 @@
 //! Some style guide rules are waved off for RZApplication class
 
 namespace ImGuizmo {
-    enum OPERATION;
-    enum MODE;
+    enum OPERATION {
+        TRANSLATE,
+        ROTATE,
+        SCALE
+    };
+
+    enum MODE {
+        LOCAL,
+        WORLD
+    };
 }    // namespace ImGuizmo
 
 namespace Razix::Gfx {
@@ -158,8 +166,10 @@ namespace Razix {
         inline RZUUID RAZIX_CALL getProjectUUID() { return m_ProjectID; }
 
         void setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
+#ifdef RAZIX_PLATFORM_WINDOWS
         void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
         HWND getViewportHWND() { return viewportHWND; }
+#endif
 
         void setProjectRoot(const std::string& projPath) { m_ProjectFilePath = projPath; }
 
@@ -184,7 +194,9 @@ namespace Razix {
         RAZIX_DEFINE_SAVE_LOAD
 
     private:
+#ifdef RAZIX_PLATFORM_WINDOWS
         HWND                      viewportHWND;
+#endif
         static RZApplication*     s_AppInstance;                      /* The singleton instance of the application                */
         AppState                  m_CurrentState = AppState::Loading; /* The current state of the application                     */
         AppType                   m_appType      = AppType::GAME;     /* The type of the application                              */

@@ -186,9 +186,6 @@ project "Razix"
         --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
         --buildoptions {"/-fsanitize=address"}
 
-        pchheader "rzxpch.h"
-        pchsource "src/rzxpch.cpp"
-
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
@@ -292,12 +289,84 @@ project "Razix"
     -- Razix Project settings for MacOS
     -------------------------------------
     filter "system:macosx"
-        cppdialect (engine_global_config.cpp_dialect)
+        cppdialect "C++17"
         staticruntime "off"
         systemversion "latest"
-        pchheader "%{wks.location}/../Engine/src/rzxpch.h"
-        pchsource "%{wks.location}/../Engine/src/rzxpch.cpp"
 
+        --pchheader "rzxpch.h"
+        --pchsource "src/rzxpch.cpp"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_MACOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
+        }
+
+        -- Windows specific source files for compilation
+        files
+        {
+            -- platform sepecific implementatioon
+            "src/Razix/Platform/MacOS/*.h",
+            "src/Razix/Platform/MacOS/*.cpp",
+
+            "src/Razix/Platform/GLFW/*.h",
+            "src/Razix/Platform/GLFW/*.cpp",
+
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
+
+            "src/Razix/Platform/API/Metal/*.h",
+            "src/Razix/Platform/API/Metal/*.cpp",
+
+            -- Vendor source files
+            "vendor/glad/src/glad.c"
+        }
+    
+        removefiles
+        {
+            --"src/rzxpch.cpp"
+        }
+        
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        -- Windows specific library directories
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+
+        -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
+        links
+        {
+            -- Render API
+            "vulkan"
+        }
+        
+        filter "files:**.c"
+            flags { "NoPCH" }
+        filter "files:**.m"
+            flags { "NoPCH" }
+        filter "files:**.mm"
+            flags { "NoPCH" }
+        
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"

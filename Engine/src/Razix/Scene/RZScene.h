@@ -111,7 +111,7 @@ namespace Razix {
 #pragma warning(disable : 4267)
             auto view = m_Registry.view<T>();
             for (auto& entity: view)
-                components.push_back(view.get<T>(entity));
+                components.push_back(view.template get<T>(entity));
 
 #pragma warning(pop)
 

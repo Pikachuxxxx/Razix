@@ -3,6 +3,39 @@
 /****************************************************************************************************
  *                                  Settings based on OS/Compiler                                   *
  ****************************************************************************************************/
+
+// Compiler Detection
+#if defined(_MSC_VER)
+    #define RAZIX_COMPILER_MSVC
+#elif defined(__clang__)
+    #define RAZIX_COMPILER_CLANG
+    #define RAZIX_APPLE_INTEL
+    #if defined(__arm__) || defined(__aarch64__)
+        #define RAZIX_COMPILER_CLANG_ARM
+        #define RAZIX_APPLE_SILICON
+    #endif
+#elif defined(__GNUC__)
+    #define RAZIX_COMPILER_GCC
+    #if defined(__arm__) || defined(__aarch64__)
+        #define RAZIX_COMPILER_GCC_ARM
+    #endif
+#else
+    #error "Unsupported compiler"
+#endif
+
+// Architecture Detection
+#if defined(__x86_64__) || defined(_M_X64)
+    #define RAZIX_ARCHITECTURE_X64
+#elif defined(__i386__) || defined(_M_IX86)
+    #define RAZIX_ARCHITECTURE_X86
+#elif defined(__arm__) || defined(_M_ARM)
+    #define RAZIX_ARCHITECTURE_ARM
+#elif defined(__aarch64__)
+    #define RAZIX_ARCHITECTURE_ARM64
+#else
+    #error "Unsupported architecture"
+#endif
+
 // Settings for Windows OS
 #ifdef RAZIX_PLATFORM_WINDOWS
 
@@ -27,14 +60,27 @@
 
     // IDK how to make a symbol to be hidden during exporting in MSVC I guess it does that explicitly where as MacOS/clang needs something explicit as shown below
     #define RAZIX_HIDDEN
+#elif defined RAZIX_PLATFORM_MACOS
+    #define MEM_DEF_ALIGNMENT_16 16
+    #define RAZIX_MEM_ALIGN_16  alignas(MEM_DEF_ALIGNMENT_16)
 
+    #ifdef RAZIX_BUILD_DLL
+        #define RAZIX_API __attribute__((visibility("default")))
+    #else
+        #define RAZIX_API
+    #endif
+
+    #define RAZIX_DEBUG_BREAK() __builtin_debugtrap()    // clang
+
+
+    #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
 #else
     #define MEM_DEF_ALIGNMENT_16 16
 
-    #define RAZXI_API           __attribute__((visibility("default")))
+    #define RAZIX_API           __attribute__((visibility("default")))
     #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
     #define RAZIX_DEBUG_BREAK() raise(SIGTRAP);
-    #define RAZIX_MEM_ALIGN_16  alignas(MEM_ALIGNMENT)
+    #define RAZIX_MEM_ALIGN_16  alignas(MEM_DEF_ALIGNMENT_16)
 
 #endif
 
@@ -208,7 +254,7 @@ public:                                                  \
 // NO discard values for functions
 #define RAZIX_NO_DISCARD [[nodiscard]]
 // Marks a variable as unused (to avoid a compile warning)
-#define UNREFERENCED_VARIABLE(P) (void) (P)
+#define RAZIX_UNREF_VAR(P) (void) (P)
 
 // Functions Calling Conventions for Razix Engine depending on the OS and compiler configuration
 // On Windows we use __cdecl by default however __stdcall might be necessary for interop API with Razix Engine and C#
@@ -226,7 +272,11 @@ public:                                                  \
 
 // Inline macros
 #define RAZIX_INLINE       inline
+#ifdef RAZIX_COMPILER_MSVC
 #define RAZIX_FORCE_INLINE __forceinline
+#elif defined RAZIX_COMPILER_CLANG
+#define RAZIX_FORCE_INLINE  __attribute__((always_inline))
+#endif
 
 /**
  * We need ways to emulate pure virtual function verification
@@ -260,7 +310,7 @@ public:                                                  \
     {                                                                    \
     private:                                                             \
         template<typename C>                                             \
-        static constexpr ::std::true_type test(decltype(&C::##funcName)) \
+        static constexpr ::std::true_type test(decltype(&C::funcName))   \
         {                                                                \
             return {};                                                   \
         }                                                                \
@@ -295,7 +345,7 @@ public:                                                  \
     {                                                                    \
     };                                                                   \
     template<typename T>                                                 \
-    struct has_##U<T, ::std::void_t<typename T::##U>> : ::std::true_type \
+    struct has_##U<T, ::std::void_t<typename T::U>> : ::std::true_type   \
     {                                                                    \
     };                                                                   \
     template<typename T>                                                 \
@@ -341,10 +391,25 @@ public:                                                  \
     }
 
 // Warning push/pop as per compiler convention
-#define RAZIX_WARNING_PUSH()     __pragma(warning(push))
-#define RAZIX_WARNING_POP()      __pragma(warning(pop))
-#define RAZIX_WARNING_DISABLE(x) __pragma warning(disable \
-                                                  : x)
+// MSVC-specific: __pragma(warning(push)) etc.
+#ifdef _MSC_VER
+    #define RAZIX_WARNING_PUSH()     __pragma(warning(push))
+    #define RAZIX_WARNING_POP()      __pragma(warning(pop))
+    #define RAZIX_WARNING_DISABLE(x) __pragma(warning(disable : x))
+
+//// GCC/Clang-specific: using pragmas for warning control
+//#elif defined(__GNUC__) || defined(__clang__)
+//    #define RAZIX_WARNING_PUSH()     _Pragma("GCC diagnostic push")
+//    #define RAZIX_WARNING_POP()      _Pragma("GCC diagnostic pop")
+//    #define RAZIX_WARNING_DISABLE(x) _Pragma("GCC diagnostic ignored \"-W" #x "\"")
+//
+//// Default fallback for other compilers, no warning control.
+#else
+    #define RAZIX_WARNING_PUSH()
+    #define RAZIX_WARNING_POP()
+    #define RAZIX_WARNING_DISABLE(x)
+#endif
+
 #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
 
 /**
@@ -403,32 +468,32 @@ public:                                                  \
 #define in_Kib(x) (x / 1024)
 
 // Operator overload for quick expression without using macros
-constexpr size_t operator""_Gib(unsigned long long int x)
+static constexpr size_t operator""_Gib(unsigned long long int x)
 {
     return x * 1 << 30;
 }
 
-constexpr size_t operator""_Mib(unsigned long long int x)
+static constexpr size_t operator""_Mib(unsigned long long int x)
 {
     return x * 1 << 20;
 }
 
-constexpr size_t operator""_Kib(unsigned long long int x)
+static constexpr size_t operator""_Kib(unsigned long long int x)
 {
     return x * 1 << 10;
 }
 
-constexpr float operator""_inGib(unsigned long long int x)
+static constexpr float operator""_inGib(unsigned long long int x)
 {
     return (float) x / (1 << 30);
 }
 
-constexpr float operator""_inMib(unsigned long long int x)
+static constexpr float operator""_inMib(unsigned long long int x)
 {
     return (float) x / (1 << 20);
 }
 
-constexpr float operator""_inKib(unsigned long long int x)
+static constexpr float operator""_inKib(unsigned long long int x)
 {
     return (float) x / (1 << 10);
 }
@@ -462,7 +527,11 @@ constexpr float operator""_inKib(unsigned long long int x)
 #endif
 
 /* Whether or not to use VMA as memory backend */
+#ifdef RAZIX_PLATFORM_WINDOWS
 #define RAZIX_USE_VMA 1
+#elif RAZIX_PLATFORM_MACOS
+#define RAZIX_USE_VMA 0 // Still porting WIP, so disabled idk if the SDK has it
+#endif
 
 /* Size of indices in Razix Engine, change here for global configuration */
 #define RAZIX_INDICES_SIZE         sizeof(u32)    // we use 32-bit indices for now

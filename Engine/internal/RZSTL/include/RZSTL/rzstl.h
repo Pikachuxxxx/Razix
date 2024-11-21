@@ -4,6 +4,7 @@
 #include "RZSTL/constexpr_map.h"
 #include "RZSTL/map.h"
 #include "RZSTL/ref_counter.h"
+#include "RZSTL/ring_buffer.h"
 #include "RZSTL/smart_pointers.h"
 #include "RZSTL/string.h"
 #include "RZSTL/unordered_map.h"

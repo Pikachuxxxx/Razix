@@ -58,6 +58,8 @@ namespace Razix {
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
             VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) imageMemory);
         }
+    
+#if RAZIX_USE_VMA
         void VKTexture::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
         {
             // We pass the image as reference because we need the memory for it as well
@@ -97,6 +99,7 @@ namespace Razix {
             // TODO: Get allocated memory stats from which pool etc. and attach that to RZMemoryManager
             //Memory::RZMemAllocInfo memAllocInfo{};
         }
+#endif
 
         //-----------------------------------------------------------------------------------
 
@@ -318,7 +321,7 @@ namespace Razix {
                 if (m_ImageViews[i] != VK_NULL_HANDLE)
                     vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageViews[i], nullptr);
 
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             if (m_Image != VK_NULL_HANDLE)
                 vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
 
@@ -346,8 +349,10 @@ namespace Razix {
                 imageInfo.sampler     = descriptor.sampler;
 
                 u32 bindingIdx = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
-
+                
                 switch (m_Desc.type) {
+                    case TextureType::Texture_1D:
+                    case TextureType::Texture_Depth:
                     case TextureType::Texture_2D:
                     case TextureType::Texture_2DArray:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_2D_BINDING_IDX;
@@ -358,6 +363,9 @@ namespace Razix {
                     case TextureType::Texture_CubeMap:
                     case TextureType::Texture_CubeMapArray:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_CUBEMAP_BINDING_IDX;
+                        break;
+                    case TextureType::Texture_SwapchainImage:
+                    case TextureType::COUNT:
                         break;
                 }
 
@@ -403,10 +411,10 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            void* pixels = nullptr;
+            u8* pixels = nullptr;
 
             if (desc.data != nullptr) {
-                pixels = desc.data;
+                pixels = (u8*)desc.data;
                 m_Size = VkDeviceSize(m_Desc.size);
                 RAZIX_CORE_ASSERT(m_Size, "[Vulkan] Size of pixel data provided is 0! check again");
             } else {
@@ -451,7 +459,7 @@ namespace Razix {
 
                 // Create the Vulkan Image and it's memory and Bind them together
                 // We use a simple optimal tiling options
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
 #else
             VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
@@ -492,7 +500,7 @@ namespace Razix {
             //delete stagingBuffer;
 
             if (m_DeleteImageData)
-                delete[] pixels;
+                delete pixels;
 
             // 2. Transition from transfer to shader layout (This causing some error, some kind of unnecessary layout transition for the mip maps)
             //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_TotalMipLevels);
@@ -557,7 +565,7 @@ namespace Razix {
 
 // Create the Vulkan Image and it's memory and Bind them together
 // We use a simple optimal tiling options
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
 #else
             VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);

@@ -5,12 +5,11 @@
 #include "Razix/Gfx/RHI/API/RZTexture.h"
 
 #include <glm/glm.hpp>
+#include <spirv_reflect.h>
 
 #define VK_CHECK_RESULT(x) VK_ERROR_REPORT(x)
 
 #define VK_ERROR_REPORT(x) Razix::Gfx::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
-
-enum SpvReflectDescriptorType;
 
 namespace Razix {
     namespace Gfx {
@@ -89,7 +88,7 @@ namespace Razix {
                 {VK_ERROR_INCOMPATIBLE_DRIVER, "The requested version of Vulkan is not supported by the driver or is otherwise incompatible for implementation-specific reasons."},
                 {VK_ERROR_TOO_MANY_OBJECTS, "Too many objects of the type have already been created."},
                 {VK_ERROR_FORMAT_NOT_SUPPORTED, "A requested format is not supported on this device."},
-                {VK_ERROR_FRAGMENTED_POOL, "A pool allocation has failed due to fragmentation of the pool’s memory. This must only be returned if no attempt to allocate host or device memory was made to accommodate the new allocation. This should be returned in preference to VK_ERROR_OUT_OF_POOL_MEMORY, but only if the implementation is certain that the pool allocation failure was due to fragmentation."},
+                {VK_ERROR_FRAGMENTED_POOL, "A pool allocation has failed due to fragmentation of the pool's memory. This must only be returned if no attempt to allocate host or device memory was made to accommodate the new allocation. This should be returned in preference to VK_ERROR_OUT_OF_POOL_MEMORY, but only if the implementation is certain that the pool allocation failure was due to fragmentation."},
                 {VK_ERROR_SURFACE_LOST_KHR, "A surface is no longer available."},
                 {VK_ERROR_NATIVE_WINDOW_IN_USE_KHR, "The requested window is already in use by Vulkan or another API in a manner which prevents it from being used again."},
                 {VK_ERROR_OUT_OF_DATE_KHR, "A surface has changed in such a way that it is no longer compatible with the swapchain, and further presentation requests using the swapchain will fail. Applications must query the new surface properties and recreate their swapchain if they wish to continue presenting to the surface."},
@@ -100,7 +99,7 @@ namespace Razix {
                 {VK_ERROR_FRAGMENTATION, "A descriptor pool creation has failed due to fragmentation."},
                 {VK_ERROR_INVALID_DEVICE_ADDRESS_EXT, "A buffer creation failed because the requested address is not available."},
                 {VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS, "A buffer creation or memory allocation failed because the requested address is not available. A shader group handle assignment failed because the requested shader group handle information is no longer valid."},
-                {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application’s control."},
+                {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application's control."},
                 {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}};
 
             /* 

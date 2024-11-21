@@ -11,7 +11,7 @@ namespace Razix {
     namespace Gfx {
 
         /* Vulkan API Implementation of the RZUniformBufferm, it is also a VKBuffer by behavior */
-        class VKUniformBuffer : public RZUniformBuffer, public VKBuffer
+        class VKUniformBuffer final : public RZUniformBuffer, public VKBuffer
         {
         public:
             /**

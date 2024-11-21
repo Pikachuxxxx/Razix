@@ -57,7 +57,7 @@ namespace Razix {
             }
 
             // Note: Shouldn't this be Virtual?
-            ~IRZResource()
+            virtual ~IRZResource()
             {
                 auto refValue = m_AtomicRefCounter.Unref();
                 if (refValue <= 0) {
@@ -71,6 +71,7 @@ namespace Razix {
 
             virtual void DestroyResource() = 0;
 
+#if 0
             // This is the Magic right here, these will make sure new will allocate the memory from their respective ResourcePools, no need to use placement new and make things looks messy
             // Note: Operators are STATIC FUNCTIONS!
             //void* operator new(size_t size);
@@ -82,18 +83,16 @@ namespace Razix {
             void operator delete(void* pointer, void* where);
             //void operator delete[](void* pointer);
             void operator delete[](void* pointer, void* where);
+#endif
 
             inline const std::string& getName() { return m_ResourceName; }
             inline void               setName(const std::string& name) { m_ResourceName = name; }
-
             inline u32  getPoolIndex() { return m_Handle.getIndex(); }
             inline void setPoolIndex(u32 index) { m_Handle.setIndex(index); }
             inline u32  getGenerationIndex() { return m_Handle.getGeneration(); }
             inline void setGenerationIndex(u32 index) { m_Handle.setGeneration(index); }
-
             inline RZHandle<T>& getHandle() { return m_Handle; }
             inline void         setHandle(const RZHandle<T>& handle) { m_Handle = handle; }
-
             inline RZUUID& getUUID() { return m_UUID; }
 
         protected:
@@ -102,9 +101,6 @@ namespace Razix {
             RZHandle<T>             m_Handle           = {};
             std::string             m_ResourceName     = "$UNNAMED_RESOURCE$";
 
-        private:
-            //template<typename U>
-            //friend RZResourcePoolTyped<U>;
         };
 
 #if 0
@@ -123,7 +119,6 @@ template<typename T>
             ///////////////////////////////////////////
             return ptr;
         }
-#endif
 
         template<typename T>
         void* IRZResource<T>::operator new(size_t size, void* where)
@@ -134,7 +129,6 @@ template<typename T>
             return (where);
         }
 
-#if 0
  template<typename T>
         void* IRZResource<T>::operator new[](size_t size)
         {
@@ -147,7 +141,6 @@ template<typename T>
             resource->setHandle(handle);
             return ptr;
         }
-#endif
 
         template<typename T>
         void* IRZResource<T>::operator new[](size_t size, void* where)
@@ -158,7 +151,6 @@ template<typename T>
             return (where);
         }
 
-#if 0
  template<typename T>
         void IRZResource<T>::operator delete(void* pointer)
         {
@@ -170,16 +162,14 @@ template<typename T>
             res->setGenerationIndex(0);
             RZResourceManager::Get().getPool<T>().release(res->getHandle());
         }
-#endif
 
         template<typename T>
         void IRZResource<T>::operator delete(void* pointer, void* where)
         {
-            (void*) pointer;
-            (void*) where;
+            RAZIX_UNREF_VAR((void*)(pointer));
+            RAZIX_UNREF_VAR((void*)(where));
         }
 
-#if 0
 template<typename T>
         void IRZResource<T>::operator delete[](void* pointer)
         {
@@ -191,13 +181,14 @@ template<typename T>
             res->setGenerationIndex(0);
             RZResourceManager::Get().getPool<T>().release(res->getHandle());
         }
-#endif
+
 
         template<typename T>
         void IRZResource<T>::operator delete[](void* pointer, void* where)
         {
-            (void*) pointer;
-            (void*) where;
+            RAZIX_UNREF_VAR((void*)(pointer));
+            RAZIX_UNREF_VAR((void*)(where));
         }
+#endif
     }    // namespace Gfx
 }    // namespace Razix

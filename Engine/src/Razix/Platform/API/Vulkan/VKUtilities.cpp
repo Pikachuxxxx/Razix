@@ -882,7 +882,7 @@ namespace Razix {
                     case VK_FORMAT_R8_SINT:
                         return sizeof(int);
                     case VK_FORMAT_R32_SFLOAT:
-                        return sizeof(FLOAT);
+                        return sizeof(float);
                     case VK_FORMAT_R32G32_SFLOAT:
                         return sizeof(glm::vec2);
                     case VK_FORMAT_R32G32B32_SFLOAT:

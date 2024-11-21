@@ -6,14 +6,7 @@
 
 // Only use simde if we use clang on windows --> soon to use only 256b-it AVX as PS5 doesn't support avx-512
 
-#ifdef __clang__
-    #define SIMDE_ENABLE_NATIVE_ALIASES
-    #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
 
-    #include <simde/x86/avx.h>     // AVX
-    #include <simde/x86/avx2.h>    // AVX
-    #include <simde/x86/sse4.1.h>
-#endif
 
 namespace Razix {
 

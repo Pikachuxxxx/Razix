@@ -11,9 +11,11 @@
 
     #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
+#if RAZIX_USE_VMA
     // VMA
     #define VMA_IMPLEMENTATION
     #include <vma/vk_mem_alloc.h>
+#endif
 
 namespace Razix {
     namespace Gfx {
