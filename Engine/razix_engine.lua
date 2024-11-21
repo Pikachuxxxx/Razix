@@ -46,9 +46,6 @@ project "Razix"
         -- Debugging directory = where the main premake5.lua is located
     debugdir "%{wks.location}../"
 
-    pchheader "src/rzxpch.h"
-    pchsource "src/rzxpch.cpp"
-
     -- Razix Engine defines (Global)
     defines
     {
@@ -179,6 +176,9 @@ project "Razix"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
         editandcontinue "Off"
+        
+        pchheader "src/rzxpch.h"
+        pchsource "src/rzxpch.cpp"
 
          -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
          -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
@@ -287,6 +287,17 @@ project "Razix"
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"'
         }
+        
+    -------------------------------------
+    -- Razix Project settings for MacOS
+    -------------------------------------
+    filter "system:macosx"
+        cppdialect (engine_global_config.cpp_dialect)
+        staticruntime "off"
+        systemversion "latest"
+        pchheader "%{wks.location}/../Engine/src/rzxpch.h"
+        pchsource "%{wks.location}/../Engine/src/rzxpch.cpp"
+
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"

@@ -64,12 +64,14 @@ end
 
 generate_default_engine_config()
 
--- Set some Razix SDK env variables
-run_as_admin = "runas /user:administrator"
-set_env = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. " /m"
-set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m"
-os.execute(set_env)
-os.execute(set_env_tools)
+-- Set some Razix SDK env variables on Windows only
+if os.target() == "windows" then
+    run_as_admin = "runas /user:administrator"
+    set_env = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. " /m"
+    set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m"
+    os.execute(set_env)
+    os.execute(set_env_tools)
+end
 
 
 -- QT SDK - 5.15.2
@@ -77,6 +79,7 @@ QTDIR = os.getenv("QTDIR")
 
 if (QTDIR == nil or QTDIR == '') then
     print("QTDIR Enviroment variable is not found! Please check your development environment settings")
+    print("Exiting... fix and regenerate project files again!")
     os.exit()
 else
     print("QTDIR found at : " .. QTDIR)
@@ -167,18 +170,6 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/SPIRVReflect/SPIRVReflect.lua"
         include "Engine/vendor/tracy/tracy.lua"
         include "Engine/vendor/Jolt/jolt.lua"
-    group ""
-
-    -- Uses .NET 4.0
-    framework "4.0"
-    -- Sony WWS Authoring Tools Framework modules
-    group "Dependencies/ATF"
-        -- SCE ATF Dependencies
-        --require("Tools/vendor/ATF/Framework/Atf.Core/premake5")
-        --require("Tools/vendor/ATF/Framework/Atf.Gui/premake5")
-        --require("Tools/vendor/ATF/Framework/Atf.Gui.WinForms/premake5")
-        --require("Tools/vendor/ATF/Framework/Atf.IronPython/premake5")
-        --require("Tools/vendor/ATF/Framework/Atf.SyntaxEditorControl/premake5")
     group ""
 
     -- Razix Tools Vendor dependencies

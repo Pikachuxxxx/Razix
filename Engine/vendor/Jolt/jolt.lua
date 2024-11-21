@@ -9,6 +9,12 @@ project "Jolt"
          "./",
          "./Jolt"
     }
+    
+    externalincludedirs
+    {
+         "./",
+         "./Jolt"
+    }
 
     files
     {

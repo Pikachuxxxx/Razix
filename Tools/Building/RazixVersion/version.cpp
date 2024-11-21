@@ -2,7 +2,7 @@
  * Prints the Razix Engine Version information
  */
 
-#include <Razix/Core/RazixVersion.h>
+#include <Razix/Core/Version/RazixVersion.h>
 #include <string>
 #include <iostream>
 

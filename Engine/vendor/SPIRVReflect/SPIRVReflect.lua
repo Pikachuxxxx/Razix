@@ -18,6 +18,12 @@ project "SPIRVReflect"
         "include",
         "./"
     }
+    
+    externalincludedirs
+    {
+        "include",
+        "./"
+    }
 
     filter "system:linux"
         pic "On"

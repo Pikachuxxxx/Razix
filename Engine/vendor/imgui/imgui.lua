@@ -4,9 +4,14 @@ project "ImGui"
     cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
 
-     includedirs
+        includedirs
         {
-             "./"
+            "./"
+        }
+    
+        externalincludedirs
+        {
+            "./"
         }
 
     files
