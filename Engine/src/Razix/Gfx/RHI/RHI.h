@@ -350,7 +350,7 @@ namespace Razix {
             /* Gets the height of the current RHI rendering extents */
             RAZIX_FORCE_INLINE const u32& getHeight() { return m_Height; }
             /* Set the command buffer to record command onto */
-            RAZIX_DEPRECATED("[Razix Deprecated!] SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
+//            RAZIX_DEPRECATED("[Razix Deprecated!] SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
             RAZIX_FORCE_INLINE static void SetCmdBuffer(RZDrawCommandBufferHandle cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
 
             /* OnImGui UI rendering for RHI */

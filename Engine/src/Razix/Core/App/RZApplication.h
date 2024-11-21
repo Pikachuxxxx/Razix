@@ -31,7 +31,7 @@
 
 //! Some style guide rules are waved off for RZApplication class
 
-namespace ImGuizmo {
+namespace Guizmo {
     enum OPERATION {
         TRANSLATE,
         ROTATE,
@@ -183,8 +183,8 @@ namespace Razix {
             m_GuizmoEntity        = entity;
             m_EnableGuizmoEditing = true;
         }
-        void setGuizmoOperation(ImGuizmo::OPERATION operation) { m_GuizmoOperation = operation; }
-        void setGuizmoMode(ImGuizmo::MODE mode) { m_GuizmoMode = mode; }
+        void setGuizmoOperation(Guizmo::OPERATION operation) { m_GuizmoOperation = operation; }
+        void setGuizmoMode(Guizmo::MODE mode) { m_GuizmoMode = mode; }
         void setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
 
         RAZIX_INLINE const AppState& getAppState() const { return m_CurrentState; }
@@ -214,8 +214,8 @@ namespace Razix {
         RZUUID                    m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
         std::vector<std::string>  sceneFilePaths;
         RZEntity                  m_GuizmoEntity;
-        ImGuizmo::OPERATION       m_GuizmoOperation;
-        ImGuizmo::MODE            m_GuizmoMode;
+        Guizmo::OPERATION         m_GuizmoOperation;
+        Guizmo::MODE              m_GuizmoMode;
         f32                       m_GuizmoSnapAmount = 0.0f;
         Gfx::RZGPUProfiler   m_GPUProfiler;
         bool                      m_EnableGuizmoEditing = false;

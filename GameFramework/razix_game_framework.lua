@@ -119,6 +119,25 @@ project "GameFramework"
 
         disablewarnings { 4307, 4267, 4275, 4554, 4996 }
 
+    filter "system:macosx"
+        cppdialect "C++17"
+        staticruntime "off"
+        systemversion "latest"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_MACOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
+        }
+
+
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
         symbols "On"

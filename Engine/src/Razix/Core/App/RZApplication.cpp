@@ -58,7 +58,7 @@ namespace Razix {
     }
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
-        : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(ImGuizmo::TRANSLATE), m_GuizmoMode(ImGuizmo::MODE::WORLD)
+        : m_ProjectName(appName), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(Guizmo::TRANSLATE), m_GuizmoMode(Guizmo::MODE::WORLD)
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
@@ -603,7 +603,7 @@ namespace Razix {
             //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));
 
             // https://github.com/CedricGuillemet/ImGuizmo/issues/237
-            ImGuizmo::Manipulate(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), m_GuizmoOperation, m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
+            ImGuizmo::Manipulate(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), (ImGuizmo::OPERATION)m_GuizmoOperation, (ImGuizmo::MODE)m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
 
             f32 matrixTranslation[3], matrixRotation[3], matrixScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);

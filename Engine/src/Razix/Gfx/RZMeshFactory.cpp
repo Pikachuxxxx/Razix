@@ -20,7 +20,6 @@ namespace Razix {
     namespace Gfx {
         namespace MeshFactory {
 
-            static RZMesh* ScreenMesh = nullptr;    // Drawn by generating vertices in shader itself
             static RZMesh* planeMesh  = nullptr;
             static RZMesh* cubeMesh   = nullptr;
             static RZMesh* sphereMesh = nullptr;

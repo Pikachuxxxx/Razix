@@ -72,7 +72,7 @@ namespace Razix {
          * 
          */
 
-        constexpr auto kDescriptorBindingInfoBits = 29;
+        //constexpr auto kDescriptorBindingInfoBits = 29;
 
         constexpr auto kTypeBits  = 3;
         constexpr auto kStageBits = 5;
@@ -130,7 +130,7 @@ namespace Razix {
          * 
          */
 
-        constexpr auto kAttachmentInfoBits = 22;
+        // constexpr auto kAttachmentInfoBits = 22;
 
         constexpr auto kClearBits      = 1;
         constexpr auto kClearColorBits = 3;

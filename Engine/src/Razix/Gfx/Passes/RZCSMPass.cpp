@@ -57,7 +57,6 @@ namespace Razix {
             pipelineInfo.depthWriteEnabled   = true;
             m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
             auto& csmData        = framegraph.getBlackboard().add<CSMData>();
 
             CascadeSubPassData cascadeSubpassData{-1};
@@ -130,7 +129,6 @@ namespace Razix {
 
             // Get the cascade splits
             const auto cascadeSplits  = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
-            const auto invViewProjRaw = glm::inverse(camera.getProjectionRaw() * camera.getViewMatrix());
             const auto invViewProj    = glm::inverse((camera.getProjection() * camera.getViewMatrix()));    // This is causing a flip
 
             auto lastSplitDist = 0.0f;

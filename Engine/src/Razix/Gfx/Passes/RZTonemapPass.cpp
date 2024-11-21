@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZToneMapPass.h"
+#include "RZTonemapPass.h"
 
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/RZEngine.h"

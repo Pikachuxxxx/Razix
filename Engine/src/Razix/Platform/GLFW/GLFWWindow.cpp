@@ -58,8 +58,6 @@ namespace Razix {
 
     void GLFWWindow::SetWindowIcon()
     {
-        u8* pixels = nullptr;
-
         // 64-bit logo
         std::vector<GLFWimage> images;
         GLFWimage              image64{};

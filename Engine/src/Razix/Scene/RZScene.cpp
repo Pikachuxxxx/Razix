@@ -151,7 +151,7 @@ namespace Razix {
             RAZIX_PROFILE_SCOPEC("Draw Scene Geometry", RZ_PROFILE_COLOR_SCENE);
 
             entt::basic_group mesh_group  = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
-            u32               meshesCount = mesh_group.size();
+            u32               meshesCount = static_cast<u32>(mesh_group.size());
 
             if (m_LastMeshesCount != meshesCount)
                 m_LastMeshesCount = meshesCount;
@@ -405,6 +405,7 @@ namespace Razix {
         }
         //}
         // This will cause a not all control paths return a value warning, it's fine cause it doesn't make the engine to run without a camera!
+        return m_DefaultSceneCameraToAvoidCompileErrors;
     }
 
     // Serialization Functions
@@ -429,6 +430,6 @@ namespace Razix {
     void RZScene::OnComponentAdded(RZEntity entity, T& component)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-        m_Registry.on_construct<T>().connect<&T::OnConstruct>();
+        m_Registry.template on_construct<T>().template connect<&T::OnConstruct>();
     }
 }    // namespace Razix

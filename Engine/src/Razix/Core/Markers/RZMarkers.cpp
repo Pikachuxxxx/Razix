@@ -35,6 +35,7 @@ void BeginMarker(const std::string& name, glm::vec4 color)
             Razix::Gfx::DX12Utilities::CmdBeginLabel(static_cast<Razix::Gfx::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList(), name, color);
             break;
 #endif
+        default: break;
     }
 }
 
@@ -55,6 +56,7 @@ void InsertMarker(const std::string& name, glm::vec4 color)
 #ifdef RAZIX_RENDER_API_DIRECTX12
         case Razix::Gfx::RenderAPI::D3D12: break;
 #endif
+        default: break;
     }
 }
 
@@ -77,5 +79,6 @@ void EndMarker()
             Razix::Gfx::DX12Utilities::CmdEndLabel(static_cast<Razix::Gfx::DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
             break;
 #endif
+        default: break;
     }
 }

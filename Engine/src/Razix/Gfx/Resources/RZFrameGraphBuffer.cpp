@@ -47,10 +47,10 @@ namespace Razix {
                 //Graphics::RHI::InsertBufferMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_BufferHandle, {.startExecutionStage = PipelineStage::kTopOfPipe, .endExecutionStage = endStage}, {.srcAccess = MemoryAccessMask::})
 
                 // Get the Biding info from the flags
-                if (flags != FrameGraph::kFlagsNone)
-                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
-                else
-                    return;
+//                if (flags != FrameGraph::kFlagsNone)
+//                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
+//                else
+//                    return;
             }
 
             void RZFrameGraphBuffer::preWrite(const Desc& desc, uint32_t flags)
@@ -60,10 +60,10 @@ namespace Razix {
                 // Unlike images they are already in proper and fixed state
 
                 // Get the Biding info from the flags
-                if (flags != FrameGraph::kFlagsNone)
-                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
-                else
-                    return;
+//                if (flags != FrameGraph::kFlagsNone)
+//                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
+//                else
+//                    return;
             }
         }    // namespace FrameGraph
     }        // namespace Graphics

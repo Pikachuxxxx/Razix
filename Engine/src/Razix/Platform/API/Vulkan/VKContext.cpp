@@ -16,7 +16,9 @@
 
     #include <glfw/glfw3.h>
     #include <vulkan/vulkan.h>
+#ifdef RAZIX_PLATFORM_WINDOWS
     #include <vulkan/vulkan_win32.h>
+#endif
 
     #define VK_LAYER_KHRONOS_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
@@ -99,6 +101,7 @@ namespace Razix {
 
     #endif    // RAZIX_DISTRIBUTION
 
+#if RAZIX_USE_VMA
             // Now create the Vulkan Memory Allocator (VMA)
             //initialize the memory allocator
             VmaAllocatorCreateInfo allocatorInfo = {};
@@ -109,6 +112,7 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[VMA] Failed to create VMA allocator!");
             else
                 RAZIX_CORE_TRACE("[VMA] Succesfully created VMA allocator!");
+#endif
 
             //-----------------------------------------------------
             // Get some memory properties of the selected physical device
@@ -116,7 +120,6 @@ namespace Razix {
 
             // Calculate total VRAM by summing up memory heap sizes
             VkDeviceSize totalVRAM          = 0;
-            VkDeviceSize totalCPUMappedVRAM = 0;
             for (uint32_t i = 0; i < gpuMemProps.memoryHeapCount; ++i) {
                 VkMemoryHeap memoryHeap = gpuMemProps.memoryHeaps[i];
                 // Consider only heaps with device-local memory flag
@@ -131,6 +134,7 @@ namespace Razix {
 
             // TODO: Use the memory type to find it's corresponding heap and print it's capacity + filter for specific memory types and cross check with total VRAM and mappable VRAM
 
+#if RAZIX_USE_VMA
             //-----------------------------------------------------
             // Total statistics of VMA
             VmaTotalStatistics totalStats{};
@@ -153,6 +157,7 @@ namespace Razix {
 
             // Free the allocated stats string
             vmaFreeStatsString(VKDevice::Get().getVMA(), statsString);
+#endif
         }
 
         void VKContext::createInstance()
@@ -248,7 +253,9 @@ namespace Razix {
 
             // Bundle all the required extensions into a vector and return it
             std::vector<cstr> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
+#ifdef RAZIX_PLATFORM_WINDOWS
             extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#endif
             extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
             extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
             // Add any custom extension from the list of supported extensions that you need and are not included by GLFW

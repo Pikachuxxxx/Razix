@@ -205,7 +205,7 @@ public:                                                  \
     type_identifier() = delete;
 
 #define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
-    ~type_identifier() = default;
+    virtual ~type_identifier() = default;
 
 // Make the Class/Struct Object Non-Copyable/Assignable
 #define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
@@ -410,6 +410,13 @@ public:                                                  \
     #define RAZIX_WARNING_DISABLE(x)
 #endif
 
+
+#if defined(__GNUC__) || defined(__clang__) // GCC or Clang
+    #define RAZIX_UNUSED [[maybe_unused]] x
+#else
+    #define RAZIX_UNUSED
+#endif
+
 #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
 
 /**
@@ -466,6 +473,10 @@ public:                                                  \
 #define in_Gib(x) (x / (1 << 30))
 #define in_Mib(x) (x / (1 << 20))
 #define in_Kib(x) (x / 1024)
+
+#ifdef RAZIX_PLATFORM_UNIX
+    #include <stddef.h> // for size_t
+#endif
 
 // Operator overload for quick expression without using macros
 static constexpr size_t operator""_Gib(unsigned long long int x)

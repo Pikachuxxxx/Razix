@@ -60,10 +60,10 @@ namespace Razix {
                     return getValueFromSubsection<T>(sectionName, KeySubKey[0], KeySubKey[1], value);
                 } else {
                     // Plain key value pairs query the variables and return
-                    auto& it = m_Sections.find(sectionName);
+                    auto it = m_Sections.find(sectionName);
                     if (it != m_Sections.end()) {
                         auto& variables = it->second.variables;
-                        auto& varIt     = variables.find(key);
+                        auto varIt     = variables.find(key);
                         if (varIt != variables.end()) {
                             if (std::holds_alternative<T>(varIt->second)) {
                                 value = std::get<T>(varIt->second);
@@ -86,13 +86,13 @@ namespace Razix {
             template<typename T>
             bool getValueFromSubsection(const std::string& sectionName, const std::string& subSection, const std::string& key, T& value)
             {
-                auto& it = m_Sections.find(sectionName);
+                auto it = m_Sections.find(sectionName);
                 if (it != m_Sections.end()) {
                     auto& subsections = it->second.subsections;
-                    auto& subsecIt    = subsections.find(subSection);
+                    auto subsecIt    = subsections.find(subSection);
                     if (subsecIt != subsections.end()) {
                         auto& variables = subsecIt->second.variables;
-                        auto& varIt     = variables.find(key);
+                        auto varIt     = variables.find(key);
                         if (varIt != variables.end()) {
                             if (std::holds_alternative<T>(varIt->second)) {
                                 value = std::get<T>(varIt->second);

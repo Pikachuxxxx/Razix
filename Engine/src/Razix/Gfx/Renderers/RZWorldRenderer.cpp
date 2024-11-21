@@ -546,7 +546,7 @@ namespace Razix {
                     for (auto& textureHandle: texturePool.getHandles()) {
                         auto textureResource = RZResourceManager::Get().getTextureResource(textureHandle);
                         ImGui::Image(textureResource->getDescriptorSet(), ImVec2(100, 100));
-                        ImGui::Text(textureResource->getDescription().name.c_str());
+                        ImGui::Text("%s", textureResource->getDescription().name.c_str());
                     }
                 }
             }
@@ -607,7 +607,6 @@ namespace Razix {
                                 };
 
                                 i32 passIndex     = 0;
-                                i32 resourceIndex = 0;
 
                                 auto passNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNodesSize();
 
@@ -623,9 +622,8 @@ namespace Razix {
                                 ImVec2 cursor      = ImGui::GetCursorScreenPos();
                                 ImVec2 passNamePos = cursor + ImVec2(resourceNameWidth, 0);
 
-                                const Gfx::FrameGraph::RZPassNode* pActivePass = nullptr;
 
-                                for (size_t i = 0; i < passNodesSize; i++) {
+                                for (u32 i = 0; i < passNodesSize; i++) {
                                     const auto& passNode         = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNode(i);
                                     const auto& passNodeName     = passNode.getName();
                                     const auto& passNodeGraphIdx = passNode.getID();
@@ -643,8 +641,8 @@ namespace Razix {
                                         {
                                             ImGui::Text("Name           : %s", passNodeName.c_str());
                                             ImGui::Text("Graph ID       : %d", passNodeGraphIdx);
-                                            ImGui::Text("Reads          : %d", passNode.getInputResources().size());
-                                            ImGui::Text("Writes         : %d", passNode.getOutputResources().size());
+                                            ImGui::Text("Reads          : %zu", passNode.getInputResources().size());
+                                            ImGui::Text("Writes         : %zu", passNode.getOutputResources().size());
                                             ImGui::Text("Standalone     : %s", passNode.isStandAlone() ? "true" : "false");
                                             ImGui::Text("Data driven    : %s", passNode.isDataDriven() ? "true" : "false");
                                         }
@@ -662,8 +660,8 @@ namespace Razix {
                                 auto resourceNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceNodesSize();
 
     #if 1
-                                for (size_t i = 0; i < resourceNodesSize; i++) {
-                                    auto idx = i;
+                                for (u32 i = 0; i < resourceNodesSize; i++) {
+                                    u32 idx = i;
                                     //resourceNode.getResourceEntryId();
                                     auto& resourceEntry = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceEntry((Gfx::FrameGraph::RZFrameGraphResource) idx);
                                     //if(resourceEntry.getModel<Graphics::FrameGraph::RZFrameGraphTexture>())
@@ -813,9 +811,6 @@ namespace Razix {
                                 ImGui::PopStyleColor(1);
 
                                 ImGui::SameLine();
-                                auto start = std::chrono::system_clock::now();
-                                // Some computation here
-                                auto        end      = std::chrono::system_clock::now();
                                 std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
                                 ImGui::Text(ICON_FA_CLOCK " current date/time : %s ", std::ctime(&end_time));
@@ -913,7 +908,7 @@ namespace Razix {
                     );
                     // clang-format on
 
-                    auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
+                    //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
                     gpuData.camera.projection         = sceneCam.getProjection();
                     gpuData.camera.inversedProjection = glm::inverse(gpuData.camera.projection);
@@ -975,8 +970,6 @@ namespace Razix {
                     RAZIX_MARK_BEGIN("Upload SceneLights", glm::vec4(0.2f, 0.2f, 0.75f, 1.0f));
 
                     GPULightsData gpuLightsData{};
-
-                    auto& registry = scene->getRegistry();
 
                     // Upload the lights data after updating some stuff such as position etc.
                     auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);

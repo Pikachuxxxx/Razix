@@ -22,8 +22,6 @@
 namespace Razix {
     namespace Gfx {
 
-        static constexpr u32 MAX_DESCRIPTOR_SET_COUNT = 2500;
-
         static void CmdBeginRenderingKHR(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo)
         {
             auto func = (PFN_vkCmdBeginRenderingKHR) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdBeginRenderingKHR");
@@ -76,7 +74,8 @@ namespace Razix {
                 ImGui::Text("Vendor ID          : %s", std::to_string(m_PhysicalDeviceProperties.vendorID).c_str());
                 ImGui::Text("Device Type        : %s", std::string(VKDevice::Get().getPhysicalDevice()->getPhysicalDeviceTypeString(m_PhysicalDeviceProperties.deviceType)).c_str());
                 ImGui::Text("Driver Version     : %d.%d.%d", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
-
+                
+#if RAZIX_USE_VMA
                 ImGui::Separator();
 
                 auto gpuMemProps = VKDevice::Get().getPhysicalDevice()->getMemoryProperties();
@@ -106,6 +105,7 @@ namespace Razix {
                     VmaTotalStatistics totalStats{};
                     vmaCalculateStatistics(VKDevice::Get().getVMA(), &totalStats);
                 }
+#endif
             }
             ImGui::End();
         }
@@ -430,6 +430,7 @@ namespace Razix {
             // Note: dstSet for each descriptor set write is left at zero as this is ignored when using push descriptors
 
             for (auto& desc: descriptors) {
+                RAZIX_UNREF_VAR(desc);
                 VkWriteDescriptorSet writeSet{};
 
                 for (auto& descriptor: descriptors) {

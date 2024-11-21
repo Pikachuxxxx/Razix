@@ -406,7 +406,9 @@ namespace Razix {
         void VKDevice::destroy()
         {
             // Destroy VMA
+#if RAZIX_USE_VMA
             vmaDestroyAllocator(m_VMAllocator);
+#endif
 
             vkDestroyDescriptorPool(m_Device, m_GlobalDescriptorPool, nullptr);
             vkDestroyDescriptorPool(m_Device, m_BindlessDescriptorPool, nullptr);

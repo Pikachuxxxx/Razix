@@ -315,6 +315,9 @@ project "Razix"
             -- platform sepecific implementatioon
             "src/Razix/Platform/MacOS/*.h",
             "src/Razix/Platform/MacOS/*.cpp",
+            
+            "src/Razix/Platform/Unix/*.h",
+            "src/Razix/Platform/Unix/*.cpp",
 
             "src/Razix/Platform/GLFW/*.h",
             "src/Razix/Platform/GLFW/*.cpp",
@@ -347,7 +350,6 @@ project "Razix"
             "../"
         }
 
-        -- Windows specific library directories
         libdirs
         {
             VulkanSDK .. "/lib"
@@ -357,7 +359,28 @@ project "Razix"
         links
         {
             -- Render API
-            "vulkan"
+            "vulkan",
+            "IOKit.framework",
+            "CoreFoundation.framework",
+            "CoreVideo.framework",
+            "CoreGraphics.framework",
+            "AppKit.framework",
+            "SystemConfiguration.framework"
+        }
+        
+        -- Apple Clang compiler options
+        buildoptions
+        {
+            "-Wno-error=switch-enum"
+        }
+        
+                
+        -- TEMP TEMP TEMP TEMP TEMP
+        postbuildcommands
+        {
+            -- copy vulkan DLL until we use volk
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"',
         }
         
         filter "files:**.c"
@@ -366,7 +389,6 @@ project "Razix"
             flags { "NoPCH" }
         filter "files:**.mm"
             flags { "NoPCH" }
-        
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
@@ -375,23 +397,27 @@ project "Razix"
         runtime "Debug"
         optimize "Off"
 
-        links
-        {
-            "WinPixEventRuntime",
-            "WinPixEventRuntime_UAP"
-        }
+        filter "system:windows"
+            links
+            {
+                "WinPixEventRuntime",
+                "WinPixEventRuntime_UAP"
+            }
+        filter {}
 
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
         runtime "Release"
-
-        links
-        {
-            "WinPixEventRuntime",
-            "WinPixEventRuntime_UAP"
-        }
+        
+        filter "system:windows"
+            links
+            {
+                "WinPixEventRuntime",
+                "WinPixEventRuntime_UAP"
+            }
+        filter {}
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }

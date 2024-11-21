@@ -921,7 +921,7 @@ namespace Razix {
                         layout.push<int>(name);
                         break;
                     case VK_FORMAT_R32_SFLOAT:
-                        layout.push<FLOAT>(name);
+                        layout.push<float>(name);
                         break;
                     case VK_FORMAT_R32G32_SFLOAT:
                         layout.push<glm::vec2>(name);
@@ -950,6 +950,9 @@ namespace Razix {
                         break;
                     case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                         return DescriptorType::UniformBuffer;
+                        break;
+                    default:
+                        return DescriptorType::kNone;
                         break;
                 }
 
